@@ -13,14 +13,14 @@ Section bi.
     Implicit Types P : PROP.
     Implicit Types Φ : K → PROP.
 
-    Lemma big_sepMS_insert_1 {Φ} x s :
+    Lemma big_sepMS𑁒insert₁ {Φ} x s :
       ([∗ mset] y ∈ ({[+x+]} ⊎ s), Φ y) ⊢
         Φ x ∗
         [∗ mset] y ∈ s, Φ y.
     Proof.
       rewrite big_sepMS_insert //.
     Qed.
-    Lemma big_sepMS_insert_2 {Φ} x s :
+    Lemma big_sepMS𑁒insert₂ {Φ} x s :
       ([∗ mset] y ∈ s, Φ y) -∗
       Φ x -∗
       [∗ mset] y ∈ ({[+x+]} ⊎ s), Φ y.
@@ -28,7 +28,7 @@ Section bi.
       rewrite big_sepMS_insert. iSteps.
     Qed.
 
-    Lemma big_sepMS_delete_1 {Φ} x s :
+    Lemma big_sepMS𑁒delete₁ {Φ} x s :
       x ∈ s →
       ([∗ mset] y ∈ s, Φ y) ⊢
         Φ x ∗
@@ -37,7 +37,7 @@ Section bi.
       intros.
       rewrite big_sepMS_delete //.
     Qed.
-    Lemma big_sepMS_delete_2 {Φ} x s :
+    Lemma big_sepMS𑁒delete₂ {Φ} x s :
       x ∈ s →
       ([∗ mset] y ∈ (s ∖ {[+x+]}), Φ y) -∗
       Φ x -∗
@@ -48,7 +48,7 @@ Section bi.
       iSteps.
     Qed.
 
-    Lemma big_sepMS_disj_union_list {Φ} ss :
+    Lemma big_sepMS𑁒disj_union_list {Φ} ss :
       ([∗ mset] x ∈ ⋃+ ss, Φ x) ⊣⊢
       [∗ list] s ∈ ss, [∗ mset] x ∈ s, Φ x.
     Proof.
@@ -59,17 +59,17 @@ Section bi.
         all: iIntros "($ & H)".
         all: iApply ("IH" with "H").
     Qed.
-    Lemma big_sepMS_disj_union_list_1 {Φ} ss :
+    Lemma big_sepMS𑁒disj_union_list₁ {Φ} ss :
       ([∗ mset] x ∈ ⋃+ ss, Φ x) ⊢
       [∗ list] s ∈ ss, [∗ mset] x ∈ s, Φ x.
     Proof.
-      rewrite big_sepMS_disj_union_list //.
+      rewrite big_sepMS𑁒disj_union_list //.
     Qed.
-    Lemma big_sepMS_disj_union_list_2 {Φ} ss :
+    Lemma big_sepMS𑁒disj_union_list₂ {Φ} ss :
       ([∗ list] s ∈ ss, [∗ mset] x ∈ s, Φ x) ⊢
       [∗ mset] x ∈ ⋃+ ss, Φ x.
     Proof.
-      rewrite big_sepMS_disj_union_list //.
+      rewrite big_sepMS𑁒disj_union_list //.
     Qed.
   End big_sepMS.
 End bi.

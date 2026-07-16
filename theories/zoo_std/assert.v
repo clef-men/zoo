@@ -7,8 +7,8 @@ Definition assert : val :=
     if: ~ "b" then
       Fail.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
 
   Lemma assert𑁒spec (b : bool) Φ :
     b = true →
@@ -17,6 +17,6 @@ Section zoo_G.
   Proof.
     iSteps.
   Qed.
-End zoo_G.
+End zoo۰G.
 
 #[global] Opaque assert.

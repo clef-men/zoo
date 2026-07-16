@@ -3,7 +3,8 @@ Require Export zoo.program_logic.wp.
 Require Import zoo.options.
 
 Class iType (PROP : bi) (τ : val → PROP) :=
-  { #[global] itype_persistent v :: Persistent (τ v)
+  { #[global] itype𑁒persistent v ::
+      Persistent (τ v)
   }.
 
 Section basic.
@@ -11,80 +12,80 @@ Section basic.
 
   Implicit Types v : val.
 
-  Definition itype_unit v : PROP :=
+  Definition itype۰unit v : PROP :=
     ⌜v = ValUnit⌝.
-  #[global] Instance itype_unit_itype :
-    iType _ itype_unit.
+  #[global] Instance itype۰unit𑁒itype :
+    iType _ itype۰unit.
   Proof.
     split. apply _.
   Qed.
 
-  Definition itype_bool v : PROP :=
+  Definition itype۰bool v : PROP :=
     ∃ b, ⌜v = ValBool b⌝.
-  #[global] Instance itype_bool_itype :
-    iType _ itype_bool.
+  #[global] Instance itype۰bool𑁒itype :
+    iType _ itype۰bool.
   Proof.
     split. apply _.
   Qed.
 
-  Definition itype_int v : PROP :=
+  Definition itype۰int v : PROP :=
     ∃ i, ⌜v = ValInt i⌝.
-  #[global] Instance itype_int_itype :
-    iType _ itype_int.
+  #[global] Instance itype۰int𑁒itype :
+    iType _ itype۰int.
   Proof.
     split. apply _.
   Qed.
 
-  Definition itype_refined_int ϕ v : PROP :=
+  Definition itype۰refined_int ϕ v : PROP :=
     ∃ i, ⌜v = ValInt i ∧ ϕ i⌝.
-  #[global] Instance itype_refined_int_itype ϕ :
-    iType _ (itype_refined_int ϕ).
+  #[global] Instance itype۰refined_int𑁒itype ϕ :
+    iType _ (itype۰refined_int ϕ).
   Proof.
     split. apply _.
   Qed.
 
-  Definition itype_int_range lb ub :=
-    itype_refined_int (λ i, (lb ≤ i < ub)%Z).
+  Definition itype۰int_range lb ub :=
+    itype۰refined_int (λ i, (lb ≤ i < ub)%Z).
 
-  Definition itype_nat v : PROP :=
+  Definition itype۰nat v : PROP :=
     ∃ i, ⌜v = ValInt ⁺i⌝.
-  #[global] Instance itype_nat_itype :
-    iType _ itype_nat.
+  #[global] Instance itype۰nat𑁒itype :
+    iType _ itype۰nat.
   Proof.
     split. apply _.
   Qed.
 
-  Definition itype_refined_nat ϕ v : PROP :=
+  Definition itype۰refined_nat ϕ v : PROP :=
     ∃ i, ⌜v = ValInt ⁺i ∧ ϕ i⌝.
-  #[global] Instance itype_refined_nat_itype ϕ :
-    iType _ (itype_refined_nat ϕ).
+  #[global] Instance itype۰refined_nat𑁒itype ϕ :
+    iType _ (itype۰refined_nat ϕ).
   Proof.
     split. apply _.
   Qed.
 
-  Definition itype_nat_range lb ub :=
-    itype_refined_nat (λ i, lb ≤ i < ub).
-  Definition itype_nat_upto ub :=
-    itype_refined_nat (λ i, i < ub).
+  Definition itype۰nat_range lb ub :=
+    itype۰refined_nat (λ i, lb ≤ i < ub).
+  Definition itype۰nat_upto ub :=
+    itype۰refined_nat (λ i, i < ub).
 End basic.
 
 Section other.
-  Context `{zoo_G : !ZooG Σ}.
+  Context `{zoo۰G : !ZooG Σ}.
 
   Implicit Types v fn : val.
 
-  Definition itype_fun τ1 `{!iType _ τ1} τ2 `{!iType _ τ2} fn : iProp Σ :=
+  Definition itype۰fun τ1 `{!iType _ τ1} τ2 `{!iType _ τ2} fn : iProp Σ :=
     □ (∀ v, τ1 v -∗ WP App (Val fn) (Val v) {{ τ2 }}).
-  #[global] Instance itype_fun_itype τ1 `{!iType _ τ1} τ2 `{!iType _ τ2} :
-    iType _ (itype_fun τ1 τ2).
+  #[global] Instance itype۰fun𑁒itype τ1 `{!iType _ τ1} τ2 `{!iType _ τ2} :
+    iType _ (itype۰fun τ1 τ2).
   Proof.
     split. apply _.
   Qed.
 
-  Definition itype_later τ `{!iType _ τ} v : iProp Σ :=
+  Definition itype۰later τ `{!iType _ τ} v : iProp Σ :=
     ▷ τ v.
-  #[global] Instance itype_later_itype τ `{!iType _ τ} :
-    iType _ (itype_later τ).
+  #[global] Instance itype۰later𑁒itype τ `{!iType _ τ} :
+    iType _ (itype۰later τ).
   Proof.
     split. apply _.
   Qed.
@@ -94,8 +95,8 @@ Declare Scope zoo_itype.
 Delimit Scope zoo_itype with T.
 
 Infix "-->" := (
-  itype_fun
+  itype۰fun
 ) : zoo_itype.
 Notation "▷ τ" := (
-  itype_later τ
+  itype۰later τ
 ) : zoo_itype.

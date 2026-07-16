@@ -8,9 +8,9 @@ Require Import zoo.options.
 
 Implicit Types str pref suff var val : string.
 
-Definition format_env :=
+Definition format۰env :=
   gmap string string.
-Implicit Types env : format_env.
+Implicit Types env : format۰env.
 
 Module parse.
   Notation assign :=
@@ -124,12 +124,12 @@ Module parse.
     go env str "".
 End parse.
 
-Definition format_env_of_bindings bdgs env :=
+Definition format۰env۰of_bindings bdgs env :=
   foldr (λ p, <[p.1 := p.2]>) env bdgs.
-Definition format_env_of_strings strs :=
-  format_env_of_bindings (parse.binding <$> strs).
-Definition format_env_of_string str :=
-  format_env_of_strings (String.words str).
+Definition format۰env۰of_strings strs :=
+  format۰env۰of_bindings (parse.binding <$> strs).
+Definition format۰env۰of_string str :=
+  format۰env۰of_strings (String.words str).
 
 Definition format fmt env :=
   parse.format env fmt.

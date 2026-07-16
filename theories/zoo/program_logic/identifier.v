@@ -4,7 +4,7 @@ Require Import zoo.options.
 
 Definition identifier :=
   prophet_id.
-Canonical identifier_O {SI : sidx} :=
+Canonical identifier۰O {SI : sidx} :=
   leibnizO identifier.
 
 Implicit Types id : identifier.
@@ -20,28 +20,28 @@ Notation ValId id := (
 )(only parsing
 ).
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
 
-  Definition identifier_model id : iProp Σ :=
+  Definition identifier۰model id : iProp Σ :=
     ∃ prophs,
-    prophet_model id prophs.
+    prophet۰model id prophs.
 
-  #[global] Instance identifier_model_timeless id :
-    Timeless (identifier_model id).
+  #[global] Instance identifier۰model𑁒timeless id :
+    Timeless (identifier۰model id).
   Proof.
     apply _.
   Qed.
 
-  Lemma identifier_model_exclusive id :
-    identifier_model id -∗
-    identifier_model id -∗
+  Lemma identifier۰model𑁒exclusive id :
+    identifier۰model id -∗
+    identifier۰model id -∗
     False.
   Proof.
     iSteps.
   Qed.
 
-  Lemma wp_id E :
+  Lemma wp𑁒id E :
     {{{
       True
     }}}
@@ -49,11 +49,11 @@ Section zoo_G.
     {{{
       id
     , RET #id;
-      identifier_model id
+      identifier۰model id
     }}}.
   Proof.
     iSteps.
   Qed.
-End zoo_G.
+End zoo۰G.
 
-#[global] Opaque identifier_model.
+#[global] Opaque identifier۰model.

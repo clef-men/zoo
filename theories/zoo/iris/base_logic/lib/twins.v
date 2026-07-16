@@ -6,279 +6,279 @@ Require Import zoo.iris.diaframe.
 Require Import zoo.options.
 
 Class TwinsG Σ F :=
-  { #[local] twins_G_inG :: inG Σ (twins_R $ oFunctor_apply F $ iPropO Σ)
+  { #[local] twins۰G۰inG :: inG Σ (twins۰R $ oFunctor_apply F $ iPropO Σ)
   }.
 
-Definition twins_Σ F `{!oFunctorContractive F} :=
-  #[GFunctor (twins_RF F)
+Definition twins۰Σ F `{!oFunctorContractive F} :=
+  #[GFunctor (twins۰RF F)
   ].
-#[global] Instance subG_twins_Σ Σ F `{!oFunctorContractive F} :
-  subG (twins_Σ F) Σ →
+#[global] Instance subG𑁒twins۰Σ Σ F `{!oFunctorContractive F} :
+  subG (twins۰Σ F) Σ →
   TwinsG Σ F.
 Proof.
   solve_inG.
 Qed.
 
-Section twins_G.
-  Context `{twins_G : !TwinsG Σ F}.
+Section twins۰G.
+  Context `{twins۰G : !TwinsG Σ F}.
 
-  Definition twins_twin1 γ dq a :=
-    own γ (twins_twin1 dq a).
-  Definition twins_twin2 γ a :=
-    own γ (twins_twin2 a).
+  Definition twins۰twin₁ γ dq a :=
+    own γ (twins۰twin₁ dq a).
+  Definition twins۰twin₂ γ a :=
+    own γ (twins۰twin₂ a).
 
-  #[global] Instance twins_twin1_proper γ dq :
-    Proper ((≡) ==> (≡)) (twins_twin1 γ dq).
+  #[global] Instance twins۰twin₁𑁒proper γ dq :
+    Proper ((≡) ==> (≡)) (twins۰twin₁ γ dq).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance twins_twin2_proper γ :
-    Proper ((≡) ==> (≡)) (twins_twin2 γ).
+  #[global] Instance twins۰twin₂𑁒proper γ :
+    Proper ((≡) ==> (≡)) (twins۰twin₂ γ).
   Proof.
     solve_proper.
   Qed.
 
-  #[global] Instance twins_twin1_timeless γ dq a :
+  #[global] Instance twins۰twin₁𑁒timeless γ dq a :
     Discrete a →
-    Timeless (twins_twin1 γ dq a).
+    Timeless (twins۰twin₁ γ dq a).
   Proof.
     apply _.
   Qed.
-  #[global] Instance twins_twin2_timeless γ a :
+  #[global] Instance twins۰twin₂𑁒timeless γ a :
     Discrete a →
-    Timeless (twins_twin2 γ a).
+    Timeless (twins۰twin₂ γ a).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance twins_twin1_persistent γ a :
-    Persistent (twins_twin1 γ DfracDiscarded a).
+  #[global] Instance twins۰twin₁𑁒persistent γ a :
+    Persistent (twins۰twin₁ γ DfracDiscarded a).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance twins_twin1_fractional γ a :
-    Fractional (λ q, twins_twin1 γ (DfracOwn q) a).
+  #[global] Instance twins۰twin₁𑁒fractional γ a :
+    Fractional (λ q, twins۰twin₁ γ (DfracOwn q) a).
   Proof.
-    intros ?*. rewrite -own_op -twins_twin1_dfrac_op //.
+    intros ?*. rewrite -own_op -twins۰twin₁𑁒dfrac𑁒op //.
   Qed.
-  #[global] Instance twins_twin1_as_fractional γ q a :
-    AsFractional (twins_twin1 γ (DfracOwn q) a) (λ q, twins_twin1 γ (DfracOwn q) a) q.
+  #[global] Instance twins۰twin₁𑁒as_fractional γ q a :
+    AsFractional (twins۰twin₁ γ (DfracOwn q) a) (λ q, twins۰twin₁ γ (DfracOwn q) a) q.
   Proof.
     split; [done | apply _].
   Qed.
 
-  Lemma twins_alloc a b :
+  Lemma twins𑁒alloc a b :
     a ≡ b →
     ⊢ |==>
       ∃ γ,
-      twins_twin1 γ (DfracOwn 1) a ∗
-      twins_twin2 γ b.
+      twins۰twin₁ γ (DfracOwn 1) a ∗
+      twins۰twin₂ γ b.
   Proof.
     iIntros.
-    iMod (own_alloc (twins.twins_twin1 (DfracOwn 1) a ⋅ twins.twins_twin2 b)) as "(% & ? & ?)"; first by apply twins_both_valid.
+    iMod (own_alloc (twins.twins۰twin₁ (DfracOwn 1) a ⋅ twins.twins۰twin₂ b)) as "(% & ? & ?)"; first by apply twins𑁒both𑁒valid.
     iSteps.
   Qed.
-  Lemma twins_alloc' a :
+  Lemma twins𑁒alloc' a :
     ⊢ |==>
       ∃ γ,
-      twins_twin1 γ (DfracOwn 1) a ∗ twins_twin2 γ a.
+      twins۰twin₁ γ (DfracOwn 1) a ∗ twins۰twin₂ γ a.
   Proof.
-    iApply twins_alloc. done.
+    iApply twins𑁒alloc. done.
   Qed.
 
-  Lemma twins_twin1_valid γ dq a :
-    twins_twin1 γ dq a ⊢
+  Lemma twins۰twin₁𑁒valid γ dq a :
+    twins۰twin₁ γ dq a ⊢
     ⌜✓ dq⌝.
   Proof.
-    iIntros "Htwin1".
-    iApply twins_twin1_dfrac_validI.
-    iApply (own_valid with "Htwin1").
+    iIntros "Htwin₁".
+    iApply twins۰twin₁𑁒dfrac𑁒validI.
+    iApply (own_valid with "Htwin₁").
   Qed.
-  Lemma twins_twin1_combine γ dq1 a1 dq2 a2 :
-    twins_twin1 γ dq1 a1 -∗
-    twins_twin1 γ dq2 a2 -∗
+  Lemma twins۰twin₁𑁒combine γ dq1 a1 dq2 a2 :
+    twins۰twin₁ γ dq1 a1 -∗
+    twins۰twin₁ γ dq2 a2 -∗
       a1 ≡ a2 ∗
-      twins_twin1 γ (dq1 ⋅ dq2) a1.
+      twins۰twin₁ γ (dq1 ⋅ dq2) a1.
   Proof.
-    iIntros "Htwin11 Htwin12". iCombine "Htwin11 Htwin12" as "Htwin1".
-    iDestruct (own_valid with "Htwin1") as "#Hvalid".
-    iDestruct (twins_twin1_dfrac_op_validI with "Hvalid") as "(% & Hequiv)".
-    iRewrite -"Hequiv" in "Htwin1". rewrite -twins_twin1_dfrac_op.
+    iIntros "Htwin₁1 Htwin₁2". iCombine "Htwin₁1 Htwin₁2" as "Htwin₁".
+    iDestruct (own_valid with "Htwin₁") as "#Hvalid".
+    iDestruct (twins۰twin₁𑁒dfrac𑁒op𑁒validI with "Hvalid") as "(% & Hequiv)".
+    iRewrite -"Hequiv" in "Htwin₁". rewrite -twins۰twin₁𑁒dfrac𑁒op.
     auto.
   Qed.
-  Lemma twins_twin1_valid_2 γ dq1 a1 dq2 a2 :
-    twins_twin1 γ dq1 a1 -∗
-    twins_twin1 γ dq2 a2 -∗
+  Lemma twins۰twin₁𑁒valid𑁒2 γ dq1 a1 dq2 a2 :
+    twins۰twin₁ γ dq1 a1 -∗
+    twins۰twin₁ γ dq2 a2 -∗
       ⌜✓ (dq1 ⋅ dq2)⌝ ∗
       a1 ≡ a2.
   Proof.
-    iIntros "Htwin11 Htwin12".
-    iDestruct (twins_twin1_combine with "Htwin11 Htwin12") as "($ & Htwin1)".
-    iDestruct (twins_twin1_valid with "Htwin1") as "$".
+    iIntros "Htwin₁1 Htwin₁2".
+    iDestruct (twins۰twin₁𑁒combine with "Htwin₁1 Htwin₁2") as "($ & Htwin₁)".
+    iDestruct (twins۰twin₁𑁒valid with "Htwin₁") as "$".
   Qed.
-  Lemma twins_twin1_agree γ dq1 a1 dq2 a2 :
-    twins_twin1 γ dq1 a1 -∗
-    twins_twin1 γ dq2 a2 -∗
+  Lemma twins۰twin₁𑁒agree γ dq1 a1 dq2 a2 :
+    twins۰twin₁ γ dq1 a1 -∗
+    twins۰twin₁ γ dq2 a2 -∗
     a1 ≡ a2.
   Proof.
-    iIntros "Htwin11 Htwin12".
-    iDestruct (twins_twin1_valid_2 with "Htwin11 Htwin12") as "(_ & $)".
+    iIntros "Htwin₁1 Htwin₁2".
+    iDestruct (twins۰twin₁𑁒valid𑁒2 with "Htwin₁1 Htwin₁2") as "(_ & $)".
   Qed.
-  Lemma twins_twin1_dfrac_ne γ1 dq1 a1 γ2 dq2 a2 :
+  Lemma twins۰twin₁𑁒dfrac𑁒ne γ1 dq1 a1 γ2 dq2 a2 :
     ¬ ✓ (dq1 ⋅ dq2) →
-    twins_twin1 γ1 dq1 a1 -∗
-    twins_twin1 γ2 dq2 a2 -∗
+    twins۰twin₁ γ1 dq1 a1 -∗
+    twins۰twin₁ γ2 dq2 a2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    iIntros "% Htwin11 Htwin12 ->".
-    iDestruct (twins_twin1_valid_2 with "Htwin11 Htwin12") as "(% & _)". done.
+    iIntros "% Htwin₁1 Htwin₁2 ->".
+    iDestruct (twins۰twin₁𑁒valid𑁒2 with "Htwin₁1 Htwin₁2") as "(% & _)". done.
   Qed.
-  Lemma twins_twin1_ne γ1 a1 γ2 dq2 a2 :
-    twins_twin1 γ1 (DfracOwn 1) a1 -∗
-    twins_twin1 γ2 dq2 a2 -∗
+  Lemma twins۰twin₁𑁒ne γ1 a1 γ2 dq2 a2 :
+    twins۰twin₁ γ1 (DfracOwn 1) a1 -∗
+    twins۰twin₁ γ2 dq2 a2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    iApply twins_twin1_dfrac_ne; [done.. | intros []%(exclusive_l _)].
+    iApply twins۰twin₁𑁒dfrac𑁒ne; [done.. | intros []%(exclusive_l _)].
   Qed.
-  Lemma twins_twin1_exclusive γ a1 dq2 a2 :
-    twins_twin1 γ (DfracOwn 1) a1 -∗
-    twins_twin1 γ dq2 a2 -∗
+  Lemma twins۰twin₁𑁒exclusive γ a1 dq2 a2 :
+    twins۰twin₁ γ (DfracOwn 1) a1 -∗
+    twins۰twin₁ γ dq2 a2 -∗
     False.
   Proof.
-    iIntros "Htwin11 Htwin12".
-    iDestruct (twins_twin1_ne with "Htwin11 Htwin12") as %?. done.
+    iIntros "Htwin₁1 Htwin₁2".
+    iDestruct (twins۰twin₁𑁒ne with "Htwin₁1 Htwin₁2") as %?. done.
   Qed.
-  Lemma twins_twin1_persist γ dq a :
-    twins_twin1 γ dq a ⊢ |==>
-    twins_twin1 γ DfracDiscarded a.
+  Lemma twins۰twin₁𑁒persist γ dq a :
+    twins۰twin₁ γ dq a ⊢ |==>
+    twins۰twin₁ γ DfracDiscarded a.
   Proof.
-    apply own_update, twins_twin1_persist.
+    apply own_update, twins۰twin₁𑁒persist.
   Qed.
 
-  Lemma twins_twin2_exclusive γ a1 a2 :
-    twins_twin2 γ a1 -∗
-    twins_twin2 γ a2 -∗
+  Lemma twins۰twin₂𑁒exclusive γ a1 a2 :
+    twins۰twin₂ γ a1 -∗
+    twins۰twin₂ γ a2 -∗
     False.
   Proof.
-    iIntros "Htwin21 Htwin22".
-    iApply twins_twin2_op_validI.
-    iApply (own_valid_2 with "Htwin21 Htwin22").
+    iIntros "Htwin₂1 Htwin₂2".
+    iApply twins۰twin₂𑁒op𑁒validI.
+    iApply (own_valid_2 with "Htwin₂1 Htwin₂2").
   Qed.
 
-  Lemma twins_agree γ dq a b :
-    twins_twin1 γ dq a -∗
-    twins_twin2 γ b -∗
+  Lemma twins𑁒agree γ dq a b :
+    twins۰twin₁ γ dq a -∗
+    twins۰twin₂ γ b -∗
     a ≡ b.
   Proof.
-    iIntros "Htwin1 Htwin2".
-    iDestruct (own_valid_2 with "Htwin1 Htwin2") as "Hvalid".
-    iDestruct (twins_both_dfrac_validI with "Hvalid") as "(_ & $)".
+    iIntros "Htwin₁ Htwin₂".
+    iDestruct (own_valid_2 with "Htwin₁ Htwin₂") as "Hvalid".
+    iDestruct (twins𑁒both𑁒dfrac𑁒validI with "Hvalid") as "(_ & $)".
   Qed.
 
   Section ofe_discrete.
     Context `{!OfeDiscrete $ oFunctor_apply F $ iPropO Σ}.
 
-    Lemma twins_twin1_combine_discrete γ dq1 a1 dq2 a2 :
-      twins_twin1 γ dq1 a1 -∗
-      twins_twin1 γ dq2 a2 -∗
+    Lemma twins۰twin₁𑁒combine𑁒discrete γ dq1 a1 dq2 a2 :
+      twins۰twin₁ γ dq1 a1 -∗
+      twins۰twin₁ γ dq2 a2 -∗
         ⌜a1 ≡ a2⌝ ∗
-        twins_twin1 γ (dq1 ⋅ dq2) a1.
+        twins۰twin₁ γ (dq1 ⋅ dq2) a1.
     Proof.
-      rewrite -discrete_eq -twins_twin1_combine //.
+      rewrite -discrete_eq -twins۰twin₁𑁒combine //.
     Qed.
-    Lemma twins_twin1_valid_2_discrete γ dq1 a1 dq2 a2 :
-      twins_twin1 γ dq1 a1 -∗
-      twins_twin1 γ dq2 a2 -∗
+    Lemma twins۰twin₁𑁒valid𑁒2𑁒discrete γ dq1 a1 dq2 a2 :
+      twins۰twin₁ γ dq1 a1 -∗
+      twins۰twin₁ γ dq2 a2 -∗
         ⌜✓ (dq1 ⋅ dq2)⌝ ∗
         ⌜a1 ≡ a2⌝.
     Proof.
-      rewrite -discrete_eq -twins_twin1_valid_2 //.
+      rewrite -discrete_eq -twins۰twin₁𑁒valid𑁒2 //.
     Qed.
-    Lemma twins_twin1_agree_discrete γ dq1 a1 dq2 a2 :
-      twins_twin1 γ dq1 a1 -∗
-      twins_twin1 γ dq2 a2 -∗
+    Lemma twins۰twin₁𑁒agree𑁒discrete γ dq1 a1 dq2 a2 :
+      twins۰twin₁ γ dq1 a1 -∗
+      twins۰twin₁ γ dq2 a2 -∗
       ⌜a1 ≡ a2⌝.
     Proof.
-      rewrite -discrete_eq -twins_twin1_agree //.
+      rewrite -discrete_eq -twins۰twin₁𑁒agree //.
     Qed.
 
-    Lemma twins_agree_discrete γ dq a b :
-      twins_twin1 γ dq a -∗
-      twins_twin2 γ b -∗
+    Lemma twins𑁒agree𑁒discrete γ dq a b :
+      twins۰twin₁ γ dq a -∗
+      twins۰twin₂ γ b -∗
       ⌜a ≡ b⌝.
     Proof.
-      rewrite -discrete_eq -twins_agree //.
+      rewrite -discrete_eq -twins𑁒agree //.
     Qed.
 
     Section leibniz_equiv.
       Context `{!LeibnizEquiv $ oFunctor_apply F $ iPropO Σ}.
 
-      Lemma twins_twin1_combine_L γ dq1 a1 dq2 a2 :
-        twins_twin1 γ dq1 a1 -∗
-        twins_twin1 γ dq2 a2 -∗
+      Lemma twins۰twin₁𑁒combine𑁒L γ dq1 a1 dq2 a2 :
+        twins۰twin₁ γ dq1 a1 -∗
+        twins۰twin₁ γ dq2 a2 -∗
           ⌜a1 = a2⌝ ∗
-          twins_twin1 γ (dq1 ⋅ dq2) a1.
+          twins۰twin₁ γ (dq1 ⋅ dq2) a1.
       Proof.
-        rewrite -leibniz_equiv_iff -twins_twin1_combine_discrete //.
+        rewrite -leibniz_equiv_iff -twins۰twin₁𑁒combine𑁒discrete //.
       Qed.
-      Lemma twins_twin1_valid_2_L γ dq1 a1 dq2 a2 :
-        twins_twin1 γ dq1 a1 -∗
-        twins_twin1 γ dq2 a2 -∗
+      Lemma twins۰twin₁𑁒valid𑁒2𑁒L γ dq1 a1 dq2 a2 :
+        twins۰twin₁ γ dq1 a1 -∗
+        twins۰twin₁ γ dq2 a2 -∗
           ⌜✓ (dq1 ⋅ dq2)⌝ ∗
           ⌜a1 = a2⌝.
       Proof.
-        rewrite -leibniz_equiv_iff -twins_twin1_valid_2_discrete //.
+        rewrite -leibniz_equiv_iff -twins۰twin₁𑁒valid𑁒2𑁒discrete //.
       Qed.
-      Lemma twins_twin1_agree_L γ dq1 a1 dq2 a2 :
-        twins_twin1 γ dq1 a1 -∗
-        twins_twin1 γ dq2 a2 -∗
+      Lemma twins۰twin₁𑁒agree𑁒L γ dq1 a1 dq2 a2 :
+        twins۰twin₁ γ dq1 a1 -∗
+        twins۰twin₁ γ dq2 a2 -∗
         ⌜a1 = a2⌝.
       Proof.
-        rewrite -leibniz_equiv_iff -twins_twin1_agree_discrete //.
+        rewrite -leibniz_equiv_iff -twins۰twin₁𑁒agree𑁒discrete //.
       Qed.
 
-      Lemma twins_agree_L γ dq a b :
-        twins_twin1 γ dq a -∗
-        twins_twin2 γ b -∗
+      Lemma twins𑁒agree𑁒L γ dq a b :
+        twins۰twin₁ γ dq a -∗
+        twins۰twin₂ γ b -∗
         ⌜a = b⌝.
       Proof.
-        rewrite -leibniz_equiv_iff -twins_agree_discrete //.
+        rewrite -leibniz_equiv_iff -twins𑁒agree𑁒discrete //.
       Qed.
     End leibniz_equiv.
   End ofe_discrete.
 
-  Lemma twins_update_equivI {γ a1 b1} a2 b2 :
-    twins_twin1 γ (DfracOwn 1) a1 -∗
-    twins_twin2 γ b1 -∗
+  Lemma twins𑁒update𑁒equivI {γ a1 b1} a2 b2 :
+    twins۰twin₁ γ (DfracOwn 1) a1 -∗
+    twins۰twin₂ γ b1 -∗
     a2 ≡ b2 ==∗
-      twins_twin1 γ (DfracOwn 1) a2 ∗
-      twins_twin2 γ b2.
+      twins۰twin₁ γ (DfracOwn 1) a2 ∗
+      twins۰twin₂ γ b2.
   Proof.
-    iIntros "Htwin1 Htwin2 Heq".
-    iMod (own_update_2 with "Htwin1 Htwin2") as "($ & Htwin2)"; first by apply twins_both_update.
-    iRewrite "Heq" in "Htwin2" => //.
+    iIntros "Htwin₁ Htwin₂ Heq".
+    iMod (own_update_2 with "Htwin₁ Htwin₂") as "($ & Htwin₂)"; first by apply twins𑁒both𑁒update.
+    iRewrite "Heq" in "Htwin₂" => //.
   Qed.
-  Lemma twins_update_equiv {γ a1 b1} a2 b2 :
+  Lemma twins𑁒update𑁒equiv {γ a1 b1} a2 b2 :
     a2 ≡ b2 →
-    twins_twin1 γ (DfracOwn 1) a1 -∗
-    twins_twin2 γ b1 ==∗
-      twins_twin1 γ (DfracOwn 1) a2 ∗
-      twins_twin2 γ b2.
+    twins۰twin₁ γ (DfracOwn 1) a1 -∗
+    twins۰twin₂ γ b1 ==∗
+      twins۰twin₁ γ (DfracOwn 1) a2 ∗
+      twins۰twin₂ γ b2.
   Proof.
-    iIntros "% Htwin1 Htwin2".
-    iApply (twins_update_equivI with "Htwin1 Htwin2").
+    iIntros "% Htwin₁ Htwin₂".
+    iApply (twins𑁒update𑁒equivI with "Htwin₁ Htwin₂").
     iSteps.
   Qed.
-  Lemma twins_update {γ a b} a' :
-    twins_twin1 γ (DfracOwn 1) a -∗
-    twins_twin2 γ b ==∗
-      twins_twin1 γ (DfracOwn 1) a' ∗
-      twins_twin2 γ a'.
+  Lemma twins𑁒update {γ a b} a' :
+    twins۰twin₁ γ (DfracOwn 1) a -∗
+    twins۰twin₂ γ b ==∗
+      twins۰twin₁ γ (DfracOwn 1) a' ∗
+      twins۰twin₂ γ a'.
   Proof.
-    iApply twins_update_equiv. done.
+    iApply twins𑁒update𑁒equiv. done.
   Qed.
-End twins_G.
+End twins۰G.
 
-#[global] Opaque twins_twin1.
-#[global] Opaque twins_twin2.
+#[global] Opaque twins۰twin₁.
+#[global] Opaque twins۰twin₂.

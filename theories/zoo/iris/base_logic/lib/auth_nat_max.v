@@ -6,174 +6,174 @@ Require Import zoo.iris.diaframe.
 Require Import zoo.options.
 
 Class AuthNatMaxG Σ :=
-  { #[local] auth_nat_max_G_mono_G :: AuthMonoiG Σ (≤)
+  { #[local] auth_nat_max۰G۰mono۰G :: AuthMonoiG Σ (≤)
   }.
 
-Definition auth_nat_max_Σ :=
-  #[auth_monoi_Σ (≤)
+Definition auth_nat_max۰Σ :=
+  #[auth_monoi۰Σ (≤)
   ].
-#[global] Instance subG_auth_nat_max_Σ Σ :
-  subG auth_nat_max_Σ Σ →
+#[global] Instance subG𑁒auth_nat_max۰Σ Σ :
+  subG auth_nat_max۰Σ Σ →
   AuthNatMaxG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section auth_nat_max_G.
-  Context `{auth_nat_max_G : !AuthNatMaxG Σ}.
+Section auth_nat_max۰G.
+  Context `{auth_nat_max۰G : !AuthNatMaxG Σ}.
 
   Implicit Types n m p : nat.
 
-  Definition auth_nat_max_auth γ dq n :=
-    auth_monoi_auth (≤) γ dq n.
-  Definition auth_nat_max_lb γ n :=
-    auth_monoi_lb (≤) γ n.
+  Definition auth_nat_max۰auth γ dq n :=
+    auth_monoi۰auth (≤) γ dq n.
+  Definition auth_nat_max۰lb γ n :=
+    auth_monoi۰lb (≤) γ n.
 
-  #[global] Instance auth_nat_max_auth_timeless γ dq n :
-    Timeless (auth_nat_max_auth γ dq n).
+  #[global] Instance auth_nat_max۰auth𑁒timeless γ dq n :
+    Timeless (auth_nat_max۰auth γ dq n).
   Proof.
     apply _.
   Qed.
-  #[global] Instance auth_nat_max_lb_timeless γ n :
-    Timeless (auth_nat_max_lb γ n).
-  Proof.
-    apply _.
-  Qed.
-
-  #[global] Instance auth_nat_max_auth_persistent γ n :
-    Persistent (auth_nat_max_auth γ DfracDiscarded n).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance auth_nat_max_lb_persistent γ n :
-    Persistent (auth_nat_max_lb γ n).
+  #[global] Instance auth_nat_max۰lb𑁒timeless γ n :
+    Timeless (auth_nat_max۰lb γ n).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance auth_nat_max_auth_fractional γ n :
-    Fractional (λ q, auth_nat_max_auth γ (DfracOwn q) n).
+  #[global] Instance auth_nat_max۰auth𑁒persistent γ n :
+    Persistent (auth_nat_max۰auth γ DfracDiscarded n).
   Proof.
     apply _.
   Qed.
-  #[global] Instance auth_nat_max_auth_as_fractional γ q n :
-    AsFractional (auth_nat_max_auth γ (DfracOwn q) n) (λ q, auth_nat_max_auth γ (DfracOwn q) n) q.
+  #[global] Instance auth_nat_max۰lb𑁒persistent γ n :
+    Persistent (auth_nat_max۰lb γ n).
   Proof.
     apply _.
   Qed.
 
-  Lemma auth_nat_max_alloc n :
+  #[global] Instance auth_nat_max۰auth𑁒fractional γ n :
+    Fractional (λ q, auth_nat_max۰auth γ (DfracOwn q) n).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance auth_nat_max۰auth𑁒as_fractional γ q n :
+    AsFractional (auth_nat_max۰auth γ (DfracOwn q) n) (λ q, auth_nat_max۰auth γ (DfracOwn q) n) q.
+  Proof.
+    apply _.
+  Qed.
+
+  Lemma auth_nat_max𑁒alloc n :
     ⊢ |==>
       ∃ γ,
-      auth_nat_max_auth γ (DfracOwn 1) n.
+      auth_nat_max۰auth γ (DfracOwn 1) n.
   Proof.
-    apply auth_monoi_alloc.
+    apply auth_monoi𑁒alloc.
   Qed.
 
-  Lemma auth_nat_max_auth_valid γ dq a :
-    auth_nat_max_auth γ dq a ⊢
+  Lemma auth_nat_max۰auth𑁒valid γ dq a :
+    auth_nat_max۰auth γ dq a ⊢
     ⌜✓ dq⌝.
   Proof.
-    apply auth_monoi_auth_valid.
+    apply auth_monoi۰auth𑁒valid.
   Qed.
-  Lemma auth_nat_max_auth_combine γ dq1 n1 dq2 n2 :
-    auth_nat_max_auth γ dq1 n1 -∗
-    auth_nat_max_auth γ dq2 n2 -∗
+  Lemma auth_nat_max۰auth𑁒combine γ dq1 n1 dq2 n2 :
+    auth_nat_max۰auth γ dq1 n1 -∗
+    auth_nat_max۰auth γ dq2 n2 -∗
       ⌜n1 = n2⌝ ∗
-      auth_nat_max_auth γ (dq1 ⋅ dq2) n1.
+      auth_nat_max۰auth γ (dq1 ⋅ dq2) n1.
   Proof.
-    apply: auth_monoi_auth_combine.
+    apply: auth_monoi۰auth𑁒combine.
   Qed.
-  Lemma auth_nat_max_auth_valid_2 γ dq1 n1 dq2 n2 :
-    auth_nat_max_auth γ dq1 n1 -∗
-    auth_nat_max_auth γ dq2 n2 -∗
+  Lemma auth_nat_max۰auth𑁒valid𑁒2 γ dq1 n1 dq2 n2 :
+    auth_nat_max۰auth γ dq1 n1 -∗
+    auth_nat_max۰auth γ dq2 n2 -∗
       ⌜✓ (dq1 ⋅ dq2)⌝ ∗
       ⌜n1 = n2⌝.
   Proof.
-    apply: auth_monoi_auth_valid_2.
+    apply: auth_monoi۰auth𑁒valid𑁒2.
   Qed.
-  Lemma auth_nat_max_auth_agree γ dq1 n1 dq2 n2 :
-    auth_nat_max_auth γ dq1 n1 -∗
-    auth_nat_max_auth γ dq2 n2 -∗
+  Lemma auth_nat_max۰auth𑁒agree γ dq1 n1 dq2 n2 :
+    auth_nat_max۰auth γ dq1 n1 -∗
+    auth_nat_max۰auth γ dq2 n2 -∗
     ⌜n1 = n2⌝.
   Proof.
-    apply: auth_monoi_auth_agree.
+    apply: auth_monoi۰auth𑁒agree.
   Qed.
-  Lemma auth_nat_max_auth_dfrac_ne γ1 dq1 n1 γ2 dq2 n2 :
+  Lemma auth_nat_max۰auth𑁒dfrac𑁒ne γ1 dq1 n1 γ2 dq2 n2 :
     ¬ ✓ (dq1 ⋅ dq2) →
-    auth_nat_max_auth γ1 dq1 n1 -∗
-    auth_nat_max_auth γ2 dq2 n2 -∗
+    auth_nat_max۰auth γ1 dq1 n1 -∗
+    auth_nat_max۰auth γ2 dq2 n2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    apply: auth_monoi_auth_dfrac_ne.
+    apply: auth_monoi۰auth𑁒dfrac𑁒ne.
   Qed.
-  Lemma auth_nat_max_auth_ne γ1 n1 γ2 dq2 n2 :
-    auth_nat_max_auth γ1 (DfracOwn 1) n1 -∗
-    auth_nat_max_auth γ2 dq2 n2 -∗
+  Lemma auth_nat_max۰auth𑁒ne γ1 n1 γ2 dq2 n2 :
+    auth_nat_max۰auth γ1 (DfracOwn 1) n1 -∗
+    auth_nat_max۰auth γ2 dq2 n2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    apply: auth_monoi_auth_ne.
+    apply: auth_monoi۰auth𑁒ne.
   Qed.
-  Lemma auth_nat_max_auth_exclusive γ n1 dq2 n2 :
-    auth_nat_max_auth γ (DfracOwn 1) n1 -∗
-    auth_nat_max_auth γ dq2 n2 -∗
+  Lemma auth_nat_max۰auth𑁒exclusive γ n1 dq2 n2 :
+    auth_nat_max۰auth γ (DfracOwn 1) n1 -∗
+    auth_nat_max۰auth γ dq2 n2 -∗
     False.
   Proof.
-    apply: auth_monoi_auth_exclusive.
+    apply: auth_monoi۰auth𑁒exclusive.
   Qed.
-  Lemma auth_nat_max_auth_persist γ dq n :
-    auth_nat_max_auth γ dq n ⊢ |==>
-    auth_nat_max_auth γ DfracDiscarded n.
+  Lemma auth_nat_max۰auth𑁒persist γ dq n :
+    auth_nat_max۰auth γ dq n ⊢ |==>
+    auth_nat_max۰auth γ DfracDiscarded n.
   Proof.
-    apply auth_monoi_auth_persist.
+    apply auth_monoi۰auth𑁒persist.
   Qed.
 
-  Lemma auth_nat_max_lb_0 γ :
+  Lemma auth_nat_max۰lb𑁒0 γ :
     ⊢ |==>
-      auth_nat_max_lb γ 0.
+      auth_nat_max۰lb γ 0.
   Proof.
-    apply auth_monoi_lb_initial.
+    apply auth_monoi۰lb𑁒initial.
   Qed.
-  Lemma auth_nat_max_lb_get γ q n :
-    auth_nat_max_auth γ q n ⊢
-    auth_nat_max_lb γ n.
+  Lemma auth_nat_max۰lb𑁒get γ q n :
+    auth_nat_max۰auth γ q n ⊢
+    auth_nat_max۰lb γ n.
   Proof.
-    apply auth_monoi_lb_get.
+    apply auth_monoi۰lb𑁒get.
   Qed.
-  Lemma auth_nat_max_lb_le {γ n} n' :
+  Lemma auth_nat_max۰lb𑁒le {γ n} n' :
     n' ≤ n →
-    auth_nat_max_lb γ n ⊢
-    auth_nat_max_lb γ n'.
+    auth_nat_max۰lb γ n ⊢
+    auth_nat_max۰lb γ n'.
   Proof.
-    apply auth_monoi_lb_mono'.
+    apply auth_monoi۰lb𑁒mono'.
   Qed.
-  Lemma auth_nat_max_lb_max γ n1 n2 :
-    auth_nat_max_lb γ n1 -∗
-    auth_nat_max_lb γ n2 -∗
-    auth_nat_max_lb γ (n1 `max` n2).
+  Lemma auth_nat_max۰lb𑁒max γ n1 n2 :
+    auth_nat_max۰lb γ n1 -∗
+    auth_nat_max۰lb γ n2 -∗
+    auth_nat_max۰lb γ (n1 `max` n2).
   Proof.
     iIntros "Hlb_1 Hlb_2".
     destruct (Nat.max_spec n1 n2) as [(_ & ->) | (_ & ->)] => //.
   Qed.
 
-  Lemma auth_nat_max_lb_valid γ dq n m :
-    auth_nat_max_auth γ dq n -∗
-    auth_nat_max_lb γ m -∗
+  Lemma auth_nat_max۰lb𑁒valid γ dq n m :
+    auth_nat_max۰auth γ dq n -∗
+    auth_nat_max۰lb γ m -∗
     ⌜m ≤ n⌝.
   Proof.
     iIntros "Hauth Hlb".
-    iDestruct (auth_monoi_lb_valid with "Hauth Hlb") as %Hrtc.
-    rewrite preorder_rtc in Hrtc. iSteps.
+    iDestruct (auth_monoi۰lb𑁒valid with "Hauth Hlb") as %Hrtc.
+    rewrite preorder𑁒rtc in Hrtc. iSteps.
   Qed.
 
-  Lemma auth_nat_max_update {γ n} n' :
+  Lemma auth_nat_max𑁒update {γ n} n' :
     n ≤ n' →
-    auth_nat_max_auth γ (DfracOwn 1) n ⊢ |==>
-    auth_nat_max_auth γ (DfracOwn 1) n'.
+    auth_nat_max۰auth γ (DfracOwn 1) n ⊢ |==>
+    auth_nat_max۰auth γ (DfracOwn 1) n'.
   Proof.
-    apply auth_monoi_update'.
+    apply auth_monoi𑁒update'.
   Qed.
-End auth_nat_max_G.
+End auth_nat_max۰G.
 
-#[global] Opaque auth_nat_max_auth.
-#[global] Opaque auth_nat_max_lb.
+#[global] Opaque auth_nat_max۰auth.
+#[global] Opaque auth_nat_max۰lb.

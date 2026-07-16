@@ -11,7 +11,7 @@ Section cmra.
   Implicit Types a : A.
   Implicit Types b : B.
 
-  Lemma view_auth_frag_dfrac_op dq1 a1 b1 dq2 a2 b2 :
+  Lemma view𑁒auth𑁒frag𑁒dfrac𑁒op dq1 a1 b1 dq2 a2 b2 :
     ●V{dq1} a1 ⋅ ◯V b1 ≡@{view rel} ●V{dq2} a2 ⋅ ◯V b2 ↔
     dq1 = dq2 ∧ a1 ≡ a2 ∧ b1 ≡ b2.
   Proof.
@@ -21,10 +21,10 @@ Section cmra.
       apply (inj Some) in Hauth as (-> & ->%(inj to_agree)). done.
     - intros (-> & -> & ->). done.
   Qed.
-  Lemma view_auth_frag_op a1 b1 a2 b2 :
+  Lemma view𑁒auth𑁒frag𑁒op a1 b1 a2 b2 :
     ●V a1 ⋅ ◯V b1 ≡@{view rel} ●V a2 ⋅ ◯V b2 ↔
     a1 ≡ a2 ∧ b1 ≡ b2.
   Proof.
-    rewrite view_auth_frag_dfrac_op. naive_solver.
+    rewrite view𑁒auth𑁒frag𑁒dfrac𑁒op. naive_solver.
   Qed.
 End cmra.

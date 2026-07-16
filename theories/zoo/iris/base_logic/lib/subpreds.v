@@ -8,31 +8,31 @@ Require Import zoo.iris.diaframe.
 Require Import zoo.options.
 
 Class SubpredsG Σ A :=
-  { #[local] subpreds_G_auth_dgset_G :: AuthDgsetG Σ gname
-  ; #[local] subpreds_G_saved_pred_G :: SavedPredG Σ A
+  { #[local] subpreds۰G۰auth_dgset۰G :: AuthDgsetG Σ gname
+  ; #[local] subpreds۰G۰saved_pred۰G :: SavedPredG Σ A
   }.
 
-Definition subpreds_Σ A :=
-  #[auth_dgset_Σ gname
-  ; saved_pred_Σ A
+Definition subpreds۰Σ A :=
+  #[auth_dgset۰Σ gname
+  ; saved_pred۰Σ A
   ].
-#[global] Instance subG_subpreds_Σ Σ A :
-  subG (subpreds_Σ A) Σ →
+#[global] Instance subG𑁒subpreds۰Σ Σ A :
+  subG (subpreds۰Σ A) Σ →
   SubpredsG Σ A.
 Proof.
   solve_inG.
 Qed.
 
-Section subpreds_G.
-  Context `{subpreds_G : !SubpredsG Σ A}.
+Section subpreds۰G.
+  Context `{subpreds۰G : !SubpredsG Σ A}.
 
   Implicit Types state : option A.
   Implicit Types η : gname.
   Implicit Types Ψ Χ : A → iProp Σ.
 
-  Definition subpreds_auth γ Ψ state : iProp Σ :=
+  Definition subpreds۰auth γ Ψ state : iProp Σ :=
     ∃ ηs,
-    auth_dgset_auth γ (DfracOwn 1) ηs ∗
+    auth_dgset۰auth γ (DfracOwn 1) ηs ∗
       ∀ x,
       (if state is Some y then ⌜x = y⌝ else Ψ x) -∗
       [∗ set] η ∈ ηs,
@@ -46,9 +46,9 @@ Section subpreds_G.
       )
     ".
 
-  Definition subpreds_frag γ Χ : iProp Σ :=
+  Definition subpreds۰frag γ Χ : iProp Σ :=
     ∃ η,
-    auth_dgset_frag γ {[η]} ∗
+    auth_dgset۰frag γ {[η]} ∗
     saved_pred η Χ.
   #[local] Instance : CustomIpat "frag" :=
     " ( %η{}
@@ -57,72 +57,72 @@ Section subpreds_G.
       )
     ".
 
-  #[global] Instance subpreds_auth_ne γ n :
+  #[global] Instance subpreds۰auth𑁒ne γ n :
     Proper (
       (pointwise_relation _ (≡{n}≡)) ==>
       (=) ==>
       (≡{n}≡)
-    ) (subpreds_auth γ).
+    ) (subpreds۰auth γ).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance subpreds_auth_proper γ :
+  #[global] Instance subpreds۰auth𑁒proper γ :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (=) ==>
       (≡)
-    ) (subpreds_auth γ).
+    ) (subpreds۰auth γ).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance subpreds_frag_contractive γ n :
+  #[global] Instance subpreds۰frag𑁒contractive γ n :
     Proper (
       (pointwise_relation _ (dist_later n)) ==>
       (≡{n}≡)
-    ) (subpreds_frag γ).
+    ) (subpreds۰frag γ).
   Proof.
     solve_contractive.
   Qed.
-  #[global] Instance subpreds_frag_proper γ :
+  #[global] Instance subpreds۰frag𑁒proper γ :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (≡)
-    ) (subpreds_frag γ).
+    ) (subpreds۰frag γ).
   Proof.
     solve_proper.
   Qed.
 
-  Lemma subpreds_alloc Ψ :
+  Lemma subpreds𑁒alloc Ψ :
     ⊢ |==>
       ∃ γ,
-      subpreds_auth γ Ψ None ∗
-      subpreds_frag γ Ψ.
+      subpreds۰auth γ Ψ None ∗
+      subpreds۰frag γ Ψ.
   Proof.
-    iMod (saved_pred_alloc Ψ) as "(%η & #Hη)".
-    iMod (auth_dgset_alloc {[η]}) as "(%γ & Hauth & Hfrag)".
+    iMod (saved_pred𑁒alloc Ψ) as "(%η & #Hη)".
+    iMod (auth_dgset𑁒alloc {[η]}) as "(%γ & Hauth & Hfrag)".
     iFrame "#∗".
     setoid_rewrite big_sepS_singleton. iSteps.
   Qed.
 
-  Lemma subpreds_split_wand `{inv_G : !invGS Σ} {γ Ψ state Χ} Χ1 Χ2 E :
-    ▷ subpreds_auth γ Ψ state -∗
-    subpreds_frag γ Χ -∗
+  Lemma subpreds𑁒split𑁒wand `{inv۰G : !invGS Σ} {γ Ψ state Χ} Χ1 Χ2 E :
+    ▷ subpreds۰auth γ Ψ state -∗
+    subpreds۰frag γ Χ -∗
     (∀ x, Χ x -∗ Χ1 x ∗ Χ2 x) ={E}=∗
-      ▷ subpreds_auth γ Ψ state ∗
-      subpreds_frag γ Χ1 ∗
-      subpreds_frag γ Χ2.
+      ▷ subpreds۰auth γ Ψ state ∗
+      subpreds۰frag γ Χ1 ∗
+      subpreds۰frag γ Χ2.
   Proof.
     iIntros "(:auth >) (:frag) H".
-    iDestruct (auth_dgset_elem_of with "Hauth Hfrag") as %Hη.
-    iMod (auth_dgset_update_dealloc {[η]} with "Hauth Hfrag") as "Hauth".
-    iMod (saved_pred_alloc_cofinite (ηs ∖ {[η]}) Χ1) as "(%η1 & %Hη1 & #Hη1)".
-    iMod (auth_dgset_update_alloc_singleton η1 with "Hauth") as "(Hauth & Hfrag1)"; first done.
-    iMod (saved_pred_alloc_cofinite ({[η1]} ∪ ηs ∖ {[η]}) Χ2) as "(%η2 & %Hη2 & #Hη2)".
-    iMod (auth_dgset_update_alloc_singleton η2 with "Hauth") as "(Hauth & Hfrag2)"; first done.
+    iDestruct (auth_dgset𑁒elem_of with "Hauth Hfrag") as %Hη.
+    iMod (auth_dgset𑁒update𑁒dealloc {[η]} with "Hauth Hfrag") as "Hauth".
+    iMod (saved_pred𑁒alloc𑁒cofinite (ηs ∖ {[η]}) Χ1) as "(%η1 & %Hη1 & #Hη1)".
+    iMod (auth_dgset𑁒update𑁒alloc𑁒singleton η1 with "Hauth") as "(Hauth & Hfrag1)"; first done.
+    iMod (saved_pred𑁒alloc𑁒cofinite ({[η1]} ∪ ηs ∖ {[η]}) Χ2) as "(%η2 & %Hη2 & #Hη2)".
+    iMod (auth_dgset𑁒update𑁒alloc𑁒singleton η2 with "Hauth") as "(Hauth & Hfrag2)"; first done.
     iFrame "#∗". iIntros "!> !> %x Hstate".
     iDestruct ("Hηs" with "Hstate") as "Hηs".
     iDestruct (big_sepS_delete with "Hηs") as "((%Χ_ & Hη_ & HΧ) & Hηs)"; first done.
-    iDestruct (saved_pred_agree x with "Hη Hη_") as "Heq".
+    iDestruct (saved_pred𑁒agree x with "Hη Hη_") as "Heq".
     iAssert (▷ (Χ1 x ∗ Χ2 x))%I with "[H HΧ Heq]" as "(HΧ1 & HΧ2)".
     { iModIntro.
       iApply "H".
@@ -131,65 +131,65 @@ Section subpreds_G.
     do 2 (rewrite big_sepS_union; first set_solver).
     rewrite !big_sepS_singleton. iFrame "#∗".
   Qed.
-  Lemma subpreds_wand `{inv_G : !invGS Σ} {γ Ψ state Χ1} Χ2 E :
-    ▷ subpreds_auth γ Ψ state -∗
-    subpreds_frag γ Χ1 -∗
+  Lemma subpreds𑁒wand `{inv۰G : !invGS Σ} {γ Ψ state Χ1} Χ2 E :
+    ▷ subpreds۰auth γ Ψ state -∗
+    subpreds۰frag γ Χ1 -∗
     (∀ x, Χ1 x -∗ Χ2 x) ={E}=∗
-      ▷ subpreds_auth γ Ψ state ∗
-      subpreds_frag γ Χ2.
+      ▷ subpreds۰auth γ Ψ state ∗
+      subpreds۰frag γ Χ2.
   Proof.
     iIntros "Hauth Hfrag H".
-    iDestruct (subpreds_frag_proper _ _ (λ x, Χ1 x ∗ True)%I with "Hfrag") as "Hfrag".
+    iDestruct (subpreds۰frag𑁒proper _ _ (λ x, Χ1 x ∗ True)%I with "Hfrag") as "Hfrag".
     { rewrite /pointwise_relation. iSteps. }
-    iMod (subpreds_split_wand Χ2 (λ _, True)%I with "Hauth Hfrag [H]") as "($ & $ & _)" => //. 1: iSteps.
+    iMod (subpreds𑁒split𑁒wand Χ2 (λ _, True)%I with "Hauth Hfrag [H]") as "($ & $ & _)" => //. 1: iSteps.
   Qed.
-  Lemma subpreds_split `{inv_G : !invGS Σ} {γ Ψ state} Χ1 Χ2 E :
-    ▷ subpreds_auth γ Ψ state -∗
-    subpreds_frag γ (λ x, Χ1 x ∗ Χ2 x)%I ={E}=∗
-      ▷ subpreds_auth γ Ψ state ∗
-      subpreds_frag γ Χ1 ∗
-      subpreds_frag γ Χ2.
+  Lemma subpreds𑁒split `{inv۰G : !invGS Σ} {γ Ψ state} Χ1 Χ2 E :
+    ▷ subpreds۰auth γ Ψ state -∗
+    subpreds۰frag γ (λ x, Χ1 x ∗ Χ2 x)%I ={E}=∗
+      ▷ subpreds۰auth γ Ψ state ∗
+      subpreds۰frag γ Χ1 ∗
+      subpreds۰frag γ Χ2.
   Proof.
     iIntros "Hauth Hfrag".
-    iApply (subpreds_split_wand with "Hauth Hfrag"). 1: iSteps.
+    iApply (subpreds𑁒split𑁒wand with "Hauth Hfrag"). 1: iSteps.
   Qed.
-  Lemma subpreds_divide `{inv_G : !invGS Σ} {γ Ψ state} Χs E :
-    ▷ subpreds_auth γ Ψ state -∗
-    subpreds_frag γ (λ x, [∗ list] Χ ∈ Χs, Χ x) ={E}=∗
-      ▷ subpreds_auth γ Ψ state ∗
-      [∗ list] Χ ∈ Χs, subpreds_frag γ Χ.
+  Lemma subpreds𑁒divide `{inv۰G : !invGS Σ} {γ Ψ state} Χs E :
+    ▷ subpreds۰auth γ Ψ state -∗
+    subpreds۰frag γ (λ x, [∗ list] Χ ∈ Χs, Χ x) ={E}=∗
+      ▷ subpreds۰auth γ Ψ state ∗
+      [∗ list] Χ ∈ Χs, subpreds۰frag γ Χ.
   Proof.
     iInduction Χs as [| Χ0 Χs] "IH"; first auto.
     iIntros "Hauth Hfrag".
-    iMod (subpreds_split Χ0 (λ x, [∗ list] Χ ∈ Χs, Χ x)%I with "Hauth Hfrag") as "(Hauth & $ & Hfrag)".
+    iMod (subpreds𑁒split Χ0 (λ x, [∗ list] Χ ∈ Χs, Χ x)%I with "Hauth Hfrag") as "(Hauth & $ & Hfrag)".
     iApply ("IH" with "Hauth Hfrag").
   Qed.
 
-  Lemma subpreds_produce {γ Ψ} x :
-    subpreds_auth γ Ψ None -∗
+  Lemma subpreds𑁒produce {γ Ψ} x :
+    subpreds۰auth γ Ψ None -∗
     Ψ x -∗
-    subpreds_auth γ Ψ (Some x).
+    subpreds۰auth γ Ψ (Some x).
   Proof.
     iSteps.
   Qed.
 
-  Lemma subpreds_consume `{inv_G : !invGS Σ} γ Ψ x Χ E :
-    ▷ subpreds_auth γ Ψ (Some x) -∗
-    subpreds_frag γ Χ ={E}=∗
-      ▷ subpreds_auth γ Ψ (Some x) ∗
+  Lemma subpreds𑁒consume `{inv۰G : !invGS Σ} γ Ψ x Χ E :
+    ▷ subpreds۰auth γ Ψ (Some x) -∗
+    subpreds۰frag γ Χ ={E}=∗
+      ▷ subpreds۰auth γ Ψ (Some x) ∗
       ▷^2 Χ x.
   Proof.
     iIntros "(:auth >) (:frag)".
     iDestruct ("Hηs" with "[//]") as "Hηs".
-    iDestruct (auth_dgset_elem_of with "Hauth Hfrag") as %Hη.
-    iMod (auth_dgset_update_dealloc {[η]} with "Hauth Hfrag") as "Hauth".
+    iDestruct (auth_dgset𑁒elem_of with "Hauth Hfrag") as %Hη.
+    iMod (auth_dgset𑁒update𑁒dealloc {[η]} with "Hauth Hfrag") as "Hauth".
     iDestruct (big_sepS_delete with "Hηs") as "((%Χ_ & Hη_ & HΧ) & Hηs)"; first done.
-    iDestruct (saved_pred_agree x with "Hη Hη_") as "Heq".
+    iDestruct (saved_pred𑁒agree x with "Hη Hη_") as "Heq".
     iFrame "#∗". iSplitL "Hηs"; first iSteps.
     do 3 iModIntro.
     iRewrite "Heq" => //.
   Qed.
-End subpreds_G.
+End subpreds۰G.
 
-#[global] Opaque subpreds_auth.
-#[global] Opaque subpreds_frag.
+#[global] Opaque subpreds۰auth.
+#[global] Opaque subpreds۰frag.

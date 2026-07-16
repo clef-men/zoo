@@ -46,7 +46,7 @@ Definition domain٠local_new : val :=
     let: "id" := zoo_counter٠incr () in
     ("id", "fn").
 
-Definition domain٠key_id : val :=
+Definition domain٠key۰id : val :=
   fun: "key" =>
     "key".<id>.
 Definition domain٠key_init : val :=
@@ -56,7 +56,7 @@ Definition domain٠key_init : val :=
 Definition domain٠local_get : val :=
   fun: "key" =>
     let: "local" := GetLocal in
-    let: "id" := domain٠key_id "key" in
+    let: "id" := domain٠key۰id "key" in
     dynarray_1٠grow "local" ("id" + 1) §None ;;
     match: dynarray_1٠get "local" "id" with
     | None =>
@@ -70,126 +70,126 @@ Definition domain٠local_get : val :=
 Definition domain٠local_set : val :=
   fun: "key" "v" =>
     let: "local" := GetLocal in
-    let: "id" := domain٠key_id "key" in
+    let: "id" := domain٠key۰id "key" in
     dynarray_1٠grow "local" ("id" + 1) §None ;;
     dynarray_1٠set "local" "id" ‘Some( "v" ).
 
-Class DomainG Σ `{zoo_G : !ZooG Σ} :=
-  { #[local] domain_G_ivar_G :: Ivar2G Σ
-  ; #[local] domain_G_locals_G :: ghost_mapG Σ nat (option val)
+Class DomainG Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] domain۰G۰ivar۰G :: Ivar2G Σ
+  ; #[local] domain۰G۰locals۰G :: ghost_mapG Σ nat (option val)
   }.
 
-Definition domain_Σ :=
-  #[ivar_2_Σ
+Definition domain۰Σ :=
+  #[ivar_2۰Σ
   ; ghost_mapΣ nat (option val)
   ].
-#[global] Instance subG_domain_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG domain_Σ Σ →
+#[global] Instance subG𑁒domain۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG domain۰Σ Σ →
   DomainG Σ.
 Proof.
   solve_inG.
 Qed.
 
 #[local] Definition consistent vs ws :=
-  map_oflatten (map_seq 0 vs) = map_oflatten ws.
+  map۰oflatten (map_seq 0 vs) = map۰oflatten ws.
 
-#[local] Lemma consistent_app_None vs ws n :
+#[local] Lemma consistent𑁒app𑁒None vs ws n :
   consistent vs ws →
   consistent (vs ++ replicate n None) ws.
 Proof.
   intros Hconsistent.
-  rewrite /consistent map_seq_app map_oflatten_union.
+  rewrite /consistent map_seq_app map۰oflatten𑁒union.
   { apply map_seq_app_disjoint. }
-  setoid_rewrite map_oflatten_empty at 2.
+  setoid_rewrite map۰oflatten𑁒empty at 2.
   { rewrite right_id //. }
   intros id o (_ & (-> & _)%lookup_replicate)%lookup_map_seq_Some. done.
 Qed.
-#[local] Lemma consistent_lookup_None {vs ws} id o :
+#[local] Lemma consistent𑁒lookup𑁒None {vs ws} id o :
   consistent vs ws →
   ws !! id = None →
   vs !! id = Some o →
   o = None.
 Proof.
   destruct o as [v |]; last done.
-  intros Hconsistent Hws_lookup%lookup_map_oflatten_None Hvs_lookup%(lookup_map_seq_Some_inv 0)%lookup_map_oflatten_Some_Some.
+  intros Hconsistent Hws_lookup%lookup𑁒map۰oflatten𑁒None Hvs_lookup%(lookup_map_seq_Some_inv 0)%lookup𑁒map۰oflatten𑁒Some𑁒Some.
   simpl in Hvs_lookup. congruence.
 Qed.
-#[local] Lemma consistent_lookup_Some_None {vs ws} id :
+#[local] Lemma consistent𑁒lookup𑁒Some𑁒None {vs ws} id :
   id < length vs →
   consistent vs ws →
   ws !! id = Some None →
   vs !! id = Some None.
 Proof.
-  intros (o & Hvs_lookup)%lookup_lt_is_Some Hconsistent Hws_lookup%lookup_map_oflatten_Some_None.
+  intros (o & Hvs_lookup)%lookup_lt_is_Some Hconsistent Hws_lookup%lookup𑁒map۰oflatten𑁒Some𑁒None.
   destruct o as [v |]; last done.
   rewrite (lookup_map_seq_Some_inv 0) /= in Hvs_lookup.
-  apply lookup_map_oflatten_Some_Some in Hvs_lookup.
+  apply lookup𑁒map۰oflatten𑁒Some𑁒Some in Hvs_lookup.
   congruence.
 Qed.
-#[local] Lemma consistent_lookup_Some_Some {vs ws} id v :
+#[local] Lemma consistent𑁒lookup𑁒Some𑁒Some {vs ws} id v :
   consistent vs ws →
   ws !! id = Some (Some v) →
   vs !! id = Some (Some v).
 Proof.
-  intros Hconsistent Hws_lookup%lookup_map_oflatten_Some_Some.
+  intros Hconsistent Hws_lookup%lookup𑁒map۰oflatten𑁒Some𑁒Some.
   rewrite -Hconsistent in Hws_lookup.
-  apply lookup_map_oflatten_Some_inv in Hws_lookup.
+  apply lookup𑁒map۰oflatten𑁒Some𑁒inv in Hws_lookup.
   rewrite lookup_map_seq_Some Nat.sub_0_r in Hws_lookup.
   naive_solver.
 Qed.
-#[local] Lemma consistent_insert {vs ws} id :
+#[local] Lemma consistent𑁒insert {vs ws} id :
   ws !! id = None →
   consistent vs ws →
   consistent vs (<[id := None]> ws).
 Proof.
   intros Hlookup Hconsistent.
-  rewrite /consistent map_oflatten_insert //.
+  rewrite /consistent map۰oflatten𑁒insert //.
 Qed.
-#[local] Lemma consistent_update {vs ws} id w :
+#[local] Lemma consistent𑁒update {vs ws} id w :
   id < length vs →
   consistent vs ws →
   consistent (<[id := Some w]> vs) (<[id := Some w]> ws).
 Proof.
   intros Hid Hconsistent.
-  rewrite /consistent map_oflatten_update -insert_map_seq_0 // map_oflatten_update Hconsistent //.
+  rewrite /consistent map۰oflatten𑁒update -insert_map_seq_0 // map۰oflatten𑁒update Hconsistent //.
 Qed.
 
 Opaque consistent.
 
-Section domain_G.
-  Context `{domain_G : DomainG Σ}.
+Section domain۰G.
+  Context `{domain۰G : DomainG Σ}.
 
   Implicit Types Ψ : val → iProp Σ.
 
-  #[local] Definition local_auth γ :=
+  #[local] Definition local۰auth γ :=
     ghost_map_auth γ 1.
-  #[local] Definition local_at :=
+  #[local] Definition local۰at :=
     ghost_map_elem.
 
-  Definition domain_model t Ψ : iProp Σ :=
-    ivar_2_inv t Ψ (λ _, True)%I ∗
-    ivar_2_consumer t Ψ.
+  Definition domain۰model t Ψ : iProp Σ :=
+    ivar_2۰inv t Ψ (λ _, True)%I ∗
+    ivar_2۰consumer t Ψ.
   #[local] Instance : CustomIpat "model" :=
     " ( #Hivar_inv
       & Hivar_consumer
       )
     ".
 
-  #[local] Definition key_id key id : iProp Σ :=
+  #[local] Definition key۰id key id : iProp Σ :=
     ∃ fn,
     ⌜key = (#id, fn)%V⌝ ∗
-    zoo_counter_at id fn.
-  #[local] Instance : CustomIpat "key_id" :=
+    zoo_counter۰at id fn.
+  #[local] Instance : CustomIpat "key۰id" :=
     " ( %fn{}
       & %Heq{}
       & #Hcounter_at{}
       )
     ".
 
-  Definition domain_key key Ψ : iProp Σ :=
+  Definition domain۰key key Ψ : iProp Σ :=
     ∃ id fn,
     ⌜key = (#id, fn)%V⌝ ∗
-    zoo_counter_at id fn ∗
+    zoo_counter۰at id fn ∗
     □ WP fn () {{ Ψ }}.
   #[local] Instance : CustomIpat "key" :=
     " ( %id
@@ -199,19 +199,19 @@ Section domain_G.
       & #Hfn{}
       )
     ".
-  Definition domain_key' key : iProp Σ :=
+  Definition domain۰key' key : iProp Σ :=
     ∃ Ψ,
-    domain_key key Ψ.
+    domain۰key key Ψ.
 
-  Definition domain_local tid keys : iProp Σ :=
+  Definition domain۰local tid keys : iProp Σ :=
     ∃ l γ vs ws ids,
     tid ↦ₗ□ #l ∗
     l ↪[nroot.@"user"] γ ∗
-    dynarray_1_model #l (option_to_val <$> vs) ∗
-    local_auth γ ws ∗
+    dynarray_1۰model #l (option۰to_val <$> vs) ∗
+    local۰auth γ ws ∗
     ⌜dom ids = keys⌝ ∗
     ⌜map_img ids = dom ws⌝ ∗
-    ([∗ map] key ↦ id ∈ ids, key_id key id) ∗
+    ([∗ map] key ↦ id ∈ ids, key۰id key id) ∗
     ⌜consistent vs ws⌝.
   #[local] Instance : CustomIpat "local" :=
     " ( %l
@@ -230,12 +230,12 @@ Section domain_G.
       )
     ".
 
-  Definition domain_local_init tid key : iProp Σ :=
+  Definition domain۰local_init tid key : iProp Σ :=
     ∃ l γ id,
     tid ↦ₗ□ #l ∗
     l ↪[nroot.@"user"] γ ∗
-    key_id key id ∗
-    local_at γ id (DfracOwn 1) None.
+    key۰id key id ∗
+    local۰at γ id (DfracOwn 1) None.
   #[local] Instance : CustomIpat "local_init" :=
     " ( %l{}{_{suff}}
       & %γ{}{_{suff}}
@@ -247,12 +247,12 @@ Section domain_G.
       )
     ".
 
-  Definition domain_local_pointsto tid key dq v : iProp Σ :=
+  Definition domain۰local_pointsto tid key dq v : iProp Σ :=
     ∃ l γ id,
     tid ↦ₗ□ #l ∗
     l ↪[nroot.@"user"] γ ∗
-    key_id key id ∗
-    local_at γ id dq (Some v).
+    key۰id key id ∗
+    local۰at γ id dq (Some v).
   #[local] Instance : CustomIpat "local_pointsto" :=
     " ( %l{}{_{suff}}
       & %γ{}{_{suff}}
@@ -263,11 +263,11 @@ Section domain_G.
       & Hlocal_at{}
       )
     ".
-  Definition domain_local_pointstopred tid key Ψ : iProp Σ :=
-      domain_local_init tid key ∗
-      domain_key key Ψ
+  Definition domain۰local_pointstopred tid key Ψ : iProp Σ :=
+      domain۰local_init tid key ∗
+      domain۰key key Ψ
     ∨ ∃ v,
-      domain_local_pointsto tid key (DfracOwn 1) v ∗
+      domain۰local_pointsto tid key (DfracOwn 1) v ∗
       Ψ v.
   #[local] Instance : CustomIpat "local_pointstopred" :=
     " [ ( Hinit
@@ -280,101 +280,101 @@ Section domain_G.
       ]
     ".
 
-  #[global] Instance domain_local_timeless tid keys :
-    Timeless (domain_local tid keys).
+  #[global] Instance domain۰local𑁒timeless tid keys :
+    Timeless (domain۰local tid keys).
   Proof.
     apply _.
   Qed.
-  #[global] Instance domain_local_init_timeless tid key :
-    Timeless (domain_local_init tid key).
+  #[global] Instance domain۰local_init𑁒timeless tid key :
+    Timeless (domain۰local_init tid key).
   Proof.
     apply _.
   Qed.
-  #[global] Instance domain_local_pointsto_timeless tid key dq v :
-    Timeless (domain_local_pointsto tid key dq v).
-  Proof.
-    apply _.
-  Qed.
-
-  #[local] Instance key_id_persistent key id :
-    Persistent (key_id key id).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance domain_key_persistent key Ψ :
-    Persistent (domain_key key Ψ).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance domain_local_pointsto_persistent tid key v :
-    Persistent (domain_local_pointsto tid key DfracDiscarded v).
+  #[global] Instance domain۰local_pointsto𑁒timeless tid key dq v :
+    Timeless (domain۰local_pointsto tid key dq v).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma local_alloc :
+  #[local] Instance key۰id𑁒persistent key id :
+    Persistent (key۰id key id).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance domain۰key𑁒persistent key Ψ :
+    Persistent (domain۰key key Ψ).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance domain۰local_pointsto𑁒persistent tid key v :
+    Persistent (domain۰local_pointsto tid key DfracDiscarded v).
+  Proof.
+    apply _.
+  Qed.
+
+  #[local] Lemma local𑁒alloc :
     ⊢ |==>
       ∃ γ,
-      local_auth γ ∅.
+      local۰auth γ ∅.
   Proof.
     apply ghost_map_alloc_empty.
   Qed.
-  #[local] Lemma local_at_valid γ ws id dq v :
-    local_auth γ ws -∗
-    local_at γ id dq v -∗
+  #[local] Lemma local۰at𑁒valid γ ws id dq v :
+    local۰auth γ ws -∗
+    local۰at γ id dq v -∗
     ⌜ws !! id = Some v⌝.
   Proof.
     apply ghost_map_lookup.
   Qed.
-  #[local] Lemma local_insert {γ ws} id :
+  #[local] Lemma local𑁒insert {γ ws} id :
     ws !! id = None →
-    local_auth γ ws ⊢ |==>
-      local_auth γ (<[id := None]> ws) ∗
-      local_at γ id (DfracOwn 1) None.
+    local۰auth γ ws ⊢ |==>
+      local۰auth γ (<[id := None]> ws) ∗
+      local۰at γ id (DfracOwn 1) None.
   Proof.
     intros.
     iApply ghost_map_insert; first done.
   Qed.
-  #[local] Lemma local_update {γ ws id w} w' :
-    local_auth γ ws -∗
-    local_at γ id (DfracOwn 1) w ==∗
-      local_auth γ (<[id := w']> ws) ∗
-      local_at γ id (DfracOwn 1) w'.
+  #[local] Lemma local𑁒update {γ ws id w} w' :
+    local۰auth γ ws -∗
+    local۰at γ id (DfracOwn 1) w ==∗
+      local۰auth γ (<[id := w']> ws) ∗
+      local۰at γ id (DfracOwn 1) w'.
   Proof.
     apply ghost_map_update.
   Qed.
 
-  #[local] Lemma key_id_agree key id1 id2 :
-    key_id key id1 -∗
-    key_id key id2 -∗
+  #[local] Lemma key۰id𑁒agree key id1 id2 :
+    key۰id key id1 -∗
+    key۰id key id2 -∗
     ⌜id1 = id2⌝.
   Proof.
-    iIntros "(:key_id =1) (:key_id =2)". simplify.
+    iIntros "(:key۰id =1) (:key۰id =2)". simplify.
     iSteps.
   Qed.
-  #[local] Lemma key_id_inj key1 id1 key2 id2 :
+  #[local] Lemma key۰id𑁒inj key1 id1 key2 id2 :
     key1 ≠ key2 →
-    key_id key1 id1 -∗
-    key_id key2 id2 -∗
+    key۰id key1 id1 -∗
+    key۰id key2 id2 -∗
     ⌜id1 ≠ id2⌝.
   Proof.
-    iIntros "% (:key_id =1) (:key_id =2) <-". simplify.
-    iDestruct (zoo_counter_at_agree with "Hcounter_at1 Hcounter_at2") as %<-. done.
+    iIntros "% (:key۰id =1) (:key۰id =2) <-". simplify.
+    iDestruct (zoo_counter۰at𑁒agree with "Hcounter_at1 Hcounter_at2") as %<-. done.
   Qed.
 
-  #[local] Lemma domain_key_to_id key Ψ :
-    domain_key key Ψ ⊢
+  #[local] Lemma domain۰key𑁒to𑁒id key Ψ :
+    domain۰key key Ψ ⊢
       ∃ id,
-      key_id key id.
+      key۰id key id.
   Proof.
     iSteps.
   Qed.
 
-  #[local] Lemma domain٠key_id𑁒spec key id :
+  #[local] Lemma domain٠key۰id𑁒spec key id :
     {{{
-      key_id key id
+      key۰id key id
     }}}
-      domain٠key_id key
+      domain٠key۰id key
     {{{
       RET #id;
       True
@@ -385,7 +385,7 @@ Section domain_G.
 
   #[local] Lemma domain٠key_init𑁒spec key Ψ :
     {{{
-      domain_key key Ψ
+      domain۰key key Ψ
     }}}
       domain٠key_init key
     {{{
@@ -397,119 +397,119 @@ Section domain_G.
     iSteps.
   Qed.
 
-  Opaque key_id.
+  Opaque key۰id.
 
-  Lemma domain_local_get_key {tid keys} key Ψ :
+  Lemma domain۰local𑁒get𑁒key {tid keys} key Ψ :
     key ∉ keys →
-    domain_local tid keys -∗
-    domain_key key Ψ ==∗
-      domain_local tid (keys ∪ {[key]}) ∗
-      domain_local_init tid key.
+    domain۰local tid keys -∗
+    domain۰key key Ψ ==∗
+      domain۰local tid (keys ∪ {[key]}) ∗
+      domain۰local_init tid key.
   Proof.
     iIntros "%Hkey (:local) Hkey".
-    iDestruct (domain_key_to_id with "Hkey") as "(%id & #Hid) {Hkey}".
+    iDestruct (domain۰key𑁒to𑁒id with "Hkey") as "(%id & #Hid) {Hkey}".
     assert (ids !! key = None) as Hids_lookup.
     { apply not_elem_of_dom. naive_solver. }
     iAssert ⌜id ∉ dom ws⌝%I as %Hws_lookup%not_elem_of_dom.
     { rewrite -Hids_img not_elem_of_map_img.
       iIntros "%key' %Hids_lookup'".
       iDestruct (big_sepM_lookup with "Hids") as "Hid'"; first done.
-      iDestruct (key_id_inj with "Hid Hid'") as %?; congruence.
+      iDestruct (key۰id𑁒inj with "Hid Hid'") as %?; congruence.
     }
-    iMod (local_insert with "Hlocal_auth") as "(Hlocal_auth & Hlocal_at)"; first done.
+    iMod (local𑁒insert with "Hlocal_auth") as "(Hlocal_auth & Hlocal_at)"; first done.
     iDestruct (big_sepM_insert_2 with "Hid Hids") as "Hids".
     iFrameSteps; iPureIntro.
     { set_solver. }
     { rewrite map_img_insert_notin_L //. set_solver. }
-    { apply (consistent_insert id) in Hconsistent; done. }
+    { apply (consistent𑁒insert id) in Hconsistent; done. }
   Qed.
 
-  #[global] Instance domain_local_pointsto_fractional tid key v :
-    Fractional (λ q, domain_local_pointsto tid key (DfracOwn q) v).
+  #[global] Instance domain۰local_pointsto𑁒fractional tid key v :
+    Fractional (λ q, domain۰local_pointsto tid key (DfracOwn q) v).
   Proof.
     intros q1 q2. iSplit.
     - iIntros "(:local_pointsto)".
       iDestruct "Hlocal_at" as "(Hlocal_at1 & Hlocal_at2)".
       iSplitL "Hlocal_at1"; iFrame "#∗".
     - iIntros "((:local_pointsto =1) & (:local_pointsto =2))".
-      iDestruct (local_pointsto_agree with "Hlocal1 Hlocal2") as %[= <-]. iClear "Hlocal2".
-      iDestruct (meta_agree with "Hl1_meta Hl2_meta") as %<-. iClear "Hl2_meta".
-      iDestruct (key_id_agree with "Hid1 Hid2") as %<-. iClear "Hid2".
+      iDestruct (local_pointsto𑁒agree with "Hlocal1 Hlocal2") as %[= <-]. iClear "Hlocal2".
+      iDestruct (meta𑁒agree with "Hl1_meta Hl2_meta") as %<-. iClear "Hl2_meta".
+      iDestruct (key۰id𑁒agree with "Hid1 Hid2") as %<-. iClear "Hid2".
       iCombine "Hlocal_at1 Hlocal_at2" as "Hlocal_at".
       iFrame "#∗".
   Qed.
-  #[global] Instance domain_local_pointsto_as_fractional tid key q v :
-    AsFractional (domain_local_pointsto tid key (DfracOwn q) v) (λ q, domain_local_pointsto tid key (DfracOwn q) v)%I q.
+  #[global] Instance domain۰local_pointsto𑁒as_fractional tid key q v :
+    AsFractional (domain۰local_pointsto tid key (DfracOwn q) v) (λ q, domain۰local_pointsto tid key (DfracOwn q) v)%I q.
   Proof.
     split; [done | apply _].
   Qed.
 
-  Lemma domain_local_pointsto_valid tid key dq v :
-    domain_local_pointsto tid key dq v ⊢
+  Lemma domain۰local_pointsto𑁒valid tid key dq v :
+    domain۰local_pointsto tid key dq v ⊢
     ⌜✓ dq⌝.
   Proof.
     iIntros "(:local_pointsto)".
     iApply (ghost_map_elem_valid with "Hlocal_at").
   Qed.
-  Lemma domain_local_pointsto_combine tid key dq1 v1 dq2 v2 :
-    domain_local_pointsto tid key dq1 v1 -∗
-    domain_local_pointsto tid key dq2 v2 -∗
+  Lemma domain۰local_pointsto𑁒combine tid key dq1 v1 dq2 v2 :
+    domain۰local_pointsto tid key dq1 v1 -∗
+    domain۰local_pointsto tid key dq2 v2 -∗
       ⌜v1 = v2⌝ ∗
-      domain_local_pointsto tid key (dq1 ⋅ dq2) v1.
+      domain۰local_pointsto tid key (dq1 ⋅ dq2) v1.
   Proof.
     iIntros "(:local_pointsto =1) (:local_pointsto =2)".
-    iDestruct (local_pointsto_agree with "Hlocal1 Hlocal2") as %[= <-]. iClear "Hlocal2".
-    iDestruct (meta_agree with "Hl1_meta Hl2_meta") as %<-. iClear "Hl2_meta".
-    iDestruct (key_id_agree with "Hid1 Hid2") as %<-. iClear "Hid2".
+    iDestruct (local_pointsto𑁒agree with "Hlocal1 Hlocal2") as %[= <-]. iClear "Hlocal2".
+    iDestruct (meta𑁒agree with "Hl1_meta Hl2_meta") as %<-. iClear "Hl2_meta".
+    iDestruct (key۰id𑁒agree with "Hid1 Hid2") as %<-. iClear "Hid2".
     iDestruct (ghost_map_elem_combine with "Hlocal_at1 Hlocal_at2") as "(Hlocal_at & %)". simplify.
     iStep. iFrame "#∗".
   Qed.
-  Lemma domain_local_pointsto_valid_2 tid key dq1 v1 dq2 v2 :
-    domain_local_pointsto tid key dq1 v1 -∗
-    domain_local_pointsto tid key dq2 v2 -∗
+  Lemma domain۰local_pointsto𑁒valid𑁒2 tid key dq1 v1 dq2 v2 :
+    domain۰local_pointsto tid key dq1 v1 -∗
+    domain۰local_pointsto tid key dq2 v2 -∗
       ⌜✓ (dq1 ⋅ dq2)⌝ ∗
       ⌜v1 = v2⌝.
   Proof.
     iIntros "H1 H2".
-    iDestruct (domain_local_pointsto_combine with "H1 H2") as "($ & H)".
-    iApply (domain_local_pointsto_valid with "H").
+    iDestruct (domain۰local_pointsto𑁒combine with "H1 H2") as "($ & H)".
+    iApply (domain۰local_pointsto𑁒valid with "H").
   Qed.
-  Lemma domain_local_pointsto_agree tid key dq1 v1 dq2 v2 :
-    domain_local_pointsto tid key dq1 v1 -∗
-    domain_local_pointsto tid key dq2 v2 -∗
+  Lemma domain۰local_pointsto𑁒agree tid key dq1 v1 dq2 v2 :
+    domain۰local_pointsto tid key dq1 v1 -∗
+    domain۰local_pointsto tid key dq2 v2 -∗
     ⌜v1 = v2⌝.
   Proof.
     iIntros "H1 H2".
-    iDestruct (domain_local_pointsto_combine with "H1 H2") as "($ & _)".
+    iDestruct (domain۰local_pointsto𑁒combine with "H1 H2") as "($ & _)".
   Qed.
-  Lemma domain_local_pointsto_dfrac_ne tid1 key1 dq1 v1 tid2 key2 dq2 v2 :
+  Lemma domain۰local_pointsto𑁒dfrac𑁒ne tid1 key1 dq1 v1 tid2 key2 dq2 v2 :
     ¬ ✓ (dq1 ⋅ dq2) →
-    domain_local_pointsto tid1 key1 dq1 v1 -∗
-    domain_local_pointsto tid2 key2 dq2 v2 -∗
+    domain۰local_pointsto tid1 key1 dq1 v1 -∗
+    domain۰local_pointsto tid2 key2 dq2 v2 -∗
     ⌜tid1 ≠ tid2 ∨ key1 ≠ key2⌝.
   Proof.
     rewrite -not_and_r. iIntros "% H1 H2" ((-> & ->)).
-    iDestruct (domain_local_pointsto_valid_2 with "H1 H2") as %?. naive_solver.
+    iDestruct (domain۰local_pointsto𑁒valid𑁒2 with "H1 H2") as %?. naive_solver.
   Qed.
-  Lemma domain_local_pointsto_ne tid1 key1 v1 tid2 key2 dq2 v2 :
-    domain_local_pointsto tid1 key1 (DfracOwn 1) v1 -∗
-    domain_local_pointsto tid2 key2 dq2 v2 -∗
+  Lemma domain۰local_pointsto𑁒ne tid1 key1 v1 tid2 key2 dq2 v2 :
+    domain۰local_pointsto tid1 key1 (DfracOwn 1) v1 -∗
+    domain۰local_pointsto tid2 key2 dq2 v2 -∗
     ⌜tid1 ≠ tid2 ∨ key1 ≠ key2⌝.
   Proof.
     intros.
-    iApply domain_local_pointsto_dfrac_ne; [done.. | intros []%(exclusive_l _)].
+    iApply domain۰local_pointsto𑁒dfrac𑁒ne; [done.. | intros []%(exclusive_l _)].
   Qed.
-  Lemma domain_local_pointsto_exclusive tid key v1 dq2 v2 :
-    domain_local_pointsto tid key (DfracOwn 1) v1 -∗
-    domain_local_pointsto tid key dq2 v2 -∗
+  Lemma domain۰local_pointsto𑁒exclusive tid key v1 dq2 v2 :
+    domain۰local_pointsto tid key (DfracOwn 1) v1 -∗
+    domain۰local_pointsto tid key dq2 v2 -∗
     False.
   Proof.
     iIntros "H1 H2".
-    iDestruct (domain_local_pointsto_ne with "H1 H2") as %?. naive_solver.
+    iDestruct (domain۰local_pointsto𑁒ne with "H1 H2") as %?. naive_solver.
   Qed.
-  Lemma domain_local_pointsto_persist tid key dq v :
-    domain_local_pointsto tid key dq v ⊢ |==>
-    domain_local_pointsto tid key DfracDiscarded v.
+  Lemma domain۰local_pointsto𑁒persist tid key dq v :
+    domain۰local_pointsto tid key dq v ⊢ |==>
+    domain۰local_pointsto tid key DfracDiscarded v.
   Proof.
     iIntros "(:local_pointsto)".
     iMod (ghost_map_elem_persist with "Hlocal_at") as "Hlocal_at".
@@ -519,38 +519,38 @@ Section domain_G.
   Lemma domain٠spawn𑁒spec Ψ fn :
     {{{
       ∀ tid,
-      domain_local tid ∅ -∗
+      domain۰local tid ∅ -∗
       WP fn () ∶ tid {{ Ψ }}
     }}}
       domain٠spawn fn
     {{{
       t
     , RET t;
-      domain_model t Ψ
+      domain۰model t Ψ
     }}}.
   Proof.
     iIntros "%Φ Hfn HΦ".
-    wp_rec.
-    wp_apply (ivar_2٠create𑁒spec with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
-    wp_apply+ (wp_fork with "[Hfn Hivar_producer]"); last iSteps. iIntros "!> %tid %local Hlocal".
-    wp_bind (dynarray_1٠create ())%E. iApply wp_thread_id_mono.
-    wp_apply (dynarray_1٠create𑁒spec' with "[//]") as (l) "(Hl & Hl_meta)".
-    wp_apply+ (wp_set_local with "Hlocal") as "Hlocal".
+    wp۰rec.
+    wp۰apply (ivar_2٠create𑁒spec with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
+    wp۰apply+ (wp𑁒fork with "[Hfn Hivar_producer]"); last iSteps. iIntros "!> %tid %local Hlocal".
+    wp۰bind (dynarray_1٠create ())%E. iApply wp𑁒thread_id_mono.
+    wp۰apply (dynarray_1٠create𑁒spec' with "[//]") as (l) "(Hl & Hl_meta)".
+    wp۰apply+ (wp𑁒set_local with "Hlocal") as "Hlocal".
 
-    iMod (local_pointsto_persist with "Hlocal") as "#Hlocal".
-    iMod local_alloc as "(%γ & Hlocal_auth)".
-    iMod (meta_set γ with "Hl_meta") as "#Hl_meta"; first done.
+    iMod (local_pointsto𑁒persist with "Hlocal") as "#Hlocal".
+    iMod local𑁒alloc as "(%γ & Hlocal_auth)".
+    iMod (meta𑁒set γ with "Hl_meta") as "#Hl_meta"; first done.
 
-    wp_apply+ (wp_wand with "(Hfn [Hl Hlocal_auth])") as (res) "HΨ".
+    wp۰apply+ (wp𑁒wand with "(Hfn [Hl Hlocal_auth])") as (res) "HΨ".
     { iExists l, γ, [], ∅, ∅. rewrite big_sepM_empty. iSteps. }
-    iApply wp_thread_id_mono.
-    wp_apply (ivar_2٠set𑁒spec with "[$Hivar_inv $Hivar_producer $HΨ //]").
+    iApply wp𑁒thread_id_mono.
+    wp۰apply (ivar_2٠set𑁒spec with "[$Hivar_inv $Hivar_producer $HΨ //]").
     iSteps.
   Qed.
 
   Lemma domain٠join𑁒spec t Ψ :
     {{{
-      domain_model t Ψ
+      domain۰model t Ψ
     }}}
       domain٠join t
     {{{
@@ -560,22 +560,22 @@ Section domain_G.
     }}}.
   Proof.
     iIntros "%Φ (:model) HΦ".
-    iApply wp_fupd.
-    wp_apply (ivar_2٠get𑁒spec with "Hivar_inv") as (v) "(H£ & Hivar_result & Hivar_synchronized)".
-    iMod (ivar_2_inv_result_consumer' with "H£ Hivar_inv Hivar_result Hivar_synchronized Hivar_consumer") as "(HΨ & _)".
+    iApply wp𑁒fupd.
+    wp۰apply (ivar_2٠get𑁒spec with "Hivar_inv") as (v) "(H£ & Hivar_result & Hivar_synchronized)".
+    iMod (ivar_2𑁒inv𑁒result𑁒consumer' with "H£ Hivar_inv Hivar_result Hivar_synchronized Hivar_consumer") as "(HΨ & _)".
     iSteps.
   Qed.
 
   Lemma domain٠local_new𑁒spec {fn} Ψ keys :
     {{{
       □ WP fn () {{ Ψ }} ∗
-      [∗ list] key ∈ keys, domain_key' key
+      [∗ list] key ∈ keys, domain۰key' key
     }}}
       domain٠local_new fn
     {{{
       key
     , RET key;
-      domain_key key Ψ ∗
+      domain۰key key Ψ ∗
       ⌜Forall (.≠ key) keys⌝
     }}}.
   Proof.
@@ -588,246 +588,246 @@ Section domain_G.
           ⌜key = (#id, fn)%V⌝
         ) ∗
         ( ∃ fn,
-          zoo_counter_at id fn
+          zoo_counter۰at id fn
         )
     )%I with "[Hkeys]" as "Hkeys".
     { iApply (big_sepL_impl with "Hkeys").
       iSteps.
     }
-    iDestruct (big_sepL_exists with "Hkeys") as "(%ids & % & Hkeys)".
+    iDestruct (big_sepL𑁒exists with "Hkeys") as "(%ids & % & Hkeys)".
     iDestruct (big_sepL2_sep with "Hkeys") as "(Hkeys & Hids)".
     iDestruct (big_sepL2_const_sepL_r with "Hids") as "(_ & Hids)".
 
-    wp_rec.
-    wp_apply (zoo_counter٠incr𑁒spec ids fn with "Hids") as (id) "(Hid & %Hids)".
+    wp۰rec.
+    wp۰apply (zoo_counter٠incr𑁒spec ids fn with "Hids") as (id) "(Hid & %Hids)".
     iSteps.
     rewrite Forall_lookup. iIntros "%i %key %Hkeys_lookup ->".
     iDestruct (big_sepL2_lookup_l with "Hkeys") as "(%id' & %Hids_lookup & %fn' & %)"; first done. simplify.
     eapply Forall_lookup_1 in Hids; done.
   Qed.
 
-  Lemma domain٠local_get𑁒spec_init keys key Ψ tid :
+  Lemma domain٠local_get𑁒spec𑁒init keys key Ψ tid :
     {{{
-      domain_local tid keys ∗
-      domain_key key Ψ ∗
-      domain_local_init tid key
+      domain۰local tid keys ∗
+      domain۰key key Ψ ∗
+      domain۰local_init tid key
     }}}
       domain٠local_get key ∶ tid
     {{{
       v
     , RET v;
-      domain_local tid keys ∗
-      domain_local_pointsto tid key (DfracOwn 1) v ∗
+      domain۰local tid keys ∗
+      domain۰local_pointsto tid key (DfracOwn 1) v ∗
       Ψ v
     }}}.
   Proof.
     iIntros "%Φ ((:local) & #Hkey & (:local_init suff=)) HΦ".
-    iDestruct (local_pointsto_agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
-    iDestruct (meta_agree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
-    iDestruct (local_at_valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
+    iDestruct (local_pointsto𑁒agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
+    iDestruct (meta𑁒agree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
+    iDestruct (local۰at𑁒valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
 
-    wp_rec.
-    wp_apply (wp_get_local with "Hlocal") as "_".
-    iApply wp_thread_id_mono.
-    wp_apply+ (domain٠key_id𑁒spec with "Hid") as "_".
-    wp_apply+ (dynarray_1٠grow𑁒spec with "Hl") as "Hl"; first lia.
+    wp۰rec.
+    wp۰apply (wp𑁒get_local with "Hlocal") as "_".
+    iApply wp𑁒thread_id_mono.
+    wp۰apply+ (domain٠key۰id𑁒spec with "Hid") as "_".
+    wp۰apply+ (dynarray_1٠grow𑁒spec with "Hl") as "Hl"; first lia.
 
     iEval (simpl_length) in "Hl".
-    iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
+    iEval (rewrite -(fmap_replicate option۰to_val _ None) -fmap_app) in "Hl".
 
-    wp_apply+ (dynarray_1٠get𑁒spec _ _ _ None with "Hl") as "Hl".
+    wp۰apply+ (dynarray_1٠get𑁒spec _ _ _ None with "Hl") as "Hl".
     { lia. }
     { rewrite Nat2Z.id list_lookup_fmap_Some.
       exists None. split; first done.
-      eapply consistent_lookup_Some_None; last done.
+      eapply consistent𑁒lookup𑁒Some𑁒None; last done.
       { simpl_length. lia. }
-      apply consistent_app_None. done.
+      apply consistent𑁒app𑁒None. done.
     }
-    wp_apply+ (domain٠key_init𑁒spec with "Hkey") as (v) "HΨ".
-    iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
-    wp_apply+ (dynarray_1٠set𑁒spec with "Hl") as "Hl".
+    wp۰apply+ (domain٠key_init𑁒spec with "Hkey") as (v) "HΨ".
+    iMod (local𑁒update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
+    wp۰apply+ (dynarray_1٠set𑁒spec with "Hl") as "Hl".
     { simpl_length. lia. }
-    wp_pures.
+    wp۰pures.
 
     iApply "HΦ".
     rewrite Nat2Z.id -(list_fmap_insert _ _ _ (Some _)).
     iFrameSteps; iPureIntro.
     { rewrite dom_insert_lookup_L //. }
-    { apply consistent_update.
+    { apply consistent𑁒update.
       { simpl_length. lia. }
-      { apply consistent_app_None. done. }
+      { apply consistent𑁒app𑁒None. done. }
     }
   Qed.
-  Lemma domain٠local_get𑁒spec_pointsto keys key dq v tid :
+  Lemma domain٠local_get𑁒spec𑁒pointsto keys key dq v tid :
     {{{
-      domain_local tid keys ∗
-      domain_local_pointsto tid key dq v
+      domain۰local tid keys ∗
+      domain۰local_pointsto tid key dq v
     }}}
       domain٠local_get key ∶ tid
     {{{
       RET v;
-      domain_local tid keys ∗
-      domain_local_pointsto tid key dq v
+      domain۰local tid keys ∗
+      domain۰local_pointsto tid key dq v
     }}}.
   Proof.
     iIntros "%Φ ((:local) & (:local_pointsto suff=)) HΦ".
-    iDestruct (local_pointsto_agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
-    iDestruct (meta_agree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
-    iDestruct (local_at_valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
+    iDestruct (local_pointsto𑁒agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
+    iDestruct (meta𑁒agree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
+    iDestruct (local۰at𑁒valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
 
-    wp_rec.
-    wp_apply (wp_get_local with "Hlocal") as "_".
-    iApply wp_thread_id_mono.
-    wp_apply+ (domain٠key_id𑁒spec with "Hid") as "_".
-    wp_apply+ (dynarray_1٠grow𑁒spec with "Hl") as "Hl"; first lia.
+    wp۰rec.
+    wp۰apply (wp𑁒get_local with "Hlocal") as "_".
+    iApply wp𑁒thread_id_mono.
+    wp۰apply+ (domain٠key۰id𑁒spec with "Hid") as "_".
+    wp۰apply+ (dynarray_1٠grow𑁒spec with "Hl") as "Hl"; first lia.
 
     iEval (simpl_length) in "Hl".
-    iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
+    iEval (rewrite -(fmap_replicate option۰to_val _ None) -fmap_app) in "Hl".
 
-    wp_apply+ (dynarray_1٠get𑁒spec _ _ _ (Some v) with "Hl") as "Hl".
+    wp۰apply+ (dynarray_1٠get𑁒spec _ _ _ (Some v) with "Hl") as "Hl".
     { lia. }
     { rewrite Nat2Z.id list_lookup_fmap_Some.
       exists (Some v). split; first done.
-      eapply consistent_lookup_Some_Some; last done.
-      apply consistent_app_None. done.
+      eapply consistent𑁒lookup𑁒Some𑁒Some; last done.
+      apply consistent𑁒app𑁒None. done.
     }
-    wp_pures.
+    wp۰pures.
 
     iApply "HΦ".
     iFrameSteps. iPureIntro.
-    apply consistent_app_None. done.
+    apply consistent𑁒app𑁒None. done.
   Qed.
-  Lemma domain٠local_get𑁒spec_pointstopred keys key Ψ tid :
+  Lemma domain٠local_get𑁒spec𑁒pointstopred keys key Ψ tid :
     {{{
-      domain_local tid keys ∗
-      domain_local_pointstopred tid key Ψ
+      domain۰local tid keys ∗
+      domain۰local_pointstopred tid key Ψ
     }}}
       domain٠local_get key ∶ tid
     {{{
       v
     , RET v;
-      domain_local tid keys ∗
-      domain_local_pointsto tid key (DfracOwn 1) v ∗
+      domain۰local tid keys ∗
+      domain۰local_pointsto tid key (DfracOwn 1) v ∗
       Ψ v
     }}}.
   Proof.
     iIntros "%Φ (Hlocal & (:local_pointstopred)) HΦ".
-    - wp_apply (domain٠local_get𑁒spec_init with "[$Hlocal $Hkey $Hinit] HΦ").
-    - wp_apply (domain٠local_get𑁒spec_pointsto with "[$Hlocal $Hlocal_pointsto]") as "(Hlocal & Hlocal_pointsto)".
+    - wp۰apply (domain٠local_get𑁒spec𑁒init with "[$Hlocal $Hkey $Hinit] HΦ").
+    - wp۰apply (domain٠local_get𑁒spec𑁒pointsto with "[$Hlocal $Hlocal_pointsto]") as "(Hlocal & Hlocal_pointsto)".
       iApply ("HΦ" with "[$]").
   Qed.
 
-  Lemma domain٠local_set𑁒spec_init keys key Ψ v tid :
+  Lemma domain٠local_set𑁒spec𑁒init keys key Ψ v tid :
     {{{
-      domain_local tid keys ∗
-      domain_key key Ψ ∗
-      domain_local_init tid key
+      domain۰local tid keys ∗
+      domain۰key key Ψ ∗
+      domain۰local_init tid key
     }}}
       domain٠local_set key v ∶ tid
     {{{
       RET ();
-      domain_local tid keys ∗
-      domain_local_pointsto tid key (DfracOwn 1) v
+      domain۰local tid keys ∗
+      domain۰local_pointsto tid key (DfracOwn 1) v
     }}}.
   Proof.
     iIntros "%Φ ((:local) & #Hkey & (:local_init suff=)) HΦ".
-    iDestruct (local_pointsto_agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
-    iDestruct (meta_agree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
-    iDestruct (local_at_valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
+    iDestruct (local_pointsto𑁒agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
+    iDestruct (meta𑁒agree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
+    iDestruct (local۰at𑁒valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
 
-    wp_rec.
-    wp_apply+ (wp_get_local with "Hlocal") as "_".
-    iApply wp_thread_id_mono.
-    wp_apply+ (domain٠key_id𑁒spec with "Hid") as "_".
-    wp_apply+ (dynarray_1٠grow𑁒spec with "Hl") as "Hl"; first lia.
+    wp۰rec.
+    wp۰apply+ (wp𑁒get_local with "Hlocal") as "_".
+    iApply wp𑁒thread_id_mono.
+    wp۰apply+ (domain٠key۰id𑁒spec with "Hid") as "_".
+    wp۰apply+ (dynarray_1٠grow𑁒spec with "Hl") as "Hl"; first lia.
 
     iEval (simpl_length) in "Hl".
-    iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
+    iEval (rewrite -(fmap_replicate option۰to_val _ None) -fmap_app) in "Hl".
 
-    iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
-    wp_apply+ (dynarray_1٠set𑁒spec with "Hl") as "Hl".
+    iMod (local𑁒update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
+    wp۰apply+ (dynarray_1٠set𑁒spec with "Hl") as "Hl".
     { simpl_length. lia. }
 
     iApply "HΦ".
     rewrite Nat2Z.id -(list_fmap_insert _ _ _ (Some _)).
     iFrameSteps; iPureIntro.
     { rewrite dom_insert_lookup_L //. }
-    { apply consistent_update.
+    { apply consistent𑁒update.
       { simpl_length. lia. }
-      { apply consistent_app_None. done. }
+      { apply consistent𑁒app𑁒None. done. }
     }
   Qed.
-  Lemma domain٠local_set𑁒spec_pointsto keys key w v tid :
+  Lemma domain٠local_set𑁒spec𑁒pointsto keys key w v tid :
     {{{
-      domain_local tid keys ∗
-      domain_local_pointsto tid key (DfracOwn 1) w
+      domain۰local tid keys ∗
+      domain۰local_pointsto tid key (DfracOwn 1) w
     }}}
       domain٠local_set key v ∶ tid
     {{{
       RET ();
-      domain_local tid keys ∗
-      domain_local_pointsto tid key (DfracOwn 1) v
+      domain۰local tid keys ∗
+      domain۰local_pointsto tid key (DfracOwn 1) v
     }}}.
   Proof.
     iIntros "%Φ ((:local) & (:local_pointsto suff=)) HΦ".
-    iDestruct (local_pointsto_agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
-    iDestruct (meta_agree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
-    iDestruct (local_at_valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
+    iDestruct (local_pointsto𑁒agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
+    iDestruct (meta𑁒agree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
+    iDestruct (local۰at𑁒valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
 
-    wp_rec.
-    wp_apply+ (wp_get_local with "Hlocal") as "_".
-    iApply wp_thread_id_mono.
-    wp_apply+ (domain٠key_id𑁒spec with "Hid") as "_".
-    wp_apply+ (dynarray_1٠grow𑁒spec with "Hl") as "Hl"; first lia.
+    wp۰rec.
+    wp۰apply+ (wp𑁒get_local with "Hlocal") as "_".
+    iApply wp𑁒thread_id_mono.
+    wp۰apply+ (domain٠key۰id𑁒spec with "Hid") as "_".
+    wp۰apply+ (dynarray_1٠grow𑁒spec with "Hl") as "Hl"; first lia.
 
     iEval (simpl_length) in "Hl".
-    iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
+    iEval (rewrite -(fmap_replicate option۰to_val _ None) -fmap_app) in "Hl".
 
-    iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
-    wp_apply+ (dynarray_1٠set𑁒spec with "Hl") as "Hl".
+    iMod (local𑁒update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
+    wp۰apply+ (dynarray_1٠set𑁒spec with "Hl") as "Hl".
     { simpl_length. lia. }
 
     iApply "HΦ".
     rewrite Nat2Z.id -(list_fmap_insert _ _ _ (Some _)).
     iFrameSteps; iPureIntro.
     { rewrite dom_insert_lookup_L //. }
-    { apply consistent_update.
+    { apply consistent𑁒update.
       { simpl_length. lia. }
-      { apply consistent_app_None. done. }
+      { apply consistent𑁒app𑁒None. done. }
     }
   Qed.
-  Lemma domain٠local_set𑁒spec_pointstopred keys key Ψ v tid :
+  Lemma domain٠local_set𑁒spec𑁒pointstopred keys key Ψ v tid :
     {{{
-      domain_local tid keys ∗
-      domain_local_pointstopred tid key Ψ
+      domain۰local tid keys ∗
+      domain۰local_pointstopred tid key Ψ
     }}}
       domain٠local_set key v ∶ tid
     {{{
       RET ();
-      domain_local tid keys ∗
-      domain_local_pointsto tid key (DfracOwn 1) v
+      domain۰local tid keys ∗
+      domain۰local_pointsto tid key (DfracOwn 1) v
     }}}.
   Proof.
     iIntros "%Φ (Hlocal & (:local_pointstopred)) HΦ".
-    - wp_apply (domain٠local_set𑁒spec_init with "[$Hlocal $Hkey $Hinit] HΦ").
-    - wp_apply (domain٠local_set𑁒spec_pointsto with "[$Hlocal $Hlocal_pointsto] HΦ").
+    - wp۰apply (domain٠local_set𑁒spec𑁒init with "[$Hlocal $Hkey $Hinit] HΦ").
+    - wp۰apply (domain٠local_set𑁒spec𑁒pointsto with "[$Hlocal $Hlocal_pointsto] HΦ").
   Qed.
-End domain_G.
+End domain۰G.
 
-Axiom domain٠yield𑁒spec : ∀ `{zoo_G : !ZooG Σ} Φ,
+Axiom domain٠yield𑁒spec : ∀ `{zoo۰G : !ZooG Σ} Φ,
   ▷ Φ ()%V ⊢
   WP domain٠yield () {{ Φ }}.
 
-Axiom domain٠self_index𑁒spec : ∀ `{zoo_G : !ZooG Σ} Φ,
+Axiom domain٠self_index𑁒spec : ∀ `{zoo۰G : !ZooG Σ} Φ,
   (∀ (i : nat), ▷ Φ #i) ⊢
   WP domain٠self_index () {{ Φ }}.
 
-Axiom domain٠recommended_domain_count𑁒spec : ∀ `{zoo_G : !ZooG Σ} Φ,
+Axiom domain٠recommended_domain_count𑁒spec : ∀ `{zoo۰G : !ZooG Σ} Φ,
   (∀ (i : nat), ▷ Φ #i) ⊢
   WP domain٠recommended_domain_count () {{ Φ }}.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
 
   #[global] Instance domain٠yield𑁒diaspec :
     DIASPEC
@@ -841,7 +841,7 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    wp_apply domain٠yield𑁒spec.
+    wp۰apply domain٠yield𑁒spec.
     iSteps.
   Qed.
 
@@ -857,7 +857,7 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    wp_apply domain٠self_index𑁒spec.
+    wp۰apply domain٠self_index𑁒spec.
     iSteps.
   Qed.
 
@@ -873,10 +873,10 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    wp_apply domain٠recommended_domain_count𑁒spec.
+    wp۰apply domain٠recommended_domain_count𑁒spec.
     iSteps.
   Qed.
-End zoo_G.
+End zoo۰G.
 
 #[global] Opaque domain٠spawn.
 #[global] Opaque domain٠join.
@@ -887,8 +887,8 @@ End zoo_G.
 #[global] Opaque domain٠self_index.
 #[global] Opaque domain٠recommended_domain_count.
 
-#[global] Opaque domain_model.
-#[global] Opaque domain_key.
-#[global] Opaque domain_local.
-#[global] Opaque domain_local_init.
-#[global] Opaque domain_local_pointsto.
+#[global] Opaque domain۰model.
+#[global] Opaque domain۰key.
+#[global] Opaque domain۰local.
+#[global] Opaque domain۰local_init.
+#[global] Opaque domain۰local_pointsto.

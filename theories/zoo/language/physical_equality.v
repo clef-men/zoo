@@ -20,10 +20,10 @@ Variant lowliteral :=
   | LowlitPoison.
 Implicit Types llit : lowliteral.
 
-#[global] Instance lowliteral_eq_dec : EqDecision lowliteral :=
+#[global] Instance lowliteral𑁒eq_dec : EqDecision lowliteral :=
   ltac:(solve_decision).
 
-Definition literal_to_low lit :=
+Definition literal۰to_low lit :=
   match lit with
   | LitBool b =>
       LowlitInt (Nat.b2n b)
@@ -36,9 +36,9 @@ Definition literal_to_low lit :=
   | LitPoison =>
       LowlitPoison
   end.
-#[global] Arguments literal_to_low !_ / : simpl nomatch, assert.
+#[global] Arguments literal۰to_low !_ / : simpl nomatch, assert.
 
-#[global] Instance lowliteral_nonsimilar : Nonsimilar lowliteral :=
+#[global] Instance lowliteral۰nonsimilar : Nonsimilar lowliteral :=
   λ llit1 llit2,
     match llit1 with
     | LowlitInt n1 =>
@@ -49,7 +49,7 @@ Definition literal_to_low lit :=
         True
     end.
 
-#[global] Instance lowliteral_nonsimilar_dec :
+#[global] Instance lowliteral𑁒nonsimilar𑁒dec :
   RelDecision (≉@{lowliteral}).
 Proof.
   unshelve refine (
@@ -66,7 +66,7 @@ Proof.
   all: abstract done.
 Defined.
 
-#[global] Instance lowliteral_nonsimilar_symmetric :
+#[global] Instance lowliteral𑁒nonsimilar𑁒symmetric :
   Symmetric (≉@{lowliteral}).
 Proof.
   intros [] []; done.
@@ -81,7 +81,7 @@ Set Elimination Schemes.
 Implicit Types lv : lowval.
 Implicit Types lvs : list lowval.
 
-Section lowval_ind.
+Section lowval۰ind.
   Variable P : lowval → Prop.
 
   Variable HLit :
@@ -94,7 +94,7 @@ Section lowval_ind.
     ∀ lvs, Forall P lvs →
     P (LowvalBlock gen tag vs lvs).
 
-  Fixpoint lowval_ind lv :=
+  Fixpoint lowval۰ind lv :=
     match lv with
     | LowvalLit llit =>
         HLit
@@ -104,9 +104,9 @@ Section lowval_ind.
     | LowvalBlock gen tag vs lvs =>
         HBlock
           gen tag vs
-          lvs (Forall_true P lvs lowval_ind)
+          lvs (Forall_true P lvs lowval۰ind)
     end.
-End lowval_ind.
+End lowval۰ind.
 
 Notation LowvalInt n := (
   LowvalLit (LowlitInt n)
@@ -125,7 +125,7 @@ Notation LowvalPoison := (
 )(only parsing
 ).
 
-#[global] Instance lowval_eq_dec : EqDecision lowval.
+#[global] Instance lowval𑁒eq_dec : EqDecision lowval.
 Proof.
   unshelve refine (
     fix go lv1 lv2 : Decision (lv1 = lv2) :=
@@ -160,20 +160,20 @@ Proof.
   all: abstract congruence.
 Defined.
 
-Fixpoint val_to_low v :=
+Fixpoint val۰to_low v :=
   match v with
   | ValLit llit =>
-      LowvalLit (literal_to_low llit)
+      LowvalLit (literal۰to_low llit)
   | ValRecs _ _ =>
       LowvalRecs
   | ValBlock _ tag [] =>
       LowvalLit (LowlitInt tag)
   | ValBlock gen tag vs =>
-      LowvalBlock gen tag vs (val_to_low <$> vs)
+      LowvalBlock gen tag vs (val۰to_low <$> vs)
   end.
-#[global] Arguments val_to_low !_ / : simpl nomatch, assert.
+#[global] Arguments val۰to_low !_ / : simpl nomatch, assert.
 
-#[global] Instance lowval_nonsimilar : Nonsimilar lowval :=
+#[global] Instance lowval۰nonsimilar : Nonsimilar lowval :=
   λ lv1 lv2,
     match lv1 with
     | LowvalLit llit1 =>
@@ -196,7 +196,7 @@ Fixpoint val_to_low v :=
         True
     end.
 
-#[global] Instance lowval_nonsimilar_dec :
+#[global] Instance lowval𑁒nonsimilar𑁒dec :
   RelDecision (≉@{lowval}).
 Proof.
   unshelve refine (
@@ -226,7 +226,7 @@ Proof.
   all: abstract naive_solver.
 Defined.
 
-#[global] Instance lowval_similar : Similar lowval :=
+#[global] Instance lowval۰similar : Similar lowval :=
   fix go lv1 lv2 :=
     match lv1 with
     | LowvalLit llit1 =>
@@ -252,7 +252,7 @@ Defined.
         end
     end.
 
-#[global] Instance lowval_similar_dec :
+#[global] Instance lowval𑁒similar𑁒dec :
   RelDecision (≈@{lowval}).
 Proof.
   refine (
@@ -274,7 +274,7 @@ Proof.
               | Nongenerative, Nongenerative =>
                   cast_if_and
                     (decide (tag1 = tag2))
-                    (@decide (Forall2' (≈) lvs1 lvs2) (@Forall2'_dec _ _ _ go _ _))
+                    (@decide (Forall2' (≈) lvs1 lvs2) (@Forall2'𑁒dec _ _ _ go _ _))
               | _, _ =>
                   right _
               end
@@ -287,47 +287,47 @@ Proof.
   all: abstract intuition.
 Defined.
 
-#[global] Instance lowval_nonsimilar_symmetric :
+#[global] Instance lowval𑁒nonsimilar𑁒symmetric :
   Symmetric (≉@{lowval}).
 Proof.
   do 2 intros [| | [[] |]]; naive_solver.
 Qed.
 
-#[global] Instance lowval_similar_reflexive :
+#[global] Instance lowval𑁒similar𑁒reflexive :
   Reflexive (≈@{lowval}).
 Proof.
   rewrite /Reflexive. fix IH 1.
   intros [| | []].
-  4: apply Forall2'_refl in IH as ?.
+  4: apply Forall2'𑁒refl in IH as ?.
   all: clear IH.
   all: naive_solver.
 Qed.
-Lemma lowval_similar_refl lv1 lv2 :
+Lemma lowval𑁒similar𑁒refl lv1 lv2 :
   lv1 = lv2 →
   lv1 ≈ lv2.
 Proof.
   naive_solver.
 Qed.
-#[global] Instance lowval_similar_symmetric :
+#[global] Instance lowval𑁒similar𑁒symmetric :
   Symmetric (≈@{lowval}).
 Proof.
   rewrite /Symmetric. fix IH 1.
   do 2 intros [| | []].
-  16: apply Forall2'_sym in IH as ?.
+  16: apply Forall2'𑁒sym in IH as ?.
   all: clear IH.
   all: naive_solver.
 Qed.
-#[global] Instance lowval_similar_transitive :
+#[global] Instance lowval𑁒similar𑁒transitive :
   Transitive (≈@{lowval}).
 Proof.
   rewrite /Transitive. fix IH 1.
   do 3 intros [| | []].
-  64: apply Forall2'_trans in IH as ?.
+  64: apply Forall2'𑁒trans in IH as ?.
   all: clear IH.
   all: naive_solver.
 Qed.
 
-Lemma lowval_similar_or_nonsimilar lv1 lv2 :
+Lemma lowval𑁒similar𑁒or𑁒nonsimilar lv1 lv2 :
   lv1 ≈ lv2 ∨ lv1 ≉ lv2.
 Proof.
   all: destruct lv1 as [[n1 | l1 | |] | | [[bid1 |] |] tag1 [| v1 vs1]].
@@ -340,7 +340,7 @@ Proof.
   all: try destruct_decide (vs1 = vs2).
   all: cbn; naive_solver.
 Qed.
-Lemma lowval_nonsimilar_similar lv1 lv2 lv3 :
+Lemma lowval𑁒nonsimilar𑁒similar lv1 lv2 lv3 :
   lv1 ≉ lv2 →
   lv2 ≈ lv3 →
   lv1 ≉ lv3.
@@ -350,56 +350,56 @@ Proof.
   all: naive_solver.
 Qed.
 
-#[global] Instance val_nonsimilar : Nonsimilar val :=
+#[global] Instance val۰nonsimilar : Nonsimilar val :=
   λ v1 v2,
-    val_to_low v1 ≉ val_to_low v2.
+    val۰to_low v1 ≉ val۰to_low v2.
 
-#[global] Instance val_nonsimilar_dec : RelDecision (≉@{val}) :=
-  ltac:(rewrite /nonsimilar /val_nonsimilar; solve_decision).
+#[global] Instance val𑁒nonsimilar𑁒dec : RelDecision (≉@{val}) :=
+  ltac:(rewrite /nonsimilar /val۰nonsimilar; solve_decision).
 
-#[global] Instance val_similar : Similar val :=
+#[global] Instance val۰similar : Similar val :=
   λ v1 v2,
-    val_to_low v1 ≈ val_to_low v2.
+    val۰to_low v1 ≈ val۰to_low v2.
 
-#[global] Instance val_similar_dec : RelDecision (≈@{val}) :=
-  ltac:(rewrite /similar /val_similar; solve_decision).
+#[global] Instance val𑁒similar𑁒dec : RelDecision (≈@{val}) :=
+  ltac:(rewrite /similar /val۰similar; solve_decision).
 
-#[global] Instance val_nonsimilar_symmetric :
+#[global] Instance val𑁒nonsimilar𑁒symmetric :
   Symmetric (≉@{val}).
 Proof.
-  rewrite /nonsimilar /val_nonsimilar /Symmetric //.
+  rewrite /nonsimilar /val۰nonsimilar /Symmetric //.
 Qed.
-Lemma val_nonsimilar_bool b1 b2 :
+Lemma val𑁒nonsimilar𑁒bool b1 b2 :
   ValBool b1 ≉ ValBool b2 →
   b1 ≠ b2.
 Proof.
   naive_solver.
 Qed.
-Lemma val_nonsimilar_int n1 n2 :
+Lemma val𑁒nonsimilar𑁒int n1 n2 :
   ValInt n1 ≉ ValInt n2 →
   n1 ≠ n2.
 Proof.
   naive_solver.
 Qed.
-Lemma val_nonsimilar_nat (n1 n2 : nat) :
+Lemma val𑁒nonsimilar𑁒nat (n1 n2 : nat) :
   ValNat n1 ≉ ValNat n2 →
   n1 ≠ n2.
 Proof.
   naive_solver.
 Qed.
-Lemma val_nonsimilar_location l1 l2 :
+Lemma val𑁒nonsimilar𑁒location l1 l2 :
   ValLoc l1 ≉ ValLoc l2 →
   l1 ≠ l2.
 Proof.
   naive_solver.
 Qed.
-Lemma val_nonsimilar_block_empty gen1 tag1 gen2 tag2 :
+Lemma val𑁒nonsimilar𑁒block𑁒empty gen1 tag1 gen2 tag2 :
   ValBlock gen1 tag1 [] ≉ ValBlock gen2 tag2 [] →
   tag1 ≠ tag2.
 Proof.
   naive_solver.
 Qed.
-Lemma val_nonsimilar_block_generative bid1 tag1 vs1 bid2 tag2 vs2 :
+Lemma val𑁒nonsimilar𑁒block𑁒generative bid1 tag1 vs1 bid2 tag2 vs2 :
   tag1 = tag2 →
   vs1 = vs2 →
   ValBlock (Generative (Some bid1)) tag1 vs1 ≉ ValBlock (Generative (Some bid2)) tag2 vs2 →
@@ -410,69 +410,69 @@ Proof.
   cbn. naive_solver.
 Qed.
 
-#[global] Instance val_similar_reflexive :
+#[global] Instance val𑁒similar𑁒reflexive :
   Reflexive (≈@{val}).
 Proof.
-  rewrite /similar /val_similar /Reflexive //.
+  rewrite /similar /val۰similar /Reflexive //.
 Qed.
-Lemma val_similar_refl v1 v2 :
+Lemma val𑁒similar𑁒refl v1 v2 :
   v1 = v2 →
   v1 ≈ v2.
 Proof.
   naive_solver.
 Qed.
-#[global] Instance val_similar_symmetric :
+#[global] Instance val𑁒similar𑁒symmetric :
   Symmetric (≈@{val}).
 Proof.
-  rewrite /similar /val_similar /Symmetric //.
+  rewrite /similar /val۰similar /Symmetric //.
 Qed.
-#[global] Instance val_similar_transitive :
+#[global] Instance val𑁒similar𑁒transitive :
   Transitive (≈@{val}).
 Proof.
-  rewrite /similar /val_similar /Transitive.
+  rewrite /similar /val۰similar /Transitive.
   firstorder. etrans; done.
 Qed.
-Lemma val_similar_bool b1 b2 :
+Lemma val𑁒similar𑁒bool b1 b2 :
   ValLit (LitBool b1) ≈ ValLit (LitBool b2) →
   b1 = b2.
 Proof.
   intros [= ->%(inj _)%(inj _)]. done.
 Qed.
-Lemma val_similar_int n1 n2 :
+Lemma val𑁒similar𑁒int n1 n2 :
   ValLit (LitInt n1) ≈ ValLit (LitInt n2) →
   n1 = n2.
 Proof.
   intros [= ->]. done.
 Qed.
-Lemma val_similar_nat (n1 n2 : nat) :
+Lemma val𑁒similar𑁒nat (n1 n2 : nat) :
   ValLit (LitInt n1) ≈ ValLit (LitInt n2) →
   n1 = n2.
 Proof.
-  intros <-%val_similar_int%(inj _). done.
+  intros <-%val𑁒similar𑁒int%(inj _). done.
 Qed.
-Lemma val_similar_location l1 l2 :
+Lemma val𑁒similar𑁒location l1 l2 :
   ValLit (LitLoc l1) ≈ ValLit (LitLoc l2) →
   l1 = l2.
 Proof.
   intros [= ->]. done.
 Qed.
-Lemma val_similar_block_empty gen1 tag1 gen2 tag2 :
+Lemma val𑁒similar𑁒block𑁒empty gen1 tag1 gen2 tag2 :
   ValBlock gen1 tag1 [] ≈ ValBlock gen2 tag2 [] →
   tag1 = tag2.
 Proof.
   intros [= ->%(inj _)]. done.
 Qed.
-Lemma val_similar_block_empty_1 gen1 tag1 gen2 tag2 v2 vs2 :
+Lemma val𑁒similar𑁒block𑁒empty₁ gen1 tag1 gen2 tag2 v2 vs2 :
   ¬ ValBlock gen1 tag1 [] ≈ ValBlock gen2 tag2 (v2 :: vs2).
 Proof.
   done.
 Qed.
-Lemma val_similar_block_empty_2 gen1 tag1 v1 vs1 gen2 tag2 :
+Lemma val𑁒similar𑁒block𑁒empty₂ gen1 tag1 v1 vs1 gen2 tag2 :
   ¬ ValBlock gen1 tag1 (v1 :: vs1) ≈ ValBlock gen2 tag2 [].
 Proof.
-  intros []%symmetry%val_similar_block_empty_1.
+  intros []%symmetry%val𑁒similar𑁒block𑁒empty₁.
 Qed.
-Lemma val_similar_block_generative bid1 tag1 vs1 bid2 tag2 vs2 :
+Lemma val𑁒similar𑁒block𑁒generative bid1 tag1 vs1 bid2 tag2 vs2 :
   length vs1 ≠ 0 ∨ length vs2 ≠ 0 →
   ValBlock (Generative bid1) tag1 vs1 ≈ ValBlock (Generative bid2) tag2 vs2 →
     bid1 = bid2 ∧
@@ -481,48 +481,48 @@ Lemma val_similar_block_generative bid1 tag1 vs1 bid2 tag2 vs2 :
 Proof.
   destruct vs1, vs2; naive_solver.
 Qed.
-Lemma val_similar_block_nongenerative tag1 vs1 tag2 vs2 :
+Lemma val𑁒similar𑁒block𑁒nongenerative tag1 vs1 tag2 vs2 :
   ValBlock Nongenerative tag1 vs1 ≈ ValBlock Nongenerative tag2 vs2 →
     tag1 = tag2 ∧
     length vs1 = length vs2.
 Proof.
   destruct vs1, vs2; try done.
   - intros [= ->%(inj _)]. done.
-  - intros (<- & Hlen%Forall2'_length).
+  - intros (<- & Hlen%Forall2'𑁒length).
     simpl_length in Hlen.
 Qed.
-Lemma val_similar_location_block l gen tag vs :
+Lemma val𑁒similar𑁒location𑁒block l gen tag vs :
   ¬ ValLit (LitLoc l) ≈ ValBlock gen tag vs.
 Proof.
   destruct vs; done.
 Qed.
-Lemma val_similar_block_location gen tag vs l :
+Lemma val𑁒similar𑁒block𑁒location gen tag vs l :
   ¬ ValBlock gen tag vs ≈ ValLit (LitLoc l).
 Proof.
-  intros []%symmetry%val_similar_location_block.
+  intros []%symmetry%val𑁒similar𑁒location𑁒block.
 Qed.
-Lemma val_similar_block_generative_nongenerative bid1 tag1 vs1 tag2 vs2 :
+Lemma val𑁒similar𑁒block𑁒generative𑁒nongenerative bid1 tag1 vs1 tag2 vs2 :
   length vs1 ≠ 0 ∨ length vs2 ≠ 0 →
   ¬ ValBlock (Generative bid1) tag1 vs1 ≈ ValBlock Nongenerative tag2 vs2.
 Proof.
   destruct vs1, vs2; cbn; naive_solver lia.
 Qed.
-Lemma val_similar_block_nongenerative_generative tag1 vs1 bid2 tag2 vs2 :
+Lemma val𑁒similar𑁒block𑁒nongenerative𑁒generative tag1 vs1 bid2 tag2 vs2 :
   length vs1 ≠ 0 ∨ length vs2 ≠ 0 →
   ¬ ValBlock Nongenerative tag1 vs1 ≈ ValBlock (Generative bid2) tag2 vs2.
 Proof.
-  intros ? []%symmetry%val_similar_block_generative_nongenerative. naive_solver.
+  intros ? []%symmetry%val𑁒similar𑁒block𑁒generative𑁒nongenerative. naive_solver.
 Qed.
 
-Lemma val_similar_or_nonsimilar v1 v2 :
+Lemma val𑁒similar𑁒or𑁒nonsimilar v1 v2 :
   v1 ≈ v2 ∨ v1 ≉ v2.
 Proof.
-  apply lowval_similar_or_nonsimilar.
+  apply lowval𑁒similar𑁒or𑁒nonsimilar.
 Qed.
-Lemma val_nonsimilar_similar v1 v2 v3 :
+Lemma val𑁒nonsimilar𑁒similar v1 v2 v3 :
   v1 ≉ v2 →
   v2 ≈ v3 →
   v1 ≉ v3.
 Proof.
-  apply lowval_nonsimilar_similar.
+  apply lowval𑁒nonsimilar𑁒similar.
 Qed.

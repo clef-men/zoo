@@ -8,12 +8,12 @@ Require Import zoo.program_logic.wp.
 Require Export zoo.diaframe.symb_exec.defs.
 Require Import zoo.options.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
 
   Implicit Types TT : tele.
 
-  #[global] Instance absorb_modal_fupd_wp e tid E1 E2 Φ :
+  #[global] Instance absorb_modal𑁒fupd𑁒wp e tid E1 E2 Φ :
     SolveSepSideCondition (E2 ⊆ E1) →
     AbsorbModal
       (WP e ∷ tid @ E1 {{ Φ }})
@@ -23,7 +23,7 @@ Section zoo_G.
     rewrite /AbsorbModal. auto.
   Qed.
 
-  #[global] Instance dia_wp_value e v E Φ :
+  #[global] Instance dia𑁒wp𑁒value e v E Φ :
     AsVal e v →
     HINT1 ε₀ ✱ [
       |={E}=> Φ v
@@ -32,10 +32,10 @@ Section zoo_G.
   | 10.
   Proof.
     rewrite /AsVal /Abduct /= empty_hyp_first_eq left_id => He.
-    apply wp_value_fupd. done.
+    apply wp𑁒value𑁒fupd. done.
   Qed.
 
-  #[global] Instance dia_wp_mono e1 K e2 e2' tid E Φ1 Φ2 :
+  #[global] Instance dia𑁒wp𑁒mono e1 K e2 e2' tid E Φ1 Φ2 :
     ReshapeExprAnd _ e1 K e2' (TCEq e2' e2) →
     Context K →
     HINT1
@@ -48,8 +48,8 @@ Section zoo_G.
       WP e1 ∷ tid @ E {{ Φ1 }}.
   Proof.
     iIntros ((-> & ->) HK) "(HΦ2 & HΦ1)".
-    iApply wp_bind'.
-    iApply (wp_wand with "HΦ2"). iIntros "%v2 HΦ2".
+    iApply wp𑁒bind'.
+    iApply (wp𑁒wand with "HΦ2"). iIntros "%v2 HΦ2".
     iApply ("HΦ1" with "HΦ2").
   Qed.
 
@@ -65,7 +65,7 @@ Section zoo_G.
       WP e @ E {{ Φ }}.
   #[global] Arguments dia_spec _ _ _ _ _ _ _ {_} _ : assert.
 
-  #[global] Instance dia_spec_as_emp_valid_weak TT1 TT2 P e E ret Q :
+  #[global] Instance dia_spec𑁒as_emp_valid_weak TT1 TT2 P e E ret Q :
     AsEmpValidWeak
       (DiaSpec TT1 TT2 P e E ret Q)
       ( ∀ Φ,
@@ -82,7 +82,7 @@ Section zoo_G.
     rewrite /DiaSpec. iIntros "%". done.
   Qed.
 
-  #[global] Instance dia_wp_spec e K e' TT1 TT2 P ret Q tid E1 E2 Φ :
+  #[global] Instance dia𑁒wp𑁒spec e K e' TT1 TT2 P ret Q tid E1 E2 Φ :
     ReshapeExprAnd _ e K e' (
       TCOr (
         TCAnd
@@ -107,8 +107,8 @@ Section zoo_G.
   Proof.
     rewrite /Abduct /=.
     iIntros ((-> & Hspec) HK) "(_ & H)".
-    iApply wp_bind'.
-    iApply wp_thread_id_mono.
+    iApply wp𑁒bind'.
+    iApply wp𑁒thread_id_mono.
     destruct Hspec as [(Hatomic & Hspec) | (<- & Hspec)].
     all: iMod "H" as "(%tt1 & HP & H)".
     all: iApply (Hspec with "HP").
@@ -116,7 +116,7 @@ Section zoo_G.
     all: iMod ("H" with "HQ") as "H".
     all: iApply "H".
   Qed.
-End zoo_G.
+End zoo۰G.
 
 Declare Custom Entry dia_spec_mask.
 Notation "" := (

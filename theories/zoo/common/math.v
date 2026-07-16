@@ -7,22 +7,22 @@ Require Import zoo.common.relations.
 Require Import zoo.options.
 
 Section nat.
-  #[global] Instance b2n_inj :
+  #[global] Instance b2n𑁒inj :
     Inj (=) (=) Nat.b2n.
   Proof.
     intros [] []; done.
   Qed.
 
-  Definition nat_elim {A} (x : A) f n :=
+  Definition nat۰elim {A} (x : A) f n :=
     match n with
     | 0 =>
         x
     | ˖n =>
         f n
     end.
-  #[global] Arguments nat_elim _ _ _ !_ / : assert.
+  #[global] Arguments nat۰elim _ _ _ !_ / : assert.
 
-  #[global] Instance ge_partialorder :
+  #[global] Instance ge𑁒partialorder :
     PartialOrder ge.
   Proof.
     split; first split.
@@ -31,12 +31,12 @@ Section nat.
     - intros ?**. lia.
   Qed.
 
-  #[global] Instance le_initial : Initial (≤) :=
+  #[global] Instance le𑁒initial : Initial (≤) :=
     {|initial := 0
-    ; initial_lb := Nat.le_0_l
+    ; initial𑁒lb := Nat.le_0_l
     |}.
 
-  Lemma minus_mod_1 a b n :
+  Lemma minus𑁒mod₁ a b n :
     b ≤ a →
     b `mod` n ≤ a `mod` n →
     (a `mod` n - b `mod` n) `mod` n = (a - b) `mod` n.
@@ -46,7 +46,7 @@ Section nat.
     rewrite Nat2Z.inj_mod Nat2Z.inj_sub // !Nat2Z.inj_mod -Zminus_mod.
     rewrite -Nat2Z.inj_sub // -Nat2Z.inj_mod Nat2Z.id //.
   Qed.
-  Lemma minus_mod_1' a b n :
+  Lemma minus𑁒mod₁' a b n :
     n ≠ 0 →
     b ≤ a →
     b `mod` n ≤ a `mod` n →
@@ -54,18 +54,18 @@ Section nat.
   Proof.
     intros.
     rewrite -(Nat.mod_small (a `mod` n - b `mod` n) n); first lia.
-    rewrite minus_mod_1 //.
+    rewrite minus𑁒mod₁ //.
   Qed.
-  Lemma minus_mod_1'' a b n :
+  Lemma minus𑁒mod₁'' a b n :
     n ≠ 0 →
     a `mod` n ≤ (a + b) `mod` n →
     (a + b) `mod` n - a `mod` n = b `mod` n.
   Proof.
     intros.
-    rewrite minus_mod_1' //; first lia.
+    rewrite minus𑁒mod₁' //; first lia.
     rewrite Nat.add_sub' //.
   Qed.
-  Lemma minus_mod_2 a b n :
+  Lemma minus𑁒mod₂ a b n :
     n ≠ 0 →
     a ≤ b →
     b `mod` n ≤ a `mod` n →
@@ -95,7 +95,7 @@ Notation "(≥)" :=
 Section Z.
   #[local] Open Scope Z_scope.
 
-  Lemma Z_rem_mod x y :
+  Lemma Z𑁒rem𑁒mod x y :
     0 ≤ x →
     0 ≤ y →
     x `rem` y = x `mod` y.
@@ -107,24 +107,24 @@ Section Z.
   Qed.
 End Z.
 
-Section Qp_of_nat.
+Section Qp۰of_nat.
   Implicit Types n : nat.
 
-  Definition Qp_of_nat :=
+  Definition Qp۰of_nat :=
     pos_to_Qp ∘ Pos.of_nat.
 
-  Lemma Qp_of_nat_1 :
-    Qp_of_nat 1 = 1%Qp.
+  Lemma Qp۰of_nat𑁒1 :
+    Qp۰of_nat 1 = 1%Qp.
   Proof.
     done.
   Qed.
-  Lemma Qp_of_nat_S n :
+  Lemma Qp۰of_nat𑁒S n :
     n ≠ 0 →
-    Qp_of_nat ˖n = (1 + Qp_of_nat n)%Qp.
+    Qp۰of_nat ˖n = (1 + Qp۰of_nat n)%Qp.
   Proof.
     intros Hn.
-    rewrite /Qp_of_nat /=.
+    rewrite /Qp۰of_nat /=.
     rewrite Nat2Pos.inj_succ //.
     rewrite pos_to_Qp_add Pos.add_1_l //.
   Qed.
-End Qp_of_nat.
+End Qp۰of_nat.

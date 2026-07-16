@@ -30,9 +30,9 @@ Variant mutability :=
   | ImmutableGenerativeStrong.
 Implicit Types mut : mutability.
 
-#[global] Instance mutability_eq_dec : EqDecision mutability :=
+#[global] Instance mutability𑁒eq_dec : EqDecision mutability :=
   ltac:(solve_decision).
-#[global] Instance mutability_countable :
+#[global] Instance mutability𑁒countable :
   Countable mutability.
 Proof.
   solve_countable.
@@ -43,9 +43,9 @@ Variant generativity :=
   | Nongenerative.
 Implicit Types gen : generativity.
 
-#[global] Instance generativity_eq_dec : EqDecision generativity :=
+#[global] Instance generativity𑁒eq_dec : EqDecision generativity :=
   ltac:(solve_decision).
-#[global] Instance generativity_countable :
+#[global] Instance generativity𑁒countable :
   Countable generativity.
 Proof.
   solve_countable.
@@ -59,9 +59,9 @@ Variant literal :=
   | LitPoison.
 Implicit Types lit : literal.
 
-#[global] Instance literal_eq_dec : EqDecision literal :=
+#[global] Instance literal𑁒eq_dec : EqDecision literal :=
   ltac:(solve_decision).
-#[global] Instance literal_countable :
+#[global] Instance literal𑁒countable :
   Countable literal.
 Proof.
   solve_countable.
@@ -72,9 +72,9 @@ Variant unop :=
   | UnopMinus
   | UnopIsImmediate.
 
-#[global] Instance unop_eq_dec : EqDecision unop :=
+#[global] Instance unop𑁒eq_dec : EqDecision unop :=
   ltac:(solve_decision).
-#[global] Instance unop_countable :
+#[global] Instance unop𑁒countable :
   Countable unop.
 Proof.
   solve_countable.
@@ -85,29 +85,29 @@ Variant binop :=
   | BinopLand | BinopLor | BinopLsl | BinopLsr
   | BinopLe | BinopLt | BinopGe | BinopGt.
 
-#[global] Instance binop_eq_dec : EqDecision binop :=
+#[global] Instance binop𑁒eq_dec : EqDecision binop :=
   ltac:(solve_decision).
-#[global] Instance binop_countable :
+#[global] Instance binop𑁒countable :
   Countable binop.
 Proof.
   solve_countable.
 Qed.
 
 Record pattern :=
-  { pattern_tag : nat
-  ; pattern_fields : list binder
-  ; pattern_as : binder
+  { pattern۰tag : nat
+  ; pattern۰fields : list binder
+  ; pattern۰as : binder
   }.
 
-#[global] Instance pattern_inhabited : Inhabited pattern :=
+#[global] Instance pattern𑁒inhabited : Inhabited pattern :=
   populate
-    {|pattern_tag := inhabitant
-    ; pattern_fields := inhabitant
-    ; pattern_as := inhabitant
+    {|pattern۰tag := inhabitant
+    ; pattern۰fields := inhabitant
+    ; pattern۰as := inhabitant
     |}.
-#[global] Instance pattern_eq_dec : EqDecision pattern :=
+#[global] Instance pattern𑁒eq_dec : EqDecision pattern :=
   ltac:(solve_decision).
-#[global] Instance pattern_countable :
+#[global] Instance pattern𑁒countable :
   Countable pattern.
 Proof.
   solve_countable.
@@ -396,7 +396,7 @@ Section val_ind.
     end.
 End val_ind.
 
-Section expr_val_mutind.
+Section expr𑁒val𑁒mutind.
   Variable Pexpr : expr → Prop.
   Variable Pval : val → Prop.
 
@@ -512,109 +512,109 @@ Section expr_val_mutind.
     ∀ vs, Forall Pval vs →
     Pval (ValBlock gen tag vs).
 
-  Fixpoint expr_val_ind e :=
+  Fixpoint expr𑁒val𑁒ind e :=
     match e with
     | Val v =>
         HVal
-          v (val_expr_ind v)
+          v (val𑁒expr𑁒ind v)
     | Var x =>
         HVar
           x
     | Rec f x e =>
         HRec
           f x
-          e (expr_val_ind e)
+          e (expr𑁒val𑁒ind e)
     | App e1 e2 =>
         HApp
-          e1 (expr_val_ind e1)
-          e2 (expr_val_ind e2)
+          e1 (expr𑁒val𑁒ind e1)
+          e2 (expr𑁒val𑁒ind e2)
     | Let x e1 e2 =>
         HLet
           x
-          e1 (expr_val_ind e1)
-          e2 (expr_val_ind e2)
+          e1 (expr𑁒val𑁒ind e1)
+          e2 (expr𑁒val𑁒ind e2)
     | Unop op e =>
         HUnop
           op
-          e (expr_val_ind e)
+          e (expr𑁒val𑁒ind e)
     | Binop op e1 e2 =>
         HBinop
           op
-          e1 (expr_val_ind e1)
-          e2 (expr_val_ind e2)
+          e1 (expr𑁒val𑁒ind e1)
+          e2 (expr𑁒val𑁒ind e2)
     | Equal e1 e2 =>
         HEqual
-          e1 (expr_val_ind e1)
-          e2 (expr_val_ind e2)
+          e1 (expr𑁒val𑁒ind e1)
+          e2 (expr𑁒val𑁒ind e2)
     | If e0 e1 e2 =>
         HIf
-          e0 (expr_val_ind e0)
-          e1 (expr_val_ind e1)
-          e2 (expr_val_ind e2)
+          e0 (expr𑁒val𑁒ind e0)
+          e1 (expr𑁒val𑁒ind e1)
+          e2 (expr𑁒val𑁒ind e2)
     | For e1 e2 e3 =>
         HFor
-          e1 (expr_val_ind e1)
-          e2 (expr_val_ind e2)
-          e3 (expr_val_ind e3)
+          e1 (expr𑁒val𑁒ind e1)
+          e2 (expr𑁒val𑁒ind e2)
+          e3 (expr𑁒val𑁒ind e3)
     | Alloc e1 e2 =>
         HAlloc
-          e1 (expr_val_ind e1)
-          e2 (expr_val_ind e2)
+          e1 (expr𑁒val𑁒ind e1)
+          e2 (expr𑁒val𑁒ind e2)
     | Block mut tag es =>
         HBlock
           mut tag
-          es (Forall_true Pexpr es expr_val_ind)
+          es (Forall_true Pexpr es expr𑁒val𑁒ind)
     | Match e0 x e1 brs =>
         HMatch
-          e0 (expr_val_ind e0)
+          e0 (expr𑁒val𑁒ind e0)
           x
-          e1 (expr_val_ind e1)
-          brs (Forall_true (λ br, Pexpr br.2) brs (λ br, expr_val_ind br.2))
+          e1 (expr𑁒val𑁒ind e1)
+          brs (Forall_true (λ br, Pexpr br.2) brs (λ br, expr𑁒val𑁒ind br.2))
     | GetTag e =>
         HGetTag
-          e (expr_val_ind e)
+          e (expr𑁒val𑁒ind e)
     | GetSize e =>
         HGetSize
-          e (expr_val_ind e)
+          e (expr𑁒val𑁒ind e)
     | Load e1 e2 =>
         HLoad
-          e1 (expr_val_ind e1)
-          e2 (expr_val_ind e2)
+          e1 (expr𑁒val𑁒ind e1)
+          e2 (expr𑁒val𑁒ind e2)
     | Store e1 e2 e3 =>
         HStore
-          e1 (expr_val_ind e1)
-          e2 (expr_val_ind e2)
-          e3 (expr_val_ind e3)
+          e1 (expr𑁒val𑁒ind e1)
+          e2 (expr𑁒val𑁒ind e2)
+          e3 (expr𑁒val𑁒ind e3)
     | Xchg e1 e2 =>
         HXchg
-          e1 (expr_val_ind e1)
-          e2 (expr_val_ind e2)
+          e1 (expr𑁒val𑁒ind e1)
+          e2 (expr𑁒val𑁒ind e2)
     | CAS e0 e1 e2 =>
         HCAS
-          e0 (expr_val_ind e0)
-          e1 (expr_val_ind e1)
-          e2 (expr_val_ind e2)
+          e0 (expr𑁒val𑁒ind e0)
+          e1 (expr𑁒val𑁒ind e1)
+          e2 (expr𑁒val𑁒ind e2)
     | FAA e1 e2 =>
         HFAA
-          e1 (expr_val_ind e1)
-          e2 (expr_val_ind e2)
+          e1 (expr𑁒val𑁒ind e1)
+          e2 (expr𑁒val𑁒ind e2)
     | Fork e =>
         HFork
-          e (expr_val_ind e)
+          e (expr𑁒val𑁒ind e)
     | GetLocal =>
         HGetLocal
     | SetLocal e =>
         HSetLocal
-          e (expr_val_ind e)
+          e (expr𑁒val𑁒ind e)
     | Proph =>
         HProph
     | Resolve e0 e1 e2 =>
         HResolve
-          e0 (expr_val_ind e0)
-          e1 (expr_val_ind e1)
-          e2 (expr_val_ind e2)
+          e0 (expr𑁒val𑁒ind e0)
+          e1 (expr𑁒val𑁒ind e1)
+          e2 (expr𑁒val𑁒ind e2)
     end
-  with val_expr_ind v :=
+  with val𑁒expr𑁒ind v :=
     match v with
     | ValLit lit =>
         HValLit
@@ -622,18 +622,18 @@ Section expr_val_mutind.
     | ValRecs i recs =>
         HValRecs
           i
-          recs (Forall_true (λ rec, Pexpr rec.2) recs (λ rec, expr_val_ind rec.2))
+          recs (Forall_true (λ rec, Pexpr rec.2) recs (λ rec, expr𑁒val𑁒ind rec.2))
     | ValBlock gen tag vs =>
         HValBlock
           gen tag
-          vs (Forall_true Pval vs val_expr_ind)
+          vs (Forall_true Pval vs val𑁒expr𑁒ind)
     end.
 
-  Definition expr_val_mutind :=
+  Definition expr𑁒val𑁒mutind :=
     conj
-      expr_val_ind
-      val_expr_ind.
-End expr_val_mutind.
+      expr𑁒val𑁒ind
+      val𑁒expr𑁒ind.
+End expr𑁒val𑁒mutind.
 
 Canonical val_O {SI : sidx} :=
   leibnizO val.
@@ -726,20 +726,20 @@ Notation IsImmediate := (
   Unop UnopIsImmediate
 ).
 
-Definition val_of_int :=
+Definition val۰of_int :=
   ValLit ∘ LitInt.
 
-Definition val_to_int v :=
+Definition val۰to_int v :=
   match v with
   | ValInt n =>
       Some n
   | _ =>
       None
   end.
-Definition val_to_int' :=
-  default inhabitant ∘ val_to_int.
-Definition val_to_nat' :=
-  Z.to_nat ∘ val_to_int'.
+Definition val۰to_int' :=
+  default inhabitant ∘ val۰to_int.
+Definition val۰to_nat' :=
+  Z.to_nat ∘ val۰to_int'.
 
 Notation of_val :=
   Val
@@ -753,18 +753,18 @@ Definition to_val e :=
       None
   end.
 
-Lemma to_of_val v :
+Lemma to_val𑁒of_val v :
   to_val (of_val v) = Some v.
 Proof.
   by destruct v.
 Qed.
-Lemma of_to_val e v :
+Lemma of_val𑁒to_val e v :
   to_val e = Some v →
   of_val v = e.
 Proof.
   destruct e => //=. by intros [= <-].
 Qed.
-#[global] Instance of_val_inj :
+#[global] Instance of_val𑁒inj :
   Inj (=) (=) of_val.
 Proof.
   intros ?*. congruence.
@@ -782,13 +782,13 @@ Fixpoint to_vals es :=
       mret $ v :: es
   end.
 
-Lemma to_of_vals vs :
+Lemma to_vals𑁒of_vals vs :
   to_vals (of_vals vs) = Some vs.
 Proof.
   induction vs as [| v vs IH]; first done.
   rewrite /= IH. naive_solver.
 Qed.
-Lemma of_to_vals es vs :
+Lemma of_vals𑁒to_vals es vs :
   to_vals es = Some vs →
   of_vals vs = es.
 Proof.
@@ -798,25 +798,25 @@ Proof.
   f_equal; last naive_solver.
   destruct e; naive_solver.
 Qed.
-#[global] Instance of_vals_inj :
+#[global] Instance of_vals𑁒inj :
   Inj (=) (=) of_vals.
 Proof.
   apply _.
 Qed.
-Lemma length_of_vals vs :
+Lemma length𑁒of_vals vs :
   length (of_vals vs) = length vs.
 Proof.
   apply length_fmap.
 Qed.
 Hint Rewrite
-  @length_of_vals
+  @length𑁒of_vals
 : simpl_length.
 
-#[global] Instance val_inhabited : Inhabited val :=
+#[global] Instance val𑁒inhabited : Inhabited val :=
   populate ValUnit.
-#[global] Instance expr_inhabited : Inhabited expr :=
+#[global] Instance expr𑁒inhabited : Inhabited expr :=
   populate (Val inhabitant).
-#[global] Instance expr_eq_dec :
+#[global] Instance expr𑁒eq_dec :
   EqDecision expr.
 Proof.
   unshelve refine (
@@ -1001,7 +1001,7 @@ Proof.
   all: clear go go_val.
   all: abstract congruence.
 Defined.
-#[global] Instance val_eq_dec :
+#[global] Instance val𑁒eq_dec :
   EqDecision val.
 Proof.
   unshelve refine (
@@ -1062,9 +1062,9 @@ Variant encode_leaf :=
   | EncodeUnop (op : unop)
   | EncodeBinop (op : binop)
   | EncodePattern (pat : pattern).
-#[local] Instance encode_leaf_eq_dec : EqDecision encode_leaf :=
+#[local] Instance encode_leaf𑁒eq_dec : EqDecision encode_leaf :=
   ltac:(solve_decision).
-#[local] Instance encode_leaf_countable :
+#[local] Instance encode_leaf𑁒countable :
   Countable encode_leaf.
 Proof.
   solve_countable.
@@ -1072,7 +1072,7 @@ Qed.
 Notation EncodeString str := (
   EncodeBinder (BNamed str)
 ).
-#[global] Instance expr_countable :
+#[global] Instance expr𑁒countable :
   Countable expr.
 Proof.
   #[local] Notation code_Val :=
@@ -1223,7 +1223,7 @@ Proof.
         | GenNode code_branch [GenLeaf (EncodePattern pat); e] =>
             (pat, go e)
         | _ =>
-            (@inhabitant _ pattern_inhabited, Unit)
+            (@inhabitant _ pattern𑁒inhabited, Unit)
         end
       in
       let go_branches :=
@@ -1281,7 +1281,7 @@ Proof.
       | GenNode code_Resolve [e0; e1; e2] =>
           Resolve (go e0) (go e1) (go e2)
       | _ =>
-          @inhabitant _ expr_inhabited
+          @inhabitant _ expr𑁒inhabited
       end
     with go_val _v :=
       let go_recursive _rec :=
@@ -1306,7 +1306,7 @@ Proof.
       | GenNode code_ValBlock (GenLeaf (EncodeGenerativity gen) :: GenLeaf (EncodeNat tag) :: vs) =>
           ValBlock gen tag $ go_list vs
       | _ =>
-          @inhabitant _ val_inhabited
+          @inhabitant _ val𑁒inhabited
       end
     for go.
   refine (inj_countable' encode decode _).
@@ -1325,8 +1325,8 @@ Proof.
         rewrite /map; induction vs as [| ? ? ->]; simpl; f_equal; done
       end.
 Qed.
-#[global] Instance val_countable :
+#[global] Instance val𑁒countable :
   Countable val.
 Proof.
-  refine (inj_countable of_val to_val _); auto using to_of_val.
+  refine (inj_countable of_val to_val _); auto using to_val𑁒of_val.
 Qed.

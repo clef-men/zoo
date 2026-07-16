@@ -6,44 +6,44 @@ Require Import zoo.options.
 Implicit Types o : option val.
 Implicit Types v : val.
 
-Coercion goption_to_val o :=
+Coercion goption۰to_val o :=
   match o with
   | None =>
       §Gnone
   | Some v =>
       ‘Gsome[ v ]
   end%V.
-#[global] Arguments goption_to_val !_ / : assert.
+#[global] Arguments goption۰to_val !_ / : assert.
 
-#[global] Instance goption_to_val_inj_similar :
-  Inj (=) (≈@{val}) goption_to_val.
+#[global] Instance goption۰to_val𑁒inj𑁒similar :
+  Inj (=) (≈@{val}) goption۰to_val.
 Proof.
   intros [] [] ?; try done.
   zoo_simplify. done.
 Qed.
-#[global] Instance goption_to_val_inj :
-  Inj (=) (=) goption_to_val.
+#[global] Instance goption۰to_val𑁒inj :
+  Inj (=) (=) goption۰to_val.
 Proof.
-  intros ?* ->%val_similar_refl%(inj _). done.
+  intros ?* ->%val𑁒similar𑁒refl%(inj _). done.
 Qed.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
   Context τ `{!iType (iPropI Σ) τ}.
 
-  Definition itype_goption t : iProp Σ :=
+  Definition itype۰goption t : iProp Σ :=
       ⌜t = §Gnone%V⌝
     ∨ ∃ v,
       ⌜t = ‘Gsome[ v ]%V⌝ ∗
       τ v.
-  #[global] Instance itype_goption_itype :
-    iType _ itype_goption.
+  #[global] Instance itype۰goption𑁒itype :
+    iType _ itype۰goption.
   Proof.
     split. apply _.
   Qed.
 
-  Lemma wp_match_goption t e1 x e2 Φ :
-    itype_goption t -∗
+  Lemma wp𑁒match𑁒goption t e1 x e2 Φ :
+    itype۰goption t -∗
     ( WP e1 {{ Φ }} ∧
       ∀ v, τ v -∗ WP subst' x v e2 {{ Φ }}
     ) -∗
@@ -53,4 +53,4 @@ Section zoo_G.
       [rewrite bi.and_elim_l | rewrite bi.and_elim_r];
       iSteps.
   Qed.
-End zoo_G.
+End zoo۰G.

@@ -5,67 +5,67 @@ Require Import zoo.iris.diaframe.
 Require Import zoo.options.
 
 Class SavedPropG Σ :=
-  { #[local] saved_prop_G :: AgreeG Σ (▶ ∙)
+  { #[local] saved_prop۰G :: AgreeG Σ (▶ ∙)
   }.
 
-Definition saved_prop_Σ :=
-  #[agree_Σ (▶ ∙)
+Definition saved_prop۰Σ :=
+  #[agree۰Σ (▶ ∙)
   ].
-#[global] Instance subG_saved_prop_Σ Σ :
-  subG saved_prop_Σ Σ →
+#[global] Instance subG𑁒saved_prop۰Σ Σ :
+  subG saved_prop۰Σ Σ →
   SavedPropG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section saved_prop_G.
-  Context `{saved_prop_G : !SavedPropG Σ}.
+Section saved_prop۰G.
+  Context `{saved_prop۰G : !SavedPropG Σ}.
 
   Implicit Types P : iProp Σ.
 
   Definition saved_prop γ P :=
-    agree_on γ (Next P).
+    agree۰on γ (Next P).
 
-  #[global] Instance saved_prop_contractive γ :
+  #[global] Instance saved_prop𑁒contractive γ :
     Contractive (saved_prop γ).
   Proof.
     solve_contractive.
   Qed.
-  #[global] Instance saved_prop_proper γ :
+  #[global] Instance saved_prop𑁒proper γ :
     Proper ((≡) ==> (≡)) (saved_prop γ).
   Proof.
     solve_proper.
   Qed.
 
-  #[global] Instance saved_prop_persistent γ P :
+  #[global] Instance saved_prop𑁒persistent γ P :
     Persistent (saved_prop γ P).
   Proof.
     apply _.
   Qed.
 
-  Lemma saved_prop_alloc P :
+  Lemma saved_prop𑁒alloc P :
     ⊢ |==>
       ∃ γ,
       saved_prop γ P.
   Proof.
-    apply agree_alloc.
+    apply agree𑁒alloc.
   Qed.
-  Lemma saved_prop_alloc_cofinite (γs : gset gname) P :
+  Lemma saved_prop𑁒alloc𑁒cofinite (γs : gset gname) P :
     ⊢ |==>
       ∃ γ,
       ⌜γ ∉ γs⌝ ∗
       saved_prop γ P.
   Proof.
-    apply agree_alloc_cofinite.
+    apply agree𑁒alloc𑁒cofinite.
   Qed.
 
-  Lemma saved_prop_agree γ P1 P2 :
+  Lemma saved_prop𑁒agree γ P1 P2 :
     saved_prop γ P1 -∗
     saved_prop γ P2 -∗
     ▷ (P1 ≡ P2).
   Proof.
-    rewrite -later_equivI. apply: agree_on_agree.
+    rewrite -later_equivI. apply: agree۰on𑁒agree.
   Qed.
-End saved_prop_G.
+End saved_prop۰G.
 
 #[global] Opaque saved_prop.

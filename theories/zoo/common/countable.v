@@ -268,57 +268,57 @@ Ltac solve_countable :=
   ltac2:(solve_countable.main ()).
 
 Module tests.
-  Record test_1 :=
-    { test_1_1 : nat
+  Record test₁ :=
+    { test₁₁ : nat
     }.
-  #[local] Instance test_1_eq_dec : EqDecision test_1 :=
+  #[local] Instance test₁𑁒eq_dec : EqDecision test₁ :=
     ltac:(solve_decision).
-  #[local] Instance test_1_countable :
-    Countable test_1.
+  #[local] Instance test₁𑁒countable :
+    Countable test₁.
   Proof.
     solve_countable.
   Qed.
 
-  Record test_2 A1 A2 A3 :=
-    { test_2_1 : A1
-    ; test_2_2 : A2
-    ; test_2_3 : A3
+  Record test₂ A1 A2 A3 :=
+    { test₂₁ : A1
+    ; test₂₂ : A2
+    ; test₂₃ : A3
     }.
-  #[local] Instance test_2_eq_dec `{!EqDecision A1, !EqDecision A2, !EqDecision A3} : EqDecision (test_2 A1 A2 A3) :=
+  #[local] Instance test₂𑁒eq_dec `{!EqDecision A1, !EqDecision A2, !EqDecision A3} : EqDecision (test₂ A1 A2 A3) :=
     ltac:(solve_decision).
-  #[local] Instance test_2_countable `{Countable A1, Countable A2, Countable A3} :
-    Countable (test_2 A1 A2 A3).
+  #[local] Instance test₂𑁒countable `{Countable A1, Countable A2, Countable A3} :
+    Countable (test₂ A1 A2 A3).
   Proof.
     solve_countable.
   Qed.
 
-  Variant test_3 :=
-    | Test31 : test_3
-    | Test32 : nat → test_3
-    | Test33 : nat → bool → test_3.
-  #[local] Instance test_3_eq_dec : EqDecision test_3 :=
+  Variant test₃ :=
+    | Test31 : test₃
+    | Test32 : nat → test₃
+    | Test33 : nat → bool → test₃.
+  #[local] Instance test₃𑁒eq_dec : EqDecision test₃ :=
     ltac:(solve_decision).
-  #[local] Instance test_3_countable :
-    Countable test_3.
+  #[local] Instance test₃𑁒countable :
+    Countable test₃.
   Proof.
     solve_countable.
   Qed.
 
-  Variant test_4 A1 A2 A3 :=
-    | Test41 : test_4 A1 A2 A3
-    | Test42 : nat → test_4 A1 A2 A3
-    | Test43 : nat → bool → test_4 A1 A2 A3
-    | Test44 : A1 → test_4 A1 A2 A3
-    | Test45 : A2 → test_4 A1 A2 A3
-    | Test46 : A3 → test_4 A1 A2 A3
-    | Test47 : A1 → A2 → test_4 A1 A2 A3
-    | Test48 : A1 → A3 → test_4 A1 A2 A3
-    | Test49 : A2 → A3 → test_4 A1 A2 A3
-    | Test410 : A1 → A2 → A3 → test_4 A1 A2 A3.
-  #[local] Instance test_4_eq_dec `{!EqDecision A1, !EqDecision A2, !EqDecision A3} : EqDecision (test_4 A1 A2 A3) :=
+  Variant test₄ A1 A2 A3 :=
+    | Test41 : test₄ A1 A2 A3
+    | Test42 : nat → test₄ A1 A2 A3
+    | Test43 : nat → bool → test₄ A1 A2 A3
+    | Test44 : A1 → test₄ A1 A2 A3
+    | Test45 : A2 → test₄ A1 A2 A3
+    | Test46 : A3 → test₄ A1 A2 A3
+    | Test47 : A1 → A2 → test₄ A1 A2 A3
+    | Test48 : A1 → A3 → test₄ A1 A2 A3
+    | Test49 : A2 → A3 → test₄ A1 A2 A3
+    | Test410 : A1 → A2 → A3 → test₄ A1 A2 A3.
+  #[local] Instance test₄𑁒eq_dec `{!EqDecision A1, !EqDecision A2, !EqDecision A3} : EqDecision (test₄ A1 A2 A3) :=
     ltac:(solve_decision).
-  #[local] Instance test_4_countable `{Countable A1, Countable A2, Countable A3} :
-    Countable (test_4 A1 A2 A3).
+  #[local] Instance test₄𑁒countable `{Countable A1, Countable A2, Countable A3} :
+    Countable (test₄ A1 A2 A3).
   Proof.
     solve_countable.
   Qed.

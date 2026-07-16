@@ -1664,7 +1664,7 @@ Ltac _iDestructHyp_go Hz pat0 pat env :=
         eunify pat pat'
       | fail 1 "iDestruct: unknown custom intro pattern:" custom
       ];
-      let env := eval vm_compute in (format_env_of_string arg env) in
+      let env := eval vm_compute in (format۰env۰of_string arg env) in
       lazymatch eval vm_compute in (format pat env) with
       | None =>
           fail "iDestruct: invalid custom intro pattern:" custom
@@ -1714,7 +1714,7 @@ Ltac _iDestructHyp0' H pat env :=
   let pats := intro_pat.parse pat in
   _iDestructHypFindPat H pat false pats env.
 Ltac _iDestructHyp0 H pat :=
-  let env := constr:(∅ : format_env) in
+  let env := constr:(∅ : format۰env) in
   _iDestructHyp0' H pat env.
 Ltac _iDestructHyp H xs pat :=
   ltac1_list_iter ltac:(fun x => _iExistDestruct H as x H) xs;
@@ -1881,7 +1881,7 @@ Ltac _iIntros_go pats startproof env :=
         eunify pat pat'
       | fail 1 "iIntros: unknown custom intro pattern:" custom
       ];
-      let env' := eval vm_compute in (format_env_of_string arg env) in
+      let env' := eval vm_compute in (format۰env۰of_string arg env) in
       lazymatch eval vm_compute in (format pat env') with
       | None =>
           fail "iIntros: invalid custom intro pattern:" custom
@@ -1909,7 +1909,7 @@ Ltac _iIntros0 pat :=
   | [] =>
       idtac
   | _ =>
-      _iIntros_go pats true constr:(∅ : format_env)
+      _iIntros_go pats true constr:(∅ : format۰env)
   end.
 Ltac _iIntros xs pat :=
   ltac1_list_iter ltac:(fun x => _iIntro (x)) xs;

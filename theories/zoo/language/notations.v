@@ -26,13 +26,13 @@ Declare Custom Entry zoo_branch.
 
 Number Notation
   val
-  val_of_int
-  val_to_int
+  val۰of_int
+  val۰to_int
 : expr_scope.
 Number Notation
   val
-  val_of_int
-  val_to_int
+  val۰of_int
+  val۰to_int
 : val_scope.
 
 Notation "'true'" := (
@@ -837,7 +837,7 @@ Notation "e1 <-{ fld } e2" := (
 ) : expr_scope.
 
 Notation "l .[ fld ]" := (
-  location_add l (Z.of_nat fld)
+  location۰add l (Z.of_nat fld)
 )(at level 2,
   fld custom zoo_field,
   left associativity,

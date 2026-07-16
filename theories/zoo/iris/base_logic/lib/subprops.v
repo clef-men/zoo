@@ -9,109 +9,109 @@ Require Import zoo.options.
 Implicit Types state : bool.
 
 Class SubpropsG Σ :=
-  { #[local] subprops_G_subpreds_G :: SubpredsG Σ ()
+  { #[local] subprops۰G۰subpreds۰G :: SubpredsG Σ ()
   }.
 
-Definition subprops_Σ :=
-  #[subpreds_Σ ()
+Definition subprops۰Σ :=
+  #[subpreds۰Σ ()
   ].
-#[global] Instance subG_subprops_Σ Σ :
-  subG subprops_Σ Σ →
+#[global] Instance subG𑁒subprops۰Σ Σ :
+  subG subprops۰Σ Σ →
   SubpropsG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section subprops_G.
-  Context `{subprops_G : !SubpropsG Σ}.
+Section subprops۰G.
+  Context `{subprops۰G : !SubpropsG Σ}.
 
   Implicit Types P Q : iProp Σ.
 
-  Definition subprops_auth γ P state :=
-    subpreds_auth γ (λ _, P) (if state then Some () else None).
+  Definition subprops۰auth γ P state :=
+    subpreds۰auth γ (λ _, P) (if state then Some () else None).
 
-  Definition subprops_frag γ Q :=
-    subpreds_frag γ (λ _, Q).
+  Definition subprops۰frag γ Q :=
+    subpreds۰frag γ (λ _, Q).
 
-  #[global] Instance subprops_auth_ne γ n :
-    Proper ((≡{n}≡) ==> (=) ==> (≡{n}≡)) (subprops_auth γ).
+  #[global] Instance subprops۰auth𑁒ne γ n :
+    Proper ((≡{n}≡) ==> (=) ==> (≡{n}≡)) (subprops۰auth γ).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance subprops_auth_proper γ :
-    Proper ((≡) ==> (=) ==> (≡)) (subprops_auth γ).
+  #[global] Instance subprops۰auth𑁒proper γ :
+    Proper ((≡) ==> (=) ==> (≡)) (subprops۰auth γ).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance subprops_frag_contractive γ :
-    Contractive (subprops_frag γ).
+  #[global] Instance subprops۰frag𑁒contractive γ :
+    Contractive (subprops۰frag γ).
   Proof.
     solve_contractive.
   Qed.
-  #[global] Instance subprops_frag_proper γ :
-    Proper ((≡) ==> (≡)) (subprops_frag γ).
+  #[global] Instance subprops۰frag𑁒proper γ :
+    Proper ((≡) ==> (≡)) (subprops۰frag γ).
   Proof.
     solve_proper.
   Qed.
 
-  Lemma subprops_alloc P :
+  Lemma subprops𑁒alloc P :
     ⊢ |==>
       ∃ γ,
-      subprops_auth γ P false ∗
-      subprops_frag γ P.
+      subprops۰auth γ P false ∗
+      subprops۰frag γ P.
   Proof.
-    apply subpreds_alloc.
+    apply subpreds𑁒alloc.
   Qed.
 
-  Lemma subprops_wand `{inv_G : !invGS Σ} {γ P state Q1} Q2 E :
-    ▷ subprops_auth γ P state -∗
-    subprops_frag γ Q1 -∗
+  Lemma subprops𑁒wand `{inv۰G : !invGS Σ} {γ P state Q1} Q2 E :
+    ▷ subprops۰auth γ P state -∗
+    subprops۰frag γ Q1 -∗
     (Q1 -∗ Q2) ={E}=∗
-      ▷ subprops_auth γ P state ∗
-      subprops_frag γ Q2.
+      ▷ subprops۰auth γ P state ∗
+      subprops۰frag γ Q2.
   Proof.
     iIntros "Hauth Hfrag H".
-    iApply (subpreds_wand with "Hauth Hfrag [H]"). 1: iSteps.
+    iApply (subpreds𑁒wand with "Hauth Hfrag [H]"). 1: iSteps.
   Qed.
-  Lemma subprops_split `{inv_G : !invGS Σ} {γ P state} Q1 Q2 E :
-    ▷ subprops_auth γ P state -∗
-    subprops_frag γ (Q1 ∗ Q2) ={E}=∗
-      ▷ subprops_auth γ P state ∗
-      subprops_frag γ Q1 ∗
-      subprops_frag γ Q2.
+  Lemma subprops𑁒split `{inv۰G : !invGS Σ} {γ P state} Q1 Q2 E :
+    ▷ subprops۰auth γ P state -∗
+    subprops۰frag γ (Q1 ∗ Q2) ={E}=∗
+      ▷ subprops۰auth γ P state ∗
+      subprops۰frag γ Q1 ∗
+      subprops۰frag γ Q2.
   Proof.
     iIntros "Hauth Hfrag".
-    iApply (subpreds_split with "Hauth Hfrag").
+    iApply (subpreds𑁒split with "Hauth Hfrag").
   Qed.
-  Lemma subprops_divide `{inv_G : !invGS Σ} {γ P state} Qs E :
-    ▷ subprops_auth γ P state -∗
-    subprops_frag γ ([∗ list] Q ∈ Qs, Q) ={E}=∗
-      ▷ subprops_auth γ P state ∗
-      [∗ list] Q ∈ Qs, subprops_frag γ Q.
+  Lemma subprops𑁒divide `{inv۰G : !invGS Σ} {γ P state} Qs E :
+    ▷ subprops۰auth γ P state -∗
+    subprops۰frag γ ([∗ list] Q ∈ Qs, Q) ={E}=∗
+      ▷ subprops۰auth γ P state ∗
+      [∗ list] Q ∈ Qs, subprops۰frag γ Q.
   Proof.
     iIntros "Hauth Hfrag".
-    iMod (subpreds_divide ((λ Q _, Q) <$> Qs) with "Hauth [Hfrag]") as "($ & Hfrags)".
+    iMod (subpreds𑁒divide ((λ Q _, Q) <$> Qs) with "Hauth [Hfrag]") as "($ & Hfrags)".
     all: setoid_rewrite big_sepL_fmap.
     all: iSteps.
   Qed.
 
-  Lemma subprops_produce γ P :
-    subprops_auth γ P false -∗
+  Lemma subprops𑁒produce γ P :
+    subprops۰auth γ P false -∗
     P -∗
-    subprops_auth γ P true.
+    subprops۰auth γ P true.
   Proof.
-    iApply subpreds_produce.
+    iApply subpreds𑁒produce.
   Qed.
 
-  Lemma subprops_consume `{inv_G : !invGS Σ} γ P Q E :
-    ▷ subprops_auth γ P true -∗
-    subprops_frag γ Q ={E}=∗
-      ▷ subprops_auth γ P true ∗
+  Lemma subprops𑁒consume `{inv۰G : !invGS Σ} γ P Q E :
+    ▷ subprops۰auth γ P true -∗
+    subprops۰frag γ Q ={E}=∗
+      ▷ subprops۰auth γ P true ∗
       ▷^2 Q.
   Proof.
-    apply subpreds_consume.
+    apply subpreds𑁒consume.
   Qed.
-End subprops_G.
+End subprops۰G.
 
-#[global] Opaque subprops_auth.
-#[global] Opaque subprops_frag.
+#[global] Opaque subprops۰auth.
+#[global] Opaque subprops۰frag.

@@ -15,50 +15,50 @@ Implicit Types v t s equal : val.
 Implicit Types vs : list val.
 Implicit Types nodes : gmap location (list val).
 
-Class SarrayG Σ `{zoo_G : !ZooG Σ} :=
-  { sarray_G_nodes_G : ghost_mapG Σ location (list val)
+Class SarrayG Σ `{zoo۰G : !ZooG Σ} :=
+  { sarray۰G۰nodes۰G : ghost_mapG Σ location (list val)
   }.
 
-Definition sarray_Σ :=
+Definition sarray۰Σ :=
   #[ghost_mapΣ location (list val)
   ].
-#[global] Instance subG_sarray_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG sarray_Σ Σ →
+#[global] Instance subG𑁒sarray۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG sarray۰Σ Σ →
   SarrayG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section sarray_G.
-  Context `{sarray_G : SarrayG Σ}.
+Section sarray۰G.
+  Context `{sarray۰G : SarrayG Σ}.
   Context τ `{!iType (iProp Σ) τ}.
 
   Record metadata :=
-    { metadata_equal : val
-    ; metadata_size : nat
-    ; metadata_data : val
-    ; metadata_nodes : gname
+    { metadata۰equal : val
+    ; metadata۰size : nat
+    ; metadata۰data : val
+    ; metadata۰nodes : gname
     }.
   Implicit Types γ : metadata.
 
-  #[local] Instance metadata_eq_dec : EqDecision metadata :=
+  #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance metadata_countable :
+  #[local] Instance metadata𑁒countable :
     Countable metadata.
   Proof.
     solve_countable.
   Qed.
 
-  #[local] Definition nodes_auth' γ_nodes :=
-    @ghost_map_auth _ _ _ _ _ sarray_G_nodes_G γ_nodes 1.
-  #[local] Definition nodes_auth γ :=
-    nodes_auth' γ.(metadata_nodes).
-  #[local] Definition nodes_elem' γ_nodes node :=
-    @ghost_map_elem _ _ _ _ _ sarray_G_nodes_G γ_nodes node DfracDiscarded.
-  #[local] Definition nodes_elem γ :=
-    nodes_elem' γ.(metadata_nodes).
+  #[local] Definition nodes۰auth' γ_nodes :=
+    @ghost_map_auth _ _ _ _ _ sarray۰G۰nodes۰G γ_nodes 1.
+  #[local] Definition nodes۰auth γ :=
+    nodes۰auth' γ.(metadata۰nodes).
+  #[local] Definition nodes۰elem' γ_nodes node :=
+    @ghost_map_elem _ _ _ _ _ sarray۰G۰nodes۰G γ_nodes node DfracDiscarded.
+  #[local] Definition nodes۰elem γ :=
+    nodes۰elem' γ.(metadata۰nodes).
 
-  Definition equal_model equal : iProp Σ :=
+  Definition equal۰model equal : iProp Σ :=
     □ ∀ v1 v2,
       τ v1 -∗
       τ v2 -∗
@@ -68,15 +68,15 @@ Section sarray_G.
         ⌜if b then v1 = v2 else True⌝
       }}.
 
-  #[local] Definition node_model γ node vs : iProp Σ :=
+  #[local] Definition node۰model γ node vs : iProp Σ :=
     ∃ (i : nat) v node' vs',
     node ↦ᵣ ‘Diff( #i, v, #node' ) ∗
     τ v ∗
-    nodes_elem γ node' vs' ∗
-    ⌜length vs = γ.(metadata_size)⌝ ∗
-    ⌜i < γ.(metadata_size)⌝ ∗
+    nodes۰elem γ node' vs' ∗
+    ⌜length vs = γ.(metadata۰size)⌝ ∗
+    ⌜i < γ.(metadata۰size)⌝ ∗
     ⌜vs = <[i := v]> vs'⌝.
-  #[local] Instance : CustomIpat "node_model" :=
+  #[local] Instance : CustomIpat "node۰model" :=
     " ( %i_{node}
       & %v_{node}
       & %node{;'}
@@ -91,14 +91,14 @@ Section sarray_G.
     ".
 
   #[local] Definition model' γ nodes root vs_root : iProp Σ :=
-    nodes_auth γ nodes ∗
+    nodes۰auth γ nodes ∗
     root ↦ᵣ §Root ∗
-    array_model γ.(metadata_data) (DfracOwn 1) vs_root ∗
-    nodes_elem γ root vs_root ∗
-    ⌜length vs_root = γ.(metadata_size)⌝ ∗
+    array۰model γ.(metadata۰data) (DfracOwn 1) vs_root ∗
+    nodes۰elem γ root vs_root ∗
+    ⌜length vs_root = γ.(metadata۰size)⌝ ∗
     ([∗ list] v ∈ vs_root, τ v) ∗
     [∗ map] node ↦ vs ∈ delete root nodes,
-      node_model γ node vs.
+      node۰model γ node vs.
   #[local] Instance : CustomIpat "model'" :=
     " ( Hnodes_auth{_{}}
       & H{root}{}
@@ -109,14 +109,14 @@ Section sarray_G.
       & Hnodes{_{}}
       )
     ".
-  Definition sarray_model t vs : iProp Σ :=
+  Definition sarray۰model t vs : iProp Σ :=
     ∃ l γ nodes root,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
-    l.[equal] ↦□ γ.(metadata_equal) ∗
-    l.[data] ↦□ γ.(metadata_data) ∗
+    l.[equal] ↦□ γ.(metadata۰equal) ∗
+    l.[data] ↦□ γ.(metadata۰data) ∗
     l.[root] ↦ #root ∗
-    equal_model γ.(metadata_equal) ∗
+    equal۰model γ.(metadata۰equal) ∗
     model' γ nodes root vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %l{}
@@ -133,12 +133,12 @@ Section sarray_G.
       )
     ".
 
-  Definition sarray_snapshot s t vs : iProp Σ :=
+  Definition sarray۰snapshot s t vs : iProp Σ :=
     ∃ node l γ,
     ⌜s = #node⌝ ∗
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
-    nodes_elem γ node vs.
+    nodes۰elem γ node vs.
   #[local] Instance : CustomIpat "snapshot" :=
     " ( %node
       & %l_
@@ -150,42 +150,42 @@ Section sarray_G.
       )
     ".
 
-  #[global] Instance sarray_snapshot_persistent s t vs :
-    Persistent (sarray_snapshot s t vs).
+  #[global] Instance sarray۰snapshot𑁒persistent s t vs :
+    Persistent (sarray۰snapshot s t vs).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma nodes_alloc root vs :
+  #[local] Lemma nodes𑁒alloc root vs :
     ⊢ |==>
       ∃ γ_nodes,
-      nodes_auth' γ_nodes {[root := vs]} ∗
-      nodes_elem' γ_nodes root vs.
+      nodes۰auth' γ_nodes {[root := vs]} ∗
+      nodes۰elem' γ_nodes root vs.
   Proof.
-    iMod (@ghost_map_alloc _ _ _ _ _ sarray_G_nodes_G {[root := vs]}) as "(%γ_nodes & Hnodes_auth & Hnodes_elem)".
+    iMod (@ghost_map_alloc _ _ _ _ _ sarray۰G۰nodes۰G {[root := vs]}) as "(%γ_nodes & Hnodes_auth & Hnodes_elem)".
     rewrite big_sepM_singleton.
     iMod (ghost_map_elem_persist with "Hnodes_elem") as "Hnodes_elem".
     iSteps.
   Qed.
-  #[local] Lemma nodes_elem_lookup γ nodes node vs :
-    nodes_auth γ nodes -∗
-    nodes_elem γ node vs -∗
+  #[local] Lemma nodes۰elem𑁒lookup γ nodes node vs :
+    nodes۰auth γ nodes -∗
+    nodes۰elem γ node vs -∗
     ⌜nodes !! node = Some vs⌝.
   Proof.
     apply ghost_map_lookup.
   Qed.
-  #[local] Lemma nodes_elem_agree γ node vs1 vs2 :
-    nodes_elem γ node vs1 -∗
-    nodes_elem γ node vs2 -∗
+  #[local] Lemma nodes۰elem𑁒agree γ node vs1 vs2 :
+    nodes۰elem γ node vs1 -∗
+    nodes۰elem γ node vs2 -∗
     ⌜vs1 = vs2⌝.
   Proof.
     apply ghost_map_elem_agree.
   Qed.
-  #[local] Lemma nodes_insert {γ nodes} node vs :
+  #[local] Lemma nodes𑁒insert {γ nodes} node vs :
     nodes !! node = None →
-    nodes_auth γ nodes ⊢ |==>
-      nodes_auth γ (<[node := vs]> nodes) ∗
-      nodes_elem γ node vs.
+    nodes۰auth γ nodes ⊢ |==>
+      nodes۰auth γ (<[node := vs]> nodes) ∗
+      nodes۰elem γ node vs.
   Proof.
     iIntros "%Hlookup Hnodes_auth".
     iMod (ghost_map_insert with "Hnodes_auth") as "(Hnodes_auth & Hnodes_elem)"; first done.
@@ -193,51 +193,51 @@ Section sarray_G.
     iSteps.
   Qed.
 
-  Lemma sarray_model_exclusive t vs1 vs2 :
-    sarray_model t vs1 -∗
-    sarray_model t vs2 -∗
+  Lemma sarray۰model𑁒exclusive t vs1 vs2 :
+    sarray۰model t vs1 -∗
+    sarray۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simplify.
-    iApply (pointsto_exclusive with "Hl_root_1 Hl_root_2").
+    iApply (pointsto𑁒exclusive with "Hl_root_1 Hl_root_2").
   Qed.
 
   Lemma sarray٠make𑁒spec equal (sz : Z) v :
     (0 ≤ sz)%Z →
     {{{
-      equal_model equal ∗
+      equal۰model equal ∗
       τ v
     }}}
       sarray٠make equal #sz v
     {{{
       t
     , RET t;
-      sarray_model t (replicate ₊sz v)
+      sarray۰model t (replicate ₊sz v)
     }}}.
   Proof.
     iIntros "%Hsz %Φ (Hequal & #Hv) HΦ".
 
-    wp_rec.
-    wp_apply+ (array٠unsafe_make𑁒spec with "[//]") as "%data Hdata"; first done.
-    wp_ref root as "Hroot".
-    wp_block l as "Hmeta" "(Hl_equal & Hl_data & Hl_root & _)".
-    iMod (pointsto_persist with "Hl_equal") as "#Hl_equal".
-    iMod (pointsto_persist with "Hl_data") as "#Hl_data".
+    wp۰rec.
+    wp۰apply+ (array٠unsafe_make𑁒spec with "[//]") as "%data Hdata"; first done.
+    wp۰ref root as "Hroot".
+    wp۰block l as "Hmeta" "(Hl_equal & Hl_data & Hl_root & _)".
+    iMod (pointsto𑁒persist with "Hl_equal") as "#Hl_equal".
+    iMod (pointsto𑁒persist with "Hl_data") as "#Hl_data".
 
-    iMod (nodes_alloc root (replicate ₊sz v)) as "(%γ_nodes & Hnodes_auth & #Hnodes_elem)".
+    iMod (nodes𑁒alloc root (replicate ₊sz v)) as "(%γ_nodes & Hnodes_auth & #Hnodes_elem)".
 
     pose γ :=
-      {|metadata_equal := equal
-      ; metadata_size := ₊sz
-      ; metadata_data := data
-      ; metadata_nodes := γ_nodes
+      {|metadata۰equal := equal
+      ; metadata۰size := ₊sz
+      ; metadata۰data := data
+      ; metadata۰nodes := γ_nodes
       |}.
-    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
     iModIntro. iFrame "#∗".
     rewrite length_replicate delete_singleton_eq big_sepM_empty.
-    rewrite big_sepL.big_sepL_replicate -big_sepL_intro.
+    rewrite big_sepL𑁒replicate -big_sepL_intro.
     auto 10.
   Qed.
 
@@ -245,18 +245,18 @@ Section sarray_G.
     (0 ≤ i)%Z →
     vs !! ₊i = Some v →
     {{{
-      sarray_model t vs
+      sarray۰model t vs
     }}}
       sarray٠get t #i
     {{{
       RET v;
-      sarray_model t vs
+      sarray۰model t vs
     }}}.
   Proof.
     iIntros "% %Hvs_lookup %Φ (:model) HΦ".
 
-    wp_rec. wp_load.
-    wp_apply (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [done.. |].
+    wp۰rec. wp۰load.
+    wp۰apply (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [done.. |].
 
     iApply "HΦ".
     iFrame "#∗". iSteps.
@@ -265,50 +265,50 @@ Section sarray_G.
   Lemma sarray٠set𑁒spec t vs i v :
     (0 ≤ i < length vs)%Z →
     {{{
-      sarray_model t vs ∗
+      sarray۰model t vs ∗
       τ v
     }}}
       sarray٠set t #i v
     {{{
       RET ();
-      sarray_model t (<[₊i := v]> vs)
+      sarray۰model t (<[₊i := v]> vs)
     }}}.
   Proof.
     iIntros "% %Φ ((:model) & #Hv) HΦ".
 
-    wp_rec. wp_load.
+    wp۰rec. wp۰load.
 
     destruct (lookup_lt_is_Some_2 vs ₊i) as (w & Hvs_lookup); first lia.
-    wp_apply+ (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp۰apply+ (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
 
-    wp_load.
+    wp۰load.
 
     iDestruct (big_sepL_lookup with "Hvs_root") as "#Hw"; first done.
-    wp_apply (wp_wand with "(Hequal Hv Hw)") as (res) "(%b & -> & %Hb)".
-    destruct b; first subst w; wp_pures.
+    wp۰apply (wp𑁒wand with "(Hequal Hv Hw)") as (res) "(%b & -> & %Hb)".
+    destruct b; first subst w; wp۰pures.
 
     - iApply "HΦ".
       rewrite list_insert_id //. iFrame "#∗". iSteps.
 
-    - wp_ref root' as "Hroot'".
-      wp_load. do 2 wp_store. wp_load.
-      iApply wp_fupd.
-      wp_apply (array٠unsafe_set𑁒spec with "Hdata") as "Hdata"; first done.
+    - wp۰ref root' as "Hroot'".
+      wp۰load. do 2 wp۰store. wp۰load.
+      iApply wp𑁒fupd.
+      wp۰apply (array٠unsafe_set𑁒spec with "Hdata") as "Hdata"; first done.
 
       iAssert ⌜nodes !! root' = None⌝%I as %Hnodes_lookup_root'.
       { rewrite -eq_None_ne_Some. iIntros "%vs_root' %Hnodes_lookup_root'".
-        iDestruct (pointsto_ne with "Hroot Hroot'") as %?.
-        iDestruct (big_sepM_lookup _ _ root' with "Hnodes") as "(:node_model node=root' !=)".
+        iDestruct (pointsto𑁒ne with "Hroot Hroot'") as %?.
+        iDestruct (big_sepM_lookup _ _ root' with "Hnodes") as "(:node۰model node=root' !=)".
         { rewrite lookup_delete_ne //. congruence. }
-        iApply (pointsto_exclusive with "Hroot' Hroot'_").
+        iApply (pointsto𑁒exclusive with "Hroot' Hroot'_").
       }
 
       iApply "HΦ".
       set vs' := <[₊i := v]> vs.
-      iDestruct (big_sepL_insert ₊i with "Hvs_root Hv") as "Hvs_root'"; first lia.
-      iDestruct (nodes_elem_lookup with "Hnodes_auth Hnodes_elem_root") as %Hnodes_lookup_root.
-      iMod (nodes_insert root' vs' with "Hnodes_auth") as "(Hnodes_auth & #Hnodes_elem_root')"; first done.
-      iDestruct (big_sepM_delete_2 with "Hnodes [Hroot]") as "Hnodes"; first done.
+      iDestruct (big_sepL𑁒insert ₊i with "Hvs_root Hv") as "Hvs_root'"; first lia.
+      iDestruct (nodes۰elem𑁒lookup with "Hnodes_auth Hnodes_elem_root") as %Hnodes_lookup_root.
+      iMod (nodes𑁒insert root' vs' with "Hnodes_auth") as "(Hnodes_auth & #Hnodes_elem_root')"; first done.
+      iDestruct (big_sepM𑁒delete₂ with "Hnodes [Hroot]") as "Hnodes"; first done.
       { iExists ₊i, w, root', vs'. iSteps; iPureIntro.
         - rewrite Z2Nat.id //. lia.
         - rewrite list_insert_insert_eq list_insert_id //.
@@ -320,34 +320,34 @@ Section sarray_G.
 
   Lemma sarray٠capture𑁒spec t vs :
     {{{
-      sarray_model t vs
+      sarray۰model t vs
     }}}
       sarray٠capture t
     {{{
       s
     , RET s;
-      sarray_model t vs ∗
-      sarray_snapshot s t vs
+      sarray۰model t vs ∗
+      sarray۰snapshot s t vs
     }}}.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp_rec. wp_load.
+    wp۰rec. wp۰load.
 
     iApply "HΦ".
     iFrame "#∗". iSteps.
   Qed.
 
-  #[local] Definition restore_inv γ nodes root vs_root : iProp Σ :=
+  #[local] Definition restore۰inv γ nodes root vs_root : iProp Σ :=
     ∃ descr_root,
-    nodes_auth γ nodes ∗
+    nodes۰auth γ nodes ∗
     root ↦ᵣ descr_root ∗
-    array_model γ.(metadata_data) (DfracOwn 1) vs_root ∗
-    ⌜length vs_root = γ.(metadata_size)⌝ ∗
+    array۰model γ.(metadata۰data) (DfracOwn 1) vs_root ∗
+    ⌜length vs_root = γ.(metadata۰size)⌝ ∗
     ([∗ list] v ∈ vs_root, τ v) ∗
     [∗ map] node ↦ vs ∈ delete root nodes,
-      node_model γ node vs.
-  #[local] Instance : CustomIpat "restore_inv" :=
+      node۰model γ node vs.
+  #[local] Instance : CustomIpat "restore۰inv" :=
     " ( %descr_{root}
       & Hnodes_auth
       & H{root}
@@ -360,89 +360,89 @@ Section sarray_G.
   #[local] Lemma sarray٠restore₀𑁒spec {γ nodes root vs_root node} vs :
     {{{
       model' γ nodes root vs_root ∗
-      nodes_elem γ node vs
+      nodes۰elem γ node vs
     }}}
-      sarray٠restore₀ γ.(metadata_data) #node
+      sarray٠restore₀ γ.(metadata۰data) #node
     {{{
       RET ();
-      restore_inv γ nodes node vs
+      restore۰inv γ nodes node vs
     }}}.
   Proof.
     iLöb as "HLöb" forall (node vs).
 
     iIntros "%Φ ((:model') & #Hnodes_elem_node) HΦ".
-    iDestruct (nodes_elem_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node.
+    iDestruct (nodes۰elem𑁒lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node.
 
-    wp_rec.
+    wp۰rec.
     destruct_decide (node = root) as -> | Hnode.
 
-    - iDestruct (nodes_elem_agree with "Hnodes_elem_node Hnodes_elem_root") as %<-.
+    - iDestruct (nodes۰elem𑁒agree with "Hnodes_elem_node Hnodes_elem_root") as %<-.
       iSteps.
 
-    - iDestruct (big_sepM_lookup_acc with "Hnodes") as "((:node_model =1) & Hnodes)".
+    - iDestruct (big_sepM_lookup_acc with "Hnodes") as "((:node۰model =1) & Hnodes)".
       { rewrite lookup_delete_ne //. }
-      wp_load.
+      wp۰load.
 
-      wp_apply+ ("HLöb" $! node1 vs_node1 with "[- HΦ]") as "(:restore_inv root=node1)"; first iFrameSteps.
+      wp۰apply+ ("HLöb" $! node1 vs_node1 with "[- HΦ]") as "(:restore۰inv root=node1)"; first iFrameSteps.
 
       destruct (lookup_lt_is_Some_2 vs_node1 i_node) as (v & Hvs_node1_lookup); first lia.
-      wp_apply+ (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done | lia |].
-      wp_store.
-      wp_apply+ (array٠unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
+      wp۰apply+ (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done | lia |].
+      wp۰store.
+      wp۰apply+ (array٠unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
       rewrite Nat2Z.id -Hvs_node.
 
-      iDestruct (big_sepL_insert i_node with "Hvs_node1 Hv_node") as "Hvs"; first lia.
+      iDestruct (big_sepL𑁒insert i_node with "Hvs_node1 Hv_node") as "Hvs"; first lia.
       rewrite -Hvs_node.
 
-      iDestruct (nodes_elem_lookup with "Hnodes_auth Hnodes_elem_node1") as %Hnodes_lookup_node1.
-      iDestruct (big_sepM_delete_2 with "Hnodes [$Hnode1]") as "Hnodes"; first done.
+      iDestruct (nodes۰elem𑁒lookup with "Hnodes_auth Hnodes_elem_node1") as %Hnodes_lookup_node1.
+      iDestruct (big_sepM𑁒delete₂ with "Hnodes [$Hnode1]") as "Hnodes"; first done.
       { iDestruct (big_sepL_lookup with "Hvs_node1") as "$"; first done.
         iSteps. iPureIntro.
         rewrite Hvs_node list_insert_insert_eq list_insert_id //.
       }
       iClear "Hv_node". clear dependent i_node v_node.
-      iDestruct (big_sepM_delete_1 node with "Hnodes") as "((:node_model =2) & Hnodes)"; first done.
+      iDestruct (big_sepM𑁒delete₁ node with "Hnodes") as "((:node۰model =2) & Hnodes)"; first done.
 
       iSteps.
   Qed.
   Lemma sarray٠restore𑁒spec t vs s vs' :
     {{{
-      sarray_model t vs ∗
-      sarray_snapshot s t vs'
+      sarray۰model t vs ∗
+      sarray۰snapshot s t vs'
     }}}
       sarray٠restore t s
     {{{
       RET ();
-      sarray_model t vs'
+      sarray۰model t vs'
     }}}.
   Proof.
     iIntros "%Φ ((:model) & (:snapshot)) HΦ". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (nodes_elem_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node.
+    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (nodes۰elem𑁒lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node.
 
-    wp_rec.
+    wp۰rec.
     destruct_decide (node = root) as -> | Hnode.
 
-    - wp_load. wp_pures.
+    - wp۰load. wp۰pures.
 
       iApply "HΦ".
-      iDestruct (nodes_elem_agree with "Hnodes_elem_node Hnodes_elem_root") as %->.
+      iDestruct (nodes۰elem𑁒agree with "Hnodes_elem_node Hnodes_elem_root") as %->.
       iFrame "#∗". iSteps.
 
-    - iDestruct (big_sepM_lookup_acc with "Hnodes") as "((:node_model) & Hnodes)".
+    - iDestruct (big_sepM_lookup_acc with "Hnodes") as "((:node۰model) & Hnodes)".
       { rewrite lookup_delete_ne //. }
-      wp_load.
+      wp۰load.
 
-      wp_load.
-      wp_apply+ (sarray٠restore₀𑁒spec vs' with "[- Hl_root HΦ]") as "(:restore_inv root=node)"; first iFrameSteps.
-      do 2 wp_store.
+      wp۰load.
+      wp۰apply+ (sarray٠restore₀𑁒spec vs' with "[- Hl_root HΦ]") as "(:restore۰inv root=node)"; first iFrameSteps.
+      do 2 wp۰store.
 
       iApply "HΦ".
       iFrame "#∗". iSteps.
   Qed.
-End sarray_G.
+End sarray۰G.
 
 Require zoo_persistent.sarray__opaque.
 
-#[global] Opaque sarray_model.
-#[global] Opaque sarray_snapshot.
+#[global] Opaque sarray۰model.
+#[global] Opaque sarray۰snapshot.

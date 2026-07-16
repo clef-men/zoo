@@ -9,45 +9,45 @@ Definition zoo_counter٠incr : val :=
   fun: <> =>
     FAA (#zoo_counter).[contents] 1.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
 
   Lemma zoo_counter٠incr𑁒spec ids v :
     {{{
       [∗ list] id ∈ ids,
         ∃ v,
-        zoo_counter_at id v
+        zoo_counter۰at id v
     }}}
       zoo_counter٠incr ()
     {{{
       id
     , RET #id;
-      zoo_counter_at id v ∗
+      zoo_counter۰at id v ∗
       ⌜Forall (.≠ id) ids⌝
     }}}.
   Proof.
     iIntros "%Φ Hids HΦ".
 
-    iApply wp_state_interp. iIntros "%ns %nt %σ %κs Hinterp !>".
-    iDestruct (state_interp_counter_inv with "Hinterp") as "#Hinv".
+    iApply wp𑁒state_interp. iIntros "%ns %nt %σ %κs Hinterp !>".
+    iDestruct (state_interp𑁒zoo_counter۰inv with "Hinterp") as "#Hinv".
     iFrame.
 
-    wp_rec.
-    wp_pures.
+    wp۰rec.
+    wp۰pures.
 
     iInv "Hinv" as "(%cnt & %vs & Hcounter & Hauth & ><-)".
-    wp_faa.
+    wp۰faa.
 
     iAssert ⌜Forall (.≠ length vs) ids⌝%I as "%Hids".
     { rewrite Forall_lookup. iIntros "%i %id %Hlookup".
       iDestruct (big_sepL_lookup with "Hids") as "(%w & Hat)"; first done.
-      iDestruct (zoo_counter_at_valid with "Hauth Hat") as %Hid%lookup_lt_Some.
+      iDestruct (zoo_counter۰at𑁒valid with "Hauth Hat") as %Hid%lookup_lt_Some.
       iSteps.
     }
 
-    iMod (zoo_counter_update v with "Hauth") as "Hauth".
-    iDestruct (zoo_counter_at_get with "Hauth") as "#Hat".
+    iMod (zoo_counter𑁒update v with "Hauth") as "Hauth".
+    iDestruct (zoo_counter۰at𑁒get with "Hauth") as "#Hat".
     { apply list_lookup_middle. done. }
     iSteps. iPureIntro. simpl_length/=. lia.
   Qed.
-End zoo_G.
+End zoo۰G.

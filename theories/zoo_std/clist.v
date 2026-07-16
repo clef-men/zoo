@@ -12,161 +12,161 @@ Inductive clist :=
   | ClistCons v (cvs : clist).
 Implicit Types cvs : clist.
 
-Fixpoint clist_to_val cvs :=
+Fixpoint clist۰to_val cvs :=
   match cvs with
   | ClistClosed =>
       §ClistClosed
   | ClistOpen =>
       §ClistOpen
   | ClistCons v cvs =>
-      ‘ClistCons[ v, clist_to_val cvs ]
+      ‘ClistCons[ v, clist۰to_val cvs ]
   end%V.
-Coercion clist_to_val : clist >-> val.
+Coercion clist۰to_val : clist >-> val.
 
-#[global] Instance clist_to_val_inj_similar :
-  Inj (=) (≈@{val}) clist_to_val.
+#[global] Instance clist۰to_val𑁒inj𑁒similar :
+  Inj (=) (≈@{val}) clist۰to_val.
 Proof.
   intros cvs1. induction cvs1 as [| | v1 cvs1 IH]; intros [| | v2 cvs2]; try done.
-  intros (_ & _ & [= <- <-%val_similar_refl%IH]). done.
+  intros (_ & _ & [= <- <-%val𑁒similar𑁒refl%IH]). done.
 Qed.
-#[global] Instance clist_to_val_inj :
-  Inj (=) (=) clist_to_val.
+#[global] Instance clist۰to_val𑁒inj :
+  Inj (=) (=) clist۰to_val.
 Proof.
-  intros ?* ->%val_similar_refl%(inj _). done.
+  intros ?* ->%val𑁒similar𑁒refl%(inj _). done.
 Qed.
 
-Fixpoint list_to_clist_open vs :=
+Fixpoint list۰to_clist_open vs :=
   match vs with
   | [] =>
       ClistOpen
   | v :: vs =>
-      ClistCons v (list_to_clist_open vs)
+      ClistCons v (list۰to_clist_open vs)
   end.
-Fixpoint list_to_clist_closed vs :=
+Fixpoint list۰to_clist_closed vs :=
   match vs with
   | [] =>
       ClistClosed
   | v :: vs =>
-      ClistCons v (list_to_clist_closed vs)
+      ClistCons v (list۰to_clist_closed vs)
   end.
 
-#[global] Instance list_to_clist_open_inj :
-  Inj (=) (=) list_to_clist_open.
+#[global] Instance list۰to_clist_open𑁒inj :
+  Inj (=) (=) list۰to_clist_open.
 Proof.
   intros vs1. induction vs1 as [| v1 vs1 IH]; intros [| v2 vs2]; naive_solver.
 Qed.
-#[global] Instance list_to_clist_closed_inj :
-  Inj (=) (=) list_to_clist_closed.
+#[global] Instance list۰to_clist_closed𑁒inj :
+  Inj (=) (=) list۰to_clist_closed.
 Proof.
   intros vs1. induction vs1 as [| v1 vs1 IH]; intros [| v2 vs2]; naive_solver.
 Qed.
-Lemma list_to_clist_open_closed vs1 vs2 :
-  list_to_clist_open vs1 ≠ list_to_clist_closed vs2.
+Lemma list۰to_clist𑁒open𑁒closed vs1 vs2 :
+  list۰to_clist_open vs1 ≠ list۰to_clist_closed vs2.
 Proof.
   move: vs2. induction vs1; destruct vs2; naive_solver.
 Qed.
-Lemma list_to_clist_open_not_closed vs :
-  list_to_clist_open vs ≠ ClistClosed.
+Lemma list۰to_clist_open𑁒not𑁒closed vs :
+  list۰to_clist_open vs ≠ ClistClosed.
 Proof.
-  apply (list_to_clist_open_closed vs []).
+  apply (list۰to_clist𑁒open𑁒closed vs []).
 Qed.
-Lemma list_to_clist_open_not_closed' vs :
-  ClistClosed ≠ list_to_clist_open vs.
+Lemma list۰to_clist_open𑁒not𑁒closed' vs :
+  ClistClosed ≠ list۰to_clist_open vs.
 Proof.
-  symmetry. apply list_to_clist_open_not_closed.
+  symmetry. apply list۰to_clist_open𑁒not𑁒closed.
 Qed.
 
-Fixpoint clist_app vs1 cvs2 :=
+Fixpoint clist۰app vs1 cvs2 :=
   match vs1 with
   | [] =>
       cvs2
   | v :: vs1 =>
-      ClistCons v (clist_app vs1 cvs2)
+      ClistCons v (clist۰app vs1 cvs2)
   end.
 
-Lemma clist_app_open {vs1 cvs2} vs2 :
-  cvs2 = list_to_clist_open vs2 →
-  clist_app vs1 cvs2 = list_to_clist_open (vs1 ++ vs2).
+Lemma clist۰app𑁒open {vs1 cvs2} vs2 :
+  cvs2 = list۰to_clist_open vs2 →
+  clist۰app vs1 cvs2 = list۰to_clist_open (vs1 ++ vs2).
 Proof.
   move: cvs2 vs2. induction vs1; first done.
   intros * ->. f_equal/=. naive_solver.
 Qed.
-Lemma clist_app_ClistOpen vs :
-  clist_app vs ClistOpen = list_to_clist_open vs.
+Lemma clist۰app𑁒ClistOpen vs :
+  clist۰app vs ClistOpen = list۰to_clist_open vs.
 Proof.
-  rewrite (clist_app_open []) // right_id //.
+  rewrite (clist۰app𑁒open []) // right_id //.
 Qed.
-Lemma clist_app_closed {vs1 cvs2} vs2 :
-  cvs2 = list_to_clist_closed vs2 →
-  clist_app vs1 cvs2 = list_to_clist_closed (vs1 ++ vs2).
+Lemma clist۰app𑁒closed {vs1 cvs2} vs2 :
+  cvs2 = list۰to_clist_closed vs2 →
+  clist۰app vs1 cvs2 = list۰to_clist_closed (vs1 ++ vs2).
 Proof.
   move: cvs2 vs2. induction vs1; first done.
   intros * ->. f_equal/=. naive_solver.
 Qed.
-Lemma clist_app_ClistClosed vs :
-  clist_app vs ClistClosed = list_to_clist_closed vs.
+Lemma clist۰app𑁒ClistClosed vs :
+  clist۰app vs ClistClosed = list۰to_clist_closed vs.
 Proof.
-  rewrite (clist_app_closed []) // right_id //.
+  rewrite (clist۰app𑁒closed []) // right_id //.
 Qed.
-Lemma clist_app_assoc vs1 vs2 cvs :
-  clist_app (vs1 ++ vs2) cvs = clist_app vs1 (clist_app vs2 cvs).
+Lemma clist۰app𑁒assoc vs1 vs2 cvs :
+  clist۰app (vs1 ++ vs2) cvs = clist۰app vs1 (clist۰app vs2 cvs).
 Proof.
   induction vs1; f_equal/=; done.
 Qed.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
 
-  Lemma wp_match_clist_open vs e1 x2 e2 Φ :
-    WP subst' x2 (list_to_clist_open vs) e2 {{ Φ }} ⊢
-    WP match: list_to_clist_open vs with ClistClosed => e1 |_ as: x2 => e2 end {{ Φ }}.
+  Lemma wp𑁒match𑁒clist𑁒open vs e1 x2 e2 Φ :
+    WP subst' x2 (list۰to_clist_open vs) e2 {{ Φ }} ⊢
+    WP match: list۰to_clist_open vs with ClistClosed => e1 |_ as: x2 => e2 end {{ Φ }}.
   Proof.
     destruct vs; iSteps.
   Qed.
 
   Lemma clist٠app𑁒spec {t1} vs1 {t2} cvs2 :
-    t1 = list_to_clist_open vs1 →
+    t1 = list۰to_clist_open vs1 →
     t2 = cvs2 →
     {{{
       True
     }}}
       clist٠app t1 t2
     {{{
-      RET clist_app vs1 cvs2;
+      RET clist۰app vs1 cvs2;
       True
     }}}.
   Proof.
     iInduction vs1 as [| v1 vs1] "IH" forall (t1 t2 cvs2).
     all: iIntros (-> ->) "%Φ _ HΦ".
-    all: wp_rec.
+    all: wp۰rec.
     - iSteps.
-    - wp_apply+ ("IH" with "[//]"); iSteps.
+    - wp۰apply+ ("IH" with "[//]"); iSteps.
   Qed.
 
   Lemma clist٠rev_app𑁒spec {t1} vs1 {t2} cvs2 :
-    t1 = list_to_clist_open vs1 →
+    t1 = list۰to_clist_open vs1 →
     t2 = cvs2 →
     {{{
       True
     }}}
       clist٠rev_app t1 t2
     {{{
-      RET clist_app (reverse vs1) cvs2;
+      RET clist۰app (reverse vs1) cvs2;
       True
     }}}.
   Proof.
     iInduction vs1 as [| v1 vs1] "IH" forall (t1 t2 cvs2).
     all: iIntros (-> ->) "%Φ _ HΦ".
-    all: wp_rec.
+    all: wp۰rec.
     - iSteps.
-    - wp_pures.
-      wp_apply+ ("IH" $! _ _ (ClistCons v1 cvs2) with "[//]"); iSteps.
-      rewrite reverse_cons clist_app_assoc. iSteps.
+    - wp۰pures.
+      wp۰apply+ ("IH" $! _ _ (ClistCons v1 cvs2) with "[//]"); iSteps.
+      rewrite reverse_cons clist۰app𑁒assoc. iSteps.
   Qed.
 
-  #[local] Lemma clist٠iter𑁒spec_aux vs_left Ψ vs fn t vs_right :
+  #[local] Lemma clist٠iter𑁒spec𑁒aux vs_left Ψ vs fn t vs_right :
     vs = vs_left ++ vs_right →
-    t = list_to_clist_open vs_right →
+    t = list۰to_clist_open vs_right →
     {{{
       ▷ Ψ vs_left ∗
       ( [∗ list] i ↦ v ∈ vs_right,
@@ -185,11 +185,11 @@ Section zoo_G.
   Proof.
     iIntros "%Hvs %Ht %Φ (HΨ & Hfn) HΦ".
     iInduction vs_right as [| v vs_right] "IH" forall (vs_left t Hvs Ht).
-    all: subst; simpl; rewrite right_id; wp_rec.
+    all: subst; simpl; rewrite right_id; wp۰rec.
     1: iSteps.
     iDestruct "Hfn" as "(H & Hfn)".
-    wp_apply+ (wp_wand with "(H HΨ)") as (res) "(-> & HΨ)".
-    wp_apply+ ("IH" $! (vs_left ++ [v]) with "[] [//] HΨ [Hfn]").
+    wp۰apply+ (wp𑁒wand with "(H HΨ)") as (res) "(-> & HΨ)".
+    wp۰apply+ ("IH" $! (vs_left ++ [v]) with "[] [//] HΨ [Hfn]").
     { rewrite -assoc //. }
     { iApply (big_sepL_impl with "Hfn"). iIntros "!> %i %w %Hlookup Hfn HΨ".
       rewrite -!assoc. iSteps.
@@ -197,7 +197,7 @@ Section zoo_G.
     iSteps.
   Qed.
   Lemma clist٠iter𑁒spec Ψ t vs fn :
-    t = list_to_clist_open vs →
+    t = list۰to_clist_open vs →
     {{{
       ▷ Ψ [] ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -215,11 +215,11 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Ht %Φ (HΨ & Hfn) HΦ".
-    iApply (clist٠iter𑁒spec_aux [] Ψ with "[$HΨ $Hfn]"); [done.. |].
+    iApply (clist٠iter𑁒spec𑁒aux [] Ψ with "[$HΨ $Hfn]"); [done.. |].
     iSteps.
   Qed.
-  Lemma clist٠iter𑁒spec_disentangled Ψ t vs fn :
-    t = list_to_clist_open vs →
+  Lemma clist٠iter𑁒spec𑁒disentangled Ψ t vs fn :
+    t = list۰to_clist_open vs →
     {{{
       [∗ list] v ∈ vs,
         WP fn v {{ res,
@@ -236,13 +236,13 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ Hfn HΦ".
     iInduction vs as [| v vs] "IH" forall (t Ht).
-    all: subst; simpl; wp_rec.
+    all: subst; simpl; wp۰rec.
     1: iSteps.
     iDestruct "Hfn" as "(H & Hfn)".
-    wp_apply+ (wp_wand with "H") as (res) "(-> & HΨ)".
-    wp_apply+ ("IH" with "[//] Hfn").
+    wp۰apply+ (wp𑁒wand with "H") as (res) "(-> & HΨ)".
+    wp۰apply+ ("IH" with "[//] Hfn").
     iSteps.
   Qed.
-End zoo_G.
+End zoo۰G.
 
 Require zoo_std.clist__opaque.

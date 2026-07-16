@@ -11,42 +11,42 @@ Require Import zoo.options.
 Implicit Types b : bool.
 Implicit Types v fn mtx : val.
 
-Class LazyG Σ `{zoo_G : !ZooG Σ} :=
-  { #[local] lazy_G_mutex_G :: MutexG Σ
-  ; #[local] lazy_G_lstate_G :: OneshotG Σ unit val
-  ; #[local] lazy_G_consumer_G :: SubpredsG Σ val
+Class LazyG Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] lazy۰G۰mutex۰G :: MutexG Σ
+  ; #[local] lazy۰G۰lstate۰G :: OneshotG Σ unit val
+  ; #[local] lazy۰G۰consumer۰G :: SubpredsG Σ val
   }.
 
-Definition lazy_Σ :=
-  #[mutex_Σ
-  ; oneshot_Σ unit val
-  ; subpreds_Σ val
+Definition lazy۰Σ :=
+  #[mutex۰Σ
+  ; oneshot۰Σ unit val
+  ; subpreds۰Σ val
   ].
-#[global] Instance subG_lazy_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG lazy_Σ Σ →
+#[global] Instance subG𑁒lazy۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG lazy۰Σ Σ →
   LazyG Σ .
 Proof.
   solve_inG.
 Qed.
 
 Module base.
-  Section lazy_G.
-    Context `{lazy_G : LazyG Σ}.
+  Section lazy۰G.
+    Context `{lazy۰G : LazyG Σ}.
 
     Implicit Types t : location.
     Implicit Types Ψ Χ Ξ : val → iProp Σ.
 
-    Record lazy_name :=
-      { lazy_name_thunk : val
-      ; lazy_name_lstate : gname
-      ; lazy_name_consumer : gname
+    Record lazy۰name :=
+      { lazy۰name۰thunk : val
+      ; lazy۰name۰lstate : gname
+      ; lazy۰name۰consumer : gname
       }.
-    Implicit Types γ : lazy_name.
+    Implicit Types γ : lazy۰name.
 
-    #[global] Instance lazy_name_eq_dec : EqDecision lazy_name :=
+    #[global] Instance lazy۰name𑁒eq_dec : EqDecision lazy۰name :=
       ltac:(solve_decision).
-    #[global] Instance lazy_name_countable :
-      Countable lazy_name.
+    #[global] Instance lazy۰name𑁒countable :
+      Countable lazy۰name.
     Proof.
       solve_countable.
     Qed.
@@ -57,347 +57,347 @@ Module base.
       | Set_ v.
     Implicit Types state : state.
 
-    #[local] Instance state_inhabited : Inhabited state :=
+    #[local] Instance state𑁒inhabited : Inhabited state :=
       populate Unset.
 
-    #[local] Definition state_to_bool state :=
+    #[local] Definition state۰to_bool state :=
       match state with
       | Set_ _ =>
           true
       | _ =>
           false
       end.
-    #[local] Definition state_to_option state :=
+    #[local] Definition state۰to_option state :=
       match state with
       | Set_ v =>
           Some v
       | _ =>
           None
       end.
-    #[local] Definition state_to_val γ state :=
+    #[local] Definition state۰to_val γ state :=
       match state with
       | Unset =>
-          ‘Unset( γ.(lazy_name_thunk) )
+          ‘Unset( γ.(lazy۰name۰thunk) )
       | Setting mtx =>
           ‘Setting( mtx )
       | Set_ v =>
           ‘Set( v )
       end%V.
 
-    #[local] Definition lstate_unset₁' γ_lstate :=
-      oneshot_pending γ_lstate (DfracOwn (1/3)) ().
-    #[local] Definition lstate_unset₁ γ :=
-      lstate_unset₁' γ.(lazy_name_lstate).
-    #[local] Definition lstate_unset₂' γ_lstate :=
-      oneshot_pending γ_lstate (DfracOwn (2/3)) ().
-    #[local] Definition lstate_unset₂ γ :=
-      lstate_unset₂' γ.(lazy_name_lstate).
-    #[local] Definition lstate_set' γ_lstate :=
-      oneshot_shot γ_lstate.
-    #[local] Definition lstate_set γ :=
-      lstate_set' γ.(lazy_name_lstate).
+    #[local] Definition lstate۰unset₁' γ_lstate :=
+      oneshot۰pending γ_lstate (DfracOwn (1/3)) ().
+    #[local] Definition lstate۰unset₁ γ :=
+      lstate۰unset₁' γ.(lazy۰name۰lstate).
+    #[local] Definition lstate۰unset₂' γ_lstate :=
+      oneshot۰pending γ_lstate (DfracOwn (2/3)) ().
+    #[local] Definition lstate۰unset₂ γ :=
+      lstate۰unset₂' γ.(lazy۰name۰lstate).
+    #[local] Definition lstate۰set' γ_lstate :=
+      oneshot۰shot γ_lstate.
+    #[local] Definition lstate۰set γ :=
+      lstate۰set' γ.(lazy۰name۰lstate).
 
-    #[local] Definition consumer_auth' :=
-      subpreds_auth.
-    #[local] Definition consumer_auth γ :=
-      consumer_auth' γ.(lazy_name_consumer).
-    #[local] Definition consumer_frag' :=
-      subpreds_frag.
-    #[local] Definition consumer_frag γ :=
-      consumer_frag' γ.(lazy_name_consumer).
+    #[local] Definition consumer۰auth' :=
+      subpreds۰auth.
+    #[local] Definition consumer۰auth γ :=
+      consumer۰auth' γ.(lazy۰name۰consumer).
+    #[local] Definition consumer۰frag' :=
+      subpreds۰frag.
+    #[local] Definition consumer۰frag γ :=
+      consumer۰frag' γ.(lazy۰name۰consumer).
 
-    Definition lazy_result :=
-      lstate_set.
+    Definition lazy۰result :=
+      lstate۰set.
     #[local] Instance : CustomIpat "result" :=
       " #Hlstate_set{_{}}
       ".
-    Definition lazy_resolved γ : iProp Σ :=
+    Definition lazy۰resolved γ : iProp Σ :=
       ∃ v,
-      lazy_result γ v.
+      lazy۰result γ v.
 
-    #[local] Definition inv_state_unset γ Ψ Ξ : iProp Σ :=
-      lstate_unset₁ γ ∗
-      lstate_unset₂ γ ∗
-      WP γ.(lazy_name_thunk) () {{ v,
+    #[local] Definition inv۰state۰unset γ Ψ Ξ : iProp Σ :=
+      lstate۰unset₁ γ ∗
+      lstate۰unset₂ γ ∗
+      WP γ.(lazy۰name۰thunk) () {{ v,
         ▷ Ψ v ∗
         ▷ □ Ξ v
       }}.
-    #[local] Instance : CustomIpat "inv_state_unset" :=
+    #[local] Instance : CustomIpat "inv۰state۰unset" :=
       " ( {>;}Hlstate_unset₁{_{}}
         & {>;}Hlstate_unset₂{_{}}
         & Hthunk
         )
       ".
-    #[local] Definition inv_state_setting γ mtx : iProp Σ :=
-      lstate_unset₁ γ ∗
-      mutex_inv mtx (lazy_resolved γ).
-    #[local] Instance : CustomIpat "inv_state_setting" :=
+    #[local] Definition inv۰state۰setting γ mtx : iProp Σ :=
+      lstate۰unset₁ γ ∗
+      mutex۰inv mtx (lazy۰resolved γ).
+    #[local] Instance : CustomIpat "inv۰state۰setting" :=
       " ( {>;}Hlstate_unset₁{_{}}
         & #Hmtx_inv{_{}}
         )
       ".
-    #[local] Definition inv_state_set γ Ξ v : iProp Σ :=
-      lstate_set γ v ∗
+    #[local] Definition inv۰state۰set γ Ξ v : iProp Σ :=
+      lstate۰set γ v ∗
       □ Ξ v.
-    #[local] Instance : CustomIpat "inv_state_set" :=
+    #[local] Instance : CustomIpat "inv۰state۰set" :=
       " ( {>;}#Hlstate_set{_{}}
         & #HΞ{_{}}
         )
       ".
-    #[local] Definition inv_state γ Ψ Ξ state :=
+    #[local] Definition inv۰state γ Ψ Ξ state :=
       match state with
       | Unset =>
-          inv_state_unset γ Ψ Ξ
+          inv۰state۰unset γ Ψ Ξ
       | Setting mtx =>
-          inv_state_setting γ mtx
+          inv۰state۰setting γ mtx
       | Set_ v =>
-          inv_state_set γ Ξ v
+          inv۰state۰set γ Ξ v
       end.
 
-    #[local] Definition inv_inner t γ Ψ Ξ : iProp Σ :=
+    #[local] Definition inv۰inner t γ Ψ Ξ : iProp Σ :=
       ∃ state,
-      t ↦ᵣ state_to_val γ state ∗
-      consumer_auth γ Ψ (state_to_option state) ∗
-      inv_state γ Ψ Ξ state.
-    #[local] Instance : CustomIpat "inv_inner" :=
+      t ↦ᵣ state۰to_val γ state ∗
+      consumer۰auth γ Ψ (state۰to_option state) ∗
+      inv۰state γ Ψ Ξ state.
+    #[local] Instance : CustomIpat "inv۰inner" :=
       " ( %state
         & Ht
         & Hconsumer_auth
         & Hstate
         )
       ".
-    Definition lazy_inv t γ Ψ Ξ : iProp Σ :=
-      inv nroot (inv_inner t γ Ψ Ξ).
+    Definition lazy۰inv t γ Ψ Ξ : iProp Σ :=
+      inv nroot (inv۰inner t γ Ψ Ξ).
     #[local] Instance : CustomIpat "inv" :=
       " #Hinv
       ".
 
-    Definition lazy_consumer :=
-      consumer_frag.
+    Definition lazy۰consumer :=
+      consumer۰frag.
     #[local] Instance : CustomIpat "consumer" :=
       " Hconsumer{}_frag
       ".
 
-    #[global] Instance lazy_inv_contractive t γ n :
+    #[global] Instance lazy۰inv𑁒contractive t γ n :
       Proper (
         (pointwise_relation _ (dist_later n)) ==>
         (pointwise_relation _ (dist_later n)) ==>
         (≡{n}≡)
-      ) (lazy_inv t γ).
+      ) (lazy۰inv t γ).
     Proof.
-      rewrite /lazy_inv /inv_inner /inv_state /inv_state_unset /inv_state_setting /inv_state_set.
+      rewrite /lazy۰inv /inv۰inner /inv۰state /inv۰state۰unset /inv۰state۰setting /inv۰state۰set.
       intros Ψ1 Ψ2 HΨ Ξ1 Ξ2 HΞ.
       repeat (f_contractive || f_equiv).
       { eapply dist_lt. apply HΨ. done. }
       { eapply dist_lt. apply HΞ. done. }
     Qed.
-    #[global] Instance lazy_inv_proper t γ :
+    #[global] Instance lazy۰inv𑁒proper t γ :
       Proper (
         (pointwise_relation _ (≡)) ==>
         (pointwise_relation _ (≡)) ==>
         (≡)
-      ) (lazy_inv t γ).
+      ) (lazy۰inv t γ).
     Proof.
-      rewrite /lazy_inv /inv_inner /inv_state /inv_state_unset /inv_state_setting /inv_state_set.
+      rewrite /lazy۰inv /inv۰inner /inv۰state /inv۰state۰unset /inv۰state۰setting /inv۰state۰set.
       solve_proper.
     Qed.
-    #[global] Instance lazy_consumer_contractive γ n :
+    #[global] Instance lazy۰consumer𑁒contractive γ n :
       Proper (
         (pointwise_relation _ (dist_later n)) ==>
         (≡{n}≡)
-      ) (lazy_consumer γ).
+      ) (lazy۰consumer γ).
     Proof.
       apply _.
     Qed.
-    #[global] Instance lazy_consumer_proper γ :
+    #[global] Instance lazy۰consumer𑁒proper γ :
       Proper (
         (pointwise_relation _ (≡)) ==>
         (≡)
-      ) (lazy_consumer γ).
+      ) (lazy۰consumer γ).
     Proof.
       apply _.
     Qed.
 
-    #[global] Instance lazy_result_timeless γ v :
-      Timeless (lazy_result γ v).
+    #[global] Instance lazy۰result𑁒timeless γ v :
+      Timeless (lazy۰result γ v).
     Proof.
       apply _.
     Qed.
 
-    #[global] Instance lazy_inv_persistent t γ Ψ Ξ :
-      Persistent (lazy_inv t γ Ψ Ξ).
+    #[global] Instance lazy۰inv𑁒persistent t γ Ψ Ξ :
+      Persistent (lazy۰inv t γ Ψ Ξ).
     Proof.
       apply _.
     Qed.
-    #[global] Instance lazy_result_persistent γ v :
-      Persistent (lazy_result γ v).
+    #[global] Instance lazy۰result𑁒persistent γ v :
+      Persistent (lazy۰result γ v).
     Proof.
       apply _.
     Qed.
 
-    #[local] Lemma lstate_alloc :
+    #[local] Lemma lstate𑁒alloc :
       ⊢ |==>
         ∃ γ_lstate,
-        lstate_unset₁' γ_lstate ∗
-        lstate_unset₂' γ_lstate.
+        lstate۰unset₁' γ_lstate ∗
+        lstate۰unset₂' γ_lstate.
     Proof.
-      iMod oneshot_alloc as "(%γ_lstate & Hpending)".
+      iMod oneshot𑁒alloc as "(%γ_lstate & Hpending)".
       assert (1 = 1/3 + 2/3)%Qp as -> by compute_done.
       iDestruct "Hpending" as "(Hpending₁ & Hpending₂)".
       iSteps.
     Qed.
-    #[local] Lemma lstate_unset₂_exclusive γ :
-      lstate_unset₂ γ -∗
-      lstate_unset₂ γ -∗
+    #[local] Lemma lstate۰unset₂𑁒exclusive γ :
+      lstate۰unset₂ γ -∗
+      lstate۰unset₂ γ -∗
       False.
     Proof.
       iIntros "Hunset1 Hunset2".
-      iDestruct (oneshot_pending_valid_2 with "Hunset1 Hunset2") as %(? & _). done.
+      iDestruct (oneshot۰pending𑁒valid𑁒2 with "Hunset1 Hunset2") as %(? & _). done.
     Qed.
-    #[local] Lemma lstate_set_agree γ v1 v2 :
-      lstate_set γ v1 -∗
-      lstate_set γ v2 -∗
+    #[local] Lemma lstate۰set𑁒agree γ v1 v2 :
+      lstate۰set γ v1 -∗
+      lstate۰set γ v2 -∗
       ⌜v1 = v2⌝.
     Proof.
-      apply oneshot_shot_agree.
+      apply oneshot۰shot𑁒agree.
     Qed.
-    #[local] Lemma lstate_unset₁_set γ v :
-      lstate_unset₁ γ -∗
-      lstate_set γ v -∗
+    #[local] Lemma lstate𑁒unset₁𑁒set γ v :
+      lstate۰unset₁ γ -∗
+      lstate۰set γ v -∗
       False.
     Proof.
-      apply oneshot_pending_shot.
+      apply oneshot𑁒pending𑁒shot.
     Qed.
-    #[local] Lemma lstate_unset₂_set γ v :
-      lstate_unset₂ γ -∗
-      lstate_set γ v -∗
+    #[local] Lemma lstate𑁒unset₂𑁒set γ v :
+      lstate۰unset₂ γ -∗
+      lstate۰set γ v -∗
       False.
     Proof.
-      apply oneshot_pending_shot.
+      apply oneshot𑁒pending𑁒shot.
     Qed.
-    #[local] Lemma lstate_update {γ} v :
-      lstate_unset₁ γ -∗
-      lstate_unset₂ γ ==∗
-      lstate_set γ v.
+    #[local] Lemma lstate𑁒update {γ} v :
+      lstate۰unset₁ γ -∗
+      lstate۰unset₂ γ ==∗
+      lstate۰set γ v.
     Proof.
       iIntros "Hpending₁ Hpending₂".
       iCombine "Hpending₁ Hpending₂" as "Hpending".
       assert (1/3 + 2/3 = 1)%Qp as -> by compute_done.
-      iApply (oneshot_update_shot with "Hpending").
+      iApply (oneshot𑁒update𑁒shot with "Hpending").
     Qed.
 
-    #[local] Lemma consumer_alloc Ψ :
+    #[local] Lemma consumer𑁒alloc Ψ :
       ⊢ |==>
         ∃ γ_consumer,
-        consumer_auth' γ_consumer Ψ None ∗
-        consumer_frag' γ_consumer Ψ.
+        consumer۰auth' γ_consumer Ψ None ∗
+        consumer۰frag' γ_consumer Ψ.
     Proof.
-      apply subpreds_alloc.
+      apply subpreds𑁒alloc.
     Qed.
-    #[local] Lemma consumer_wand {γ Ψ} {state : option val} {Χ1} Χ2 E :
-      ▷ consumer_auth γ Ψ state -∗
-      consumer_frag γ Χ1 -∗
+    #[local] Lemma consumer𑁒wand {γ Ψ} {state : option val} {Χ1} Χ2 E :
+      ▷ consumer۰auth γ Ψ state -∗
+      consumer۰frag γ Χ1 -∗
       (∀ v, Χ1 v -∗ Χ2 v) ={E}=∗
-        ▷ consumer_auth γ Ψ state ∗
-        consumer_frag γ Χ2.
+        ▷ consumer۰auth γ Ψ state ∗
+        consumer۰frag γ Χ2.
     Proof.
-      apply subpreds_wand.
+      apply subpreds𑁒wand.
     Qed.
-    #[local] Lemma consumer_divide {γ Ψ} {state : option val} Χs E :
-      ▷ consumer_auth γ Ψ state -∗
-      consumer_frag γ (λ v, [∗ list] Χ ∈ Χs, Χ v) ={E}=∗
-        ▷ consumer_auth γ Ψ state ∗
-        [∗ list] Χ ∈ Χs, consumer_frag γ Χ.
+    #[local] Lemma consumer𑁒divide {γ Ψ} {state : option val} Χs E :
+      ▷ consumer۰auth γ Ψ state -∗
+      consumer۰frag γ (λ v, [∗ list] Χ ∈ Χs, Χ v) ={E}=∗
+        ▷ consumer۰auth γ Ψ state ∗
+        [∗ list] Χ ∈ Χs, consumer۰frag γ Χ.
     Proof.
-      apply subpreds_divide.
+      apply subpreds𑁒divide.
     Qed.
-    #[local] Lemma consumer_produce {γ Ψ} v :
-      consumer_auth γ Ψ None -∗
+    #[local] Lemma consumer𑁒produce {γ Ψ} v :
+      consumer۰auth γ Ψ None -∗
       Ψ v -∗
-      consumer_auth γ Ψ (Some v).
+      consumer۰auth γ Ψ (Some v).
     Proof.
-      apply subpreds_produce.
+      apply subpreds𑁒produce.
     Qed.
-    #[local] Lemma consumer_consume γ Ψ v Χ E :
-      ▷ consumer_auth γ Ψ (Some v) -∗
-      consumer_frag γ Χ ={E}=∗
-        ▷ consumer_auth γ Ψ (Some v) ∗
+    #[local] Lemma consumer𑁒consume γ Ψ v Χ E :
+      ▷ consumer۰auth γ Ψ (Some v) -∗
+      consumer۰frag γ Χ ={E}=∗
+        ▷ consumer۰auth γ Ψ (Some v) ∗
         ▷^2 Χ v.
     Proof.
-      apply subpreds_consume.
+      apply subpreds𑁒consume.
     Qed.
 
-    #[local] Lemma inv_state_lstate_set γ Ψ Ξ state v :
-      ▷ inv_state γ Ψ Ξ state -∗
-      lstate_set γ v -∗
+    #[local] Lemma inv۰state𑁒lstate۰set γ Ψ Ξ state v :
+      ▷ inv۰state γ Ψ Ξ state -∗
+      lstate۰set γ v -∗
       ◇ (
         ⌜state = Set_ v⌝ ∗
-        ▷ inv_state_set γ Ξ v
+        ▷ inv۰state۰set γ Ξ v
       ).
     Proof.
       iIntros "Hstate Hlstate_set".
       destruct state as [| mtx | v_].
-      - iDestruct "Hstate" as "(:inv_state_unset >)".
-        iDestruct (lstate_unset₁_set with "Hlstate_unset₁ Hlstate_set") as %[].
-      - iDestruct "Hstate" as "(:inv_state_setting >)".
-        iDestruct (lstate_unset₁_set with "Hlstate_unset₁ Hlstate_set") as %[].
-      - iDestruct "Hstate" as "(:inv_state_set =1 >)".
-        iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_1") as %<-.
+      - iDestruct "Hstate" as "(:inv۰state۰unset >)".
+        iDestruct (lstate𑁒unset₁𑁒set with "Hlstate_unset₁ Hlstate_set") as %[].
+      - iDestruct "Hstate" as "(:inv۰state۰setting >)".
+        iDestruct (lstate𑁒unset₁𑁒set with "Hlstate_unset₁ Hlstate_set") as %[].
+      - iDestruct "Hstate" as "(:inv۰state۰set =1 >)".
+        iDestruct (lstate۰set𑁒agree with "Hlstate_set Hlstate_set_1") as %<-.
         iFrame "#∗" => //.
     Qed.
 
-    Lemma lazy_consumer_wand {t γ Ψ Ξ Χ1} Χ2 :
-      lazy_inv t γ Ψ Ξ -∗
-      lazy_consumer γ Χ1 -∗
+    Lemma lazy۰consumer𑁒wand {t γ Ψ Ξ Χ1} Χ2 :
+      lazy۰inv t γ Ψ Ξ -∗
+      lazy۰consumer γ Χ1 -∗
       (∀ v, Χ1 v -∗ Χ2 v) ={⊤}=∗
-      lazy_consumer γ Χ2.
+      lazy۰consumer γ Χ2.
     Proof.
       iIntros "(:inv) (:consumer) H".
-      iInv "Hinv" as "(:inv_inner)".
-      iMod (consumer_wand with "Hconsumer_auth Hconsumer_frag H") as "($ & $)".
+      iInv "Hinv" as "(:inv۰inner)".
+      iMod (consumer𑁒wand with "Hconsumer_auth Hconsumer_frag H") as "($ & $)".
       iFrameSteps.
     Qed.
-    Lemma lazy_consumer_divide {t γ Ψ Ξ} Χs :
-      lazy_inv t γ Ψ Ξ -∗
-      lazy_consumer γ (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
-      [∗ list] Χ ∈ Χs, lazy_consumer γ Χ.
+    Lemma lazy۰consumer𑁒divide {t γ Ψ Ξ} Χs :
+      lazy۰inv t γ Ψ Ξ -∗
+      lazy۰consumer γ (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
+      [∗ list] Χ ∈ Χs, lazy۰consumer γ Χ.
     Proof.
       iIntros "(:inv) (:consumer)".
-      iInv "Hinv" as "(:inv_inner)".
-      iMod (consumer_divide with "Hconsumer_auth Hconsumer_frag") as "($ & $)".
+      iInv "Hinv" as "(:inv۰inner)".
+      iMod (consumer𑁒divide with "Hconsumer_auth Hconsumer_frag") as "($ & $)".
       iFrameSteps.
     Qed.
 
-    Lemma lazy_result_agree γ v1 v2 :
-      lazy_result γ v1 -∗
-      lazy_result γ v2 -∗
+    Lemma lazy۰result𑁒agree γ v1 v2 :
+      lazy۰result γ v1 -∗
+      lazy۰result γ v2 -∗
       ⌜v1 = v2⌝.
     Proof.
-      apply lstate_set_agree.
+      apply lstate۰set𑁒agree.
     Qed.
 
-    Lemma lazy_inv_result t γ Ψ Ξ v :
-      lazy_inv t γ Ψ Ξ -∗
-      lazy_result γ v ={⊤}=∗
+    Lemma lazy𑁒inv𑁒result t γ Ψ Ξ v :
+      lazy۰inv t γ Ψ Ξ -∗
+      lazy۰result γ v ={⊤}=∗
       ▷ □ Ξ v.
     Proof.
       iIntros "(:inv) (:result)".
-      iInv "Hinv" as "(:inv_inner)".
-      iMod (inv_state_lstate_set with "Hstate Hlstate_set") as "(-> & (:inv_state_set =1 >))".
+      iInv "Hinv" as "(:inv۰inner)".
+      iMod (inv۰state𑁒lstate۰set with "Hstate Hlstate_set") as "(-> & (:inv۰state۰set =1 >))".
       iSplitL. { iFrameSteps. }
       iSteps.
     Qed.
-    Lemma lazy_inv_result_consumer t γ Ψ Ξ v Χ :
-      lazy_inv t γ Ψ Ξ -∗
-      lazy_result γ v -∗
-      lazy_consumer γ Χ ={⊤}=∗
+    Lemma lazy𑁒inv𑁒result𑁒consumer t γ Ψ Ξ v Χ :
+      lazy۰inv t γ Ψ Ξ -∗
+      lazy۰result γ v -∗
+      lazy۰consumer γ Χ ={⊤}=∗
         ▷^2 Χ v ∗
         ▷ □ Ξ v.
     Proof.
       iIntros "(:inv) (:result) (:consumer)".
-      iInv "Hinv" as "(:inv_inner)".
-      iMod (inv_state_lstate_set with "Hstate Hlstate_set") as "(-> & (:inv_state_set =1 >))".
-      iMod (consumer_consume with "Hconsumer_auth Hconsumer_frag") as "(Hconsumer_auth & HΧ)".
+      iInv "Hinv" as "(:inv۰inner)".
+      iMod (inv۰state𑁒lstate۰set with "Hstate Hlstate_set") as "(-> & (:inv۰state۰set =1 >))".
+      iMod (consumer𑁒consume with "Hconsumer_auth Hconsumer_frag") as "(Hconsumer_auth & HΧ)".
       iSplitR "HΧ". { iFrameSteps. }
       iSteps.
     Qed.
@@ -414,22 +414,22 @@ Module base.
         t γ
       , RET #t;
         meta_token t ⊤ ∗
-        lazy_inv t γ Ψ Ξ ∗
-        lazy_consumer γ Ψ
+        lazy۰inv t γ Ψ Ξ ∗
+        lazy۰consumer γ Ψ
       }}}.
     Proof.
       iIntros "%Φ Hfn HΦ".
 
-      wp_rec.
-      wp_ref t as "Hmeta" "Ht".
+      wp۰rec.
+      wp۰ref t as "Hmeta" "Ht".
 
-      iMod lstate_alloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
-      iMod consumer_alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
+      iMod lstate𑁒alloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
+      iMod consumer𑁒alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
 
       pose γ :=
-        {|lazy_name_thunk := fn
-        ; lazy_name_lstate := γ_lstate
-        ; lazy_name_consumer := γ_consumer
+        {|lazy۰name۰thunk := fn
+        ; lazy۰name۰lstate := γ_lstate
+        ; lazy۰name۰consumer := γ_consumer
         |}.
 
       iApply ("HΦ" $! t γ).
@@ -446,27 +446,27 @@ Module base.
         t γ
       , RET #t;
         meta_token t ⊤ ∗
-        lazy_inv t γ Ψ Ξ ∗
-        lazy_result γ v ∗
-        lazy_consumer γ Ψ
+        lazy۰inv t γ Ψ Ξ ∗
+        lazy۰result γ v ∗
+        lazy۰consumer γ Ψ
       }}}.
     Proof.
       iIntros "%Φ (HΨ & #HΞ) HΦ".
 
-      wp_rec.
-      wp_ref t as "Hmeta" "Ht".
+      wp۰rec.
+      wp۰ref t as "Hmeta" "Ht".
 
-      iMod lstate_alloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
-      iMod consumer_alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
+      iMod lstate𑁒alloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
+      iMod consumer𑁒alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
 
       pose γ :=
-        {|lazy_name_thunk := ()
-        ; lazy_name_lstate := γ_lstate
-        ; lazy_name_consumer := γ_consumer
+        {|lazy۰name۰thunk := ()
+        ; lazy۰name۰lstate := γ_lstate
+        ; lazy۰name۰consumer := γ_consumer
         |}.
 
-      iMod (lstate_update (γ := γ) v with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".
-      iDestruct (consumer_produce (γ := γ) v with "Hconsumer_auth HΨ") as "Hconsumer_auth".
+      iMod (lstate𑁒update (γ := γ) v with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".
+      iDestruct (consumer𑁒produce (γ := γ) v with "Hconsumer_auth HΨ") as "Hconsumer_auth".
 
       iApply ("HΦ" $! t γ).
       iFrameSteps. iExists (Set_ v). iSteps.
@@ -474,7 +474,7 @@ Module base.
 
     Lemma lazy٠is_set𑁒spec t γ Ψ Ξ :
       {{{
-        lazy_inv t γ Ψ Ξ
+        lazy۰inv t γ Ψ Ξ
       }}}
         lazy٠is_set #t
       {{{
@@ -482,20 +482,20 @@ Module base.
       , RET #b;
         if b then
           £ 2 ∗
-          lazy_resolved γ
+          lazy۰resolved γ
         else
           True
       }}}.
     Proof.
       iIntros "%Φ (:inv) HΦ".
 
-      wp_rec credits:"H£".
+      wp۰rec credits:"H£".
       iApply (lc_weaken 2) in "H£"; first done.
 
-      wp_bind (!_)%E.
-      iInv "Hinv" as "(:inv_inner)".
-      wp_load.
-      iSpecialize ("HΦ" $! (state_to_bool state)).
+      wp۰bind (!_)%E.
+      iInv "Hinv" as "(:inv۰inner)".
+      wp۰load.
+      iSpecialize ("HΦ" $! (state۰to_bool state)).
       destruct state as [| mtx | v].
 
       - iSplitR "HΦ". { iFrameSteps. }
@@ -504,14 +504,14 @@ Module base.
       - iSplitR "HΦ". { iFrameSteps. }
         iSteps.
 
-      - iDestruct "Hstate" as "(:inv_state_set)".
+      - iDestruct "Hstate" as "(:inv۰state۰set)".
         iSplitR "H£ HΦ". { iFrameSteps. }
         iSteps.
     Qed.
-    Lemma lazy٠is_set𑁒spec_result t γ Ψ Ξ v :
+    Lemma lazy٠is_set𑁒spec𑁒result t γ Ψ Ξ v :
       {{{
-        lazy_inv t γ Ψ Ξ ∗
-        lazy_result γ v
+        lazy۰inv t γ Ψ Ξ ∗
+        lazy۰result γ v
       }}}
         lazy٠is_set #t
       {{{
@@ -521,20 +521,20 @@ Module base.
     Proof.
       iIntros "%Φ ((:inv) & (:result)) HΦ".
 
-      wp_rec credits:"H£".
+      wp۰rec credits:"H£".
       iApply (lc_weaken 2) in "H£"; first done.
 
-      wp_bind (!_)%E.
-      iInv "Hinv" as "(:inv_inner)".
-      wp_load.
-      iMod (inv_state_lstate_set with "Hstate Hlstate_set") as "(-> & (:inv_state_set =1))".
+      wp۰bind (!_)%E.
+      iInv "Hinv" as "(:inv۰inner)".
+      wp۰load.
+      iMod (inv۰state𑁒lstate۰set with "Hstate Hlstate_set") as "(-> & (:inv۰state۰set =1))".
       iSplitR "H£ HΦ". { iFrameSteps. }
       iSteps.
     Qed.
 
     Lemma lazy٠is_unset𑁒spec t γ Ψ Ξ :
       {{{
-        lazy_inv t γ Ψ Ξ
+        lazy۰inv t γ Ψ Ξ
       }}}
         lazy٠is_unset #t
       {{{
@@ -544,19 +544,19 @@ Module base.
           True
         else
           £ 2 ∗
-          lazy_resolved γ
+          lazy۰resolved γ
       }}}.
     Proof.
       iIntros "%Φ #Hinv HΦ".
 
-      wp_rec.
-      wp_apply (lazy٠is_set𑁒spec with "[$]") as (b) "Hb".
+      wp۰rec.
+      wp۰apply (lazy٠is_set𑁒spec with "[$]") as (b) "Hb".
       destruct b; iSteps.
     Qed.
-    Lemma lazy٠is_unset𑁒spec_result t γ Ψ Ξ v :
+    Lemma lazy٠is_unset𑁒spec𑁒result t γ Ψ Ξ v :
       {{{
-        lazy_inv t γ Ψ Ξ ∗
-        lazy_result γ v
+        lazy۰inv t γ Ψ Ξ ∗
+        lazy۰result γ v
       }}}
         lazy٠is_unset #t
       {{{
@@ -566,98 +566,98 @@ Module base.
     Proof.
       iIntros "%Φ (#Hinv & #Hresult) HΦ".
 
-      wp_rec.
-      wp_apply (lazy٠is_set𑁒spec_result with "[$]").
+      wp۰rec.
+      wp۰apply (lazy٠is_set𑁒spec𑁒result with "[$]").
       iSteps.
     Qed.
 
     Lemma lazy٠get𑁒spec t γ Ψ Ξ :
       {{{
-        lazy_inv t γ Ψ Ξ
+        lazy۰inv t γ Ψ Ξ
       }}}
         lazy٠get #t
       {{{
         v
       , RET v;
         £ 2 ∗
-        lazy_result γ v
+        lazy۰result γ v
       }}}.
     Proof.
       iIntros "%Φ (:inv) HΦ".
 
       iLöb as "HLöb" forall (Φ).
 
-      wp_rec credits:"H£".
+      wp۰rec credits:"H£".
       iApply (lc_weaken 2) in "H£"; first done.
-      iApply (wp_frame_wand with "[H£]"); first iAccu.
+      iApply (wp𑁒frame𑁒wand with "[H£]"); first iAccu.
 
-      wp_bind (!_)%E.
-      iInv "Hinv" as "(:inv_inner)".
-      wp_load.
+      wp۰bind (!_)%E.
+      iInv "Hinv" as "(:inv۰inner)".
+      wp۰load.
       destruct state as [| mtx | v_].
 
       - iSplitR "HΦ". { iFrameSteps. }
         iIntros "!> {%}".
 
-        wp_apply+ (mutex٠create_lock𑁒spec_init with "[//]") as (mtx) "(Hmtx_init & Hmtx_locked)".
-        wp_pures.
+        wp۰apply+ (mutex٠create_lock𑁒spec𑁒init with "[//]") as (mtx) "(Hmtx_init & Hmtx_locked)".
+        wp۰pures.
 
-        wp_bind (CAS _ _ _).
-        iInv "Hinv" as "(:inv_inner)".
-        wp_cas as Hcas.
+        wp۰bind (CAS _ _ _).
+        iInv "Hinv" as "(:inv۰inner)".
+        wp۰cas as Hcas.
 
         + iSplitR "Hmtx_init Hmtx_locked HΦ". { iFrameSteps. }
           iIntros "!> {%}".
 
-          wp_apply+ (mutex٠unlock𑁒spec_init with "[$]") as "_".
-          wp_apply+ "HLöb".
+          wp۰apply+ (mutex٠unlock𑁒spec𑁒init with "[$]") as "_".
+          wp۰apply+ "HLöb".
           iSteps.
 
         + destruct state; zoo_simplify.
-          iDestruct "Hstate" as "(:inv_state_unset)".
-          iMod (mutex_init_to_inv (lazy_resolved γ) with "Hmtx_init [//]") as "#Hmtx_inv".
+          iDestruct "Hstate" as "(:inv۰state۰unset)".
+          iMod (mutex۰init𑁒to𑁒inv (lazy۰resolved γ) with "Hmtx_init [//]") as "#Hmtx_inv".
           iSplitR "Hmtx_locked Hlstate_unset₂ Hthunk HΦ".
           { iExists (Setting mtx). iFrameSteps. }
           iIntros "!> {%}".
 
-          wp_apply+ (wp_wand with "Hthunk") as (v) "(HΨ & #HΞ)".
-          wp_pures.
+          wp۰apply+ (wp𑁒wand with "Hthunk") as (v) "(HΨ & #HΞ)".
+          wp۰pures.
 
-          wp_bind (_ <- _)%E.
-          iInv "Hinv" as "(:inv_inner)".
-          wp_store.
+          wp۰bind (_ <- _)%E.
+          iInv "Hinv" as "(:inv۰inner)".
+          wp۰store.
           destruct state.
 
-          * iDestruct "Hstate" as "(:inv_state_unset =1)".
-            iDestruct (lstate_unset₂_exclusive with "Hlstate_unset₂ Hlstate_unset₂_1") as %[].
+          * iDestruct "Hstate" as "(:inv۰state۰unset =1)".
+            iDestruct (lstate۰unset₂𑁒exclusive with "Hlstate_unset₂ Hlstate_unset₂_1") as %[].
 
-          * iDestruct "Hstate" as "(:inv_state_setting =1)".
-            iMod (lstate_update with "Hlstate_unset₁_1 Hlstate_unset₂") as "#Hlstate_set".
-            iDestruct (consumer_produce with "Hconsumer_auth HΨ") as "Hconsumer_auth".
+          * iDestruct "Hstate" as "(:inv۰state۰setting =1)".
+            iMod (lstate𑁒update with "Hlstate_unset₁_1 Hlstate_unset₂") as "#Hlstate_set".
+            iDestruct (consumer𑁒produce with "Hconsumer_auth HΨ") as "Hconsumer_auth".
             iSplitR "Hmtx_locked HΦ". { iExists (Set_ v). iFrameSteps. }
             iIntros "!> {%}".
 
-            wp_apply+ (mutex٠unlock𑁒spec with "[$Hmtx_inv $Hmtx_locked]"); iSteps.
+            wp۰apply+ (mutex٠unlock𑁒spec with "[$Hmtx_inv $Hmtx_locked]"); iSteps.
 
-          * iDestruct "Hstate" as "(:inv_state_set =1)".
-            iDestruct (lstate_unset₂_set with "Hlstate_unset₂ Hlstate_set_1") as %[].
+          * iDestruct "Hstate" as "(:inv۰state۰set =1)".
+            iDestruct (lstate𑁒unset₂𑁒set with "Hlstate_unset₂ Hlstate_set_1") as %[].
 
-      - iDestruct "Hstate" as "(:inv_state_setting)".
+      - iDestruct "Hstate" as "(:inv۰state۰setting)".
         iSplitR "HΦ". { iFrameSteps. }
         iIntros "!> {%}".
 
-        wp_apply+ (mutex٠synchronize𑁒spec with "[$]") as "_".
-        wp_apply+ "HLöb".
+        wp۰apply+ (mutex٠synchronize𑁒spec with "[$]") as "_".
+        wp۰apply+ "HLöb".
         iSteps.
 
-      - iDestruct "Hstate" as "(:inv_state_set)".
+      - iDestruct "Hstate" as "(:inv۰state۰set)".
         iSplitR "HΦ". { iFrameSteps. }
         iSteps.
     Qed.
-    Lemma lazy٠get𑁒spec_result t γ Ψ Ξ v :
+    Lemma lazy٠get𑁒spec𑁒result t γ Ψ Ξ v :
       {{{
-        lazy_inv t γ Ψ Ξ ∗
-        lazy_result γ v
+        lazy۰inv t γ Ψ Ξ ∗
+        lazy۰result γ v
       }}}
         lazy٠get #t
       {{{
@@ -667,38 +667,38 @@ Module base.
     Proof.
       iIntros "%Φ ((:inv) & (:result)) HΦ".
 
-      wp_rec credits:"H£".
+      wp۰rec credits:"H£".
       iApply (lc_weaken 2) in "H£"; first done.
 
-      wp_bind (!_)%E.
-      iInv "Hinv" as "(:inv_inner)".
-      wp_load.
-      iMod (inv_state_lstate_set with "Hstate Hlstate_set") as "(-> & (:inv_state_set =1))".
+      wp۰bind (!_)%E.
+      iInv "Hinv" as "(:inv۰inner)".
+      wp۰load.
+      iMod (inv۰state𑁒lstate۰set with "Hstate Hlstate_set") as "(-> & (:inv۰state۰set =1))".
       iSplitR "H£ HΦ". { iFrameSteps. }
       iSteps.
     Qed.
-  End lazy_G.
+  End lazy۰G.
 
-  #[global] Opaque lazy_inv.
-  #[global] Opaque lazy_consumer.
-  #[global] Opaque lazy_result.
+  #[global] Opaque lazy۰inv.
+  #[global] Opaque lazy۰consumer.
+  #[global] Opaque lazy۰result.
 End base.
 
 Require zoo_std.lazy__opaque.
 
-Section lazy_G.
-  Context `{lazy_G : LazyG Σ}.
+Section lazy۰G.
+  Context `{lazy۰G : LazyG Σ}.
 
   Implicit Types 𝑡 : location.
   Implicit Types t : val.
-  Implicit Types γ : base.lazy_name.
+  Implicit Types γ : base.lazy۰name.
   Implicit Types Ψ Χ Ξ : val → iProp Σ.
 
-  Definition lazy_inv t Ψ Ξ : iProp Σ :=
+  Definition lazy۰inv t Ψ Ξ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    base.lazy_inv 𝑡 γ Ψ Ξ.
+    base.lazy۰inv 𝑡 γ Ψ Ξ.
   #[local] Instance : CustomIpat "inv" :=
     " ( %l{}
       & %γ{}
@@ -708,11 +708,11 @@ Section lazy_G.
       )
     ".
 
-  Definition lazy_consumer t Χ : iProp Σ :=
+  Definition lazy۰consumer t Χ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    base.lazy_consumer γ Χ.
+    base.lazy۰consumer γ Χ.
   #[local] Instance : CustomIpat "consumer" :=
     " ( %l{;_}
       & %γ{;_}
@@ -722,11 +722,11 @@ Section lazy_G.
       )
     ".
 
-  Definition lazy_result t v : iProp Σ :=
+  Definition lazy۰result t v : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    base.lazy_result γ v.
+    base.lazy۰result γ v.
   #[local] Instance : CustomIpat "result" :=
     " ( %l{;_}
       & %γ{;_}
@@ -735,146 +735,146 @@ Section lazy_G.
       & Hresult{_{}}
       )
     ".
-  Definition lazy_resolved t : iProp Σ :=
+  Definition lazy۰resolved t : iProp Σ :=
     ∃ v,
-    lazy_result t v.
+    lazy۰result t v.
 
-  #[global] Instance lazy_inv_contractive t n :
+  #[global] Instance lazy۰inv𑁒contractive t n :
     Proper (
       (pointwise_relation _ (dist_later n)) ==>
       (pointwise_relation _ (dist_later n)) ==>
       (≡{n}≡)
-    ) (lazy_inv t).
+    ) (lazy۰inv t).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance lazy_inv_proper t :
+  #[global] Instance lazy۰inv𑁒proper t :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (pointwise_relation _ (≡)) ==>
       (≡)
-    ) (lazy_inv t).
+    ) (lazy۰inv t).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance lazy_consumer_contractive t n :
+  #[global] Instance lazy۰consumer𑁒contractive t n :
     Proper (
       (pointwise_relation _ (dist_later n)) ==>
       (≡{n}≡)
-    ) (lazy_consumer t).
+    ) (lazy۰consumer t).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance lazy_consumer_proper t :
+  #[global] Instance lazy۰consumer𑁒proper t :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (≡)
-    ) (lazy_consumer t).
+    ) (lazy۰consumer t).
   Proof.
     solve_proper.
   Qed.
 
-  #[global] Instance lazy_result_timeless t v :
-    Timeless (lazy_result t v).
+  #[global] Instance lazy۰result𑁒timeless t v :
+    Timeless (lazy۰result t v).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance lazy_inv_persistent t Ψ Ξ :
-    Persistent (lazy_inv t Ψ Ξ).
+  #[global] Instance lazy۰inv𑁒persistent t Ψ Ξ :
+    Persistent (lazy۰inv t Ψ Ξ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance lazy_result_persistent t v :
-    Persistent (lazy_result t v).
+  #[global] Instance lazy۰result𑁒persistent t v :
+    Persistent (lazy۰result t v).
   Proof.
     apply _.
   Qed.
 
-  Lemma lazy_consumer_wand {t Ψ Ξ Χ1} Χ2 :
-    lazy_inv t Ψ Ξ -∗
-    lazy_consumer t Χ1 -∗
+  Lemma lazy۰consumer𑁒wand {t Ψ Ξ Χ1} Χ2 :
+    lazy۰inv t Ψ Ξ -∗
+    lazy۰consumer t Χ1 -∗
     (∀ v, Χ1 v -∗ Χ2 v) ={⊤}=∗
-    lazy_consumer t Χ2.
+    lazy۰consumer t Χ2.
   Proof.
     iIntros "(:inv =1) (:consumer =2) H". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iDestruct (base.lazy_consumer_wand with "Hinv_1 Hconsumer_2 H") as "H".
+    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
+    iDestruct (base.lazy۰consumer𑁒wand with "Hinv_1 Hconsumer_2 H") as "H".
     iSteps.
   Qed.
-  Lemma lazy_consumer_divide {t Ψ Ξ} Χs :
-    lazy_inv t Ψ Ξ -∗
-    lazy_consumer t (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
-    [∗ list] Χ ∈ Χs, lazy_consumer t Χ.
+  Lemma lazy۰consumer𑁒divide {t Ψ Ξ} Χs :
+    lazy۰inv t Ψ Ξ -∗
+    lazy۰consumer t (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
+    [∗ list] Χ ∈ Χs, lazy۰consumer t Χ.
   Proof.
     iIntros "(:inv =1) (:consumer =2)". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iDestruct (base.lazy_consumer_divide with "Hinv_1 Hconsumer_2") as "H".
+    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
+    iDestruct (base.lazy۰consumer𑁒divide with "Hinv_1 Hconsumer_2") as "H".
     iApply (big_sepL_impl with "H").
     iSteps.
   Qed.
-  Lemma lazy_consumer_split {t Ψ Ξ} Χ1 Χ2 :
-    lazy_inv t Ψ Ξ -∗
-    lazy_consumer t (λ v, Χ1 v ∗ Χ2 v) ={⊤}=∗
-      lazy_consumer t Χ1 ∗
-      lazy_consumer t Χ2.
+  Lemma lazy۰consumer𑁒split {t Ψ Ξ} Χ1 Χ2 :
+    lazy۰inv t Ψ Ξ -∗
+    lazy۰consumer t (λ v, Χ1 v ∗ Χ2 v) ={⊤}=∗
+      lazy۰consumer t Χ1 ∗
+      lazy۰consumer t Χ2.
   Proof.
     iIntros "Hinv Hconsumer".
-    iMod (lazy_consumer_divide [Χ1;Χ2] with "Hinv [Hconsumer]") as "($ & $ & _)" => //.
+    iMod (lazy۰consumer𑁒divide [Χ1;Χ2] with "Hinv [Hconsumer]") as "($ & $ & _)" => //.
     { simpl. setoid_rewrite bi.sep_emp => //. }
   Qed.
 
-  Lemma lazy_result_agree t v1 v2 :
-    lazy_result t v1 -∗
-    lazy_result t v2 -∗
+  Lemma lazy۰result𑁒agree t v1 v2 :
+    lazy۰result t v1 -∗
+    lazy۰result t v2 -∗
     ⌜v1 = v2⌝.
   Proof.
     iIntros "(:result =1) (:result =2)". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.lazy_result_agree with "Hresult_1 Hresult_2").
+    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.lazy۰result𑁒agree with "Hresult_1 Hresult_2").
   Qed.
 
-  Lemma lazy_inv_result t Ψ Ξ v :
-    lazy_inv t Ψ Ξ -∗
-    lazy_result t v ={⊤}=∗
+  Lemma lazy𑁒inv𑁒result t Ψ Ξ v :
+    lazy۰inv t Ψ Ξ -∗
+    lazy۰result t v ={⊤}=∗
     ▷ □ Ξ v.
   Proof.
     iIntros "(:inv =1) (:result =2)". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.lazy_inv_result with "Hinv_1 Hresult_2").
+    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.lazy𑁒inv𑁒result with "Hinv_1 Hresult_2").
   Qed.
-  Lemma lazy_inv_result' t Ψ Ξ v :
+  Lemma lazy𑁒inv_result' t Ψ Ξ v :
     £ 1 -∗
-    lazy_inv t Ψ Ξ -∗
-    lazy_result t v ={⊤}=∗
+    lazy۰inv t Ψ Ξ -∗
+    lazy۰result t v ={⊤}=∗
     □ Ξ v.
   Proof.
     iIntros "H£ Hinv Hresult".
-    iMod (lazy_inv_result with "Hinv Hresult") as "HΞ".
+    iMod (lazy𑁒inv𑁒result with "Hinv Hresult") as "HΞ".
     iApply (lc_fupd_elim_later with "H£ HΞ").
   Qed.
-  Lemma lazy_inv_result_consumer t Ψ Ξ v Χ :
-    lazy_inv t Ψ Ξ -∗
-    lazy_result t v -∗
-    lazy_consumer t Χ ={⊤}=∗
+  Lemma lazy𑁒inv𑁒result𑁒consumer t Ψ Ξ v Χ :
+    lazy۰inv t Ψ Ξ -∗
+    lazy۰result t v -∗
+    lazy۰consumer t Χ ={⊤}=∗
       ▷^2 Χ v ∗
       ▷ □ Ξ v.
   Proof.
     iIntros "(:inv =1) (:result =2) (:consumer =3)". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iDestruct (meta_agree with "Hmeta_2 Hmeta_3") as %<-.
-    iApply (base.lazy_inv_result_consumer with "Hinv_1 Hresult_2 Hconsumer_3").
+    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
+    iDestruct (meta𑁒agree with "Hmeta_2 Hmeta_3") as %<-.
+    iApply (base.lazy𑁒inv𑁒result𑁒consumer with "Hinv_1 Hresult_2 Hconsumer_3").
   Qed.
-  Lemma lazy_inv_result_consumer' t Ψ Ξ v Χ :
+  Lemma lazy𑁒inv𑁒result𑁒consumer' t Ψ Ξ v Χ :
     £ 2 -∗
-    lazy_inv t Ψ Ξ -∗
-    lazy_result t v -∗
-    lazy_consumer t Χ ={⊤}=∗
+    lazy۰inv t Ψ Ξ -∗
+    lazy۰result t v -∗
+    lazy۰consumer t Χ ={⊤}=∗
       Χ v ∗
       □ Ξ v.
   Proof.
     iIntros "(H£1 & H£2) Hinv Hresult Hconsumer".
-    iMod (lazy_inv_result_consumer with "Hinv Hresult Hconsumer") as "H".
+    iMod (lazy𑁒inv𑁒result𑁒consumer with "Hinv Hresult Hconsumer") as "H".
     rewrite -bi.later_sep.
     iMod (lc_fupd_elim_later with "H£1 H") as "(HΧ & $)".
     iApply (lc_fupd_elim_later with "H£2 HΧ").
@@ -891,15 +891,15 @@ Section lazy_G.
     {{{
       t
     , RET t;
-      lazy_inv t Ψ Ξ ∗
-      lazy_consumer t Ψ
+      lazy۰inv t Ψ Ξ ∗
+      lazy۰consumer t Ψ
     }}}.
   Proof.
     iIntros "%Φ Hfn HΦ".
 
-    iApply wp_fupd.
-    wp_apply (base.lazy٠make𑁒spec with "Hfn") as (𝑡 γ) "(Hmeta & Hinv & Hconsumer)".
-    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
+    iApply wp𑁒fupd.
+    wp۰apply (base.lazy٠make𑁒spec with "Hfn") as (𝑡 γ) "(Hmeta & Hinv & Hconsumer)".
+    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
@@ -912,22 +912,22 @@ Section lazy_G.
     {{{
       t
     , RET t;
-      lazy_inv t Ψ Ξ ∗
-      lazy_result t v ∗
-      lazy_consumer t Ψ
+      lazy۰inv t Ψ Ξ ∗
+      lazy۰result t v ∗
+      lazy۰consumer t Ψ
     }}}.
   Proof.
     iIntros "%Φ (HΨ & HΞ) HΦ".
 
-    iApply wp_fupd.
-    wp_apply (base.lazy٠return𑁒spec Ψ with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hresult & Hconsumer)".
-    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
+    iApply wp𑁒fupd.
+    wp۰apply (base.lazy٠return𑁒spec Ψ with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hresult & Hconsumer)".
+    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
   Lemma lazy٠is_set𑁒spec t Ψ Ξ :
     {{{
-      lazy_inv t Ψ Ξ
+      lazy۰inv t Ψ Ξ
     }}}
       lazy٠is_set t
     {{{
@@ -935,20 +935,20 @@ Section lazy_G.
     , RET #b;
       if b then
         £ 2 ∗
-        lazy_resolved t
+        lazy۰resolved t
       else
         True
     }}}.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.lazy٠is_set𑁒spec with "[$]") as (b) "Hb".
-    rewrite /lazy_resolved. destruct b; iSteps.
+    wp۰apply (base.lazy٠is_set𑁒spec with "[$]") as (b) "Hb".
+    rewrite /lazy۰resolved. destruct b; iSteps.
   Qed.
-  Lemma lazy٠is_set𑁒spec_result t Ψ Ξ v :
+  Lemma lazy٠is_set𑁒spec𑁒result t Ψ Ξ v :
     {{{
-      lazy_inv t Ψ Ξ ∗
-      lazy_result t v
+      lazy۰inv t Ψ Ξ ∗
+      lazy۰result t v
     }}}
       lazy٠is_set t
     {{{
@@ -957,14 +957,14 @@ Section lazy_G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.lazy٠is_set𑁒spec_result with "[$] HΦ").
+    wp۰apply (base.lazy٠is_set𑁒spec𑁒result with "[$] HΦ").
   Qed.
 
   Lemma lazy٠is_unset𑁒spec t Ψ Ξ :
     {{{
-      lazy_inv t Ψ Ξ
+      lazy۰inv t Ψ Ξ
     }}}
       lazy٠is_unset t
     {{{
@@ -974,18 +974,18 @@ Section lazy_G.
         True
       else
         £ 2 ∗
-        lazy_resolved t
+        lazy۰resolved t
     }}}.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.lazy٠is_unset𑁒spec with "[$]") as (b) "Hb".
-    rewrite /lazy_resolved. destruct b; iSteps.
+    wp۰apply (base.lazy٠is_unset𑁒spec with "[$]") as (b) "Hb".
+    rewrite /lazy۰resolved. destruct b; iSteps.
   Qed.
-  Lemma lazy٠is_unset𑁒spec_result t Ψ Ξ v :
+  Lemma lazy٠is_unset𑁒spec𑁒result t Ψ Ξ v :
     {{{
-      lazy_inv t Ψ Ξ ∗
-      lazy_result t v
+      lazy۰inv t Ψ Ξ ∗
+      lazy۰result t v
     }}}
       lazy٠is_unset t
     {{{
@@ -994,32 +994,32 @@ Section lazy_G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.lazy٠is_unset𑁒spec_result with "[$] HΦ").
+    wp۰apply (base.lazy٠is_unset𑁒spec𑁒result with "[$] HΦ").
   Qed.
 
   Lemma lazy٠get𑁒spec t Ψ Ξ :
     {{{
-      lazy_inv t Ψ Ξ
+      lazy۰inv t Ψ Ξ
     }}}
       lazy٠get t
     {{{
       v
     , RET v;
       £ 2 ∗
-      lazy_result t v
+      lazy۰result t v
     }}}.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.lazy٠get𑁒spec with "[$]").
+    wp۰apply (base.lazy٠get𑁒spec with "[$]").
     iSteps.
   Qed.
-  Lemma lazy٠get𑁒spec_result t Ψ Ξ v :
+  Lemma lazy٠get𑁒spec𑁒result t Ψ Ξ v :
     {{{
-      lazy_inv t Ψ Ξ ∗
-      lazy_result t v
+      lazy۰inv t Ψ Ξ ∗
+      lazy۰result t v
     }}}
       lazy٠get t
     {{{
@@ -1028,12 +1028,12 @@ Section lazy_G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.lazy٠get𑁒spec_result with "[$] HΦ").
+    wp۰apply (base.lazy٠get𑁒spec𑁒result with "[$] HΦ").
   Qed.
-End lazy_G.
+End lazy۰G.
 
-#[global] Opaque lazy_inv.
-#[global] Opaque lazy_consumer.
-#[global] Opaque lazy_result.
+#[global] Opaque lazy۰inv.
+#[global] Opaque lazy۰consumer.
+#[global] Opaque lazy۰result.

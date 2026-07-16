@@ -8,7 +8,7 @@ Section list_to_set.
 
   Implicit Types l : list K.
 
-  Lemma list_to_set_empty l :
+  Lemma list_to_set𑁒empty l :
     list_to_set (C := gset K) l = ∅ ↔
     l = [].
   Proof.
@@ -16,10 +16,10 @@ Section list_to_set.
     - destruct l; first done. set_solver.
     - intros ->. apply list_to_set_nil.
   Qed.
-  Lemma list_to_set_not_empty l :
+  Lemma list_to_set𑁒not_empty l :
     list_to_set (C := gset K) l ≠ ∅ ↔
     l ≠ [].
   Proof.
-    rewrite list_to_set_empty //.
+    rewrite list_to_set𑁒empty //.
   Qed.
 End list_to_set.

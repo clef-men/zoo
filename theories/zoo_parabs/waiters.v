@@ -12,44 +12,44 @@ Implicit Types b : bool.
 Implicit Types v t waiters queue : val.
 Implicit Types 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 𝑞𝑢𝑒𝑢𝑒 : list val.
 
-Class WaitersG Σ `{zoo_G : !ZooG Σ} :=
-  { #[local] waiters_G_queue_G :: MpmcQueue1G Σ
-  ; #[local] waiters_G_waiter_G :: WaiterG Σ
+Class WaitersG Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] waiters۰G۰queue۰G :: MpmcQueue1G Σ
+  ; #[local] waiters۰G۰waiter۰G :: WaiterG Σ
   }.
 
-Definition waiters_Σ :=
-  #[mpmc_queue_1_Σ
-  ; waiter_Σ
+Definition waiters۰Σ :=
+  #[mpmc_queue_1۰Σ
+  ; waiter۰Σ
   ].
-#[global] Instance subG_ws_hub_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG waiters_Σ Σ →
+#[global] Instance subG𑁒ws_hub_Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG waiters۰Σ Σ →
   WaitersG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section waiters_G.
-  Context `{waiters_G : WaitersG Σ}.
+Section waiters۰G.
+  Context `{waiters۰G : WaitersG Σ}.
 
-  #[local] Definition waiters_inv_inner queue : iProp Σ :=
+  #[local] Definition waiters۰inv۰inner queue : iProp Σ :=
     ∃ 𝑞𝑢𝑒𝑢𝑒,
-    mpmc_queue_1_model queue 𝑞𝑢𝑒𝑢𝑒 ∗
+    mpmc_queue_1۰model queue 𝑞𝑢𝑒𝑢𝑒 ∗
     [∗ list] 𝑤𝑎𝑖𝑡𝑒𝑟 ∈ 𝑞𝑢𝑒𝑢𝑒,
-      waiter_inv 𝑤𝑎𝑖𝑡𝑒𝑟.
-  #[local] Instance : CustomIpat "inv_inner" :=
+      waiter۰inv 𝑤𝑎𝑖𝑡𝑒𝑟.
+  #[local] Instance : CustomIpat "inv۰inner" :=
     " ( %𝑞𝑢𝑒𝑢𝑒
       & >Hqueue_model
       & H𝑞𝑢𝑒𝑢𝑒
       )
     ".
-  Definition waiters_inv t sz : iProp Σ :=
+  Definition waiters۰inv t sz : iProp Σ :=
     ∃ waiters 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 queue,
     ⌜t = (waiters, queue)%V⌝ ∗
-    array_model waiters Discard 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 ∗
+    array۰model waiters Discard 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 ∗
     ⌜length 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 = sz⌝ ∗
-    ([∗ list] 𝑤𝑎𝑖𝑡𝑒𝑟 ∈ 𝑤𝑎𝑖𝑡𝑒𝑟𝑠, waiter_inv 𝑤𝑎𝑖𝑡𝑒𝑟) ∗
-    mpmc_queue_1_inv queue (nroot.@"queue") ∗
-    inv (nroot.@"inv") (waiters_inv_inner queue).
+    ([∗ list] 𝑤𝑎𝑖𝑡𝑒𝑟 ∈ 𝑤𝑎𝑖𝑡𝑒𝑟𝑠, waiter۰inv 𝑤𝑎𝑖𝑡𝑒𝑟) ∗
+    mpmc_queue_1۰inv queue (nroot.@"queue") ∗
+    inv (nroot.@"inv") (waiters۰inv۰inner queue).
   #[local] Instance : CustomIpat "inv" :=
     " ( %waiters
       & %𝑤𝑎𝑖𝑡𝑒𝑟𝑠
@@ -63,8 +63,8 @@ Section waiters_G.
       )
     ".
 
-  #[global] Instance waiters_inv_persistent t sz :
-    Persistent (waiters_inv t sz).
+  #[global] Instance waiters۰inv𑁒persistent t sz :
+    Persistent (waiters۰inv t sz).
   Proof.
     apply _.
   Qed.
@@ -78,22 +78,22 @@ Section waiters_G.
     {{{
       t
     , RET t;
-      waiters_inv t ₊sz
+      waiters۰inv t ₊sz
     }}}.
   Proof.
     iIntros "%Hsz %Φ _ HΦ".
 
-    wp_rec.
-    wp_apply (mpmc_queue_1٠create𑁒spec with "[//]") as (t) "(#Hqueue_inv & Hmodel)".
+    wp۰rec.
+    wp۰apply (mpmc_queue_1٠create𑁒spec with "[//]") as (t) "(#Hqueue_inv & Hmodel)".
 
-    wp_apply (array٠unsafe_init𑁒spec_disentangled (λ _ 𝑤𝑎𝑖𝑡𝑒𝑟,
-      waiter_inv 𝑤𝑎𝑖𝑡𝑒𝑟
+    wp۰apply (array٠unsafe_init𑁒spec𑁒disentangled (λ _ 𝑤𝑎𝑖𝑡𝑒𝑟,
+      waiter۰inv 𝑤𝑎𝑖𝑡𝑒𝑟
     )%I) as (waiters 𝑤𝑎𝑖𝑡𝑒𝑟𝑠) "(%H𝑤𝑎𝑖𝑡𝑒𝑟𝑠 & Hwaiters & H𝑤𝑎𝑖𝑡𝑒𝑟𝑠)". 1: done.
     { iIntros "!> %i %Hi".
-      wp_apply (waiter٠create𑁒spec with "[//]").
+      wp۰apply (waiter٠create𑁒spec with "[//]").
       iSteps.
     }
-    iMod (array_model_persist with "Hwaiters") as "#Hwaiters".
+    iMod (array۰model𑁒persist with "Hwaiters") as "#Hwaiters".
 
     iSteps.
   Qed.
@@ -101,7 +101,7 @@ Section waiters_G.
   Lemma waiters٠notify𑁒spec t (sz : nat) i :
     (0 ≤ i < sz)%Z →
     {{{
-      waiters_inv t sz
+      waiters۰inv t sz
     }}}
       waiters٠notify t #i
     {{{
@@ -114,15 +114,15 @@ Section waiters_G.
     destruct (lookup_lt_is_Some_2 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 ₊i) as (𝑤𝑎𝑖𝑡𝑒𝑟 & H𝑤𝑎𝑖𝑡𝑒𝑟𝑠_lookup). 1: lia.
     iDestruct (big_sepL_lookup with "H𝑤𝑎𝑖𝑡𝑒𝑟𝑠") as "H𝑤𝑎𝑖𝑡𝑒𝑟". 1: done.
 
-    wp_rec.
-    wp_apply+ (array٠unsafe_get𑁒spec with "Hwaiters") as "_". 1-3: done || lia.
-    wp_apply+ (waiter٠notify𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟").
+    wp۰rec.
+    wp۰apply+ (array٠unsafe_get𑁒spec with "Hwaiters") as "_". 1-3: done || lia.
+    wp۰apply+ (waiter٠notify𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟").
     iSteps.
   Qed.
 
   Lemma waiters٠notify_one𑁒spec t sz :
     {{{
-      waiters_inv t sz
+      waiters۰inv t sz
     }}}
       waiters٠notify_one t
     {{{
@@ -134,23 +134,23 @@ Section waiters_G.
 
     iLöb as "HLöb".
 
-    wp_rec.
+    wp۰rec.
 
-    awp_apply+ (mpmc_queue_1٠pop𑁒spec with "Hqueue_inv") without "HΦ".
-    iInv "Hinv" as "(:inv_inner)".
+    awp۰apply+ (mpmc_queue_1٠pop𑁒spec with "Hqueue_inv") without "HΦ".
+    iInv "Hinv" as "(:inv۰inner)".
     iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model !>".
     destruct 𝑞𝑢𝑒𝑢𝑒 as [| 𝑤𝑎𝑖𝑡𝑒𝑟 𝑞𝑢𝑒𝑢𝑒]. 1: iSteps.
     iDestruct "H𝑞𝑢𝑒𝑢𝑒" as "(H𝑤𝑎𝑖𝑡𝑒𝑟 & H𝑞𝑢𝑒𝑢𝑒)".
     iSplitR "H𝑤𝑎𝑖𝑡𝑒𝑟". { iFrame. }
     iIntros "_ HΦ".
 
-    wp_apply+ (waiter٠notify𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟") as ([]) "_". 1: iSteps.
-    wp_apply+ ("HLöb" with "HΦ").
+    wp۰apply+ (waiter٠notify𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟") as ([]) "_". 1: iSteps.
+    wp۰apply+ ("HLöb" with "HΦ").
   Qed.
 
   Lemma waiters٠notify_all𑁒spec t sz :
     {{{
-      waiters_inv t sz
+      waiters۰inv t sz
     }}}
       waiters٠notify_all t
     {{{
@@ -162,24 +162,24 @@ Section waiters_G.
 
     iLöb as "HLöb".
 
-    wp_rec.
+    wp۰rec.
 
-    awp_apply+ (mpmc_queue_1٠pop𑁒spec with "Hqueue_inv") without "HΦ".
-    iInv "Hinv" as "(:inv_inner)".
+    awp۰apply+ (mpmc_queue_1٠pop𑁒spec with "Hqueue_inv") without "HΦ".
+    iInv "Hinv" as "(:inv۰inner)".
     iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model !>".
     destruct 𝑞𝑢𝑒𝑢𝑒 as [| 𝑤𝑎𝑖𝑡𝑒𝑟 𝑞𝑢𝑒𝑢𝑒]. 1: iSteps.
     iDestruct "H𝑞𝑢𝑒𝑢𝑒" as "(H𝑤𝑎𝑖𝑡𝑒𝑟 & H𝑞𝑢𝑒𝑢𝑒)".
     iSplitR "H𝑤𝑎𝑖𝑡𝑒𝑟". { iFrame. }
     iIntros "_ HΦ".
 
-    wp_apply+ (waiter٠notify𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟") as (res) "_".
-    wp_apply+ ("HLöb" with "HΦ").
+    wp۰apply+ (waiter٠notify𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟") as (res) "_".
+    wp۰apply+ ("HLöb" with "HΦ").
   Qed.
 
   Lemma waiters٠prepare_wait𑁒spec t (sz : nat) i :
     (0 ≤ i < sz)%Z →
     {{{
-      waiters_inv t sz
+      waiters۰inv t sz
     }}}
       waiters٠prepare_wait t #i
     {{{
@@ -192,12 +192,12 @@ Section waiters_G.
     destruct (lookup_lt_is_Some_2 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 ₊i) as (𝑤𝑎𝑖𝑡𝑒𝑟 & H𝑤𝑎𝑖𝑡𝑒𝑟𝑠_lookup). 1: lia.
     iDestruct (big_sepL_lookup with "H𝑤𝑎𝑖𝑡𝑒𝑟𝑠") as "H𝑤𝑎𝑖𝑡𝑒𝑟". 1: done.
 
-    wp_rec.
-    wp_apply+ (array٠unsafe_get𑁒spec with "Hwaiters") as "_". 1-3: done || lia.
-    wp_apply+ (waiter٠prepare_wait𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟") as "_".
+    wp۰rec.
+    wp۰apply+ (array٠unsafe_get𑁒spec with "Hwaiters") as "_". 1-3: done || lia.
+    wp۰apply+ (waiter٠prepare_wait𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟") as "_".
 
-    awp_apply+ (mpmc_queue_1٠push𑁒spec with "Hqueue_inv") without "HΦ".
-    iInv "Hinv" as "(:inv_inner)".
+    awp۰apply+ (mpmc_queue_1٠push𑁒spec with "Hqueue_inv") without "HΦ".
+    iInv "Hinv" as "(:inv۰inner)".
     iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model !>".
     iSplitL. { iFrameSteps. }
     iSteps.
@@ -206,7 +206,7 @@ Section waiters_G.
   Lemma waiters٠cancel_wait𑁒spec t (sz : nat) i :
     (0 ≤ i < sz)%Z →
     {{{
-      waiters_inv t sz
+      waiters۰inv t sz
     }}}
       waiters٠cancel_wait t #i
     {{{
@@ -220,15 +220,15 @@ Section waiters_G.
     destruct (lookup_lt_is_Some_2 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 ₊i) as (𝑤𝑎𝑖𝑡𝑒𝑟 & H𝑤𝑎𝑖𝑡𝑒𝑟𝑠_lookup). 1: lia.
     iDestruct (big_sepL_lookup with "H𝑤𝑎𝑖𝑡𝑒𝑟𝑠") as "H𝑤𝑎𝑖𝑡𝑒𝑟". 1: done.
 
-    wp_rec.
-    wp_apply+ (array٠unsafe_get𑁒spec with "Hwaiters") as "_". 1-3: done || lia.
-    wp_apply+ (waiter٠cancel_wait𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟 HΦ").
+    wp۰rec.
+    wp۰apply+ (array٠unsafe_get𑁒spec with "Hwaiters") as "_". 1-3: done || lia.
+    wp۰apply+ (waiter٠cancel_wait𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟 HΦ").
   Qed.
 
   Lemma waiters٠commit_wait𑁒spec t (sz : nat) i :
     (0 ≤ i < sz)%Z →
     {{{
-      waiters_inv t sz
+      waiters۰inv t sz
     }}}
       waiters٠commit_wait t #i
     {{{
@@ -241,12 +241,12 @@ Section waiters_G.
     destruct (lookup_lt_is_Some_2 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 ₊i) as (𝑤𝑎𝑖𝑡𝑒𝑟 & H𝑤𝑎𝑖𝑡𝑒𝑟𝑠_lookup). 1: lia.
     iDestruct (big_sepL_lookup with "H𝑤𝑎𝑖𝑡𝑒𝑟𝑠") as "H𝑤𝑎𝑖𝑡𝑒𝑟". 1: done.
 
-    wp_rec.
-    wp_apply+ (array٠unsafe_get𑁒spec with "Hwaiters") as "_". 1-3: done || lia.
-    wp_apply+ (waiter٠commit_wait𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟 HΦ").
+    wp۰rec.
+    wp۰apply+ (array٠unsafe_get𑁒spec with "Hwaiters") as "_". 1-3: done || lia.
+    wp۰apply+ (waiter٠commit_wait𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟 HΦ").
   Qed.
-End waiters_G.
+End waiters۰G.
 
 Require zoo_parabs.waiters__opaque.
 
-#[global] Opaque waiters_inv.
+#[global] Opaque waiters۰inv.

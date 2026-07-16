@@ -5,9 +5,9 @@ Require Export zoo.program_logic.prophet_typed.
 Require Import zoo.options.
 
 Definition prophet_identifier :=
-  {|prophet_typed_type :=
+  {|prophet_typed۰type :=
       identifier
-  ; prophet_typed_of_val _ v :=
+  ; prophet_typed۰of_val _ v :=
       match v with
       | ValId id =>
           Some $ Some id
@@ -16,10 +16,10 @@ Definition prophet_identifier :=
       end
   |}.
 
-Definition prophet_identifier_1 :=
-  {|prophet_typed_1_type :=
+Definition prophet_identifier₁ :=
+  {|prophet_typed₁۰type :=
       identifier
-  ; prophet_typed_1_of_val _ v :=
+  ; prophet_typed₁۰of_val _ v :=
       match v with
       | ValId id =>
           Some $ Some id

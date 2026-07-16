@@ -4,7 +4,7 @@ Require Import zoo.prelude.
 Require Export zoo.common.string.
 Require Import zoo.options.
 
-#[global] Program Instance binder_beq : Beq binder :=
+#[global] Program Instance binder𑁒beq : Beq binder :=
   {|beq bdr1 bdr2 :=
       match bdr1, bdr2 with
       | BAnon, BAnon =>
@@ -23,5 +23,5 @@ Next Obligation.
 Qed.
 Next Obligation.
   intros [] [] => //=.
-  rewrite beq_spec. naive_solver.
+  rewrite beq𑁒spec. naive_solver.
 Qed.

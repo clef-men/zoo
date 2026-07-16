@@ -12,18 +12,18 @@ Implicit Types front back : nat.
 Implicit Types v t : val.
 Implicit Types o : option val.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
 
-  Definition bqueue_model t (cap : nat) vs : iProp Σ :=
+  Definition bqueue۰model t (cap : nat) vs : iProp Σ :=
     ∃ l data front back extra,
     ⌜t = #l⌝ ∗
     l.[capacity] ↦□ #cap ∗
     l.[data] ↦□ data ∗
     l.[front] ↦ #front ∗
     l.[back] ↦ #back ∗
-    array_cslice data cap front (DfracOwn 1) vs ∗
-    array_cslice data cap back (DfracOwn 1) (replicate extra ()%V) ∗
+    array۰cslice data cap front (DfracOwn 1) vs ∗
+    array۰cslice data cap back (DfracOwn 1) (replicate extra ()%V) ∗
     ⌜back = (front + length vs)%nat⌝ ∗
     ⌜cap = (length vs + extra)%nat⌝.
   #[local] Instance : CustomIpat "model" :=
@@ -44,21 +44,21 @@ Section zoo_G.
       )
     ".
 
-  #[global] Instance bqueue_model_timeless t cap vs :
-    Timeless (bqueue_model t cap vs).
+  #[global] Instance bqueue۰model𑁒timeless t cap vs :
+    Timeless (bqueue۰model t cap vs).
   Proof.
     apply _.
   Qed.
 
-  Lemma bqueue_model_valid t cap vs :
-    bqueue_model t cap vs ⊢
+  Lemma bqueue۰model𑁒valid t cap vs :
+    bqueue۰model t cap vs ⊢
     ⌜length vs ≤ cap⌝.
   Proof.
     iSteps.
   Qed.
-  Lemma bqueue_model_exclusive t cap1 vs1 cap2 vs2 :
-    bqueue_model t cap1 vs1 -∗
-    bqueue_model t cap2 vs2 -∗
+  Lemma bqueue۰model𑁒exclusive t cap1 vs1 cap2 vs2 :
+    bqueue۰model t cap1 vs1 -∗
+    bqueue۰model t cap2 vs2 -∗
     False.
   Proof.
     iSteps.
@@ -73,52 +73,52 @@ Section zoo_G.
     {{{
       t
     , RET t;
-      bqueue_model t ₊cap []
+      bqueue۰model t ₊cap []
     }}}.
   Proof.
     iIntros "% %Φ _ HΦ".
 
-    wp_rec.
-    wp_apply (array٠unsafe_make𑁒spec with "[//]") as (data) "Hextra"; first done.
-    iApply array_model_to_cslice in "Hextra". simpl_length.
-    iDestruct (array_cslice_to_inv with "Hextra") as "#Hdata_inv".
-    iDestruct (array_cslice_nil with "Hdata_inv") as "Hvs".
-    wp_block l as "(Hl_capacity & Hl_data & Hl_front & Hl_back & _)".
+    wp۰rec.
+    wp۰apply (array٠unsafe_make𑁒spec with "[//]") as (data) "Hextra"; first done.
+    iApply array۰model𑁒to𑁒cslice in "Hextra". simpl_length.
+    iDestruct (array۰cslice𑁒to𑁒inv with "Hextra") as "#Hdata_inv".
+    iDestruct (array۰cslice𑁒nil with "Hdata_inv") as "Hvs".
+    wp۰block l as "(Hl_capacity & Hl_data & Hl_front & Hl_back & _)".
     iFrameSteps. rewrite Z2Nat.id //. iSteps.
   Qed.
 
   Lemma bqueue٠size𑁒spec t cap vs :
     {{{
-      bqueue_model t cap vs
+      bqueue۰model t cap vs
     }}}
       bqueue٠size t
     {{{
       RET #(length vs);
-      bqueue_model t cap vs
+      bqueue۰model t cap vs
     }}}.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp_rec. do 2 wp_load. wp_pures.
+    wp۰rec. do 2 wp۰load. wp۰pures.
     assert (back - front = length vs)%Z as -> by lia.
     iSteps.
   Qed.
 
   Lemma bqueue٠is_empty𑁒spec t cap vs :
     {{{
-      bqueue_model t cap vs
+      bqueue۰model t cap vs
     }}}
       bqueue٠is_empty t
     {{{
       RET #(bool_decide (vs = []%list));
-      bqueue_model t cap vs
+      bqueue۰model t cap vs
     }}}.
   Proof.
     iIntros "%Φ Hmodel HΦ".
 
-    wp_rec.
-    wp_apply (bqueue٠size𑁒spec with "Hmodel") as "Hmodel".
-    wp_pures.
+    wp۰rec.
+    wp۰apply (bqueue٠size𑁒spec with "Hmodel") as "Hmodel".
+    wp۰pures.
     rewrite (bool_decide_ext (⁺(length vs) = 0) (vs = [])).
     { rewrite -length_zero_iff_nil. lia. }
     iApply ("HΦ" with "Hmodel").
@@ -128,92 +128,92 @@ Section zoo_G.
     (0 ≤ i)%Z →
     vs !! ₊i = Some v →
     {{{
-      bqueue_model t cap vs
+      bqueue۰model t cap vs
     }}}
       bqueue٠unsafe_get t #i
     {{{
       RET v;
-      bqueue_model t cap vs
+      bqueue۰model t cap vs
     }}}.
   Proof.
     iIntros "%Hi %Hlookup %Φ (:model) HΦ".
 
-    wp_rec. do 2 wp_load.
-    wp_apply (array٠unsafe_cget𑁒spec with "Hvs"); [lia | done | lia |].
+    wp۰rec. do 2 wp۰load.
+    wp۰apply (array٠unsafe_cget𑁒spec with "Hvs"); [lia | done | lia |].
     iSteps.
   Qed.
 
   Lemma bqueue٠unsafe_set𑁒spec t cap vs i v :
     (0 ≤ i < length vs)%Z →
     {{{
-      bqueue_model t cap vs
+      bqueue۰model t cap vs
     }}}
       bqueue٠unsafe_set t #i v
     {{{
       RET ();
-      bqueue_model t cap (<[₊i := v]> vs)
+      bqueue۰model t cap (<[₊i := v]> vs)
     }}}.
   Proof.
     iIntros "%Hi %Φ (:model) HΦ".
 
-    wp_rec. do 2 wp_load.
-    wp_apply (array٠unsafe_cset𑁒spec with "Hvs"); first lia.
+    wp۰rec. do 2 wp۰load.
+    wp۰apply (array٠unsafe_cset𑁒spec with "Hvs"); first lia.
     replace (₊(front + i) - front) with ₊i by lia.
     iSteps; simpl_length.
   Qed.
 
   Lemma bqueue٠push𑁒spec t cap vs v :
     {{{
-      bqueue_model t cap vs
+      bqueue۰model t cap vs
     }}}
       bqueue٠push t v
     {{{
       b
     , RET #b;
       ⌜if b then True else length vs = cap⌝ ∗
-      bqueue_model t cap (if b then vs ++ [v] else vs)
+      bqueue۰model t cap (if b then vs ++ [v] else vs)
     }}}.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp_rec. do 3 wp_load. wp_pures.
+    wp۰rec. do 3 wp۰load. wp۰pures.
     case_bool_decide; first iSteps.
-    wp_load.
+    wp۰load.
     destruct (Nat.lt_exists_pred 0 extra) as (extra' & -> & _); first lia.
-    iDestruct (array_cslice_cons with "Hextra") as "(Hcell & Hextra)". rewrite -/replicate.
-    wp_apply (array٠unsafe_cset𑁒spec_cell with "Hcell") as "Hcell"; first done.
-    iDestruct (array_cslice_app_1 with "Hvs Hcell") as "Hvs"; first done.
-    wp_store. wp_pures.
+    iDestruct (array۰cslice𑁒cons with "Hextra") as "(Hcell & Hextra)". rewrite -/replicate.
+    wp۰apply (array٠unsafe_cset𑁒spec𑁒cell with "Hcell") as "Hcell"; first done.
+    iDestruct (array۰cslice𑁒app₁ with "Hvs Hcell") as "Hvs"; first done.
+    wp۰store. wp۰pures.
     replace (back + 1)%Z with ⁺˖back by lia.
     iSteps; iPureIntro; simpl_length/=; lia.
   Qed.
 
   Lemma bqueue٠pop_front𑁒spec t cap vs :
     {{{
-      bqueue_model t cap vs
+      bqueue۰model t cap vs
     }}}
       bqueue٠pop_front t
     {{{
       RET head vs;
-      bqueue_model t cap (tail vs)
+      bqueue۰model t cap (tail vs)
     }}}.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp_rec. do 2 wp_load. wp_pures.
+    wp۰rec. do 2 wp۰load. wp۰pures.
     case_bool_decide.
 
     - destruct vs; last naive_solver lia.
       iSteps.
 
     - destruct vs as [| v vs]; first naive_solver. simpl in *.
-      wp_load.
-      iDestruct (array_cslice_cons with "Hvs") as "(Hcell & Hvs)".
-      wp_apply+ (array٠unsafe_cget𑁒spec_cell with "Hcell") as "Hcell"; first done.
-      wp_apply+ (array٠unsafe_cset𑁒spec_cell with "Hcell") as "Hcell"; first done.
-      wp_store. wp_pures.
-      iApply array_cslice_shift_right in "Hcell".
-      iDestruct (array_cslice_app_1 with "Hextra Hcell") as "Hextra".
+      wp۰load.
+      iDestruct (array۰cslice𑁒cons with "Hvs") as "(Hcell & Hvs)".
+      wp۰apply+ (array٠unsafe_cget𑁒spec𑁒cell with "Hcell") as "Hcell"; first done.
+      wp۰apply+ (array٠unsafe_cset𑁒spec𑁒cell with "Hcell") as "Hcell"; first done.
+      wp۰store. wp۰pures.
+      iApply array۰cslice𑁒shift𑁒right in "Hcell".
+      iDestruct (array۰cslice𑁒app₁ with "Hextra Hcell") as "Hextra".
       { simpl_length. lia. }
       iApply "HΦ".
       rewrite -replicate_S_end.
@@ -223,7 +223,7 @@ Section zoo_G.
 
   Lemma bqueue٠pop_back𑁒spec t cap vs :
     {{{
-      bqueue_model t cap vs
+      bqueue۰model t cap vs
     }}}
       bqueue٠pop_back t
     {{{
@@ -232,17 +232,17 @@ Section zoo_G.
       match o with
       | None =>
           ⌜vs = []⌝ ∗
-          bqueue_model t cap []
+          bqueue۰model t cap []
       | Some v =>
           ∃ vs',
           ⌜vs = vs' ++ [v]⌝ ∗
-          bqueue_model t cap vs'
+          bqueue۰model t cap vs'
       end
     }}}.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp_rec. do 2 wp_load. wp_pures.
+    wp۰rec. do 2 wp۰load. wp۰pures.
     case_bool_decide.
 
     - destruct vs; last naive_solver lia.
@@ -250,18 +250,18 @@ Section zoo_G.
       iSteps.
 
     - destruct vs as [| v vs _] using rev_ind; first naive_solver. simpl_length/= in *.
-      wp_load.
-      iDestruct (array_cslice_app with "Hvs") as "(Hvs & Hcell)".
-      wp_apply+ (array٠unsafe_cget𑁒spec_cell with "Hcell") as "Hcell"; first lia.
-      wp_apply+ (array٠unsafe_cset𑁒spec_cell with "Hcell") as "Hcell"; first lia.
-      wp_store. wp_pures.
-      iDestruct (array_cslice_cons_2' with "Hcell Hextra") as "Hextra"; first lia.
+      wp۰load.
+      iDestruct (array۰cslice𑁒app with "Hvs") as "(Hvs & Hcell)".
+      wp۰apply+ (array٠unsafe_cget𑁒spec𑁒cell with "Hcell") as "Hcell"; first lia.
+      wp۰apply+ (array٠unsafe_cset𑁒spec𑁒cell with "Hcell") as "Hcell"; first lia.
+      wp۰store. wp۰pures.
+      iDestruct (array۰cslice𑁒cons₂' with "Hcell Hextra") as "Hextra"; first lia.
       iApply ("HΦ" $! (Some v)).
       rewrite -replicate_S.
       iExists vs. iFrameSteps.
   Qed.
-End zoo_G.
+End zoo۰G.
 
 Require zoo_std.bqueue__opaque.
 
-#[global] Opaque bqueue_model.
+#[global] Opaque bqueue۰model.

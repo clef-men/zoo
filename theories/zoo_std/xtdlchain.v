@@ -8,51 +8,51 @@ Implicit Types node : location.
 Implicit Types nodes : list location.
 Implicit Types v next prev src dst : val.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
 
   Definition xtdlchain hdr src nodes dst : iProp Σ :=
     xdlchain src nodes dst ∗
-    [∗ list] node ∈ nodes, headers_at node hdr.
+    [∗ list] node ∈ nodes, headers۰at node hdr.
 
-  #[global] Instance xtdlchain_timeless hdr src nodes dst :
+  #[global] Instance xtdlchain𑁒timeless hdr src nodes dst :
     Timeless (xtdlchain hdr src nodes dst).
   Proof.
     apply _.
   Qed.
 
-  Lemma xtdlchain_nil hdr src dst :
+  Lemma xtdlchain𑁒nil hdr src dst :
     ⊢ xtdlchain hdr src [] dst.
   Proof.
     iSteps.
   Qed.
 
-  Lemma xtdlchain_singleton hdr src node dst :
+  Lemma xtdlchain𑁒singleton hdr src node dst :
     xtdlchain hdr src [node] dst ⊣⊢
       node ↦ₕ hdr ∗
       node.[xtdlchain_prev] ↦ src ∗
       node.[xtdlchain_next] ↦ dst.
   Proof.
-    rewrite /xtdlchain xdlchain_singleton. iSteps.
+    rewrite /xtdlchain xdlchain𑁒singleton. iSteps.
   Qed.
-  Lemma xtdlchain_singleton_1 hdr src node dst :
+  Lemma xtdlchain𑁒singleton₁ hdr src node dst :
     xtdlchain hdr src [node] dst ⊢
       node ↦ₕ hdr ∗
       node.[xtdlchain_prev] ↦ src ∗
       node.[xtdlchain_next] ↦ dst.
   Proof.
-    rewrite xtdlchain_singleton //.
+    rewrite xtdlchain𑁒singleton //.
   Qed.
-  Lemma xtdlchain_singleton_2 hdr src node dst :
+  Lemma xtdlchain𑁒singleton₂ hdr src node dst :
     node ↦ₕ hdr ∗
     node.[xtdlchain_prev] ↦ src -∗
     node.[xtdlchain_next] ↦ dst -∗
     xtdlchain hdr src [node] dst.
   Proof.
-    rewrite xtdlchain_singleton. iSteps.
+    rewrite xtdlchain𑁒singleton. iSteps.
   Qed.
 
-  Lemma xtdlchain_cons {hdr src} nodes node nodes' dst :
+  Lemma xtdlchain𑁒cons {hdr src} nodes node nodes' dst :
     nodes = node :: nodes' →
     xtdlchain hdr src nodes dst ⊣⊢
       node ↦ₕ hdr ∗
@@ -61,9 +61,9 @@ Section zoo_G.
       xtdlchain hdr #node nodes' dst.
   Proof.
     intros ->.
-    rewrite /xtdlchain xdlchain_cons // big_sepL_cons. iSteps.
+    rewrite /xtdlchain xdlchain𑁒cons // big_sepL_cons. iSteps.
   Qed.
-  Lemma xtdlchain_cons_1 {hdr src} nodes node nodes' dst :
+  Lemma xtdlchain𑁒cons₁ {hdr src} nodes node nodes' dst :
     nodes = node :: nodes' →
     xtdlchain hdr src nodes dst ⊢
       node ↦ₕ hdr ∗
@@ -71,44 +71,44 @@ Section zoo_G.
       node.[xtdlchain_next] ↦ from_option #@{location} dst (head nodes') ∗
       xtdlchain hdr #node nodes' dst.
   Proof.
-    intros. rewrite xtdlchain_cons //.
+    intros. rewrite xtdlchain𑁒cons //.
   Qed.
-  Lemma xtdlchain_cons_2 hdr src node nodes dst :
+  Lemma xtdlchain𑁒cons₂ hdr src node nodes dst :
     node ↦ₕ hdr ∗
     node.[xtdlchain_prev] ↦ src -∗
     node.[xtdlchain_next] ↦ from_option #@{location} dst (head nodes) -∗
     xtdlchain hdr #node nodes dst -∗
     xtdlchain hdr src (node :: nodes) dst.
   Proof.
-    rewrite (xtdlchain_cons (node :: nodes)) //. iSteps.
+    rewrite (xtdlchain𑁒cons (node :: nodes)) //. iSteps.
   Qed.
 
-  Lemma xtdlchain_app {hdr src} nodes nodes1 nodes2 dst :
+  Lemma xtdlchain𑁒app {hdr src} nodes nodes1 nodes2 dst :
     nodes = nodes1 ++ nodes2 →
     xtdlchain hdr src nodes dst ⊣⊢
       xtdlchain hdr src nodes1 (from_option #@{location} dst (head nodes2)) ∗
       xtdlchain hdr (from_option #@{location} src (last nodes1)) nodes2 dst.
   Proof.
     intros ->.
-    rewrite /xtdlchain xdlchain_app // big_sepL_app. iSteps.
+    rewrite /xtdlchain xdlchain𑁒app // big_sepL_app. iSteps.
   Qed.
-  Lemma xtdlchain_app_1 {hdr src} nodes nodes1 nodes2 dst :
+  Lemma xtdlchain𑁒app₁ {hdr src} nodes nodes1 nodes2 dst :
     nodes = nodes1 ++ nodes2 →
     xtdlchain hdr src nodes dst ⊢
       xtdlchain hdr src nodes1 (from_option #@{location} dst (head nodes2)) ∗
       xtdlchain hdr (from_option #@{location} src (last nodes1)) nodes2 dst.
   Proof.
-    intros. rewrite xtdlchain_app //.
+    intros. rewrite xtdlchain𑁒app //.
   Qed.
-  Lemma xtdlchain_app_2 hdr src nodes1 nodes2 dst :
+  Lemma xtdlchain𑁒app₂ hdr src nodes1 nodes2 dst :
     xtdlchain hdr src nodes1 (from_option #@{location} dst (head nodes2)) -∗
     xtdlchain hdr (from_option #@{location} src (last nodes1)) nodes2 dst -∗
     xtdlchain hdr src (nodes1 ++ nodes2) dst.
   Proof.
-    rewrite (xtdlchain_app (nodes1 ++ nodes2)) //. iSteps.
+    rewrite (xtdlchain𑁒app (nodes1 ++ nodes2)) //. iSteps.
   Qed.
 
-  Lemma xtdlchain_snoc {hdr src} nodes nodes' node dst :
+  Lemma xtdlchain𑁒snoc {hdr src} nodes nodes' node dst :
     nodes = nodes' ++ [node] →
     xtdlchain hdr src nodes dst ⊣⊢
       xtdlchain hdr src nodes' #node ∗
@@ -117,9 +117,9 @@ Section zoo_G.
       node.[xtdlchain_next] ↦ dst.
   Proof.
     intros ->.
-    rewrite /xtdlchain xdlchain_snoc // big_sepL_snoc. iSteps.
+    rewrite /xtdlchain xdlchain𑁒snoc // big_sepL_snoc. iSteps.
   Qed.
-  Lemma xtdlchain_snoc_1 {hdr src} nodes nodes' node dst :
+  Lemma xtdlchain𑁒snoc₁ {hdr src} nodes nodes' node dst :
     nodes = nodes' ++ [node] →
     xtdlchain hdr src nodes dst ⊢
       xtdlchain hdr src nodes' #node ∗
@@ -127,19 +127,19 @@ Section zoo_G.
       node.[xtdlchain_prev] ↦ from_option #@{location} src (last nodes') ∗
       node.[xtdlchain_next] ↦ dst.
   Proof.
-    intros. rewrite xtdlchain_snoc //.
+    intros. rewrite xtdlchain𑁒snoc //.
   Qed.
-  Lemma xtdlchain_snoc_2 hdr src nodes node dst :
+  Lemma xtdlchain𑁒snoc₂ hdr src nodes node dst :
     xtdlchain hdr src nodes #node -∗
     node ↦ₕ hdr -∗
     node.[xtdlchain_prev] ↦ from_option #@{location} src (last nodes) -∗
     node.[xtdlchain_next] ↦ dst -∗
     xtdlchain hdr src (nodes ++ [node]) dst.
   Proof.
-    rewrite (xtdlchain_snoc (nodes ++ [node])) //. iSteps.
+    rewrite (xtdlchain𑁒snoc (nodes ++ [node])) //. iSteps.
   Qed.
 
-  Lemma xtdlchain_last {hdr src nodes} node dst :
+  Lemma xtdlchain𑁒last {hdr src nodes} node dst :
     last nodes = Some node →
     xtdlchain hdr src nodes dst ⊢
       ∃ nodes',
@@ -150,12 +150,12 @@ Section zoo_G.
       node.[xtdlchain_next] ↦ dst.
   Proof.
     intros Hnode.
-    rewrite /xtdlchain xdlchain_last // .
+    rewrite /xtdlchain xdlchain𑁒last // .
     iIntros "((% & -> & H) & Hheaders)".
     rewrite big_sepL_snoc. iSteps.
   Qed.
 
-  Lemma xtdlchain_lookup {hdr src nodes} i node dst :
+  Lemma xtdlchain𑁒lookup {hdr src nodes} i node dst :
     nodes !! i = Some node →
     xtdlchain hdr src nodes dst ⊣⊢
       xtdlchain hdr src (take i nodes) #node ∗
@@ -165,11 +165,11 @@ Section zoo_G.
       xtdlchain hdr #node (drop ˖i nodes) dst.
   Proof.
     intros.
-    rewrite /xtdlchain xdlchain_lookup //.
+    rewrite /xtdlchain xdlchain𑁒lookup //.
     rewrite -{5}(take_drop_middle nodes i node) // big_sepL_app.
     iSteps.
   Qed.
-  Lemma xtdlchain_lookup_1 {hdr src nodes} i node dst :
+  Lemma xtdlchain𑁒lookup₁ {hdr src nodes} i node dst :
     nodes !! i = Some node →
     xtdlchain hdr src nodes dst ⊢
       xtdlchain hdr src (take i nodes) #node ∗
@@ -178,9 +178,9 @@ Section zoo_G.
       node.[xtdlchain_next] ↦ from_option #@{location} dst (head $ drop ˖i nodes) ∗
       xtdlchain hdr #node (drop ˖i nodes) dst.
   Proof.
-    intros. rewrite xtdlchain_lookup //.
+    intros. rewrite xtdlchain𑁒lookup //.
   Qed.
-  Lemma xtdlchain_lookup_2 {hdr src nodes} i node prev next dst :
+  Lemma xtdlchain𑁒lookup₂ {hdr src nodes} i node prev next dst :
     nodes !! i = Some node →
     prev = from_option #@{location} src (last $ take i nodes) →
     next = from_option #@{location} dst (head $ drop ˖i nodes) →
@@ -191,10 +191,10 @@ Section zoo_G.
     xtdlchain hdr #node (drop ˖i nodes) dst -∗
     xtdlchain hdr src nodes dst.
   Proof.
-    intros. rewrite (@xtdlchain_lookup _ _ nodes) //. iSteps.
+    intros. rewrite (@xtdlchain𑁒lookup _ _ nodes) //. iSteps.
   Qed.
 
-  Lemma xtdlchain_lookup_acc {hdr src nodes} i node dst :
+  Lemma xtdlchain𑁒lookup𑁒acc {hdr src nodes} i node dst :
     nodes !! i = Some node →
     xtdlchain hdr src nodes dst ⊢
       node ↦ₕ hdr ∗
@@ -205,33 +205,33 @@ Section zoo_G.
         xtdlchain hdr src nodes dst
       ).
   Proof.
-    intros. rewrite xtdlchain_lookup //. iSteps.
+    intros. rewrite xtdlchain𑁒lookup //. iSteps.
   Qed.
 
-  Lemma xtdlchain_lookup_header {hdr src nodes} i node dst :
+  Lemma xtdlchain𑁒lookup𑁒header {hdr src nodes} i node dst :
     nodes !! i = Some node →
     xtdlchain hdr src nodes dst ⊢
     node ↦ₕ hdr.
   Proof.
-    intros. rewrite xtdlchain_lookup //. iSteps.
+    intros. rewrite xtdlchain𑁒lookup //. iSteps.
   Qed.
 
-  Lemma xtdlchain_exclusive hdr src1 src2 nodes dst1 dst2 :
+  Lemma xtdlchain𑁒exclusive hdr src1 src2 nodes dst1 dst2 :
     0 < length nodes →
     xtdlchain hdr src1 nodes dst1 -∗
     xtdlchain hdr src2 nodes dst2 -∗
     False.
   Proof.
     iIntros "% (H1 & _) (H2 & _)".
-    iApply (xdlchain_exclusive with "H1 H2"); first done.
+    iApply (xdlchain𑁒exclusive with "H1 H2"); first done.
   Qed.
 
-  Lemma xtdlchain_NoDup hdr src nodes dst :
+  Lemma xtdlchain𑁒NoDup hdr src nodes dst :
     xtdlchain hdr src nodes dst ⊢
     ⌜NoDup nodes⌝.
   Proof.
     iIntros "(H & _)".
-    iApply (xdlchain_NoDup with "H").
+    iApply (xdlchain𑁒NoDup with "H").
   Qed.
 
   Lemma xtdlchain٠prev𑁒spec {hdr src nodes node} nodes' dst E :
@@ -246,10 +246,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (->) "%Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain٠prev𑁒spec with "H"); first done.
+    wp۰apply (xdlchain٠prev𑁒spec with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtdlchain٠prev𑁒spec_lookup {hdr src nodes} i node dst E :
+  Lemma xtdlchain٠prev𑁒spec𑁒lookup {hdr src nodes} i node dst E :
     nodes !! i = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -261,10 +261,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hlookup %Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain٠prev𑁒spec_lookup with "H"); first done.
+    wp۰apply (xdlchain٠prev𑁒spec𑁒lookup with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtdlchain٠prev𑁒spec_head {hdr src nodes} node dst E :
+  Lemma xtdlchain٠prev𑁒spec𑁒head {hdr src nodes} node dst E :
     head nodes = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -276,7 +276,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hnode %Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain٠prev𑁒spec_head with "H"); first done.
+    wp۰apply (xdlchain٠prev𑁒spec𑁒head with "H"); first done.
     iSteps.
   Qed.
 
@@ -292,10 +292,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (->) "%Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain٠next𑁒spec with "H"); first done.
+    wp۰apply (xdlchain٠next𑁒spec with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtdlchain٠next𑁒spec_lookup {hdr src nodes} i node dst E :
+  Lemma xtdlchain٠next𑁒spec𑁒lookup {hdr src nodes} i node dst E :
     nodes !! i = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -307,10 +307,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hlookup %Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain٠next𑁒spec_lookup with "H"); first done.
+    wp۰apply (xdlchain٠next𑁒spec𑁒lookup with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtdlchain٠next𑁒spec_last {hdr src nodes} node dst E :
+  Lemma xtdlchain٠next𑁒spec𑁒last {hdr src nodes} node dst E :
     last nodes = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -322,7 +322,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hnode %Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain٠next𑁒spec_last with "H"); first done.
+    wp۰apply (xdlchain٠next𑁒spec𑁒last with "H"); first done.
     iSteps.
   Qed.
 
@@ -338,10 +338,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (->) "%Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain٠set_prev𑁒spec with "H"); first done.
+    wp۰apply (xdlchain٠set_prev𑁒spec with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtdlchain٠set_prev𑁒spec_lookup {hdr src nodes} i node dst v E :
+  Lemma xtdlchain٠set_prev𑁒spec𑁒lookup {hdr src nodes} i node dst v E :
     nodes !! i = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -354,14 +354,14 @@ Section zoo_G.
     }}}.
   Proof.
     intros Hlookup.
-    setoid_rewrite xtdlchain_lookup at 1; last done.
+    setoid_rewrite xtdlchain𑁒lookup at 1; last done.
     iIntros "%Φ (H1 & Hheader & Hprev & Hnext & H2) HΦ".
-    wp_store.
+    wp۰store.
     rewrite (drop_S nodes node i) //.
-    rewrite (xtdlchain_cons (node :: drop _ nodes)) //.
+    rewrite (xtdlchain𑁒cons (node :: drop _ nodes)) //.
     iSteps.
   Qed.
-  Lemma xtdlchain٠set_prev𑁒spec_head {hdr src nodes} node dst v E :
+  Lemma xtdlchain٠set_prev𑁒spec𑁒head {hdr src nodes} node dst v E :
     head nodes = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -373,7 +373,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hlookup %Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain٠set_prev𑁒spec_head with "H"); first done.
+    wp۰apply (xdlchain٠set_prev𑁒spec𑁒head with "H"); first done.
     iSteps.
   Qed.
 
@@ -390,10 +390,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (->) "%Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain٠set_next𑁒spec with "H"); first done.
+    wp۰apply (xdlchain٠set_next𑁒spec with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtdlchain٠set_next𑁒spec_lookup {hdr src nodes} i node dst v E :
+  Lemma xtdlchain٠set_next𑁒spec𑁒lookup {hdr src nodes} i node dst v E :
     nodes !! i = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -406,14 +406,14 @@ Section zoo_G.
     }}}.
   Proof.
     intros Hlookup.
-    setoid_rewrite xtdlchain_lookup at 1; last done.
+    setoid_rewrite xtdlchain𑁒lookup at 1; last done.
     iIntros "%Φ (H1 & Hheader & Hprev & Hnext & H2) HΦ".
-    wp_store.
+    wp۰store.
     erewrite take_S_r; last done.
-    rewrite (xtdlchain_snoc (take _ nodes ++ [node])) //.
+    rewrite (xtdlchain𑁒snoc (take _ nodes ++ [node])) //.
     iSteps.
   Qed.
-  Lemma xtdlchain٠set_next𑁒spec_last {hdr src nodes} node dst v E :
+  Lemma xtdlchain٠set_next𑁒spec𑁒last {hdr src nodes} node dst v E :
     last nodes = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -425,10 +425,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hlookup %Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain٠set_next𑁒spec_last with "H"); first done.
+    wp۰apply (xdlchain٠set_next𑁒spec𑁒last with "H"); first done.
     iSteps.
   Qed.
-End zoo_G.
+End zoo۰G.
 
 Require zoo_std.xtdlchain__opaque.
 

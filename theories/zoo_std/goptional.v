@@ -11,24 +11,24 @@ Variant goptional {A} :=
   | Gsomething (a : A).
 #[global] Arguments goptional : clear implicits.
 
-#[global] Instance goptional_inhabited A : Inhabited (goptional A) :=
+#[global] Instance goptional𑁒inhabited A : Inhabited (goptional A) :=
   populate Gnothing.
-#[global] Instance Gsomething_inj A :
+#[global] Instance Gsomething𑁒inj A :
   Inj (=) (=) (@Gsomething A).
 Proof.
   rewrite /Inj. naive_solver.
 Qed.
 
-Definition option_to_goptional {A} (o : option A) :=
+Definition option۰to_goptional {A} (o : option A) :=
   match o with
   | None =>
       Gnothing
   | Some a =>
       Gsomething a
   end.
-#[global] Arguments option_to_goptional _ !_ / : assert.
+#[global] Arguments option۰to_goptional _ !_ / : assert.
 
-Coercion goptional_to_val o :=
+Coercion goptional۰to_val o :=
   match o with
   | Gnothing =>
       §Gnothing
@@ -37,38 +37,38 @@ Coercion goptional_to_val o :=
   | Gsomething v =>
       ‘Gsomething[ v ]
   end%V.
-#[global] Arguments goptional_to_val !_ / : assert.
+#[global] Arguments goptional۰to_val !_ / : assert.
 
-#[global] Instance goptional_to_val_inj_similar :
-  Inj (=) (≈@{val}) goptional_to_val.
+#[global] Instance goptional۰to_val𑁒inj𑁒similar :
+  Inj (=) (≈@{val}) goptional۰to_val.
 Proof.
   intros [] [] ?; try done.
   zoo_simplify. done.
 Qed.
-#[global] Instance goptional_to_val_inj :
-  Inj (=) (=) goptional_to_val.
+#[global] Instance goptional۰to_val𑁒inj :
+  Inj (=) (=) goptional۰to_val.
 Proof.
-  intros ?* ->%val_similar_refl%(inj _). done.
+  intros ?* ->%val𑁒similar𑁒refl%(inj _). done.
 Qed.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
   Context τ `{!iType (iPropI Σ) τ}.
 
-  Definition itype_goptional t : iProp Σ :=
+  Definition itype۰goptional t : iProp Σ :=
       ⌜t = §Gnothing%V⌝
     ∨ ⌜t = §Ganything%V⌝
     ∨ ∃ v,
       ⌜t = ‘Gsomething( v )%V⌝ ∗
       τ v.
-  #[global] Instance itype_goptional_itype :
-    iType _ itype_goptional.
+  #[global] Instance itype۰goptional𑁒itype :
+    iType _ itype۰goptional.
   Proof.
     split. apply _.
   Qed.
 
-  Lemma wp_match_goptional t e1 e2 x e3 Φ :
-    itype_goptional t -∗
+  Lemma wp𑁒match𑁒goptional t e1 e2 x e3 Φ :
+    itype۰goptional t -∗
     ( WP e1 {{ Φ }} ∧
       WP e2 {{ Φ }} ∧
       ∀ v, τ v -∗ WP subst' x v e3 {{ Φ }}
@@ -82,4 +82,4 @@ Section zoo_G.
     3: rewrite bi.and_elim_r.
     all: iSteps.
   Qed.
-End zoo_G.
+End zoo۰G.

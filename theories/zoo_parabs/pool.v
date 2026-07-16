@@ -20,43 +20,43 @@ Implicit Types b : bool.
 Implicit Types v ctx hub task notification notify pred ivar waiter : val.
 Implicit Types empty : emptiness.
 Implicit Types own : ownership.
-Implicit Types η : spsc_prop_name.
+Implicit Types η : spsc_prop۰name.
 Implicit Types ω : gname.
 
 #[local] Definition max_round_noyield :=
-  val_to_nat' pool٠max_round_noyield.
-#[local] Lemma pool٠max_round_noyield :
+  val۰to_nat' pool٠max_round_noyield.
+#[local] Lemma pool٠max_round_noyield𑁒unfold :
   pool٠max_round_noyield = #max_round_noyield.
 Proof.
   done.
 Qed.
-Opaque pool__code.pool٠max_round_noyield.
+Opaque pool٠max_round_noyield.
 Opaque max_round_noyield.
 
 #[local] Definition max_round_yield :=
-  val_to_nat' pool٠max_round_yield.
-#[local] Lemma pool٠max_round_yield :
+  val۰to_nat' pool٠max_round_yield.
+#[local] Lemma pool٠max_round_yield𑁒unfold :
   pool٠max_round_yield = #max_round_yield.
 Proof.
   done.
 Qed.
-Opaque pool__code.pool٠max_round_yield.
+Opaque pool٠max_round_yield.
 Opaque max_round_yield.
 
 Record job :=
-  { job_val : val
-  ; job_name : gname
+  { job۰val : val
+  ; job۰name : gname
   }.
 Implicit Types job local global : job.
 
-#[local] Instance job_inhabited : Inhabited job :=
+#[local] Instance job𑁒inhabited : Inhabited job :=
   populate
-  {|job_val := inhabitant
-  ; job_name := inhabitant
+  {|job۰val := inhabitant
+  ; job۰name := inhabitant
   |}.
-#[local] Instance job_eq_dec : EqDecision job :=
+#[local] Instance job𑁒eq_dec : EqDecision job :=
   ltac:(solve_decision).
-#[local] Instance job_countable :
+#[local] Instance job𑁒countable :
   Countable job.
 Proof.
   solve_countable.
@@ -65,139 +65,139 @@ Qed.
 Implicit Types jobs locals ulocals globals : gmultiset job.
 Implicit Types localss : list $ gmultiset job.
 
-Definition pool_scope :=
+Definition pool۰scope :=
   gmultiset job.
 
-#[global] Instance pool_scope_eq_dec : EqDecision pool_scope :=
+#[global] Instance pool۰scope𑁒eq_dec : EqDecision pool۰scope :=
   _.
-#[global] Instance pool_scope_countable :
-  Countable pool_scope.
+#[global] Instance pool۰scope𑁒countable :
+  Countable pool۰scope.
 Proof.
   apply _.
 Qed.
 
-Class PoolG Σ `{zoo_G : !ZooG Σ} :=
-  { #[local] pool_G_domain_G :: DomainG Σ
-  ; #[local] pool_G_ws_hub_G :: WsHubStdG Σ
-  ; #[local] pool_G_saved_prop_G :: SavedPropG Σ
-  ; #[local] pool_G_jobs_G :: MonoGmultisetG Σ job
-  ; #[local] pool_G_locals_G :: GhostListG Σ (gmultiset job)
-  ; #[local] pool_G_consumer_G :: SpscPropG Σ
+Class PoolG Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] pool۰G۰domain۰G :: DomainG Σ
+  ; #[local] pool۰G۰ws_hub۰G :: WsHubStdG Σ
+  ; #[local] pool۰G۰saved_prop۰G :: SavedPropG Σ
+  ; #[local] pool۰G۰jobs۰G :: MonoGmultisetG Σ job
+  ; #[local] pool۰G۰locals۰G :: GhostListG Σ (gmultiset job)
+  ; #[local] pool۰G۰consumer۰G :: SpscPropG Σ
   }.
 
-Definition pool_Σ :=
-  #[domain_Σ
-  ; ws_hub_std_Σ
-  ; saved_prop_Σ
-  ; mono_gmultiset_Σ job
-  ; ghost_list_Σ (gmultiset job)
-  ; spsc_prop_Σ
+Definition pool۰Σ :=
+  #[domain۰Σ
+  ; ws_hub_std۰Σ
+  ; saved_prop۰Σ
+  ; mono_gmultiset۰Σ job
+  ; ghost_list۰Σ (gmultiset job)
+  ; spsc_prop۰Σ
   ].
-#[global] Instance subG_pool_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG pool_Σ Σ →
+#[global] Instance subG𑁒pool۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG pool۰Σ Σ →
   PoolG Σ.
 Proof.
   solve_inG.
 Qed.
 
 Module base.
-  Section pool_G.
-    Context `{pool_G : PoolG Σ}.
+  Section pool۰G.
+    Context `{pool۰G : PoolG Σ}.
 
     Implicit Types t : location.
     Implicit Types P P_notification P_pred Q Q_pred : iProp Σ.
     Implicit Types Ψ : val → iProp Σ.
 
-    Record pool_name :=
-      { pool_name_size : nat
-      ; pool_name_hub : val
-      ; pool_name_domains : val
-      ; pool_name_jobs : gname
-      ; pool_name_locals : gname
+    Record pool۰name :=
+      { pool۰name۰size : nat
+      ; pool۰name۰hub : val
+      ; pool۰name۰domains : val
+      ; pool۰name۰jobs : gname
+      ; pool۰name۰locals : gname
       }.
-    Implicit Types γ : pool_name.
+    Implicit Types γ : pool۰name.
     Implicit Types γ_tokens : list gname.
 
-    #[global] Instance pool_name_eq_dec : EqDecision pool_name :=
+    #[global] Instance pool۰name𑁒eq_dec : EqDecision pool۰name :=
       ltac:(solve_decision).
-    #[global] Instance pool_name_countable :
-      Countable pool_name.
+    #[global] Instance pool۰name𑁒countable :
+      Countable pool۰name.
     Proof.
       solve_countable.
     Qed.
 
-    #[local] Definition pool_name_context γ (i : nat) :=
-      ( #γ.(pool_name_size),
-        γ.(pool_name_hub),
+    #[local] Definition pool۰name۰context γ (i : nat) :=
+      ( #γ.(pool۰name۰size),
+        γ.(pool۰name۰hub),
         #i
       )%V.
-    #[local] Instance pool_name_context_inj γ :
-      Inj (=) (=) (pool_name_context γ).
+    #[local] Instance pool۰name۰context𑁒inj γ :
+      Inj (=) (=) (pool۰name۰context γ).
     Proof.
       rewrite /Inj. naive_solver.
     Qed.
 
-    #[local] Definition jobs_auth' γ_jobs own :=
-      mono_gmultiset_auth γ_jobs own.
-    #[local] Definition jobs_auth γ :=
-      jobs_auth' γ.(pool_name_jobs).
-    #[local] Definition jobs_elem γ :=
-      mono_gmultiset_elem γ.(pool_name_jobs).
+    #[local] Definition jobs۰auth' γ_jobs own :=
+      mono_gmultiset۰auth γ_jobs own.
+    #[local] Definition jobs۰auth γ :=
+      jobs۰auth' γ.(pool۰name۰jobs).
+    #[local] Definition jobs۰elem γ :=
+      mono_gmultiset۰elem γ.(pool۰name۰jobs).
 
-    #[local] Definition jobs_finished jobs : iProp Σ :=
+    #[local] Definition jobs۰finished jobs : iProp Σ :=
       [∗ mset] job ∈ jobs,
         ∃ P,
-        saved_prop job.(job_name) P ∗
+        saved_prop job.(job۰name) P ∗
         □ P.
 
-    #[local] Definition locals_auth' sz γ_locals ulocals : iProp Σ :=
+    #[local] Definition locals۰auth' sz γ_locals ulocals : iProp Σ :=
       ∃ localss,
       ⌜length localss = ˖sz⌝ ∗
-      ghost_list_auth γ_locals localss ∗
+      ghost_list۰auth γ_locals localss ∗
       ⌜ulocals = ⋃+ localss⌝.
-    #[local] Definition locals_auth γ :=
-      locals_auth' γ.(pool_name_size) γ.(pool_name_locals).
-    #[local] Instance : CustomIpat "locals_auth" :=
+    #[local] Definition locals۰auth γ :=
+      locals۰auth' γ.(pool۰name۰size) γ.(pool۰name۰locals).
+    #[local] Instance : CustomIpat "locals۰auth" :=
       " ( %localss{}
         & %Hlocalss{}
         & Hauth{_{}}
         & ->
         )
       ".
-    #[local] Definition locals_at_running γ_locals i scope : iProp Σ :=
+    #[local] Definition locals۰at۰running γ_locals i scope : iProp Σ :=
       ∃ locals,
-      ghost_list_at γ_locals i Own (scope ⊎ locals) ∗
-      jobs_finished locals.
-    #[local] Instance : CustomIpat "locals_at_running" :=
+      ghost_list۰at γ_locals i Own (scope ⊎ locals) ∗
+      jobs۰finished locals.
+    #[local] Instance : CustomIpat "locals۰at۰running" :=
       " ( %locals{}
         & Hat{_{}}
         & Hjobs_finished_locals{}
         )
       ".
-    #[local] Definition locals_at_finished γ_locals i : iProp Σ :=
+    #[local] Definition locals۰at۰finished γ_locals i : iProp Σ :=
       ∃ locals,
-      ghost_list_at γ_locals i Own locals.
-    #[local] Instance : CustomIpat "locals_at_finished" :=
+      ghost_list۰at γ_locals i Own locals.
+    #[local] Instance : CustomIpat "locals۰at۰finished" :=
       " ( %locals{}
         & Hat{_{}}
         )
       ".
-    #[local] Definition locals_at' γ_locals i scope : iProp Σ :=
+    #[local] Definition locals۰at' γ_locals i scope : iProp Σ :=
       match scope with
       | Some scope =>
-          locals_at_running γ_locals i scope
+          locals۰at۰running γ_locals i scope
       | None =>
-          locals_at_finished γ_locals i
+          locals۰at۰finished γ_locals i
       end.
-    #[local] Definition locals_at γ :=
-      locals_at' γ.(pool_name_locals).
+    #[local] Definition locals۰at γ :=
+      locals۰at' γ.(pool۰name۰locals).
 
-    #[local] Definition globals_model_running γ globals : iProp Σ :=
+    #[local] Definition globals۰model۰running γ globals : iProp Σ :=
       ∃ jobs ulocals,
       ⌜jobs = globals ⊎ ulocals⌝ ∗
-      jobs_auth γ Own jobs ∗
-      locals_auth γ ulocals.
-    #[local] Instance : CustomIpat "globals_model_running" :=
+      jobs۰auth γ Own jobs ∗
+      locals۰auth γ ulocals.
+    #[local] Instance : CustomIpat "globals۰model۰running" :=
       " ( %jobs
         & %ulocals
         & ->
@@ -205,53 +205,53 @@ Module base.
         & Hlocals_auth
         )
       ".
-    #[local] Definition globals_model_finished γ : iProp Σ :=
-      [∗ list] i ∈ seq 0 ˖(γ.(pool_name_size)),
-        locals_at γ i None.
-    #[local] Instance : CustomIpat "globals_model_finished" :=
+    #[local] Definition globals۰model۰finished γ : iProp Σ :=
+      [∗ list] i ∈ seq 0 ˖(γ.(pool۰name۰size)),
+        locals۰at γ i None.
+    #[local] Instance : CustomIpat "globals۰model۰finished" :=
       " Hlocals_ats
       ".
-    #[local] Definition globals_model γ globals : iProp Σ :=
-        globals_model_running γ globals
-      ∨ globals_model_finished γ.
-    #[local] Instance : CustomIpat "globals_model" :=
-      " [ (:globals_model_running)
-        | (:globals_model_finished)
+    #[local] Definition globals۰model γ globals : iProp Σ :=
+        globals۰model۰running γ globals
+      ∨ globals۰model۰finished γ.
+    #[local] Instance : CustomIpat "globals۰model" :=
+      " [ (:globals۰model۰running)
+        | (:globals۰model۰finished)
         ]
       ".
 
-    #[local] Definition context_1 γ i (scope : pool_scope) : iProp Σ :=
+    #[local] Definition context₁ γ i (scope : pool۰scope) : iProp Σ :=
       ∃ empty,
-      ws_hub_std_owner γ.(pool_name_hub) i Nonblocked empty ∗
-      locals_at γ i (Some scope).
-    #[local] Instance : CustomIpat "context_1" :=
+      ws_hub_std۰owner γ.(pool۰name۰hub) i Nonblocked empty ∗
+      locals۰at γ i (Some scope).
+    #[local] Instance : CustomIpat "context₁" :=
       " ( %empty{}
         & Hhub_owner{_{}}
         & Hlocals_at{_{}}
         )
       ".
 
-    #[local] Definition task_model γ task Ψ : iProp Σ :=
+    #[local] Definition task۰model γ task Ψ : iProp Σ :=
       ∀ i scope,
-      ⌜i ≤ γ.(pool_name_size)⌝ -∗
-      context_1 γ i scope -∗
-      WP task (pool_name_context γ i) {{ v,
-        context_1 γ i scope ∗
+      ⌜i ≤ γ.(pool۰name۰size)⌝ -∗
+      context₁ γ i scope -∗
+      WP task (pool۰name۰context γ i) {{ v,
+        context₁ γ i scope ∗
         Ψ v
       }}.
 
-    #[local] Definition inv_inner γ : iProp Σ :=
+    #[local] Definition inv۰inner γ : iProp Σ :=
       ∃ globals 𝑔𝑙𝑜𝑏𝑎𝑙𝑠,
-      ⌜𝑔𝑙𝑜𝑏𝑎𝑙𝑠 = gmultiset_map job_val globals⌝ ∗
-      globals_model γ globals ∗
-      ws_hub_std_model γ.(pool_name_hub) 𝑔𝑙𝑜𝑏𝑎𝑙𝑠 ∗
+      ⌜𝑔𝑙𝑜𝑏𝑎𝑙𝑠 = gmultiset_map job۰val globals⌝ ∗
+      globals۰model γ globals ∗
+      ws_hub_std۰model γ.(pool۰name۰hub) 𝑔𝑙𝑜𝑏𝑎𝑙𝑠 ∗
       [∗ mset] global ∈ globals,
-        task_model γ global.(job_val) (λ _,
+        task۰model γ global.(job۰val) (λ _,
           ∃ P,
-          saved_prop global.(job_name) P ∗
+          saved_prop global.(job۰name) P ∗
           ▷ □ P
         ).
-    #[local] Instance : CustomIpat "inv_inner" :=
+    #[local] Instance : CustomIpat "inv۰inner" :=
       " ( %globals
         & %𝑔𝑙𝑜𝑏𝑎𝑙𝑠
         & >%H𝑔𝑙𝑜𝑏𝑎𝑙𝑠
@@ -260,80 +260,80 @@ Module base.
         & Hglobals
         )
       ".
-    #[local] Definition inv_1 γ : iProp Σ :=
-      inv (nroot.@"inv") (inv_inner γ).
-    #[local] Definition inv_2 γ : iProp Σ :=
-      ws_hub_std_inv γ.(pool_name_hub) (nroot.@"hub") ˖(γ.(pool_name_size)) ∗
-      inv_1 γ.
-    #[local] Instance : CustomIpat "inv_2" :=
+    #[local] Definition inv₁ γ : iProp Σ :=
+      inv (nroot.@"inv") (inv۰inner γ).
+    #[local] Definition inv₂ γ : iProp Σ :=
+      ws_hub_std۰inv γ.(pool۰name۰hub) (nroot.@"hub") ˖(γ.(pool۰name۰size)) ∗
+      inv₁ γ.
+    #[local] Instance : CustomIpat "inv₂" :=
       " ( #Hhub_inv{_{}}
         & #Hinv{_{}}
         )
       ".
-    Definition pool_inv γ sz : iProp Σ :=
-      ⌜sz = γ.(pool_name_size)⌝ ∗
-      inv_2 γ.
+    Definition pool۰inv γ sz : iProp Σ :=
+      ⌜sz = γ.(pool۰name۰size)⌝ ∗
+      inv₂ γ.
     #[local] Instance : CustomIpat "inv" :=
       " ( ->
-        & {#Hinv_{};(:inv_2)}
+        & {#Hinv_{};(:inv₂)}
         )
       ".
 
-    #[local] Definition context_finished γ i : iProp Σ :=
-      ws_hub_std_owner γ.(pool_name_hub) i Nonblocked Empty ∗
-      locals_at γ i (Some ∅).
-    #[local] Instance : CustomIpat "context_finished" :=
+    #[local] Definition context۰finished γ i : iProp Σ :=
+      ws_hub_std۰owner γ.(pool۰name۰hub) i Nonblocked Empty ∗
+      locals۰at γ i (Some ∅).
+    #[local] Instance : CustomIpat "context۰finished" :=
       " ( Hhub_owner{_{}}
         & Hlocals_at{_{}}
         )
       ".
-    #[local] Definition context_2 γ i scope : iProp Σ :=
-      ⌜i ≤ γ.(pool_name_size)⌝ ∗
-      inv_2 γ ∗
-      context_1 γ i scope.
-    #[local] Instance : CustomIpat "context_2" :=
+    #[local] Definition context₂ γ i scope : iProp Σ :=
+      ⌜i ≤ γ.(pool۰name۰size)⌝ ∗
+      inv₂ γ ∗
+      context₁ γ i scope.
+    #[local] Instance : CustomIpat "context₂" :=
       " ( %Hi{}
-        & {#Hinv_{};(:inv_2)}
+        & {#Hinv_{};(:inv₂)}
         & { {lazy} Hctx{}
           ; {lazy} Hctx
-          ; (:context_1 ={})
-          ; (:context_1)
+          ; (:context₁ ={})
+          ; (:context₁)
           }
         )
       ".
-    Definition pool_context γ ctx scope : iProp Σ :=
+    Definition pool۰context γ ctx scope : iProp Σ :=
       ∃ i,
-      ⌜ctx = pool_name_context γ i⌝ ∗
-      context_2 γ i scope.
+      ⌜ctx = pool۰name۰context γ i⌝ ∗
+      context₂ γ i scope.
     #[local] Instance : CustomIpat "context" :=
       " ( %i{}
         & {%Heq{};->}
-        & (:context_2)
+        & (:context₂)
         )
       ".
 
-    #[local] Definition worker_post γ i res : iProp Σ :=
+    #[local] Definition worker۰post γ i res : iProp Σ :=
       ⌜res = ()%V⌝ ∗
-      context_finished γ i.
-    #[local] Instance : CustomIpat "worker_post" :=
+      context۰finished γ i.
+    #[local] Instance : CustomIpat "worker۰post" :=
       " ( ->
-        & (:context_finished)
+        & (:context۰finished)
         )
       ".
 
-    Definition pool_model t γ : iProp Σ :=
+    Definition pool۰model t γ : iProp Σ :=
       ∃ empty doms,
-      ⌜length doms = γ.(pool_name_size)⌝ ∗
-      t.[size] ↦□ #γ.(pool_name_size) ∗
-      t.[hub] ↦□ γ.(pool_name_hub) ∗
-      t.[domains] ↦□ γ.(pool_name_domains) ∗
-      inv_2 γ ∗
-      array_model γ.(pool_name_domains) DfracDiscarded doms ∗
+      ⌜length doms = γ.(pool۰name۰size)⌝ ∗
+      t.[size] ↦□ #γ.(pool۰name۰size) ∗
+      t.[hub] ↦□ γ.(pool۰name۰hub) ∗
+      t.[domains] ↦□ γ.(pool۰name۰domains) ∗
+      inv₂ γ ∗
+      array۰model γ.(pool۰name۰domains) DfracDiscarded doms ∗
       ( [∗ list] i ↦ dom ∈ doms,
-        domain_model dom (worker_post γ ˖i)
+        domain۰model dom (worker۰post γ ˖i)
       ) ∗
-      ws_hub_std_owner γ.(pool_name_hub) 0 Blocked empty ∗
-      locals_at γ 0 (Some ∅).
+      ws_hub_std۰owner γ.(pool۰name۰hub) 0 Blocked empty ∗
+      locals۰at γ 0 (Some ∅).
     #[local] Instance : CustomIpat "model" :=
       " ( %empty{}
         & %doms{}
@@ -341,7 +341,7 @@ Module base.
         & #Hl{}_size
         & #Hl{}_hub
         & #Hl{}_domains
-        & {#Hinv{};(:inv_2)}
+        & {#Hinv{};(:inv₂)}
         & Hdomains{}
         & Hdoms{}
         & Hhub{}_owner
@@ -349,10 +349,10 @@ Module base.
         )
       ".
 
-    Definition pool_finished γ : iProp Σ :=
+    Definition pool۰finished γ : iProp Σ :=
       ∃ jobs,
-      jobs_auth γ Discard jobs ∗
-      jobs_finished jobs.
+      jobs۰auth γ Discard jobs ∗
+      jobs۰finished jobs.
     #[local] Instance : CustomIpat "finished" :=
       " ( %jobs{}
         & Hjobs_auth{_{}}
@@ -360,334 +360,334 @@ Module base.
         )
       ".
 
-    Definition pool_consumer γ P : iProp Σ :=
-      pool_finished γ ={⊤}=∗
+    Definition pool۰consumer γ P : iProp Σ :=
+      pool۰finished γ ={⊤}=∗
       P.
 
-    Definition pool_obligation γ P : iProp Σ :=
+    Definition pool۰obligation γ P : iProp Σ :=
       □ (
-        pool_finished γ -∗
+        pool۰finished γ -∗
         ▷ □ P
       ).
 
-    #[global] Instance pool_obligation_proper γ :
-      Proper ((≡) ==> (≡)) (pool_obligation γ).
+    #[global] Instance pool۰obligation𑁒proper γ :
+      Proper ((≡) ==> (≡)) (pool۰obligation γ).
     Proof.
       solve_proper.
     Qed.
-    #[global] Instance pool_consumer_proper γ :
-      Proper ((≡) ==> (≡)) (pool_consumer γ).
+    #[global] Instance pool۰consumer𑁒proper γ :
+      Proper ((≡) ==> (≡)) (pool۰consumer γ).
     Proof.
       solve_proper.
     Qed.
 
-    #[local] Instance globals_model_timeless γ globals :
-      Timeless (globals_model γ globals).
+    #[local] Instance globals۰model𑁒timeless γ globals :
+      Timeless (globals۰model γ globals).
     Proof.
       apply _.
     Qed.
 
-    #[local] Instance jobs_elem_persistent γ job :
-      Persistent (jobs_elem γ job).
+    #[local] Instance jobs۰elem𑁒persistent γ job :
+      Persistent (jobs۰elem γ job).
     Proof.
       apply _.
     Qed.
-    #[local] Instance jobs_finished_persistent jobs :
-      Persistent (jobs_finished jobs).
+    #[local] Instance jobs۰finished𑁒persistent jobs :
+      Persistent (jobs۰finished jobs).
     Proof.
       apply _.
     Qed.
-    #[global] Instance pool_inv_persistent γ sz :
-      Persistent (pool_inv γ sz).
+    #[global] Instance pool۰inv𑁒persistent γ sz :
+      Persistent (pool۰inv γ sz).
     Proof.
       apply _.
     Qed.
-    #[global] Instance pool_obligation_persistent γ P :
-      Persistent (pool_obligation γ P).
+    #[global] Instance pool۰obligation𑁒persistent γ P :
+      Persistent (pool۰obligation γ P).
     Proof.
       apply _.
     Qed.
-    #[global] Instance pool_finished_persistent γ :
-      Persistent (pool_finished γ).
+    #[global] Instance pool۰finished𑁒persistent γ :
+      Persistent (pool۰finished γ).
     Proof.
       apply _.
     Qed.
 
-    #[local] Lemma jobs_alloc :
+    #[local] Lemma jobs𑁒alloc :
       ⊢ |==>
         ∃ γ_jobs,
-        jobs_auth' γ_jobs Own ∅.
+        jobs۰auth' γ_jobs Own ∅.
     Proof.
-      apply mono_gmultiset_alloc.
+      apply mono_gmultiset𑁒alloc.
     Qed.
-    #[local] Lemma jobs_auth_discard γ jobs :
-      jobs_auth γ Own jobs ⊢ |==>
-      jobs_auth γ Discard jobs.
+    #[local] Lemma jobs۰auth𑁒discard γ jobs :
+      jobs۰auth γ Own jobs ⊢ |==>
+      jobs۰auth γ Discard jobs.
     Proof.
-      apply mono_gmultiset_auth_persist.
+      apply mono_gmultiset۰auth𑁒persist.
     Qed.
-    #[local] Lemma jobs_elem_valid γ own jobs job :
-      jobs_auth γ own jobs -∗
-      jobs_elem γ job -∗
+    #[local] Lemma jobs۰elem𑁒valid γ own jobs job :
+      jobs۰auth γ own jobs -∗
+      jobs۰elem γ job -∗
       ⌜job ∈ jobs⌝.
     Proof.
-      apply mono_gmultiset_elem_valid.
+      apply mono_gmultiset۰elem𑁒valid.
     Qed.
-    #[local] Lemma jobs_insert {γ jobs} 𝑗𝑜𝑏 P :
-      jobs_auth γ Own jobs ⊢ |==>
+    #[local] Lemma jobs𑁒insert {γ jobs} 𝑗𝑜𝑏 P :
+      jobs۰auth γ Own jobs ⊢ |==>
         ∃ job,
-        ⌜job.(job_val) = 𝑗𝑜𝑏⌝ ∗
-        jobs_auth γ Own ({[+job+]} ⊎ jobs) ∗
-        jobs_elem γ job ∗
-        saved_prop job.(job_name) P.
+        ⌜job.(job۰val) = 𝑗𝑜𝑏⌝ ∗
+        jobs۰auth γ Own ({[+job+]} ⊎ jobs) ∗
+        jobs۰elem γ job ∗
+        saved_prop job.(job۰name) P.
     Proof.
       iIntros "Hauth".
-      iMod (saved_prop_alloc P) as "(%η & #Hη)".
+      iMod (saved_prop𑁒alloc P) as "(%η & #Hη)".
       pose job :=
-      {|job_val := 𝑗𝑜𝑏
-      ; job_name := η
+      {|job۰val := 𝑗𝑜𝑏
+      ; job۰name := η
       |}.
-      iMod (mono_gmultiset_insert job with "Hauth") as "Hauth".
-      iDestruct (mono_gmultiset_elem_get job with "Hauth") as "#Helem"; first set_solver.
+      iMod (mono_gmultiset𑁒insert job with "Hauth") as "Hauth".
+      iDestruct (mono_gmultiset۰elem𑁒get job with "Hauth") as "#Helem"; first set_solver.
       iFrameSteps.
     Qed.
-    Opaque jobs_elem.
+    Opaque jobs۰elem.
 
-    #[local] Lemma jobs_finished_empty :
-      ⊢ jobs_finished ∅.
+    #[local] Lemma jobs۰finished𑁒empty :
+      ⊢ jobs۰finished ∅.
     Proof.
       iApply (big_sepMS_empty with "[//]").
     Qed.
-    #[local] Lemma jobs_finished_elem_of job jobs :
+    #[local] Lemma jobs۰finished𑁒elem_of job jobs :
       job ∈ jobs →
-      jobs_finished jobs ⊢
+      jobs۰finished jobs ⊢
         ∃ P,
-        saved_prop job.(job_name) P ∗
+        saved_prop job.(job۰name) P ∗
         □ P.
     Proof.
       apply: big_sepMS_elem_of.
     Qed.
-    #[local] Lemma jobs_finished_insert {jobs} job P :
-      jobs_finished jobs -∗
-      saved_prop job.(job_name) P -∗
+    #[local] Lemma jobs۰finished𑁒insert {jobs} job P :
+      jobs۰finished jobs -∗
+      saved_prop job.(job۰name) P -∗
       □ P -∗
-      jobs_finished ({[+job+]} ⊎ jobs).
+      jobs۰finished ({[+job+]} ⊎ jobs).
     Proof.
       iIntros "Hfinished #Hjob #HP".
-      iApply (big_sepMS_insert_2 with "Hfinished").
+      iApply (big_sepMS𑁒insert₂ with "Hfinished").
       iSteps.
     Qed.
-    #[local] Lemma jobs_finished_union localss :
+    #[local] Lemma jobs۰finished𑁒union localss :
       ( [∗ list] locals ∈ localss,
-        jobs_finished locals
+        jobs۰finished locals
       ) ⊢
-      jobs_finished (⋃+ localss).
+      jobs۰finished (⋃+ localss).
     Proof.
-      apply big_sepMS_disj_union_list_2.
+      apply big_sepMS𑁒disj_union_list₂.
     Qed.
-    Opaque jobs_finished.
+    Opaque jobs۰finished.
 
-    #[local] Lemma locals_alloc sz :
+    #[local] Lemma locals𑁒alloc sz :
       ⊢ |==>
         ∃ γ_locals,
-        locals_auth' sz γ_locals ∅ ∗
+        locals۰auth' sz γ_locals ∅ ∗
         [∗ list] i ∈ seq 0 ˖sz,
-          locals_at' γ_locals i (Some ∅).
+          locals۰at' γ_locals i (Some ∅).
     Proof.
-      iMod (ghost_list_alloc (replicate ˖sz ∅)) as "(%γ_locals & $ & Hats)".
+      iMod (ghost_list𑁒alloc (replicate ˖sz ∅)) as "(%γ_locals & $ & Hats)".
       iSplitR.
       - iPureIntro. split.
         + simpl_length.
-        + rewrite gmultiset_disj_union_list_replicate_empty //.
-      - iApply big_sepL_replicate_1 in "Hats".
+        + rewrite gmultiset𑁒disj_union_list𑁒replicate𑁒empty //.
+      - iApply big_sepL𑁒replicate₁ in "Hats".
         iApply (big_sepL_impl with "Hats"). iIntros "!> !> %i_ %i _ Hat".
         iExists ∅. rewrite right_id. iFrame.
-        iApply jobs_finished_empty.
+        iApply jobs۰finished𑁒empty.
     Qed.
-    #[local] Lemma locals_at_exclusive γ i scope1 scope2 :
-      locals_at γ i scope1 -∗
-      locals_at γ i scope2 -∗
+    #[local] Lemma locals۰at𑁒exclusive γ i scope1 scope2 :
+      locals۰at γ i scope1 -∗
+      locals۰at γ i scope2 -∗
       False.
     Proof.
       all:
         destruct scope1 as [scope1 |];
-        [ iIntros "(:locals_at_running =1)"
-        | iIntros "(:locals_at_finished =1)"
+        [ iIntros "(:locals۰at۰running =1)"
+        | iIntros "(:locals۰at۰finished =1)"
         ].
       all:
         destruct scope2 as [scope2 |];
-        [ iIntros "(:locals_at_running =2)"
-        | iIntros "(:locals_at_finished =2)"
+        [ iIntros "(:locals۰at۰running =2)"
+        | iIntros "(:locals۰at۰finished =2)"
         ].
-      all: iApply (ghost_list_at_exclusive with "Hat_1 Hat_2").
+      all: iApply (ghost_list۰at𑁒exclusive with "Hat_1 Hat_2").
     Qed.
-    #[local] Lemma locals_insert {γ ulocals i scope} local :
-      locals_auth γ ulocals -∗
-      locals_at γ i (Some scope) ==∗
-        locals_auth γ ({[+local+]} ⊎ ulocals) ∗
-        locals_at γ i (Some ({[+local+]} ⊎ scope)).
+    #[local] Lemma locals𑁒insert {γ ulocals i scope} local :
+      locals۰auth γ ulocals -∗
+      locals۰at γ i (Some scope) ==∗
+        locals۰auth γ ({[+local+]} ⊎ ulocals) ∗
+        locals۰at γ i (Some ({[+local+]} ⊎ scope)).
     Proof.
-      iIntros "(:locals_auth) (:locals_at_running)".
-      iDestruct (ghost_list_lookup with "Hauth Hat") as %Hlookup.
-      iMod (ghost_list_update_at ({[+local+]} ⊎ scope ⊎ locals) with "Hauth Hat") as "($ & $)".
+      iIntros "(:locals۰auth) (:locals۰at۰running)".
+      iDestruct (ghost_list𑁒lookup with "Hauth Hat") as %Hlookup.
+      iMod (ghost_list𑁒update𑁒at ({[+local+]} ⊎ scope ⊎ locals) with "Hauth Hat") as "($ & $)".
       iFrameSteps; iPureIntro.
       { simpl_length. }
-      { rewrite -assoc gmultiset_disj_union_list_insert_disj_union_l //. }
+      { rewrite -assoc gmultiset𑁒disj_union_list𑁒insert𑁒disj_union𑁒l //. }
     Qed.
-    #[local] Lemma locals_at_finish γ i local P scope :
-      locals_at γ i (Some ({[+local+]} ⊎ scope)) -∗
-      saved_prop local.(job_name) P -∗
+    #[local] Lemma locals۰at𑁒finish γ i local P scope :
+      locals۰at γ i (Some ({[+local+]} ⊎ scope)) -∗
+      saved_prop local.(job۰name) P -∗
       □ P -∗
-      locals_at γ i (Some scope).
+      locals۰at γ i (Some scope).
     Proof.
-      iIntros "(:locals_at_running) Hlocal HP".
-      iDestruct (jobs_finished_insert with "Hjobs_finished_locals Hlocal HP") as "$".
+      iIntros "(:locals۰at۰running) Hlocal HP".
+      iDestruct (jobs۰finished𑁒insert with "Hjobs_finished_locals Hlocal HP") as "$".
       rewrite (comm (⊎) {[+_+]} scope) assoc //.
     Qed.
-    #[local] Lemma locals_close γ ulocals :
-      locals_auth γ ulocals -∗
-      ( [∗ list] i ∈ seq 0 ˖(γ.(pool_name_size)),
-        locals_at γ i (Some ∅)
+    #[local] Lemma locals𑁒close γ ulocals :
+      locals۰auth γ ulocals -∗
+      ( [∗ list] i ∈ seq 0 ˖(γ.(pool۰name۰size)),
+        locals۰at γ i (Some ∅)
       ) -∗
-        locals_auth γ ulocals ∗
-        ( [∗ list] i ∈ seq 0 ˖(γ.(pool_name_size)),
-          locals_at γ i None
+        locals۰auth γ ulocals ∗
+        ( [∗ list] i ∈ seq 0 ˖(γ.(pool۰name۰size)),
+          locals۰at γ i None
         ) ∗
-        jobs_finished ulocals.
+        jobs۰finished ulocals.
     Proof.
-      iIntros "(:locals_auth) Hats".
-      iDestruct (big_sepL_seq_exists with "Hats") as "(%localss_ & %Hlocalss_ & Hats)".
+      iIntros "(:locals۰auth) Hats".
+      iDestruct (big_sepL𑁒seq𑁒exists with "Hats") as "(%localss_ & %Hlocalss_ & Hats)".
       iDestruct (big_sepL_sep with "Hats") as "(Hats & Hjobs_finisheds)".
       iEval (setoid_rewrite (left_id ∅ (⊎))) in "Hats".
-      iDestruct (ghost_list_auth_ats with "Hauth Hats") as %<-; first lia.
+      iDestruct (ghost_list𑁒auth𑁒ats with "Hauth Hats") as %<-; first lia.
       iSplitL "Hauth"; first iFrameSteps.
-      iDestruct (jobs_finished_union with "Hjobs_finisheds") as "$".
-      iApply big_sepL_to_seq0 in "Hats".
+      iDestruct (jobs۰finished𑁒union with "Hjobs_finisheds") as "$".
+      iApply big_sepL𑁒to𑁒seq𑁒0 in "Hats".
       iEval (rewrite Hlocalss) in "Hats".
       iApply (big_sepL_impl with "Hats"). iIntros "!> %i_ %i _ (%locals & _ & $)".
     Qed.
-    Opaque locals_auth'.
-    Opaque locals_at'.
+    Opaque locals۰auth'.
+    Opaque locals۰at'.
 
-    #[local] Lemma globals_model_init γ :
-      jobs_auth γ Own ∅ -∗
-      locals_auth γ ∅ -∗
-      globals_model γ ∅.
+    #[local] Lemma globals۰model𑁒init γ :
+      jobs۰auth γ Own ∅ -∗
+      locals۰auth γ ∅ -∗
+      globals۰model γ ∅.
     Proof.
       iIntros "Hjobs_auth Hlocals_auth".
       iLeft. iExists ∅, ∅. iFrameSteps.
     Qed.
-    #[local] Lemma globals_model_locals_at γ globals i scope :
-      i ≤ γ.(pool_name_size) →
-      globals_model γ globals -∗
-      locals_at γ i scope -∗
-        globals_model_running γ globals ∗
-        locals_at γ i scope.
+    #[local] Lemma globals۰model𑁒locals۰at γ globals i scope :
+      i ≤ γ.(pool۰name۰size) →
+      globals۰model γ globals -∗
+      locals۰at γ i scope -∗
+        globals۰model۰running γ globals ∗
+        locals۰at γ i scope.
     Proof.
-      iIntros "%Hi (:globals_model >) Hlocals_at".
+      iIntros "%Hi (:globals۰model >) Hlocals_at".
       - iFrameSteps.
-      - iDestruct (big_sepL_seq_lookup' i with "Hlocals_ats") as "Hlocals_at_"; first lia.
-        iDestruct (locals_at_exclusive with "Hlocals_at Hlocals_at_") as %[].
+      - iDestruct (big_sepL𑁒seq𑁒lookup' i with "Hlocals_ats") as "Hlocals_at_"; first lia.
+        iDestruct (locals۰at𑁒exclusive with "Hlocals_at Hlocals_at_") as %[].
     Qed.
-    #[local] Lemma globals_model_push {γ globals} 𝑔𝑙𝑜𝑏𝑎𝑙 P i scope :
-      i ≤ γ.(pool_name_size) →
-      globals_model γ globals -∗
-      locals_at γ i scope ==∗
+    #[local] Lemma globals۰model𑁒push {γ globals} 𝑔𝑙𝑜𝑏𝑎𝑙 P i scope :
+      i ≤ γ.(pool۰name۰size) →
+      globals۰model γ globals -∗
+      locals۰at γ i scope ==∗
         ∃ global,
-        ⌜global.(job_val) = 𝑔𝑙𝑜𝑏𝑎𝑙⌝ ∗
-        globals_model γ ({[+global+]} ⊎ globals) ∗
-        locals_at γ i scope ∗
-        jobs_elem γ global ∗
-        saved_prop global.(job_name) P.
+        ⌜global.(job۰val) = 𝑔𝑙𝑜𝑏𝑎𝑙⌝ ∗
+        globals۰model γ ({[+global+]} ⊎ globals) ∗
+        locals۰at γ i scope ∗
+        jobs۰elem γ global ∗
+        saved_prop global.(job۰name) P.
     Proof.
       iIntros "%Hi Hglobals_model Hlocals_at".
-      iDestruct (globals_model_locals_at with "Hglobals_model Hlocals_at") as "((:globals_model_running) & $)"; first done.
-      iMod (jobs_insert 𝑔𝑙𝑜𝑏𝑎𝑙 P with "Hjobs_auth") as "(%global & % & Hjobs_auth & $ & $)".
+      iDestruct (globals۰model𑁒locals۰at with "Hglobals_model Hlocals_at") as "((:globals۰model۰running) & $)"; first done.
+      iMod (jobs𑁒insert 𝑔𝑙𝑜𝑏𝑎𝑙 P with "Hjobs_auth") as "(%global & % & Hjobs_auth & $ & $)".
       iStep. iLeft. iFrameSteps. iPureIntro.
       set_solver by lia.
     Qed.
-    #[local] Lemma globals_model_pop {γ globals} global globals' i scope :
-      i ≤ γ.(pool_name_size) →
+    #[local] Lemma globals۰model𑁒pop {γ globals} global globals' i scope :
+      i ≤ γ.(pool۰name۰size) →
       globals = {[+global+]} ⊎ globals' →
-      globals_model γ globals -∗
-      locals_at γ i (Some scope) ==∗
-        globals_model γ globals' ∗
-        locals_at γ i (Some ({[+global+]} ⊎ scope)).
+      globals۰model γ globals -∗
+      locals۰at γ i (Some scope) ==∗
+        globals۰model γ globals' ∗
+        locals۰at γ i (Some ({[+global+]} ⊎ scope)).
     Proof.
       iIntros (Hi ->) "Hglobals_model Hlocals_at".
-      iDestruct (globals_model_locals_at with "Hglobals_model Hlocals_at") as "((:globals_model_running) & Hlocals_at)"; first done.
-      iMod (locals_insert global with "Hlocals_auth Hlocals_at") as "(Hlocals_auth & $)".
+      iDestruct (globals۰model𑁒locals۰at with "Hglobals_model Hlocals_at") as "((:globals۰model۰running) & Hlocals_at)"; first done.
+      iMod (locals𑁒insert global with "Hlocals_auth Hlocals_at") as "(Hlocals_auth & $)".
       iLeft. iFrameSteps. iPureIntro.
       set_solver by lia.
     Qed.
-    #[local] Lemma globals_model_close γ :
-      globals_model γ ∅ -∗
-      ( [∗ list] i ∈ seq 0 ˖(γ.(pool_name_size)),
-        locals_at γ i (Some ∅)
+    #[local] Lemma globals۰model𑁒close γ :
+      globals۰model γ ∅ -∗
+      ( [∗ list] i ∈ seq 0 ˖(γ.(pool۰name۰size)),
+        locals۰at γ i (Some ∅)
       ) ==∗
         ∃ jobs,
-        globals_model γ ∅ ∗
-        jobs_auth γ Discard jobs ∗
-        jobs_finished jobs.
+        globals۰model γ ∅ ∗
+        jobs۰auth γ Discard jobs ∗
+        jobs۰finished jobs.
     Proof.
       iIntros "Hglobals_model Hlocals_ats".
 
       iAssert (
-        globals_model_running γ ∅ ∗
-        [∗ list] i ∈ seq 0 ˖(γ.(pool_name_size)),
-          locals_at γ i (Some ∅)
-      )%I with "[-]" as "((:globals_model_running) & Hlocals_ats)".
+        globals۰model۰running γ ∅ ∗
+        [∗ list] i ∈ seq 0 ˖(γ.(pool۰name۰size)),
+          locals۰at γ i (Some ∅)
+      )%I with "[-]" as "((:globals۰model۰running) & Hlocals_ats)".
       { iDestruct (big_sepL_lookup_acc _ _ 0 with "Hlocals_ats") as "(Hlocals_at & Hlocals_ats)"; first done.
-        iDestruct (globals_model_locals_at with "Hglobals_model Hlocals_at") as "($ & Hlocals_at)"; first lia.
+        iDestruct (globals۰model𑁒locals۰at with "Hglobals_model Hlocals_at") as "($ & Hlocals_at)"; first lia.
         iApply ("Hlocals_ats" with "Hlocals_at").
       }
 
       rewrite (left_id ∅ (⊎)).
 
-      iDestruct (locals_close with "Hlocals_auth Hlocals_ats") as "(_ & $ & $)".
-      iApply (jobs_auth_discard with "Hjobs_auth").
+      iDestruct (locals𑁒close with "Hlocals_auth Hlocals_ats") as "(_ & $ & $)".
+      iApply (jobs۰auth𑁒discard with "Hjobs_auth").
     Qed.
-    Opaque globals_model.
+    Opaque globals۰model.
 
-    Lemma pool_inv_agree γ sz1 sz2 :
-      pool_inv γ sz1 -∗
-      pool_inv γ sz2 -∗
+    Lemma pool۰inv𑁒agree γ sz1 sz2 :
+      pool۰inv γ sz1 -∗
+      pool۰inv γ sz2 -∗
       ⌜sz1 = sz2⌝.
     Proof.
       iSteps.
     Qed.
 
-    Lemma pool_obligation_wand {γ P1} P2 :
-      pool_obligation γ P1 -∗
+    Lemma pool۰obligation𑁒wand {γ P1} P2 :
+      pool۰obligation γ P1 -∗
       □ (P1 -∗ P2) -∗
-      pool_obligation γ P2.
+      pool۰obligation γ P2.
     Proof.
       iIntros "#Hobligation #H !> #Hfinished".
       iDestruct ("Hobligation" with "Hfinished") as "HP1".
       iSteps.
     Qed.
-    Lemma pool_obligation_split γ P1 P2 :
-      pool_obligation γ (P1 ∗ P2) ⊢
-        pool_obligation γ P1 ∗
-        pool_obligation γ P2.
+    Lemma pool۰obligation𑁒split γ P1 P2 :
+      pool۰obligation γ (P1 ∗ P2) ⊢
+        pool۰obligation γ P1 ∗
+        pool۰obligation γ P2.
     Proof.
       iIntros "#Hobligation".
-      iDestruct (pool_obligation_wand with "Hobligation []") as "$". 1: iSteps.
-      iDestruct (pool_obligation_wand with "Hobligation []") as "$". 1: iSteps.
+      iDestruct (pool۰obligation𑁒wand with "Hobligation []") as "$". 1: iSteps.
+      iDestruct (pool۰obligation𑁒wand with "Hobligation []") as "$". 1: iSteps.
     Qed.
-    Lemma pool_obligation_combine γ P1 P2 :
-      pool_obligation γ P1 -∗
-      pool_obligation γ P2 -∗
-      pool_obligation γ (P1 ∗ P2).
+    Lemma pool۰obligation𑁒combine γ P1 P2 :
+      pool۰obligation γ P1 -∗
+      pool۰obligation γ P2 -∗
+      pool۰obligation γ (P1 ∗ P2).
     Proof.
       iIntros "#Hobligation_1 #Hobligation_2 !> #Hfinished".
       iDestruct ("Hobligation_1" with "Hfinished") as "HP1".
       iDestruct ("Hobligation_2" with "Hfinished") as "HP2".
       iSteps.
     Qed.
-    Lemma pool_obligation_finished γ P :
-      pool_obligation γ P -∗
-      pool_finished γ -∗
+    Lemma pool۰obligation𑁒finished γ P :
+      pool۰obligation γ P -∗
+      pool۰finished γ -∗
       ▷ □ P.
     Proof.
       iIntros "#Hobligation #Hfinished".
@@ -695,15 +695,15 @@ Module base.
     Qed.
 
     #[local] Lemma pool٠context𑁒spec {sz : Z} {hub} {i : Z} γ (i_ : nat) :
-      sz = γ.(pool_name_size) →
-      hub = γ.(pool_name_hub) →
+      sz = γ.(pool۰name۰size) →
+      hub = γ.(pool۰name۰hub) →
       i = i_ →
       {{{
         True
       }}}
         pool__code.pool٠context #sz hub #i
       {{{
-        RET pool_name_context γ i_;
+        RET pool۰name۰context γ i_;
         True
       }}}.
     Proof.
@@ -712,73 +712,73 @@ Module base.
 
     #[local] Lemma pool٠context_main𑁒spec t γ :
       {{{
-        t.[size] ↦□ #γ.(pool_name_size) ∗
-        t.[hub] ↦□ γ.(pool_name_hub)
+        t.[size] ↦□ #γ.(pool۰name۰size) ∗
+        t.[hub] ↦□ γ.(pool۰name۰hub)
       }}}
         pool٠context_main #t
       {{{
-        RET pool_name_context γ 0;
+        RET pool۰name۰context γ 0;
         True
       }}}.
     Proof.
       iIntros "%Φ (Ht_size & Ht_hub) HΦ".
 
-      wp_rec. do 2 wp_load.
-      wp_apply (pool٠context𑁒spec with "[//] HΦ"); done.
+      wp۰rec. do 2 wp۰load.
+      wp۰apply (pool٠context𑁒spec with "[//] HΦ"); done.
     Qed.
 
     #[local] Lemma pool٠execute𑁒spec γ i scope task Ψ :
-      i ≤ γ.(pool_name_size) →
+      i ≤ γ.(pool۰name۰size) →
       {{{
-        context_1 γ i scope ∗
-        task_model γ task Ψ
+        context₁ γ i scope ∗
+        task۰model γ task Ψ
       }}}
-        pool٠execute (pool_name_context γ i) task
+        pool٠execute (pool۰name۰context γ i) task
       {{{
         v
       , RET v;
-        context_1 γ i scope ∗
+        context₁ γ i scope ∗
         Ψ v
       }}}.
     Proof.
       iIntros "%Hi %Φ (Hctx & Htask) HΦ".
 
-      wp_rec.
-      wp_apply+ (wp_wand with "(Htask [//] Hctx) HΦ").
+      wp۰rec.
+      wp۰apply+ (wp𑁒wand with "(Htask [//] Hctx) HΦ").
     Qed.
 
     #[local] Lemma pool٠worker𑁒spec γ i :
       {{{
-        context_2 γ i ∅
+        context₂ γ i ∅
       }}}
-        pool٠worker (pool_name_context γ i)
+        pool٠worker (pool۰name۰context γ i)
       {{{
         res
       , RET res;
-        worker_post γ i res
+        worker۰post γ i res
       }}}.
     Proof.
-      iIntros "%Φ (:context_2 lazy=) HΦ".
+      iIntros "%Φ (:context₂ lazy=) HΦ".
       iLöb as "HLöb".
-      iDestruct "Hctx" as "(:context_1)".
+      iDestruct "Hctx" as "(:context₁)".
 
-      wp_rec. rewrite pool٠max_round_noyield pool٠max_round_yield.
+      wp۰rec. rewrite pool٠max_round_noyield𑁒unfold pool٠max_round_yield𑁒unfold.
 
-      awp_apply+ (ws_hub_std٠pop_steal𑁒spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; [done | lia.. |].
-      iInv "Hinv" as "(:inv_inner)".
+      awp۰apply+ (ws_hub_std٠pop_steal𑁒spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; [done | lia.. |].
+      iInv "Hinv" as "(:inv۰inner)".
       iAaccIntro with "Hhub_model"; first iSteps. iIntros ([𝑔𝑙𝑜𝑏𝑎𝑙 |]) "Hhub_model".
 
       - iDestruct "Hhub_model" as "(%𝑔𝑙𝑜𝑏𝑎𝑙𝑠' & -> & Hhub_model)".
-        apply symmetry, gmultiset_map_disj_union_singleton_l_inv in H𝑔𝑙𝑜𝑏𝑎𝑙𝑠 as (global & globals' & -> & -> & ->).
+        apply symmetry, gmultiset_map𑁒disj_union𑁒singleton𑁒l𑁒inv in H𝑔𝑙𝑜𝑏𝑎𝑙𝑠 as (global & globals' & -> & -> & ->).
         iDestruct (big_sepMS_disj_union with "Hglobals") as "(Hglobal & Hglobals')".
         iEval (rewrite big_sepMS_singleton) in "Hglobal".
-        iMod (globals_model_pop global with "Hglobals_model Hlocals_at") as "(Hglobals_model & Hlocals_at)"; [done.. |].
+        iMod (globals۰model𑁒pop global with "Hglobals_model Hlocals_at") as "(Hglobals_model & Hlocals_at)"; [done.. |].
         iSplitR "Hglobal Hlocals_at". { iFrameSteps. }
         iIntros "!> {%- Hi} %empty (Hhub_owner & _) HΦ".
 
-        wp_apply+ (pool٠execute𑁒spec with "[$]") as "{%- Hi} %res((:context_1) & (%P & Hglobal & HP))"; first done.
-        iDestruct (locals_at_finish with "Hlocals_at Hglobal HP") as "Hlocals_at".
-        wp_apply+ ("HLöb" with "[$] HΦ").
+        wp۰apply+ (pool٠execute𑁒spec with "[$]") as "{%- Hi} %res((:context₁) & (%P & Hglobal & HP))"; first done.
+        iDestruct (locals۰at𑁒finish with "Hlocals_at Hglobal HP") as "Hlocals_at".
+        wp۰apply+ ("HLöb" with "[$] HΦ").
 
       - iSplitR "Hlocals_at". { iFrameSteps. }
         iSteps.
@@ -793,67 +793,67 @@ Module base.
       {{{
         t γ
       , RET #t;
-        pool_inv γ ₊sz ∗
-        pool_model t γ ∗
+        pool۰inv γ ₊sz ∗
+        pool۰model t γ ∗
         meta_token t ⊤
       }}}.
     Proof.
       iIntros "%Hsz %Φ _ HΦ".
 
-      wp_rec.
+      wp۰rec.
 
-      wp_apply+ (ws_hub_std٠create𑁒spec with "[//]") as (hub) "(#Hhub_inv & Hhub_model & Hhub_owners)"; first lia.
+      wp۰apply+ (ws_hub_std٠create𑁒spec with "[//]") as (hub) "(#Hhub_inv & Hhub_model & Hhub_owners)"; first lia.
       rewrite Z2Nat.inj_add // Nat.add_1_r.
-      iDestruct (big_sepL_seq_cons_1 with "Hhub_owners") as "(Hhub_owner & Hhub_owners)".
+      iDestruct (big_sepL𑁒seq𑁒cons₁ with "Hhub_owners") as "(Hhub_owner & Hhub_owners)".
 
-      wp_apply+ (ws_hub_std٠block𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
+      wp۰apply+ (ws_hub_std٠block𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
 
-      iMod jobs_alloc as "(%γ_jobs & Hjobs_auth)".
+      iMod jobs𑁒alloc as "(%γ_jobs & Hjobs_auth)".
 
-      iMod (locals_alloc ₊sz) as "(%γ_locals & Hlocals_auth & Hlocals_ats)".
-      iDestruct (big_sepL_seq_cons_1 with "Hlocals_ats") as "(Hlocals_at & Hlocals_ats)".
+      iMod (locals𑁒alloc ₊sz) as "(%γ_locals & Hlocals_auth & Hlocals_ats)".
+      iDestruct (big_sepL𑁒seq𑁒cons₁ with "Hlocals_ats") as "(Hlocals_at & Hlocals_ats)".
 
       pose γ 𝑑𝑜𝑚𝑠 :=
-        {|pool_name_size := ₊sz
-        ; pool_name_hub := hub
-        ; pool_name_domains := 𝑑𝑜𝑚𝑠
-        ; pool_name_jobs := γ_jobs
-        ; pool_name_locals := γ_locals
+        {|pool۰name۰size := ₊sz
+        ; pool۰name۰hub := hub
+        ; pool۰name۰domains := 𝑑𝑜𝑚𝑠
+        ; pool۰name۰jobs := γ_jobs
+        ; pool۰name۰locals := γ_locals
         |}.
 
-      wp_apply+ (array٠unsafe_initi𑁒spec_disentangled_strong'
+      wp۰apply+ (array٠unsafe_initi𑁒spec𑁒disentangled𑁒strong'
         ( λ 𝑑𝑜𝑚𝑠,
-          inv_1 (γ 𝑑𝑜𝑚𝑠)
+          inv₁ (γ 𝑑𝑜𝑚𝑠)
         )
         ( λ 𝑑𝑜𝑚𝑠 i dom,
-          domain_model dom (worker_post (γ 𝑑𝑜𝑚𝑠) ˖i)
+          domain۰model dom (worker۰post (γ 𝑑𝑜𝑚𝑠) ˖i)
         )
       with "[Hhub_model Hhub_owners Hjobs_auth Hlocals_auth Hlocals_ats]") as (𝑑𝑜𝑚𝑠 doms) "(%Hdoms & Hdomains & #Hinv & Hdoms)"; first done.
       { iSplitR "Hhub_owners Hlocals_ats".
 
         - iIntros "!> %𝑑𝑜𝑚𝑠".
           iApply inv_alloc.
-          iDestruct (globals_model_init (γ 𝑑𝑜𝑚𝑠) with "Hjobs_auth Hlocals_auth") as "$".
+          iDestruct (globals۰model𑁒init (γ 𝑑𝑜𝑚𝑠) with "Hjobs_auth Hlocals_auth") as "$".
           iFrame. rewrite big_sepMS_empty //.
 
         - iDestruct (big_sepL_sep_2 with "Hhub_owners Hlocals_ats") as "H".
-          iApply (big_sepL_impl_strong with "H").
+          iApply (big_sepL𑁒impl𑁒strong with "H").
           { simpl_length. }
           iIntros "!>" (k i1 i2 (-> & Hi1)%lookup_seq (-> & Hi2)%lookup_seq) "(Hhub_owner & Hlocals_at) %𝑑𝑜𝑚𝑠 #Hinv".
 
-          wp_apply+ (domain٠spawn𑁒spec with "[Hhub_owner Hlocals_at]"); last iSteps. iIntros "%tid _".
-          iApply wp_thread_id_mono.
+          wp۰apply+ (domain٠spawn𑁒spec with "[Hhub_owner Hlocals_at]"); last iSteps. iIntros "%tid _".
+          iApply wp𑁒thread_id_mono.
 
-          wp_apply+ (pool٠context𑁒spec (γ 𝑑𝑜𝑚𝑠) ˖k with "[//]") as "_"; [naive_solver lia.. |].
-          wp_apply (pool٠worker𑁒spec with "[Hhub_owner Hlocals_at]"); first iFrameSteps.
+          wp۰apply+ (pool٠context𑁒spec (γ 𝑑𝑜𝑚𝑠) ˖k with "[//]") as "_"; [naive_solver lia.. |].
+          wp۰apply (pool٠worker𑁒spec with "[Hhub_owner Hlocals_at]"); first iFrameSteps.
           iSteps.
       }
-      iMod (array_model_persist with "Hdomains") as "#Hdomains".
+      iMod (array۰model𑁒persist with "Hdomains") as "#Hdomains".
 
-      wp_block t as "Hmeta" "(Ht_size & Ht_hub & Ht_domains & _)".
-      iMod (pointsto_persist with "Ht_size") as "#Ht_size".
-      iMod (pointsto_persist with "Ht_hub") as "#Ht_hub".
-      iMod (pointsto_persist with "Ht_domains") as "#Ht_domains".
+      wp۰block t as "Hmeta" "(Ht_size & Ht_hub & Ht_domains & _)".
+      iMod (pointsto𑁒persist with "Ht_size") as "#Ht_size".
+      iMod (pointsto𑁒persist with "Ht_hub") as "#Ht_hub".
+      iMod (pointsto𑁒persist with "Ht_domains") as "#Ht_domains".
 
       iApply "HΦ".
       iFrameSteps.
@@ -861,11 +861,11 @@ Module base.
 
     Lemma pool٠run_on𑁒spec Ψ t γ task :
       {{{
-        pool_model t γ ∗
+        pool۰model t γ ∗
         ( ∀ ctx scope,
-          pool_context γ ctx scope -∗
+          pool۰context γ ctx scope -∗
           WP task ctx {{ v,
-            pool_context γ ctx scope ∗
+            pool۰context γ ctx scope ∗
             Ψ v
           }}
         )
@@ -874,86 +874,86 @@ Module base.
       {{{
         v
       , RET v;
-        pool_model t γ ∗
+        pool۰model t γ ∗
         Ψ v
       }}}.
     Proof.
       iIntros "%Φ ((:model) & Htask) HΦ".
 
-      wp_rec. wp_load.
-      wp_apply (ws_hub_std٠unblock𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
-      wp_apply+ (pool٠context_main𑁒spec with "[$]") as "_".
+      wp۰rec. wp۰load.
+      wp۰apply (ws_hub_std٠unblock𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
+      wp۰apply+ (pool٠context_main𑁒spec with "[$]") as "_".
 
-      wp_apply+ (pool٠execute𑁒spec _ _ _ _ Ψ with "[$Hhub_owner $Hlocals_at Htask]").
+      wp۰apply+ (pool٠execute𑁒spec _ _ _ _ Ψ with "[$Hhub_owner $Hlocals_at Htask]").
       { lia. }
       { iIntros "{%} %i %scope %Hi Hctx".
-        wp_apply (wp_wand with "(Htask [Hctx])") as (v) "((:context =1) & $)"; first iFrameSteps.
+        wp۰apply (wp𑁒wand with "(Htask [Hctx])") as (v) "((:context =1) & $)"; first iFrameSteps.
         apply (inj _) in Heq1 as <-. iFrame.
       }
-      iIntros "{%- Hdoms} %v ((:context_1) & HΨ)".
+      iIntros "{%- Hdoms} %v ((:context₁) & HΨ)".
 
-      wp_load.
-      wp_apply (ws_hub_std٠block𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
+      wp۰load.
+      wp۰apply (ws_hub_std٠block𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
       iSteps.
     Qed.
 
     Lemma pool٠close𑁒spec t γ :
       {{{
-        pool_model t γ
+        pool۰model t γ
       }}}
         pool٠close #t
       {{{
         RET ();
-        pool_finished γ
+        pool۰finished γ
       }}}.
     Proof.
       iIntros "%Φ (:model) HΦ".
 
-      wp_rec. wp_load.
-      wp_apply (ws_hub_std٠close𑁒spec with "Hhub_inv") as "_".
-      wp_load.
-      wp_apply (ws_hub_std٠unblock𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
-      wp_apply+ (pool٠context_main𑁒spec with "[$]") as "_".
+      wp۰rec. wp۰load.
+      wp۰apply (ws_hub_std٠close𑁒spec with "Hhub_inv") as "_".
+      wp۰load.
+      wp۰apply (ws_hub_std٠unblock𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
+      wp۰apply+ (pool٠context_main𑁒spec with "[$]") as "_".
 
-      wp_apply+ (pool٠worker𑁒spec with "[$Hhub_owner $Hlocals_at]"); first iSteps.
-      iIntros "{%- Hdoms} %res (:worker_post)".
+      wp۰apply+ (pool٠worker𑁒spec with "[$Hhub_owner $Hlocals_at]"); first iSteps.
+      iIntros "{%- Hdoms} %res (:worker۰post)".
 
-      wp_load.
+      wp۰load.
 
-      iApply wp_fupd.
-      wp_apply+ (array٠iter𑁒spec_disentangled' (λ i _, context_finished γ ˖i)%I with "[$Hdomains Hdoms]") as "(_ & Hdoms)".
+      iApply wp𑁒fupd.
+      wp۰apply+ (array٠iter𑁒spec𑁒disentangled' (λ i _, context۰finished γ ˖i)%I with "[$Hdomains Hdoms]") as "(_ & Hdoms)".
       { iApply (big_sepL_impl with "Hdoms"). iIntros "!> %i %dom _ Hdom".
-        wp_apply (domain٠join𑁒spec with "Hdom").
+        wp۰apply (domain٠join𑁒spec with "Hdom").
         iSteps.
       }
 
-      iApply (big_sepL_seq_index_2 γ.(pool_name_size)) in "Hdoms"; first lia.
-      iApply big_sepL_seq_shift1_2 in "Hdoms".
-      iDestruct (big_sepL_seq_cons_2 with "Hdoms [$]") as "Hdoms".
+      iApply (big_sepL𑁒seq𑁒index₂ γ.(pool۰name۰size)) in "Hdoms"; first lia.
+      iApply big_sepL𑁒seq𑁒shift𑁒1₂ in "Hdoms".
+      iDestruct (big_sepL𑁒seq𑁒cons₂ with "Hdoms [$]") as "Hdoms".
       iDestruct (big_sepL_sep with "Hdoms") as "(Hhub_owners & Hlocals_ats)".
 
       iApply "HΦ".
 
-      iInv "Hinv" as "(:inv_inner)".
-      iDestruct (ws_hub_std_model_empty with "Hhub_inv Hhub_model [Hhub_owners]") as %->.
+      iInv "Hinv" as "(:inv۰inner)".
+      iDestruct (ws_hub_std۰model𑁒empty with "Hhub_inv Hhub_model [Hhub_owners]") as %->.
       { iApply (big_sepL_impl with "Hhub_owners").
         iSteps.
       }
-      apply symmetry, gmultiset_map_empty_inv in H𝑔𝑙𝑜𝑏𝑎𝑙𝑠 as ->.
-      iMod (globals_model_close _ with "Hglobals_model Hlocals_ats") as "(%jobs & Hglobals_model & #Hjobs_auth & #Hjobs_finished)".
+      apply symmetry, gmultiset_map𑁒empty𑁒inv in H𝑔𝑙𝑜𝑏𝑎𝑙𝑠 as ->.
+      iMod (globals۰model𑁒close _ with "Hglobals_model Hlocals_ats") as "(%jobs & Hglobals_model & #Hjobs_auth & #Hjobs_finished)".
       iSplitL. { iFrameSteps. }
       iSteps.
     Qed.
 
-    Lemma pool٠run𑁒spec (Ψ : location → pool_name → val → iProp Σ) sz task :
+    Lemma pool٠run𑁒spec (Ψ : location → pool۰name → val → iProp Σ) sz task :
       (0 ≤ sz)%Z →
       {{{
         ∀ t γ ctx scope,
-        pool_inv γ ₊sz -∗
+        pool۰inv γ ₊sz -∗
         meta_token t ⊤ -∗
-        pool_context γ ctx scope -∗
+        pool۰context γ ctx scope -∗
         WP task ctx {{ v,
-          pool_context γ ctx scope ∗
+          pool۰context γ ctx scope ∗
           Ψ t γ v
         }}
       }}}
@@ -961,32 +961,32 @@ Module base.
       {{{
         t γ v
       , RET v;
-        pool_finished γ ∗
+        pool۰finished γ ∗
         Ψ t γ v
       }}}.
     Proof.
       iIntros "%Hsz %Φ Htask HΦ".
 
-      wp_rec.
-      wp_apply+ (pool٠create𑁒spec with "[//]") as (t γ) "(#Hinv & Hmodel & Hmeta)". 1: done.
-      wp_apply+ (pool٠run_on𑁒spec (Ψ t γ) with "[$Hmodel Hmeta Htask]") as (v) "(Hmodel & HΨ)".
+      wp۰rec.
+      wp۰apply+ (pool٠create𑁒spec with "[//]") as (t γ) "(#Hinv & Hmodel & Hmeta)". 1: done.
+      wp۰apply+ (pool٠run_on𑁒spec (Ψ t γ) with "[$Hmodel Hmeta Htask]") as (v) "(Hmodel & HΨ)".
       { iIntros "%ctx %scope Hctx".
         iApply ("Htask" with "Hinv Hmeta Hctx").
       }
-      wp_apply+ (pool٠close𑁒spec with "Hmodel") as "#Hfinished".
-      wp_pures.
+      wp۰apply+ (pool٠close𑁒spec with "Hmodel") as "#Hfinished".
+      wp۰pures.
       iApply ("HΦ" with "[$Hfinished $HΨ]").
     Qed.
 
     Lemma pool٠size𑁒spec γ sz ctx scope :
       {{{
-        pool_inv γ sz ∗
-        pool_context γ ctx scope
+        pool۰inv γ sz ∗
+        pool۰context γ ctx scope
       }}}
         pool٠size ctx
       {{{
         RET #sz;
-        pool_context γ ctx scope
+        pool۰context γ ctx scope
       }}}.
     Proof.
       iSteps.
@@ -994,11 +994,11 @@ Module base.
 
     Lemma pool٠async𑁒spec P Q γ ctx scope task :
       {{{
-        pool_context γ ctx scope ∗
+        pool۰context γ ctx scope ∗
         ( ∀ ctx scope,
-          pool_context γ ctx scope -∗
+          pool۰context γ ctx scope -∗
           WP task ctx {{ res,
-            pool_context γ ctx scope ∗
+            pool۰context γ ctx scope ∗
             ▷ P ∗
             ▷ □ Q
           }}
@@ -1007,25 +1007,25 @@ Module base.
         pool٠async ctx task
       {{{
         RET ();
-        pool_context γ ctx scope ∗
-        pool_consumer γ P ∗
-        pool_obligation γ Q
+        pool۰context γ ctx scope ∗
+        pool۰consumer γ P ∗
+        pool۰obligation γ Q
       }}}.
     Proof.
       iIntros "%Φ ((:context) & Htask) HΦ".
 
-      iMod (spsc_prop_alloc nroot P) as "(%η & #Hη_inv & Hη_producer & Hη_consumer)".
+      iMod (spsc_prop𑁒alloc nroot P) as "(%η & #Hη_inv & Hη_producer & Hη_consumer)".
       set R := (
         Q ∗
-        spsc_prop_resolved η
+        spsc_prop۰resolved η
       )%I.
 
-      wp_rec credits:"H£".
+      wp۰rec credits:"H£".
 
-      awp_apply+ (ws_hub_std٠push𑁒spec with "[$Hhub_inv $Hhub_owner]") without "Hη_consumer H£ HΦ"; first done.
-      iInv "Hinv" as "(:inv_inner)".
+      awp۰apply+ (ws_hub_std٠push𑁒spec with "[$Hhub_inv $Hhub_owner]") without "Hη_consumer H£ HΦ"; first done.
+      iInv "Hinv" as "(:inv۰inner)".
       iAaccIntro with "Hhub_model"; first iFrameSteps. iIntros "Hhub_model".
-      iMod (globals_model_push task R with "Hglobals_model Hlocals_at") as "(%global & %Hglobal & Hglobals_model & Hlocals_at & #Hjobs_elem & #Hglobal)"; first done.
+      iMod (globals۰model𑁒push task R with "Hglobals_model Hlocals_at") as "(%global & %Hglobal & Hglobals_model & Hlocals_at & #Hjobs_elem & #Hglobal)"; first done.
       iSplitR "Hlocals_at".
       { iFrame. iSplitR "Htask Hη_producer".
         - iPureIntro.
@@ -1033,16 +1033,16 @@ Module base.
           congruence.
         - iApply big_sepMS_singleton.
           rewrite Hglobal. iSteps --silent / as "_ _ HQ HP".
-          iMod (spsc_prop_produce with "Hη_inv Hη_producer HP") as "#Hη_resolved". 1: done.
+          iMod (spsc_prop𑁒produce with "Hη_inv Hη_producer HP") as "#Hη_resolved". 1: done.
           iFrame "#" => //.
       }
       iIntros "!> Hhub_owner (Hη_consumer & H£ & HΦ)".
 
-      iAssert (pool_obligation γ R) with "[]" as "#Hobligation".
+      iAssert (pool۰obligation γ R) with "[]" as "#Hobligation".
       { iIntros "!> (:finished)".
-        iDestruct (jobs_elem_valid with "Hjobs_auth Hjobs_elem") as %Helem.
-        iDestruct (jobs_finished_elem_of with "Hjobs_finished") as "(%R_ & Hglobal_ & #HR)". 1: done.
-        iDestruct (saved_prop_agree with "Hglobal Hglobal_") as "Heq".
+        iDestruct (jobs۰elem𑁒valid with "Hjobs_auth Hjobs_elem") as %Helem.
+        iDestruct (jobs۰finished𑁒elem_of with "Hjobs_finished") as "(%R_ & Hglobal_ & #HR)". 1: done.
+        iDestruct (saved_prop𑁒agree with "Hglobal Hglobal_") as "Heq".
         iModIntro.
         iRewrite "Heq" => //.
       }
@@ -1050,26 +1050,26 @@ Module base.
       iApply "HΦ".
       iFrame "#∗". iStep. iSplitL.
       { iIntros "#Hfinished".
-        iDestruct (pool_obligation_finished with "Hobligation Hfinished") as "-#HR".
+        iDestruct (pool۰obligation𑁒finished with "Hobligation Hfinished") as "-#HR".
         iDestruct (lc_weaken 2 with "H£") as "H£". 1: done.
         iDestruct "H£" as "(H£_1 & H£_2)".
         iMod (lc_fupd_elim_later with "H£_1 HR") as "(_ & #Hη_resolved)".
-        iMod (spsc_prop_consume with "Hη_inv Hη_consumer Hη_resolved") as "HP". 1: done.
+        iMod (spsc_prop𑁒consume with "Hη_inv Hη_consumer Hη_resolved") as "HP". 1: done.
         iApply (lc_fupd_elim_later with "H£_2 HP").
       } {
-        iApply (pool_obligation_wand with "Hobligation").
+        iApply (pool۰obligation𑁒wand with "Hobligation").
         iSteps.
       }
     Qed.
 
     #[local] Lemma pool٠wait₀𑁒spec P_notification P_pred Q_pred γ ctx scope notification pred :
       {{{
-        pool_context γ ctx scope ∗
+        pool۰context γ ctx scope ∗
         P_notification ∗
         □ (
           ∀ notify,
           P_notification -∗
-          WP notify () {{ itype_unit }} -∗
+          WP notify () {{ itype۰unit }} -∗
           WP notification notify {{ res,
             ⌜res = ()%V⌝ ∗
             P_notification
@@ -1088,7 +1088,7 @@ Module base.
         pool٠wait₀ ctx notification pred
       {{{
         RET ();
-        pool_context γ ctx scope ∗
+        pool۰context γ ctx scope ∗
         Q_pred
       }}}.
     Proof.
@@ -1096,25 +1096,25 @@ Module base.
 
       iLöb as "HLöb".
 
-      iDestruct "Hctx" as "(:context_1)".
+      iDestruct "Hctx" as "(:context₁)".
 
-      wp_rec. rewrite pool٠max_round_noyield pool٠max_round_yield.
+      wp۰rec. rewrite pool٠max_round_noyield𑁒unfold pool٠max_round_yield𑁒unfold.
 
-      awp_apply+ (ws_hub_std٠pop_steal_until𑁒spec P_notification P_pred Q_pred with "[$Hhub_inv $Hhub_owner $HP_notification $Hnotification $HP_pred $Hpred]") without "HΦ". 1-3: done.
-      iInv "Hinv" as "(:inv_inner)".
+      awp۰apply+ (ws_hub_std٠pop_steal_until𑁒spec P_notification P_pred Q_pred with "[$Hhub_inv $Hhub_owner $HP_notification $Hnotification $HP_pred $Hpred]") without "HΦ". 1-3: done.
+      iInv "Hinv" as "(:inv۰inner)".
       iAaccIntro with "Hhub_model". 1: iSteps. iIntros ([𝑔𝑙𝑜𝑏𝑎𝑙 |]) "Hhub_model".
 
       - iDestruct "Hhub_model" as "(%𝑔𝑙𝑜𝑏𝑎𝑙𝑠' & -> & Hhub_model)".
-        apply symmetry, gmultiset_map_disj_union_singleton_l_inv in H𝑔𝑙𝑜𝑏𝑎𝑙𝑠 as (global & globals' & -> & -> & ->).
+        apply symmetry, gmultiset_map𑁒disj_union𑁒singleton𑁒l𑁒inv in H𝑔𝑙𝑜𝑏𝑎𝑙𝑠 as (global & globals' & -> & -> & ->).
         iDestruct (big_sepMS_disj_union with "Hglobals") as "(Hglobal & Hglobals')".
         iEval (rewrite big_sepMS_singleton) in "Hglobal".
-        iMod (globals_model_pop global with "Hglobals_model Hlocals_at") as "(Hglobals_model & Hlocals_at)"; [done.. |].
+        iMod (globals۰model𑁒pop global with "Hglobals_model Hlocals_at") as "(Hglobals_model & Hlocals_at)"; [done.. |].
         iSplitR "Hglobal Hlocals_at". { iFrameSteps. }
         iIntros "!> {%- Hi} %empty (Hhub_owner & HP_notification & HP_pred) HΦ".
 
-        wp_apply+ (pool٠execute𑁒spec with "[$]") as "{%- Hi} %res ((:context_1) & (%R & Hglobal & HR))"; first done.
-        iDestruct (locals_at_finish with "Hlocals_at Hglobal HR") as "Hlocals_at".
-        wp_apply+ ("HLöb" with "[$] HP_notification HP_pred HΦ").
+        wp۰apply+ (pool٠execute𑁒spec with "[$]") as "{%- Hi} %res ((:context₁) & (%R & Hglobal & HR))"; first done.
+        iDestruct (locals۰at𑁒finish with "Hlocals_at Hglobal HR") as "Hlocals_at".
+        wp۰apply+ ("HLöb" with "[$] HP_notification HP_pred HΦ").
 
       - iSplitR "Hlocals_at". { iFrameSteps. }
         iSteps.
@@ -1122,11 +1122,11 @@ Module base.
 
     Lemma pool٠wait𑁒spec P_notification P_pred Q_pred γ ctx scope notification pred :
       {{{
-        pool_context γ ctx scope ∗
+        pool۰context γ ctx scope ∗
         P_notification ∗
         ( ∀ notify,
           P_notification -∗
-          WP notify () {{ itype_unit }} -∗
+          WP notify () {{ itype۰unit }} -∗
           WP notification notify {{ res,
             ⌜res = ()%V⌝ ∗
             P_notification
@@ -1145,7 +1145,7 @@ Module base.
         pool٠wait ctx notification pred
       {{{
         RET ();
-        pool_context γ ctx scope ∗
+        pool۰context γ ctx scope ∗
         Q_pred
       }}}.
     Proof.
@@ -1156,10 +1156,10 @@ Module base.
           pose Q_notification := P
       end.
 
-      wp_rec.
-      wp_ref notification_registered as "Hnotification_registered".
+      wp۰rec.
+      wp۰ref notification_registered as "Hnotification_registered".
 
-      wp_apply+ (pool٠wait₀𑁒spec
+      wp۰apply+ (pool٠wait₀𑁒spec
         ( ∃ b,
           notification_registered ↦ᵣ #b ∗
           P_notification ∗
@@ -1169,76 +1169,76 @@ Module base.
         Q_pred
       with "[$Hctx $Hnotification_registered $HP_notification $Hnotification $HP_pred $Hpred]").
       { iIntros "!> %notify (%b & Hnotification & HP_notification & HQ_notification) Hnotify".
-        wp_load.
+        wp۰load.
         destruct b; iSteps.
       }
 
       iSteps.
     Qed.
 
-    Lemma pool٠wait_ivar𑁒spec `{ivar_G : !Ivar4G Σ} {context_name} γ ctx scope ivar Ψ Ξ (Γ : _ → context_name → _) :
+    Lemma pool٠wait_ivar𑁒spec `{ivar۰G : !Ivar4G Σ} {context_name} γ ctx scope ivar Ψ Ξ (Γ : _ → context_name → _) :
       {{{
-        pool_context γ ctx scope ∗
-        ivar_4_inv ivar Ψ Ξ Γ
+        pool۰context γ ctx scope ∗
+        ivar_4۰inv ivar Ψ Ξ Γ
       }}}
         pool٠wait_ivar ctx ivar
       {{{
         RET ();
         £ 2 ∗
-        pool_context γ ctx scope ∗
-        ivar_4_resolved ivar
+        pool۰context γ ctx scope ∗
+        ivar_4۰resolved ivar
       }}}.
     Proof.
       iIntros "%Φ (Hctx & #Hivar_inv) HΦ".
 
-      wp_rec credits:"H£".
+      wp۰rec credits:"H£".
       iApply (lc_weaken 2) in "H£"; first done.
 
-      wp_apply+ (pool٠wait𑁒spec
+      wp۰apply+ (pool٠wait𑁒spec
         True
         True
-        (ivar_4_resolved ivar)
+        (ivar_4۰resolved ivar)
       with "[$Hctx]").
       { repeat iSplit. 1,3: done.
 
         - iIntros "%notify _ Hnotify".
-          wp_apply+ (ivar_4٠wait𑁒spec True True with "[$Hivar_inv Hnotify]") as ([waiter |]) "".
+          wp۰apply+ (ivar_4٠wait𑁒spec True True with "[$Hivar_inv Hnotify]") as ([waiter |]) "".
           all: iSteps.
 
         - iIntros "!> _".
-          wp_apply+ (ivar_4٠is_set𑁒spec with "Hivar_inv") as "%b".
+          wp۰apply+ (ivar_4٠is_set𑁒spec with "Hivar_inv") as "%b".
           destruct b; iSteps.
       }
 
       iSteps.
     Qed.
-  End pool_G.
+  End pool۰G.
 
-  #[global] Opaque pool_scope.
-  #[global] Opaque pool_inv.
-  #[global] Opaque pool_model.
-  #[global] Opaque pool_context.
-  #[global] Opaque pool_consumer.
-  #[global] Opaque pool_obligation.
-  #[global] Opaque pool_finished.
+  #[global] Opaque pool۰scope.
+  #[global] Opaque pool۰inv.
+  #[global] Opaque pool۰model.
+  #[global] Opaque pool۰context.
+  #[global] Opaque pool۰consumer.
+  #[global] Opaque pool۰obligation.
+  #[global] Opaque pool۰finished.
 End base.
 
 Require zoo_parabs.pool__opaque.
 
-Section pool_G.
-  Context `{pool_G : PoolG Σ}.
+Section pool۰G.
+  Context `{pool۰G : PoolG Σ}.
 
   Implicit Types 𝑡 : location.
   Implicit Types t : val.
-  Implicit Types γ : base.pool_name.
+  Implicit Types γ : base.pool۰name.
   Implicit Types P P_notification P_pred Q Q_pred : iProp Σ.
   Implicit Types Ψ : val → iProp Σ.
 
-  Definition pool_inv t sz : iProp Σ :=
+  Definition pool۰inv t sz : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    base.pool_inv γ sz.
+    base.pool۰inv γ sz.
   #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{}
       & %γ{}
@@ -1248,11 +1248,11 @@ Section pool_G.
       )
     ".
 
-  Definition pool_context t ctx scope : iProp Σ :=
+  Definition pool۰context t ctx scope : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    base.pool_context γ ctx scope.
+    base.pool۰context γ ctx scope.
   #[local] Instance : CustomIpat "context" :=
     " ( %𝑡{}
       & %γ{}
@@ -1262,11 +1262,11 @@ Section pool_G.
       )
     ".
 
-  Definition pool_model t : iProp Σ :=
+  Definition pool۰model t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    base.pool_model 𝑡 γ.
+    base.pool۰model 𝑡 γ.
   #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{}
       & %γ{}
@@ -1276,11 +1276,11 @@ Section pool_G.
       )
     ".
 
-  Definition pool_finished t : iProp Σ :=
+  Definition pool۰finished t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    base.pool_finished γ.
+    base.pool۰finished γ.
   #[local] Instance : CustomIpat "finished" :=
     " ( %𝑡{}
       & %γ{}
@@ -1290,15 +1290,15 @@ Section pool_G.
       )
     ".
 
-  Definition pool_consumer t P : iProp Σ :=
-    pool_finished t ={⊤}=∗
+  Definition pool۰consumer t P : iProp Σ :=
+    pool۰finished t ={⊤}=∗
     P.
 
-  Definition pool_obligation t P : iProp Σ :=
+  Definition pool۰obligation t P : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    base.pool_obligation γ P.
+    base.pool۰obligation γ P.
   #[local] Instance : CustomIpat "obligation" :=
     " ( %𝑡{}
       & %γ{}
@@ -1308,137 +1308,137 @@ Section pool_G.
       )
     ".
 
-  #[global] Instance pool_obligation_proper t :
-    Proper ((≡) ==> (≡)) (pool_obligation t).
+  #[global] Instance pool۰obligation𑁒proper t :
+    Proper ((≡) ==> (≡)) (pool۰obligation t).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance pool_consumer_proper t :
-    Proper ((≡) ==> (≡)) (pool_consumer t).
+  #[global] Instance pool۰consumer𑁒proper t :
+    Proper ((≡) ==> (≡)) (pool۰consumer t).
   Proof.
     solve_proper.
   Qed.
 
-  #[global] Instance pool_inv_persistent t sz :
-    Persistent (pool_inv t sz).
+  #[global] Instance pool۰inv𑁒persistent t sz :
+    Persistent (pool۰inv t sz).
   Proof.
     apply _.
   Qed.
-  #[global] Instance pool_obligation_persistent t P :
-    Persistent (pool_obligation t P).
+  #[global] Instance pool۰obligation𑁒persistent t P :
+    Persistent (pool۰obligation t P).
   Proof.
     apply _.
   Qed.
-  #[global] Instance pool_finished_persistent t :
-    Persistent (pool_finished t).
+  #[global] Instance pool۰finished𑁒persistent t :
+    Persistent (pool۰finished t).
   Proof.
     apply _.
   Qed.
 
-  Lemma pool_inv_agree t sz1 sz2 :
-    pool_inv t sz1 -∗
-    pool_inv t sz2 -∗
+  Lemma pool۰inv𑁒agree t sz1 sz2 :
+    pool۰inv t sz1 -∗
+    pool۰inv t sz2 -∗
     ⌜sz1 = sz2⌝.
   Proof.
     iIntros "(:inv =1) (:inv =2)". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.pool_inv_agree with "Hinv_1 Hinv_2").
+    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.pool۰inv𑁒agree with "Hinv_1 Hinv_2").
   Qed.
 
-  Lemma pool_consumer_intro {t} P :
-    (pool_finished t ={⊤}=∗ P) ⊢
-    pool_consumer t P.
+  Lemma pool۰consumer𑁒intro {t} P :
+    (pool۰finished t ={⊤}=∗ P) ⊢
+    pool۰consumer t P.
   Proof.
     done.
   Qed.
-  Lemma pool_consumer_wand {t P1} P2 :
-    pool_consumer t P1 -∗
+  Lemma pool۰consumer𑁒wand {t P1} P2 :
+    pool۰consumer t P1 -∗
     (P1 -∗ P2) -∗
-    pool_consumer t P2.
+    pool۰consumer t P2.
   Proof.
     iSteps.
   Qed.
-  Lemma pool_consumer_combine t P1 P2 :
-    pool_consumer t P1 -∗
-    pool_consumer t P2 -∗
-    pool_consumer t (P1 ∗ P2).
+  Lemma pool۰consumer𑁒combine t P1 P2 :
+    pool۰consumer t P1 -∗
+    pool۰consumer t P2 -∗
+    pool۰consumer t (P1 ∗ P2).
   Proof.
     iSteps.
   Qed.
-  Lemma pool_consumer_or t P1 P2 :
-    ( pool_consumer t P1
-    ∨ pool_consumer t P2
+  Lemma pool۰consumer𑁒or t P1 P2 :
+    ( pool۰consumer t P1
+    ∨ pool۰consumer t P2
     ) ⊢
-    pool_consumer t (P1 ∨ P2).
+    pool۰consumer t (P1 ∨ P2).
   Proof.
     iSteps.
   Qed.
-  Lemma pool_consumer_exist {A} {t} (Φ : A → iProp Σ) x :
-    pool_consumer t (Φ x) ⊢
-    pool_consumer t (∃ x, Φ x).
+  Lemma pool۰consumer𑁒exist {A} {t} (Φ : A → iProp Σ) x :
+    pool۰consumer t (Φ x) ⊢
+    pool۰consumer t (∃ x, Φ x).
   Proof.
     iSteps.
   Qed.
-  Lemma pool_consumer_forall {A} {t} (Φ : A → iProp Σ) x :
-    pool_consumer t (∀ x, Φ x) ⊢
-    pool_consumer t (Φ x).
+  Lemma pool۰consumer𑁒forall {A} {t} (Φ : A → iProp Σ) x :
+    pool۰consumer t (∀ x, Φ x) ⊢
+    pool۰consumer t (Φ x).
   Proof.
     iSteps.
   Qed.
-  Lemma pool_consumer_finished t P :
-    pool_consumer t P -∗
-    pool_finished t ={⊤}=∗
+  Lemma pool۰consumer𑁒finished t P :
+    pool۰consumer t P -∗
+    pool۰finished t ={⊤}=∗
     P.
   Proof.
     iSteps.
   Qed.
-  #[global] Instance pool_consumer_mono t :
-    Proper ((⊢) ==> (⊢)) (pool_consumer t).
+  #[global] Instance pool۰consumer𑁒mono t :
+    Proper ((⊢) ==> (⊢)) (pool۰consumer t).
   Proof.
-    rewrite /pool_consumer => P1 P2 -> //.
+    rewrite /pool۰consumer => P1 P2 -> //.
   Qed.
-  #[global] Instance pool_consumer_flip_mono t :
-    Proper (flip (⊢) ==> flip (⊢)) (pool_consumer t).
+  #[global] Instance pool۰consumer𑁒flip𑁒mono t :
+    Proper (flip (⊢) ==> flip (⊢)) (pool۰consumer t).
   Proof.
-    rewrite /pool_consumer => P1 P2 -> //.
+    rewrite /pool۰consumer => P1 P2 -> //.
   Qed.
 
-  Lemma pool_obligation_wand {t P1} P2 :
-    pool_obligation t P1 -∗
+  Lemma pool۰obligation𑁒wand {t P1} P2 :
+    pool۰obligation t P1 -∗
     □ (P1 -∗ P2) -∗
-    pool_obligation t P2.
+    pool۰obligation t P2.
   Proof.
     iIntros "(:obligation) H".
-    iDestruct (base.pool_obligation_wand with "Hobligation H") as "$".
+    iDestruct (base.pool۰obligation𑁒wand with "Hobligation H") as "$".
     iSteps.
   Qed.
-  Lemma pool_obligation_split t P1 P2 :
-    pool_obligation t (P1 ∗ P2) ⊢
-      pool_obligation t P1 ∗
-      pool_obligation t P2.
+  Lemma pool۰obligation𑁒split t P1 P2 :
+    pool۰obligation t (P1 ∗ P2) ⊢
+      pool۰obligation t P1 ∗
+      pool۰obligation t P2.
   Proof.
     iIntros "(:obligation)".
-    iDestruct (base.pool_obligation_split with "Hobligation") as "($ & $)".
+    iDestruct (base.pool۰obligation𑁒split with "Hobligation") as "($ & $)".
     iSteps.
   Qed.
-  Lemma pool_obligation_combine t P1 P2 :
-    pool_obligation t P1 -∗
-    pool_obligation t P2 -∗
-    pool_obligation t (P1 ∗ P2).
+  Lemma pool۰obligation𑁒combine t P1 P2 :
+    pool۰obligation t P1 -∗
+    pool۰obligation t P2 -∗
+    pool۰obligation t (P1 ∗ P2).
   Proof.
     iIntros "(:obligation =1) (:obligation =2)". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iDestruct (base.pool_obligation_combine with "Hobligation_1 Hobligation_2") as "$".
+    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
+    iDestruct (base.pool۰obligation𑁒combine with "Hobligation_1 Hobligation_2") as "$".
     iSteps.
   Qed.
-  Lemma pool_obligation_finished t P :
-    pool_obligation t P -∗
-    pool_finished t -∗
+  Lemma pool۰obligation𑁒finished t P :
+    pool۰obligation t P -∗
+    pool۰finished t -∗
     ▷ □ P.
   Proof.
     iIntros "(:obligation =1) (:finished =2)". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.pool_obligation_finished with "Hobligation_1 Hfinished_2").
+    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.pool۰obligation𑁒finished with "Hobligation_1 Hfinished_2").
   Qed.
 
   Lemma pool٠create𑁒spec sz :
@@ -1450,25 +1450,25 @@ Section pool_G.
     {{{
       t
     , RET t;
-      pool_inv t ₊sz ∗
-      pool_model t
+      pool۰inv t ₊sz ∗
+      pool۰model t
     }}}.
   Proof.
     iIntros "% %Φ _ HΦ".
 
-    iApply wp_fupd.
-    wp_apply (base.pool٠create𑁒spec with "[//]") as (𝑡 γ) "(Hinv & Hmodel & Hmeta)"; first done.
-    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
+    iApply wp𑁒fupd.
+    wp۰apply (base.pool٠create𑁒spec with "[//]") as (𝑡 γ) "(Hinv & Hmodel & Hmeta)"; first done.
+    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
   Lemma pool٠run_on𑁒spec Ψ t task :
     {{{
-      pool_model t ∗
+      pool۰model t ∗
       ( ∀ ctx scope,
-        pool_context t ctx scope -∗
+        pool۰context t ctx scope -∗
         WP task ctx {{ v,
-          pool_context t ctx scope ∗
+          pool۰context t ctx scope ∗
           Ψ v
         }}
       )
@@ -1477,17 +1477,17 @@ Section pool_G.
     {{{
       v
     , RET v;
-      pool_model t ∗
+      pool۰model t ∗
       Ψ v
     }}}.
   Proof.
     iIntros "%Φ ((:model) & Htask) HΦ".
 
-    wp_apply (base.pool٠run_on𑁒spec Ψ with "[$Hmodel Htask]").
+    wp۰apply (base.pool٠run_on𑁒spec Ψ with "[$Hmodel Htask]").
     { iIntros "%ctx %scope Hctx".
-      wp_apply (wp_wand with "(Htask [$Hctx])") as (v) "((:context =1) & $)"; first iSteps.
+      wp۰apply (wp𑁒wand with "(Htask [$Hctx])") as (v) "((:context =1) & $)"; first iSteps.
       simplify.
-      iDestruct (meta_agree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
+      iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
       iFrame.
     }
     iSteps.
@@ -1495,17 +1495,17 @@ Section pool_G.
 
   Lemma pool٠close𑁒spec t :
     {{{
-      pool_model t
+      pool۰model t
     }}}
       pool٠close t
     {{{
       RET ();
-      pool_finished t
+      pool۰finished t
     }}}.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp_apply (base.pool٠close𑁒spec with "Hmodel").
+    wp۰apply (base.pool٠close𑁒spec with "Hmodel").
     iSteps.
   Qed.
 
@@ -1513,10 +1513,10 @@ Section pool_G.
     (0 ≤ sz)%Z →
     {{{
       ∀ t ctx scope,
-      pool_inv t ₊sz -∗
-      pool_context t ctx scope -∗
+      pool۰inv t ₊sz -∗
+      pool۰context t ctx scope -∗
       WP task ctx {{ v,
-        pool_context t ctx scope ∗
+        pool۰context t ctx scope ∗
         Ψ t v
       }}
     }}}
@@ -1524,7 +1524,7 @@ Section pool_G.
     {{{
       t v
     , RET v;
-      pool_finished t ∗
+      pool۰finished t ∗
       Ψ t v
     }}}.
   Proof.
@@ -1534,12 +1534,12 @@ Section pool_G.
       𝑡 ↪ γ ∗
       Ψ #𝑡 v
     )%I).
-    wp_apply (base.pool٠run𑁒spec Ψ' with "[Htask]"). 1: done.
+    wp۰apply (base.pool٠run𑁒spec Ψ' with "[Htask]"). 1: done.
     { iIntros "%𝑡 %γ %ctx %scope #Hinv Hmeta Hctx".
-      iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
-      wp_apply (wp_wand with "(Htask [] [$Hctx])") as (v) "((:context =1) & HΨ)". 1-2: iSteps.
+      iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+      wp۰apply (wp𑁒wand with "(Htask [] [$Hctx])") as (v) "((:context =1) & HΨ)". 1-2: iSteps.
       simplify.
-      iDestruct (meta_agree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
+      iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
       iFrameSteps.
     }
     iSteps.
@@ -1547,29 +1547,29 @@ Section pool_G.
 
   Lemma pool٠size𑁒spec t sz ctx scope :
     {{{
-      pool_inv t sz ∗
-      pool_context t ctx scope
+      pool۰inv t sz ∗
+      pool۰context t ctx scope
     }}}
       pool٠size ctx
     {{{
       RET #sz;
-      pool_context t ctx scope
+      pool۰context t ctx scope
     }}}.
   Proof.
     iIntros "%Φ ((:model =1) & (:context =2)) HΦ". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.pool٠size𑁒spec with "[$]").
+    wp۰apply (base.pool٠size𑁒spec with "[$]").
     iSteps.
   Qed.
 
   Lemma pool٠async𑁒spec P Q t ctx scope task :
     {{{
-      pool_context t ctx scope ∗
+      pool۰context t ctx scope ∗
       ( ∀ ctx scope,
-        pool_context t ctx scope -∗
+        pool۰context t ctx scope -∗
         WP task ctx {{ res,
-          pool_context t ctx scope ∗
+          pool۰context t ctx scope ∗
           ▷ P ∗
           ▷ □ Q
         }}
@@ -1578,34 +1578,34 @@ Section pool_G.
       pool٠async ctx task
     {{{
       RET ();
-      pool_context t ctx scope ∗
-      pool_consumer t P ∗
-      pool_obligation t Q
+      pool۰context t ctx scope ∗
+      pool۰consumer t P ∗
+      pool۰obligation t Q
     }}}.
   Proof.
     iIntros "%Φ ((:context) & Htask) HΦ".
 
-    wp_apply (base.pool٠async𑁒spec P Q with "[$Hctx Htask]") as "(Hctx & Hconsumer & Hobligation)".
+    wp۰apply (base.pool٠async𑁒spec P Q with "[$Hctx Htask]") as "(Hctx & Hconsumer & Hobligation)".
     { iIntros "{%} %ctx %scope Hctx".
-      wp_apply (wp_wand with "(Htask [$Hctx])") as (v) "((:context =1) & $)"; first iSteps.
+      wp۰apply (wp𑁒wand with "(Htask [$Hctx])") as (v) "((:context =1) & $)"; first iSteps.
       simplify.
-      iDestruct (meta_agree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
+      iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
       iFrame.
     }
 
     iStep 2. iSplitL "Hconsumer". 2:iSteps.
     iIntros "(:finished =1)". simplify.
-    iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-.
+    iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %<-.
     iApply ("Hconsumer" with "Hfinished_1").
   Qed.
 
   Lemma pool٠wait𑁒spec P_notification P_pred Q_pred t ctx scope notification pred :
     {{{
-      pool_context t ctx scope ∗
+      pool۰context t ctx scope ∗
       P_notification ∗
       ( ∀ notify,
         P_notification -∗
-        WP notify () {{ itype_unit }} -∗
+        WP notify () {{ itype۰unit }} -∗
         WP notification notify {{ res,
           ⌜res = ()%V⌝ ∗
           P_notification
@@ -1624,171 +1624,171 @@ Section pool_G.
       pool٠wait ctx notification pred
     {{{
       RET ();
-      pool_context t ctx scope ∗
+      pool۰context t ctx scope ∗
       Q_pred
     }}}.
   Proof.
     iIntros "%Φ ((:context) & HP & Hpred) HΦ".
 
-    wp_apply (base.pool٠wait𑁒spec with "[$]").
+    wp۰apply (base.pool٠wait𑁒spec with "[$]").
     iSteps.
   Qed.
 
-  Lemma pool٠wait_ivar𑁒spec `{ivar_G : !Ivar4G Σ} {context_name} t ctx scope ivar Ψ Ξ (Γ : _ → context_name → _) :
+  Lemma pool٠wait_ivar𑁒spec `{ivar۰G : !Ivar4G Σ} {context_name} t ctx scope ivar Ψ Ξ (Γ : _ → context_name → _) :
     {{{
-      pool_context t ctx scope ∗
-      ivar_4_inv ivar Ψ Ξ Γ
+      pool۰context t ctx scope ∗
+      ivar_4۰inv ivar Ψ Ξ Γ
     }}}
       pool٠wait_ivar ctx ivar
     {{{
       RET ();
       £ 2 ∗
-      pool_context t ctx scope ∗
-      ivar_4_resolved ivar
+      pool۰context t ctx scope ∗
+      ivar_4۰resolved ivar
     }}}.
   Proof.
     iIntros "%Φ ((:context) & Hivar_inv) HΦ".
 
-    wp_apply (base.pool٠wait_ivar𑁒spec with "[$]").
+    wp۰apply (base.pool٠wait_ivar𑁒spec with "[$]").
     iSteps.
   Qed.
-End pool_G.
+End pool۰G.
 
-#[global] Opaque pool_scope.
-#[global] Opaque pool_inv.
-#[global] Opaque pool_model.
-#[global] Opaque pool_context.
-#[global] Opaque pool_obligation.
-#[global] Opaque pool_consumer.
-#[global] Opaque pool_finished.
+#[global] Opaque pool۰scope.
+#[global] Opaque pool۰inv.
+#[global] Opaque pool۰model.
+#[global] Opaque pool۰context.
+#[global] Opaque pool۰obligation.
+#[global] Opaque pool۰consumer.
+#[global] Opaque pool۰finished.
 
-Section pool_G.
-  Context `{pool_G : PoolG Σ}.
+Section pool۰G.
+  Context `{pool۰G : PoolG Σ}.
 
   Implicit Types P Q R : iProp Σ.
 
-  #[global] Instance from_assumption_pool_consumer t p P Q :
+  #[global] Instance from_assumption𑁒pool۰consumer t p P Q :
     FromAssumption p P Q →
-    KnownRFromAssumption p P (pool_consumer t Q).
+    KnownRFromAssumption p P (pool۰consumer t Q).
   Proof.
     rewrite /KnownRFromAssumption /FromAssumption => ->.
-    rewrite -pool_consumer_intro.
+    rewrite -pool۰consumer𑁒intro.
     iSteps.
   Qed.
 
-  #[global] Instance from_pure_pool_consumer t a P ϕ :
+  #[global] Instance from_pure𑁒pool۰consumer t a P ϕ :
     FromPure a P ϕ →
-    FromPure a (pool_consumer t P) ϕ.
+    FromPure a (pool۰consumer t P) ϕ.
   Proof.
     rewrite /FromPure => ->.
-    rewrite -pool_consumer_intro.
+    rewrite -pool۰consumer𑁒intro.
     iSteps.
   Qed.
 
-  #[global] Instance into_wand_pool_consumer t p q R P Q :
+  #[global] Instance into_wand𑁒pool۰consumer t p q R P Q :
     IntoWand false false R P Q →
-    IntoWand p q (pool_consumer t R) (pool_consumer t P) (pool_consumer t Q).
+    IntoWand p q (pool۰consumer t R) (pool۰consumer t P) (pool۰consumer t Q).
   Proof.
     rewrite /IntoWand /= => ->.
     rewrite !bi.intuitionistically_if_elim.
     iIntros "HQ HP".
-    iApply pool_consumer_intro. iIntros "#Hfinished".
-    iMod (pool_consumer_finished with "HP Hfinished") as "HP".
-    iMod (pool_consumer_finished with "HQ Hfinished") as "HQ".
+    iApply pool۰consumer𑁒intro. iIntros "#Hfinished".
+    iMod (pool۰consumer𑁒finished with "HP Hfinished") as "HP".
+    iMod (pool۰consumer𑁒finished with "HQ Hfinished") as "HQ".
     iSteps.
   Qed.
-  #[global] Instance into_wand_pool_consumer_persistent t p q R P Q :
+  #[global] Instance into_wand𑁒pool۰consumer𑁒persistent t p q R P Q :
     IntoWand false q R P Q →
-    IntoWand p q (pool_consumer t R) P (pool_consumer t Q).
+    IntoWand p q (pool۰consumer t R) P (pool۰consumer t Q).
   Proof.
     rewrite /IntoWand /= => ->.
     rewrite bi.intuitionistically_if_elim.
     iIntros "HQ HP".
-    iApply pool_consumer_intro. iIntros "#Hfinished".
-    iMod (pool_consumer_finished with "HQ Hfinished") as "HQ".
+    iApply pool۰consumer𑁒intro. iIntros "#Hfinished".
+    iMod (pool۰consumer𑁒finished with "HQ Hfinished") as "HQ".
     iSteps.
   Qed.
-  #[global] Instance into_wand_pool_consumer_args t p q R P Q :
+  #[global] Instance into_wand𑁒pool۰consumer𑁒args t p q R P Q :
     IntoWand p false R P Q →
-    IntoWand' p q R (pool_consumer t P) (pool_consumer t Q).
+    IntoWand' p q R (pool۰consumer t P) (pool۰consumer t Q).
   Proof.
     rewrite /IntoWand' /IntoWand /= => ->.
     rewrite bi.intuitionistically_if_elim.
     iIntros "HQ HP".
-    iApply (pool_consumer_wand with "HP HQ").
+    iApply (pool۰consumer𑁒wand with "HP HQ").
   Qed.
 
-  #[global] Instance from_sep_pool_consumer t P Q1 Q2 :
+  #[global] Instance from_sep𑁒pool۰consumer t P Q1 Q2 :
     FromSep P Q1 Q2 →
-    FromSep (pool_consumer t P) (pool_consumer t Q1) (pool_consumer t Q2).
+    FromSep (pool۰consumer t P) (pool۰consumer t Q1) (pool۰consumer t Q2).
   Proof.
     rewrite /FromSep => <-.
     iIntros "(HQ1 & HQ2)".
-    iApply (pool_consumer_combine with "HQ1 HQ2").
+    iApply (pool۰consumer𑁒combine with "HQ1 HQ2").
   Qed.
 
-  #[global] Instance from_or_pool_consumer t P Q1 Q2 :
+  #[global] Instance from_or𑁒pool۰consumer t P Q1 Q2 :
     FromOr P Q1 Q2 →
-    FromOr (pool_consumer t P) (pool_consumer t Q1) (pool_consumer t Q2).
+    FromOr (pool۰consumer t P) (pool۰consumer t Q1) (pool۰consumer t Q2).
   Proof.
     rewrite /FromOr => <-.
-    apply pool_consumer_or.
+    apply pool۰consumer𑁒or.
   Qed.
 
-  #[global] Instance from_exist_pool_consumer t {A} P (Φ : A → iProp Σ) :
+  #[global] Instance from_exist𑁒pool۰consumer t {A} P (Φ : A → iProp Σ) :
     FromExist P Φ →
-    FromExist (pool_consumer t P) (λ a, pool_consumer t (Φ a)).
+    FromExist (pool۰consumer t P) (λ a, pool۰consumer t (Φ a)).
   Proof.
     rewrite /FromExist => <-.
     iIntros "(%x & H)".
-    iApply (pool_consumer_exist with "H").
+    iApply (pool۰consumer𑁒exist with "H").
   Qed.
 
-  #[global] Instance into_forall_pool_consumer t {A} P (Φ : A → iProp Σ) :
+  #[global] Instance into_forall𑁒pool۰consumer t {A} P (Φ : A → iProp Σ) :
     IntoForall P Φ →
-    IntoForall (pool_consumer t P) (λ a, pool_consumer t (Φ a)).
+    IntoForall (pool۰consumer t P) (λ a, pool۰consumer t (Φ a)).
   Proof.
     rewrite /IntoForall => ->.
     iIntros "H %x".
-    iApply (pool_consumer_forall with "H").
+    iApply (pool۰consumer𑁒forall with "H").
   Qed.
 
-  #[global] Instance from_modal_pool_consumer t P :
-    FromModal True modality_id (pool_consumer t P) (pool_consumer t P) P.
+  #[global] Instance from_modal𑁒pool۰consumer t P :
+    FromModal True modality_id (pool۰consumer t P) (pool۰consumer t P) P.
   Proof.
-    rewrite /FromModal -pool_consumer_intro.
+    rewrite /FromModal -pool۰consumer𑁒intro.
     iSteps.
   Qed.
 
-  #[global] Instance elim_modal_pool_consumer t p P Q :
-    ElimModal True p false (pool_consumer t P) P (pool_consumer t Q) (pool_consumer t Q).
+  #[global] Instance elim_modal𑁒pool۰consumer t p P Q :
+    ElimModal True p false (pool۰consumer t P) P (pool۰consumer t Q) (pool۰consumer t Q).
   Proof.
     rewrite /ElimModal bi.intuitionistically_if_elim /=.
     iIntros "_ (HP & HQ)".
-    iApply pool_consumer_intro. iIntros "#Hfinished".
-    iMod (pool_consumer_finished with "HP Hfinished") as "HP".
-    iApply (pool_consumer_finished with "(HQ HP) Hfinished").
+    iApply pool۰consumer𑁒intro. iIntros "#Hfinished".
+    iMod (pool۰consumer𑁒finished with "HP Hfinished") as "HP".
+    iApply (pool۰consumer𑁒finished with "(HQ HP) Hfinished").
   Qed.
 
-  #[global] Instance add_modal_pool_consumer t P Q :
-    AddModal (pool_consumer t P) P (pool_consumer t Q).
+  #[global] Instance add_modal𑁒pool۰consumer t P Q :
+    AddModal (pool۰consumer t P) P (pool۰consumer t Q).
   Proof.
     rewrite /AddModal.
     iIntros "(HP & HQ)".
-    iApply pool_consumer_intro. iIntros "#Hfinished".
-    iMod (pool_consumer_finished with "HP Hfinished") as "HP".
-    iApply (pool_consumer_finished with "(HQ HP) Hfinished").
+    iApply pool۰consumer𑁒intro. iIntros "#Hfinished".
+    iMod (pool۰consumer𑁒finished with "HP Hfinished") as "HP".
+    iApply (pool۰consumer𑁒finished with "(HQ HP) Hfinished").
   Qed.
 
-  #[global] Instance frame_pool_consumer t p R P Q :
+  #[global] Instance frame𑁒pool۰consumer t p R P Q :
     Frame p R P Q →
-    Frame p R (pool_consumer t P) (pool_consumer t Q)
+    Frame p R (pool۰consumer t P) (pool۰consumer t Q)
   | 2.
   Proof.
     rewrite /Frame => <-.
     iIntros "(HR & HQ)".
-    iApply pool_consumer_intro. iIntros "#Hfinished".
-    iMod (pool_consumer_finished with "HQ Hfinished") as "HQ".
+    iApply pool۰consumer𑁒intro. iIntros "#Hfinished".
+    iMod (pool۰consumer𑁒finished with "HQ Hfinished") as "HQ".
     iSteps.
   Qed.
-End pool_G.
+End pool۰G.

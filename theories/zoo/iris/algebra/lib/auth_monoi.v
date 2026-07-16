@@ -7,7 +7,7 @@ Require Import zoo.iris.algebra.auth.
 Require Import zoo.iris.algebra.monopoi.
 Require Import zoo.options.
 
-#[local] Hint Resolve monopoi_principal_valid : core.
+#[local] Hint Resolve monopoi۰principal𑁒valid : core.
 
 Section relation.
   Context {SI : sidx}.
@@ -20,246 +20,246 @@ Section relation.
     rtc R
   ).
 
-  #[local] Instance Rs_antisymm `{!AntiSymm (=) Rs} :
+  #[local] Instance Rs𑁒antisymm `{!AntiSymm (=) Rs} :
     AntiSymm (≡) Rs.
   Proof.
-    apply: rtc_equivalence_antisymm.
+    apply: rtc𑁒equivalence𑁒antisymm.
   Qed.
 
   Definition auth_monoi :=
     auth (monopoi Rs).
-  Definition auth_monoi_R :=
-    authR (monopoi_UR Rs).
-  Definition auth_monoi_UR :=
-    authUR (monopoi_UR Rs).
+  Definition auth_monoi۰R :=
+    authR (monopoi۰UR Rs).
+  Definition auth_monoi۰UR :=
+    authUR (monopoi۰UR Rs).
 
-  Definition auth_monoi_auth dq a : auth_monoi_UR :=
-    ●{dq} monopoi_principal Rs a ⋅ ◯ monopoi_principal Rs a.
-  Definition auth_monoi_lb a : auth_monoi_UR :=
-    ◯ monopoi_principal Rs a.
+  Definition auth_monoi۰auth dq a : auth_monoi۰UR :=
+    ●{dq} monopoi۰principal Rs a ⋅ ◯ monopoi۰principal Rs a.
+  Definition auth_monoi۰lb a : auth_monoi۰UR :=
+    ◯ monopoi۰principal Rs a.
 
-  #[global] Instance auth_monoi_auth_inj `{!AntiSymm (≡) Rs} :
-    Inj2 (=) (≡) (≡) auth_monoi_auth
+  #[global] Instance auth_monoi۰auth𑁒inj `{!AntiSymm (≡) Rs} :
+    Inj2 (=) (≡) (≡) auth_monoi۰auth
   | 10.
   Proof.
-    rewrite /Inj2. setoid_rewrite auth_auth_frag_dfrac_op.
+    rewrite /Inj2. setoid_rewrite auth𑁒auth𑁒frag𑁒dfrac𑁒op.
     intros * (-> & ?%(@inj _ _ (≡) _ _ _) & _). done.
   Qed.
-  #[global] Instance auth_monoi_auth_inj_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} :
-    Inj2 (=) (=) (≡) auth_monoi_auth
+  #[global] Instance auth_monoi۰auth𑁒inj𑁒L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} :
+    Inj2 (=) (=) (≡) auth_monoi۰auth
   | 9.
   Proof.
     intros ?* (-> & ->%leibniz_equiv)%(inj2 _). done.
   Qed.
-  #[global] Instance auth_monoi_lb_inj `{!AntiSymm (≡) Rs} :
-    Inj (≡) (≡) auth_monoi_lb
+  #[global] Instance auth_monoi۰lb𑁒inj `{!AntiSymm (≡) Rs} :
+    Inj (≡) (≡) auth_monoi۰lb
   | 10.
   Proof.
     intros a1 a2 ->%(inj auth_frag)%(@inj _ _ (≡) _ _ _). done.
   Qed.
-  #[global] Instance auth_monoi_lb_inj_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} :
-    Inj (=) (≡) auth_monoi_lb
+  #[global] Instance auth_monoi۰lb𑁒inj𑁒L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} :
+    Inj (=) (≡) auth_monoi۰lb
   | 9.
   Proof.
     intros ?* ?%(@inj _ _ (≡) _ _ _). auto.
   Qed.
 
-  #[global] Instance auth_monoi_cmra_discrete :
-    CmraDiscrete auth_monoi_R.
+  #[global] Instance auth_monoi𑁒cmra_discrete :
+    CmraDiscrete auth_monoi۰R.
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance auth_monoi_auth_core_id a :
-    CoreId (auth_monoi_auth DfracDiscarded a).
+  #[global] Instance auth_monoi۰auth𑁒core_id a :
+    CoreId (auth_monoi۰auth DfracDiscarded a).
   Proof.
     apply _.
   Qed.
-  #[global] Instance auth_monoi_lb_core_id a :
-    CoreId (auth_monoi_lb a).
+  #[global] Instance auth_monoi۰lb𑁒core_id a :
+    CoreId (auth_monoi۰lb a).
   Proof.
     apply _.
   Qed.
 
-  Lemma auth_monoi_auth_dfrac_op dq1 dq2 a :
-    auth_monoi_auth (dq1 ⋅ dq2) a ≡ auth_monoi_auth dq1 a ⋅ auth_monoi_auth dq2 a.
+  Lemma auth_monoi۰auth𑁒dfrac𑁒op dq1 dq2 a :
+    auth_monoi۰auth (dq1 ⋅ dq2) a ≡ auth_monoi۰auth dq1 a ⋅ auth_monoi۰auth dq2 a.
   Proof.
-    rewrite /auth_monoi_auth auth_auth_dfrac_op.
+    rewrite /auth_monoi۰auth auth_auth_dfrac_op.
     rewrite (comm _ (●{dq2} _)) -!assoc (assoc _ (◯ _)) -core_id_dup (comm _ (◯ _)) //.
   Qed.
-  #[global] Instance auth_monoi_auth_dfrac_is_op dq dq1 dq2 a :
+  #[global] Instance auth_monoi۰auth𑁒dfrac𑁒is_op dq dq1 dq2 a :
     IsOp dq dq1 dq2 →
-    IsOp' (auth_monoi_auth dq a) (auth_monoi_auth dq1 a) (auth_monoi_auth dq2 a).
+    IsOp' (auth_monoi۰auth dq a) (auth_monoi۰auth dq1 a) (auth_monoi۰auth dq2 a).
   Proof.
-    rewrite /IsOp' /IsOp => ->. rewrite auth_monoi_auth_dfrac_op //.
+    rewrite /IsOp' /IsOp => ->. rewrite auth_monoi۰auth𑁒dfrac𑁒op //.
   Qed.
 
-  Lemma auth_monoi_lb_op a a' :
+  Lemma auth_monoi۰lb𑁒op a a' :
     Rs a a' →
-    auth_monoi_lb a' ≡ auth_monoi_lb a ⋅ auth_monoi_lb a'.
+    auth_monoi۰lb a' ≡ auth_monoi۰lb a ⋅ auth_monoi۰lb a'.
   Proof.
-    intros. rewrite -auth_frag_op monopoi_principal_R_op //.
+    intros. rewrite -auth_frag_op monopoi۰principal𑁒R𑁒op //.
   Qed.
 
-  Lemma auth_monoi_auth_lb_op dq a :
-    auth_monoi_auth dq a ≡ auth_monoi_auth dq a ⋅ auth_monoi_lb a.
+  Lemma auth_monoi۰auth𑁒lb𑁒op dq a :
+    auth_monoi۰auth dq a ≡ auth_monoi۰auth dq a ⋅ auth_monoi۰lb a.
   Proof.
-    rewrite /auth_monoi_auth /auth_monoi_lb.
+    rewrite /auth_monoi۰auth /auth_monoi۰lb.
     rewrite -!assoc -auth_frag_op -core_id_dup //.
   Qed.
 
-  Lemma auth_monoi_auth_dfrac_valid dq a :
-    ✓ auth_monoi_auth dq a ↔
+  Lemma auth_monoi۰auth𑁒dfrac𑁒valid dq a :
+    ✓ auth_monoi۰auth dq a ↔
     ✓ dq.
   Proof.
     rewrite auth_both_dfrac_valid_discrete. naive_solver.
   Qed.
-  Lemma auth_monoi_auth_valid a :
-    ✓ auth_monoi_auth (DfracOwn 1) a.
+  Lemma auth_monoi۰auth𑁒valid a :
+    ✓ auth_monoi۰auth (DfracOwn 1) a.
   Proof.
-    rewrite auth_monoi_auth_dfrac_valid //.
+    rewrite auth_monoi۰auth𑁒dfrac𑁒valid //.
   Qed.
 
-  Lemma auth_monoi_auth_dfrac_op_valid `{!AntiSymm (≡) Rs} dq1 a1 dq2 a2 :
-    ✓ (auth_monoi_auth dq1 a1 ⋅ auth_monoi_auth dq2 a2) →
+  Lemma auth_monoi۰auth𑁒dfrac𑁒op𑁒valid `{!AntiSymm (≡) Rs} dq1 a1 dq2 a2 :
+    ✓ (auth_monoi۰auth dq1 a1 ⋅ auth_monoi۰auth dq2 a2) →
       ✓ (dq1 ⋅ dq2) ∧
       a1 ≡ a2.
   Proof.
-    rewrite /auth_monoi_auth (comm _ (●{dq2} _)) -!assoc (assoc _ (◯ _)).
+    rewrite /auth_monoi۰auth (comm _ (●{dq2} _)) -!assoc (assoc _ (◯ _)).
     rewrite -auth_frag_op (comm _ (◯ _)) assoc.
     move=> /cmra_valid_op_l /auth_auth_dfrac_op_valid.
     split; first naive_solver.
-    apply (inj (monopoi_principal Rs)). naive_solver.
+    apply (inj (monopoi۰principal Rs)). naive_solver.
   Qed.
-  Lemma auth_monoi_auth_dfrac_op_valid_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} dq1 a1 dq2 a2 :
-    ✓ (auth_monoi_auth dq1 a1 ⋅ auth_monoi_auth dq2 a2) ↔
+  Lemma auth_monoi۰auth𑁒dfrac𑁒op𑁒valid𑁒L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} dq1 a1 dq2 a2 :
+    ✓ (auth_monoi۰auth dq1 a1 ⋅ auth_monoi۰auth dq2 a2) ↔
       ✓ (dq1 ⋅ dq2) ∧
       a1 = a2.
   Proof.
     split.
-    - intros (? & ->%leibniz_equiv)%auth_monoi_auth_dfrac_op_valid. done.
-    - rewrite /auth_monoi_auth (comm _ (●{dq2} _)) -!assoc (assoc _ (◯ _)).
+    - intros (? & ->%leibniz_equiv)%auth_monoi۰auth𑁒dfrac𑁒op𑁒valid. done.
+    - rewrite /auth_monoi۰auth (comm _ (●{dq2} _)) -!assoc (assoc _ (◯ _)).
       rewrite -auth_frag_op (comm _ (◯ _)) assoc.
       intros (? & ->).
       rewrite -core_id_dup -auth_auth_dfrac_op auth_both_dfrac_valid_discrete //.
   Qed.
-  Lemma auth_monoi_auth_op_valid `{!AntiSymm (≡) Rs} a1 a2 :
-    ✓ (auth_monoi_auth (DfracOwn 1) a1 ⋅ auth_monoi_auth (DfracOwn 1) a2) →
+  Lemma auth_monoi۰auth𑁒op𑁒valid `{!AntiSymm (≡) Rs} a1 a2 :
+    ✓ (auth_monoi۰auth (DfracOwn 1) a1 ⋅ auth_monoi۰auth (DfracOwn 1) a2) →
     False.
   Proof.
-    intros ?%auth_monoi_auth_dfrac_op_valid. naive_solver.
+    intros ?%auth_monoi۰auth𑁒dfrac𑁒op𑁒valid. naive_solver.
   Qed.
-  Lemma auth_monoi_auth_op_valid_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} a1 a2 :
-    ✓ (auth_monoi_auth (DfracOwn 1) a1 ⋅ auth_monoi_auth (DfracOwn 1) a2) ↔
+  Lemma auth_monoi۰auth𑁒op𑁒valid𑁒L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} a1 a2 :
+    ✓ (auth_monoi۰auth (DfracOwn 1) a1 ⋅ auth_monoi۰auth (DfracOwn 1) a2) ↔
     False.
   Proof.
-    rewrite auth_monoi_auth_dfrac_op_valid_L. naive_solver.
+    rewrite auth_monoi۰auth𑁒dfrac𑁒op𑁒valid𑁒L. naive_solver.
   Qed.
 
-  Lemma auth_monoi_lb_op_valid a1 a2 :
-    ✓ (auth_monoi_lb a1 ⋅ auth_monoi_lb a2) →
+  Lemma auth_monoi۰lb𑁒op𑁒valid a1 a2 :
+    ✓ (auth_monoi۰lb a1 ⋅ auth_monoi۰lb a2) →
       ∃ a,
       Rs a1 a ∧
       Rs a2 a.
   Proof.
     rewrite auth_frag_op_valid.
-    intros ?%monopoi_principal_op_valid. done.
+    intros ?%monopoi۰principal𑁒op𑁒valid. done.
   Qed.
 
-  Lemma auth_monoi_both_dfrac_valid dq a b :
-    ✓ (auth_monoi_auth dq a ⋅ auth_monoi_lb b) ↔
+  Lemma auth_monoi𑁒both𑁒dfrac𑁒valid dq a b :
+    ✓ (auth_monoi۰auth dq a ⋅ auth_monoi۰lb b) ↔
       ✓ dq ∧
       Rs b a.
   Proof.
     rewrite -assoc -auth_frag_op auth_both_dfrac_valid_discrete. split.
     - intros. split; first naive_solver.
-      rewrite -monopoi_principal_included.
-      eapply (cmra_included_trans (A := monopoi_UR _)).
+      rewrite -monopoi۰principal𑁒included.
+      eapply (cmra_included_trans (A := monopoi۰UR _)).
       + apply cmra_included_r.
       + naive_solver.
     - intros (? & ?).
-      rewrite (comm op) monopoi_principal_R_op //.
+      rewrite (comm op) monopoi۰principal𑁒R𑁒op //.
   Qed.
-  Lemma auth_monoi_both_valid a b :
-    ✓ (auth_monoi_auth (DfracOwn 1) a ⋅ auth_monoi_lb b) ↔
+  Lemma auth_monoi𑁒both𑁒valid a b :
+    ✓ (auth_monoi۰auth (DfracOwn 1) a ⋅ auth_monoi۰lb b) ↔
     Rs b a.
   Proof.
-    rewrite auth_monoi_both_dfrac_valid dfrac_valid_own. naive_solver.
+    rewrite auth_monoi𑁒both𑁒dfrac𑁒valid dfrac_valid_own. naive_solver.
   Qed.
 
-  Lemma auth_monoi_lb_mono a1 a2 :
+  Lemma auth_monoi۰lb𑁒mono a1 a2 :
     Rs a1 a2 →
-    auth_monoi_lb a1 ≼ auth_monoi_lb a2.
+    auth_monoi۰lb a1 ≼ auth_monoi۰lb a2.
   Proof.
-    intros. apply auth_frag_mono. rewrite monopoi_principal_included //.
+    intros. apply auth_frag_mono. rewrite monopoi۰principal𑁒included //.
   Qed.
 
-  Lemma auth_monoi_auth_dfrac_included `{!AntiSymm (≡) Rs} dq1 a1 dq2 a2 :
-    auth_monoi_auth dq1 a1 ≼ auth_monoi_auth dq2 a2 →
+  Lemma auth_monoi۰auth𑁒dfrac𑁒included `{!AntiSymm (≡) Rs} dq1 a1 dq2 a2 :
+    auth_monoi۰auth dq1 a1 ≼ auth_monoi۰auth dq2 a2 →
       (dq1 ≼ dq2 ∨ dq1 = dq2) ∧
       a1 ≡ a2.
   Proof.
-    rewrite auth_both_dfrac_included monopoi_principal_included.
+    rewrite auth_both_dfrac_included monopoi۰principal𑁒included.
     intros (? & ?%(@inj _ _ (≡) _ _ _) & _). done.
   Qed.
-  Lemma auth_monoi_auth_dfrac_included_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} dq1 a1 dq2 a2 :
-    auth_monoi_auth dq1 a1 ≼ auth_monoi_auth dq2 a2 ↔
+  Lemma auth_monoi۰auth𑁒dfrac𑁒included𑁒L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} dq1 a1 dq2 a2 :
+    auth_monoi۰auth dq1 a1 ≼ auth_monoi۰auth dq2 a2 ↔
       (dq1 ≼ dq2 ∨ dq1 = dq2) ∧
       a1 = a2.
   Proof.
     split.
-    - intros (? & ->%leibniz_equiv)%auth_monoi_auth_dfrac_included. done.
-    - rewrite auth_both_dfrac_included monopoi_principal_included. naive_solver.
+    - intros (? & ->%leibniz_equiv)%auth_monoi۰auth𑁒dfrac𑁒included. done.
+    - rewrite auth_both_dfrac_included monopoi۰principal𑁒included. naive_solver.
   Qed.
-  Lemma auth_monoi_auth_included `{!AntiSymm (≡) Rs} a1 a2 :
-    auth_monoi_auth (DfracOwn 1) a1 ≼ auth_monoi_auth (DfracOwn 1) a2 →
+  Lemma auth_monoi۰auth𑁒included `{!AntiSymm (≡) Rs} a1 a2 :
+    auth_monoi۰auth (DfracOwn 1) a1 ≼ auth_monoi۰auth (DfracOwn 1) a2 →
     a1 ≡ a2.
   Proof.
-    intros ?%auth_monoi_auth_dfrac_included. naive_solver.
+    intros ?%auth_monoi۰auth𑁒dfrac𑁒included. naive_solver.
   Qed.
-  Lemma auth_monoi_auth_included_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} a1 a2 :
-    auth_monoi_auth (DfracOwn 1) a1 ≼ auth_monoi_auth (DfracOwn 1) a2 ↔
+  Lemma auth_monoi۰auth𑁒included𑁒L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} a1 a2 :
+    auth_monoi۰auth (DfracOwn 1) a1 ≼ auth_monoi۰auth (DfracOwn 1) a2 ↔
     a1 = a2.
   Proof.
-    rewrite auth_monoi_auth_dfrac_included_L. naive_solver.
+    rewrite auth_monoi۰auth𑁒dfrac𑁒included𑁒L. naive_solver.
   Qed.
 
-  Lemma auth_monoi_lb_included a1 dq a2 :
-    auth_monoi_lb a1 ≼ auth_monoi_auth dq a2 ↔
+  Lemma auth_monoi۰lb𑁒included a1 dq a2 :
+    auth_monoi۰lb a1 ≼ auth_monoi۰auth dq a2 ↔
     Rs a1 a2.
   Proof.
-    rewrite auth_frag_included monopoi_principal_included //.
+    rewrite auth_frag_included monopoi۰principal𑁒included //.
   Qed.
-  Lemma auth_monoi_lb_included' a dq :
-    auth_monoi_lb a ≼ auth_monoi_auth dq a.
+  Lemma auth_monoi۰lb𑁒included' a dq :
+    auth_monoi۰lb a ≼ auth_monoi۰auth dq a.
   Proof.
-    rewrite auth_monoi_lb_included //.
+    rewrite auth_monoi۰lb𑁒included //.
   Qed.
 
-  Lemma auth_monoi_auth_persist dq a :
-    auth_monoi_auth dq a ~~> auth_monoi_auth DfracDiscarded a.
+  Lemma auth_monoi۰auth𑁒persist dq a :
+    auth_monoi۰auth dq a ~~> auth_monoi۰auth DfracDiscarded a.
   Proof.
     apply cmra_update_op_proper; last done.
     apply auth_update_auth_persist.
   Qed.
-  Lemma auth_monoi_auth_update {a} a' :
+  Lemma auth_monoi۰auth𑁒update {a} a' :
     Rs a a' →
-    auth_monoi_auth (DfracOwn 1) a ~~> auth_monoi_auth (DfracOwn 1) a'.
+    auth_monoi۰auth (DfracOwn 1) a ~~> auth_monoi۰auth (DfracOwn 1) a'.
   Proof.
-    intros. apply auth_update, monopoi_local_update_grow. done.
+    intros. apply auth_update, monopoi𑁒local_update𑁒grow. done.
   Qed.
 
-  Lemma auth_monoi_auth_local_update a a' :
+  Lemma auth_monoi۰auth𑁒local_update a a' :
     Rs a a' →
-    (auth_monoi_auth (DfracOwn 1) a, auth_monoi_auth (DfracOwn 1) a) ~l~>
-    (auth_monoi_auth (DfracOwn 1) a', auth_monoi_auth (DfracOwn 1) a').
+    (auth_monoi۰auth (DfracOwn 1) a, auth_monoi۰auth (DfracOwn 1) a) ~l~>
+    (auth_monoi۰auth (DfracOwn 1) a', auth_monoi۰auth (DfracOwn 1) a').
   Proof.
     intros. apply auth_local_update.
-    - apply monopoi_local_update_grow. done.
-    - rewrite monopoi_principal_included //.
+    - apply monopoi𑁒local_update𑁒grow. done.
+    - rewrite monopoi۰principal𑁒included //.
     - done.
   Qed.
 End relation.
 
-#[global] Opaque auth_monoi_auth.
-#[global] Opaque auth_monoi_lb.
+#[global] Opaque auth_monoi۰auth.
+#[global] Opaque auth_monoi۰lb.

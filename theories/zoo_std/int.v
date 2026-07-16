@@ -12,8 +12,8 @@ Notation "e1 `max` e2" := (
 )(at level 35
 ) : expr_scope.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
 
   Section Z.
     Implicit Types n : Z.
@@ -39,7 +39,7 @@ Section zoo_G.
     | 30.
     Proof.
       iStep 3 as (Φ) "HΦ".
-      wp_apply (int٠min𑁒spec with "(HΦ [//])").
+      wp۰apply (int٠min𑁒spec with "(HΦ [//])").
     Qed.
 
     Lemma int٠max𑁒spec n1 n2 E Φ :
@@ -63,7 +63,7 @@ Section zoo_G.
     | 30.
     Proof.
       iStep 3 as (Φ) "HΦ".
-      wp_apply (int٠max𑁒spec with "(HΦ [//])").
+      wp۰apply (int٠max𑁒spec with "(HΦ [//])").
     Qed.
 
     Lemma int٠positive_part𑁒spec n E Φ :
@@ -72,7 +72,7 @@ Section zoo_G.
     Proof.
       iIntros "HΦ".
 
-      wp_rec.
+      wp۰rec.
       iApply int٠max𑁒spec.
       assert (0 `max` n = ₊n)%Z as -> by lia. iSteps.
     Qed.
@@ -89,14 +89,14 @@ Section zoo_G.
     | 30.
     Proof.
       iStep 3 as (Φ) "HΦ".
-      wp_apply (int٠positive_part𑁒spec with "(HΦ [//])").
+      wp۰apply (int٠positive_part𑁒spec with "(HΦ [//])").
     Qed.
   End Z.
 
   Section nat.
     Implicit Types n : nat.
 
-    Lemma int٠min𑁒spec_nat n1 n2 E Φ :
+    Lemma int٠min𑁒spec𑁒nat n1 n2 E Φ :
       ▷ Φ #(n1 `min` n2)%nat -∗
       WP #n1 `min` #n2 @ E {{ Φ }}.
     Proof.
@@ -104,7 +104,7 @@ Section zoo_G.
       iApply int٠min𑁒spec.
       rewrite Nat2Z.inj_min //.
     Qed.
-    #[global] Instance int٠min𑁒diaspec_nat n1 n2 E :
+    #[global] Instance int٠min𑁒diaspec𑁒nat n1 n2 E :
       DIASPEC
       {{
         True
@@ -117,10 +117,10 @@ Section zoo_G.
     | 20.
     Proof.
       iStep 3 as (Φ) "HΦ".
-      wp_apply (int٠min𑁒spec_nat with "(HΦ [//])").
+      wp۰apply (int٠min𑁒spec𑁒nat with "(HΦ [//])").
     Qed.
 
-    Lemma int٠max𑁒spec_nat n1 n2 E Φ :
+    Lemma int٠max𑁒spec𑁒nat n1 n2 E Φ :
       ▷ Φ #(n1 `max` n2)%nat -∗
       WP #n1 `max` #n2 @ E {{ Φ }}.
     Proof.
@@ -128,7 +128,7 @@ Section zoo_G.
       iApply int٠max𑁒spec.
       rewrite Nat2Z.inj_max //.
     Qed.
-    #[global] Instance int٠max𑁒diaspec_nat n1 n2 E :
+    #[global] Instance int٠max𑁒diaspec𑁒nat n1 n2 E :
       DIASPEC
       {{
         True
@@ -141,17 +141,17 @@ Section zoo_G.
     | 20.
     Proof.
       iStep 3 as (Φ) "HΦ".
-      wp_apply (int٠max𑁒spec_nat with "(HΦ [//])").
+      wp۰apply (int٠max𑁒spec𑁒nat with "(HΦ [//])").
     Qed.
 
-    Lemma int٠positive_part𑁒spec_nat n E Φ :
+    Lemma int٠positive_part𑁒spec𑁒nat n E Φ :
       ▷ Φ #n -∗
       WP int٠positive_part #n @ E {{ Φ }}.
     Proof.
       rewrite -{1}(Nat2Z.id n).
       apply int٠positive_part𑁒spec.
     Qed.
-    #[global] Instance int٠positive_part𑁒diaspec_nat n E :
+    #[global] Instance int٠positive_part𑁒diaspec𑁒nat n E :
       DIASPEC
       {{
         True
@@ -164,9 +164,9 @@ Section zoo_G.
     | 20.
     Proof.
       iStep 3 as (Φ) "HΦ".
-      wp_apply (int٠positive_part𑁒spec_nat with "(HΦ [//])").
+      wp۰apply (int٠positive_part𑁒spec𑁒nat with "(HΦ [//])").
     Qed.
   End nat.
-End zoo_G.
+End zoo۰G.
 
 Require zoo_std.int__opaque.

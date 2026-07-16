@@ -6,53 +6,53 @@ Require Import zoo.base.
 Require Export zoo.program_logic.prophet_typed.
 Require Import zoo.options.
 
-Class ProphetWiseG Σ `{zoo_G : !ZooG Σ} prophet :=
-  { #[local] prophet_wise_G_full_G :: AgreeG Σ (leibnizO (list prophet.(prophet_typed_type)))
-  ; #[local] prophet_wise_G_past_G :: MonoListG Σ prophet.(prophet_typed_type)
+Class ProphetWiseG Σ `{zoo۰G : !ZooG Σ} prophet :=
+  { #[local] prophet_wise۰G۰full۰G :: AgreeG Σ (leibnizO (list prophet.(prophet_typed۰type)))
+  ; #[local] prophet_wise۰G۰past۰G :: MonoListG Σ prophet.(prophet_typed۰type)
   }.
 
-Definition prophet_wise_Σ prophet :=
-  #[agree_Σ (leibnizO (list prophet.(prophet_typed_type)))
-  ; mono_list_Σ prophet.(prophet_typed_type)
+Definition prophet_wise۰Σ prophet :=
+  #[agree۰Σ (leibnizO (list prophet.(prophet_typed۰type)))
+  ; mono_list۰Σ prophet.(prophet_typed۰type)
   ].
-#[global] Instance subG_prophet_wise_Σ Σ `{zoo_G : !ZooG Σ} prophet :
-  subG (prophet_wise_Σ prophet) Σ →
+#[global] Instance subG𑁒prophet_wise۰Σ Σ `{zoo۰G : !ZooG Σ} prophet :
+  subG (prophet_wise۰Σ prophet) Σ →
   ProphetWiseG Σ prophet.
 Proof.
   solve_inG.
 Qed.
 
-Section prophet_wise_G.
+Section prophet_wise۰G.
   Context (prophet : prophet_typed).
-  Context `{prophet_wise_G : ProphetWiseG Σ prophet}.
+  Context `{prophet_wise۰G : ProphetWiseG Σ prophet}.
 
-  Implicit Types oproph : option prophet.(prophet_typed_type).
-  Implicit Types proph : prophet.(prophet_typed_type).
-  Implicit Types prophs : list prophet.(prophet_typed_type).
+  Implicit Types oproph : option prophet.(prophet_typed۰type).
+  Implicit Types proph : prophet.(prophet_typed۰type).
+  Implicit Types prophs : list prophet.(prophet_typed۰type).
 
-  Record prophet_wise_name :=
-    { prophet_wise_name_full : gname
-    ; prophet_wise_name_past : gname
+  Record prophet_wise۰name :=
+    { prophet_wise۰name۰full : gname
+    ; prophet_wise۰name۰past : gname
     }.
 
-  #[global] Instance prophet_wise_name_eq_dec : EqDecision prophet_wise_name :=
+  #[global] Instance prophet_wise۰name𑁒eq_dec : EqDecision prophet_wise۰name :=
     ltac:(solve_decision).
-  #[global] Instance prophet_wise_name_countable :
-    Countable prophet_wise_name.
+  #[global] Instance prophet_wise۰name𑁒countable :
+    Countable prophet_wise۰name.
   Proof.
     solve_countable.
   Qed.
 
-  Definition prophet_wise_full γ prophs :=
-    agree_on γ.(prophet_wise_name_full) prophs.
+  Definition prophet_wise۰full γ prophs :=
+    agree۰on γ.(prophet_wise۰name۰full) prophs.
   #[local] Instance : CustomIpat "full" :=
     " #Hfull{}
     ".
 
-  Definition prophet_wise_model pid γ past prophs : iProp Σ :=
-    prophet_wise_full γ (past ++ prophs) ∗
-    mono_list_auth γ.(prophet_wise_name_past) (DfracOwn 1) past ∗
-    prophet_typed_model prophet pid prophs.
+  Definition prophet_wise۰model pid γ past prophs : iProp Σ :=
+    prophet_wise۰full γ (past ++ prophs) ∗
+    mono_list۰auth γ.(prophet_wise۰name۰past) (DfracOwn 1) past ∗
+    prophet_typed۰model prophet pid prophs.
   #[local] Instance : CustomIpat "model" :=
     " ( #Hfull{}
       & Hpast{}_auth
@@ -60,141 +60,141 @@ Section prophet_wise_G.
       )
     ".
 
-  Definition prophet_wise_snapshot γ past prophs : iProp Σ :=
-    prophet_wise_full γ (past ++ prophs) ∗
-    mono_list_lb γ.(prophet_wise_name_past) past.
+  Definition prophet_wise۰snapshot γ past prophs : iProp Σ :=
+    prophet_wise۰full γ (past ++ prophs) ∗
+    mono_list۰lb γ.(prophet_wise۰name۰past) past.
   #[local] Instance : CustomIpat "snapshot" :=
     " ( #Hfull{suff}
       & #Hpast_lb
       )
     ".
 
-  Definition prophet_wise_lb γ lb : iProp Σ :=
+  Definition prophet_wise۰lb γ lb : iProp Σ :=
     ∃ past,
-    prophet_wise_snapshot γ past lb.
+    prophet_wise۰snapshot γ past lb.
   #[local] Instance : CustomIpat "lb" :=
     " ( %past{suff}
       & Hsnapshot
       )
     ".
 
-  #[global] Instance prophet_wise_full_timeless γ prophs :
-    Timeless (prophet_wise_full γ prophs).
+  #[global] Instance prophet_wise۰full𑁒timeless γ prophs :
+    Timeless (prophet_wise۰full γ prophs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance prophet_wise_model_timeless pid γ past prophs :
-    Timeless (prophet_wise_model pid γ past prophs).
+  #[global] Instance prophet_wise۰model𑁒timeless pid γ past prophs :
+    Timeless (prophet_wise۰model pid γ past prophs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance prophet_wise_snapshot_timeless γ past prophs :
-    Timeless (prophet_wise_snapshot γ past prophs).
+  #[global] Instance prophet_wise۰snapshot𑁒timeless γ past prophs :
+    Timeless (prophet_wise۰snapshot γ past prophs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance prophet_wise_lb_timeless γ lb :
-    Timeless (prophet_wise_lb γ lb).
-  Proof.
-    apply _.
-  Qed.
-
-  #[global] Instance prophet_wise_full_persistent γ prophs :
-    Persistent (prophet_wise_full γ prophs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance prophet_wise_snapshot_persistent γ past prophs :
-    Persistent (prophet_wise_snapshot γ past prophs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance prophet_wise_lb_persistent γ lb :
-    Persistent (prophet_wise_lb γ lb).
+  #[global] Instance prophet_wise۰lb𑁒timeless γ lb :
+    Timeless (prophet_wise۰lb γ lb).
   Proof.
     apply _.
   Qed.
 
-  Lemma prophet_wise_model_exclusive pid γ1 past1 prophs1 γ2 past2 prophs2 :
-    prophet_wise_model pid γ1 past1 prophs1 -∗
-    prophet_wise_model pid γ2 past2 prophs2 -∗
+  #[global] Instance prophet_wise۰full𑁒persistent γ prophs :
+    Persistent (prophet_wise۰full γ prophs).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance prophet_wise۰snapshot𑁒persistent γ past prophs :
+    Persistent (prophet_wise۰snapshot γ past prophs).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance prophet_wise۰lb𑁒persistent γ lb :
+    Persistent (prophet_wise۰lb γ lb).
+  Proof.
+    apply _.
+  Qed.
+
+  Lemma prophet_wise۰model𑁒exclusive pid γ1 past1 prophs1 γ2 past2 prophs2 :
+    prophet_wise۰model pid γ1 past1 prophs1 -∗
+    prophet_wise۰model pid γ2 past2 prophs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)".
-    iApply (prophet_typed_model_exclusive with "Hmodel1 Hmodel2").
+    iApply (prophet_typed۰model𑁒exclusive with "Hmodel1 Hmodel2").
   Qed.
 
-  Lemma prophet_wise_full_get pid γ past prophs :
-    prophet_wise_model pid γ past prophs ⊢
-    prophet_wise_full γ (past ++ prophs).
+  Lemma prophet_wise۰full𑁒get pid γ past prophs :
+    prophet_wise۰model pid γ past prophs ⊢
+    prophet_wise۰full γ (past ++ prophs).
   Proof.
     iSteps.
   Qed.
-  Lemma prophet_wise_full_get' pid γ past prophs :
-    prophet_wise_model pid γ past prophs ⊢
+  Lemma prophet_wise۰full𑁒get' pid γ past prophs :
+    prophet_wise۰model pid γ past prophs ⊢
       ∃ prophs',
-      prophet_wise_full γ prophs'.
+      prophet_wise۰full γ prophs'.
   Proof.
-    rewrite prophet_wise_full_get. iSteps.
+    rewrite prophet_wise۰full𑁒get. iSteps.
   Qed.
-  Lemma prophet_wise_full_valid pid γ past prophs1 prophs2 :
-    prophet_wise_model pid γ past prophs1 -∗
-    prophet_wise_full γ prophs2 -∗
+  Lemma prophet_wise۰full𑁒valid pid γ past prophs1 prophs2 :
+    prophet_wise۰model pid γ past prophs1 -∗
+    prophet_wise۰full γ prophs2 -∗
     ⌜prophs2 = past ++ prophs1⌝.
   Proof.
     iIntros "(:model =1) (:full =2)".
-    iDestruct (agree_on_agree_L with "Hfull1 Hfull2") as %<-.
+    iDestruct (agree۰on𑁒agree𑁒L with "Hfull1 Hfull2") as %<-.
     iSteps.
   Qed.
-  Lemma prophet_wise_full_agree γ prophs1 prophs2 :
-    prophet_wise_full γ prophs1 -∗
-    prophet_wise_full γ prophs2 -∗
+  Lemma prophet_wise۰full𑁒agree γ prophs1 prophs2 :
+    prophet_wise۰full γ prophs1 -∗
+    prophet_wise۰full γ prophs2 -∗
     ⌜prophs1 = prophs2⌝.
   Proof.
-    apply: agree_on_agree_L.
+    apply: agree۰on𑁒agree𑁒L.
   Qed.
 
-  Lemma prophet_wise_snapshot_get pid γ past prophs :
-    prophet_wise_model pid γ past prophs ⊢
-    prophet_wise_snapshot γ past prophs.
+  Lemma prophet_wise۰snapshot𑁒get pid γ past prophs :
+    prophet_wise۰model pid γ past prophs ⊢
+    prophet_wise۰snapshot γ past prophs.
   Proof.
     iIntros "(:model)".
     iStep.
-    iApply (mono_list_lb_get with "Hpast_auth").
+    iApply (mono_list۰lb𑁒get with "Hpast_auth").
   Qed.
-  Lemma prophet_wise_snapshot_valid pid γ past1 prophs1 past2 prophs2 :
-    prophet_wise_model pid γ past1 prophs1 -∗
-    prophet_wise_snapshot γ past2 prophs2 -∗
+  Lemma prophet_wise۰snapshot𑁒valid pid γ past1 prophs1 past2 prophs2 :
+    prophet_wise۰model pid γ past1 prophs1 -∗
+    prophet_wise۰snapshot γ past2 prophs2 -∗
       ∃ past3,
       ⌜past1 = past2 ++ past3⌝ ∗
       ⌜prophs2 = past3 ++ prophs1⌝.
   Proof.
     iIntros "(:model) (:snapshot suff=')".
-    iDestruct (agree_on_agree_L with "Hfull Hfull'") as %Hfull.
-    iDestruct (mono_list_lb_valid with "Hpast_auth Hpast_lb") as %(past3 & ->).
+    iDestruct (agree۰on𑁒agree𑁒L with "Hfull Hfull'") as %Hfull.
+    iDestruct (mono_list۰lb𑁒valid with "Hpast_auth Hpast_lb") as %(past3 & ->).
     iPureIntro. rewrite -assoc in Hfull. naive_solver.
   Qed.
 
-  Lemma prophet_wise_lb_get pid γ past prophs :
-    prophet_wise_model pid γ past prophs ⊢
-    prophet_wise_lb γ prophs.
+  Lemma prophet_wise۰lb𑁒get pid γ past prophs :
+    prophet_wise۰model pid γ past prophs ⊢
+    prophet_wise۰lb γ prophs.
   Proof.
-    rewrite prophet_wise_snapshot_get.
+    rewrite prophet_wise۰snapshot𑁒get.
     iSteps.
   Qed.
-  Lemma prophet_wise_lb_valid pid γ past prophs lb :
-    prophet_wise_model pid γ past prophs -∗
-    prophet_wise_lb γ lb -∗
+  Lemma prophet_wise۰lb𑁒valid pid γ past prophs lb :
+    prophet_wise۰model pid γ past prophs -∗
+    prophet_wise۰lb γ lb -∗
       ∃ past1 past2,
       ⌜past = past1 ++ past2⌝ ∗
       ⌜lb = past2 ++ prophs⌝.
   Proof.
     iIntros "Hmodel (:lb suff=')".
     iExists past'.
-    iApply (prophet_wise_snapshot_valid with "Hmodel Hsnapshot").
+    iApply (prophet_wise۰snapshot𑁒valid with "Hmodel Hsnapshot").
   Qed.
 
-  Lemma prophet_wise_wp_proph E :
+  Lemma prophet_wise𑁒wp𑁒proph E :
     {{{
       True
     }}}
@@ -202,54 +202,54 @@ Section prophet_wise_G.
     {{{
       pid γ prophs
     , RET #pid;
-      prophet_wise_model pid γ [] prophs
+      prophet_wise۰model pid γ [] prophs
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    iApply wp_fupd. wp_apply (prophet_typed_wp_proph with "[//]") as "%pid %prophs Hpid".
-    iMod (agree_alloc (agree_G := prophet_wise_G_full_G) prophs) as "(%γ_full & #Hfull)".
-    iMod (mono_list_alloc []) as "(%γ_past & Hpast_auth)".
+    iApply wp𑁒fupd. wp۰apply (prophet_typed𑁒wp𑁒proph with "[//]") as "%pid %prophs Hpid".
+    iMod (agree𑁒alloc (agree۰G := prophet_wise۰G۰full۰G) prophs) as "(%γ_full & #Hfull)".
+    iMod (mono_list𑁒alloc []) as "(%γ_past & Hpast_auth)".
     set γ :=
-      {|prophet_wise_name_full := γ_full
-      ; prophet_wise_name_past := γ_past
+      {|prophet_wise۰name۰full := γ_full
+      ; prophet_wise۰name۰past := γ_past
       |}.
     iApply ("HΦ" $! pid γ).
     iSteps.
   Qed.
 
-  Lemma prophet_wise_wp_resolve e pid v γ past prophs E Φ :
+  Lemma prophet_wise𑁒wp𑁒resolve e pid v γ past prophs E Φ :
     Atomic e →
     to_val e = None →
-    prophet_wise_model pid γ past prophs -∗
+    prophet_wise۰model pid γ past prophs -∗
     WP e @ E {{ w,
       ∃ oproph,
-      ⌜prophet.(prophet_typed_of_val) w v = Some oproph⌝ ∗
+      ⌜prophet.(prophet_typed۰of_val) w v = Some oproph⌝ ∗
       match oproph with
       | None =>
-          prophet_wise_model pid γ past prophs -∗
+          prophet_wise۰model pid γ past prophs -∗
           Φ w
       | Some proph =>
           ∀ prophs',
           ⌜prophs = proph :: prophs'⌝ -∗
-          prophet_wise_model pid γ (past ++ [proph]) prophs' -∗
+          prophet_wise۰model pid γ (past ++ [proph]) prophs' -∗
           Φ w
       end
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
     iIntros "% % (:model) HΦ".
-    wp_apply (prophet_typed_wp_resolve with "Hmodel"); first done.
-    iApply wp_fupd. wp_apply (wp_wand with "HΦ") as "%w (%oproph & %Hoproph & HΦ)".
+    wp۰apply (prophet_typed𑁒wp𑁒resolve with "Hmodel"); first done.
+    iApply wp𑁒fupd. wp۰apply (wp𑁒wand with "HΦ") as "%w (%oproph & %Hoproph & HΦ)".
     iExists oproph. iSplitR. 1: done.
     destruct oproph as [proph |]. 2: iSteps.
-    iMod (mono_list_update_snoc proph with "Hpast_auth") as "Hpast_auth".
+    iMod (mono_list𑁒update𑁒snoc proph with "Hpast_auth") as "Hpast_auth".
     iIntros "!> %prophs' -> Hpid".
     iApply ("HΦ" with "[//]").
     rewrite (assoc _ _ [_]). iSteps.
   Qed.
-End prophet_wise_G.
+End prophet_wise۰G.
 
-#[global] Opaque prophet_wise_full.
-#[global] Opaque prophet_wise_model.
-#[global] Opaque prophet_wise_snapshot.
-#[global] Opaque prophet_wise_lb.
+#[global] Opaque prophet_wise۰full.
+#[global] Opaque prophet_wise۰model.
+#[global] Opaque prophet_wise۰snapshot.
+#[global] Opaque prophet_wise۰lb.

@@ -10,34 +10,34 @@ Require Import zoo.options.
 Implicit Types v t : val.
 Implicit Types back front : list val.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
 
-  Definition pqueue_model t vs : iProp Σ :=
+  Definition pqueue۰model t vs : iProp Σ :=
     ∃ front back,
-    ⌜t = (list_to_val front, list_to_val back)%V ∧ vs = front ++ reverse back⌝.
+    ⌜t = (list۰to_val front, list۰to_val back)%V ∧ vs = front ++ reverse back⌝.
 
-  #[global] Instance pqueue_model_timeless t vs :
-    Timeless (pqueue_model t vs).
+  #[global] Instance pqueue۰model𑁒timeless t vs :
+    Timeless (pqueue۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance pqueue_model_persistent t vs :
-    Persistent (pqueue_model t vs).
+  #[global] Instance pqueue۰model𑁒persistent t vs :
+    Persistent (pqueue۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  Lemma pqueue_model_nil :
-    ⊢ pqueue_model pqueue٠empty [].
+  Lemma pqueue۰model𑁒nil :
+    ⊢ pqueue۰model pqueue٠empty [].
   Proof.
     iExists [], []. iSteps.
   Qed.
 
   Lemma pqueue٠is_empty𑁒spec t vs :
     {{{
-      pqueue_model t vs
+      pqueue۰model t vs
     }}}
       pqueue٠is_empty t
     {{{
@@ -46,34 +46,34 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ (%front & %back & (-> & ->)) HΦ".
-    wp_rec.
-    wp_apply+ (list٠is_empty𑁒spec with "[//]") as "_"; first done.
-    destruct front as [| v front]; wp_pures.
-    - wp_apply (list٠is_empty𑁒spec with "[//]") as "_"; first done.
-      erewrite bool_decide_ext by apply reverse_nil_iff. iSteps.
+    wp۰rec.
+    wp۰apply+ (list٠is_empty𑁒spec with "[//]") as "_"; first done.
+    destruct front as [| v front]; wp۰pures.
+    - wp۰apply (list٠is_empty𑁒spec with "[//]") as "_"; first done.
+      erewrite bool_decide_ext by apply reverse𑁒nil𑁒iff. iSteps.
     - rewrite bool_decide_eq_false_2 //. iSteps.
   Qed.
 
   Lemma pqueue٠push𑁒spec t vs v :
     {{{
-      pqueue_model t vs
+      pqueue۰model t vs
     }}}
       pqueue٠push t v
     {{{
       t'
     , RET t';
-      pqueue_model t' (vs ++ [v])
+      pqueue۰model t' (vs ++ [v])
     }}}.
   Proof.
     iIntros "%Φ (%front & %back & (-> & ->)) HΦ".
-    wp_rec. wp_pures.
+    wp۰rec. wp۰pures.
     iApply "HΦ".
     iExists front, (v :: back). iSteps. rewrite reverse_cons assoc //.
   Qed.
 
   Lemma pqueue٠pop𑁒spec t vs :
     {{{
-      pqueue_model t vs
+      pqueue۰model t vs
     }}}
       pqueue٠pop t
     {{{
@@ -86,26 +86,26 @@ Section zoo_G.
           ∃ v vs' t',
           ⌜vs = v :: vs'⌝ ∗
           ⌜p = (v, t')%V⌝ ∗
-          pqueue_model t' vs'
+          pqueue۰model t' vs'
       end
     }}}.
   Proof.
     iIntros "%Φ (%front & %back & (-> & ->)) HΦ".
-    wp_rec.
-    destruct front as [| v front]; wp_pures.
-    - wp_apply (list٠rev𑁒spec with "[//]") as "%front ->"; first done.
+    wp۰rec.
+    destruct front as [| v front]; wp۰pures.
+    - wp۰apply (list٠rev𑁒spec with "[//]") as "%front ->"; first done.
       destruct back as [| v back _] using rev_ind.
-      + wp_pures.
+      + wp۰pures.
         iApply ("HΦ" $! None with "[//]").
-      + rewrite reverse_snoc. wp_pures.
+      + rewrite reverse_snoc. wp۰pures.
         iApply ("HΦ" $! (Some _)).
         iSteps.
         iExists _, []. rewrite right_id. iSteps.
     - iApply ("HΦ" $! (Some (_, _)%V)).
       iSteps.
   Qed.
-End zoo_G.
+End zoo۰G.
 
 Require zoo_persistent.pqueue__opaque.
 
-#[global] Opaque pqueue_model.
+#[global] Opaque pqueue۰model.

@@ -13,38 +13,38 @@ Implicit Types b : bool.
 Implicit Types 𝑡 : location.
 Implicit Types v t mtx cond : val.
 
-Class WaiterG Σ `{zoo_G : !ZooG Σ} :=
-  { #[local] waiter_G_mutex_G :: MutexG Σ
+Class WaiterG Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] waiter۰G۰mutex۰G :: MutexG Σ
   }.
 
-Definition waiter_Σ :=
-  #[mutex_Σ
+Definition waiter۰Σ :=
+  #[mutex۰Σ
   ].
-#[global] Instance subG_ws_hub_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG waiter_Σ Σ →
+#[global] Instance subG𑁒ws_hub_Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG waiter۰Σ Σ →
   WaiterG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section waiter_G.
-  Context `{waiter_G : WaiterG Σ}.
+Section waiter۰G.
+  Context `{waiter۰G : WaiterG Σ}.
 
-  #[local] Definition inv_inner 𝑡 : iProp Σ :=
+  #[local] Definition inv۰inner 𝑡 : iProp Σ :=
     ∃ b,
     𝑡.[flag] ↦ #b.
-  #[local] Instance : CustomIpat "inv_inner" :=
+  #[local] Instance : CustomIpat "inv۰inner" :=
     " ( %b
       & H𝑡_flag
       )
     ".
-  Definition waiter_inv t : iProp Σ :=
+  Definition waiter۰inv t : iProp Σ :=
     ∃ 𝑡 mtx cond,
     ⌜t = #𝑡⌝ ∗
     𝑡.[mutex] ↦□ mtx ∗
-    mutex_inv mtx (inv_inner 𝑡) ∗
+    mutex۰inv mtx (inv۰inner 𝑡) ∗
     𝑡.[condition] ↦□ cond ∗
-    condition_inv cond.
+    condition۰inv cond.
   #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡
       & %mtx
@@ -57,8 +57,8 @@ Section waiter_G.
       )
     ".
 
-  #[global] Instance waiter_inv_persistent t :
-    Persistent (waiter_inv t).
+  #[global] Instance waiter۰inv𑁒persistent t :
+    Persistent (waiter۰inv t).
   Proof.
     apply _.
   Qed.
@@ -71,23 +71,23 @@ Section waiter_G.
     {{{
       t
     , RET t;
-      waiter_inv t
+      waiter۰inv t
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
 
-    wp_rec.
-    wp_apply (condition٠create𑁒spec with "[//]") as "%cond #Hcond_inv".
-    wp_apply (mutex٠create𑁒spec_init with "[//]") as "%mtx Hmtx_init".
-    wp_block 𝑡 as "(H𝑡_mutex & H𝑡_condition & H𝑡_flag & _)".
+    wp۰rec.
+    wp۰apply (condition٠create𑁒spec with "[//]") as "%cond #Hcond_inv".
+    wp۰apply (mutex٠create𑁒spec𑁒init with "[//]") as "%mtx Hmtx_init".
+    wp۰block 𝑡 as "(H𝑡_mutex & H𝑡_condition & H𝑡_flag & _)".
 
-    iMod (mutex_init_to_inv (inv_inner 𝑡) with "Hmtx_init [$H𝑡_flag]").
+    iMod (mutex۰init𑁒to𑁒inv (inv۰inner 𝑡) with "Hmtx_init [$H𝑡_flag]").
     iSteps.
   Qed.
 
   Lemma waiter٠notify𑁒spec t :
     {{{
-      waiter_inv t
+      waiter۰inv t
     }}}
       waiter٠notify t
     {{{
@@ -98,24 +98,24 @@ Section waiter_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_rec. wp_load.
-    wp_apply (mutex٠lock𑁒spec with "Hmtx_inv") as "(Hmtx_locked & (:inv_inner))".
-    wp_load.
-    destruct b; wp_pures.
+    wp۰rec. wp۰load.
+    wp۰apply (mutex٠lock𑁒spec with "Hmtx_inv") as "(Hmtx_locked & (:inv۰inner))".
+    wp۰load.
+    destruct b; wp۰pures.
 
-    - wp_load.
-      wp_apply (mutex٠unlock𑁒spec with "[$Hmtx_inv $Hmtx_locked $H𝑡_flag]").
+    - wp۰load.
+      wp۰apply (mutex٠unlock𑁒spec with "[$Hmtx_inv $Hmtx_locked $H𝑡_flag]").
       iSteps.
 
-    - wp_bind (_ <-{flag} _)%E.
-      wp_store. wp_load.
-      wp_apply (mutex٠unlock𑁒spec with "[$Hmtx_inv $Hmtx_locked $H𝑡_flag]").
+    - wp۰bind (_ <-{flag} _)%E.
+      wp۰store. wp۰load.
+      wp۰apply (mutex٠unlock𑁒spec with "[$Hmtx_inv $Hmtx_locked $H𝑡_flag]").
       iSteps.
   Qed.
 
   Lemma waiter٠prepare_wait𑁒spec t :
     {{{
-      waiter_inv t
+      waiter۰inv t
     }}}
       waiter٠prepare_wait t
     {{{
@@ -125,14 +125,14 @@ Section waiter_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_rec. wp_load.
-    wp_apply (mutex٠protect𑁒spec itype_unit with "[$Hmtx_inv]"). 1: iSteps.
+    wp۰rec. wp۰load.
+    wp۰apply (mutex٠protect𑁒spec itype۰unit with "[$Hmtx_inv]"). 1: iSteps.
     iSteps.
   Qed.
 
   Lemma waiter٠cancel_wait𑁒spec t :
     {{{
-      waiter_inv t
+      waiter۰inv t
     }}}
       waiter٠cancel_wait t
     {{{
@@ -143,17 +143,17 @@ Section waiter_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_rec. wp_load.
-    wp_apply (mutex٠protect𑁒spec itype_bool with "[$Hmtx_inv]"). 2: iSteps.
-    { iIntros "Hmtx_locked (:inv_inner)".
-      wp_load.
+    wp۰rec. wp۰load.
+    wp۰apply (mutex٠protect𑁒spec itype۰bool with "[$Hmtx_inv]"). 2: iSteps.
+    { iIntros "Hmtx_locked (:inv۰inner)".
+      wp۰load.
       destruct b; iSteps.
     }
   Qed.
 
   Lemma waiter٠commit_wait𑁒spec t :
     {{{
-      waiter_inv t
+      waiter۰inv t
     }}}
       waiter٠commit_wait t
     {{{
@@ -163,15 +163,15 @@ Section waiter_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_rec. wp_load.
-    wp_apply (mutex٠protect𑁒spec itype_unit with "[$Hmtx_inv]"). 2: iSteps.
-    iIntros "Hmtx_locked (:inv_inner)".
-    do 2 wp_load.
-    wp_apply (condition٠wait_until𑁒spec (λ _, True)%I with "[$Hcond_inv $Hmtx_inv $Hmtx_locked $H𝑡_flag]"). 1: iSteps.
+    wp۰rec. wp۰load.
+    wp۰apply (mutex٠protect𑁒spec itype۰unit with "[$Hmtx_inv]"). 2: iSteps.
+    iIntros "Hmtx_locked (:inv۰inner)".
+    do 2 wp۰load.
+    wp۰apply (condition٠wait_until𑁒spec (λ _, True)%I with "[$Hcond_inv $Hmtx_inv $Hmtx_locked $H𝑡_flag]"). 1: iSteps.
     iSteps.
   Qed.
-End waiter_G.
+End waiter۰G.
 
 Require zoo_parabs.waiter__opaque.
 
-#[global] Opaque waiter_inv.
+#[global] Opaque waiter۰inv.

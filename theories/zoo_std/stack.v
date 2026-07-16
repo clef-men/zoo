@@ -6,14 +6,14 @@ Require Import zoo.options.
 
 Implicit Types v t : val.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
 
-  Definition stack_model t vs :=
-    dynarray_1_model t (reverse vs).
+  Definition stack۰model t vs :=
+    dynarray_1۰model t (reverse vs).
 
-  #[global] Instance stack_model_timeless t vs :
-    Timeless (stack_model t vs).
+  #[global] Instance stack۰model𑁒timeless t vs :
+    Timeless (stack۰model t vs).
   Proof.
     apply _.
   Qed.
@@ -26,7 +26,7 @@ Section zoo_G.
     {{{
       t
     , RET t;
-      stack_model t []
+      stack۰model t []
     }}}.
   Proof.
     apply dynarray_1٠create𑁒spec.
@@ -34,51 +34,51 @@ Section zoo_G.
 
   Lemma stack٠is_empty𑁒spec t vs :
     {{{
-      stack_model t vs
+      stack۰model t vs
     }}}
       stack٠is_empty t
     {{{
       RET #(bool_decide (vs = []%list));
-      stack_model t vs
+      stack۰model t vs
     }}}.
   Proof.
     iIntros "%Φ Ht HΦ".
-    wp_apply (dynarray_1٠is_empty𑁒spec with "Ht").
+    wp۰apply (dynarray_1٠is_empty𑁒spec with "Ht").
     rewrite (bool_decide_ext (reverse vs = []) (vs = [])) // -{1}reverse_nil. naive_solver.
   Qed.
 
   Lemma stack٠push𑁒spec t vs v :
     {{{
-      stack_model t vs
+      stack۰model t vs
     }}}
       stack٠push t v
     {{{
       RET ();
-      stack_model t (v :: vs)
+      stack۰model t (v :: vs)
     }}}.
   Proof.
     iIntros "%Φ Ht HΦ".
-    wp_apply (dynarray_1٠push𑁒spec with "Ht").
+    wp۰apply (dynarray_1٠push𑁒spec with "Ht").
     rewrite -reverse_cons //.
   Qed.
 
   Lemma stack٠pop𑁒spec {t vs} v vs' :
     vs = v :: vs' →
     {{{
-      stack_model t vs
+      stack۰model t vs
     }}}
       stack٠pop t
     {{{
       RET v;
-      stack_model t vs'
+      stack۰model t vs'
     }}}.
   Proof.
     iIntros (->) "%Φ Ht HΦ".
-    wp_apply (dynarray_1٠pop𑁒spec with "Ht"); last iSteps.
+    wp۰apply (dynarray_1٠pop𑁒spec with "Ht"); last iSteps.
     rewrite reverse_cons //.
   Qed.
-End zoo_G.
+End zoo۰G.
 
 Require zoo_std.stack__opaque.
 
-#[global] Opaque stack_model.
+#[global] Opaque stack۰model.

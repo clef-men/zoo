@@ -23,14 +23,14 @@ Section relation.
     b ∈ x ∧
     R a b.
 
-  #[local] Lemma below_elem_of a x :
+  #[local] Lemma below𑁒elem_of a x :
     a ∈ x →
     below a x.
   Proof.
     intros Ha. exists a. done.
   Qed.
-  #[local] Lemma below_app a x y :
-    below a (listne_app x y) ↔
+  #[local] Lemma below𑁒app a x y :
+    below a (listne۰app x y) ↔
     below a x ∨ below a y.
   Proof.
     split.
@@ -38,17 +38,17 @@ Section relation.
         [left | right];
         exists b; done.
     - intros [(b & ? & ?) | (b & ? & ?)];
-        exists b; rewrite listne_elem_of_app; auto.
+        exists b; rewrite listne𑁒elem_of𑁒app; auto.
   Qed.
 
-  #[local] Instance monopoi_equiv : Equiv (monopoi R) :=
+  #[local] Instance monopoi۰equiv : Equiv (monopoi R) :=
     λ x y,
       ∀ a,
       below a x ↔
       below a y.
 
-  #[local] Instance monopoi_equiv_equiv :
-    Equivalence monopoi_equiv.
+  #[local] Instance monopoi۰equiv𑁒equiv :
+    Equivalence monopoi۰equiv.
   Proof.
     split.
     - done.
@@ -58,59 +58,59 @@ Section relation.
       + apply Heq1, Heq2. done.
   Qed.
 
-  Canonical monopoi_O :=
+  Canonical monopoi۰O :=
     discreteO (monopoi R).
 
-  #[local] Instance monopoi_valid : Valid (monopoi R) :=
+  #[local] Instance monopoi۰valid : Valid (monopoi R) :=
     λ x,
       ∃ a,
-      listne_Forall (flip R a) x.
-  #[local] Instance monopoi_validN : ValidN (monopoi R) :=
+      listne۰Forall (flip R a) x.
+  #[local] Instance monopoi۰validN : ValidN (monopoi R) :=
     λ _,
       valid.
-  #[local] Instance monopoi_op : Op (monopoi R) :=
+  #[local] Instance monopoi۰op : Op (monopoi R) :=
     λ x1 x2,
-      listne_app x1 x2.
-  #[local] Instance monopoi_pcore : PCore (monopoi R) :=
+      listne۰app x1 x2.
+  #[local] Instance monopoi۰pcore : PCore (monopoi R) :=
     Some.
 
-  #[local] Lemma monopoi_cmra_mixin :
+  #[local] Lemma monopoi𑁒cmra_mixin :
     CmraMixin (monopoi R).
   Proof.
     apply: discrete_cmra_mixin.
     apply ra_total_mixin; try done.
     - intros ? ?* Heq a.
       specialize (Heq a).
-      rewrite !below_app. naive_solver.
+      rewrite !below𑁒app. naive_solver.
     - intros ?*. done.
     - intros x1 x2 Heq (a & Ha).
-      exists a. apply listne_Forall_forall.
-      intros b (c & Hc & ?)%below_elem_of%Heq.
-      eapply listne_Forall_elem_of in Hc; last done.
+      exists a. apply listne۰Forall𑁒forall.
+      intros b (c & Hc & ?)%below𑁒elem_of%Heq.
+      eapply listne۰Forall𑁒elem_of in Hc; last done.
       naive_solver.
-    - intros ?* ?*. rewrite !below_app. naive_solver.
-    - intros ?* ?*. rewrite !below_app. naive_solver.
-    - intros ? ?*. rewrite below_app. naive_solver.
+    - intros ?* ?*. rewrite !below𑁒app. naive_solver.
+    - intros ?* ?*. rewrite !below𑁒app. naive_solver.
+    - intros ? ?*. rewrite below𑁒app. naive_solver.
     - intros x1 x2 H.
-      destruct H as (a & (? & _)%listne_Forall_app).
+      destruct H as (a & (? & _)%listne۰Forall𑁒app).
       exists a. done.
   Qed.
-  Canonical monopoi_R :=
-    Cmra (monopoi R) monopoi_cmra_mixin.
+  Canonical monopoi۰R :=
+    Cmra (monopoi R) monopoi𑁒cmra_mixin.
 
-  #[global] Instance monopoi_cmra_total :
-    CmraTotal monopoi_R.
+  #[global] Instance monopoi𑁒cmra_total :
+    CmraTotal monopoi۰R.
   Proof.
     rewrite /CmraTotal. auto.
   Qed.
-  #[global] Instance monopoi_core_id x :
+  #[global] Instance monopoi𑁒core_id x :
     CoreId x.
   Proof.
     constructor. done.
   Qed.
 
-  #[global] Instance monopoi_cmra_discrete :
-    CmraDiscrete monopoi_R.
+  #[global] Instance monopoi𑁒cmra_discrete :
+    CmraDiscrete monopoi۰R.
   Proof.
     split; last done. intros ?* ?*. done.
   Qed.
@@ -121,58 +121,58 @@ Section relation.
     done.
   Qed.
 
-  #[local] Instance monopoi_unit : Unit (monopoi R) :=
+  #[local] Instance monopoi۰unit : Unit (monopoi R) :=
     principal initial.
-  #[local] Lemma monopoi_ucmra_mixin :
+  #[local] Lemma monopoi𑁒ucmra_mixin :
     UcmraMixin (monopoi R).
   Proof.
     split; last done.
     - exists initial.
-      rewrite listne_Forall_singleton //.
+      rewrite listne۰Forall𑁒singleton //.
     - intros x a.
       split.
-      + intros (b & [->%listne_elem_of_singleton | Hb]%listne_elem_of_app & ?).
-        * destruct (listne_non_empty x) as (b & Hb).
+      + intros (b & [->%listne𑁒elem_of𑁒singleton | Hb]%listne𑁒elem_of𑁒app & ?).
+        * destruct (listne𑁒non_empty x) as (b & Hb).
           exists b. split; first done.
           trans initial; first done.
-          apply initial_lb.
+          apply initial𑁒lb.
         * exists b. auto.
       + intros (b & Hb & ?).
         exists b. split; last done.
-        apply listne_elem_of_app. auto.
+        apply listne𑁒elem_of𑁒app. auto.
   Qed.
-  Canonical monopoi_UR :=
-    Ucmra (monopoi R) monopoi_ucmra_mixin.
+  Canonical monopoi۰UR :=
+    Ucmra (monopoi R) monopoi𑁒ucmra_mixin.
 
-  Lemma monopoi_idemp x :
+  Lemma monopoi𑁒idemp x :
     x ⋅ x ≡ x.
   Proof.
-    intros ?*. rewrite below_app. naive_solver.
+    intros ?*. rewrite below𑁒app. naive_solver.
   Qed.
 
-  Lemma monopoi_included x y :
+  Lemma monopoi𑁒included x y :
     x ≼ y ↔
     y ≡ x ⋅ y.
   Proof using All.
     split.
-    - intros (z & ->). rewrite assoc monopoi_idemp //.
+    - intros (z & ->). rewrite assoc monopoi𑁒idemp //.
     - eexists. done.
   Qed.
 
-  Definition monopoi_principal : A → monopoi_UR :=
+  Definition monopoi۰principal : A → monopoi۰UR :=
     principal.
 
-  #[local] Lemma below_principal a b :
-    below a (monopoi_principal b) ↔
+  #[local] Lemma below𑁒principal a b :
+    below a (monopoi۰principal b) ↔
     R a b.
   Proof.
     split.
-    - intros (? & ->%listne_elem_of_singleton & ?). done.
+    - intros (? & ->%listne𑁒elem_of𑁒singleton & ?). done.
     - intros Hab. exists b.
-      split; first apply listne_elem_of_singleton; done.
+      split; first apply listne𑁒elem_of𑁒singleton; done.
   Qed.
 
-  Lemma monopoi_principal_R_opN_base n x y :
+  Lemma monopoi۰principal𑁒R𑁒opN𑁒base n x y :
     ( ∀ b,
       b ∈ y →
         ∃ c,
@@ -182,61 +182,61 @@ Section relation.
     y ⋅ x ≡{n}≡ x.
   Proof.
     intros HR. split.
-    all: rewrite below_app.
+    all: rewrite below𑁒app.
     - intros [(c & (d & Hd1 & Hd2)%HR & Hc2) |]; last done.
       exists d. eauto.
     - naive_solver.
   Qed.
-  Lemma monopoi_principal_R_opN n a b :
+  Lemma monopoi۰principal𑁒R𑁒opN n a b :
     R a b →
-    monopoi_principal a ⋅ monopoi_principal b ≡{n}≡ monopoi_principal b.
+    monopoi۰principal a ⋅ monopoi۰principal b ≡{n}≡ monopoi۰principal b.
   Proof.
     intros.
-    apply monopoi_principal_R_opN_base => c.
-    setoid_rewrite listne_elem_of_singleton.
+    apply monopoi۰principal𑁒R𑁒opN𑁒base => c.
+    setoid_rewrite listne𑁒elem_of𑁒singleton.
     naive_solver.
   Qed.
-  Lemma monopoi_principal_R_op a b :
+  Lemma monopoi۰principal𑁒R𑁒op a b :
     R a b →
-    monopoi_principal a ⋅ monopoi_principal b ≡ monopoi_principal b.
+    monopoi۰principal a ⋅ monopoi۰principal b ≡ monopoi۰principal b.
   Proof.
     intros ? ?*.
-    apply (monopoi_principal_R_opN 0ᵢ). done.
+    apply (monopoi۰principal𑁒R𑁒opN 0ᵢ). done.
   Qed.
 
-  Lemma monopoi_principal_opN_R n a b x :
+  Lemma monopoi۰principal𑁒opN𑁒R n a b x :
     R a a →
-    monopoi_principal a ⋅ x ≡{n}≡ monopoi_principal b →
+    monopoi۰principal a ⋅ x ≡{n}≡ monopoi۰principal b →
     R a b.
   Proof.
     intros Ha HR.
-    destruct (HR a) as [[z [HR1%listne_elem_of_singleton HR2]] _].
-    - rewrite below_app below_principal. auto.
+    destruct (HR a) as [[z [HR1%listne𑁒elem_of𑁒singleton HR2]] _].
+    - rewrite below𑁒app below𑁒principal. auto.
     - naive_solver.
   Qed.
-  Lemma monopoi_principal_op_R' a b x :
+  Lemma monopoi۰principal𑁒op𑁒R' a b x :
     R a a →
-    monopoi_principal a ⋅ x ≡ monopoi_principal b →
+    monopoi۰principal a ⋅ x ≡ monopoi۰principal b →
     R a b.
   Proof.
     intros.
-    eapply (monopoi_principal_opN_R 0ᵢ); done.
+    eapply (monopoi۰principal𑁒opN𑁒R 0ᵢ); done.
   Qed.
-  Lemma monopoi_principal_op_R a b x :
-    monopoi_principal a ⋅ x ≡ monopoi_principal b →
+  Lemma monopoi۰principal𑁒op𑁒R a b x :
+    monopoi۰principal a ⋅ x ≡ monopoi۰principal b →
     R a b.
   Proof.
     intros.
-    eapply monopoi_principal_op_R'; done.
+    eapply monopoi۰principal𑁒op𑁒R'; done.
   Qed.
 
-  Lemma monopoi_principal_valid a :
-    ✓ monopoi_principal a.
+  Lemma monopoi۰principal𑁒valid a :
+    ✓ monopoi۰principal a.
   Proof.
-    exists a. rewrite listne_Forall_singleton //.
+    exists a. rewrite listne۰Forall𑁒singleton //.
   Qed.
-  Lemma monopoi_principal_op_valid a1 a2 :
-    ✓ (monopoi_principal a1 ⋅ monopoi_principal a2) →
+  Lemma monopoi۰principal𑁒op𑁒valid a1 a2 :
+    ✓ (monopoi۰principal a1 ⋅ monopoi۰principal a2) →
       ∃ a,
       R a1 a ∧
       R a2 a.
@@ -245,61 +245,61 @@ Section relation.
     naive_solver.
   Qed.
 
-  Lemma monopoi_principal_includedN n a b :
-    monopoi_principal a ≼{n} monopoi_principal b ↔
+  Lemma monopoi۰principal𑁒includedN n a b :
+    monopoi۰principal a ≼{n} monopoi۰principal b ↔
     R a b.
   Proof.
     split.
     - intros (z & Hz).
-      eapply monopoi_principal_opN_R; first done.
+      eapply monopoi۰principal𑁒opN𑁒R; first done.
       rewrite Hz //.
     - intros.
-      exists (monopoi_principal b). rewrite monopoi_principal_R_opN //.
+      exists (monopoi۰principal b). rewrite monopoi۰principal𑁒R𑁒opN //.
   Qed.
-  Lemma monopoi_principal_included a b :
-    monopoi_principal a ≼ monopoi_principal b ↔
+  Lemma monopoi۰principal𑁒included a b :
+    monopoi۰principal a ≼ monopoi۰principal b ↔
     R a b.
   Proof.
-    apply (monopoi_principal_includedN 0ᵢ).
+    apply (monopoi۰principal𑁒includedN 0ᵢ).
   Qed.
 
-  Lemma monopoi_local_update_grow a x b:
+  Lemma monopoi𑁒local_update𑁒grow a x b:
     R a b →
-    (monopoi_principal a, x) ~l~> (monopoi_principal b, monopoi_principal b).
+    (monopoi۰principal a, x) ~l~> (monopoi۰principal b, monopoi۰principal b).
   Proof.
     intros Hana Hanb.
     apply local_update_unital_discrete => z _ Habz.
     split.
-    - apply monopoi_principal_valid.
+    - apply monopoi۰principal𑁒valid.
     - intros w. split.
-      + intros (y & ->%listne_elem_of_singleton & Hy2).
+      + intros (y & ->%listne𑁒elem_of𑁒singleton & Hy2).
         exists b. split; [constructor | done].
       + intros (y & [-> | Hy1]%elem_of_cons & Hy2).
         * exists b. split; [constructor | done].
         * exists b. split; first constructor.
-          specialize (Habz w) as [_ [c [->%listne_elem_of_singleton Hc2]]].
+          specialize (Habz w) as [_ [c [->%listne𑁒elem_of𑁒singleton Hc2]]].
           { exists y. split; last done.
             apply elem_of_app. naive_solver.
           }
           etrans; eauto.
   Qed.
 
-  Lemma monopoi_local_update_get_frag a b:
+  Lemma monopoi𑁒local_update𑁒get_frag a b:
     R b a →
-    (monopoi_principal a, ε) ~l~> (monopoi_principal a, monopoi_principal b).
+    (monopoi۰principal a, ε) ~l~> (monopoi۰principal a, monopoi۰principal b).
   Proof.
     intros Hana.
     apply local_update_unital_discrete => z _.
     rewrite left_id => <-.
     split.
-    - apply monopoi_principal_valid.
-    - apply monopoi_included, monopoi_principal_included. done.
+    - apply monopoi۰principal𑁒valid.
+    - apply monopoi𑁒included, monopoi۰principal𑁒included. done.
   Qed.
 End relation.
 
-#[global] Arguments monopoi_R {_ _} _ {_ _ _} : assert.
-#[global] Arguments monopoi_UR {_ _} _ {_ _ _} : assert.
-#[global] Arguments monopoi_principal {_ _} _ {_ _ _} _ : assert.
+#[global] Arguments monopoi۰R {_ _} _ {_ _ _} : assert.
+#[global] Arguments monopoi۰UR {_ _} _ {_ _ _} : assert.
+#[global] Arguments monopoi۰principal {_ _} _ {_ _ _} _ : assert.
 
 Section ofe_relation.
   Context {SI : sidx}.
@@ -310,54 +310,54 @@ Section ofe_relation.
   Implicit Types a b c : A.
   Implicit Types x y z : monopoi R.
 
-  #[global] Instance monopoi_principal_ne :
+  #[global] Instance monopoi۰principal𑁒ne :
     (∀ n, Proper ((≡{n}≡) ==> (≡{n}≡) ==> (↔)) R) →
-    NonExpansive (monopoi_principal R).
+    NonExpansive (monopoi۰principal R).
   Proof.
     intros HR n a1 a2 Ha.
-    split; rewrite !below_principal Ha //.
+    split; rewrite !below𑁒principal Ha //.
   Qed.
-  #[global] Instance monopoi_principal_proper :
+  #[global] Instance monopoi۰principal𑁒proper :
     Proper ((≡) ==> (≡) ==> (↔)) R →
-    Proper ((≡) ==> (≡)) (monopoi_principal R).
+    Proper ((≡) ==> (≡)) (monopoi۰principal R).
   Proof.
     intros HR a1 a2 Ha.
-    split; rewrite !below_principal Ha //.
+    split; rewrite !below𑁒principal Ha //.
   Qed.
 
-  Lemma monopoi_principal_inj_related a b :
-    monopoi_principal R a ≡ monopoi_principal R b →
+  Lemma monopoi۰principal𑁒inj𑁒related a b :
+    monopoi۰principal R a ≡ monopoi۰principal R b →
     R a a →
     R a b.
   Proof.
     intros Hab ?.
-    destruct (Hab a) as [[? [?%listne_elem_of_singleton ?]] _].
-    - exists a. rewrite listne_elem_of_singleton //.
+    destruct (Hab a) as [[? [?%listne𑁒elem_of𑁒singleton ?]] _].
+    - exists a. rewrite listne𑁒elem_of𑁒singleton //.
     - naive_solver.
   Qed.
-  Lemma monopoi_principal_inj_general a b :
-    monopoi_principal R a ≡ monopoi_principal R b →
+  Lemma monopoi۰principal𑁒inj𑁒general a b :
+    monopoi۰principal R a ≡ monopoi۰principal R b →
     R a a →
     R b b →
     (R a b → R b a → a ≡ b) →
     a ≡ b.
   Proof.
     intros ? ? ? Has.
-    apply Has; apply monopoi_principal_inj_related; auto.
+    apply Has; apply monopoi۰principal𑁒inj𑁒related; auto.
   Qed.
 
-  #[global] Instance monopoi_principal_inj `{!AntiSymm (≡) R} :
-    Inj (≡) (≡) (monopoi_principal R).
+  #[global] Instance monopoi۰principal𑁒inj `{!AntiSymm (≡) R} :
+    Inj (≡) (≡) (monopoi۰principal R).
   Proof.
     intros ? ? ?.
-    apply monopoi_principal_inj_general; auto.
+    apply monopoi۰principal𑁒inj𑁒general; auto.
   Qed.
-  #[global] Instance monopoi_principal_inj' `{!AntiSymm (≡) R} n :
-    Inj (≡{n}≡) (≡{n}≡) (monopoi_principal R).
+  #[global] Instance monopoi۰principal𑁒inj' `{!AntiSymm (≡) R} n :
+    Inj (≡{n}≡) (≡{n}≡) (monopoi۰principal R).
   Proof.
     intros x y Hxy%discrete_iff; last apply _.
     apply equiv_dist. move: Hxy. apply inj, _.
   Qed.
 End ofe_relation.
 
-#[global] Opaque monopoi_principal.
+#[global] Opaque monopoi۰principal.

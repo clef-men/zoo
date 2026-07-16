@@ -52,8 +52,8 @@ Fixpoint occurs x e :=
       (￢ BNamed x ≟ y) && occurs x e1 ||
       existsb (λ br,
         let pat := br.1 in
-        forallb (λ y, ￢ BNamed x ≟ y) pat.(pattern_fields) &&
-        ￢ BNamed x ≟ pat.(pattern_as) &&
+        forallb (λ y, ￢ BNamed x ≟ y) pat.(pattern۰fields) &&
+        ￢ BNamed x ≟ pat.(pattern۰as) &&
         occurs x br.2
       ) brs
   | GetTag e =>
@@ -91,7 +91,7 @@ Fixpoint occurs x e :=
       occurs x e2
   end.
 
-Definition val_recursive v :=
+Definition val۰recursive v :=
   match v with
   | ValRecs _ recs =>
       existsb (λ rec,
@@ -182,8 +182,8 @@ Fixpoint subst (x : string) v e :=
         ( ( λ br,
               ( br.1,
                 if
-                  existsb (BNamed x ≟.) br.1.(pattern_fields) ||
-                  BNamed x ≟ br.1.(pattern_as)
+                  existsb (BNamed x ≟.) br.1.(pattern۰fields) ||
+                  BNamed x ≟ br.1.(pattern۰as)
                 then
                   br.2
                 else
@@ -259,12 +259,12 @@ Fixpoint subst_list xs vs e :=
   end.
 #[global] Arguments subst_list !_ !_ _ / : assert.
 
-Lemma subst_val x v1 v2 :
+Lemma subst𑁒val x v1 v2 :
   subst x v1 (Val v2) = Val v2.
 Proof.
   done.
 Qed.
-Lemma subst'_val x v1 v2 :
+Lemma subst'𑁒val x v1 v2 :
   subst' x v1 (Val v2) = Val v2.
 Proof.
   destruct x; done.

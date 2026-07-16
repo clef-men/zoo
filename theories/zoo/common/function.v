@@ -41,40 +41,40 @@ Section lookup.
   Implicit Types y : B.
   Implicit Types f : A → B.
 
-  Lemma fn_lookup_insert f x1 y x2 :
+  Lemma fn𑁒lookup𑁒insert f x1 y x2 :
     <[x1 := y]> f x2 = if decide (x1 = x2) then y else f x2.
   Proof.
     done.
   Qed.
-  Lemma fn_lookup_insert_eq f x1 y x2 :
+  Lemma fn𑁒lookup𑁒insert𑁒eq f x1 y x2 :
     x1 = x2 →
     <[x1 := y]> f x2 = y.
   Proof.
-    rewrite fn_lookup_insert. case_decide; done.
+    rewrite fn𑁒lookup𑁒insert. case_decide; done.
   Qed.
-  Lemma fn_lookup_insert_ne f x1 y x2 :
+  Lemma fn𑁒lookup𑁒insert𑁒ne f x1 y x2 :
     x1 ≠ x2 →
     <[x1 := y]> f x2 = f x2.
   Proof.
-    rewrite fn_lookup_insert. case_decide; done.
+    rewrite fn𑁒lookup𑁒insert. case_decide; done.
   Qed.
 
-  Lemma fn_lookup_alter g f x1 x2 :
+  Lemma fn𑁒lookup𑁒alter g f x1 x2 :
     alter g x1 f x2 = if decide (x1 = x2) then g (f x1) else f x2.
   Proof.
     done.
   Qed.
-  Lemma fn_lookup_alter_eq g f x1 x2 :
+  Lemma fn𑁒lookup𑁒alter𑁒eq g f x1 x2 :
     x1 = x2 →
     alter g x1 f x2 = g (f x1).
   Proof.
-    rewrite fn_lookup_alter. case_decide; done.
+    rewrite fn𑁒lookup𑁒alter. case_decide; done.
   Qed.
-  Lemma fn_lookup_alter_ne g f x1 x2 :
+  Lemma fn𑁒lookup𑁒alter𑁒ne g f x1 x2 :
     x1 ≠ x2 →
     alter g x1 f x2 = f x2.
   Proof.
-    rewrite fn_lookup_alter. case_decide; done.
+    rewrite fn𑁒lookup𑁒alter. case_decide; done.
   Qed.
 End lookup.
 
@@ -86,11 +86,11 @@ Section fmap.
   Implicit Types f : A → B.
   Implicit Types g : B → C.
 
-  Lemma fn_compose_insert f g x y :
+  Lemma fn𑁒compose𑁒insert f g x y :
     g ∘ <[x := y]> f = <[x := g y]> (g ∘ f).
   Proof.
     apply functional_extensionality => 𝑥.
-    rewrite /= !fn_lookup_insert.
+    rewrite /= !fn𑁒lookup𑁒insert.
     case_decide; done.
   Qed.
 End fmap.

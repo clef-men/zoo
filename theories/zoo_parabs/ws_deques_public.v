@@ -14,29 +14,29 @@ Implicit Types vs ws queues : list val.
 Implicit Types vss : list (list val).
 Implicit Types status : status.
 
-Class WsDequesPublicG Σ `{zoo_G : !ZooG Σ} :=
-  { #[local] ws_deques_public_G_ws_deque_G :: WsDeque2G Σ
+Class WsDequesPublicG Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] ws_deques_public۰G۰ws_deque۰G :: WsDeque2G Σ
   }.
 
-Definition ws_deques_public_Σ :=
-  #[ws_deque_2_Σ
+Definition ws_deques_public۰Σ :=
+  #[ws_deque_2۰Σ
   ].
-#[global] Instance subG_ws_deques_public_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG ws_deques_public_Σ Σ →
+#[global] Instance subG𑁒ws_deques_public۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG ws_deques_public۰Σ Σ →
   WsDequesPublicG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section ws_deques_public_G.
-  Context `{ws_deques_public_G : WsDequesPublicG Σ}.
+Section ws_deques_public۰G.
+  Context `{ws_deques_public۰G : WsDequesPublicG Σ}.
 
-  Definition ws_deques_public_inv t ι sz : iProp Σ :=
+  Definition ws_deques_public۰inv t ι sz : iProp Σ :=
     ∃ queues,
     ⌜sz = length queues⌝ ∗
-    array_model t DfracDiscarded queues ∗
+    array۰model t DfracDiscarded queues ∗
     [∗ list] queue ∈ queues,
-      ws_deque_2_inv queue ι.
+      ws_deque_2۰inv queue ι.
   #[local] Instance : CustomIpat "inv" :=
     " ( %queues{}
       & %Hqueues{}_length
@@ -45,11 +45,11 @@ Section ws_deques_public_G.
       )
     ".
 
-  Definition ws_deques_public_model t vss : iProp Σ :=
+  Definition ws_deques_public۰model t vss : iProp Σ :=
     ∃ queues,
-    array_model t DfracDiscarded queues ∗
+    array۰model t DfracDiscarded queues ∗
     [∗ list] i ↦ queue; vs ∈ queues; vss,
-      ws_deque_2_model queue vs.
+      ws_deque_2۰model queue vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %queues{;_}
       & Hqueues{;_}
@@ -57,11 +57,11 @@ Section ws_deques_public_G.
       )
     ".
 
-  Definition ws_deques_public_owner t i status ws : iProp Σ :=
+  Definition ws_deques_public۰owner t i status ws : iProp Σ :=
     ∃ queues queue,
     ⌜queues !! i = Some queue⌝ ∗
-    array_model t DfracDiscarded queues ∗
-    ws_deque_2_owner queue ws.
+    array۰model t DfracDiscarded queues ∗
+    ws_deque_2۰owner queue ws.
   #[local] Instance : CustomIpat "owner" :=
     " ( %queues{;_}
       & %queue{}
@@ -71,70 +71,70 @@ Section ws_deques_public_G.
       )
     ".
 
-  #[global] Instance ws_deques_public_model_timeless t vss :
-    Timeless (ws_deques_public_model t vss).
+  #[global] Instance ws_deques_public۰model𑁒timeless t vss :
+    Timeless (ws_deques_public۰model t vss).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance ws_deques_public_inv_persistent t ι sz :
-    Persistent (ws_deques_public_inv t ι sz).
+  #[global] Instance ws_deques_public۰inv𑁒persistent t ι sz :
+    Persistent (ws_deques_public۰inv t ι sz).
   Proof.
     apply _.
   Qed.
 
-  Lemma ws_deques_public_inv_agree t ι1 sz1 ι2 sz2 :
-    ws_deques_public_inv t ι1 sz1 -∗
-    ws_deques_public_inv t ι2 sz2 -∗
+  Lemma ws_deques_public۰inv𑁒agree t ι1 sz1 ι2 sz2 :
+    ws_deques_public۰inv t ι1 sz1 -∗
+    ws_deques_public۰inv t ι2 sz2 -∗
     ⌜sz1 = sz2⌝.
   Proof.
     iIntros "(:inv =1) (:inv =2)".
-    iDestruct (array_model_agree with "Hqueues1 Hqueues2") as %<-.
+    iDestruct (array۰model𑁒agree with "Hqueues1 Hqueues2") as %<-.
     iSteps.
   Qed.
 
-  Lemma ws_deques_public_owner_exclusive t i status1 ws1 status2 ws2 :
-    ws_deques_public_owner t i status1 ws1 -∗
-    ws_deques_public_owner t i status2 ws2 -∗
+  Lemma ws_deques_public۰owner𑁒exclusive t i status1 ws1 status2 ws2 :
+    ws_deques_public۰owner t i status1 ws1 -∗
+    ws_deques_public۰owner t i status2 ws2 -∗
     False.
   Proof.
     iIntros "(:owner =1) (:owner =2)".
-    iDestruct (array_model_agree with "Hqueues1 Hqueues2") as %<-. iClear "Hqueues2".
+    iDestruct (array۰model𑁒agree with "Hqueues1 Hqueues2") as %<-. iClear "Hqueues2".
     simplify.
-    iApply (ws_deque_2_owner_exclusive with "Hqueue1_owner Hqueue2_owner").
+    iApply (ws_deque_2۰owner𑁒exclusive with "Hqueue1_owner Hqueue2_owner").
   Qed.
 
-  Lemma ws_deques_public_inv_model t ι sz vss :
-    ws_deques_public_inv t ι sz -∗
-    ws_deques_public_model t vss -∗
+  Lemma ws_deques_public𑁒inv𑁒model t ι sz vss :
+    ws_deques_public۰inv t ι sz -∗
+    ws_deques_public۰model t vss -∗
     ⌜length vss = sz⌝.
   Proof.
     iIntros "(:inv) (:model)".
     iDestruct (big_sepL2_length with "Hqueues_model") as %<-.
-    iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-.
+    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-.
     iSteps.
   Qed.
-  Lemma ws_deques_public_inv_owner t ι sz i status ws :
-    ws_deques_public_inv t ι sz -∗
-    ws_deques_public_owner t i status ws -∗
+  Lemma ws_deques_public𑁒inv𑁒owner t ι sz i status ws :
+    ws_deques_public۰inv t ι sz -∗
+    ws_deques_public۰owner t i status ws -∗
     ⌜i < sz⌝.
   Proof.
     iIntros "(:inv) (:owner)".
-    iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
+    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
     iPureIntro. rewrite Hqueues_length. eapply lookup_lt_Some. done.
   Qed.
 
-  Lemma ws_deques_public_model_owner t vss i status ws :
-    ws_deques_public_model t vss -∗
-    ws_deques_public_owner t i status ws -∗
+  Lemma ws_deques_public𑁒model𑁒owner t vss i status ws :
+    ws_deques_public۰model t vss -∗
+    ws_deques_public۰owner t i status ws -∗
       ∃ vs,
       ⌜vss !! i = Some vs⌝ ∗
       ⌜vs `suffix_of` ws⌝.
   Proof.
     iIntros "(:model =1) (:owner =2)".
-    iDestruct (array_model_agree with "Hqueues1 Hqueues2") as %<-. iClear "Hqueues2".
+    iDestruct (array۰model𑁒agree with "Hqueues1 Hqueues2") as %<-. iClear "Hqueues2".
     iDestruct (big_sepL2_lookup_l with "Hqueues1_model") as "(%vs & $ & Hqueue2_model)"; first done.
-    iApply (ws_deque_2_owner_model with "Hqueue2_owner Hqueue2_model").
+    iApply (ws_deque_2𑁒owner𑁒model with "Hqueue2_owner Hqueue2_model").
   Qed.
 
   Lemma ws_deques_public٠create𑁒spec ι sz :
@@ -146,46 +146,46 @@ Section ws_deques_public_G.
     {{{
       t
     , RET t;
-      ws_deques_public_inv t ι ₊sz ∗
-      ws_deques_public_model t (replicate ₊sz []) ∗
+      ws_deques_public۰inv t ι ₊sz ∗
+      ws_deques_public۰model t (replicate ₊sz []) ∗
       [∗ list] i ∈ seq 0 ₊sz,
-        ws_deques_public_owner t i Nonblocked []
+        ws_deques_public۰owner t i Nonblocked []
     }}}.
   Proof.
     iIntros "%Hsz %Φ _ HΦ".
 
-    wp_rec.
+    wp۰rec.
 
     pose (Ψ t (_ : nat) queues := (
       ( [∗ list] queue ∈ queues,
-        ws_deque_2_inv queue ι
+        ws_deque_2۰inv queue ι
       ) ∗
       ( [∗ list] queue ∈ queues,
-        ws_deque_2_model queue []
+        ws_deque_2۰model queue []
       ) ∗
       ( [∗ list] queue ∈ queues,
-        ws_deque_2_owner queue []
+        ws_deque_2۰owner queue []
       )
     )%I).
-    iApply wp_fupd.
-    wp_apply+ (array٠unsafe_init𑁒spec Ψ) as (t queues) "(%Hqueues_length & Hqueues & (Hinv & Hmodel & Howner))"; first done.
+    iApply wp𑁒fupd.
+    wp۰apply+ (array٠unsafe_init𑁒spec Ψ) as (t queues) "(%Hqueues_length & Hqueues & (Hinv & Hmodel & Howner))"; first done.
     { iSplit; iSteps.
-      wp_apply (ws_deque_2٠create𑁒spec with "[//]").
+      wp۰apply (ws_deque_2٠create𑁒spec with "[//]").
       rewrite /Ψ. setoid_rewrite big_sepL_snoc. iSteps.
     }
-    iMod (array_model_persist with "Hqueues") as "#Hqueues".
+    iMod (array۰model𑁒persist with "Hqueues") as "#Hqueues".
 
     iApply "HΦ". iSplitL "Hinv"; last iSplitL "Hmodel".
     - iExists queues. iSteps.
     - iExists queues. rewrite big_sepL2_replicate_r //. iSteps.
-    - rewrite big_sepL_seq_index //.
+    - rewrite big_sepL𑁒seq𑁒index //.
       iApply (big_sepL_impl with "Howner").
       iSteps.
   Qed.
 
   Lemma ws_deques_public٠size𑁒spec t ι sz :
     {{{
-      ws_deques_public_inv t ι sz
+      ws_deques_public۰inv t ι sz
     }}}
       ws_deques_public٠size t
     {{{
@@ -194,19 +194,19 @@ Section ws_deques_public_G.
     }}}.
   Proof.
     iSteps.
-    wp_apply array٠size𑁒spec; iSteps.
+    wp۰apply array٠size𑁒spec; iSteps.
   Qed.
 
   Lemma ws_deques_public٠block𑁒spec t ι sz i i_ ws :
     i = ⁺i_ →
     {{{
-      ws_deques_public_inv t ι sz ∗
-      ws_deques_public_owner t i_ Nonblocked ws
+      ws_deques_public۰inv t ι sz ∗
+      ws_deques_public۰owner t i_ Nonblocked ws
     }}}
       ws_deques_public٠block t #i
     {{{
       RET ();
-      ws_deques_public_owner t i_ Blocked ws
+      ws_deques_public۰owner t i_ Blocked ws
     }}}.
   Proof.
     iSteps.
@@ -215,13 +215,13 @@ Section ws_deques_public_G.
   Lemma ws_deques_public٠unblock𑁒spec t ι sz i i_ ws :
     i = ⁺i_ →
     {{{
-      ws_deques_public_inv t ι sz ∗
-      ws_deques_public_owner t i_ Blocked ws
+      ws_deques_public۰inv t ι sz ∗
+      ws_deques_public۰owner t i_ Blocked ws
     }}}
       ws_deques_public٠unblock t #i
     {{{
       RET ();
-      ws_deques_public_owner t i_ Nonblocked ws
+      ws_deques_public۰owner t i_ Nonblocked ws
     }}}.
   Proof.
     iSteps.
@@ -230,32 +230,32 @@ Section ws_deques_public_G.
   Lemma ws_deques_public٠push𑁒spec t ι sz i i_ ws v :
     i = ⁺i_ →
     <<<
-      ws_deques_public_inv t ι sz ∗
-      ws_deques_public_owner t i_ Nonblocked ws
+      ws_deques_public۰inv t ι sz ∗
+      ws_deques_public۰owner t i_ Nonblocked ws
     | ∀∀ vss,
-      ws_deques_public_model t vss
+      ws_deques_public۰model t vss
     >>>
       ws_deques_public٠push t #i v @ ↑ι
     <<<
       ∃∃ vs,
       ⌜vss !! i_ = Some vs⌝ ∗
       ⌜vs `suffix_of` ws⌝ ∗
-      ws_deques_public_model t (<[i_ := vs ++ [v]]> vss)
+      ws_deques_public۰model t (<[i_ := vs ++ [v]]> vss)
     | RET ();
-      ws_deques_public_owner t i_ Nonblocked (vs ++ [v])
+      ws_deques_public۰owner t i_ Nonblocked (vs ++ [v])
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ".
-    iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
+    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
 
-    wp_rec.
-    wp_apply+ (array٠unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done | lia |].
+    wp۰rec.
+    wp۰apply+ (array٠unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done | lia |].
 
     iDestruct (big_sepL_lookup with "Hqueues_inv") as "Hqueue_inv"; first done.
-    awp_apply+ (ws_deque_2٠push𑁒spec with "[$Hqueue_inv $Hqueue_owner]").
-    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)".
-    iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
-    iDestruct (big_sepL2_lookup_Some_l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
+    awp۰apply+ (ws_deque_2٠push𑁒spec with "[$Hqueue_inv $Hqueue_owner]").
+    iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vss (:model)".
+    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
+    iDestruct (big_sepL2𑁒lookup𑁒Some𑁒l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
     iDestruct (big_sepL2_insert_acc with "Hqueues_model") as "(Hqueue_model & Hqueues_model)"; [done.. |].
     iAaccIntro with "Hqueue_model".
 
@@ -271,10 +271,10 @@ Section ws_deques_public_G.
   Lemma ws_deques_public٠pop𑁒spec t ι sz i i_ ws :
     i = ⁺i_ →
     <<<
-      ws_deques_public_inv t ι sz ∗
-      ws_deques_public_owner t i_ Nonblocked ws
+      ws_deques_public۰inv t ι sz ∗
+      ws_deques_public۰owner t i_ Nonblocked ws
     | ∀∀ vss,
-      ws_deques_public_model t vss
+      ws_deques_public۰model t vss
     >>>
       ws_deques_public٠pop t #i @ ↑ι
     <<<
@@ -283,29 +283,29 @@ Section ws_deques_public_G.
       | None =>
           ⌜vss !! i_ = Some []⌝ ∗
           ⌜ws' = []⌝ ∗
-          ws_deques_public_model t vss
+          ws_deques_public۰model t vss
       | Some v =>
           ∃ vs,
           ⌜vss !! i_ = Some (vs ++ [v])⌝ ∗
           ⌜vs ++ [v] `suffix_of` ws⌝ ∗
           ⌜ws' = vs⌝ ∗
-          ws_deques_public_model t (<[i_ := vs]> vss)
+          ws_deques_public۰model t (<[i_ := vs]> vss)
       end
     | RET o;
-      ws_deques_public_owner t i_ Nonblocked ws'
+      ws_deques_public۰owner t i_ Nonblocked ws'
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ".
-    iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
+    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
 
-    wp_rec.
-    wp_apply+ (array٠unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done | lia |].
+    wp۰rec.
+    wp۰apply+ (array٠unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done | lia |].
 
     iDestruct (big_sepL_lookup with "Hqueues_inv") as "Hqueue_inv"; first done.
-    awp_apply+ (ws_deque_2٠pop𑁒spec with "[$Hqueue_inv $Hqueue_owner]").
-    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)".
-    iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
-    iDestruct (big_sepL2_lookup_Some_l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
+    awp۰apply+ (ws_deque_2٠pop𑁒spec with "[$Hqueue_inv $Hqueue_owner]").
+    iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vss (:model)".
+    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
+    iDestruct (big_sepL2𑁒lookup𑁒Some𑁒l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
     iDestruct (big_sepL2_insert_acc with "Hqueues_model") as "(Hqueue_model & Hqueues_model)"; [done.. |].
     iAaccIntro with "Hqueue_model".
 
@@ -330,37 +330,37 @@ Section ws_deques_public_G.
     i = ⁺i_ →
     (0 ≤ j < sz)%Z →
     <<<
-      ws_deques_public_inv t ι sz ∗
-      ws_deques_public_owner t i_ Blocked ws
+      ws_deques_public۰inv t ι sz ∗
+      ws_deques_public۰owner t i_ Blocked ws
     | ∀∀ vss,
-      ws_deques_public_model t vss
+      ws_deques_public۰model t vss
     >>>
       ws_deques_public٠steal_to t #i #j @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
-          ws_deques_public_model t vss
+          ws_deques_public۰model t vss
       | Some v =>
           ∃ vs,
           ⌜vss !! ₊j = Some (v :: vs)⌝ ∗
-          ws_deques_public_model t (<[₊j := vs]> vss)
+          ws_deques_public۰model t (<[₊j := vs]> vss)
       end
     | RET o;
-      ws_deques_public_owner t i_ Blocked ws
+      ws_deques_public۰owner t i_ Blocked ws
     >>>.
   Proof.
     iIntros (-> Hj) "%Φ ((:inv) & Howner) HΦ".
 
-    wp_rec.
+    wp۰rec.
     destruct (lookup_lt_is_Some_2 queues ₊j) as (queue & Hqueue_lookup); first lia.
-    wp_apply+ (array٠unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done.. |].
+    wp۰apply+ (array٠unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done.. |].
 
     iDestruct (big_sepL_lookup with "Hqueues_inv") as "#Hqueue_inv"; first done.
-    awp_apply+ (ws_deque_2٠steal𑁒spec with "Hqueue_inv") without "Howner".
-    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)".
-    iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
-    iDestruct (big_sepL2_lookup_Some_l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
+    awp۰apply+ (ws_deque_2٠steal𑁒spec with "Hqueue_inv") without "Howner".
+    iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vss (:model)".
+    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
+    iDestruct (big_sepL2𑁒lookup𑁒Some𑁒l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
     iDestruct (big_sepL2_insert_acc with "Hqueues_model") as "(Hqueue_model & Hqueues_model)"; [done.. |].
     iAaccIntro with "Hqueue_model".
 
@@ -378,61 +378,61 @@ Section ws_deques_public_G.
         iDestruct ("Hqueues_model" with "Hqueue_model") as "Hqueues_model".
         rewrite list_insert_id //. iSteps.
   Qed.
-End ws_deques_public_G.
+End ws_deques_public۰G.
 
-#[global] Opaque ws_deques_public_inv.
-#[global] Opaque ws_deques_public_model.
-#[global] Opaque ws_deques_public_owner.
+#[global] Opaque ws_deques_public۰inv.
+#[global] Opaque ws_deques_public۰model.
+#[global] Opaque ws_deques_public۰owner.
 
-Section ws_deques_public_G.
-  Context `{ws_deques_public_G : WsDequesPublicG Σ}.
+Section ws_deques_public۰G.
+  Context `{ws_deques_public۰G : WsDequesPublicG Σ}.
 
   #[local] Lemma ws_deques_public٠steal_as₀𑁒spec t ι (sz : nat) i i_ ws round (n : nat) :
     i = ⁺i_ →
     <<<
-      ws_deques_public_inv t ι sz ∗
-      ws_deques_public_owner t i_ Blocked ws ∗
-      random_round_model' round (sz - 1) n
+      ws_deques_public۰inv t ι sz ∗
+      ws_deques_public۰owner t i_ Blocked ws ∗
+      random_round۰model' round (sz - 1) n
     | ∀∀ vss,
-      ws_deques_public_model t vss
+      ws_deques_public۰model t vss
     >>>
       ws_deques_public٠steal_as₀ t #sz #i round #n @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
-          ws_deques_public_model t vss
+          ws_deques_public۰model t vss
       | Some v =>
           ∃ j vs,
           ⌜₊i ≠ j⌝ ∗
           ⌜vss !! j = Some (v :: vs)⌝ ∗
-          ws_deques_public_model t (<[j := vs]> vss)
+          ws_deques_public۰model t (<[j := vs]> vss)
       end
     | RET o;
       ∃ n,
-      ws_deques_public_owner t i_ Blocked ws ∗
-      random_round_model' round (sz - 1) n
+      ws_deques_public۰owner t i_ Blocked ws ∗
+      random_round۰model' round (sz - 1) n
     >>>.
   Proof.
     iIntros (->) "%Φ (#Hinv & Howner & Hround) HΦ".
-    iDestruct (ws_deques_public_inv_owner with "Hinv Howner") as %Hi.
+    iDestruct (ws_deques_public𑁒inv𑁒owner with "Hinv Howner") as %Hi.
 
     iLöb as "HLöb" forall (n).
 
-    wp_rec. wp_pures.
-    case_bool_decide as Hcase; wp_pures.
+    wp۰rec. wp۰pures.
+    case_bool_decide as Hcase; wp۰pures.
 
     - iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
       iApply ("HΦ" $! None with "Hmodel [$Howner Hround]"); first iSteps.
 
-    - wp_apply (random_round٠next𑁒spec' with "Hround") as (j) "(%Hj & Hround)"; first lia.
-      wp_pures.
+    - wp۰apply (random_round٠next𑁒spec' with "Hround") as (j) "(%Hj & Hround)"; first lia.
+      wp۰pures.
       rewrite Nat2Z.id.
       pose k := (i_ + 1 + j) `mod` sz.
       assert ((i_ + 1 + j) `rem` sz = k)%Z as ->.
       { rewrite Z.rem_mod_nonneg; lia. }
-      awp_apply+ (ws_deques_public٠steal_to𑁒spec with "[$Hinv $Howner]") without "Hround"; [done | lia |].
-      iApply (aacc_aupd with "HΦ"); first done. iIntros "%vss Hmodel".
+      awp۰apply+ (ws_deques_public٠steal_to𑁒spec with "[$Hinv $Howner]") without "Hround"; [done | lia |].
+      iApply (aacc𑁒aupd with "HΦ"); first done. iIntros "%vss Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([ v |]).
 
       + rewrite Nat2Z.id.
@@ -452,38 +452,38 @@ Section ws_deques_public_G.
     i = ⁺i_ →
     0 < sz →
     <<<
-      ws_deques_public_inv t ι sz ∗
-      ws_deques_public_owner t i_ Blocked ws ∗
-      random_round_model' round (sz - 1) (sz - 1)
+      ws_deques_public۰inv t ι sz ∗
+      ws_deques_public۰owner t i_ Blocked ws ∗
+      random_round۰model' round (sz - 1) (sz - 1)
     | ∀∀ vss,
-      ws_deques_public_model t vss
+      ws_deques_public۰model t vss
     >>>
       ws_deques_public٠steal_as t #i round @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
-          ws_deques_public_model t vss
+          ws_deques_public۰model t vss
       | Some v =>
           ∃ j vs,
           ⌜₊i ≠ j⌝ ∗
           ⌜vss !! j = Some (v :: vs)⌝ ∗
-          ws_deques_public_model t (<[j := vs]> vss)
+          ws_deques_public۰model t (<[j := vs]> vss)
       end
     | RET o;
       ∃ n,
-      ws_deques_public_owner t i_ Blocked ws ∗
-      random_round_model' round (sz - 1) n
+      ws_deques_public۰owner t i_ Blocked ws ∗
+      random_round۰model' round (sz - 1) n
     >>>.
   Proof.
     iIntros (->) "%Hsz %Φ (#Hinv & Hround) HΦ".
 
-    wp_rec.
-    wp_apply+ (ws_deques_public٠size𑁒spec with "Hinv") as "_".
-    wp_pures.
+    wp۰rec.
+    wp۰apply+ (ws_deques_public٠size𑁒spec with "Hinv") as "_".
+    wp۰pures.
     assert (sz - 1 = (sz - 1)%nat)%Z as -> by lia.
-    wp_apply (ws_deques_public٠steal_as₀𑁒spec with "[$Hinv $Hround] HΦ"); first done.
+    wp۰apply (ws_deques_public٠steal_as₀𑁒spec with "[$Hinv $Hround] HΦ"); first done.
   Qed.
-End ws_deques_public_G.
+End ws_deques_public۰G.
 
 Require zoo_parabs.ws_deques_public__opaque.

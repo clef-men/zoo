@@ -10,47 +10,47 @@ Implicit Types l : location.
 Implicit Types v t : val.
 Implicit Types vs : list val.
 
-Class MpmcStack1G Σ `{zoo_G : !ZooG Σ} :=
-  { #[local] mpmc_stack_1_G_model_G :: TwinsG Σ (leibnizO (list val))
+Class MpmcStack1G Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] mpmc_stack_1۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
   }.
 
-Definition mpmc_stack_1_Σ :=
-  #[twins_Σ (leibnizO (list val))
+Definition mpmc_stack_1۰Σ :=
+  #[twins۰Σ (leibnizO (list val))
   ].
-#[global] Instance subG_mpmc_stack_1_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG mpmc_stack_1_Σ Σ →
+#[global] Instance subG𑁒mpmc_stack_1۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG mpmc_stack_1۰Σ Σ →
   MpmcStack1G Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section zoo_G.
-  Context `{mpmc_stack_1_G : MpmcStack1G Σ}.
+Section zoo۰G.
+  Context `{mpmc_stack_1۰G : MpmcStack1G Σ}.
 
   #[local] Definition metadata :=
     gname.
   Implicit Types γ : metadata.
 
   #[local] Definition model₁ γ vs :=
-    twins_twin1 γ (DfracOwn 1) vs.
+    twins۰twin₁ γ (DfracOwn 1) vs.
   #[local] Definition model₂ γ vs :=
-    twins_twin2 γ vs.
+    twins۰twin₂ γ vs.
 
-  #[local] Definition inv_inner l γ : iProp Σ :=
+  #[local] Definition inv۰inner l γ : iProp Σ :=
     ∃ vs,
-    l ↦ᵣ glist_to_val vs ∗
+    l ↦ᵣ glist۰to_val vs ∗
     model₂ γ vs.
-  #[local] Instance : CustomIpat "inv_inner" :=
+  #[local] Instance : CustomIpat "inv۰inner" :=
     " ( %vs{}
       & Hl
       & Hmodel₂
       )
     ".
-  Definition mpmc_stack_1_inv t ι : iProp Σ :=
+  Definition mpmc_stack_1۰inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
-    inv ι (inv_inner l γ).
+    inv ι (inv۰inner l γ).
   #[local] Instance : CustomIpat "inv" :=
     " ( %l
       & %γ
@@ -60,7 +60,7 @@ Section zoo_G.
       )
     ".
 
-  Definition mpmc_stack_1_model t vs : iProp Σ :=
+  Definition mpmc_stack_1۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -74,57 +74,57 @@ Section zoo_G.
       )
     ".
 
-  #[global] Instance mpmc_stack_1_model_timeless t vs :
-    Timeless (mpmc_stack_1_model t vs).
+  #[global] Instance mpmc_stack_1۰model𑁒timeless t vs :
+    Timeless (mpmc_stack_1۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpmc_stack_1_inv_persistent t ι :
-    Persistent (mpmc_stack_1_inv t ι).
+  #[global] Instance mpmc_stack_1۰inv𑁒persistent t ι :
+    Persistent (mpmc_stack_1۰inv t ι).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma model_alloc :
+  #[local] Lemma model𑁒alloc :
     ⊢ |==>
       ∃ γ,
       model₁ γ [] ∗
       model₂ γ [].
   Proof.
-    apply twins_alloc'.
+    apply twins𑁒alloc'.
   Qed.
-  #[local] Lemma model₁_exclusive γ vs1 vs2 :
+  #[local] Lemma model₁𑁒exclusive γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₁ γ vs2 -∗
     False.
   Proof.
-    apply twins_twin1_exclusive.
+    apply twins۰twin₁𑁒exclusive.
   Qed.
-  #[local] Lemma model_agree γ vs1 vs2 :
+  #[local] Lemma model𑁒agree γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₂ γ vs2 -∗
     ⌜vs1 = vs2⌝.
   Proof.
-    apply: twins_agree_L.
+    apply: twins𑁒agree𑁒L.
   Qed.
-  #[local] Lemma model_update {γ vs1 vs2} vs :
+  #[local] Lemma model𑁒update {γ vs1 vs2} vs :
     model₁ γ vs1 -∗
     model₂ γ vs2 ==∗
       model₁ γ vs ∗
       model₂ γ vs.
   Proof.
-    apply twins_update.
+    apply twins𑁒update.
   Qed.
 
-  Lemma mpmc_stack_1_model_exclusive t vs1 vs2 :
-    mpmc_stack_1_model t vs1 -∗
-    mpmc_stack_1_model t vs2 -∗
+  Lemma mpmc_stack_1۰model𑁒exclusive t vs1 vs2 :
+    mpmc_stack_1۰model t vs1 -∗
+    mpmc_stack_1۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
+    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁𑁒exclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
   Lemma mpmc_stack_1٠create𑁒spec ι :
@@ -135,18 +135,18 @@ Section zoo_G.
     {{{
       t
     , RET t;
-      mpmc_stack_1_inv t ι ∗
-      mpmc_stack_1_model t []
+      mpmc_stack_1۰inv t ι ∗
+      mpmc_stack_1۰model t []
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
 
-    wp_rec.
-    wp_ref l as "Hmeta" "Hl".
+    wp۰rec.
+    wp۰ref l as "Hmeta" "Hl".
 
-    iMod model_alloc as "(%γ & Hmodel₁ & Hmodel₂)".
+    iMod model𑁒alloc as "(%γ & Hmodel₁ & Hmodel₂)".
 
-    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ". iSplitR "Hmodel₁"; last iSteps.
     iStep 2. iApply inv_alloc. iExists []. iSteps.
@@ -154,13 +154,13 @@ Section zoo_G.
 
   Lemma mpmc_stack_1٠push𑁒spec t ι v :
     <<<
-      mpmc_stack_1_inv t ι
+      mpmc_stack_1۰inv t ι
     | ∀∀ vs,
-      mpmc_stack_1_model t vs
+      mpmc_stack_1۰model t vs
     >>>
       mpmc_stack_1٠push t v @ ↑ι
     <<<
-      mpmc_stack_1_model t (v :: vs)
+      mpmc_stack_1۰model t (v :: vs)
     | RET ();
       True
     >>>.
@@ -169,23 +169,23 @@ Section zoo_G.
 
     iLöb as "HLöb".
 
-    wp_rec. wp_pures.
+    wp۰rec. wp۰pures.
 
-    wp_bind (!_)%E.
-    iInv "Hinv" as "(:inv_inner)".
-    wp_load.
+    wp۰bind (!_)%E.
+    iInv "Hinv" as "(:inv۰inner)".
+    wp۰load.
     iSplitR "HΦ"; first iSteps.
     iModIntro.
 
-    wp_pures.
+    wp۰pures.
 
-    wp_bind (CAS _ _ _).
-    iInv "Hinv" as "(:inv_inner =')".
-    wp_cas as _ | ->%(inj _); first iSteps.
+    wp۰bind (CAS _ _ _).
+    iInv "Hinv" as "(:inv۰inner =')".
+    wp۰cas as _ | ->%(inj _); first iSteps.
     iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iMod (model_update (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+    iMod (model𑁒update (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
     iSplitR "HΦ". { iExists (v :: vs). iSteps. }
     iSteps.
@@ -193,13 +193,13 @@ Section zoo_G.
 
   Lemma mpmc_stack_1٠pop𑁒spec t ι :
     <<<
-      mpmc_stack_1_inv t ι
+      mpmc_stack_1۰inv t ι
     | ∀∀ vs,
-      mpmc_stack_1_model t vs
+      mpmc_stack_1۰model t vs
     >>>
       mpmc_stack_1٠pop t @ ↑ι
     <<<
-      mpmc_stack_1_model t (tail vs)
+      mpmc_stack_1۰model t (tail vs)
     | RET head vs;
       True
     >>>.
@@ -208,16 +208,16 @@ Section zoo_G.
 
     iLöb as "HLöb".
 
-    wp_rec. wp_pures.
+    wp۰rec. wp۰pures.
 
-    wp_bind (!_)%E.
-    iInv "Hinv" as "(:inv_inner)".
-    wp_load.
+    wp۰bind (!_)%E.
+    iInv "Hinv" as "(:inv۰inner)".
+    wp۰load.
     destruct vs as [| v vs].
 
     - iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
       iSplitR "HΦ". { iExists []. iSteps. }
       iSteps.
@@ -225,16 +225,16 @@ Section zoo_G.
     - iSplitR "HΦ". { iExists (v :: vs). iSteps. }
       iModIntro.
 
-      wp_pures.
+      wp۰pures.
 
-      wp_bind (CAS _ _ _).
-      iInv "Hinv" as "(:inv_inner =')".
-      wp_cas as _ | Hcas; first iSteps.
-      destruct vs'; first done. apply (inj glist_to_val _ (_ :: _)) in Hcas as [= -> ->].
+      wp۰bind (CAS _ _ _).
+      iInv "Hinv" as "(:inv۰inner =')".
+      wp۰cas as _ | Hcas; first iSteps.
+      destruct vs'; first done. apply (inj glist۰to_val _ (_ :: _)) in Hcas as [= -> ->].
       iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (model_update vs with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (model𑁒update vs with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
       iSplitR "HΦ"; first iSteps.
       iSteps.
@@ -242,32 +242,32 @@ Section zoo_G.
 
   Lemma mpmc_stack_1٠snapshot𑁒spec t ι :
     <<<
-      mpmc_stack_1_inv t ι
+      mpmc_stack_1۰inv t ι
     | ∀∀ vs,
-      mpmc_stack_1_model t vs
+      mpmc_stack_1۰model t vs
     >>>
       mpmc_stack_1٠snapshot t @ ↑ι
     <<<
-      mpmc_stack_1_model t vs
-    | RET glist_to_val vs;
+      mpmc_stack_1۰model t vs
+    | RET glist۰to_val vs;
       True
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_rec.
+    wp۰rec.
 
-    iInv "Hinv" as "(:inv_inner)".
-    wp_load.
+    iInv "Hinv" as "(:inv۰inner)".
+    wp۰load.
     iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
     iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
     iSteps.
   Qed.
-End zoo_G.
+End zoo۰G.
 
 Require zoo_saturn.mpmc_stack_1__opaque.
 
-#[global] Opaque mpmc_stack_1_inv.
-#[global] Opaque mpmc_stack_1_model.
+#[global] Opaque mpmc_stack_1۰inv.
+#[global] Opaque mpmc_stack_1۰model.

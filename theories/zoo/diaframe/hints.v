@@ -12,10 +12,10 @@ Require Export zoo.program_logic.state_interp.
 Require Import zoo.options.
 
 Section pointsto.
-  Context `{zoo_G : !ZooG Σ}.
+  Context `{zoo۰G : !ZooG Σ}.
 
   Section mergable.
-    #[global] Instance mergable_consume_pointsto_persist l v1 v2 :
+    #[global] Instance mergable_consume𑁒pointsto𑁒persist l v1 v2 :
       MergableConsume
         (l ↦□ v1)%I
         true
@@ -32,7 +32,7 @@ Section pointsto.
       iSteps.
     Qed.
 
-    #[global] Instance mergable_consume_pointsto_own q1 q2 q l v1 v2 :
+    #[global] Instance mergable_consume𑁒pointsto𑁒own q1 q2 q l v1 v2 :
       MergableConsume
         (l ↦{#q1} v1)%I
         true
@@ -52,7 +52,7 @@ Section pointsto.
       iSteps.
     Qed.
 
-    #[global] Instance mergable_persist_pointsto_dfrac_own q1 dq2 l v1 v2 :
+    #[global] Instance mergable_persist𑁒pointsto𑁒dfrac𑁒own q1 dq2 l v1 v2 :
       MergablePersist
         (l ↦{#q1} v1)%I
         (λ p Pin Pout,
@@ -68,7 +68,7 @@ Section pointsto.
       iSteps.
     Qed.
 
-    #[global] Instance mergable_persist_pointsto_dfrac_own2 q1 dq2 l v1 v2 :
+    #[global] Instance mergable_persist𑁒pointsto𑁒dfrac𑁒own2 q1 dq2 l v1 v2 :
       MergablePersist
         (l ↦{dq2} v1)%I
         (λ p Pin Pout,
@@ -82,7 +82,7 @@ Section pointsto.
       iSteps.
     Qed.
 
-    #[global] Instance mergable_persist_pointsto_last_resort dq1 dq2 l v1 v2 :
+    #[global] Instance mergable_persist𑁒pointsto𑁒last_resort dq1 dq2 l v1 v2 :
       MergablePersist
         (l ↦{dq1} v1)%I
         (λ p Pin Pout,
@@ -98,25 +98,25 @@ Section pointsto.
       iSteps.
     Qed.
 
-    #[global] Instance proph_exclusive pid prophs prophs' :
+    #[global] Instance mergable_consume𑁒prophet۰model𑁒exclusive pid prophs prophs' :
       MergableConsume
-        (prophet_model pid prophs)
+        (prophet۰model pid prophs)
         true
         (λ b Pin Pout,
-          TCAnd (TCEq Pin (prophet_model pid prophs')) $
+          TCAnd (TCEq Pin (prophet۰model pid prophs')) $
           TCEq Pout (False%I)
         ).
     Proof.
       intros b Pin Pout (-> & ->).
       rewrite bi.intuitionistically_if_elim.
-      iIntros "[Hp1 Hp2]". by iApply (prophet_model_exclusive with "[$]").
+      iIntros "[Hp1 Hp2]". by iApply (prophet۰model𑁒exclusive with "[$]").
     Qed.
 
-    #[global] Instance prophs_are_ne pid prophs pid' prophs' :
+    #[global] Instance mergable_persist𑁒prophet۰model𑁒ne pid prophs pid' prophs' :
       MergablePersist
-      (prophet_model pid prophs)
+      (prophet۰model pid prophs)
       (λ b Pin Pout,
-        TCAnd (TCEq Pin (prophet_model pid' prophs')) $
+        TCAnd (TCEq Pin (prophet۰model pid' prophs')) $
         TCEq Pout ⌜pid ≠ pid'⌝
       )%I.
     Proof.
@@ -127,7 +127,7 @@ Section pointsto.
   End mergable.
 
   Section biabd.
-    #[global] Instance diahint_pointsto_may_need_more l v1 v2 q1 q2 mq q :
+    #[global] Instance diahint𑁒pointsto𑁒may_need_more l v1 v2 q1 q2 mq q :
       FracSub q2 q1 mq →
       TCEq mq (Some q) →
       HINT
@@ -146,7 +146,7 @@ Section pointsto.
       rewrite /FracSub => <- -> v' /=.
       iSteps.
     Qed.
-    #[global] Instance diahint_pointsto_have_enough l v1 v2 q1 q2 mq :
+    #[global] Instance diahint𑁒pointsto𑁒have_enough l v1 v2 q1 q2 mq :
       FracSub q1 q2 mq →
       HINT
         l ↦{#q1} v1
@@ -170,7 +170,7 @@ Section pointsto.
       iDestruct "Hl" as "[Hl Hl']".
       iSteps.
     Qed.
-    #[global] Instance diahint_pointsto_discarded l v1 v2 :
+    #[global] Instance diahint𑁒pointsto𑁒discarded l v1 v2 :
       HINT
         l ↦□ v1
       ✱ [- ;
@@ -185,7 +185,7 @@ Section pointsto.
       iSteps.
     Qed.
 
-    #[global] Instance diahint_pointsto_persist p l q v :
+    #[global] Instance diahint𑁒pointsto𑁒persist p l q v :
       HINT
         □⟨p⟩ l ↦{q} v
       ✱ [- ;
@@ -199,35 +199,35 @@ Section pointsto.
     Proof.
       iIntros "Hl" => /=.
       rewrite right_id bi.intuitionistically_if_elim.
-      iMod (pointsto_persist with "Hl") as "#Hl".
+      iMod (pointsto𑁒persist with "Hl") as "#Hl".
       iSteps.
     Qed.
   End biabd.
 End pointsto.
 
 Section side_condition_lemmas.
-  Lemma val_nonsimilar_lit_neq lit1 lit2 :
+  Lemma val𑁒nonsimilar𑁒lit𑁒neq lit1 lit2 :
     lit1 ≠ lit2 →
     ValLit lit1 ≠ ValLit lit2.
   Proof.
     congruence.
   Qed.
 
-  Lemma lit_neq_Z_neq n1 n2 :
+  Lemma lit𑁒neq𑁒Z𑁒neq n1 n2 :
     n1 ≠ n2 →
     LitInt n1 ≠ LitInt n2.
   Proof.
     congruence.
   Qed.
 
-  Lemma lit_neq_bool_neq b1 b2 :
+  Lemma lit𑁒neq𑁒bool𑁒neq b1 b2 :
     b1 ≠ b2 →
     LitBool b1 ≠ LitBool b2.
   Proof.
     congruence.
   Qed.
 
-  Lemma val_block_neq bid1 tag1 vs1 bid2 tag2 vs2 :
+  Lemma val𑁒block𑁒neq bid1 tag1 vs1 bid2 tag2 vs2 :
     bid1 ≠ bid2 →
     tag1 ≠ tag2 →
     vs1 ≠ vs2 →
@@ -236,7 +236,7 @@ Section side_condition_lemmas.
     congruence.
   Qed.
 
-  #[global] Instance simplify_lit_location_neq l1 l2 :
+  #[global] Instance simplify𑁒lit𑁒location𑁒neq l1 l2 :
     SimplifyPureHypSafe
       (ValLit l1 ≠ ValLit l2)
       (l1 ≠ l2).
@@ -244,7 +244,7 @@ Section side_condition_lemmas.
     split; congruence.
   Qed.
 
-  #[global] Instance simplify_lit_int_neq n1 n2 :
+  #[global] Instance simplify𑁒lit𑁒int𑁒neq n1 n2 :
     SimplifyPureHypSafe
       (LitInt n1 ≠ LitInt n2)
       (n1 ≠ n2).
@@ -252,7 +252,7 @@ Section side_condition_lemmas.
     split; congruence.
   Qed.
 
-  #[global] Instance simplify_lit_bool_neq b1 b2 :
+  #[global] Instance simplify𑁒lit𑁒bool𑁒neq b1 b2 :
     SimplifyPureHypSafe
       (LitBool b1 ≠ LitBool b2)
       (b1 ≠ b2).
@@ -260,7 +260,7 @@ Section side_condition_lemmas.
     split; congruence.
   Qed.
 
-  #[global] Instance simplify_block_neq bid1 tag1 vs1 bid2 tag2 vs2 :
+  #[global] Instance simplify𑁒block𑁒neq bid1 tag1 vs1 bid2 tag2 vs2 :
     SimplifyPureHypSafe
       (ValBlock bid1 tag1 vs1 ≠ ValBlock bid2 tag2 vs2)
       (bid1 ≠ bid2 ∨ tag1 ≠ tag2 ∨ vs1 ≠ vs2).
@@ -297,17 +297,17 @@ Ltac trySolvePureAdd1 :=
   | |- ValLit ?lit1 ≠ ValLit ?lit2 =>
       assert_fails (has_evar lit1);
       assert_fails (has_evar lit2);
-      eapply val_nonsimilar_lit_neq;
+      eapply val𑁒nonsimilar𑁒lit𑁒neq;
       solve [pure_solver.trySolvePure]
   | |- LitInt ?n1 ≠ LitInt ?n2 =>
       assert_fails (has_evar n1);
       assert_fails (has_evar n2);
-      eapply lit_neq_Z_neq;
+      eapply lit𑁒neq𑁒Z𑁒neq;
       solve [pure_solver.trySolvePure]
   | |- LitBool ?b1 ≠ LitBool ?b2 =>
       assert_fails (has_evar b1);
       assert_fails (has_evar b2);
-      eapply lit_neq_bool_neq;
+      eapply lit𑁒neq𑁒bool𑁒neq;
       solve [pure_solver.trySolvePure]
   | |- ValBlock ?bid1 ?tag1 ?vs1 ≠ ValBlock ?bid2 ?tag2 ?vs2 =>
       assert_fails (has_evar bid1);
@@ -316,7 +316,7 @@ Ltac trySolvePureAdd1 :=
       assert_fails (has_evar tag2);
       assert_fails (has_evar vs1);
       assert_fails (has_evar vs2);
-      eapply val_block_neq;
+      eapply val𑁒block𑁒neq;
       solve [pure_solver.trySolvePure]
   end.
 

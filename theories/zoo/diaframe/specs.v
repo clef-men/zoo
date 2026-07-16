@@ -16,12 +16,12 @@ Hint Mode SolveSepSideCondition ! : typeclass_instances.
 Class PureExecNorec ϕ n e1 e2 :=
   pure_exec_norec : PureExec ϕ n e1 e2.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
 
   Implicit Types Φ : val → iProp Σ.
 
-  #[global] Instance pure_step𑁒diaspec_1 e K ϕ n e1 e2 tid E Φ :
+  #[global] Instance pure_step𑁒diaspec₁ e K ϕ n e1 e2 tid E Φ :
     ReshapeExprAnd _ e K e1 (
       TCAnd
         (PureExecNorec ϕ n e1 e2)
@@ -38,13 +38,13 @@ Section zoo_G.
   | 8.
   Proof.
     rewrite /PureExecNorec.
-    pose proof @pure_exec_context.
+    pose proof @pure_exec𑁒context.
     intros (-> & Hexec & Hϕ) HK.
     iSteps.
-    iApply wp_pure_step; [done.. |].
+    iApply wp𑁒pure_step; [done.. |].
     iSteps.
   Qed.
-  #[global] Instance pure_step𑁒diaspec_2 e K ϕ n e1 e2 tid E Φ :
+  #[global] Instance pure_step𑁒diaspec₂ e K ϕ n e1 e2 tid E Φ :
     ReshapeExprAnd _ e K e1 (
       TCAnd
         ( ( ∀ x e v,
@@ -64,11 +64,11 @@ Section zoo_G.
       WP e ∷ tid @ E {{ Φ }}.
   Proof.
     intros (-> & Hexec & Hϕ) HK.
-    eapply pure_step𑁒diaspec_1; try done.
+    eapply pure_step𑁒diaspec₁; try done.
     split; first done. split.
     - rewrite /PureExecNorec.
       apply Hexec => * _.
-      apply nsteps_once, pure_base_step_pure_step.
+      apply nsteps_once, pure_base_step𑁒pure_step.
       split.
       + auto with zoo.
       + intros. invert_base_step. done.
@@ -90,7 +90,7 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    wp_alloc l as "Hheader" "Hmeta" "Hl"; [done.. |].
+    wp۰alloc l as "Hheader" "Hmeta" "Hl"; [done.. |].
     iSteps.
   Qed.
 
@@ -110,7 +110,7 @@ Section zoo_G.
   | 30.
   Proof.
     iSteps.
-    wp_block l as "Hheader" "Hmeta" "Hl".
+    wp۰block l as "Hheader" "Hmeta" "Hl".
     iSteps.
   Qed.
 
@@ -131,11 +131,11 @@ Section zoo_G.
   Proof.
     move=> <-.
     iSteps.
-    wp_ref l as "Hheader" "Hmeta" "Hl".
+    wp۰ref l as "Hheader" "Hmeta" "Hl".
     iSteps.
   Qed.
 
-  #[global] Instance block_generative𑁒diaspec tag es E :
+  #[global] Instance block𑁒generative𑁒diaspec tag es E :
     DIASPEC vs
     {{
       ⌜to_vals es = Some vs⌝
@@ -147,7 +147,7 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    wp_block_generative bid.
+    wp۰block۰generative bid.
     iSteps.
   Qed.
 
@@ -158,12 +158,12 @@ Section zoo_G.
     }}
       GetTag #l @ E
     {{
-      RET #(encode_tag hdr.(header_tag));
+      RET #(encode_tag hdr.(header۰tag));
       True
     }}.
   Proof.
     iSteps.
-    wp_tag.
+    wp۰tag.
     iSteps.
   Qed.
 
@@ -174,12 +174,12 @@ Section zoo_G.
     }}
       GetSize #l @ E
     {{
-      RET #hdr.(header_size);
+      RET #hdr.(header۰size);
       True
     }}.
   Proof.
     iSteps.
-    wp_size.
+    wp۰size.
     iSteps.
   Qed.
 
@@ -195,7 +195,7 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    wp_load.
+    wp۰load.
     iSteps.
   Qed.
 
@@ -211,7 +211,7 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    wp_store.
+    wp۰store.
     iSteps.
   Qed.
 
@@ -227,7 +227,7 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    wp_xchg.
+    wp۰xchg.
     iSteps.
   Qed.
 
@@ -249,7 +249,7 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    all: wp_cas.
+    all: wp۰cas.
     all: iSteps.
   Qed.
 
@@ -265,7 +265,7 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    wp_faa.
+    wp۰faa.
     iSteps.
   Qed.
 
@@ -277,11 +277,11 @@ Section zoo_G.
       Proph @ E
     {{ prophs pid,
       RET #pid;
-      prophet_model pid prophs
+      prophet۰model pid prophs
     }}.
   Proof.
     iSteps.
-    iApply (wp_proph with "[//]").
+    iApply (wp𑁒proph with "[//]").
     iSteps.
   Qed.
 
@@ -291,7 +291,7 @@ Section zoo_G.
     HINT1 ε₀ ✱ [
       ∃ hdr e,
       ▷ l ↦ₕ hdr ∗
-      ⌜eval_match hdr.(header_tag) hdr.(header_size) (SubjectLoc l) x_fb e_fb brs = Some e⌝ ∗
+      ⌜eval_match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e⌝ ∗
       ▷ (
         emp -∗
         WP K e ∷ tid @ E {{ Φ }}
@@ -301,11 +301,11 @@ Section zoo_G.
   Proof.
     intros (->, _) HK.
     iSteps as (hdr e He) "Hl_header H".
-    iApply (wp_match_context with "Hl_header"); first done.
+    iApply (wp𑁒match𑁒context with "Hl_header"); first done.
     iSteps.
   Qed.
 
-  #[global] Instance if_bool_decide𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
+  #[global] Instance if𑁒bool𑁒decide𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
     ReshapeExprAnd _ e K (if: #(bool_decide P) then e1 else e2)%E TCTrue →
     Context K →
     HINT1 ε₀ ✱ [
@@ -320,16 +320,16 @@ Section zoo_G.
   | 50.
   Proof.
     rewrite /PureExecNorec.
-    pose proof @pure_exec_context.
+    pose proof @pure_exec𑁒context.
     intros (->, _) HK.
     iSteps as "H".
     case_bool_decide.
-    all: iApply wp_pure_step; first done.
+    all: iApply wp𑁒pure_step; first done.
     1: iSpecialize ("H" $! true with "[]"); first iSteps.
     2: iSpecialize ("H" $! false with "[]"); first iSteps.
     all: iSteps.
   Qed.
-  #[global] Instance if_bool_decide_neg𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
+  #[global] Instance if𑁒bool𑁒decide𑁒neg𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
     ReshapeExprAnd _ e K (if: #(bool_decide (¬ P)) then e1 else e2)%E TCTrue →
     Context K →
     HINT1 ε₀ ✱ [
@@ -344,16 +344,16 @@ Section zoo_G.
   | 49.
   Proof.
     rewrite /PureExecNorec.
-    pose proof @pure_exec_context.
+    pose proof @pure_exec𑁒context.
     intros (->, _) HK.
     iSteps as "H".
     case_bool_decide.
-    all: iApply wp_pure_step; first done.
+    all: iApply wp𑁒pure_step; first done.
     1: iSpecialize ("H" $! true with "[]"); first iSteps.
     2: iSpecialize ("H" $! false with "[]"); first iSteps.
     all: iSteps.
   Qed.
-  #[global] Instance if_negb_bool_decide𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
+  #[global] Instance if𑁒negb𑁒bool𑁒decide𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
     ReshapeExprAnd _ e K (if: #(negb $ bool_decide P) then e1 else e2)%E TCTrue →
     Context K →
     HINT1 ε₀ ✱ [
@@ -368,16 +368,16 @@ Section zoo_G.
   | 49.
   Proof.
     rewrite /PureExecNorec.
-    pose proof @pure_exec_context.
+    pose proof @pure_exec𑁒context.
     intros (->, _) HK.
     iSteps as "H".
     case_bool_decide.
-    all: iApply wp_pure_step; first done.
+    all: iApply wp𑁒pure_step; first done.
     1: iSpecialize ("H" $! false with "[]"); first iSteps.
     2: iSpecialize ("H" $! true with "[]"); first iSteps.
     all: iSteps.
   Qed.
-End zoo_G.
+End zoo۰G.
 
 Ltac find_reshape e K e' :=
   lazymatch e with
@@ -415,7 +415,7 @@ Ltac find_reshape e K e' :=
   | App (Val ?v1) (Val ?v2) =>
       assert_succeeds (
         assert (
-          SolveSepSideCondition (val_recursive v1 = false)
+          SolveSepSideCondition (val۰recursive v1 = false)
         ) by tc_solve
       )
   | _ =>

@@ -19,7 +19,7 @@ Section relation.
     b ∈ x ∧
     R a b.
 
-  #[local] Lemma below_app a x y :
+  #[local] Lemma below𑁒app a x y :
     below a (x ++ y) ↔
     below a x ∨ below a y.
   Proof.
@@ -31,14 +31,14 @@ Section relation.
         exists b; rewrite elem_of_app; auto.
   Qed.
 
-  #[local] Instance mono_equiv : Equiv (mono R) :=
+  #[local] Instance mono۰equiv : Equiv (mono R) :=
     λ x y,
       ∀ a,
       below a x ↔
       below a y.
 
-  #[local] Instance mono_equiv_equiv :
-    Equivalence mono_equiv.
+  #[local] Instance mono۰equiv𑁒equiv :
+    Equivalence mono۰equiv.
   Proof.
     split.
     - done.
@@ -48,84 +48,84 @@ Section relation.
       + apply Heq1, Heq2. done.
   Qed.
 
-  Canonical mono_O :=
+  Canonical mono۰O :=
     discreteO (mono R).
 
-  #[local] Instance mono_valid : Valid (mono R) :=
+  #[local] Instance mono۰valid : Valid (mono R) :=
     λ x,
       True.
-  #[local] Instance mono_validN : ValidN (mono R) :=
+  #[local] Instance mono۰validN : ValidN (mono R) :=
     λ n x,
       True.
-  #[local] Program Instance mono_op : Op (mono R) :=
+  #[local] Program Instance mono۰op : Op (mono R) :=
     λ x1 x2,
       x1 ++ x2.
-  #[local] Instance mono_pcore : PCore (mono R) :=
+  #[local] Instance mono۰pcore : PCore (mono R) :=
     Some.
 
-  #[local] Lemma mono_cmra_mixin :
+  #[local] Lemma mono𑁒cmra_mixin :
     CmraMixin (mono R).
   Proof.
     apply: discrete_cmra_mixin.
     apply ra_total_mixin; try done.
     - intros ? ?* Heq a.
       specialize (Heq a).
-      rewrite !below_app. naive_solver.
+      rewrite !below𑁒app. naive_solver.
     - intros ?*. done.
-    - intros ?* ?*. rewrite !below_app. naive_solver.
-    - intros ?* ?*. rewrite !below_app. naive_solver.
-    - intros ? ?*. rewrite below_app. naive_solver.
+    - intros ?* ?*. rewrite !below𑁒app. naive_solver.
+    - intros ?* ?*. rewrite !below𑁒app. naive_solver.
+    - intros ? ?*. rewrite below𑁒app. naive_solver.
   Qed.
-  Canonical mono_R :=
-    Cmra (mono R) mono_cmra_mixin.
+  Canonical mono۰R :=
+    Cmra (mono R) mono𑁒cmra_mixin.
 
-  #[global] Instance mono_cmra_total :
-    CmraTotal mono_R.
+  #[global] Instance mono𑁒cmra_total :
+    CmraTotal mono۰R.
   Proof.
     rewrite /CmraTotal. auto.
   Qed.
-  #[global] Instance mono_core_id x :
+  #[global] Instance mono𑁒core_id x :
     CoreId x.
   Proof.
     constructor. done.
   Qed.
 
-  #[global] Instance mono_cmra_discrete :
-    CmraDiscrete mono_R.
+  #[global] Instance mono𑁒cmra_discrete :
+    CmraDiscrete mono۰R.
   Proof.
     split; last done. intros ?* ?*. done.
   Qed.
 
-  #[local] Instance mono_unit : Unit (mono R) :=
+  #[local] Instance mono۰unit : Unit (mono R) :=
     nil.
-  #[local] Lemma mono_ucmra_mixin :
+  #[local] Lemma mono𑁒ucmra_mixin :
     UcmraMixin (mono R).
   Proof.
     split; done.
   Qed.
-  Canonical mono_UR :=
-    Ucmra (mono R) mono_ucmra_mixin.
+  Canonical mono۰UR :=
+    Ucmra (mono R) mono𑁒ucmra_mixin.
 
-  Lemma mono_idemp x :
+  Lemma mono𑁒idemp x :
     x ⋅ x ≡ x.
   Proof.
-    intros ?*. rewrite below_app. naive_solver.
+    intros ?*. rewrite below𑁒app. naive_solver.
   Qed.
 
-  Lemma mono_included x y :
+  Lemma mono𑁒included x y :
     x ≼ y ↔
     y ≡ x ⋅ y.
   Proof using SI.
     split.
-    - intros (z & ->). rewrite assoc mono_idemp //.
+    - intros (z & ->). rewrite assoc mono𑁒idemp //.
     - eexists. done.
   Qed.
 
-  Definition mono_principal a : mono_UR :=
+  Definition mono۰principal a : mono۰UR :=
     [a].
 
-  #[local] Lemma below_principal a b :
-    below a (mono_principal b) ↔
+  #[local] Lemma below𑁒principal a b :
+    below a (mono۰principal b) ↔
     R a b.
   Proof.
     split.
@@ -134,7 +134,7 @@ Section relation.
       split; first apply list_elem_of_singleton; done.
   Qed.
 
-  Lemma mono_principal_R_opN_base `{!Transitive R} n x y :
+  Lemma mono۰principal𑁒R𑁒opN𑁒base `{!Transitive R} n x y :
     ( ∀ b,
       b ∈ y →
         ∃ c,
@@ -144,75 +144,75 @@ Section relation.
     y ⋅ x ≡{n}≡ x.
   Proof.
     intros HR. split.
-    all: rewrite below_app.
+    all: rewrite below𑁒app.
     - intros [(c & (d & Hd1 & Hd2)%HR & Hc2) |]; last done.
       exists d. eauto.
     - naive_solver.
   Qed.
-  Lemma mono_principal_R_opN `{!Transitive R} n a b :
+  Lemma mono۰principal𑁒R𑁒opN `{!Transitive R} n a b :
     R a b →
-    mono_principal a ⋅ mono_principal b ≡{n}≡ mono_principal b.
+    mono۰principal a ⋅ mono۰principal b ≡{n}≡ mono۰principal b.
   Proof.
     intros.
-    apply mono_principal_R_opN_base => c.
+    apply mono۰principal𑁒R𑁒opN𑁒base => c.
     setoid_rewrite list_elem_of_singleton.
     naive_solver.
   Qed.
-  Lemma mono_principal_R_op `{!Transitive R} a b :
+  Lemma mono۰principal𑁒R𑁒op `{!Transitive R} a b :
     R a b →
-    mono_principal a ⋅ mono_principal b ≡ mono_principal b.
+    mono۰principal a ⋅ mono۰principal b ≡ mono۰principal b.
   Proof.
     intros ? ?*.
-    apply (mono_principal_R_opN 0ᵢ). done.
+    apply (mono۰principal𑁒R𑁒opN 0ᵢ). done.
   Qed.
 
-  Lemma mono_principal_opN_R n a b x :
+  Lemma mono۰principal𑁒opN𑁒R n a b x :
     R a a →
-    mono_principal a ⋅ x ≡{n}≡ mono_principal b →
+    mono۰principal a ⋅ x ≡{n}≡ mono۰principal b →
     R a b.
   Proof.
     intros Ha HR.
     destruct (HR a) as [[z [HR1%list_elem_of_singleton HR2]] _].
-    - rewrite below_app below_principal. auto.
+    - rewrite below𑁒app below𑁒principal. auto.
     - naive_solver.
   Qed.
-  Lemma mono_principal_op_R' a b x :
+  Lemma mono۰principal𑁒op𑁒R' a b x :
     R a a →
-    mono_principal a ⋅ x ≡ mono_principal b →
+    mono۰principal a ⋅ x ≡ mono۰principal b →
     R a b.
   Proof.
     intros.
-    eapply (mono_principal_opN_R 0ᵢ); done.
+    eapply (mono۰principal𑁒opN𑁒R 0ᵢ); done.
   Qed.
-  Lemma mono_principal_op_R `{!Reflexive R} a b x :
-    mono_principal a ⋅ x ≡ mono_principal b →
+  Lemma mono۰principal𑁒op𑁒R `{!Reflexive R} a b x :
+    mono۰principal a ⋅ x ≡ mono۰principal b →
     R a b.
   Proof.
     intros.
-    eapply mono_principal_op_R'; done.
+    eapply mono۰principal𑁒op𑁒R'; done.
   Qed.
 
-  Lemma mono_principal_includedN `{!Reflexive R} `{!Transitive R} n a b :
-    mono_principal a ≼{n} mono_principal b ↔
+  Lemma mono۰principal𑁒includedN `{!Reflexive R} `{!Transitive R} n a b :
+    mono۰principal a ≼{n} mono۰principal b ↔
     R a b.
   Proof.
     split.
     - intros (z & Hz).
-      eapply mono_principal_opN_R; first done.
+      eapply mono۰principal𑁒opN𑁒R; first done.
       rewrite Hz //.
     - intros.
-      exists (mono_principal b). rewrite mono_principal_R_opN //.
+      exists (mono۰principal b). rewrite mono۰principal𑁒R𑁒opN //.
   Qed.
-  Lemma mono_principal_included `{!Reflexive R} `{!Transitive R} a b :
-    mono_principal a ≼ mono_principal b ↔
+  Lemma mono۰principal𑁒included `{!Reflexive R} `{!Transitive R} a b :
+    mono۰principal a ≼ mono۰principal b ↔
     R a b.
   Proof.
-    apply (mono_principal_includedN 0ᵢ).
+    apply (mono۰principal𑁒includedN 0ᵢ).
   Qed.
 
-  Lemma mono_local_update_grow `{!Transitive R} a x b:
+  Lemma mono𑁒local_update𑁒grow `{!Transitive R} a x b:
     R a b →
-    (mono_principal a, x) ~l~> (mono_principal b, mono_principal b).
+    (mono۰principal a, x) ~l~> (mono۰principal b, mono۰principal b).
   Proof.
     intros Hana Hanb.
     apply local_update_unital_discrete => z _ Habz.
@@ -229,21 +229,21 @@ Section relation.
         etrans; eauto.
   Qed.
 
-  Lemma mono_local_update_get_frag `{!Reflexive R} `{!Transitive R} a b:
+  Lemma mono𑁒local_update𑁒get_frag `{!Reflexive R} `{!Transitive R} a b:
     R b a →
-    (mono_principal a, ε) ~l~> (mono_principal a, mono_principal b).
+    (mono۰principal a, ε) ~l~> (mono۰principal a, mono۰principal b).
   Proof.
     intros Hana.
     apply local_update_unital_discrete => z _.
     rewrite left_id => <-.
     split; first done.
-    apply mono_included, mono_principal_included. done.
+    apply mono𑁒included, mono۰principal𑁒included. done.
   Qed.
 End relation.
 
-#[global] Arguments mono_R {_ _} _ : assert.
-#[global] Arguments mono_UR {_ _} _ : assert.
-#[global] Arguments mono_principal {_ _} _ _ : assert.
+#[global] Arguments mono۰R {_ _} _ : assert.
+#[global] Arguments mono۰UR {_ _} _ : assert.
+#[global] Arguments mono۰principal {_ _} _ _ : assert.
 
 Section ofe_relation.
   Context {SI : sidx}.
@@ -252,23 +252,23 @@ Section ofe_relation.
   Implicit Types a b c : A.
   Implicit Types x y z : mono R.
 
-  #[global] Instance mono_principal_ne :
+  #[global] Instance mono۰principal𑁒ne :
     (∀ n, Proper ((≡{n}≡) ==> (≡{n}≡) ==> (↔)) R) →
-    NonExpansive (mono_principal R).
+    NonExpansive (mono۰principal R).
   Proof.
     intros HR n a1 a2 Ha.
-    split; rewrite !below_principal Ha //.
+    split; rewrite !below𑁒principal Ha //.
   Qed.
-  #[global] Instance mono_principal_proper :
+  #[global] Instance mono۰principal𑁒proper :
     Proper ((≡) ==> (≡) ==> (↔)) R →
-    Proper ((≡) ==> (≡)) (mono_principal R).
+    Proper ((≡) ==> (≡)) (mono۰principal R).
   Proof.
     intros HR a1 a2 Ha.
-    split; rewrite !below_principal Ha //.
+    split; rewrite !below𑁒principal Ha //.
   Qed.
 
-  Lemma mono_principal_inj_related a b :
-    mono_principal R a ≡ mono_principal R b →
+  Lemma mono۰principal𑁒inj𑁒related a b :
+    mono۰principal R a ≡ mono۰principal R b →
     R a a →
     R a b.
   Proof.
@@ -277,29 +277,29 @@ Section ofe_relation.
     - exists a. rewrite list_elem_of_singleton //.
     - naive_solver.
   Qed.
-  Lemma mono_principal_inj_general a b :
-    mono_principal R a ≡ mono_principal R b →
+  Lemma mono۰principal𑁒inj𑁒general a b :
+    mono۰principal R a ≡ mono۰principal R b →
     R a a →
     R b b →
     (R a b → R b a → a ≡ b) →
     a ≡ b.
   Proof.
     intros ? ? ? Has.
-    apply Has; apply mono_principal_inj_related; auto.
+    apply Has; apply mono۰principal𑁒inj𑁒related; auto.
   Qed.
 
-  #[global] Instance mono_principal_inj `{!Reflexive R} `{!AntiSymm (≡) R} :
-    Inj (≡) (≡) (mono_principal R).
+  #[global] Instance mono۰principal𑁒inj `{!Reflexive R} `{!AntiSymm (≡) R} :
+    Inj (≡) (≡) (mono۰principal R).
   Proof.
     intros ? ? ?.
-    apply mono_principal_inj_general; auto.
+    apply mono۰principal𑁒inj𑁒general; auto.
   Qed.
-  #[global] Instance mono_principal_inj' `{!Reflexive R} `{!AntiSymm (≡) R} n :
-    Inj (≡{n}≡) (≡{n}≡) (mono_principal R).
+  #[global] Instance mono۰principal𑁒inj' `{!Reflexive R} `{!AntiSymm (≡) R} n :
+    Inj (≡{n}≡) (≡{n}≡) (mono۰principal R).
   Proof.
     intros x y Hxy%discrete_iff; last apply _.
     apply equiv_dist. move: Hxy. apply inj, _.
   Qed.
 End ofe_relation.
 
-#[global] Opaque mono_principal.
+#[global] Opaque mono۰principal.

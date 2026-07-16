@@ -4,11 +4,11 @@ Require Import zoo.options.
 
 Implicit Types l : location.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
   Context τ `{!iType (iPropI Σ) τ}.
 
-  Definition itype_ref t : iProp Σ :=
+  Definition itype۰ref t : iProp Σ :=
     ∃ l,
     ⌜t = #l⌝ ∗
     inv nroot (
@@ -16,13 +16,13 @@ Section zoo_G.
       l ↦ᵣ w ∗
       τ w
     ).
-  #[global] Instance itype_ref_itype :
-    iType _ itype_ref.
+  #[global] Instance itype۰ref𑁒itype :
+    iType _ itype۰ref.
   Proof.
     split. apply _.
   Qed.
 
-  Lemma ref_make𑁒type v :
+  Lemma ref٠make𑁒type v :
     {{{
       τ v
     }}}
@@ -30,15 +30,15 @@ Section zoo_G.
     {{{
       t
     , RET t;
-      itype_ref t
+      itype۰ref t
     }}}.
   Proof.
     iSteps.
   Qed.
 
-  Lemma ref_get𑁒type t :
+  Lemma ref٠get𑁒type t :
     {{{
-      itype_ref t
+      itype۰ref t
     }}}
       !t
     {{{
@@ -50,9 +50,9 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma ref_set𑁒type t v :
+  Lemma ref٠set𑁒type t v :
     {{{
-      itype_ref t ∗
+      itype۰ref t ∗
       τ v
     }}}
       t <- v
@@ -63,4 +63,4 @@ Section zoo_G.
   Proof.
     iSteps.
   Qed.
-End zoo_G.
+End zoo۰G.

@@ -4,9 +4,9 @@ Require Export zoo.program_logic.prophet_typed.
 Require Import zoo.options.
 
 Definition prophet_bool :=
-  {|prophet_typed_type :=
+  {|prophet_typed۰type :=
       bool
-  ; prophet_typed_of_val _ v :=
+  ; prophet_typed۰of_val _ v :=
       match v with
       | ValBool b =>
           Some $ Some b
@@ -15,10 +15,10 @@ Definition prophet_bool :=
       end
   |}.
 
-Definition prophet_bool_1 :=
-  {|prophet_typed_1_type :=
+Definition prophet_bool₁ :=
+  {|prophet_typed₁۰type :=
       bool
-  ; prophet_typed_1_of_val _ v :=
+  ; prophet_typed₁۰of_val _ v :=
       match v with
       | ValBool b =>
           Some $ Some b

@@ -12,24 +12,24 @@ Variant optional {A} :=
 #[global] Arguments optional : clear implicits.
 Implicit Types o : optional val.
 
-#[global] Instance optional_inhabited A : Inhabited (optional A) :=
+#[global] Instance optional𑁒inhabited A : Inhabited (optional A) :=
   populate Nothing.
-#[global] Instance Something_inj A :
+#[global] Instance Something𑁒inj A :
   Inj (=) (=) (@Something A).
 Proof.
   rewrite /Inj. naive_solver.
 Qed.
 
-Definition option_to_optional {A} (o : option A) :=
+Definition option۰to_optional {A} (o : option A) :=
   match o with
   | None =>
       Nothing
   | Some a =>
       Something a
   end.
-#[global] Arguments option_to_optional _ !_ / : assert.
+#[global] Arguments option۰to_optional _ !_ / : assert.
 
-Coercion optional_to_val o :=
+Coercion optional۰to_val o :=
   match o with
   | Nothing =>
       §Nothing
@@ -38,58 +38,58 @@ Coercion optional_to_val o :=
   | Something v =>
       ‘Something( v )
   end%V.
-#[global] Arguments optional_to_val !_ / : assert.
+#[global] Arguments optional۰to_val !_ / : assert.
 
-#[global] Instance optional_to_val_inj :
-  Inj (=) (=) optional_to_val.
+#[global] Instance optional۰to_val𑁒inj :
+  Inj (=) (=) optional۰to_val.
 Proof.
   intros [] []; naive_solver.
 Qed.
 
-Lemma optional_to_val_similar_Nothing_l o :
+Lemma optional۰to_val𑁒similar𑁒Nothing_l o :
   §Nothing%V ≈ o →
   o = Nothing.
 Proof.
   destruct o; done.
 Qed.
-Lemma optional_to_val_similar_Nothing_r o :
+Lemma optional۰to_val𑁒similar𑁒Nothing𑁒r o :
   (o : val) ≈ §Nothing%V →
   o = Nothing.
 Proof.
-  intros ?%symmetry%optional_to_val_similar_Nothing_l. done.
+  intros ?%symmetry%optional۰to_val𑁒similar𑁒Nothing_l. done.
 Qed.
 
-Lemma optional_to_val_similar_Anything_l o :
+Lemma optional۰to_val𑁒similar𑁒Anything𑁒l o :
   §Anything%V ≈ o →
   o = Anything.
 Proof.
   destruct o; done.
 Qed.
-Lemma optional_to_val_similar_Anything_r o :
+Lemma optional۰to_val𑁒similar𑁒Anything𑁒r o :
   (o : val) ≈ §Anything%V →
   o = Anything.
 Proof.
-  intros ?%symmetry%optional_to_val_similar_Anything_l. done.
+  intros ?%symmetry%optional۰to_val𑁒similar𑁒Anything𑁒l. done.
 Qed.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
   Context τ `{!iType (iPropI Σ) τ}.
 
-  Definition itype_optional t : iProp Σ :=
+  Definition itype۰optional t : iProp Σ :=
       ⌜t = §Nothing%V⌝
     ∨ ⌜t = §Anything%V⌝
     ∨ ∃ v,
       ⌜t = ‘Something( v )%V⌝ ∗
       τ v.
-  #[global] Instance itype_optional_itype :
-    iType _ itype_optional.
+  #[global] Instance itype۰optional𑁒itype :
+    iType _ itype۰optional.
   Proof.
     split. apply _.
   Qed.
 
-  Lemma wp_match_optional t e1 e2 x e3 Φ :
-    itype_optional t -∗
+  Lemma wp𑁒match𑁒optional t e1 e2 x e3 Φ :
+    itype۰optional t -∗
     ( WP e1 {{ Φ }} ∧
       WP e2 {{ Φ }} ∧
       ∀ v, τ v -∗ WP subst' x v e3 {{ Φ }}
@@ -103,4 +103,4 @@ Section zoo_G.
     3: rewrite bi.and_elim_r.
     all: iSteps.
   Qed.
-End zoo_G.
+End zoo۰G.

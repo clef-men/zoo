@@ -7,8 +7,8 @@ Require Import zoo_parabs.pool.
 Require Export examples.pool_quicksort__code.
 Require Import zoo.options.
 
-Section pool_G.
-  Context `{pool_G : PoolG}.
+Section pool۰G.
+  Context `{pool۰G : PoolG}.
 
   #[local] Lemma pool_quicksort٠partition𑁒spec arr i i_ xs sz :
     (0 ≤ i)%Z →
@@ -16,7 +16,7 @@ Section pool_G.
     (1 < sz)%Z →
     length xs = ₊sz →
     {{{
-      array_slice arr i_ (DfracOwn 1) (#*@{Z} xs)
+      array۰slice arr i_ (DfracOwn 1) (#*@{Z} xs)
     }}}
       pool_quicksort٠partition arr #i #sz
     {{{
@@ -26,22 +26,22 @@ Section pool_G.
       ⌜xs ≡ₚ xs1 ++ pivot :: xs2⌝ ∗
       ⌜Forall ((≥)%Z pivot) xs1⌝ ∗
       ⌜Forall ((≤)%Z pivot) xs2⌝ ∗
-      array_slice arr i_ (DfracOwn 1) (#*@{Z} xs1 ++ #@{Z} pivot :: #*@{Z} xs2)
+      array۰slice arr i_ (DfracOwn 1) (#*@{Z} xs1 ++ #@{Z} pivot :: #*@{Z} xs2)
     }}}.
   Proof.
     iIntros (Hi -> Hsz Hxs) "%Φ Harr HΦ".
 
     destruct xs as [| pivot xs]; simpl in Hxs. 1: lia.
     iEval (rewrite fmap_cons) in "Harr".
-    iDestruct (array_slice_cons_1 with "Harr") as "(Harr_1 & Harr_2)".
+    iDestruct (array۰slice𑁒cons₁ with "Harr") as "(Harr_1 & Harr_2)".
 
-    wp_rec.
-    wp_apply+ (array٠unsafe_get𑁒spec_cell with "Harr_1") as "Harr_1". 1: lia.
-    wp_ref r as "Hr".
+    wp۰rec.
+    wp۰apply+ (array٠unsafe_get𑁒spec𑁒cell with "Harr_1") as "Harr_1". 1: lia.
+    wp۰ref r as "Hr".
 
-    wp_apply+ (for𑁒spec_strong (λ j _,
+    wp۰apply+ (for𑁒spec𑁒strong (λ j _,
       ∃ xs' (i1 : Z),
-      array_slice arr ˖(₊i) (DfracOwn 1) (#*@{Z} xs') ∗
+      array۰slice arr ˖(₊i) (DfracOwn 1) (#*@{Z} xs') ∗
       r ↦ᵣ #i1 ∗
       ⌜xs ≡ₚ xs'⌝ ∗
       ⌜i < i1 ≤ j⌝%Z ∗
@@ -65,24 +65,24 @@ Section pool_G.
       destruct (lookup_lt_is_Some_2 xs' 𝑖2) as (x2 & Hlookup_2).
       { rewrite -Hxs'. lia. }
 
-      wp_apply+ (array٠unsafe_get𑁒spec_slice with "Harr") as "Harr".
+      wp۰apply+ (array٠unsafe_get𑁒spec𑁒slice with "Harr") as "Harr".
       { lia. }
       { apply list_lookup_fmap_Some_2 => //. }
       { lia. }
 
-      wp_pures.
-      case_bool_decide as Hx2; wp_pures.
+      wp۰pures.
+      case_bool_decide as Hx2; wp۰pures.
 
-      - wp_load.
+      - wp۰load.
 
-        wp_apply (array٠unsafe_swap𑁒spec_slice ₊(i1 - i - 1) with "Harr") as "Harr".
+        wp۰apply (array٠unsafe_swap𑁒spec𑁒slice ₊(i1 - i - 1) with "Harr") as "Harr".
         1,2,4: lia.
         1,2: apply list_lookup_fmap_Some_2 => //.
         1: lia.
         iEval (rewrite -!list_fmap_insert) in "Harr".
 
         iStep 15. iPureIntro. split_and!.
-        { rewrite Permutation_swap' //. }
+        { rewrite Permutation𑁒swap' //. }
         { lia. }
         { lia. }
         all:
@@ -109,13 +109,13 @@ Section pool_G.
     rewrite Z.max_r in Hi1 H2. 1: lia.
     apply Permutation_length in Hxs' as ?.
 
-    iDestruct (array_slice_cons_2 with "Harr_1 Harr_2") as "Harr".
+    iDestruct (array۰slice𑁒cons₂ with "Harr_1 Harr_2") as "Harr".
 
-    wp_load. wp_pures.
+    wp۰load. wp۰pures.
 
     destruct_decide (i1 = i + 1)%Z as -> | Hcase.
 
-    - wp_apply+ (array٠unsafe_swap𑁒spec_slice_id with "Harr") as "Harr". 1,2: simpl; lia.
+    - wp۰apply+ (array٠unsafe_swap𑁒spec𑁒slice𑁒id with "Harr") as "Harr". 1,2: simpl; lia.
       iSteps as "_".
 
       iEval (replace _ with ⁺₊i by lia).
@@ -152,20 +152,20 @@ Section pool_G.
       simpl_length/= in Hxs1_length.
       iEval (rewrite fmap_app /=) in "Harr".
 
-      iDestruct (array_slice_app_2 (_ :: _) with "Harr") as "(Harr_1 & Harr_2)". 1: done.
-      wp_apply+ (array٠unsafe_swap𑁒spec_slice 0 ₊(i1 - i - 1) with "Harr_1") as "Harr_1". 1-4,6: auto with lia.
-      { apply lookup_cons_r_Some. 1: lia.
-        apply lookup_app_r_Some; simpl_length. 1: lia.
+      iDestruct (array۰slice𑁒app₂ (_ :: _) with "Harr") as "(Harr_1 & Harr_2)". 1: done.
+      wp۰apply+ (array٠unsafe_swap𑁒spec𑁒slice 0 ₊(i1 - i - 1) with "Harr_1") as "Harr_1". 1-4,6: auto with lia.
+      { apply lookup𑁒cons𑁒r𑁒Some. 1: lia.
+        apply lookup𑁒app𑁒r𑁒Some; simpl_length. 1: lia.
         replace _ with 0 by lia. done.
       }
-      iEval (rewrite /= insert_cons_r; first lia) in "Harr_1".
+      iEval (rewrite /= insert𑁒cons𑁒r; first lia) in "Harr_1".
       iEval (rewrite insert_app_r_alt; first (simpl_length; lia)) in "Harr_1".
       iEval (simpl_length) in "Harr_1".
-      iEval (rewrite insert_cons_l; first lia) in "Harr_1".
-      iDestruct (array_slice_app_1' with "Harr_1 Harr_2") as "Harr". 1: simpl_length/=.
+      iEval (rewrite insert𑁒cons𑁒l; first lia) in "Harr_1".
+      iDestruct (array۰slice𑁒app₁' with "Harr_1 Harr_2") as "Harr". 1: simpl_length/=.
       iEval (rewrite -(assoc _ (_ :: _))) in "Harr".
 
-      wp_load. wp_pures.
+      wp۰load. wp۰pures.
 
       iEval (rewrite -(Z2Nat.id (i1 - 1)); first lia).
       iApply ("HΦ" $! (x :: xs1) _ pivot xs2).
@@ -179,18 +179,18 @@ Section pool_G.
     i_ = ₊i →
     length xs = ₊sz →
     {{{
-      pool_context pool ctx scope ∗
-      array_slice arr i_ (DfracOwn 1) (#*@{Z} xs)
+      pool۰context pool ctx scope ∗
+      array۰slice arr i_ (DfracOwn 1) (#*@{Z} xs)
     }}}
       pool_quicksort٠main₀ ctx arr #i #sz
     {{{
       RET ();
-      pool_context pool ctx scope ∗
-      pool_consumer pool (
+      pool۰context pool ctx scope ∗
+      pool۰consumer pool (
         ∃ xs',
         ⌜xs ≡ₚ xs'⌝ ∗
         ⌜StronglySorted (≤)%Z xs'⌝ ∗
-        array_slice arr i_ (DfracOwn 1) (#*@{Z} xs')
+        array۰slice arr i_ (DfracOwn 1) (#*@{Z} xs')
       )
     }}}.
   Proof.
@@ -198,38 +198,38 @@ Section pool_G.
 
     iLöb as "HLöb" forall (ctx scope i i_ xs sz Hi Hi_ Hsz Φ).
 
-    wp_rec. wp_pures.
-    case_bool_decide; wp_pures.
+    wp۰rec. wp۰pures.
+    case_bool_decide; wp۰pures.
 
-    - wp_apply (pool_quicksort٠partition𑁒spec with "Harr") as (xs1 p pivot xs2) "(%Hp & %Hxs & %Hxs1 & %Hxs2 & Harr)". 1-4: done.
-      iDestruct (array_slice_app3 _ [_] with "Harr") as "(Harr_1 & Harr_2 & Harr_3)".
+    - wp۰apply (pool_quicksort٠partition𑁒spec with "Harr") as (xs1 p pivot xs2) "(%Hp & %Hxs & %Hxs1 & %Hxs2 & Harr)". 1-4: done.
+      iDestruct (array۰slice𑁒app𑁒3 _ [_] with "Harr") as "(Harr_1 & Harr_2 & Harr_3)".
 
-      wp_apply+ (pool٠async𑁒spec
-        ( pool_consumer pool (
+      wp۰apply+ (pool٠async𑁒spec
+        ( pool۰consumer pool (
             ∃ xs1',
             ⌜xs1 ≡ₚ xs1'⌝ ∗
             ⌜StronglySorted (≤)%Z xs1'⌝ ∗
-            array_slice arr i_ (DfracOwn 1) (#*@{Z} xs1')
+            array۰slice arr i_ (DfracOwn 1) (#*@{Z} xs1')
           )
         )
         True
       with "[$Hctx Harr_1]") as "(Hctx & Hpool_consumer_1 & _)".
       { iIntros "{% ctx scope} %ctx %scope Hctx".
-        wp_apply+ ("HLöb" with "[//] [//] [%] Hctx Harr_1") as "($ & $) //". 1: lia.
+        wp۰apply+ ("HLöb" with "[//] [//] [%] Hctx Harr_1") as "($ & $) //". 1: lia.
       }
 
-      wp_apply+ (pool٠async𑁒spec
-        ( pool_consumer pool (
+      wp۰apply+ (pool٠async𑁒spec
+        ( pool۰consumer pool (
             ∃ xs2',
             ⌜xs2 ≡ₚ xs2'⌝ ∗
             ⌜StronglySorted (≤)%Z xs2'⌝ ∗
-            array_slice arr ˖p (DfracOwn 1) (#*@{Z} xs2')
+            array۰slice arr ˖p (DfracOwn 1) (#*@{Z} xs2')
           )
         )
         True
       with "[$Hctx Harr_3]") as "(Hctx & Hpool_consumer_2 & _)".
       { iIntros "{% ctx scope} %ctx %scope Hctx".
-        wp_apply+ ("HLöb" with "[%] [%] [%] Hctx Harr_3") as "($ & Hpool_consumer)".
+        wp۰apply+ ("HLöb" with "[%] [%] [%] Hctx Harr_3") as "($ & Hpool_consumer)".
         { lia. }
         { simpl_length/=. lia. }
         { apply Permutation_length in Hxs. simpl_length/= in Hxs. lia. }
@@ -243,13 +243,13 @@ Section pool_G.
       iMod "Hpool_consumer_1" as ">(%xs1' & %Hxs1'_permutation & %Hxs1'_sorted & Harr_1)".
       iMod "Hpool_consumer_2" as ">(%xs2' & %Hxs2'_permutation & %Hxs2'_sorted & Harr_3)".
       iModIntro.
-      iDestruct (array_slice_app3_1 with "Harr_1 Harr_2 Harr_3") as "Harr".
+      iDestruct (array۰slice𑁒app𑁒3₁ with "Harr_1 Harr_2 Harr_3") as "Harr".
       { simpl_length. apply Permutation_length in Hxs1'_permutation. lia. }
       { simpl_length/=. apply Permutation_length in Hxs1'_permutation. lia. }
       iEval (rewrite -(fmap_app _ [_]) -fmap_app) in "Harr".
       iFrame. iPureIntro. split.
       { rewrite -Hxs1'_permutation -Hxs2'_permutation //. }
-      { apply: StronglySorted_app_cons. 1,4: done.
+      { apply: StronglySorted𑁒app𑁒cons. 1,4: done.
         - rewrite -Hxs1'_permutation.
           eapply Forall_impl => //=. lia.
         - rewrite -Hxs2'_permutation //.
@@ -257,34 +257,34 @@ Section pool_G.
 
     - iSteps. do 2 iModIntro.
       iExists xs. iSteps. iPureIntro.
-      apply StronglySorted_trivial. lia.
+      apply StronglySorted𑁒trivial. lia.
   Qed.
   #[local] Lemma pool_quicksort٠main₁𑁒spec pool ctx scope arr xs :
     {{{
-      pool_context pool ctx scope ∗
-      array_model arr (DfracOwn 1) (#*@{Z} xs)
+      pool۰context pool ctx scope ∗
+      array۰model arr (DfracOwn 1) (#*@{Z} xs)
     }}}
       pool_quicksort٠main₁ ctx arr
     {{{
       RET ();
-      pool_context pool ctx scope ∗
-      pool_consumer pool (
+      pool۰context pool ctx scope ∗
+      pool۰consumer pool (
         ∃ xs',
         ⌜xs ≡ₚ xs'⌝ ∗
         ⌜StronglySorted (≤)%Z xs'⌝ ∗
-        array_model arr (DfracOwn 1) (#*@{Z} xs')
+        array۰model arr (DfracOwn 1) (#*@{Z} xs')
       )
     }}}.
   Proof.
     iIntros "%Φ (Hctx & Harr_model) HΦ".
 
-    wp_rec.
+    wp۰rec.
 
-    wp_apply+ (array٠size𑁒spec with "Harr_model") as "Harr_model".
+    wp۰apply+ (array٠size𑁒spec with "Harr_model") as "Harr_model".
     iEval (simpl_length).
 
-    iDestruct (array_model_to_slice' with "Harr_model") as "(Harr_slice & #Harr_model)".
-    wp_apply+ (pool_quicksort٠main₀𑁒spec with "[$]") as "(Hctx & Hpool_consumer)". 1-3: lia.
+    iDestruct (array۰model𑁒to𑁒slice' with "Harr_model") as "(Harr_slice & #Harr_model)".
+    wp۰apply+ (pool_quicksort٠main₀𑁒spec with "[$]") as "(Hctx & Hpool_consumer)". 1-3: lia.
 
     iSteps.
     iMod "Hpool_consumer" as "(%xs' & %Hxs' & %Hxs'_sorted & Harr_slice)".
@@ -294,7 +294,7 @@ Section pool_G.
 
   Lemma pool_quicksort٠main𑁒spec (num_dom : nat) arr xs :
     {{{
-      array_model arr (DfracOwn 1) (#*@{Z} xs)
+      array۰model arr (DfracOwn 1) (#*@{Z} xs)
     }}}
       pool_quicksort٠main #num_dom arr
     {{{
@@ -302,31 +302,31 @@ Section pool_G.
     , RET ();
       ⌜xs ≡ₚ xs'⌝ ∗
       ⌜StronglySorted (≤)%Z xs'⌝ ∗
-      array_model arr (DfracOwn 1) (#*@{Z} xs')
+      array۰model arr (DfracOwn 1) (#*@{Z} xs')
     }}}.
   Proof.
     iIntros "%Φ Harr HΦ".
 
-    wp_rec.
+    wp۰rec.
 
-    iApply wp_fupd.
-    wp_apply+ (pool٠run𑁒spec (λ pool res,
+    iApply wp𑁒fupd.
+    wp۰apply+ (pool٠run𑁒spec (λ pool res,
       ⌜res = ()%V⌝ ∗
-      pool_consumer pool (
+      pool۰consumer pool (
         ∃ xs',
         ⌜xs ≡ₚ xs'⌝ ∗
         ⌜StronglySorted (≤)%Z xs'⌝ ∗
-        array_model arr (DfracOwn 1) (#*@{Z} xs')
+        array۰model arr (DfracOwn 1) (#*@{Z} xs')
       )
     )%I with "[Harr]") as (pool ?) "(#Hpool_finished & -> & Hpool_consumer)". 1: lia.
     { iIntros "%pool %ctx %scope _ Hctx".
-      wp_apply+ (pool_quicksort٠main₁𑁒spec with "[$]").
+      wp۰apply+ (pool_quicksort٠main₁𑁒spec with "[$]").
       iSteps.
     }
 
-    iMod (pool_consumer_finished with "Hpool_consumer Hpool_finished") as "(%xs' & % & % & Harr)".
+    iMod (pool۰consumer𑁒finished with "Hpool_consumer Hpool_finished") as "(%xs' & % & % & Harr)".
     iSteps.
   Qed.
-End pool_G.
+End pool۰G.
 
 Require examples.pool_quicksort__opaque.

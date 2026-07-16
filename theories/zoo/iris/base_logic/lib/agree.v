@@ -6,68 +6,68 @@ Require Import zoo.iris.diaframe.
 Require Import zoo.options.
 
 Class AgreeG Σ F :=
-  { #[local] agree_G_inG :: inG Σ (agreeR $ oFunctor_apply F $ iPropO Σ)
+  { #[local] agree۰G۰inG :: inG Σ (agreeR $ oFunctor_apply F $ iPropO Σ)
   }.
 
-Definition agree_Σ F `{!oFunctorContractive F} :=
+Definition agree۰Σ F `{!oFunctorContractive F} :=
   #[GFunctor (agreeRF F)
   ].
-#[global] Instance subG_agree_Σ Σ F `{!oFunctorContractive F} :
-  subG (agree_Σ F) Σ →
+#[global] Instance subG𑁒agree۰Σ Σ F `{!oFunctorContractive F} :
+  subG (agree۰Σ F) Σ →
   AgreeG Σ F.
 Proof.
   solve_inG.
 Qed.
 
-Section agree_G.
-  Context `{agree_G : !AgreeG Σ F}.
+Section agree۰G.
+  Context `{agree۰G : !AgreeG Σ F}.
 
-  Definition agree_on γ a :=
+  Definition agree۰on γ a :=
     own γ (to_agree a).
 
-  #[global] Instance agree_on_ne γ :
-    NonExpansive (agree_on γ).
+  #[global] Instance agree۰on𑁒ne γ :
+    NonExpansive (agree۰on γ).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance agree_on_proper γ :
-    Proper ((≡) ==> (≡)) (agree_on γ).
+  #[global] Instance agree۰on𑁒proper γ :
+    Proper ((≡) ==> (≡)) (agree۰on γ).
   Proof.
     solve_proper.
   Qed.
 
-  #[global] Instance agree_on_timeless γ a :
+  #[global] Instance agree۰on𑁒timeless γ a :
     Discrete a →
-    Timeless (agree_on γ a).
+    Timeless (agree۰on γ a).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance agree_on_persistent γ a :
-    Persistent (agree_on γ a).
+  #[global] Instance agree۰on𑁒persistent γ a :
+    Persistent (agree۰on γ a).
   Proof.
     apply _.
   Qed.
 
-  Lemma agree_alloc a :
+  Lemma agree𑁒alloc a :
     ⊢ |==>
       ∃ γ,
-      agree_on γ a.
+      agree۰on γ a.
   Proof.
     apply own_alloc. done.
   Qed.
-  Lemma agree_alloc_cofinite (γs : gset gname) a :
+  Lemma agree𑁒alloc𑁒cofinite (γs : gset gname) a :
     ⊢ |==>
       ∃ γ,
       ⌜γ ∉ γs⌝ ∗
-      agree_on γ a.
+      agree۰on γ a.
   Proof.
     apply own_alloc_cofinite. done.
   Qed.
 
-  Lemma agree_on_agree γ a1 a2 :
-    agree_on γ a1 -∗
-    agree_on γ a2 -∗
+  Lemma agree۰on𑁒agree γ a1 a2 :
+    agree۰on γ a1 -∗
+    agree۰on γ a2 -∗
     a1 ≡ a2.
   Proof.
     iIntros "H1 H2".
@@ -76,25 +76,25 @@ Section agree_G.
   Qed.
   Section discrete.
     Context `{!OfeDiscrete $ oFunctor_apply F $ iPropO Σ}.
-    Lemma agree_on_agree_discrete γ a1 a2 :
-      agree_on γ a1 -∗
-      agree_on γ a2 -∗
+    Lemma agree۰on𑁒agree𑁒discrete γ a1 a2 :
+      agree۰on γ a1 -∗
+      agree۰on γ a2 -∗
       ⌜a1 ≡ a2⌝.
     Proof.
       iIntros "H1 H2".
-      iDestruct (agree_on_agree with "H1 H2") as %?.
+      iDestruct (agree۰on𑁒agree with "H1 H2") as %?.
       iSteps.
     Qed.
-    Lemma agree_on_agree_L `{!LeibnizEquiv $ oFunctor_apply F $ iPropO Σ} γ a1 a2 :
-      agree_on γ a1 -∗
-      agree_on γ a2 -∗
+    Lemma agree۰on𑁒agree𑁒L `{!LeibnizEquiv $ oFunctor_apply F $ iPropO Σ} γ a1 a2 :
+      agree۰on γ a1 -∗
+      agree۰on γ a2 -∗
       ⌜a1 = a2⌝.
     Proof.
       iIntros "H1 H2".
-      iDestruct (agree_on_agree_discrete with "H1 H2") as %?%leibniz_equiv.
+      iDestruct (agree۰on𑁒agree𑁒discrete with "H1 H2") as %?%leibniz_equiv.
       iSteps.
     Qed.
   End discrete.
-End agree_G.
+End agree۰G.
 
-#[global] Opaque agree_on.
+#[global] Opaque agree۰on.
