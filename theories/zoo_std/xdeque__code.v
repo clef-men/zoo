@@ -6,7 +6,7 @@ Require Import zoo.options.
 
 Definition xdeque٠create : val :=
   fun: <> =>
-    let: "t" := Alloc 0 2 in
+    let: "t" := { (), (), () } in
     "t" <-{xdeque_prev} "t" ;;
     "t" <-{xdeque_next} "t" ;;
     "t".

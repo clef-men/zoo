@@ -2,7 +2,7 @@ type 'a t =
   'a array
 
 let unsafe_alloc sz =
-  Obj.magic (Obj.new_block 0 sz)
+  Obj.(magic @@ new_block 0 sz)
 let alloc sz =
   if not (0 <= sz) then
     invalid_arg @@ __FUNCTION__ ^ ": negative size" ;

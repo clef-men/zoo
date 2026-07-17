@@ -1,8 +1,8 @@
 type dummy =
-  Obj.t
+  unit ref
 
 let dummy =
-  Obj.repr (ref ())
+  ref ()
 
 type _ proph =
   dummy

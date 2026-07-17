@@ -8,7 +8,12 @@ type 'a t =
   'a node
 
 let create () =
-  let t = Obj.(magic @@ new_block 0 2) in
+  let t =
+    { xdeque_prev= Obj.magic ()
+    ; xdeque_next= Obj.magic ()
+    ; xdeque_data= Obj.magic ()
+    }
+  in
   t.xdeque_prev <- t ;
   t.xdeque_next <- t ;
   t
