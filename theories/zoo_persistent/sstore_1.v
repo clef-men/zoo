@@ -12,63 +12,6 @@ Implicit Type v t s : val.
 Implicit Type σ : gmap location val.
 
 (* ------------------------------------------------------------------------ *)
-(* Lemmas on maps and lists. *)
-
-Section map.
-  Context `{Countable K}.
-  Context {V : Type}.
-
-  Lemma gmap𑁒included𑁒insert (σ1 σ2:gmap K V) (l:K) (v:V) :
-    σ1 ⊆ σ2 →
-    <[l:=v]>σ1 ⊆ <[l:=v]>σ2.
-  Proof.
-    intros ? l'. destruct_decide (l = l').
-    { subst. rewrite !lookup_insert_eq //. }
-    { rewrite !lookup_insert_ne //. }
-  Qed.
-
-  Lemma gmap𑁒included𑁒insert𑁒notin (σ1 σ2:gmap K V) (l:K) (v:V) :
-    l ∉ dom σ1 →
-    σ1 ⊆ σ2 →
-    σ1 ⊆ <[l:=v]>σ2.
-  Proof.
-    intros ?? l'. destruct_decide (l = l').
-    { subst. rewrite lookup_insert_eq // not_elem_of_dom_1 //. }
-    { rewrite !lookup_insert_ne //. }
-  Qed.
-
-  Lemma incl𑁒dom𑁒incl (σ1 σ2:gmap K V)  :
-    σ1 ⊆ σ2 →
-    dom σ1 ⊆ dom σ2.
-  Proof.
-    intros X1.
-    intros l Hl. apply elem_of_dom in Hl. destruct Hl as (?&Hl).
-    eapply map_subseteq_spec in X1; last done. by eapply elem_of_dom.
-  Qed.
-End map.
-
-Section list.
-  Context {A : Type}.
-
-  Lemma list𑁒case𑁒r (l:list A) :
-    l = nil ∨ ∃ (l':list A) x, l = l' ++ [x].
-  Proof.
-    induction l using rev_ind.
-    naive_solver. right.
-    destruct IHl as [-> | (?&?&->)]; eauto.
-  Qed.
-
-  Lemma elem_of𑁒middle (x:A) (xs:list A) :
-    x ∈ xs →
-    ∃ (l1 l2:list A), xs = l1 ++ x::l2.
-  Proof.
-    intros Hx. apply list_elem_of_lookup_1 in Hx.
-    destruct Hx as (?&?).
-    eexists _,_. symmetry. eapply take_drop_middle. done.
-  Qed.
-End list.
-
-(* ------------------------------------------------------------------------ *)
 (* Define a labeled graph as a set of edges. *)
 
 Section graph.
@@ -224,7 +167,7 @@ Section graph.
   Qed.
 
   Lemma rooted_dag𑁒empty (r:A) :
-      rooted_dag (∅ : graph A B) r.
+    rooted_dag (∅ : graph A B) r.
   Proof.
     constructor.
     { intros ?. rewrite vertices𑁒empty. set_solver. }
@@ -454,7 +397,7 @@ Section graph.
     pathlike ys r.
   Proof.
     intros Hpath a b a' Hedge.
-    apply elem_of𑁒middle in Hedge. destruct Hedge as (?&?&->).
+    apply list_elem_of_split in Hedge. destruct Hedge as (?&?&->).
     rewrite cons_middle assoc_L in Hpath.
     apply path𑁒app𑁒inv in Hpath. destruct Hpath as (?&Hpath&Hp').
     apply path𑁒snoc𑁒inv in Hpath. destruct Hpath as (?&?&?). subst.
@@ -535,8 +478,8 @@ Section adiffl.
     σ1 ⊆ σ2 →
     apply_diffl xs σ1 ⊆ apply_diffl xs σ2.
   Proof.
-    revert σ1 σ2. induction xs as [|(?,?)]; intros;
-      [ done | eauto using gmap𑁒included𑁒insert ].
+    revert σ1 σ2. induction xs as [| (?, ?)] => σ1 σ2 Hσ. 1: done.
+    apply insert_mono. eauto.
   Qed.
 End adiffl.
 
@@ -718,7 +661,7 @@ Section sstore_1۰G.
       iApply (pointsto𑁒exclusive with "Hl Hl_"). }
     assert (σ !! l = None).
     { eapply not_elem_of_dom. apply not_elem_of_dom in Hl0.  destruct Hinv as [_ X].
-      apply incl𑁒dom𑁒incl in X. set_solver. }
+      apply subseteq_dom in X. set_solver. }
     iDestruct (pointsto𑁒ne with "Hl Hr") as %Hlr.
 
     iModIntro. iSplitR. iPureIntro. by eapply not_elem_of_dom.
@@ -730,7 +673,7 @@ Section sstore_1۰G.
     { destruct Hinv as [X1 X2 X3 X4].
       constructor.
       { rewrite dom_fmap_L; set_solver. }
-      { eauto using gmap𑁒included𑁒insert. }
+      { apply insert_mono => //. }
       { rewrite lookup_fmap X3 //. }
       { intros r1 ds r2 σ1 σ2 Hr. rewrite !lookup_fmap. generalize Hr. intros Hreach.
         intros Hr1 Hr2.
@@ -753,10 +696,12 @@ Section sstore_1۰G.
       iExists _,_. iFrame. iPureIntro.
       intros r' ? HC. apply Hsnapshot in HC. destruct HC as (x&Hx&?).
       exists (<[l:=v]>x). rewrite lookup_fmap Hx. split. done.
-      apply gmap𑁒included𑁒insert𑁒notin; last done.
-      apply incl𑁒dom𑁒incl in H0. intros X. apply H0 in X.
-      destruct Hcoh as [X1 X2]. apply X1 in Hx.
-      apply not_elem_of_dom in Hl0. set_solver. }
+      apply insert_subseteq_r. 2: done.
+      apply (lookup_weaken_None _ x). 2: done.
+      rewrite -!not_elem_of_dom in Hl0 |- *.
+      destruct Hcoh as (X1 & _).
+      set_solver.
+    }
   Qed.
 
   Lemma sstore_1٠get𑁒spec {t σ l} v :
@@ -797,7 +742,7 @@ Section sstore_1۰G.
 
     assert (∃ w, σ0 !! l = Some w) as (w&Hl0).
     { apply elem_of_dom. destruct Hinv as [_ Hincl].
-      apply incl𑁒dom𑁒incl in Hincl.
+      apply subseteq_dom in Hincl.
       set_solver. }
 
     iDestruct (big_sepM_insert_acc with "Hσ0") as "(?&Hσ0)". done.
@@ -828,7 +773,7 @@ Section sstore_1۰G.
       { destruct Hinv as [X1 X2 X3 X4].
         constructor.
         { rewrite dom_insert_L vertices𑁒union vertices𑁒singleton //. set_solver. }
-        { apply gmap𑁒included𑁒insert. done. }
+        { apply insert_mono. done. }
         { rewrite lookup_insert_eq //. }
         { intros r1 ds r2 σ1 σ2 Hreach.
           destruct_decide (r' = r1).
@@ -1199,7 +1144,7 @@ Section sstore_1۰G.
     l ≠ nil →
     ¬ (diff_last l l).
   Proof.
-    destruct (list𑁒case𑁒r l) as [|(?&?&->)]. naive_solver.
+    destruct l as [| x l _] using rev_ind. 1: done.
     intros _. unfold diff_last.
     rewrite !last_app //. simpl. naive_solver.
   Qed.
@@ -1215,7 +1160,7 @@ Section sstore_1۰G.
     intros Hacy Hroot Hp1 Hp2 Hdiff x Hx Hx'.
     apply elem_of_app in Hx'. destruct Hx' as [Hx'|Hx'].
     (* contradicts diff_last. *)
-    { apply elem_of𑁒middle in Hx,Hx'.
+    { apply list_elem_of_split in Hx,Hx'.
       destruct Hx as (l1&l2&->).
       destruct Hx' as (l1'&l2'&->).
       rewrite -!assoc_L in Hp1,Hp2.
@@ -1236,7 +1181,7 @@ Section sstore_1۰G.
       rewrite Hp1 in Hdiff.
       eapply diff_last𑁒irrefl; last done. done. }
     (* There is a loop. *)
-    { apply elem_of𑁒middle in Hx,Hx'.
+    { apply list_elem_of_split in Hx,Hx'.
       destruct Hx as (l1&l2&->).
       destruct Hx' as (l1'&l2'&->).
       rewrite -assoc_L in Hp2.
@@ -1477,7 +1422,7 @@ Section sstore_1۰G.
     (* XXX facto a lemma. *)
     assert (∃ u1 u2, ys = u1 ++ (x::l2) ++ u2) as (u1&u2&Hys).
     { eapply use𑁒mirror in Hrs. 2:done.
-      apply elem_of_list_to_set, elem_of𑁒middle in Hx.
+      apply elem_of_list_to_set, list_elem_of_split in Hx.
       destruct Hx as (p1&p2&->).
       apply path𑁒app𑁒inv in Hrs. destruct Hrs as (?&Hp1&Hp2).
       inversion Hp2; inversion X2. subst. inversion H5. subst.
