@@ -3,7 +3,7 @@ Require Import zoo.base.
 Require Export zoo_std.goptional__types.
 Require Import zoo.options.
 
-Implicit Types v : val.
+Implicit Type v : val.
 
 Variant goptional {A} :=
   | Gnothing

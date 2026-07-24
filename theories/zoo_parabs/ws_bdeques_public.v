@@ -9,11 +9,11 @@ Require Export zoo_parabs.base.
 Require Export zoo_parabs.ws_bdeques_public__code.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types v t queue round : val.
-Implicit Types vs ws queues : list val.
-Implicit Types vss : list (list val).
-Implicit Types status : status.
+Implicit Type b : bool.
+Implicit Type v t queue round : val.
+Implicit Type vs ws queues : list val.
+Implicit Type vss : list (list val).
+Implicit Type status : status.
 
 #[local] Definition capacity :=
   val۰to_nat' ws_bdeques_public٠capacity.

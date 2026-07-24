@@ -3,14 +3,14 @@ Require Import zoo.common.list.
 Require Import zoo.base.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types tag : nat.
-Implicit Types n : Z.
-Implicit Types l : location.
-Implicit Types gen : generativity.
-Implicit Types v w : val.
-Implicit Types vs : list val.
-Implicit Types lv : lowval.
+Implicit Type b : bool.
+Implicit Type tag : nat.
+Implicit Type n : Z.
+Implicit Type l : location.
+Implicit Type gen : generativity.
+Implicit Type v w : val.
+Implicit Type vs : list val.
+Implicit Type lv : lowval.
 
 #[local] Definition __zoo_recs := (
   recs: "structeq" "v1" "v2" =>
@@ -72,7 +72,7 @@ Record structeq۰field := StructeqField
   ; structeq۰field۰val : val
   }.
 Add Printing Constructor structeq۰field.
-Implicit Types fld : structeq۰field.
+Implicit Type fld : structeq۰field.
 
 #[global] Instance structeq۰field𑁒inhabited : Inhabited structeq۰field :=
   populate
@@ -85,8 +85,8 @@ Record structeq۰block := StructeqBlock
   ; structeq۰block۰fields : list structeq۰field
   }.
 Add Printing Constructor structeq۰block.
-Implicit Types blk : structeq۰block.
-Implicit Types footprint : gmap location structeq۰block.
+Implicit Type blk : structeq۰block.
+Implicit Type footprint : gmap location structeq۰block.
 
 #[global] Instance structeq۰block𑁒inhabited : Inhabited structeq۰block :=
   populate

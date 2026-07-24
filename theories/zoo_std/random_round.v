@@ -7,10 +7,10 @@ Require Import zoo_std.random_state.
 Require Import zoo_std.random_round__types.
 Require Import zoo.options.
 
-Implicit Types i n cnt : nat.
-Implicit Types prevs nexts : list nat.
-Implicit Types l : location.
-Implicit Types t rand arr : val.
+Implicit Type i n cnt : nat.
+Implicit Type prevs nexts : list nat.
+Implicit Type l : location.
+Implicit Type t rand arr : val.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

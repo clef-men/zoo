@@ -16,14 +16,14 @@ Require Export zoo_saturn.inf_mpmc_queue_1__code.
 Require Import zoo_saturn.inf_mpmc_queue_1__types.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types front back : nat.
-Implicit Types v : val.
-Implicit Types vs hist : list val.
-Implicit Types slot : optional val.
-Implicit Types slots : nat → optional val.
-Implicit Types η : gname.
-Implicit Types ηs : list gname.
+Implicit Type b : bool.
+Implicit Type front back : nat.
+Implicit Type v : val.
+Implicit Type vs hist : list val.
+Implicit Type slot : optional val.
+Implicit Type slots : nat → optional val.
+Implicit Type η : gname.
+Implicit Type ηs : list gname.
 
 Class InfMpmcQueue1G Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] inf_mpmc_queue_1۰G۰inf_array۰G :: InfArrayG Σ
@@ -55,8 +55,8 @@ Module base.
   Section inf_mpmc_queue_1۰G.
     Context `{inf_mpmc_queue_1۰G : InfMpmcQueue1G Σ}.
 
-    Implicit Types t : location.
-    Implicit Types Ψ : val → iProp Σ.
+    Implicit Type t : location.
+    Implicit Type Ψ : val → iProp Σ.
 
     Record inf_mpmc_queue_1۰name :=
       { inf_mpmc_queue_1۰name۰data : val
@@ -66,7 +66,7 @@ Module base.
       ; inf_mpmc_queue_1۰name۰consumers : gname
       ; inf_mpmc_queue_1۰name۰tokens : gname
       }.
-    Implicit Types γ : inf_mpmc_queue_1۰name.
+    Implicit Type γ : inf_mpmc_queue_1۰name.
 
     #[global] Instance inf_mpmc_queue_1۰name𑁒eq_dec : EqDecision inf_mpmc_queue_1۰name :=
       ltac:(solve_decision).
@@ -958,8 +958,8 @@ Require zoo_saturn.inf_mpmc_queue_1__opaque.
 Section inf_mpmc_queue_1۰G.
   Context `{inf_mpmc_queue_1۰G : InfMpmcQueue1G Σ}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
 
   Definition inf_mpmc_queue_1۰inv t ι : iProp Σ :=
     ∃ 𝑡 γ,

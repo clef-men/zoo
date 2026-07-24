@@ -11,7 +11,7 @@ Require Import zoo.options.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types TT : tele.
+  Implicit Type TT : tele.
 
   #[global] Instance absorb_modal𑁒fupd𑁒wp e tid E1 E2 Φ :
     SolveSepSideCondition (E2 ⊆ E1) →

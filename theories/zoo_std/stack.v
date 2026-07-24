@@ -4,7 +4,7 @@ Require Export zoo_std.stack__code.
 Require Import zoo_std.dynarray_1.
 Require Import zoo.options.
 
-Implicit Types v t : val.
+Implicit Type v t : val.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

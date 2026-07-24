@@ -16,13 +16,13 @@ Require Export zoo_saturn.spmc_queue__code.
 Require Import zoo_saturn.spmc_queue__types.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types front node back new_back : location.
-Implicit Types hist past nodes : list location.
-Implicit Types v : val.
-Implicit Types vs ws : list val.
-Implicit Types waiter : gname.
-Implicit Types waiters : gmap gname nat.
+Implicit Type b : bool.
+Implicit Type front node back new_back : location.
+Implicit Type hist past nodes : list location.
+Implicit Type v : val.
+Implicit Type vs ws : list val.
+Implicit Type waiter : gname.
+Implicit Type waiters : gmap gname nat.
 
 Class SpmcQueueG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] spmc_queue۰G۰history۰G :: MonoListG Σ location
@@ -50,7 +50,7 @@ Module base.
   Section spmc_queue۰G.
     Context `{spmc_queue۰G : SpmcQueueG Σ}.
 
-    Implicit Types t : location.
+    Implicit Type t : location.
 
     Record metadata :=
       { metadata۰inv : namespace
@@ -59,7 +59,7 @@ Module base.
       ; metadata۰model : auth_twins۰name
       ; metadata۰waiters : gname
       }.
-    Implicit Types γ : metadata.
+    Implicit Type γ : metadata.
 
     #[global] Instance metadata𑁒eq_dec : EqDecision metadata :=
       ltac:(solve_decision).
@@ -510,7 +510,7 @@ Module base.
       | IsEmpty waiter (Ψ : bool → iProp Σ)
       | Pop (Ψ : option val → iProp Σ)
       | Other.
-    Implicit Types op : operation.
+    Implicit Type op : operation.
     Variant operation' :=
       | IsEmpty'
       | Pop'
@@ -892,8 +892,8 @@ Require zoo_saturn.spmc_queue__opaque.
 Section spmc_queue۰G.
   Context `{spmc_queue۰G : SpmcQueueG Σ}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
 
   Definition spmc_queue۰inv t ι : iProp Σ :=
     ∃ 𝑡 γ,

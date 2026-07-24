@@ -34,7 +34,7 @@ Section cmra.
   Context {SI : sidx}.
   Context {A : cmra}.
 
-  Implicit Types a b : A.
+  Implicit Type a b : A.
 
   #[global] Instance auth_option۰auth𑁒ne dq :
     NonExpansive (@auth_option۰auth _ A dq).

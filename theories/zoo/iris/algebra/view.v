@@ -8,8 +8,8 @@ Section cmra.
   Context {SI : sidx}.
   Context `(rel : view_rel A B).
 
-  Implicit Types a : A.
-  Implicit Types b : B.
+  Implicit Type a : A.
+  Implicit Type b : B.
 
   Lemma view𑁒auth𑁒frag𑁒dfrac𑁒op dq1 a1 b1 dq2 a2 b2 :
     ●V{dq1} a1 ⋅ ◯V b1 ≡@{view rel} ●V{dq2} a2 ⋅ ◯V b2 ↔

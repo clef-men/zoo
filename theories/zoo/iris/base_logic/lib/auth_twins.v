@@ -33,13 +33,13 @@ Section auth_twins۰G.
     rtc R
   ).
 
-  Implicit Types a b : A.
+  Implicit Type a b : A.
 
   Record auth_twins۰name :=
     { auth_twins۰name۰var : gname
     ; auth_twins۰name۰twins : gname
     }.
-  Implicit Types γ : auth_twins۰name.
+  Implicit Type γ : auth_twins۰name.
 
   #[global] Instance auth_twins۰name𑁒eq_dec : EqDecision auth_twins۰name :=
     ltac:(solve_decision).

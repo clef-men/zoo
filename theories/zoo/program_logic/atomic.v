@@ -7,9 +7,9 @@ Require Import zoo.options.
 Section atomic_acc.
   Context `{BiFUpd PROP} {TA TB : tele}.
 
-  Implicit Types α : TA → PROP.
-  Implicit Types P : PROP.
-  Implicit Types β Ψ : TA → TB → PROP.
+  Implicit Type α : TA → PROP.
+  Implicit Type P : PROP.
+  Implicit Type β Ψ : TA → TB → PROP.
 
   #[global] Instance atomic_acc𑁒proper Eo Ei :
     Proper (
@@ -64,8 +64,8 @@ End atomic_acc.
 Section atomic_update.
   Context `{BiFUpd PROP} {TA TB : tele}.
 
-  Implicit Types α : TA → PROP.
-  Implicit Types β Ψ : TA → TB → PROP.
+  Implicit Type α : TA → PROP.
+  Implicit Type β Ψ : TA → TB → PROP.
 
   #[global] Instance atomic_update𑁒proper Eo Ei :
     Proper (
@@ -143,11 +143,11 @@ End atomic_update.
 Section atomic_triple.
   Context `{zoo۰G : !ZooG Σ} {TA TB TP : tele}.
 
-  Implicit Types P : iProp Σ.
-  Implicit Types α : TA → iProp Σ.
-  Implicit Types β : TA → TB → iProp Σ.
-  Implicit Types Ψ : TA → TB → TP → iProp Σ.
-  Implicit Types f : TA → TB → TP → val.
+  Implicit Type P : iProp Σ.
+  Implicit Type α : TA → iProp Σ.
+  Implicit Type β : TA → TB → iProp Σ.
+  Implicit Type Ψ : TA → TB → TP → iProp Σ.
+  Implicit Type f : TA → TB → TP → val.
 
   Definition atomic_triple e tid E P α β Ψ f : iProp Σ :=
     ∀ Φ,

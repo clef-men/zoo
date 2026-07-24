@@ -7,11 +7,11 @@ Require Import zoo_std.int.
 Require Import zoo_std.array.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types l : location.
-Implicit Types front back : nat.
-Implicit Types v t : val.
-Implicit Types o : option val.
+Implicit Type b : bool.
+Implicit Type l : location.
+Implicit Type front back : nat.
+Implicit Type v t : val.
+Implicit Type o : option val.
 
 #[local] Definition min_capacity :=
   val۰to_nat' queue_3٠min_capacity.

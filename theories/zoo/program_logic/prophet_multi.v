@@ -44,16 +44,16 @@ Section prophet_multi۰G.
     prophetx prophet
   ).
 
-  Implicit Types oproph : option prophet.(prophet_typed۰type).
-  Implicit Types proph : prophet.(prophet_typed۰type).
-  Implicit Types past prophs lb : list prophet.(prophet_typed۰type).
-  Implicit Types pasts prophss : nat → list prophet.(prophet_typed۰type).
-  Implicit Types iproph : nat * prophet.(prophet_typed۰type).
-  Implicit Types ipast iprophs : list (nat * prophet.(prophet_typed۰type)).
+  Implicit Type oproph : option prophet.(prophet_typed۰type).
+  Implicit Type proph : prophet.(prophet_typed۰type).
+  Implicit Type past prophs lb : list prophet.(prophet_typed۰type).
+  Implicit Type pasts prophss : nat → list prophet.(prophet_typed۰type).
+  Implicit Type iproph : nat * prophet.(prophet_typed۰type).
+  Implicit Type ipast iprophs : list (nat * prophet.(prophet_typed۰type)).
 
   Definition prophet_multi۰name :=
     prophet_wise۰name.
-  Implicit Types γ : prophet_multi۰name.
+  Implicit Type γ : prophet_multi۰name.
 
   #[global] Instance prophet_multi۰name𑁒eq_dec : EqDecision prophet_wise۰name :=
     ltac:(apply _).

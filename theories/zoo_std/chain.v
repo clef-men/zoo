@@ -3,8 +3,8 @@ Require Import zoo.base.
 Require Export zoo_std.chain__types.
 Require Import zoo.options.
 
-Implicit Types l : location.
-Implicit Types v w t dst : val.
+Implicit Type l : location.
+Implicit Type v w t dst : val.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

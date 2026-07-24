@@ -23,8 +23,8 @@ Qed.
 Section auth_frac۰G.
   Context `{auth_frac۰G : !AuthFracG Σ A}.
 
-  Implicit Types q : frac.
-  Implicit Types x y : A.
+  Implicit Type q : frac.
+  Implicit Type x y : A.
 
   Definition auth_frac۰auth γ x :=
     own γ (frac_auth_auth (DfracOwn 1) x).
@@ -195,8 +195,8 @@ Section auth_frac۰G.
   Context {A : ucmra}.
   Context `{auth_frac۰G : !AuthFracG Σ A}.
 
-  Implicit Types q : frac.
-  Implicit Types x y : A.
+  Implicit Type q : frac.
+  Implicit Type x y : A.
 
   Lemma auth_frac۰frag𑁒divide {γ q y} ys :
     y = foldr (⋅) ε ys →

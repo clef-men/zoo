@@ -22,8 +22,8 @@ Qed.
 Section mono_gmap۰G.
   Context `{mono_gmap۰G : MonoGmapG Σ K V}.
 
-  Implicit Types v : V.
-  Implicit Types m : gmap K V.
+  Implicit Type v : V.
+  Implicit Type m : gmap K V.
 
   #[local] Instance map𑁒subseteq𑁒partialorder :
     PartialOrder (A := gmap K V) subseteq.

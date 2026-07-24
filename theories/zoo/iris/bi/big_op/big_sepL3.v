@@ -47,7 +47,7 @@ Section bi.
   Section big_sepL3.
     Context {A1 A2 A3 : Type}.
 
-    Implicit Types Φ : nat → A1 → A2 → A3 → PROP.
+    Implicit Type Φ : nat → A1 → A2 → A3 → PROP.
 
     Lemma big_sepL3𑁒cons Φ y1 l1 y2 l2 y3 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ y1 :: l1; y2 :: l2; y3 :: l3, Φ k x1 x2 x3) ⊣⊢
@@ -136,7 +136,7 @@ Section bi.
   Section big_sepL3.
     Context {A1 A2 A3 : Type}.
 
-    Implicit Types Φ : nat → A1 → A2 → A3 → PROP.
+    Implicit Type Φ : nat → A1 → A2 → A3 → PROP.
 
     Lemma big_sepL3𑁒sepL2₁ `{!BiAffine PROP} Φ l1 l2 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ k x1 x2 x3) ⊣⊢

@@ -5,14 +5,14 @@ Require Import zoo.iris.diaframe.
 Require Export zoo.program_logic.bwp.
 Require Import zoo.options.
 
-Implicit Types e : expr.
-Implicit Types es : list expr.
+Implicit Type e : expr.
+Implicit Type es : list expr.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types Φ : val → iProp Σ.
-  Implicit Types Φs : list (val → iProp Σ).
+  Implicit Type Φ : val → iProp Σ.
+  Implicit Type Φs : list (val → iProp Σ).
 
   Definition bwps nt es Φs : iProp Σ :=
     [∗ list] i ↦ e; Φ ∈ es; Φs,

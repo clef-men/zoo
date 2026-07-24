@@ -6,7 +6,7 @@ Require Export zoo.iris.base_logic.lib.base.
 Require Import zoo.iris.diaframe.
 Require Import zoo.options.
 
-Implicit Types state : bool.
+Implicit Type state : bool.
 
 Class SubpropsG Σ :=
   { #[local] subprops۰G۰subpreds۰G :: SubpredsG Σ ()
@@ -25,7 +25,7 @@ Qed.
 Section subprops۰G.
   Context `{subprops۰G : !SubpropsG Σ}.
 
-  Implicit Types P Q : iProp Σ.
+  Implicit Type P Q : iProp Σ.
 
   Definition subprops۰auth γ P state :=
     subpreds۰auth γ (λ _, P) (if state then Some () else None).

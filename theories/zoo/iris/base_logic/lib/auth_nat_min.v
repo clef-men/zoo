@@ -23,7 +23,7 @@ Qed.
 Section auth_nat_min۰G.
   Context `{auth_nat_min۰G : !AuthNatMinG Σ}.
 
-  Implicit Types n m p : nat.
+  Implicit Type n m p : nat.
 
   Definition auth_nat_min۰auth γ dq n :=
     auth_mono۰auth ge γ dq n.

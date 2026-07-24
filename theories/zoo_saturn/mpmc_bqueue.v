@@ -17,13 +17,13 @@ Require Export zoo_saturn.mpmc_bqueue__code.
 Require Import zoo_saturn.mpmc_bqueue__types.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types front node back new_back : location.
-Implicit Types hist past nodes : list location.
-Implicit Types v : val.
-Implicit Types vs : list val.
-Implicit Types waiter : gname.
-Implicit Types waiters : gmap gname nat.
+Implicit Type b : bool.
+Implicit Type front node back new_back : location.
+Implicit Type hist past nodes : list location.
+Implicit Type v : val.
+Implicit Type vs : list val.
+Implicit Type waiter : gname.
+Implicit Type waiters : gmap gname nat.
 
 #[local] Definition prophet :=
   {|prophet_typed₁۰type :=
@@ -63,7 +63,7 @@ Module base.
   Section mpmc_bqueue۰G.
     Context `{mpmc_bqueue۰G : MpmcBqueueG Σ}.
 
-    Implicit Types t : location.
+    Implicit Type t : location.
 
     Record mpmc_bqueue۰name :=
       { mpmc_bqueue۰name۰inv : namespace
@@ -73,7 +73,7 @@ Module base.
       ; mpmc_bqueue۰name۰model : gname
       ; mpmc_bqueue۰name۰waiters : gname
       }.
-    Implicit Types γ : mpmc_bqueue۰name.
+    Implicit Type γ : mpmc_bqueue۰name.
 
     #[global] Instance mpmc_bqueue۰name𑁒eq_dec : EqDecision mpmc_bqueue۰name :=
       ltac:(solve_decision).
@@ -523,7 +523,7 @@ Module base.
       | IsEmpty waiter (Ψ : bool → iProp Σ)
       | Pop (Ψ : option val → iProp Σ)
       | Other.
-    Implicit Types op : operation.
+    Implicit Type op : operation.
     Variant operation' :=
       | Size'
       | IsEmpty'
@@ -1323,8 +1323,8 @@ Require zoo_saturn.mpmc_bqueue__opaque.
 Section mpmc_bqueue۰G.
   Context `{mpmc_bqueue۰G : MpmcBqueueG Σ}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
 
   Definition mpmc_bqueue۰inv t ι cap : iProp Σ :=
     ∃ 𝑡 γ,

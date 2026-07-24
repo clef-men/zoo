@@ -11,11 +11,11 @@ Section prophet_typed.
   Context (prophet : prophet_typed).
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types uproph : val * val.
-  Implicit Types uprophs : list (val * val).
-  Implicit Types oproph : option prophet.(prophet_typed۰type).
-  Implicit Types proph : prophet.(prophet_typed۰type).
-  Implicit Types prophs : list prophet.(prophet_typed۰type).
+  Implicit Type uproph : val * val.
+  Implicit Type uprophs : list (val * val).
+  Implicit Type oproph : option prophet.(prophet_typed۰type).
+  Implicit Type proph : prophet.(prophet_typed۰type).
+  Implicit Type prophs : list prophet.(prophet_typed۰type).
 
   #[local] Fixpoint prophet_typed۰process uprophs :=
     match uprophs with
@@ -115,9 +115,9 @@ Section prophet_typed₁.
   Context (prophet : prophet_typed₁).
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types oproph : option prophet.(prophet_typed₁۰type).
-  Implicit Types proph : prophet.(prophet_typed₁۰type).
-  Implicit Types prophs : list prophet.(prophet_typed₁۰type).
+  Implicit Type oproph : option prophet.(prophet_typed₁۰type).
+  Implicit Type proph : prophet.(prophet_typed₁۰type).
+  Implicit Type prophs : list prophet.(prophet_typed₁۰type).
 
   Definition prophet_typed₁۰to_prophet :=
     {|prophet_typed۰type :=

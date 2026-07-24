@@ -8,11 +8,11 @@ Require Export zoo_persistent.parray__code.
 Require Import zoo_persistent.parray__types.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types node root : location.
-Implicit Types v t equal : val.
-Implicit Types vs : list val.
-Implicit Types nodes : gmap location (list val).
+Implicit Type b : bool.
+Implicit Type node root : location.
+Implicit Type v t equal : val.
+Implicit Type vs : list val.
+Implicit Type nodes : gmap location (list val).
 
 Class ParrayG Σ `{zoo۰G : !ZooG Σ} :=
   { parray۰G۰nodes۰G : ghost_mapG Σ location (list val)
@@ -38,7 +38,7 @@ Section parray۰G.
     ; metadata۰data : val
     ; metadata۰nodes : gname
     }.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Definition nodes۰auth' γ_nodes :=
     @ghost_map_auth _ _ _ _ _ parray۰G۰nodes۰G γ_nodes 1.

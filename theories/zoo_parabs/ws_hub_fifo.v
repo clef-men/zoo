@@ -12,15 +12,15 @@ Require Import zoo_parabs.ws_hub_fifo__types.
 Require Import zoo_parabs.waiters.
 Require Import zoo.options.
 
-Implicit Types b closed : bool.
-Implicit Types num_active : Z.
-Implicit Types 𝑡 : location.
-Implicit Types v t notification notify pred : val.
-Implicit Types ws : list val.
-Implicit Types vs : gmultiset val.
-Implicit Types status : status.
-Implicit Types empty : emptiness.
-Implicit Types emptys : list emptiness.
+Implicit Type b closed : bool.
+Implicit Type num_active : Z.
+Implicit Type 𝑡 : location.
+Implicit Type v t notification notify pred : val.
+Implicit Type ws : list val.
+Implicit Type vs : gmultiset val.
+Implicit Type status : status.
+Implicit Type empty : emptiness.
+Implicit Type emptys : list emptiness.
 
 Class WsHubFifoG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] ws_hub_fifo۰G۰queue۰G :: MpmcQueue1G Σ
@@ -76,7 +76,7 @@ Opaque consistent.
 Section ws_hub_fifo۰G.
   Context `{ws_hub_fifo۰G : WsHubFifoG Σ}.
 
-  Implicit Types P P_notification P_pred Q Q_pred : iProp Σ.
+  Implicit Type P P_notification P_pred Q Q_pred : iProp Σ.
 
   Record metadata :=
     { metadata۰size : nat
@@ -85,8 +85,8 @@ Section ws_hub_fifo۰G.
     ; metadata۰owners : list gname
     ; metadata۰emptiness : gname
     }.
-  Implicit Types γ : metadata.
-  Implicit Types γ_owners : list gname.
+  Implicit Type γ : metadata.
+  Implicit Type γ_owners : list gname.
 
   #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
     ltac:(solve_decision).
@@ -940,7 +940,7 @@ End ws_hub_fifo۰G.
 Section ws_hub_fifo۰G.
   Context `{ws_hub_fifo۰G : WsHubFifoG Σ}.
 
-  Implicit Types P P_notification P_pred Q Q_pred : iProp Σ.
+  Implicit Type P P_notification P_pred Q Q_pred : iProp Σ.
 
   Lemma ws_hub_fifo٠pop_steal_until𑁒spec P_notification P_pred Q_pred t ι sz i i_ empty max_round_noyield max_round_yield notification pred :
     i = ⁺i_ →

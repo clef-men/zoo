@@ -8,9 +8,9 @@ Require Import zoo_parabs.waiter.
 Require Import zoo_parabs.waiters__types.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types v t waiters queue : val.
-Implicit Types 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 𝑞𝑢𝑒𝑢𝑒 : list val.
+Implicit Type b : bool.
+Implicit Type v t waiters queue : val.
+Implicit Type 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 𝑞𝑢𝑒𝑢𝑒 : list val.
 
 Class WaitersG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] waiters۰G۰queue۰G :: MpmcQueue1G Σ

@@ -4,9 +4,9 @@ Require Import zoo.base.
 Require Export zoo_std.xchain__types.
 Require Import zoo.options.
 
-Implicit Types node : location.
-Implicit Types nodes : list location.
-Implicit Types v next dst : val.
+Implicit Type node : location.
+Implicit Type nodes : list location.
+Implicit Type v next dst : val.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

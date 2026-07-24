@@ -116,20 +116,20 @@ Notation "'{{{' P } } } e tid E {{{ 'RET' v ; Q } } }" := (
   wp e%E tid E Φ%I
 ) : stdpp_scope.
 
-Implicit Types b : bool.
-Implicit Types l : location.
-Implicit Types pid : prophet_id.
-Implicit Types e : expr.
-Implicit Types es : list expr.
-Implicit Types v w : val.
-Implicit Types σ : state.
-Implicit Types κ κs : list observation.
+Implicit Type b : bool.
+Implicit Type l : location.
+Implicit Type pid : prophet_id.
+Implicit Type e : expr.
+Implicit Type es : list expr.
+Implicit Type v w : val.
+Implicit Type σ : state.
+Implicit Type κ κs : list observation.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types P R : iProp Σ.
-  Implicit Types Φ : val → iProp Σ.
+  Implicit Type P R : iProp Σ.
+  Implicit Type Φ : val → iProp Σ.
 
   #[global] Instance wp𑁒ne e tid E n :
     Proper (pointwise_relation _ (≡{n}≡) ==> (≡{n}≡)) (wp e tid E).
@@ -504,7 +504,7 @@ End zoo۰G.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types Φ : val → iProp Σ.
+  Implicit Type Φ : val → iProp Σ.
 
   Lemma wp𑁒pure_step𑁒strong ϕ n e1 e2 ns tid E Φ :
     PureExec ϕ n e1 e2 →

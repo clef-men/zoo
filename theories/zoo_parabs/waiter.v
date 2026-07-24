@@ -9,9 +9,9 @@ Require Import zoo_parabs.base.
 Require Import zoo_parabs.waiter__types.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types 𝑡 : location.
-Implicit Types v t mtx cond : val.
+Implicit Type b : bool.
+Implicit Type 𝑡 : location.
+Implicit Type v t mtx cond : val.
 
 Class WaiterG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] waiter۰G۰mutex۰G :: MutexG Σ

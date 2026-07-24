@@ -18,13 +18,13 @@ Require Export zoo_parabs.ws_deques_private__code.
 Require Import zoo_parabs.ws_deques_private__types.
 Require Import zoo.options.
 
-Implicit Types l : location.
-Implicit Types v t queue round : val.
-Implicit Types o : option val.
-Implicit Types vs ws : list val.
-Implicit Types vss wss : list (list val).
-Implicit Types status : status.
-Implicit Types statuses : list status.
+Implicit Type l : location.
+Implicit Type v t queue round : val.
+Implicit Type o : option val.
+Implicit Type vs ws : list val.
+Implicit Type vss wss : list (list val).
+Implicit Type status : status.
+Implicit Type statuses : list status.
 
 Class WsDequesPrivateG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] ws_deques_private۰G۰models۰G :: GhostListG Σ (list val)
@@ -60,8 +60,8 @@ Variant request :=
   | RequestBlocked
   | RequestNone
   | RequestSome (i : nat).
-Implicit Types request : request.
-Implicit Types requests : list request.
+Implicit Type request : request.
+Implicit Type requests : list request.
 
 #[local] Definition request۰to_val request : val :=
   match request with
@@ -77,8 +77,8 @@ Variant response :=
   | ResponseWaiting
   | ResponseNone
   | ResponseSome v.
-Implicit Types response : response.
-Implicit Types responses : list response.
+Implicit Type response : response.
+Implicit Type responses : list response.
 
 #[local] Coercion option۰to_response o :=
   match o with
@@ -100,7 +100,7 @@ Implicit Types responses : list response.
 Section ws_deques_private۰G.
   Context `{ws_deques_private۰G : WsDequesPrivateG Σ}.
 
-  Implicit Types Ψ : option val → iProp Σ.
+  Implicit Type Ψ : option val → iProp Σ.
 
   Record metadata :=
     { metadata۰queues۰array : val
@@ -114,9 +114,9 @@ Section ws_deques_private۰G.
     ; metadata۰owners : list gname
     ; metadata۰channels : list (gname * gname)
     }.
-  Implicit Types γ : metadata.
-  Implicit Types γ_owners : list gname.
-  Implicit Types γ_channels : list (gname * gname).
+  Implicit Type γ : metadata.
+  Implicit Type γ_owners : list gname.
+  Implicit Type γ_channels : list (gname * gname).
 
   #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
     ltac:(solve_decision).

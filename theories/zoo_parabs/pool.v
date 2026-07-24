@@ -16,12 +16,12 @@ Require Import zoo_parabs.pool__types.
 Require Import zoo_parabs.ws_hub_std.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types v ctx hub task notification notify pred ivar waiter : val.
-Implicit Types empty : emptiness.
-Implicit Types own : ownership.
-Implicit Types η : spsc_prop۰name.
-Implicit Types ω : gname.
+Implicit Type b : bool.
+Implicit Type v ctx hub task notification notify pred ivar waiter : val.
+Implicit Type empty : emptiness.
+Implicit Type own : ownership.
+Implicit Type η : spsc_prop۰name.
+Implicit Type ω : gname.
 
 #[local] Definition max_round_noyield :=
   val۰to_nat' pool٠max_round_noyield.
@@ -47,7 +47,7 @@ Record job :=
   { job۰val : val
   ; job۰name : gname
   }.
-Implicit Types job local global : job.
+Implicit Type job local global : job.
 
 #[local] Instance job𑁒inhabited : Inhabited job :=
   populate
@@ -62,8 +62,8 @@ Proof.
   solve_countable.
 Qed.
 
-Implicit Types jobs locals ulocals globals : gmultiset job.
-Implicit Types localss : list $ gmultiset job.
+Implicit Type jobs locals ulocals globals : gmultiset job.
+Implicit Type localss : list $ gmultiset job.
 
 Definition pool۰scope :=
   gmultiset job.
@@ -104,9 +104,9 @@ Module base.
   Section pool۰G.
     Context `{pool۰G : PoolG Σ}.
 
-    Implicit Types t : location.
-    Implicit Types P P_notification P_pred Q Q_pred : iProp Σ.
-    Implicit Types Ψ : val → iProp Σ.
+    Implicit Type t : location.
+    Implicit Type P P_notification P_pred Q Q_pred : iProp Σ.
+    Implicit Type Ψ : val → iProp Σ.
 
     Record pool۰name :=
       { pool۰name۰size : nat
@@ -115,8 +115,8 @@ Module base.
       ; pool۰name۰jobs : gname
       ; pool۰name۰locals : gname
       }.
-    Implicit Types γ : pool۰name.
-    Implicit Types γ_tokens : list gname.
+    Implicit Type γ : pool۰name.
+    Implicit Type γ_tokens : list gname.
 
     #[global] Instance pool۰name𑁒eq_dec : EqDecision pool۰name :=
       ltac:(solve_decision).
@@ -1228,11 +1228,11 @@ Require zoo_parabs.pool__opaque.
 Section pool۰G.
   Context `{pool۰G : PoolG Σ}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
-  Implicit Types γ : base.pool۰name.
-  Implicit Types P P_notification P_pred Q Q_pred : iProp Σ.
-  Implicit Types Ψ : val → iProp Σ.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
+  Implicit Type γ : base.pool۰name.
+  Implicit Type P P_notification P_pred Q Q_pred : iProp Σ.
+  Implicit Type Ψ : val → iProp Σ.
 
   Definition pool۰inv t sz : iProp Σ :=
     ∃ 𝑡 γ,
@@ -1665,7 +1665,7 @@ End pool۰G.
 Section pool۰G.
   Context `{pool۰G : PoolG Σ}.
 
-  Implicit Types P Q R : iProp Σ.
+  Implicit Type P Q R : iProp Σ.
 
   #[global] Instance from_assumption𑁒pool۰consumer t p P Q :
     FromAssumption p P Q →

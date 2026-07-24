@@ -21,21 +21,21 @@ Require Export zoo_saturn.ws_deque_1__code.
 Require Import zoo_saturn.ws_deque_1__types.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types front back : nat.
-Implicit Types id : prophet_id.
-Implicit Types v : val.
-Implicit Types us vs ws hist priv : list val.
-Implicit Types datas : gmultiset val.
-Implicit Types past prophs : list prophet_identifier.(prophet_typed۰type).
-Implicit Types pasts prophss : nat → list prophet_identifier.(prophet_typed۰type).
+Implicit Type b : bool.
+Implicit Type front back : nat.
+Implicit Type id : prophet_id.
+Implicit Type v : val.
+Implicit Type us vs ws hist priv : list val.
+Implicit Type datas : gmultiset val.
+Implicit Type past prophs : list prophet_identifier.(prophet_typed۰type).
+Implicit Type pasts prophss : nat → list prophet_identifier.(prophet_typed۰type).
 
 Variant state :=
   | Empty
   | Nonempty
   | Emptyish
   | Superempty.
-Implicit Types state : state.
+Implicit Type state : state.
 
 #[local] Instance state𑁒inhabited : Inhabited state :=
   populate Empty.
@@ -43,7 +43,7 @@ Implicit Types state : state.
 Variant stability :=
   | Stable
   | Unstable.
-Implicit Types stable : stability.
+Implicit Type stable : stability.
 
 #[local] Instance stability𑁒inhabited : Inhabited stability :=
   populate Stable.
@@ -96,8 +96,8 @@ Module base.
   Section ws_deque_1۰G.
     Context `{ws_deque_1۰G : WsDeque1G Σ}.
 
-    Implicit Types t : location.
-    Implicit Types P : iProp Σ.
+    Implicit Type t : location.
+    Implicit Type P : iProp Σ.
 
     Record ws_deque_1۰name :=
       { ws_deque_1۰name۰inv : namespace
@@ -110,7 +110,7 @@ Module base.
       ; ws_deque_1۰name۰winner : gname
       ; ws_deque_1۰name۰datas : gname
       }.
-    Implicit Types γ : ws_deque_1۰name.
+    Implicit Type γ : ws_deque_1۰name.
 
     #[global] Instance ws_deque_1۰name𑁒eq_dec : EqDecision ws_deque_1۰name :=
       ltac:(solve_decision).
@@ -2437,8 +2437,8 @@ Require zoo_saturn.ws_deque_1__opaque.
 Section ws_deque_1۰G.
   Context `{ws_deque_1۰G : WsDeque1G Σ}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
 
   Definition ws_deque_1۰inv t ι : iProp Σ :=
     ∃ 𝑡 γ,

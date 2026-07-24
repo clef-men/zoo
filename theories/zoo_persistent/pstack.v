@@ -5,7 +5,7 @@ Require Import zoo_std.list.
 Require Export zoo_persistent.pstack__code.
 Require Import zoo.options.
 
-Implicit Types v t : val.
+Implicit Type v t : val.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

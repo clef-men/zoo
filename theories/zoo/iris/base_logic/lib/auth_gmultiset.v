@@ -23,7 +23,7 @@ Qed.
 Section auth_gmultiset۰G.
   Context `{auth_gmultiset۰G : AuthGmultisetG Σ A}.
 
-  Implicit Types x y : gmultiset A.
+  Implicit Type x y : gmultiset A.
 
   Definition auth_gmultiset۰auth γ dq x :=
     own γ (●{dq} x).

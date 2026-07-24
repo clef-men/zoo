@@ -22,18 +22,18 @@ Require Export zoo_saturn.inf_mpmc_queue_2__code.
 Require Import zoo_saturn.inf_mpmc_queue_2__types.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types front back : nat.
-Implicit Types v : val.
-Implicit Types o : option val.
-Implicit Types vs : list val.
-Implicit Types hist : list (option val).
-Implicit Types slot : optional val.
-Implicit Types slots : nat → optional val.
-Implicit Types η : gname.
-Implicit Types ηs : list gname.
-Implicit Types past prophs : list prophet_identifier.(prophet_typed۰type).
-Implicit Types pasts prophss : nat → list prophet_identifier.(prophet_typed۰type).
+Implicit Type b : bool.
+Implicit Type front back : nat.
+Implicit Type v : val.
+Implicit Type o : option val.
+Implicit Type vs : list val.
+Implicit Type hist : list (option val).
+Implicit Type slot : optional val.
+Implicit Type slots : nat → optional val.
+Implicit Type η : gname.
+Implicit Type ηs : list gname.
+Implicit Type past prophs : list prophet_identifier.(prophet_typed۰type).
+Implicit Type pasts prophss : nat → list prophet_identifier.(prophet_typed۰type).
 
 Variant lstate :=
   | Producer
@@ -44,8 +44,8 @@ Variant lstate :=
   | ConsumerConsumer.
 #[local] Canonical lstate۰O {SI : sidx} :=
   leibnizO lstate.
-Implicit Types lstate : lstate.
-Implicit Types lstates : list lstate.
+Implicit Type lstate : lstate.
+Implicit Type lstates : list lstate.
 
 #[local] Definition lstate۰winner lstate :=
   match lstate with
@@ -174,8 +174,8 @@ Module base.
   Section inf_mpmc_queue_2۰G.
     Context `{inf_mpmc_queue_2۰G : InfMpmcQueue2G Σ}.
 
-    Implicit Types t : location.
-    Implicit Types Ψ : val → iProp Σ.
+    Implicit Type t : location.
+    Implicit Type Ψ : val → iProp Σ.
 
     Record inf_mpmc_queue_2۰name :=
       { inf_mpmc_queue_2۰name۰data : val
@@ -188,7 +188,7 @@ Module base.
       ; inf_mpmc_queue_2۰name۰producers : gname
       ; inf_mpmc_queue_2۰name۰consumers : gname
       }.
-    Implicit Types γ : inf_mpmc_queue_2۰name.
+    Implicit Type γ : inf_mpmc_queue_2۰name.
 
     #[global] Instance inf_mpmc_queue_2۰name𑁒eq_dec : EqDecision inf_mpmc_queue_2۰name :=
       ltac:(solve_decision).
@@ -1473,8 +1473,8 @@ Require zoo_saturn.inf_mpmc_queue_2__opaque.
 Section inf_mpmc_queue_2۰G.
   Context `{inf_mpmc_queue_2۰G : InfMpmcQueue2G Σ}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
 
   Definition inf_mpmc_queue_2۰inv t ι : iProp Σ :=
     ∃ 𝑡 γ,

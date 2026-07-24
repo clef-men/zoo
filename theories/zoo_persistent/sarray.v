@@ -9,11 +9,11 @@ Require Export zoo_persistent.sarray__code.
 Require Import zoo_persistent.sarray__types.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types l node root : location.
-Implicit Types v t s equal : val.
-Implicit Types vs : list val.
-Implicit Types nodes : gmap location (list val).
+Implicit Type b : bool.
+Implicit Type l node root : location.
+Implicit Type v t s equal : val.
+Implicit Type vs : list val.
+Implicit Type nodes : gmap location (list val).
 
 Class SarrayG Σ `{zoo۰G : !ZooG Σ} :=
   { sarray۰G۰nodes۰G : ghost_mapG Σ location (list val)
@@ -39,7 +39,7 @@ Section sarray۰G.
     ; metadata۰data : val
     ; metadata۰nodes : gname
     }.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
     ltac:(solve_decision).

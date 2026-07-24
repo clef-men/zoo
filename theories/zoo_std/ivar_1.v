@@ -7,9 +7,9 @@ Require Export zoo_std.ivar_1__code.
 Require Import zoo_std.option.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types v : val.
-Implicit Types o state : option val.
+Implicit Type b : bool.
+Implicit Type v : val.
+Implicit Type o state : option val.
 
 Class Ivar1G Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] ivar_1۰G۰lstate۰G :: OneshotG Σ unit val
@@ -31,14 +31,14 @@ Module base.
   Section ivar_1۰G.
     Context `{ivar_1۰G : Ivar1G Σ}.
 
-    Implicit Types t : location.
-    Implicit Types Ψ Χ Ξ : val → iProp Σ.
+    Implicit Type t : location.
+    Implicit Type Ψ Χ Ξ : val → iProp Σ.
 
     Record ivar_1۰name :=
       { ivar_1۰name۰lstate : gname
       ; ivar_1۰name۰consumer : gname
       }.
-    Implicit Types γ : ivar_1۰name.
+    Implicit Type γ : ivar_1۰name.
 
     #[global] Instance ivar_1۰name𑁒eq_dec : EqDecision ivar_1۰name :=
       ltac:(solve_decision).
@@ -624,10 +624,10 @@ Require zoo_std.ivar_1__opaque.
 Section ivar_1۰G.
   Context `{ivar_1۰G : Ivar1G Σ}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
-  Implicit Types γ : base.ivar_1۰name.
-  Implicit Types Ψ Χ Ξ : val → iProp Σ.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
+  Implicit Type γ : base.ivar_1۰name.
+  Implicit Type Ψ Χ Ξ : val → iProp Σ.
 
   Definition ivar_1۰inv t Ψ Ξ : iProp Σ :=
     ∃ 𝑡 γ,

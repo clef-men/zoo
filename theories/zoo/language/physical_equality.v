@@ -5,20 +5,20 @@ Require Export zoo.common.list.
 Require Export zoo.language.syntax.
 Require Import zoo.options.
 
-Implicit Types i tag : nat.
-Implicit Types n : Z.
-Implicit Types l : location.
-Implicit Types gen : generativity.
-Implicit Types lit : literal.
-Implicit Types v : val.
-Implicit Types vs : list val.
+Implicit Type i tag : nat.
+Implicit Type n : Z.
+Implicit Type l : location.
+Implicit Type gen : generativity.
+Implicit Type lit : literal.
+Implicit Type v : val.
+Implicit Type vs : list val.
 
 Variant lowliteral :=
   | LowlitInt n
   | LowlitLoc l
   | LowlitProph
   | LowlitPoison.
-Implicit Types llit : lowliteral.
+Implicit Type llit : lowliteral.
 
 #[global] Instance lowliteral𑁒eq_dec : EqDecision lowliteral :=
   ltac:(solve_decision).
@@ -78,8 +78,8 @@ Inductive lowval :=
   | LowvalRecs
   | LowvalBlock gen tag vs (lvs : list lowval).
 Set Elimination Schemes.
-Implicit Types lv : lowval.
-Implicit Types lvs : list lowval.
+Implicit Type lv : lowval.
+Implicit Type lvs : list lowval.
 
 Section lowval۰ind.
   Variable P : lowval → Prop.

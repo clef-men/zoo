@@ -9,9 +9,9 @@ Section bi.
   Section big_sepS.
     Context `{Countable K}.
 
-    Implicit Types s : gset K.
-    Implicit Types P : PROP.
-    Implicit Types Φ : K → PROP.
+    Implicit Type s : gset K.
+    Implicit Type P : PROP.
+    Implicit Type Φ : K → PROP.
 
     Lemma big_sepS𑁒impl𑁒thread {Φ1} P Φ2 s :
       ([∗ set] x ∈ s, Φ1 x) -∗

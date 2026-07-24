@@ -12,12 +12,12 @@ Require Import zoo_saturn.bag_2__types.
 Require Import zoo_saturn.spmc_queue.
 Require Import zoo.options.
 
-Implicit Types l node 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 : location.
-Implicit Types nodes : list location.
-Implicit Types v t producer consumer : val.
-Implicit Types o : option val.
-Implicit Types vs ws : list val.
-Implicit Types vss wss : gmap val (list val).
+Implicit Type l node 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 : location.
+Implicit Type nodes : list location.
+Implicit Type v t producer consumer : val.
+Implicit Type o : option val.
+Implicit Type vs ws : list val.
+Implicit Type vss wss : gmap val (list val).
 
 Class Bag2G Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] bag_2۰G۰spmc_queue۰G :: SpmcQueueG Σ
@@ -41,7 +41,7 @@ Record producer :=
   { producer۰queue : val
   ; producer۰node : location
   }.
-Implicit Types 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : producer.
+Implicit Type 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : producer.
 
 #[local] Coercion producer۰to_val 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : val :=
   ( 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue),
@@ -65,8 +65,8 @@ Record descriptor :=
   { descriptor۰queue : val
   ; descriptor۰vals : list val
   }.
-Implicit Types descr : descriptor.
-Implicit Types descrs : gmap location descriptor.
+Implicit Type descr : descriptor.
+Implicit Type descrs : gmap location descriptor.
 
 #[local] Definition descriptor۰update_vals descr f :=
   {|descriptor۰queue := descr.(descriptor۰queue)
@@ -93,7 +93,7 @@ Section bag_2۰G.
     ; metadata۰model : gname
     ; metadata۰queues : gname
     }.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
     ltac:(solve_decision).

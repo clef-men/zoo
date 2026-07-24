@@ -7,9 +7,9 @@ Require Export zoo_persistent.sstore_1__code.
 Require Import zoo_persistent.sstore_1__types.
 Require Import zoo.options.
 
-Implicit Types l : location.
-Implicit Types v t s : val.
-Implicit Types σ : gmap location val.
+Implicit Type l : location.
+Implicit Type v t s : val.
+Implicit Type σ : gmap location val.
 
 (* ------------------------------------------------------------------------ *)
 (* Lemmas on maps and lists. *)

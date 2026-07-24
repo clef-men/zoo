@@ -10,7 +10,7 @@ Class iType (PROP : bi) (τ : val → PROP) :=
 Section basic.
   Context {PROP : bi}.
 
-  Implicit Types v : val.
+  Implicit Type v : val.
 
   Definition itype۰unit v : PROP :=
     ⌜v = ValUnit⌝.
@@ -72,7 +72,7 @@ End basic.
 Section other.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types v fn : val.
+  Implicit Type v fn : val.
 
   Definition itype۰fun τ1 `{!iType _ τ1} τ2 `{!iType _ τ2} fn : iProp Σ :=
     □ (∀ v, τ1 v -∗ WP App (Val fn) (Val v) {{ τ2 }}).

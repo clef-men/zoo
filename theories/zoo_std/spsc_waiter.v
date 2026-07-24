@@ -8,8 +8,8 @@ Require Import zoo_std.condition.
 Require Import zoo_std.spsc_waiter__types.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types 𝑡 : location.
+Implicit Type b : bool.
+Implicit Type 𝑡 : location.
 
 Class SpscWaiterG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] spsc_waiter۰G۰mutex۰G :: MutexG Σ
@@ -38,7 +38,7 @@ Section spsc_waiter۰G.
     ; metadata۰lstate : gname
     ; metadata۰consumer : gname
     }.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
     ltac:(solve_decision).

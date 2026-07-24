@@ -6,9 +6,9 @@ Require Import zoo_std.chain.
 Require Import zoo_std.queue_1__types.
 Require Import zoo.options.
 
-Implicit Types l : location.
-Implicit Types t v front back : val.
-Implicit Types vs : list val.
+Implicit Type l : location.
+Implicit Type t v front back : val.
+Implicit Type vs : list val.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

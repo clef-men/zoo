@@ -10,7 +10,7 @@ Section bi.
   Section big_sepL2.
     Context {A1 A2 : Type}.
 
-    Implicit Types Φ : nat → A1 → A2 → PROP.
+    Implicit Type Φ : nat → A1 → A2 → PROP.
 
     Lemma big_sepL2𑁒bupd `{BiBUpd PROP} Φ l1 l2 :
       ([∗ list] k ↦ y1; y2 ∈ l1; l2, |==> Φ k y1 y2) ==∗
@@ -518,7 +518,7 @@ Section bi.
   Section big_sepL2.
     Context {A1 A2 : Type}.
 
-    Implicit Types Φ : nat → A1 → A2 → PROP.
+    Implicit Type Φ : nat → A1 → A2 → PROP.
 
     Lemma big_sepL2𑁒elem_of𑁒r `{!BiAffine PROP} {Φ l1 l2} x2 :
       x2 ∈ l2 →

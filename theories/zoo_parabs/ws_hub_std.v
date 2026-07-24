@@ -17,15 +17,15 @@ Require Import zoo_parabs.ws_deques_public.
 Require Import zoo_parabs.waiters.
 Require Import zoo.options.
 
-Implicit Types b yield closed : bool.
-Implicit Types num_active : Z.
-Implicit Types 𝑡 : location.
-Implicit Types v t notification notify pred : val.
-Implicit Types vs : gmultiset val.
-Implicit Types ws us : list val.
-Implicit Types vss : list $ list val.
-Implicit Types status : status.
-Implicit Types empty : emptiness.
+Implicit Type b yield closed : bool.
+Implicit Type num_active : Z.
+Implicit Type 𝑡 : location.
+Implicit Type v t notification notify pred : val.
+Implicit Type vs : gmultiset val.
+Implicit Type ws us : list val.
+Implicit Type vss : list $ list val.
+Implicit Type status : status.
+Implicit Type empty : emptiness.
 
 Class WsHubStdG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] ws_hub_std۰G۰deques۰G :: WsDequesPublicG Σ
@@ -136,7 +136,7 @@ Opaque consistent.
 Section ws_hub_std۰G.
   Context `{ws_hub_std۰G : WsHubStdG Σ}.
 
-  Implicit Types P P_notification P_pred Q Q_pred : iProp Σ.
+  Implicit Type P P_notification P_pred Q Q_pred : iProp Σ.
 
   Record metadata :=
     { metadata۰size : nat
@@ -144,7 +144,7 @@ Section ws_hub_std۰G.
     ; metadata۰rounds : val
     ; metadata۰waiters : val
     }.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Instance metadata𑁒eq_dec :
     EqDecision metadata.
@@ -1031,7 +1031,7 @@ End ws_hub_std۰G.
 Section ws_hub_std۰G.
   Context `{ws_hub_std۰G : WsHubStdG Σ}.
 
-  Implicit Types P P_notification P_pred Q Q_pred : iProp Σ.
+  Implicit Type P P_notification P_pred Q Q_pred : iProp Σ.
 
   Lemma ws_hub_std٠pop_steal_until𑁒spec P_notification P_pred Q_pred t ι sz i i_ empty max_round_noyield max_round_yield notification pred :
     i = ⁺i_ →

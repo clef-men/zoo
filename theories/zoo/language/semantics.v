@@ -6,26 +6,26 @@ Require Export zoo.language.metatheory.
 Require Export zoo.language.state.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types tag sz : nat.
-Implicit Types n m : Z.
-Implicit Types l : location.
-Implicit Types gen : generativity.
-Implicit Types mut : mutability.
-Implicit Types lit : literal.
-Implicit Types x : binder.
-Implicit Types e : expr.
-Implicit Types es : list expr.
-Implicit Types v w : val.
-Implicit Types vs : list val.
-Implicit Types br : branch.
-Implicit Types brs : list branch.
-Implicit Types rec : recursive.
-Implicit Types recs : list recursive.
+Implicit Type b : bool.
+Implicit Type tag sz : nat.
+Implicit Type n m : Z.
+Implicit Type l : location.
+Implicit Type gen : generativity.
+Implicit Type mut : mutability.
+Implicit Type lit : literal.
+Implicit Type x : binder.
+Implicit Type e : expr.
+Implicit Type es : list expr.
+Implicit Type v w : val.
+Implicit Type vs : list val.
+Implicit Type br : branch.
+Implicit Type brs : list branch.
+Implicit Type rec : recursive.
+Implicit Type recs : list recursive.
 
 Definition thread_id :=
   nat.
-Implicit Types tid : thread_id.
+Implicit Type tid : thread_id.
 
 Parameter encode_tag : nat → nat.
 
@@ -114,7 +114,7 @@ Definition eval_app recs x v e :=
 Variant subject :=
   | SubjectLoc l
   | SubjectBlock gen vs.
-Implicit Types subj : subject.
+Implicit Type subj : subject.
 
 Definition subject۰to_val tag subj :=
   match subj with
@@ -579,7 +579,7 @@ Inductive ectxi :=
   | CtxResolve0 (k : ectxi) v1 v2
   | CtxResolve1 e0 v2
   | CtxResolve2 e0 e1.
-Implicit Types k : ectxi.
+Implicit Type k : ectxi.
 
 Notation CtxSeq := (
   CtxLet BAnon

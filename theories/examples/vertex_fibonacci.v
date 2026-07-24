@@ -9,8 +9,8 @@ Require Export examples.fibonacci.
 Require Export examples.vertex_fibonacci__code.
 Require Import zoo.options.
 
-Implicit Types r : location.
-Implicit Types v ctx vtx : val.
+Implicit Type r : location.
+Implicit Type v ctx vtx : val.
 
 Class VertexFibonacciG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] vertex_fibonacci۰G۰pool۰G :: PoolG Σ

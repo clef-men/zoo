@@ -21,8 +21,8 @@ Qed.
 Section oneshot۰G.
   Context `{oneshot۰G : !OneshotG Σ A B}.
 
-  Implicit Types a : A.
-  Implicit Types b : B.
+  Implicit Type a : A.
+  Implicit Type b : B.
 
   Definition oneshot۰pending γ dq a :=
     ghost_var γ dq (inl a).

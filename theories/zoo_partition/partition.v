@@ -10,12 +10,12 @@ Require Import zoo_partition.partition__types.
 Require Export zoo_partition.partition__code.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types sz : nat.
-Implicit Types elt first last split class : location.
-Implicit Types v v_elts : val.
-Implicit Types cl : gset location.
-Implicit Types part : gset (gset location).
+Implicit Type b : bool.
+Implicit Type sz : nat.
+Implicit Type elt first last split class : location.
+Implicit Type v v_elts : val.
+Implicit Type cl : gset location.
+Implicit Type part : gset (gset location).
 
 Record descriptor :=
   { descriptor۰elts : list location
@@ -37,8 +37,8 @@ Proof.
   solve_countable.
 Qed.
 
-Implicit Types descr : descriptor.
-Implicit Types descrs : gmap location descriptor.
+Implicit Type descr : descriptor.
+Implicit Type descrs : gmap location descriptor.
 
 Class PartitionG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] partition۰G۰elts۰G :: MonoGsetG Σ location
@@ -59,7 +59,7 @@ Section partition۰G.
 
   #[local] Definition metadata :=
     gname.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Definition elements۰auth γ elts :=
     mono_gset۰auth γ (DfracOwn 1) elts.

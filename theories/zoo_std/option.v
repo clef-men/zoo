@@ -2,8 +2,8 @@ Require Import zoo.prelude.
 Require Import zoo.base.
 Require Import zoo.options.
 
-Implicit Types o : option val.
-Implicit Types v : val.
+Implicit Type o : option val.
+Implicit Type v : val.
 
 Coercion option۰to_val o :=
   match o with

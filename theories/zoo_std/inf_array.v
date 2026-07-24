@@ -12,12 +12,12 @@ Require Import zoo_std.int.
 Require Import zoo_std.mutex.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types l : location.
-Implicit Types pid : prophet_id.
-Implicit Types v v_resolve t fn : val.
-Implicit Types us : list val.
-Implicit Types vs : nat → val.
+Implicit Type b : bool.
+Implicit Type l : location.
+Implicit Type pid : prophet_id.
+Implicit Type v v_resolve t fn : val.
+Implicit Type us : list val.
+Implicit Type vs : nat → val.
 
 Class InfArrayG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] inf_array۰G۰mutex۰G :: MutexG Σ
@@ -42,7 +42,7 @@ Section inf_array۰G.
     { metadata۰default : val
     ; metadata۰model : gname
     }.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
     ltac:(solve_decision).

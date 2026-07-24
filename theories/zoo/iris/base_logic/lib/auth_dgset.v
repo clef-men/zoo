@@ -23,7 +23,7 @@ Qed.
 Section auth_dgset۰G.
   Context `{auth_dgset۰G : AuthDgsetG Σ A}.
 
-  Implicit Types x y : gset A.
+  Implicit Type x y : gset A.
 
   Definition auth_dgset۰auth γ dq x :=
     own γ (●{dq} GSet x).

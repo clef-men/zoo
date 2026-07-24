@@ -18,16 +18,16 @@ Require Import zoo_mcas.mcas_1__types.
 Require Export zoo_mcas.mcas_1__code.
 Require Import zoo.options.
 
-Implicit Types b full : bool.
-Implicit Types i : nat.
-Implicit Types l loc casn : location.
-Implicit Types casns : list location.
-Implicit Types gid : identifier.
-Implicit Types v w state : val.
-Implicit Types vs befores afters : list val.
-Implicit Types cas : location * (val * val).
-Implicit Types cass : list (location * (val * val)).
-Implicit Types helpers : gmap gname nat.
+Implicit Type b full : bool.
+Implicit Type i : nat.
+Implicit Type l loc casn : location.
+Implicit Type casns : list location.
+Implicit Type gid : identifier.
+Implicit Type v w state : val.
+Implicit Type vs befores afters : list val.
+Implicit Type cas : location * (val * val).
+Implicit Type cass : list (location * (val * val)).
+Implicit Type helpers : gmap gname nat.
 
 #[local] Definition global_prophet :=
   {|prophet_typed۰type :=
@@ -40,13 +40,13 @@ Implicit Types helpers : gmap gname nat.
           None
       end
   |}.
-Implicit Types prophs : list global_prophet.(prophet_typed۰type).
+Implicit Type prophs : list global_prophet.(prophet_typed۰type).
 
 Record loc۰metadata :=
   { loc۰metadata۰model : gname
   ; loc۰metadata۰history : gname
   }.
-Implicit Types γ : loc۰metadata.
+Implicit Type γ : loc۰metadata.
 
 #[local] Instance loc۰metadata𑁒inhabited : Inhabited loc۰metadata :=
   populate
@@ -68,8 +68,8 @@ Record descriptor :=
   ; descriptor۰after : val
   ; descriptor۰state : location
   }.
-Implicit Types descr : descriptor.
-Implicit Types descrs : list descriptor.
+Implicit Type descr : descriptor.
+Implicit Type descrs : list descriptor.
 
 #[local] Definition descriptor۰cas descr : val :=
   (#descr.(descriptor۰loc), #descr.(descriptor۰state)).
@@ -94,12 +94,12 @@ Variant status :=
   | Undetermined
   | After
   | Before.
-Implicit Types status : status.
+Implicit Type status : status.
 
 Variant final_status :=
   | FinalAfter
   | FinalBefore.
-Implicit Types fstatus : final_status.
+Implicit Type fstatus : final_status.
 
 Definition final_status۰to_bool fstatus :=
   if fstatus then true else false.
@@ -139,7 +139,7 @@ Record metadata :=
   ; metadata۰winning : gname
   ; metadata۰owner : gname
   }.
-Implicit Types η : metadata.
+Implicit Type η : metadata.
 
 #[local] Instance metadata𑁒inhabited : Inhabited metadata :=
   populate
@@ -193,7 +193,7 @@ Qed.
 Variant lstatus :=
   | Running i
   | Finished.
-Implicit Types lstatus : lstatus.
+Implicit Type lstatus : lstatus.
 
 #[local] Instance lstatus𑁒inhabited : Inhabited lstatus :=
   populate Finished.
@@ -276,7 +276,7 @@ Qed.
 Section mcas_1۰G.
   Context `{mcas_1۰G : Mcas1G Σ}.
 
-  Implicit Types P : iProp Σ.
+  Implicit Type P : iProp Σ.
 
   #[local] Definition model₁' γ_model v :=
     twins۰twin₁ γ_model (DfracOwn 1) v.

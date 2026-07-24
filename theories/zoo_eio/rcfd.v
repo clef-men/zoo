@@ -12,13 +12,13 @@ Require Export zoo_eio.rcfd__code.
 Require Import zoo_eio.rcfd__types.
 Require Import zoo.options.
 
-Implicit Types b owned closing : bool.
-Implicit Types ops : Z.
-Implicit Types q stock : Qp.
-Implicit Types qs : gmultiset Qp.
-Implicit Types l open : location.
-Implicit Types t v v_state fd fn : val.
-Implicit Types o : option val.
+Implicit Type b owned closing : bool.
+Implicit Type ops : Z.
+Implicit Type q stock : Qp.
+Implicit Type qs : gmultiset Qp.
+Implicit Type l open : location.
+Implicit Type t v v_state fd fn : val.
+Implicit Type o : option val.
 
 Record metadata :=
   { metadata۰fd : val
@@ -27,7 +27,7 @@ Record metadata :=
   ; metadata۰tokens : gname
   ; metadata۰lstate : gname
   }.
-Implicit Types γ : metadata.
+Implicit Type γ : metadata.
 
 #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
   ltac:(solve_decision).
@@ -40,7 +40,7 @@ Qed.
 Variant state :=
   | Open
   | Closing fn.
-Implicit Types state : state.
+Implicit Type state : state.
 
 #[local] Instance state𑁒inhabited : Inhabited state :=
   populate Open.
@@ -60,7 +60,7 @@ Variant lstate :=
   | LOpen
   | LClosingUsers
   | LClosingNoUsers.
-Implicit Types lstate : lstate.
+Implicit Type lstate : lstate.
 
 #[local] Definition lstate۰measure lstate :=
   match lstate with
@@ -135,7 +135,7 @@ Qed.
 Section rcfd۰G.
   Context `{rcfd۰G : RcfdG Σ}.
 
-  Implicit Types Ψ : frac → iProp Σ.
+  Implicit Type Ψ : frac → iProp Σ.
 
   #[local] Definition tokens۰auth' γ_tokens Ψ ops : iProp Σ :=
     ∃ stock qs,
@@ -778,7 +778,7 @@ Section rcfd۰G.
     | SpecOwner
     | SpecClosing
     | SpecNormal.
-  Implicit Types spec : specification.
+  Implicit Type spec : specification.
 
   #[local] Instance specification𑁒eq_dec : EqDecision specification :=
     ltac:(solve_decision).

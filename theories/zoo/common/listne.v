@@ -8,8 +8,8 @@ Definition listne A :=
 Section listne.
   Context {A : Type}.
 
-  Implicit Types x y : A.
-  Implicit Types l : listne A.
+  Implicit Type x y : A.
+  Implicit Type l : listne A.
 
   Program Definition listne۰app l1 l2 : listne A :=
     `l1 ++ `l2.

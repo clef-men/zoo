@@ -3,8 +3,8 @@ Require Import zoo.base.
 Require Export zoo_std.goption__types.
 Require Import zoo.options.
 
-Implicit Types o : option val.
-Implicit Types v : val.
+Implicit Type o : option val.
+Implicit Type v : val.
 
 Coercion goption۰to_val o :=
   match o with

@@ -17,7 +17,7 @@ Section ofe.
   Context {SI : sidx}.
   Context {A : ofe}.
 
-  Implicit Types a b : A.
+  Implicit Type a b : A.
 
   Definition twins۰twin₁ dq a : twins۰UR A :=
     ●O{dq} (Excl a).

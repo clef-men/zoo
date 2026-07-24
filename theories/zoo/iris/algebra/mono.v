@@ -11,8 +11,8 @@ Section relation.
   Context {SI : sidx}.
   Context `{R : relation A}.
 
-  Implicit Types a b c : A.
-  Implicit Types x y z : mono R.
+  Implicit Type a b c : A.
+  Implicit Type x y z : mono R.
 
   #[local] Definition below a x :=
     ∃ b,
@@ -249,8 +249,8 @@ Section ofe_relation.
   Context {SI : sidx}.
   Context {A : ofe} {R : relation A}.
 
-  Implicit Types a b c : A.
-  Implicit Types x y z : mono R.
+  Implicit Type a b c : A.
+  Implicit Type x y z : mono R.
 
   #[global] Instance mono۰principal𑁒ne :
     (∀ n, Proper ((≡{n}≡) ==> (≡{n}≡) ==> (↔)) R) →

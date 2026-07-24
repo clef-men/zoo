@@ -2,7 +2,7 @@ Require Import zoo.prelude.
 Require Import zoo.base.
 Require Import zoo.options.
 
-Implicit Types l : location.
+Implicit Type l : location.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

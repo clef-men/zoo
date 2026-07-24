@@ -21,7 +21,7 @@ Qed.
 Section saved_pred۰G.
   Context `{saved_pred۰G : !SavedPredG Σ A}.
 
-  Implicit Types Ψ : A → iProp Σ.
+  Implicit Type Ψ : A → iProp Σ.
 
   Definition saved_pred γ Ψ :=
     agree۰on γ (Next ∘ Ψ).

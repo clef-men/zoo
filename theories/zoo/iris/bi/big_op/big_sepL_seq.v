@@ -10,8 +10,8 @@ Section bi.
   Section big_sepL۰seq.
     Context {A : Type}.
 
-    Implicit Types l : list A.
-    Implicit Types Φ : nat → PROP.
+    Implicit Type l : list A.
+    Implicit Type Φ : nat → PROP.
 
     Lemma big_sepL𑁒seq𑁒intro Φ i n :
       □ (

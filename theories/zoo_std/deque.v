@@ -6,7 +6,7 @@ Require Import zoo_std.option.
 Require Import zoo_std.xdeque.
 Require Import zoo.options.
 
-Implicit Types fn : val.
+Implicit Type fn : val.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

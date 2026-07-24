@@ -9,9 +9,9 @@ Section bi.
   Section big_sepMS.
     Context `{Countable K}.
 
-    Implicit Types s : gmultiset K.
-    Implicit Types P : PROP.
-    Implicit Types Φ : K → PROP.
+    Implicit Type s : gmultiset K.
+    Implicit Type P : PROP.
+    Implicit Type Φ : K → PROP.
 
     Lemma big_sepMS𑁒insert₁ {Φ} x s :
       ([∗ mset] y ∈ ({[+x+]} ⊎ s), Φ y) ⊢

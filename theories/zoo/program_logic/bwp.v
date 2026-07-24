@@ -147,21 +147,21 @@ Notation "'BWP' e ∶ tid E {{ v , Q } }" := (
   format "'[hv' BWP  '/  ' '[' e ']'  '/  ' ∶  tid  E '/' {{  '[' v ,  '/' Q ']'  '/' } } ']'"
 ) : bi_scope.
 
-Implicit Types ns nt : nat.
-Implicit Types l : location.
-Implicit Types pid : prophet_id.
-Implicit Types e : expr.
-Implicit Types es : list expr.
-Implicit Types v : val.
-Implicit Types tid : thread_id.
-Implicit Types σ : state.
-Implicit Types κ κs : list observation.
+Implicit Type ns nt : nat.
+Implicit Type l : location.
+Implicit Type pid : prophet_id.
+Implicit Type e : expr.
+Implicit Type es : list expr.
+Implicit Type v : val.
+Implicit Type tid : thread_id.
+Implicit Type σ : state.
+Implicit Type κ κs : list observation.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types P R : iProp Σ.
-  Implicit Types Φ : val → iProp Σ.
+  Implicit Type P R : iProp Σ.
+  Implicit Type Φ : val → iProp Σ.
 
   Lemma bwp𑁒unfold e tid E Φ :
     BWP e ∶ tid @ E {{ Φ }} ⊣⊢
@@ -554,7 +554,7 @@ End zoo۰G.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types Φ : val → iProp Σ.
+  Implicit Type Φ : val → iProp Σ.
 
   Lemma bwp𑁒lift𑁒step e tid E Φ :
     to_val e = None →
@@ -765,7 +765,7 @@ End zoo۰G.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types Φ : val → iProp Σ.
+  Implicit Type Φ : val → iProp Σ.
 
   #[local] Hint Resolve
     base_reducible𑁒reducible

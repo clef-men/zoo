@@ -10,10 +10,10 @@ Require Import zoo_std.semaphore__types.
 Require Import zoo_std.condition.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types cnt : nat.
-Implicit Types l : location.
-Implicit Types t : val.
+Implicit Type b : bool.
+Implicit Type cnt : nat.
+Implicit Type l : location.
+Implicit Type t : val.
 
 Class SemaphoreG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] semaphore۰G۰mutex۰G :: MutexG Σ
@@ -34,15 +34,15 @@ Qed.
 Section semaphore۰G.
   Context `{semaphore۰G : SemaphoreG Σ}.
 
-  Implicit Types P : iProp Σ.
+  Implicit Type P : iProp Σ.
 
   Record metadata :=
     { metadata۰mutex : val
     ; metadata۰condition : val
     ; metadata۰tokens : list gname
     }.
-  Implicit Types γ : metadata.
-  Implicit Types γ_tokens : list gname.
+  Implicit Type γ : metadata.
+  Implicit Type γ_tokens : list gname.
 
   #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
     ltac:(solve_decision).

@@ -31,11 +31,11 @@ Section list_to_map.
   Admitted.
 End list_to_map.
 
-Implicit Types l l_global root : location.
-Implicit Types roots : list location.
-Implicit Types v t global : val.
-Implicit Types ω : gc۰location.
-Implicit Types map : gmap location gc۰location.
+Implicit Type l l_global root : location.
+Implicit Type roots : list location.
+Implicit Type v t global : val.
+Implicit Type ω : gc۰location.
+Implicit Type map : gmap location gc۰location.
 
 Definition boxroot٠init : val :=
   fun: <> =>
@@ -80,7 +80,7 @@ Section boxroot۰G.
 
   #[local] Definition metadata :=
     gname.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Definition roots۰auth γ map :=
     ghost_map_auth γ 1 map.

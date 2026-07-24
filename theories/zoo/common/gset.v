@@ -6,7 +6,7 @@ Require Import zoo.options.
 Section list_to_set.
   Context `{Countable K}.
 
-  Implicit Types l : list K.
+  Implicit Type l : list K.
 
   Lemma list_to_set𑁒empty l :
     list_to_set (C := gset K) l = ∅ ↔

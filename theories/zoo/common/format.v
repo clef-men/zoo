@@ -6,11 +6,11 @@ Require Import zoo.prelude.
 Require Import zoo.common.string.
 Require Import zoo.options.
 
-Implicit Types str pref suff var val : string.
+Implicit Type str pref suff var val : string.
 
 Definition format۰env :=
   gmap string string.
-Implicit Types env : format۰env.
+Implicit Type env : format۰env.
 
 Module parse.
   Notation assign :=

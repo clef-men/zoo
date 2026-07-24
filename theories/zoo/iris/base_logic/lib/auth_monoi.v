@@ -23,7 +23,7 @@ Section auth_monoi۰G.
   Context {A : ofe} (R : relation A) `{!Initial R}.
   Context `{auth_monoi۰G : !AuthMonoiG Σ R}.
 
-  Implicit Types a : A.
+  Implicit Type a : A.
 
   Notation Rs := (
     rtc R

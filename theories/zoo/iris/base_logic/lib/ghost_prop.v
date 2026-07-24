@@ -21,7 +21,7 @@ Qed.
 Section ghost_prop۰G.
   Context `{ghost_prop۰G : !GhostPropG Σ}.
 
-  Implicit Types P : iProp Σ.
+  Implicit Type P : iProp Σ.
 
   Definition ghost_prop γ dq P :=
     ghost_var γ dq (Next P).

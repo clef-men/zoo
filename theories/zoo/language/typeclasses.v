@@ -5,8 +5,8 @@ Require Export zoo.language.metatheory.
 Require Import zoo.language.tactics.
 Require Import zoo.options.
 
-Implicit Types e : expr.
-Implicit Types v : val.
+Implicit Type e : expr.
+Implicit Type v : val.
 
 #[global] Instance val۰as_val v :
   AsVal (Val v) v.

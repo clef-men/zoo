@@ -9,10 +9,10 @@ Require Export zoo_parabs.base.
 Require Export zoo_parabs.ws_deques_public__code.
 Require Import zoo.options.
 
-Implicit Types v t queue round : val.
-Implicit Types vs ws queues : list val.
-Implicit Types vss : list (list val).
-Implicit Types status : status.
+Implicit Type v t queue round : val.
+Implicit Type vs ws queues : list val.
+Implicit Type vss : list (list val).
+Implicit Type status : status.
 
 Class WsDequesPublicG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] ws_deques_public۰G۰ws_deque۰G :: WsDeque2G Σ

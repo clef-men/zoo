@@ -10,7 +10,7 @@ Section bi.
   Section big_sepL.
     Context {A : Type}.
 
-    Implicit Types Φ : nat → A → PROP.
+    Implicit Type Φ : nat → A → PROP.
 
     Lemma big_sepL𑁒to𑁒seq `{!BiAffine PROP} Φ l i :
       ([∗ list] k ↦ y ∈ l, Φ k y) ⊣⊢
@@ -48,7 +48,7 @@ Section bi.
   Section big_sepL.
     Context {A : Type}.
 
-    Implicit Types Φ : nat → A → PROP.
+    Implicit Type Φ : nat → A → PROP.
 
     Lemma big_sepL𑁒cons₁ Φ x l :
       ([∗ list] k ↦ y ∈ (x :: l), Φ k y) ⊢

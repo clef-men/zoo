@@ -10,11 +10,11 @@ Require Export zoo.language.tactics.
 Require Export zoo.program_logic.atomic.
 Require Import zoo.options.
 
-Implicit Types l : location.
-Implicit Types lit : literal.
-Implicit Types e : expr.
-Implicit Types v : val.
-Implicit Types K : ectx.
+Implicit Type l : location.
+Implicit Type lit : literal.
+Implicit Type e : expr.
+Implicit Type v : val.
+Implicit Type K : ectx.
 
 #[global] Instance bi_intuitionistically_if𑁒timeless {PROP : bi} (P : PROP) p :
   Timeless (emp : PROP) →
@@ -41,7 +41,7 @@ Qed.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types Φ : val → iProp Σ.
+  Implicit Type Φ : val → iProp Σ.
 
   Lemma tac𑁒wp𑁒expr𑁒eval Δ e e' tid E Φ :
     (∀ (e'' := e'), e = e'') →

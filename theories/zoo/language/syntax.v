@@ -9,26 +9,26 @@ Require Export zoo.common.binder.
 Require Export zoo.language.location.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types i tag : nat.
-Implicit Types n : Z.
-Implicit Types l : location.
-Implicit Types f x : binder.
+Implicit Type b : bool.
+Implicit Type i tag : nat.
+Implicit Type n : Z.
+Implicit Type l : location.
+Implicit Type f x : binder.
 
 Definition block_id :=
   positive.
-Implicit Types bid : option block_id.
+Implicit Type bid : option block_id.
 
 Definition prophet_id :=
   positive.
-Implicit Types pid : prophet_id.
+Implicit Type pid : prophet_id.
 
 Variant mutability :=
   | Mutable
   | ImmutableNongenerative
   | ImmutableGenerativeWeak
   | ImmutableGenerativeStrong.
-Implicit Types mut : mutability.
+Implicit Type mut : mutability.
 
 #[global] Instance mutability𑁒eq_dec : EqDecision mutability :=
   ltac:(solve_decision).
@@ -41,7 +41,7 @@ Qed.
 Variant generativity :=
   | Generative bid
   | Nongenerative.
-Implicit Types gen : generativity.
+Implicit Type gen : generativity.
 
 #[global] Instance generativity𑁒eq_dec : EqDecision generativity :=
   ltac:(solve_decision).
@@ -57,7 +57,7 @@ Variant literal :=
   | LitLoc l
   | LitProph pid
   | LitPoison.
-Implicit Types lit : literal.
+Implicit Type lit : literal.
 
 #[global] Instance literal𑁒eq_dec : EqDecision literal :=
   ltac:(solve_decision).
@@ -145,20 +145,20 @@ with val :=
   | ValRecs i (recs : list (binder * binder * expr))
   | ValBlock gen tag (vs : list val).
 Set Elimination Schemes.
-Implicit Types e : expr.
-Implicit Types es : list expr.
-Implicit Types v : val.
-Implicit Types vs : list val.
+Implicit Type e : expr.
+Implicit Type es : list expr.
+Implicit Type v : val.
+Implicit Type vs : list val.
 
 Notation branch :=
   (pattern * expr)%type.
-Implicit Types br : branch.
-Implicit Types brs : list branch.
+Implicit Type br : branch.
+Implicit Type brs : list branch.
 
 Notation recursive :=
   (binder * binder * expr)%type.
-Implicit Types rec : recursive.
-Implicit Types recs : list recursive.
+Implicit Type rec : recursive.
+Implicit Type recs : list recursive.
 
 Section expr_ind.
   Variable P : expr → Prop.

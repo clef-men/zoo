@@ -11,10 +11,10 @@ Require Import zoo.options.
 
 Import ws_deque_1.base.
 
-Implicit Types slot : location.
-Implicit Types slots : list location.
-Implicit Types v : val.
-Implicit Types vs ws : list val.
+Implicit Type slot : location.
+Implicit Type slots : list location.
+Implicit Type v : val.
+Implicit Type vs ws : list val.
 
 Class WsDeque2G Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] ws_deque_2۰G۰base۰G :: WsDeque1G Σ
@@ -36,13 +36,13 @@ Module base.
   Section ws_deque_2۰G.
     Context `{ws_deque_2۰G : WsDeque2G Σ}.
 
-    Implicit Types t : location.
+    Implicit Type t : location.
 
     Record ws_deque_2۰name :=
       { ws_deque_2۰name۰base : ws_deque_1۰name
       ; ws_deque_2۰name۰model : auth_twins۰name
       }.
-    Implicit Types γ : ws_deque_2۰name.
+    Implicit Type γ : ws_deque_2۰name.
 
     #[global] Instance ws_deque_2۰name𑁒eq_dec : EqDecision ws_deque_2۰name :=
       ltac:(solve_decision).
@@ -450,8 +450,8 @@ Require zoo_saturn.ws_deque_2__opaque.
 Section ws_deque_2۰G.
   Context `{ws_deque_2۰G : WsDeque2G Σ}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
 
   Definition ws_deque_2۰inv t ι : iProp Σ :=
     ∃ 𝑡 γ,

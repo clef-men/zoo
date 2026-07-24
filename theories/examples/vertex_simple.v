@@ -8,7 +8,7 @@ Require Import zoo_parabs.vertex.
 Require Export examples.vertex_simple__code.
 Require Import zoo.options.
 
-Implicit Types v ctx a b c d : val.
+Implicit Type v ctx a b c d : val.
 
 Class VertexSimpleG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] vertex_simple۰G۰pool۰G :: PoolG Σ
@@ -33,7 +33,7 @@ Qed.
 Section vertex_simple۰G.
   Context `{vertex_simple۰G : VertexSimpleG Σ}.
 
-  Implicit Types P_ab P_ac P_b P_c P_d : iProp Σ.
+  Implicit Type P_ab P_ac P_b P_c P_d : iProp Σ.
 
   Lemma vertex_simple٠main𑁒spec P_ab P_ac P_b P_c P_d (num_dom : nat) a b c d :
     {{{

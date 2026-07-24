@@ -7,8 +7,8 @@ Require Export zoo_persistent.pqueue__code.
 Require Import zoo_persistent.pqueue__types.
 Require Import zoo.options.
 
-Implicit Types v t : val.
-Implicit Types back front : list val.
+Implicit Type v t : val.
+Implicit Type back front : list val.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

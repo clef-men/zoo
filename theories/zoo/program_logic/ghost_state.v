@@ -13,19 +13,19 @@ Require Export zoo.language.language.
 Require Import zoo.language.notations.
 Require Import zoo.options.
 
-Implicit Types cnt ns nt : nat.
-Implicit Types pid : prophet_id.
-Implicit Types tid : thread_id.
-Implicit Types l : location.
-Implicit Types v : val.
-Implicit Types vs : list val.
-Implicit Types hdr : header.
-Implicit Types hdrs : gmap location header.
-Implicit Types σ : state.
-Implicit Types proph : val * val.
-Implicit Types prophs : list (val * val).
-Implicit Types prophets : gmap prophet_id (list (val * val)).
-Implicit Types κ κs : list observation.
+Implicit Type cnt ns nt : nat.
+Implicit Type pid : prophet_id.
+Implicit Type tid : thread_id.
+Implicit Type l : location.
+Implicit Type v : val.
+Implicit Type vs : list val.
+Implicit Type hdr : header.
+Implicit Type hdrs : gmap location header.
+Implicit Type σ : state.
+Implicit Type proph : val * val.
+Implicit Type prophs : list (val * val).
+Implicit Type prophets : gmap prophet_id (list (val * val)).
+Implicit Type κ κs : list observation.
 
 Parameter zoo_counter : location.
 

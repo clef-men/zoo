@@ -108,7 +108,7 @@ Section Z.
 End Z.
 
 Section Qp۰of_nat.
-  Implicit Types n : nat.
+  Implicit Type n : nat.
 
   Definition Qp۰of_nat :=
     pos_to_Qp ∘ Pos.of_nat.

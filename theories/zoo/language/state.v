@@ -6,10 +6,10 @@ Require Import zoo.prelude.
 Require Export zoo.language.syntax.
 Require Import zoo.options.
 
-Implicit Types l : location.
-Implicit Types v w : val.
-Implicit Types vs : list val.
-Implicit Types h : gmap location val.
+Implicit Type l : location.
+Implicit Type v w : val.
+Implicit Type vs : list val.
+Implicit Type h : gmap location val.
 
 Record header := Header
   { header۰tag : nat
@@ -23,7 +23,7 @@ Record state :=
   ; state۰locals : list val
   ; state۰prophets : gset prophet_id
   }.
-Implicit Types σ : state.
+Implicit Type σ : state.
 
 Canonical state۰O {SI : sidx} :=
   leibnizO state.
@@ -75,9 +75,9 @@ Definition state۰add_prophet pid :=
 Section chunk.
   Context {A : Type}.
 
-  Implicit Types x y : A.
-  Implicit Types xs : list A.
-  Implicit Types m : gmap location A.
+  Implicit Type x y : A.
+  Implicit Type xs : list A.
+  Implicit Type m : gmap location A.
 
   Fixpoint chunk l xs : gmap location A :=
     match xs with

@@ -8,9 +8,9 @@ Require Import zoo_std.option.
 Require Import zoo_std.xdlchain.
 Require Import zoo.options.
 
-Implicit Types l node : location.
-Implicit Types nodes : list location.
-Implicit Types fn : val.
+Implicit Type l node : location.
+Implicit Type nodes : list location.
+Implicit Type fn : val.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

@@ -4,8 +4,8 @@ Require Export zoo_std.mutex.
 Require Export zoo_std.condition__code.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types t pred : val.
+Implicit Type b : bool.
+Implicit Type t pred : val.
 
 Section mutex۰G.
   Context `{mutex۰G : MutexG Σ}.

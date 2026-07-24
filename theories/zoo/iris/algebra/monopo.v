@@ -13,8 +13,8 @@ Section relation.
   Context `{R : relation A}.
   Context `{!Reflexive R} `{!Transitive R}.
 
-  Implicit Types a b c : A.
-  Implicit Types x y z : monopo R.
+  Implicit Type a b c : A.
+  Implicit Type x y z : monopo R.
 
   #[local] Definition below a x :=
     ∃ b,
@@ -300,8 +300,8 @@ Section ofe_relation.
   Context {A : ofe} {R : relation A}.
   Context `{!Reflexive R} `{!Transitive R}.
 
-  Implicit Types a b c : A.
-  Implicit Types x y z : monopo R.
+  Implicit Type a b c : A.
+  Implicit Type x y z : monopo R.
 
   #[global] Instance monopo۰principal𑁒ne :
     (∀ n, Proper ((≡{n}≡) ==> (≡{n}≡) ==> (↔)) R) →

@@ -15,8 +15,8 @@ Section relation.
   Context `{!Reflexive R} `{!Transitive R}.
   Context `{!Initial R}.
 
-  Implicit Types a b c : A.
-  Implicit Types x y z : monopoi R.
+  Implicit Type a b c : A.
+  Implicit Type x y z : monopoi R.
 
   #[local] Definition below a x :=
     ∃ b,
@@ -307,8 +307,8 @@ Section ofe_relation.
   Context `{!Reflexive R} `{!Transitive R}.
   Context `{!Initial R}.
 
-  Implicit Types a b c : A.
-  Implicit Types x y z : monopoi R.
+  Implicit Type a b c : A.
+  Implicit Type x y z : monopoi R.
 
   #[global] Instance monopoi۰principal𑁒ne :
     (∀ n, Proper ((≡{n}≡) ==> (≡{n}≡) ==> (↔)) R) →

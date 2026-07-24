@@ -4,10 +4,10 @@ Require Import zoo.common.math.
 Require Import zoo.base.
 Require Import zoo.options.
 
-Implicit Types i n : nat.
-Implicit Types l : location.
-Implicit Types v : val.
-Implicit Types vs : list val.
+Implicit Type i n : nat.
+Implicit Type l : location.
+Implicit Type v : val.
+Implicit Type vs : list val.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
@@ -632,7 +632,7 @@ Section zoo۰G.
   End chunk۰span.
 
   Section chunk۰cslice.
-    Implicit Types sz : nat.
+    Implicit Type sz : nat.
 
     Definition chunk۰cslice l sz i dq vs : iProp Σ :=
       [∗ list] k ↦ v ∈ vs, (l +ₗ (i + k) `mod` sz) ↦{dq} v.

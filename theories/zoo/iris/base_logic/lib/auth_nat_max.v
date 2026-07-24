@@ -22,7 +22,7 @@ Qed.
 Section auth_nat_max۰G.
   Context `{auth_nat_max۰G : !AuthNatMaxG Σ}.
 
-  Implicit Types n m p : nat.
+  Implicit Type n m p : nat.
 
   Definition auth_nat_max۰auth γ dq n :=
     auth_monoi۰auth (≤) γ dq n.

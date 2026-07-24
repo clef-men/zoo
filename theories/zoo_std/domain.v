@@ -12,12 +12,12 @@ Require Import zoo_std.ivar_2.
 Require Import zoo_std.dynarray_1.
 Require Import zoo.options.
 
-Implicit Types id : nat.
-Implicit Types l : location.
-Implicit Types t fn key : val.
-Implicit Types vs : list (option val).
-Implicit Types ws : gmap nat (option val).
-Implicit Types ids : gmap val nat.
+Implicit Type id : nat.
+Implicit Type l : location.
+Implicit Type t fn key : val.
+Implicit Type vs : list (option val).
+Implicit Type ws : gmap nat (option val).
+Implicit Type ids : gmap val nat.
 
 #[local] Notation "'id'" := (
   in_type "key" 0
@@ -159,7 +159,7 @@ Opaque consistent.
 Section domain۰G.
   Context `{domain۰G : DomainG Σ}.
 
-  Implicit Types Ψ : val → iProp Σ.
+  Implicit Type Ψ : val → iProp Σ.
 
   #[local] Definition local۰auth γ :=
     ghost_map_auth γ 1.

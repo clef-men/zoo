@@ -8,8 +8,8 @@ Require Import zoo_std.lazy__types.
 Require Import zoo_std.mutex.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types v fn mtx : val.
+Implicit Type b : bool.
+Implicit Type v fn mtx : val.
 
 Class LazyG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] lazy۰G۰mutex۰G :: MutexG Σ
@@ -33,15 +33,15 @@ Module base.
   Section lazy۰G.
     Context `{lazy۰G : LazyG Σ}.
 
-    Implicit Types t : location.
-    Implicit Types Ψ Χ Ξ : val → iProp Σ.
+    Implicit Type t : location.
+    Implicit Type Ψ Χ Ξ : val → iProp Σ.
 
     Record lazy۰name :=
       { lazy۰name۰thunk : val
       ; lazy۰name۰lstate : gname
       ; lazy۰name۰consumer : gname
       }.
-    Implicit Types γ : lazy۰name.
+    Implicit Type γ : lazy۰name.
 
     #[global] Instance lazy۰name𑁒eq_dec : EqDecision lazy۰name :=
       ltac:(solve_decision).
@@ -55,7 +55,7 @@ Module base.
       | Unset
       | Setting mtx
       | Set_ v.
-    Implicit Types state : state.
+    Implicit Type state : state.
 
     #[local] Instance state𑁒inhabited : Inhabited state :=
       populate Unset.
@@ -689,10 +689,10 @@ Require zoo_std.lazy__opaque.
 Section lazy۰G.
   Context `{lazy۰G : LazyG Σ}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
-  Implicit Types γ : base.lazy۰name.
-  Implicit Types Ψ Χ Ξ : val → iProp Σ.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
+  Implicit Type γ : base.lazy۰name.
+  Implicit Type Ψ Χ Ξ : val → iProp Σ.
 
   Definition lazy۰inv t Ψ Ξ : iProp Σ :=
     ∃ 𝑡 γ,

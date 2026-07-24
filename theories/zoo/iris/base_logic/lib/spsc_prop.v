@@ -27,13 +27,13 @@ Qed.
 Section spsc_prop۰G.
   Context `{spsc_prop۰G : SpscPropG Σ}.
 
-  Implicit Types P : iProp Σ.
+  Implicit Type P : iProp Σ.
 
   Record spsc_prop۰name :=
     { spsc_prop۰name۰state : gname
     ; spsc_prop۰name۰consumer : gname
     }.
-  Implicit Types γ : spsc_prop۰name.
+  Implicit Type γ : spsc_prop۰name.
 
   #[global] Instance spsc_prop۰name𑁒eq_dec : EqDecision spsc_prop۰name :=
     ltac:(solve_decision).

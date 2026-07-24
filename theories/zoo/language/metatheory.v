@@ -4,9 +4,9 @@ Require Import zoo.prelude.
 Require Export zoo.language.syntax.
 Require Import zoo.options.
 
-Implicit Types e : expr.
-Implicit Types v : val.
-Implicit Types env : gmap string val.
+Implicit Type e : expr.
+Implicit Type v : val.
+Implicit Type env : gmap string val.
 
 Fixpoint occurs x e :=
   match e with

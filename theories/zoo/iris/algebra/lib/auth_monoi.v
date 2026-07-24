@@ -14,7 +14,7 @@ Section relation.
   Context {A : ofe} (R : relation A).
   Context `{!Initial R}.
 
-  Implicit Types a b : A.
+  Implicit Type a b : A.
 
   Notation Rs := (
     rtc R

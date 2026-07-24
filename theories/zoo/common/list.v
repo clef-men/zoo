@@ -39,8 +39,8 @@ Tactic Notation "simpl_length" "/=" "in" "*" :=
 Section basic.
   Context {A : Type}.
 
-  Implicit Types x y z : A.
-  Implicit Types l : list A.
+  Implicit Type x y z : A.
+  Implicit Type l : list A.
 
   Lemma list𑁒eq l1 l2 :
     l1 = l2 ↔
@@ -313,8 +313,8 @@ End basic.
 Section suffix.
   Context {A : Type}.
 
-  Implicit Types x : A.
-  Implicit Types l : list A.
+  Implicit Type x : A.
+  Implicit Type l : list A.
 
   Lemma suffix𑁒tail l1 l2 :
     l1 `suffix_of` l2 →
@@ -371,7 +371,7 @@ End zip.
 Section zip3_with.
   Context {A1 A2 A3 B : Type}.
 
-  Implicit Types f : A1 → A2 → A3 → B.
+  Implicit Type f : A1 → A2 → A3 → B.
 
   Fixpoint zip3_with f l1 l2 l3 :=
     match l1, l2, l3 with
@@ -446,7 +446,7 @@ End zip3.
 : simpl_length.
 
 Section foldri.
-  Implicit Types i : nat.
+  Implicit Type i : nat.
 
   Fixpoint foldri' `(f : nat → A → B → B) acc l i :=
     match l with
@@ -873,11 +873,11 @@ End Forall2i.
 Section fmap.
   Context {A B : Type}.
 
-  Implicit Types x : A.
-  Implicit Types 𝑥 : B.
-  Implicit Types l : list A.
-  Implicit Types 𝑙 : list B.
-  Implicit Types f : A → B.
+  Implicit Type x : A.
+  Implicit Type 𝑥 : B.
+  Implicit Type l : list A.
+  Implicit Type 𝑙 : list B.
+  Implicit Type f : A → B.
 
   Lemma fmap𑁒app𑁒cons𑁒inv f l 𝑙1 𝑥 𝑙2 :
     f <$> l = 𝑙1 ++ 𝑥 :: 𝑙2 →
@@ -918,8 +918,8 @@ End fmap.
 Section Permutation.
   Context {A : Type}.
 
-  Implicit Types x : A.
-  Implicit Types l : list A.
+  Implicit Type x : A.
+  Implicit Type l : list A.
 
   #[global] Instance Permutation𑁒disjoint :
     Proper (Permutation ==> Permutation ==> iff) (disjoint (A := list A)).
@@ -953,8 +953,8 @@ End Permutation.
 Section slice.
   Context {A : Type}.
 
-  Implicit Types x : A.
-  Implicit Types l : list A.
+  Implicit Type x : A.
+  Implicit Type l : list A.
 
   Definition slice i n l :=
     take n (drop i l).
@@ -1016,8 +1016,8 @@ End slice.
 Section with_slice.
   Context {A : Type}.
 
-  Implicit Types x : A.
-  Implicit Types l s : list A.
+  Implicit Type x : A.
+  Implicit Type l s : list A.
 
   Definition with_slice i n l s :=
     take i l ++ s ++ drop (i + n) l.
@@ -1154,8 +1154,8 @@ End with_slice.
 Section rotation.
   Context {A : Type}.
 
-  Implicit Types x : A.
-  Implicit Types l : list A.
+  Implicit Type x : A.
+  Implicit Type l : list A.
 
   Definition rotation n l :=
     drop n l ++ take n l.
@@ -1220,12 +1220,12 @@ Section omap.
   Context {A : Type}.
   Context {B : Type}.
 
-  Implicit Types x y : A.
-  Implicit Types 𝑥 𝑦 : B.
-  Implicit Types o : option B.
-  Implicit Types l : list A.
-  Implicit Types 𝑙 : list B.
-  Implicit Types f : A → option B.
+  Implicit Type x y : A.
+  Implicit Type 𝑥 𝑦 : B.
+  Implicit Type o : option B.
+  Implicit Type l : list A.
+  Implicit Type 𝑙 : list B.
+  Implicit Type f : A → option B.
 
   Lemma length𑁒omap f l :
     length (omap f l) ≤ length l.
@@ -1297,9 +1297,9 @@ End omap.
 Section oflatten.
   Context {A : Type}.
 
-  Implicit Types x y : A.
-  Implicit Types o : option A.
-  Implicit Types l : list (option A).
+  Implicit Type x y : A.
+  Implicit Type o : option A.
+  Implicit Type l : list (option A).
 
   Definition oflatten l :=
     omap id l.
@@ -1409,8 +1409,8 @@ End oflatten.
 Section Sorted.
   Context `(R : A → A → Prop).
 
-  Implicit Types x : A.
-  Implicit Types l : list A.
+  Implicit Type x : A.
+  Implicit Type l : list A.
 
   Lemma StronglySorted𑁒nil :
     StronglySorted R [].

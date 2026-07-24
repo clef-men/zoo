@@ -3,7 +3,7 @@ Require Import zoo.base.
 Require Export zoo_std.random_state__code.
 Require Import zoo.options.
 
-Implicit Types t : val.
+Implicit Type t : val.
 
 Parameter random_state۰model : ∀ `{zoo۰G : !ZooG Σ}, val → iProp Σ.
 

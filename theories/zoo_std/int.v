@@ -16,7 +16,7 @@ Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
   Section Z.
-    Implicit Types n : Z.
+    Implicit Type n : Z.
 
     Lemma int٠min𑁒spec n1 n2 E Φ :
       ▷ Φ #(n1 `min` n2) -∗
@@ -94,7 +94,7 @@ Section zoo۰G.
   End Z.
 
   Section nat.
-    Implicit Types n : nat.
+    Implicit Type n : nat.
 
     Lemma int٠min𑁒spec𑁒nat n1 n2 E Φ :
       ▷ Φ #(n1 `min` n2)%nat -∗

@@ -11,11 +11,11 @@ Require Import zoo_std.assume.
 Require Import zoo_std.chunk.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types i j k n : nat.
-Implicit Types l : location.
-Implicit Types v t fn acc : val.
-Implicit Types vs vs_left vs_right ws : list val.
+Implicit Type b : bool.
+Implicit Type i j k n : nat.
+Implicit Type l : location.
+Implicit Type v t fn acc : val.
+Implicit Type vs vs_left vs_right ws : list val.
 
 Definition array٠unsafe_xchg : val :=
   fun: "t" "i" "v" =>

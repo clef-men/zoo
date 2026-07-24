@@ -7,9 +7,9 @@ Require Export zoo_std.mvar__code.
 Require Import zoo_std.option.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types v : val.
-Implicit Types o state : option val.
+Implicit Type b : bool.
+Implicit Type v : val.
+Implicit Type o state : option val.
 
 Class MvarG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] mvar۰G۰lstate۰G :: OneshotG Σ unit unit
@@ -31,14 +31,14 @@ Module base.
   Section mvar۰G.
     Context `{mvar۰G : MvarG Σ}.
 
-    Implicit Types t : location.
-    Implicit Types Ψ : val → iProp Σ.
+    Implicit Type t : location.
+    Implicit Type Ψ : val → iProp Σ.
 
     Record mvar۰name :=
       { mvar۰name۰lstate : gname
       ; mvar۰name۰consumer : gname
       }.
-    Implicit Types γ : mvar۰name.
+    Implicit Type γ : mvar۰name.
 
     #[global] Instance mvar۰name𑁒eq_dec : EqDecision mvar۰name :=
       ltac:(solve_decision).
@@ -518,10 +518,10 @@ Require zoo_std.mvar__opaque.
 Section mvar۰G.
   Context `{mvar۰G : MvarG Σ}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
-  Implicit Types γ : base.mvar۰name.
-  Implicit Types Ψ : val → iProp Σ.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
+  Implicit Type γ : base.mvar۰name.
+  Implicit Type Ψ : val → iProp Σ.
 
   Definition mvar۰inv t Ψ : iProp Σ :=
     ∃ 𝑡 γ,

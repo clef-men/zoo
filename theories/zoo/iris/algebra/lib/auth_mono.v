@@ -13,7 +13,7 @@ Section relation.
   Context {SI : sidx}.
   Context {A : ofe} (R : relation A).
 
-  Implicit Types a b : A.
+  Implicit Type a b : A.
 
   Notation Rs := (
     rtc R

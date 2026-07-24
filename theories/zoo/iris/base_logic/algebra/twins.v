@@ -21,7 +21,7 @@ Section upred.
   Section ofe.
     Context {A : ofe}.
 
-    Implicit Types a b : A.
+    Implicit Type a b : A.
 
     Lemma twins۰twin₁𑁒dfrac𑁒validI dq a :
       ✓ (twins۰twin₁ dq a) ⊣⊢

@@ -4,9 +4,9 @@ Require Export zoo.program_logic.bwp_adequacy.
 Require Export zoo.program_logic.wp.
 Require Import zoo.options.
 
-Implicit Types e : expr.
-Implicit Types v : val.
-Implicit Types σ : state.
+Implicit Type e : expr.
+Implicit Type v : val.
+Implicit Type σ : state.
 
 Lemma wp𑁒adequacy' `{inv_Gpre : !invGpreS Σ} e σ :
   ( ∀ `{inv۰G : !invGS Σ} κs,

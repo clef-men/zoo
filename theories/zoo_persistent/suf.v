@@ -6,11 +6,11 @@ Require Import zoo_persistent.suf__types.
 Require Import zoo_persistent.sstore_2.
 Require Import zoo.options.
 
-Implicit Types rank : Z.
-Implicit Types elt repr parent : location.
-Implicit Types t s descr : val.
-Implicit Types reprs : gmap location location.
-Implicit Types descrs : gmap location val.
+Implicit Type rank : Z.
+Implicit Type elt repr parent : location.
+Implicit Type t s descr : val.
+Implicit Type reprs : gmap location location.
+Implicit Type descrs : gmap location val.
 
 Class SufG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] suf۰G۰sstore۰G :: Sstore2G Σ

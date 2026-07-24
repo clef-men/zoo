@@ -6,11 +6,11 @@ Require Import zoo_std.dynarray_1__types.
 Require Import zoo_std.int.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types i : nat.
-Implicit Types l : location.
-Implicit Types v t fn : val.
-Implicit Types vs : list val.
+Implicit Type b : bool.
+Implicit Type i : nat.
+Implicit Type l : location.
+Implicit Type v t fn : val.
+Implicit Type vs : list val.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

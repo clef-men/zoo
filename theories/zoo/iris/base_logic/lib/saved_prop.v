@@ -21,7 +21,7 @@ Qed.
 Section saved_prop۰G.
   Context `{saved_prop۰G : !SavedPropG Σ}.
 
-  Implicit Types P : iProp Σ.
+  Implicit Type P : iProp Σ.
 
   Definition saved_prop γ P :=
     agree۰on γ (Next P).

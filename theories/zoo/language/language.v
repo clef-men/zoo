@@ -2,14 +2,14 @@ Require Import zoo.prelude.
 Require Export zoo.language.semantics.
 Require Import zoo.options.
 
-Implicit Types e : expr.
-Implicit Types es : list expr.
-Implicit Types v : val.
-Implicit Types σ : state.
-Implicit Types κ κs : list observation.
-Implicit Types k : ectxi.
-Implicit Types K : ectx.
-Implicit Types ρ : config.
+Implicit Type e : expr.
+Implicit Type es : list expr.
+Implicit Type v : val.
+Implicit Type σ : state.
+Implicit Type κ κs : list observation.
+Implicit Type k : ectxi.
+Implicit Type K : ectx.
+Implicit Type ρ : config.
 
 Declare Scope expr_scope.
 Delimit Scope expr_scope with E.

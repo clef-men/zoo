@@ -11,7 +11,7 @@ Require Export zoo.iris.base_logic.lib.base.
 Require Import zoo.iris.diaframe.
 Require Import zoo.options.
 
-Implicit Types η : gname.
+Implicit Type η : gname.
 
 Class GhostHeapG Σ L V `{Countable L} :=
   { #[local] ghost_heap۰G۰heap۰G :: ghost_mapG Σ L V
@@ -34,16 +34,16 @@ Qed.
 Section ghost_heap۰G.
   Context `{ghost_heap۰G : GhostHeapG Σ L V}.
 
-  Implicit Types l : L.
-  Implicit Types v : V.
-  Implicit Types σ : gmap L V.
-  Implicit Types m : gmap L gname.
+  Implicit Type l : L.
+  Implicit Type v : V.
+  Implicit Type σ : gmap L V.
+  Implicit Type m : gmap L gname.
 
   Record ghost_heap۰name :=
     { ghost_heap۰name۰heap : gname
     ; ghost_heap۰name۰meta : gname
     }.
-  Implicit Types γ : ghost_heap۰name.
+  Implicit Type γ : ghost_heap۰name.
 
   #[global] Instance ghost_heap۰name𑁒eq_dec : EqDecision ghost_heap۰name :=
     ltac:(solve_decision).

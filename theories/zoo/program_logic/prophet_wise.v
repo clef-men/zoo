@@ -26,9 +26,9 @@ Section prophet_wise۰G.
   Context (prophet : prophet_typed).
   Context `{prophet_wise۰G : ProphetWiseG Σ prophet}.
 
-  Implicit Types oproph : option prophet.(prophet_typed۰type).
-  Implicit Types proph : prophet.(prophet_typed۰type).
-  Implicit Types prophs : list prophet.(prophet_typed۰type).
+  Implicit Type oproph : option prophet.(prophet_typed۰type).
+  Implicit Type proph : prophet.(prophet_typed۰type).
+  Implicit Type prophs : list prophet.(prophet_typed۰type).
 
   Record prophet_wise۰name :=
     { prophet_wise۰name۰full : gname

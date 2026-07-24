@@ -5,10 +5,10 @@ Require Import zoo.proofmode.
 Require Export zoo.diaframe.symb_exec.wp.
 Require Import zoo.options.
 
-Implicit Types l : location.
-Implicit Types pid : prophet_id.
-Implicit Types e : expr.
-Implicit Types v : val.
+Implicit Type l : location.
+Implicit Type pid : prophet_id.
+Implicit Type e : expr.
+Implicit Type v : val.
 
 (* relax hint mode (set to "+" by Diaframe) *)
 Hint Mode SolveSepSideCondition ! : typeclass_instances.
@@ -19,7 +19,7 @@ Class PureExecNorec ϕ n e1 e2 :=
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types Φ : val → iProp Σ.
+  Implicit Type Φ : val → iProp Σ.
 
   #[global] Instance pure_step𑁒diaspec₁ e K ϕ n e1 e2 tid E Φ :
     ReshapeExprAnd _ e K e1 (

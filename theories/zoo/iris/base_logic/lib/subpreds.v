@@ -26,9 +26,9 @@ Qed.
 Section subpreds۰G.
   Context `{subpreds۰G : !SubpredsG Σ A}.
 
-  Implicit Types state : option A.
-  Implicit Types η : gname.
-  Implicit Types Ψ Χ : A → iProp Σ.
+  Implicit Type state : option A.
+  Implicit Type η : gname.
+  Implicit Type Ψ Χ : A → iProp Σ.
 
   Definition subpreds۰auth γ Ψ state : iProp Σ :=
     ∃ ηs,

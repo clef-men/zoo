@@ -22,8 +22,8 @@ Qed.
 Section mono_gset۰G.
   Context `{mono_gset۰G : MonoGsetG Σ A}.
 
-  Implicit Types a : A.
-  Implicit Types s : gset A.
+  Implicit Type a : A.
+  Implicit Type s : gset A.
 
   Definition mono_gset۰auth γ dq s :=
     auth_mono۰auth subseteq γ dq s.

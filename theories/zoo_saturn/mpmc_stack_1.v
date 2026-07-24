@@ -6,9 +6,9 @@ Require Import zoo_std.glist.
 Require Export zoo_saturn.mpmc_stack_1__code.
 Require Import zoo.options.
 
-Implicit Types l : location.
-Implicit Types v t : val.
-Implicit Types vs : list val.
+Implicit Type l : location.
+Implicit Type v t : val.
+Implicit Type vs : list val.
 
 Class MpmcStack1G Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] mpmc_stack_1۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
@@ -29,7 +29,7 @@ Section zoo۰G.
 
   #[local] Definition metadata :=
     gname.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Definition model₁ γ vs :=
     twins۰twin₁ γ (DfracOwn 1) vs.

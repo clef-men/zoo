@@ -12,9 +12,9 @@ Require Import zoo_parabs.future.
 Require Import zoo_parabs.pool.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types v pool ctx task pred found body op zero acc : val.
-Implicit Types o : option val.
+Implicit Type b : bool.
+Implicit Type v pool ctx task pred found body op zero acc : val.
+Implicit Type o : option val.
 
 Class AlgoG Σ `{pool۰G : PoolG Σ} :=
   { #[local] algo۰G۰future۰G :: FutureG Σ

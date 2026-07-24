@@ -4,9 +4,9 @@ Require Import zoo.base.
 Require Export zoo_std.mutex__code.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types l : location.
-Implicit Types t fn : val.
+Implicit Type b : bool.
+Implicit Type l : location.
+Implicit Type t fn : val.
 
 Class MutexG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] mutex۰G۰excl۰G :: ExclG Σ unitO
@@ -27,7 +27,7 @@ Section mutex۰G.
 
   #[local] Definition metadata :=
     gname.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Definition locked γ :=
     excl γ ().

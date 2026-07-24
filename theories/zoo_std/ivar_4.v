@@ -9,11 +9,11 @@ Require Import zoo_std.list.
 Require Import zoo_std.option.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types v t ctx waiter : val.
-Implicit Types waiters : list val.
-Implicit Types ω : gname.
-Implicit Types ωs : list gname.
+Implicit Type b : bool.
+Implicit Type v t ctx waiter : val.
+Implicit Type waiters : list val.
+Implicit Type ω : gname.
+Implicit Type ωs : list gname.
 
 Class Ivar4G Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] ivar_4۰G۰ivar_3۰G :: Ivar3G Σ gname
@@ -35,11 +35,11 @@ Section ivar_4۰G.
   Context `{ivar_4۰G : Ivar4G Σ}.
   Context `{context_name : Type}.
 
-  Implicit Types 𝑐𝑡𝑥 : context_name.
-  Implicit Types P : iProp Σ.
-  Implicit Types Ps : list $ iProp Σ.
-  Implicit Types Ψ Χ Ξ : val → iProp Σ.
-  Implicit Types Γ : val → context_name → iProp Σ.
+  Implicit Type 𝑐𝑡𝑥 : context_name.
+  Implicit Type P : iProp Σ.
+  Implicit Type Ps : list $ iProp Σ.
+  Implicit Type Ψ Χ Ξ : val → iProp Σ.
+  Implicit Type Γ : val → context_name → iProp Σ.
 
   #[local] Definition waiter۰model₁ Γ t waiter P : iProp Σ :=
     ∀ ctx 𝑐𝑡𝑥 v,

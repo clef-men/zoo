@@ -16,18 +16,18 @@ Require Import zoo_parabs.vertex__types.
 Require Import zoo_parabs.pool.
 Require Import zoo.options.
 
-Implicit Types b finished : bool.
-Implicit Types preds : nat.
-Implicit Types succ : location.
-Implicit Types task ctx : val.
-Implicit Types own : ownership.
+Implicit Type b finished : bool.
+Implicit Type preds : nat.
+Implicit Type succ : location.
+Implicit Type task ctx : val.
+Implicit Type own : ownership.
 
 Variant state :=
   | Init
   | Released
   | Ready
   | Finished.
-Implicit Types state : state.
+Implicit Type state : state.
 
 #[local] Instance state𑁒inhabited : Inhabited state :=
   populate Init.
@@ -41,7 +41,7 @@ Record vertex۰name :=
   ; vertex۰name۰predecessors : gname
   ; vertex۰name۰output : gname
   }.
-Implicit Types γ δ π : vertex۰name.
+Implicit Type γ δ π : vertex۰name.
 
 #[local] Instance vertex۰name𑁒eq_dec : EqDecision vertex۰name :=
   ltac:(solve_decision).
@@ -50,11 +50,11 @@ Implicit Types γ δ π : vertex۰name.
 Proof.
   solve_countable.
 Qed.
-Implicit Types Δ Π : gmultiset vertex۰name.
+Implicit Type Δ Π : gmultiset vertex۰name.
 
 Definition vertex۰iteration :=
   gname.
-Implicit Types iter : vertex۰iteration.
+Implicit Type iter : vertex۰iteration.
 
 Class VertexG Σ `{pool۰G : PoolG Σ} :=
   { #[local] vertex۰G۰stack۰G :: MpmcStack2G Σ
@@ -84,8 +84,8 @@ Module base.
   Section vertex۰G.
     Context `{vertex۰G : VertexG Σ}.
 
-    Implicit Types t : location.
-    Implicit Types P Q R : iProp Σ.
+    Implicit Type t : location.
+    Implicit Type P Q R : iProp Σ.
 
     #[local] Definition state₁' γ_state own state :=
       twins۰twin₁ (twins۰G := vertex۰G۰state۰G) γ_state own state.
@@ -1177,7 +1177,7 @@ Require zoo_parabs.vertex__opaque.
 Section vertex۰G.
   Context `{vertex۰G : VertexG Σ}.
 
-  Implicit Types 𝑡 : location.
+  Implicit Type 𝑡 : location.
 
   Definition vertex۰inv t P R : iProp Σ :=
     ∃ 𝑡 γ,

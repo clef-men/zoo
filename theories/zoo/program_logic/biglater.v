@@ -6,7 +6,7 @@ Require Import zoo.options.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types P : iProp Σ.
+  Implicit Type P : iProp Σ.
 
   Definition biglater P : iProp Σ :=
     ∃ ns,
@@ -30,7 +30,7 @@ Notation "▶ P" := (
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types P : iProp Σ.
+  Implicit Type P : iProp Σ.
 
   #[global] Instance biglater𑁒ne :
     NonExpansive biglater.
@@ -211,7 +211,7 @@ End zoo۰G.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types P : iProp Σ.
+  Implicit Type P : iProp Σ.
 
   #[global] Instance into_wand𑁒biglater p q R P Q :
     IntoWand false false R P Q →

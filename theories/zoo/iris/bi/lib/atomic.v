@@ -17,7 +17,7 @@ Local Tactic Notation "iSplitWith" constr(H) :=
 
 Section definition.
   Context {PROP : bi} `{!BiFUpd PROP} {TA TB : tele}.
-  Implicit Types
+  Implicit Type
     (Eo Ei : coPset) (* outer/inner masks *)
     (α : TA → PROP) (* atomic pre-condition *)
     (P : PROP) (* abortion condition *)
@@ -210,7 +210,7 @@ Notation "'AACC' '<{' α , 'ABORT' P '}>' @ Eo , Ei '<{' β , 'COMM' Φ '}>'" :=
 (** Lemmas about AU *)
 Section lemmas.
   Context `{BiFUpd PROP} {TA TB : tele}.
-  Implicit Types (α : TA → PROP) (β Φ : TA → TB → PROP) (P : PROP).
+  Implicit Type (α : TA → PROP) (β Φ : TA → TB → PROP) (P : PROP).
 
   Local Existing Instance atomic_update۰pre𑁒mono.
 
@@ -429,7 +429,7 @@ End lemmas.
 (** ProofMode support for atomic updates. *)
 Section proof_mode.
   Context `{BiFUpd PROP} {TA TB : tele}.
-  Implicit Types (α : TA → PROP) (β Φ : TA → TB → PROP) (P : PROP).
+  Implicit Type (α : TA → PROP) (β Φ : TA → TB → PROP) (P : PROP).
 
   Lemma tac𑁒aupd𑁒intro Γp Γs n α β Eo Ei Φ P :
     P = env_to_prop Γs →

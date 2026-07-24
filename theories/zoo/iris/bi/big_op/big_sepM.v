@@ -10,9 +10,9 @@ Section bi.
   Section big_sepM.
     Context `{Countable K} {A : Type}.
 
-    Implicit Types m : gmap K A.
-    Implicit Types P : PROP.
-    Implicit Types Φ : K → A → PROP.
+    Implicit Type m : gmap K A.
+    Implicit Type P : PROP.
+    Implicit Type Φ : K → A → PROP.
 
     Lemma big_sepM𑁒singleton₁ Φ k v :
       ([∗ map] k ↦ v ∈ {[k := v]}, Φ k v) ⊢
@@ -124,7 +124,7 @@ Section bi.
   Section big_sepM.
     Context {A : Type}.
 
-    Implicit Types Φ : nat → A → PROP.
+    Implicit Type Φ : nat → A → PROP.
 
     Lemma big_sepM𑁒map_seq start l Φ :
       ([∗ map] k ↦ x ∈ map_seq start l, Φ k x) ⊣⊢

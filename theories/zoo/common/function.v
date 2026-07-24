@@ -37,9 +37,9 @@ Notation "x .: f" := (
 Section lookup.
   Context `{!EqDecision A} {B : Type}.
 
-  Implicit Types x : A.
-  Implicit Types y : B.
-  Implicit Types f : A → B.
+  Implicit Type x : A.
+  Implicit Type y : B.
+  Implicit Type f : A → B.
 
   Lemma fn𑁒lookup𑁒insert f x1 y x2 :
     <[x1 := y]> f x2 = if decide (x1 = x2) then y else f x2.
@@ -81,10 +81,10 @@ End lookup.
 Section fmap.
   Context `{!EqDecision A} {B C : Type}.
 
-  Implicit Types x : A.
-  Implicit Types y : B.
-  Implicit Types f : A → B.
-  Implicit Types g : B → C.
+  Implicit Type x : A.
+  Implicit Type y : B.
+  Implicit Type f : A → B.
+  Implicit Type g : B → C.
 
   Lemma fn𑁒compose𑁒insert f g x y :
     g ∘ <[x := y]> f = <[x := g y]> (g ∘ f).

@@ -24,8 +24,8 @@ Qed.
 Section ghost_list۰G.
   Context `{ghost_list۰G : !GhostListG Σ A}.
 
-  Implicit Types x : A.
-  Implicit Types xs : list A.
+  Implicit Type x : A.
+  Implicit Type xs : list A.
 
   Definition ghost_list۰auth γ xs :=
     ghost_map_auth γ 1 (map_seq 0 xs).

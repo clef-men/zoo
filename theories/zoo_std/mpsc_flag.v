@@ -6,7 +6,7 @@ Require Import zoo.base.
 Require Export zoo_std.mpsc_flag__code.
 Require Import zoo.options.
 
-Implicit Types b : bool.
+Implicit Type b : bool.
 
 Class MpscFlagG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] mpsc_flag۰G۰state۰G :: OneshotG Σ () ()
@@ -28,14 +28,14 @@ Module base.
   Section mpsc_flag۰G.
     Context `{mpsc_flag۰G : MpscFlagG Σ}.
 
-    Implicit Types t : location.
-    Implicit Types P : iProp Σ.
+    Implicit Type t : location.
+    Implicit Type P : iProp Σ.
 
     Record mpsc_flag۰name :=
       { mpsc_flag۰name۰state : gname
       ; mpsc_flag۰name۰consumer : gname
       }.
-    Implicit Types γ : mpsc_flag۰name.
+    Implicit Type γ : mpsc_flag۰name.
 
     #[global] Instance mpsc_flag۰name𑁒eq_dec : EqDecision mpsc_flag۰name :=
       ltac:(solve_decision).
@@ -282,9 +282,9 @@ Require zoo_std.mpsc_flag__opaque.
 Section mpsc_flag۰G.
   Context `{mpsc_flag۰G : MpscFlagG Σ}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
-  Implicit Types P : iProp Σ.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
+  Implicit Type P : iProp Σ.
 
   Definition mpsc_flag۰inv t P : iProp Σ :=
     ∃ 𝑡 γ,

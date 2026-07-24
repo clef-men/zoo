@@ -7,11 +7,11 @@ Require Export zoo_saturn.mpmc_bstack__code.
 Require Import zoo_saturn.mpmc_bstack__types.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types cap sz : nat.
-Implicit Types l : location.
-Implicit Types v t front : val.
-Implicit Types vs : list val.
+Implicit Type b : bool.
+Implicit Type cap sz : nat.
+Implicit Type l : location.
+Implicit Type v t front : val.
+Implicit Type vs : list val.
 
 Class MpmcBstackG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] mpmc_bstack۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
@@ -34,7 +34,7 @@ Section mpmc_bstack۰G.
     { metadata۰capacity : nat
     ; metadata۰model : gname
     }.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
     ltac:(solve_decision).

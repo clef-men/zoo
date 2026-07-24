@@ -10,13 +10,13 @@ Require Export zoo_saturn.bag_1__code.
 Require Import zoo_saturn.bag_1__types.
 Require Import zoo.options.
 
-Implicit Types front back : nat.
-Implicit Types l slot : location.
-Implicit Types slots : list location.
-Implicit Types v t data : val.
-Implicit Types vs : gmultiset val.
-Implicit Types o : option val.
-Implicit Types os : list (option val).
+Implicit Type front back : nat.
+Implicit Type l slot : location.
+Implicit Type slots : list location.
+Implicit Type v t data : val.
+Implicit Type vs : gmultiset val.
+Implicit Type o : option val.
+Implicit Type os : list (option val).
 
 Class Bag1G Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] bag_1۰G۰model۰G :: TwinsG Σ (leibnizO (gmultiset val))
@@ -80,7 +80,7 @@ Section bag_1۰G.
     ; metadata۰inv : namespace
     ; metadata۰model : gname
     }.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
     ltac:(solve_decision).

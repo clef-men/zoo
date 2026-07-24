@@ -15,9 +15,9 @@ Local Open Scope lazy_bool_scope.
 (* Coq versions of the tactics *)
 Section tactics.
 Context {PROP : bi}.
-Implicit Types Γ : env PROP.
-Implicit Types Δ : envs PROP.
-Implicit Types P Q : PROP.
+Implicit Type Γ : env PROP.
+Implicit Type Δ : envs PROP.
+Implicit Type P Q : PROP.
 
 (** * Starting and stopping the proof mode *)
 Lemma tac_start P : envs_entails (Envs Enil Enil 1) P → ⊢ P.

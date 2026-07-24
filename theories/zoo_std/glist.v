@@ -4,8 +4,8 @@ Require Export zoo_std.glist__types.
 Require Export zoo_std.glist__code.
 Require Import zoo.options.
 
-Implicit Types v : val.
-Implicit Types vs : list val.
+Implicit Type v : val.
+Implicit Type vs : list val.
 
 Fixpoint glist۰to_val vs :=
   match vs with

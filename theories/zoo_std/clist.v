@@ -4,13 +4,13 @@ Require Export zoo_std.clist__types.
 Require Export zoo_std.clist__code.
 Require Import zoo.options.
 
-Implicit Types v t fn : val.
+Implicit Type v t fn : val.
 
 Inductive clist :=
   | ClistClosed
   | ClistOpen
   | ClistCons v (cvs : clist).
-Implicit Types cvs : clist.
+Implicit Type cvs : clist.
 
 Fixpoint clist۰to_val cvs :=
   match cvs with

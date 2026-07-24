@@ -9,7 +9,7 @@ Section ucmra.
   Context {SI : sidx}.
   Context {A : ucmra}.
 
-  Implicit Types a b : A.
+  Implicit Type a b : A.
 
   Lemma auth𑁒auth𑁒frag𑁒dfrac𑁒op dq1 a1 b1 dq2 a2 b2 :
     ●{dq1} a1 ⋅ ◯ b1 ≡ ●{dq2} a2 ⋅ ◯ b2 ↔

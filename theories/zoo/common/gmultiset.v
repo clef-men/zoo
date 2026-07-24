@@ -7,8 +7,8 @@ Require Import zoo.options.
 Section basic.
   Context `{Countable A}.
 
-  Implicit Types x y : A.
-  Implicit Types X Y : gmultiset A.
+  Implicit Type x y : A.
+  Implicit Type X Y : gmultiset A.
 
   Lemma gmultiset𑁒empty𑁒elem_of X :
     X = ∅ ↔
@@ -50,8 +50,8 @@ End basic.
 Section size.
   Context `{Countable A}.
 
-  Implicit Types x y : A.
-  Implicit Types X Y : gmultiset A.
+  Implicit Type x y : A.
+  Implicit Type X Y : gmultiset A.
 
   Lemma gmultiset𑁒size𑁒singleton𑁒inv X x y :
     size X = 1 →
@@ -90,9 +90,9 @@ Section map.
   Context `{Countable B}.
   Context (f : A → B).
 
-  Implicit Types x y : A.
-  Implicit Types X Y : gmultiset A.
-  Implicit Types 𝑋 𝑌 : gmultiset B.
+  Implicit Type x y : A.
+  Implicit Type X Y : gmultiset A.
+  Implicit Type 𝑋 𝑌 : gmultiset B.
 
   Lemma gmultiset𑁒size𑁒map X :
     size (gmultiset_map f X) = size X.
@@ -192,8 +192,8 @@ End map.
 Section list_to_set_disj.
   Context `{Countable A}.
 
-  Implicit Types x y : A.
-  Implicit Types l : list A.
+  Implicit Type x y : A.
+  Implicit Type l : list A.
 
   Lemma list_to_set_disj𑁒empty l :
     list_to_set_disj l =@{gmultiset _} ∅ ↔
@@ -216,9 +216,9 @@ End list_to_set_disj.
 Section disj_union_list.
   Context `{Countable A}.
 
-  Implicit Types x y : A.
-  Implicit Types X Y : gmultiset A.
-  Implicit Types Xs Ys : list $ gmultiset A.
+  Implicit Type x y : A.
+  Implicit Type X Y : gmultiset A.
+  Implicit Type Xs Ys : list $ gmultiset A.
 
   Lemma gmultiset𑁒disj_union_list𑁒empty Xs :
     ⋃+ Xs = ∅ ↔

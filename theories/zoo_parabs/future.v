@@ -9,12 +9,12 @@ Require Export zoo_parabs.future__code.
 Require Import zoo_parabs.pool.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types depth : nat.
-Implicit Types v t pool ctx task waiter : val.
-Implicit Types scope : pool۰scope.
-Implicit Types ω : gname.
-Implicit Types ωs : list gname.
+Implicit Type b : bool.
+Implicit Type depth : nat.
+Implicit Type v t pool ctx task waiter : val.
+Implicit Type scope : pool۰scope.
+Implicit Type ω : gname.
+Implicit Type ωs : list gname.
 
 Class FutureG Σ `{pool۰G : PoolG Σ} :=
   { #[local] future۰G۰ivar۰G :: Ivar4G Σ
@@ -33,8 +33,8 @@ Qed.
 Section future۰G.
   Context `{future۰G : FutureG Σ}.
 
-  Implicit Types P : iProp Σ.
-  Implicit Types Ψ Χ Ξ : val → iProp Σ.
+  Implicit Type P : iProp Σ.
+  Implicit Type Ψ Χ Ξ : val → iProp Σ.
 
   #[local] Definition finished t : iProp Σ :=
     ∃ waiters Ps,

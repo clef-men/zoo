@@ -30,14 +30,14 @@ Section semiauth_twins۰G.
     rtc R
   ).
 
-  Implicit Types a b : A.
-  Implicit Types 𝑎 𝑏 : oFunctor_apply F $ iProp Σ.
+  Implicit Type a b : A.
+  Implicit Type 𝑎 𝑏 : oFunctor_apply F $ iProp Σ.
 
   Record semiauth_twins۰name :=
     { semiauth_twins۰name۰left_twins : auth_twins۰name
     ; semiauth_twins۰name۰right_twins : gname
     }.
-  Implicit Types γ : semiauth_twins۰name.
+  Implicit Type γ : semiauth_twins۰name.
 
   #[global] Instance semiauth_twins۰name𑁒eq_dec : EqDecision semiauth_twins۰name :=
     ltac:(solve_decision).

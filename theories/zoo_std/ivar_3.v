@@ -11,10 +11,10 @@ Require Import zoo_std.list.
 Require Import zoo_std.option.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types v waiter ctx : val.
-Implicit Types waiters : list val.
-Implicit Types own : ownership.
+Implicit Type b : bool.
+Implicit Type v waiter ctx : val.
+Implicit Type waiters : list val.
+Implicit Type own : ownership.
 
 Class Ivar3G Σ `{zoo۰G : !ZooG Σ} waiter۰name `{Countable waiter۰name} :=
   { #[local] ivar_3۰G۰lstate۰G :: OneshotG Σ unit val
@@ -38,7 +38,7 @@ Module base.
   Variant state :=
     | Unset waiters
     | Set_ v.
-  Implicit Types state : state.
+  Implicit Type state : state.
 
   #[local] Instance state𑁒inhabited : Inhabited state :=
     populate (Unset []).
@@ -68,18 +68,18 @@ Module base.
   Section ivar_3۰G.
     Context `{ivar_3۰G : Ivar3G Σ waiter۰name}.
 
-    Implicit Types t : location.
-    Implicit Types ω : waiter۰name.
-    Implicit Types ωs : list waiter۰name.
-    Implicit Types Ψ Χ Ξ : val → iProp Σ.
-    Implicit Types Ω : val → val → waiter۰name → iProp Σ.
+    Implicit Type t : location.
+    Implicit Type ω : waiter۰name.
+    Implicit Type ωs : list waiter۰name.
+    Implicit Type Ψ Χ Ξ : val → iProp Σ.
+    Implicit Type Ω : val → val → waiter۰name → iProp Σ.
 
     Record ivar_3۰name :=
       { ivar_3۰name۰lstate : gname
       ; ivar_3۰name۰consumer : gname
       ; ivar_3۰name۰waiters : gname
       }.
-    Implicit Types γ : ivar_3۰name.
+    Implicit Type γ : ivar_3۰name.
 
     #[global] Instance ivar_3۰name𑁒eq_dec : EqDecision ivar_3۰name :=
       ltac:(solve_decision).
@@ -886,10 +886,10 @@ Require zoo_std.ivar_3__opaque.
 Section ivar_3۰G.
   Context `{ivar_3۰G : Ivar3G Σ waiter۰name}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
-  Implicit Types Ψ Χ Ξ : val → iProp Σ.
-  Implicit Types Ω : val → val → waiter۰name → iProp Σ.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
+  Implicit Type Ψ Χ Ξ : val → iProp Σ.
+  Implicit Type Ω : val → val → waiter۰name → iProp Σ.
 
   Definition ivar_3۰inv t Ψ Ξ Ω : iProp Σ :=
     ∃ 𝑡 γ,

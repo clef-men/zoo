@@ -3,10 +3,10 @@ Require Import zoo.base.
 Require Export zoo_std.list__code.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types i j : nat.
-Implicit Types v w t fn acc pred : val.
-Implicit Types vs vs_left vs_right ws : list val.
+Implicit Type b : bool.
+Implicit Type i j : nat.
+Implicit Type v w t fn acc pred : val.
+Implicit Type vs vs_left vs_right ws : list val.
 
 Fixpoint plist۰to_val nil vs :=
   match vs with

@@ -2,17 +2,17 @@ Require Import zoo.prelude.
 Require Import zoo.base.
 Require Import zoo.options.
 
-Implicit Types ofs : nat.
-Implicit Types l root : location.
-Implicit Types roots : list location.
-Implicit Types fn iter : val.
+Implicit Type ofs : nat.
+Implicit Type l root : location.
+Implicit Type roots : list location.
+Implicit Type fn iter : val.
 
 Parameter gc۰state : Type.
-Implicit Types gc : gc۰state.
+Implicit Type gc : gc۰state.
 
 Parameter gc۰location : Type.
-Implicit Types ω : gc۰location.
-Implicit Types ωs : list gc۰location.
+Implicit Type ω : gc۰location.
+Implicit Type ωs : list gc۰location.
 
 Parameter gc۰location𑁒inhabited : Inhabited gc۰location.
 #[global] Existing Instance gc۰location𑁒inhabited.
@@ -22,8 +22,8 @@ Parameter GcInt : Z → gc۰val.
 Parameter GcLoc : gc۰location → gc۰val.
 Parameter gc۰val۰to_val : gc۰val → val.
 Parameter gc۰val۰of_val : val → option gc۰val.
-Implicit Types ν : gc۰val.
-Implicit Types νs : list gc۰val.
+Implicit Type ν : gc۰val.
+Implicit Type νs : list gc۰val.
 
 Parameter gc۰model : ∀ `{zoo۰G : !ZooG Σ}, gc۰state → iProp Σ.
 Parameter gc۰pointsto : ∀ `{zoo۰G : !ZooG Σ}, gc۰location → list gc۰val → iProp Σ.

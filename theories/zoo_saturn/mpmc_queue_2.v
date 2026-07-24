@@ -12,17 +12,17 @@ Require Export zoo_saturn.mpmc_queue_2__code.
 Require Import zoo_saturn.mpmc_queue_2__types.
 Require Import zoo.options.
 
-Implicit Types strong : bool.
-Implicit Types l back back_prev : location.
-Implicit Types backs : gmap location nat.
-Implicit Types v w t pref suff 𝑚𝑜𝑣𝑒 : val.
-Implicit Types o : option val.
-Implicit Types vs vs_front vs_back move : list val.
+Implicit Type strong : bool.
+Implicit Type l back back_prev : location.
+Implicit Type backs : gmap location nat.
+Implicit Type v w t pref suff 𝑚𝑜𝑣𝑒 : val.
+Implicit Type o : option val.
+Implicit Type vs vs_front vs_back move : list val.
 
 Variant emptiness :=
   | Empty
   | Nonempty.
-Implicit Types empty : emptiness.
+Implicit Type empty : emptiness.
 
 #[local] Instance emptiness𑁒inhabited : Inhabited emptiness :=
   populate Empty.
@@ -32,7 +32,7 @@ Implicit Types empty : emptiness.
 Variant status :=
   | Stable empty
   | Unstable back move.
-Implicit Types status : status.
+Implicit Type status : status.
 
 #[local] Instance status𑁒inhabited : Inhabited status :=
   populate (Stable inhabitant).
@@ -44,7 +44,7 @@ Record state :=
   ; state۰index : nat
   ; state۰status : status
   }.
-Implicit Types state : state.
+Implicit Type state : state.
 
 #[local] Definition state۰with_status state status :=
   {|state۰backs := state.(state۰backs)
@@ -218,7 +218,7 @@ Section mpmc_queue_2۰G.
     ; metadata۰state : gname
     ; metadata۰front : gname
     }.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
     ltac:(solve_decision).

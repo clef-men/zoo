@@ -10,9 +10,9 @@ Require Import zoo_parabs.pool.
 Require Export examples.pool_counter__code.
 Require Import zoo.options.
 
-Implicit Types n cnt contrib : nat.
-Implicit Types r : location.
-Implicit Types γ η : gname.
+Implicit Type n cnt contrib : nat.
+Implicit Type r : location.
+Implicit Type γ η : gname.
 
 Class PoolCounterG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] pool_counter۰G۰pool۰G :: PoolG Σ

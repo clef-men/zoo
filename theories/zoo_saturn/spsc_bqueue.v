@@ -13,16 +13,16 @@ Require Export zoo_saturn.spsc_bqueue__code.
 Require Import zoo_saturn.spsc_bqueue__types.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types i front front_cache back back_cache : nat.
-Implicit Types l : location.
-Implicit Types v w t : val.
-Implicit Types vs ws hist : list val.
+Implicit Type b : bool.
+Implicit Type i front front_cache back back_cache : nat.
+Implicit Type l : location.
+Implicit Type v w t : val.
+Implicit Type vs ws hist : list val.
 
 Variant stability :=
   | Stable
   | Unstable.
-Implicit Types stable : stability.
+Implicit Type stable : stability.
 
 #[local] Instance stability𑁒inhabited : Inhabited stability :=
   populate Stable.
@@ -61,7 +61,7 @@ Section spsc_bqueue۰G.
     ; metadata۰consumer : gname
     ; metadata۰front : gname
     }.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
     ltac:(solve_decision).

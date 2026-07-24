@@ -3,14 +3,14 @@ Require Import zoo.base.
 Require Export zoo_std.optional__types.
 Require Import zoo.options.
 
-Implicit Types v : val.
+Implicit Type v : val.
 
 Variant optional {A} :=
   | Nothing
   | Anything
   | Something (a : A).
 #[global] Arguments optional : clear implicits.
-Implicit Types o : optional val.
+Implicit Type o : optional val.
 
 #[global] Instance optional𑁒inhabited A : Inhabited (optional A) :=
   populate Nothing.

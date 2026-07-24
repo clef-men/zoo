@@ -22,9 +22,9 @@ Qed.
 Section mono_list۰G.
   Context `{mono_list۰G : !MonoListG Σ A}.
 
-  Implicit Types i : nat.
-  Implicit Types a : A.
-  Implicit Types l : list A.
+  Implicit Type i : nat.
+  Implicit Type a : A.
+  Implicit Type l : list A.
 
   Definition mono_list۰auth γ dq l :=
     auth_mono۰auth (A := leibnizO (list A)) prefix γ dq l.

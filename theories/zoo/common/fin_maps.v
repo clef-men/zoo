@@ -9,7 +9,7 @@ Section dom.
   Context `{FinMapDom K M D}.
   Context {A : Type}.
 
-  Implicit Types m : M A.
+  Implicit Type m : M A.
 
   Lemma elem_of𑁒dom₁ m k :
     k ∈ dom m →
@@ -23,7 +23,7 @@ Section fmap.
   Context `{FinMapDom K M D}.
   Context {A : Type}.
 
-  Implicit Types m : M A.
+  Implicit Type m : M A.
 
   Lemma lookup𑁒fmap𑁒None {B} (f : A → B) m k :
     (f <$> m) !! k = None ↔
@@ -37,7 +37,7 @@ Section map_Forall.
   Context `{FinMap K M}.
   Context {A : Type}.
 
-  Implicit Types m : M A.
+  Implicit Type m : M A.
 
   Lemma map_Forall𑁒impl' P1 P2 m :
     map_Forall P1 m →

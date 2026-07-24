@@ -9,9 +9,9 @@ Require Import zoo_std.option.
 Require Import zoo_std.condition.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types v : val.
-Implicit Types o state : option val.
+Implicit Type b : bool.
+Implicit Type v : val.
+Implicit Type o state : option val.
 
 Class Ivar2G Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] ivar_2۰G۰mutex۰G :: MutexG Σ
@@ -35,8 +35,8 @@ Module base.
   Section ivar_2۰G.
     Context `{ivar_2۰G : Ivar2G Σ}.
 
-    Implicit Types t : location.
-    Implicit Types Ψ Χ Ξ : val → iProp Σ.
+    Implicit Type t : location.
+    Implicit Type Ψ Χ Ξ : val → iProp Σ.
 
     Record ivar_2۰name :=
       { ivar_2۰name۰mutex : val
@@ -44,7 +44,7 @@ Module base.
       ; ivar_2۰name۰lstate : gname
       ; ivar_2۰name۰consumer : gname
       }.
-    Implicit Types γ : ivar_2۰name.
+    Implicit Type γ : ivar_2۰name.
 
     #[global] Instance ivar_2۰name𑁒eq_dec : EqDecision ivar_2۰name :=
       ltac:(solve_decision).
@@ -741,10 +741,10 @@ Require zoo_std.ivar_2__opaque.
 Section ivar_2۰G.
   Context `{ivar_2۰G : Ivar2G Σ}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
-  Implicit Types γ : base.ivar_2۰name.
-  Implicit Types Ψ Χ Ξ : val → iProp Σ.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
+  Implicit Type γ : base.ivar_2۰name.
+  Implicit Type Ψ Χ Ξ : val → iProp Σ.
 
   Definition ivar_2۰inv t Ψ Ξ : iProp Σ :=
     ∃ 𝑡 γ,

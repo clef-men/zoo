@@ -21,7 +21,7 @@ Qed.
 Section ghost_pred۰G.
   Context `{ghost_pred۰G : !GhostPredG Σ A}.
 
-  Implicit Types Ψ : A → iProp Σ.
+  Implicit Type Ψ : A → iProp Σ.
 
   Definition ghost_pred γ dq Ψ :=
     ghost_var γ dq (Next ∘ Ψ).

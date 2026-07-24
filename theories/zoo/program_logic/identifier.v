@@ -7,7 +7,7 @@ Definition identifier :=
 Canonical identifier۰O {SI : sidx} :=
   leibnizO identifier.
 
-Implicit Types id : identifier.
+Implicit Type id : identifier.
 
 Definition LitIdentifier id :=
   LitProph id.

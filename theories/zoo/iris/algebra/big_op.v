@@ -10,7 +10,7 @@ Section big_opS.
   Context `{!Monoid (M := M) o u}.
   Context `{Countable A}.
 
-  Implicit Types f : A → M.
+  Implicit Type f : A → M.
 
   Lemma big_opS𑁒singleton𑁒L `{!LeibnizEquiv M} f x :
     ([^o set] y ∈ {[x]}, f y) = f x.
@@ -41,9 +41,9 @@ Section big_unionL.
   Context {A : Type}.
   Context `{Countable K}.
 
-  Implicit Types x : A.
-  Implicit Types l : list A.
-  Implicit Types f : nat → A → gset K.
+  Implicit Type x : A.
+  Implicit Type l : list A.
+  Implicit Type f : nat → A → gset K.
 
   Lemma big_unionL𑁒elem_of {f} y l :
     y ∈ ([∪ list] k ↦ x ∈ l, f k x) →
@@ -83,9 +83,9 @@ Section big_unionS.
   Context `{Countable A}.
   Context `{Countable K}.
 
-  Implicit Types x : A.
-  Implicit Types X : gset A.
-  Implicit Types f : A → gset K.
+  Implicit Type x : A.
+  Implicit Type X : gset A.
+  Implicit Type f : A → gset K.
 
   Lemma big_unionS𑁒elem_of {f} y X :
     y ∈ ([∪ set] x ∈ X, f x) →
@@ -122,11 +122,11 @@ Section big_unionM.
   Context {A : Type}.
   Context `{Countable B}.
 
-  Implicit Types k : K.
-  Implicit Types x : A.
-  Implicit Types y : B.
-  Implicit Types m : gmap K A.
-  Implicit Types f : K → A → gset B.
+  Implicit Type k : K.
+  Implicit Type x : A.
+  Implicit Type y : B.
+  Implicit Type m : gmap K A.
+  Implicit Type f : K → A → gset B.
 
   Lemma big_unionM𑁒elem_of {f} y m :
     y ∈ ([∪ map] k ↦ x ∈ m, f k x) →

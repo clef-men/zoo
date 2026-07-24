@@ -6,11 +6,11 @@ Require Import zoo.options.
 Section treemap۰rooted.
   Context {N} `{Countable N} {E : Type}.
 
-  Implicit Types node root src dst : N.
-  Implicit Types edge : E.
-  Implicit Types path : list E.
-  Implicit Types ϵ : N * E.
-  Implicit Types tree : gmap N (N * E).
+  Implicit Type node root src dst : N.
+  Implicit Type edge : E.
+  Implicit Type path : list E.
+  Implicit Type ϵ : N * E.
+  Implicit Type tree : gmap N (N * E).
 
   Inductive treemap۰path tree dst : N → list E → Prop :=
     | treemap۰path𑁒nil :

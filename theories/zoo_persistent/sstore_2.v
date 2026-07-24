@@ -12,15 +12,15 @@ Require Export zoo_persistent.sstore_2__code.
 Require Import zoo_persistent.sstore_2__types.
 Require Import zoo.options.
 
-Implicit Types l r node cnode base root dst : location.
-Implicit Types nodes : list location.
-Implicit Types v t s : val.
-Implicit Types σ σ₀ : gmap location val.
+Implicit Type l r node cnode base root dst : location.
+Implicit Type nodes : list location.
+Implicit Type v t s : val.
+Implicit Type σ σ₀ : gmap location val.
 
 Module base.
   #[local] Definition generation :=
     nat.
-  Implicit Types g : generation.
+  Implicit Type g : generation.
 
   #[local] Notation "data '.(gen)'" := (
     fst data
@@ -37,16 +37,16 @@ Module base.
 
   #[local] Definition store :=
     gmap location (generation * val).
-  Implicit Types ς : store.
-  Implicit Types data : generation * val.
+  Implicit Type ς : store.
+  Implicit Type data : generation * val.
 
   Record descriptor := Descriptor
     { descriptor۰gen : generation
     ; descriptor۰store : store
     }.
   Add Printing Constructor descriptor.
-  Implicit Types descr : descriptor.
-  Implicit Types cnodes : gmap location descriptor.
+  Implicit Type descr : descriptor.
+  Implicit Type cnodes : gmap location descriptor.
 
   Class Sstore2G Σ `{zoo۰G : !ZooG Σ} :=
     { #[local] sstore_2۰G۰nodes۰G :: ghost_mapG Σ location descriptor
@@ -67,7 +67,7 @@ Module base.
 
     #[local] Definition metadata :=
       gname.
-    Implicit Types γ : metadata.
+    Implicit Type γ : metadata.
 
     #[local] Definition store۰on σ₀ ς :=
       ς ∪ (pair 0 <$> σ₀).
@@ -85,9 +85,9 @@ Module base.
       ; delta۰node : location
       }.
     Add Printing Constructor delta.
-    Implicit Types δ : delta.
-    Implicit Types δs : list delta.
-    Implicit Types path : list (list delta).
+    Implicit Type δ : delta.
+    Implicit Type δs : list delta.
+    Implicit Type path : list (list delta).
 
     #[local] Notation "δ '.(delta۰data)'" := (
       pair δ.(delta۰gen) δ.(delta۰val)
@@ -112,8 +112,8 @@ Module base.
 
     #[local] Definition edge : Set :=
       location * list delta.
-    Implicit Types ϵ : edge.
-    Implicit Types ϵs : gmap location edge.
+    Implicit Type ϵ : edge.
+    Implicit Type ϵs : gmap location edge.
 
     #[local] Definition cnodes۰auth γ cnodes :=
       ghost_map_auth γ 1 cnodes.
@@ -1526,7 +1526,7 @@ Section sstore_2۰G.
 
   #[local] Definition metadata :=
     gname.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   Definition sstore_2۰model t σ : iProp Σ :=
     ∃ l γ σ₀ ς,

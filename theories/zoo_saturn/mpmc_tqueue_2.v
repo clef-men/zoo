@@ -6,9 +6,9 @@ Require Export zoo_saturn.mpmc_tqueue_2__code.
 Require Import zoo_saturn.mpmc_tqueue_2__types.
 Require Import zoo.options.
 
-Implicit Types b : bool.
-Implicit Types v : val.
-Implicit Types vs : list val.
+Implicit Type b : bool.
+Implicit Type v : val.
+Implicit Type vs : list val.
 
 Class MpmcTqueue2G Σ `{zoo۰G : !ZooG Σ} :=
   {
@@ -28,12 +28,12 @@ Module base.
   Section mpmc_tqueue_2۰G.
     Context `{mpmc_tqueue_2۰G : MpmcTqueue2G Σ}.
 
-    Implicit Types t : location.
+    Implicit Type t : location.
 
     Record mpmc_tqueue_2۰name :=
       {
       }.
-    Implicit Types γ : mpmc_tqueue_2۰name.
+    Implicit Type γ : mpmc_tqueue_2۰name.
 
     #[global] Instance mpmc_tqueue_2۰name𑁒eq_dec : EqDecision mpmc_tqueue_2۰name :=
       ltac:(solve_decision).
@@ -216,8 +216,8 @@ Require zoo_saturn.mpmc_tqueue_2__opaque.
 Section mpmc_tqueue_2۰G.
   Context `{mpmc_tqueue_2۰G : MpmcTqueue2G Σ}.
 
-  Implicit Types 𝑡 : location.
-  Implicit Types t : val.
+  Implicit Type 𝑡 : location.
+  Implicit Type t : val.
 
   Definition mpmc_tqueue_2۰inv t ι : iProp Σ :=
     ∃ 𝑡 γ,

@@ -9,7 +9,7 @@ Definition diverge : val :=
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Implicit Types Φ : val → iProp Σ.
+  Implicit Type Φ : val → iProp Σ.
 
   Lemma diverge𑁒spec E Φ :
     ⊢ WP diverge () @ E {{ Φ }}.

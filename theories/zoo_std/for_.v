@@ -3,8 +3,8 @@ Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Import zoo.options.
 
-Implicit Types δ : nat.
-Implicit Types body : expr.
+Implicit Type δ : nat.
+Implicit Type body : expr.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

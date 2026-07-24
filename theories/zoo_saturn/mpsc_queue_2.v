@@ -9,10 +9,10 @@ Require Export zoo_saturn.mpsc_queue_2__code.
 Require Import zoo_saturn.mpsc_queue_2__types.
 Require Import zoo.options.
 
-Implicit Types l : location.
-Implicit Types v t : val.
-Implicit Types vs front back : list val.
-Implicit Types o : option val.
+Implicit Type l : location.
+Implicit Type v t : val.
+Implicit Type vs front back : list val.
+Implicit Type o : option val.
 
 Class MpscQueue2G Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] mpsc_queue_2۰G۰twins۰G :: TwinsG Σ (leibnizO (list val))
@@ -35,7 +35,7 @@ Section mpsc_queue_2۰G.
     { metadata۰model : gname
     ; metadata۰front : gname
     }.
-  Implicit Types γ : metadata.
+  Implicit Type γ : metadata.
 
   #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
     ltac:(solve_decision).
