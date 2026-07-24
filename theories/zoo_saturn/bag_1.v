@@ -32,42 +32,44 @@ Proof.
   solve_inG.
 Qed.
 
-#[local] Definition consistent vs os :=
-  vs = ⋃+ (singletonMS <$> oflatten os).
+Section consistent.
+  #[local] Definition consistent vs os :=
+    vs = ⋃+ (singletonMS <$> oflatten os).
 
-#[local] Lemma consistent𑁒lookup vs os i v :
-  os !! i = Some $ Some v →
-  consistent vs os →
-  v ∈ vs.
-Proof.
-  intros Hlookup%list_elem_of_lookup_2 ->.
-  setoid_rewrite elem_of_gmultiset_disj_union_list.
-  setoid_rewrite list_elem_of_fmap.
-  setoid_rewrite elem_of𑁒oflatten.
-  eexists. split; naive_solver set_solver.
-Qed.
-#[local] Lemma consistent𑁒insert {vs os i} v :
-  os !! i = Some None →
-  consistent vs os →
-  consistent ({[+v+]} ⊎ vs) (<[i := Some v]> os).
-Proof.
-  intros Hlookup ->.
-  rewrite /consistent oflatten𑁒insert𑁒None𑁒Some //.
-Qed.
-#[local] Lemma consistent𑁒remove vs os i v :
-  os !! i = Some $ Some v →
-  consistent vs os →
-  consistent (vs ∖ {[+v+]}) (<[i := None]> os).
-Proof.
-  intros Hlookup ->.
-  rewrite /consistent.
-  erewrite oflatten𑁒insert𑁒Some𑁒None; last done.
-  rewrite list_fmap_delete.
-  erewrite gmultiset𑁒disj_union_list𑁒delete; first done.
-  rewrite list_lookup_fmap_Some.
-  erewrite oflatten𑁒lookup𑁒Some; last done.
-  eauto.
-Qed.
+  #[local] Lemma consistent𑁒lookup vs os i v :
+    os !! i = Some $ Some v →
+    consistent vs os →
+    v ∈ vs.
+  Proof.
+    intros Hlookup%list_elem_of_lookup_2 ->.
+    setoid_rewrite elem_of_gmultiset_disj_union_list.
+    setoid_rewrite list_elem_of_fmap.
+    setoid_rewrite elem_of𑁒oflatten.
+    eexists. split; naive_solver set_solver.
+  Qed.
+  #[local] Lemma consistent𑁒insert {vs os i} v :
+    os !! i = Some None →
+    consistent vs os →
+    consistent ({[+v+]} ⊎ vs) (<[i := Some v]> os).
+  Proof.
+    intros Hlookup ->.
+    rewrite /consistent oflatten𑁒insert𑁒None𑁒Some //.
+  Qed.
+  #[local] Lemma consistent𑁒remove vs os i v :
+    os !! i = Some $ Some v →
+    consistent vs os →
+    consistent (vs ∖ {[+v+]}) (<[i := None]> os).
+  Proof.
+    intros Hlookup ->.
+    rewrite /consistent.
+    erewrite oflatten𑁒insert𑁒Some𑁒None; last done.
+    rewrite list_fmap_delete.
+    erewrite gmultiset𑁒disj_union_list𑁒delete; first done.
+    rewrite list_lookup_fmap_Some.
+    erewrite oflatten𑁒lookup𑁒Some; last done.
+    eauto.
+  Qed.
+End consistent.
 
 Opaque consistent.
 

@@ -26,170 +26,174 @@ Proof.
   solve_inG.
 Qed.
 
-#[local] Definition unify_at repr1 repr2 repr :=
-  if decide (repr = repr1) then
-    repr2
-  else
-    repr.
+Section unify.
+  #[local] Definition unify_at repr1 repr2 repr :=
+    if decide (repr = repr1) then
+      repr2
+    else
+      repr.
 
-#[local] Lemma unify_at₁ repr1 repr2 :
-  unify_at repr1 repr2 repr1 = repr2.
-Proof.
-  rewrite /unify_at decide_True //.
-Qed.
-#[local] Lemma unify_at₂ repr1 repr2 repr :
-  repr ≠ repr1 →
-  unify_at repr1 repr2 repr = repr.
-Proof.
-  intros.
-  rewrite /unify_at decide_False //.
-Qed.
+  #[local] Lemma unify_at₁ repr1 repr2 :
+    unify_at repr1 repr2 repr1 = repr2.
+  Proof.
+    rewrite /unify_at decide_True //.
+  Qed.
+  #[local] Lemma unify_at₂ repr1 repr2 repr :
+    repr ≠ repr1 →
+    unify_at repr1 repr2 repr = repr.
+  Proof.
+    intros.
+    rewrite /unify_at decide_False //.
+  Qed.
 
-#[local] Definition unify repr1 repr2 reprs :=
-  unify_at repr1 repr2 <$> reprs.
+  #[local] Definition unify repr1 repr2 reprs :=
+    unify_at repr1 repr2 <$> reprs.
 
-#[local] Lemma unify𑁒lookup₁ reprs repr1 repr2 elt :
-  reprs !! elt = Some repr1 →
-  unify repr1 repr2 reprs !! elt = Some repr2.
-Proof.
-  intros Hreprs_lookup_elt.
-  rewrite lookup_fmap Hreprs_lookup_elt /= unify_at₁ //.
-Qed.
-#[local] Lemma unify𑁒lookup₂ {reprs repr1 repr2 elt} repr :
-  reprs !! elt = Some repr →
-  repr ≠ repr1 →
-  unify repr1 repr2 reprs !! elt = Some repr.
-Proof.
-  intros Hreprs_lookup_elt ?.
-  rewrite lookup_fmap Hreprs_lookup_elt /= unify_at₂ //.
-Qed.
-#[local] Lemma unify𑁒lookup₂' reprs repr1 repr2 :
-  reprs !! repr2 = Some repr2 →
-  repr1 ≠ repr2 →
-  unify repr1 repr2 reprs !! repr2 = Some repr2.
-Proof.
-  intros.
-  apply unify𑁒lookup₂; done.
-Qed.
-#[local] Lemma dom𑁒unify repr1 repr2 reprs :
-  dom (unify repr1 repr2 reprs) = dom reprs.
-Proof.
-  apply dom_fmap_L.
-Qed.
+  #[local] Lemma unify𑁒lookup₁ reprs repr1 repr2 elt :
+    reprs !! elt = Some repr1 →
+    unify repr1 repr2 reprs !! elt = Some repr2.
+  Proof.
+    intros Hreprs_lookup_elt.
+    rewrite lookup_fmap Hreprs_lookup_elt /= unify_at₁ //.
+  Qed.
+  #[local] Lemma unify𑁒lookup₂ {reprs repr1 repr2 elt} repr :
+    reprs !! elt = Some repr →
+    repr ≠ repr1 →
+    unify repr1 repr2 reprs !! elt = Some repr.
+  Proof.
+    intros Hreprs_lookup_elt ?.
+    rewrite lookup_fmap Hreprs_lookup_elt /= unify_at₂ //.
+  Qed.
+  #[local] Lemma unify𑁒lookup₂' reprs repr1 repr2 :
+    reprs !! repr2 = Some repr2 →
+    repr1 ≠ repr2 →
+    unify repr1 repr2 reprs !! repr2 = Some repr2.
+  Proof.
+    intros.
+    apply unify𑁒lookup₂; done.
+  Qed.
+  #[local] Lemma dom𑁒unify repr1 repr2 reprs :
+    dom (unify repr1 repr2 reprs) = dom reprs.
+  Proof.
+    apply dom_fmap_L.
+  Qed.
+End unify.
 
 Opaque unify_at.
 Opaque unify.
 
-#[local] Definition consistent_at reprs elt repr descr :=
-  ( ∃ rank,
-    repr = elt ∧
-    descr = ‘Root( #rank )%V
-  ) ∨ (
-    ∃ parent,
-    elt ≠ repr ∧
-    descr = ‘Link( #parent )%V ∧
-    reprs !! parent = Some repr ∧
-    reprs !! repr = Some repr
-  ).
-#[local] Definition consistent reprs descrs :=
-  map_Forall2 (consistent_at reprs) reprs descrs.
+Section consistent.
+  #[local] Definition consistent_at reprs elt repr descr :=
+    ( ∃ rank,
+      repr = elt ∧
+      descr = ‘Root( #rank )%V
+    ) ∨ (
+      ∃ parent,
+      elt ≠ repr ∧
+      descr = ‘Link( #parent )%V ∧
+      reprs !! parent = Some repr ∧
+      reprs !! repr = Some repr
+    ).
+  #[local] Definition consistent reprs descrs :=
+    map_Forall2 (consistent_at reprs) reprs descrs.
 
-#[local] Lemma consistent𑁒empty :
-  consistent ∅ ∅.
-Proof.
-  apply map_Forall2_empty.
-Qed.
-#[local] Lemma consistent𑁒lookup𑁒None {reprs descrs} elt :
-  consistent reprs descrs →
-  descrs !! elt = None →
-  reprs !! elt = None.
-Proof.
-  apply: map_Forall2𑁒lookup𑁒None𑁒r.
-Qed.
-#[local] Lemma consistent𑁒lookup𑁒Some {reprs descrs} elt repr :
-  consistent reprs descrs →
-  reprs !! elt = Some repr →
-    ∃ descr,
-    descrs !! elt = Some descr ∧
-    consistent_at reprs elt repr descr.
-Proof.
-  apply: map_Forall2𑁒lookup𑁒Some𑁒l.
-Qed.
-#[local] Lemma consistent𑁒insert {reprs descrs} elt :
-  descrs !! elt = None →
-  consistent reprs descrs →
-  consistent
-    (<[elt := elt]> reprs)
-    (<[elt := ‘Root( 0 )%V]> descrs).
-Proof.
-  rewrite /consistent /consistent_at.
-  intros Hdescrs_lookup Hconsistent.
-  eapply consistent𑁒lookup𑁒None in Hconsistent as Hresprs_lookup; last done.
-  apply map_Forall2_insert_2; first naive_solver.
-  eapply map_Forall2_impl; first done.
-  intros elt' repr' descr' [| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr)]; first auto.
-  right. exists parent.
-  rewrite !lookup_insert_ne //; congruence.
-Qed.
-#[local] Lemma consistent𑁒link𑁒repr {reprs descrs} elt repr :
-  elt ≠ repr →
-  reprs !! elt = Some repr →
-  reprs !! repr = Some repr →
-  consistent reprs descrs →
-  consistent
-    reprs
-    (<[elt := ‘Link( #repr )%V]> descrs).
-Proof.
-  rewrite /consistent.
-  intros ? Hreprs_lookup_elt Hreprs_lookup_repr Hconsistent.
-  eapply map_Forall2𑁒insert𑁒r; [done.. |].
-  right. eauto.
-Qed.
-#[local] Lemma consistent𑁒link𑁒union {reprs descrs} repr1 repr2 :
-  repr1 ≠ repr2 →
-  reprs !! repr1 = Some repr1 →
-  reprs !! repr2 = Some repr2 →
-  consistent reprs descrs →
-  consistent
-    (unify repr1 repr2 reprs)
-    (<[repr1 := ‘Link( #repr2 )%V]> descrs).
-Proof.
-  rewrite /consistent.
-  intros ? Hreprs_lookup_repr1 Hreprs_lookup_repr2 Hconsistent.
-  apply map_Forall2𑁒alt in Hconsistent as (Hdom & Hconsistent).
-  rewrite -map_Forall2𑁒fmap𑁒l map_Forall2𑁒alt.
-  split.
-  - apply elem_of_dom_2 in Hreprs_lookup_repr1.
-    set_solver.
-  - intros elt repr descr Hreprs_lookup_elt [(<- & <-) | (? & Hdescrs_lookup_elt)]%lookup_insert_Some. simplify.
-    + right. exists repr2.
-      rewrite unify_at₁ unify𑁒lookup₂' //.
-    + destruct_decide (repr = repr1) as -> | ?.
-      * rewrite unify_at₁.
-        ospecialize* (Hconsistent elt); [done.. |].
-        destruct Hconsistent as [| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr1_)]; first naive_solver. simplify.
-        right. exists parent.
-        rewrite unify𑁒lookup₁ // unify𑁒lookup₂' //.
-        naive_solver.
-      * rewrite unify_at₂ //.
-        ospecialize* (Hconsistent elt); [done.. |].
-        destruct Hconsistent as [(rank & <- & ->)| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr1_)].
-        -- left. naive_solver.
-        -- right. exists parent.
-           rewrite !(unify𑁒lookup₂ repr) //.
-Qed.
-#[local] Lemma consistent𑁒update𑁒rank {reprs descrs} repr rank :
-  reprs !! repr = Some repr →
-  consistent reprs descrs →
-  consistent
-    reprs
-    (<[repr := ‘Root( #rank )%V]> descrs).
-Proof.
-  rewrite /consistent.
-  intros Hreprs_lookup_repr Hconsistent.
-  eapply map_Forall2𑁒insert𑁒r; [done.. |].
-  left. eauto.
-Qed.
+  #[local] Lemma consistent𑁒empty :
+    consistent ∅ ∅.
+  Proof.
+    apply map_Forall2_empty.
+  Qed.
+  #[local] Lemma consistent𑁒lookup𑁒None {reprs descrs} elt :
+    consistent reprs descrs →
+    descrs !! elt = None →
+    reprs !! elt = None.
+  Proof.
+    apply: map_Forall2𑁒lookup𑁒None𑁒r.
+  Qed.
+  #[local] Lemma consistent𑁒lookup𑁒Some {reprs descrs} elt repr :
+    consistent reprs descrs →
+    reprs !! elt = Some repr →
+      ∃ descr,
+      descrs !! elt = Some descr ∧
+      consistent_at reprs elt repr descr.
+  Proof.
+    apply: map_Forall2𑁒lookup𑁒Some𑁒l.
+  Qed.
+  #[local] Lemma consistent𑁒insert {reprs descrs} elt :
+    descrs !! elt = None →
+    consistent reprs descrs →
+    consistent
+      (<[elt := elt]> reprs)
+      (<[elt := ‘Root( 0 )%V]> descrs).
+  Proof.
+    rewrite /consistent /consistent_at.
+    intros Hdescrs_lookup Hconsistent.
+    eapply consistent𑁒lookup𑁒None in Hconsistent as Hresprs_lookup; last done.
+    apply map_Forall2_insert_2; first naive_solver.
+    eapply map_Forall2_impl; first done.
+    intros elt' repr' descr' [| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr)]; first auto.
+    right. exists parent.
+    rewrite !lookup_insert_ne //; congruence.
+  Qed.
+  #[local] Lemma consistent𑁒link𑁒repr {reprs descrs} elt repr :
+    elt ≠ repr →
+    reprs !! elt = Some repr →
+    reprs !! repr = Some repr →
+    consistent reprs descrs →
+    consistent
+      reprs
+      (<[elt := ‘Link( #repr )%V]> descrs).
+  Proof.
+    rewrite /consistent.
+    intros ? Hreprs_lookup_elt Hreprs_lookup_repr Hconsistent.
+    eapply map_Forall2𑁒insert𑁒r; [done.. |].
+    right. eauto.
+  Qed.
+  #[local] Lemma consistent𑁒link𑁒union {reprs descrs} repr1 repr2 :
+    repr1 ≠ repr2 →
+    reprs !! repr1 = Some repr1 →
+    reprs !! repr2 = Some repr2 →
+    consistent reprs descrs →
+    consistent
+      (unify repr1 repr2 reprs)
+      (<[repr1 := ‘Link( #repr2 )%V]> descrs).
+  Proof.
+    rewrite /consistent.
+    intros ? Hreprs_lookup_repr1 Hreprs_lookup_repr2 Hconsistent.
+    apply map_Forall2𑁒alt in Hconsistent as (Hdom & Hconsistent).
+    rewrite -map_Forall2𑁒fmap𑁒l map_Forall2𑁒alt.
+    split.
+    - apply elem_of_dom_2 in Hreprs_lookup_repr1.
+      set_solver.
+    - intros elt repr descr Hreprs_lookup_elt [(<- & <-) | (? & Hdescrs_lookup_elt)]%lookup_insert_Some. simplify.
+      + right. exists repr2.
+        rewrite unify_at₁ unify𑁒lookup₂' //.
+      + destruct_decide (repr = repr1) as -> | ?.
+        * rewrite unify_at₁.
+          ospecialize* (Hconsistent elt); [done.. |].
+          destruct Hconsistent as [| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr1_)]; first naive_solver. simplify.
+          right. exists parent.
+          rewrite unify𑁒lookup₁ // unify𑁒lookup₂' //.
+          naive_solver.
+        * rewrite unify_at₂ //.
+          ospecialize* (Hconsistent elt); [done.. |].
+          destruct Hconsistent as [(rank & <- & ->)| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr1_)].
+          -- left. naive_solver.
+          -- right. exists parent.
+             rewrite !(unify𑁒lookup₂ repr) //.
+  Qed.
+  #[local] Lemma consistent𑁒update𑁒rank {reprs descrs} repr rank :
+    reprs !! repr = Some repr →
+    consistent reprs descrs →
+    consistent
+      reprs
+      (<[repr := ‘Root( #rank )%V]> descrs).
+  Proof.
+    rewrite /consistent.
+    intros Hreprs_lookup_repr Hconsistent.
+    eapply map_Forall2𑁒insert𑁒r; [done.. |].
+    left. eauto.
+  Qed.
+End consistent.
 
 Opaque consistent_at.
 Opaque consistent.

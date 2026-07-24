@@ -90,69 +90,71 @@ Proof.
   solve_inG.
 Qed.
 
-#[local] Definition consistent vs ws :=
-  map۰oflatten (map_seq 0 vs) = map۰oflatten ws.
+Section consistent.
+  #[local] Definition consistent vs ws :=
+    map۰oflatten (map_seq 0 vs) = map۰oflatten ws.
 
-#[local] Lemma consistent𑁒app𑁒None vs ws n :
-  consistent vs ws →
-  consistent (vs ++ replicate n None) ws.
-Proof.
-  intros Hconsistent.
-  rewrite /consistent map_seq_app map۰oflatten𑁒union.
-  { apply map_seq_app_disjoint. }
-  setoid_rewrite map۰oflatten𑁒empty at 2.
-  { rewrite right_id //. }
-  intros id o (_ & (-> & _)%lookup_replicate)%lookup_map_seq_Some. done.
-Qed.
-#[local] Lemma consistent𑁒lookup𑁒None {vs ws} id o :
-  consistent vs ws →
-  ws !! id = None →
-  vs !! id = Some o →
-  o = None.
-Proof.
-  destruct o as [v |]; last done.
-  intros Hconsistent Hws_lookup%lookup𑁒map۰oflatten𑁒None Hvs_lookup%(lookup_map_seq_Some_inv 0)%lookup𑁒map۰oflatten𑁒Some𑁒Some.
-  simpl in Hvs_lookup. congruence.
-Qed.
-#[local] Lemma consistent𑁒lookup𑁒Some𑁒None {vs ws} id :
-  id < length vs →
-  consistent vs ws →
-  ws !! id = Some None →
-  vs !! id = Some None.
-Proof.
-  intros (o & Hvs_lookup)%lookup_lt_is_Some Hconsistent Hws_lookup%lookup𑁒map۰oflatten𑁒Some𑁒None.
-  destruct o as [v |]; last done.
-  rewrite (lookup_map_seq_Some_inv 0) /= in Hvs_lookup.
-  apply lookup𑁒map۰oflatten𑁒Some𑁒Some in Hvs_lookup.
-  congruence.
-Qed.
-#[local] Lemma consistent𑁒lookup𑁒Some𑁒Some {vs ws} id v :
-  consistent vs ws →
-  ws !! id = Some (Some v) →
-  vs !! id = Some (Some v).
-Proof.
-  intros Hconsistent Hws_lookup%lookup𑁒map۰oflatten𑁒Some𑁒Some.
-  rewrite -Hconsistent in Hws_lookup.
-  apply lookup𑁒map۰oflatten𑁒Some𑁒inv in Hws_lookup.
-  rewrite lookup_map_seq_Some Nat.sub_0_r in Hws_lookup.
-  naive_solver.
-Qed.
-#[local] Lemma consistent𑁒insert {vs ws} id :
-  ws !! id = None →
-  consistent vs ws →
-  consistent vs (<[id := None]> ws).
-Proof.
-  intros Hlookup Hconsistent.
-  rewrite /consistent map۰oflatten𑁒insert //.
-Qed.
-#[local] Lemma consistent𑁒update {vs ws} id w :
-  id < length vs →
-  consistent vs ws →
-  consistent (<[id := Some w]> vs) (<[id := Some w]> ws).
-Proof.
-  intros Hid Hconsistent.
-  rewrite /consistent map۰oflatten𑁒update -insert_map_seq_0 // map۰oflatten𑁒update Hconsistent //.
-Qed.
+  #[local] Lemma consistent𑁒app𑁒None vs ws n :
+    consistent vs ws →
+    consistent (vs ++ replicate n None) ws.
+  Proof.
+    intros Hconsistent.
+    rewrite /consistent map_seq_app map۰oflatten𑁒union.
+    { apply map_seq_app_disjoint. }
+    setoid_rewrite map۰oflatten𑁒empty at 2.
+    { rewrite right_id //. }
+    intros id o (_ & (-> & _)%lookup_replicate)%lookup_map_seq_Some. done.
+  Qed.
+  #[local] Lemma consistent𑁒lookup𑁒None {vs ws} id o :
+    consistent vs ws →
+    ws !! id = None →
+    vs !! id = Some o →
+    o = None.
+  Proof.
+    destruct o as [v |]; last done.
+    intros Hconsistent Hws_lookup%lookup𑁒map۰oflatten𑁒None Hvs_lookup%(lookup_map_seq_Some_inv 0)%lookup𑁒map۰oflatten𑁒Some𑁒Some.
+    simpl in Hvs_lookup. congruence.
+  Qed.
+  #[local] Lemma consistent𑁒lookup𑁒Some𑁒None {vs ws} id :
+    id < length vs →
+    consistent vs ws →
+    ws !! id = Some None →
+    vs !! id = Some None.
+  Proof.
+    intros (o & Hvs_lookup)%lookup_lt_is_Some Hconsistent Hws_lookup%lookup𑁒map۰oflatten𑁒Some𑁒None.
+    destruct o as [v |]; last done.
+    rewrite (lookup_map_seq_Some_inv 0) /= in Hvs_lookup.
+    apply lookup𑁒map۰oflatten𑁒Some𑁒Some in Hvs_lookup.
+    congruence.
+  Qed.
+  #[local] Lemma consistent𑁒lookup𑁒Some𑁒Some {vs ws} id v :
+    consistent vs ws →
+    ws !! id = Some (Some v) →
+    vs !! id = Some (Some v).
+  Proof.
+    intros Hconsistent Hws_lookup%lookup𑁒map۰oflatten𑁒Some𑁒Some.
+    rewrite -Hconsistent in Hws_lookup.
+    apply lookup𑁒map۰oflatten𑁒Some𑁒inv in Hws_lookup.
+    rewrite lookup_map_seq_Some Nat.sub_0_r in Hws_lookup.
+    naive_solver.
+  Qed.
+  #[local] Lemma consistent𑁒insert {vs ws} id :
+    ws !! id = None →
+    consistent vs ws →
+    consistent vs (<[id := None]> ws).
+  Proof.
+    intros Hlookup Hconsistent.
+    rewrite /consistent map۰oflatten𑁒insert //.
+  Qed.
+  #[local] Lemma consistent𑁒update {vs ws} id w :
+    id < length vs →
+    consistent vs ws →
+    consistent (<[id := Some w]> vs) (<[id := Some w]> ws).
+  Proof.
+    intros Hid Hconsistent.
+    rewrite /consistent map۰oflatten𑁒update -insert_map_seq_0 // map۰oflatten𑁒update Hconsistent //.
+  Qed.
+End consistent.
 
 Opaque consistent.
 
