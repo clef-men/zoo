@@ -715,9 +715,9 @@ Ltac _iIntro :=
         _iIntroPersistent H ||
         _iIntroSpatial H
     | |- envs_entails _ (_ → _) => _iIntro (?) ||
-         let H := iFresh in
-         _iIntroSpatial H ||
-         _iIntroSpatial H
+        let H := iFresh in
+        _iIntroPersistent H ||
+        _iIntroSpatial H
     end
   end.
 
