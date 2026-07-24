@@ -325,7 +325,7 @@ Section lemmas.
       iModIntro. destruct (γ' x'); iApply "HPas"; done.
     - iIntros (y) "Hβ". iMod "Hclose''" as "_".
       iMod ("Hclose'" with "Hβ") as "Hβ'".
-      (* FIXME: Using ssreflect rewrite does not work, see Coq bug #7773. *)
+      (* FIXME: Using ssreflect rewrite does not work, see Rocq bug #7773. *)
       rewrite ->!tele_app_bind. iDestruct "Hβ'" as "[Hβ' HΦ]".
       iMod ("Hclose" with "Hβ'") as "Hγ'".
       iModIntro. destruct (γ' x'); iApply "HΦ"; done.
@@ -365,7 +365,7 @@ Section lemmas.
       iMod ("Hclose" with "Hα"). iApply "Hupd". auto.
     - iIntros (y') "Hβ'". iDestruct "Hclose'" as "[_ Hclose']".
       iMod ("Hclose'" with "Hβ'") as "Hres".
-      (* FIXME: Using ssreflect rewrite does not work, see Coq bug #7773. *)
+      (* FIXME: Using ssreflect rewrite does not work, see Rocq bug #7773. *)
       rewrite ->!tele_app_bind. iDestruct "Hres" as "[[Hα HΦ']|Hcont]".
       + (* Abort the step we are eliminating *)
         iDestruct "Hclose" as "[Hclose _]".
@@ -404,7 +404,7 @@ Section lemmas.
     iIntros (?) "Hupd Hstep". iApply (aacc𑁒aupd with "Hupd"); first done.
     iIntros (x) "Hα". iApply atomic_acc𑁒wand; last first.
     { iApply "Hstep". done. }
-    (* FIXME: Using ssreflect rewrite does not work, see Coq bug #7773. *)
+    (* FIXME: Using ssreflect rewrite does not work, see Rocq bug #7773. *)
     iSplit; first by eauto. iIntros (??) "?". rewrite ->!tele_app_bind. by iRight.
   Qed.
 
@@ -420,7 +420,7 @@ Section lemmas.
     iIntros (?) "Hupd Hstep". iApply (aacc𑁒aupd with "Hupd"); first done.
     iIntros (x) "Hα". iApply atomic_acc𑁒wand; last first.
     { iApply "Hstep". done. }
-    (* FIXME: Using ssreflect rewrite does not work, see Coq bug #7773. *)
+    (* FIXME: Using ssreflect rewrite does not work, see Rocq bug #7773. *)
     iSplit; first by eauto. iIntros (??) "?". rewrite ->!tele_app_bind. by iLeft.
   Qed.
 
@@ -442,7 +442,7 @@ Section proof_mode.
   Qed.
 End proof_mode.
 
-(** * Now the coq-level tactics *)
+(** * Now the Rocq-level tactics *)
 
 Tactic Notation "iAuIntro" :=
   match goal with

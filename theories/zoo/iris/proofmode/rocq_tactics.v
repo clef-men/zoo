@@ -12,7 +12,7 @@ Import env_notations.
 
 Local Open Scope lazy_bool_scope.
 
-(* Coq versions of the tactics *)
+(* Rocq versions of the tactics *)
 Section tactics.
 Context {PROP : bi}.
 Implicit Type Γ : env PROP.
@@ -97,7 +97,7 @@ Proof.
   - rewrite from_assumption. destruct H; by rewrite sep_elim_l.
 Qed.
 
-Lemma tac_assumption_coq Δ P Q :
+Lemma tac_assumption_rocq Δ P Q :
   (⊢ P) →
   FromAssumption false P Q →
   (if env_spatial_is_nil Δ then TCTrue
