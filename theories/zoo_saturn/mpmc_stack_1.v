@@ -179,7 +179,7 @@ Section zoo۰G.
 
     wp۰pures.
 
-    wp۰bind (CAS _ _ _).
+    wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
     iInv "Hinv" as "(:inv۰inner =')".
     wp۰cas as _ | ->%(inj _); first iSteps.
     iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
@@ -227,7 +227,7 @@ Section zoo۰G.
 
       wp۰pures.
 
-      wp۰bind (CAS _ _ _).
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner =')".
       wp۰cas as _ | Hcas; first iSteps.
       destruct vs'; first done. apply (inj glist۰to_val _ (_ :: _)) in Hcas as [= -> ->].

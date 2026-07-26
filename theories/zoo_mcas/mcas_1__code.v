@@ -7,93 +7,97 @@ Require Import zoo_mcas.mcas_1__types.
 Require Import zoo.options.
 
 Definition mcas_1٠clear : val :=
-  fun: "cass" "is_after" =>
-    if: "is_after" then (
+  𝗳𝘂𝗻 "cass" "is_after" ->
+    𝗶𝗳 "is_after" 𝘁𝗵𝗲𝗻 (
       list٠iter
-        (fun: "cas" => "cas".<state> <-{before} "cas".<state>.{after})
+        (𝗳𝘂𝗻 "cas" -> "cas".<state> <-{before} "cas".<state>.{after})
         "cass"
-    ) else (
+    ) 𝗲𝗹𝘀𝗲 (
       list٠iter
-        (fun: "cas" => "cas".<state> <-{after} "cas".<state>.{before})
+        (𝗳𝘂𝗻 "cas" -> "cas".<state> <-{after} "cas".<state>.{before})
         "cass"
     ).
 
 Definition mcas_1٠status_to_bool : val :=
-  fun: "status" =>
+  𝗳𝘂𝗻 "status" ->
     "status" == §After.
 
 Definition mcas_1٠finish : val :=
-  fun: "gid" "casn" "status" =>
-    match: "casn".{status} with
-    | Before =>
+  𝗳𝘂𝗻 "gid" "casn" "status" ->
+    𝗺𝗮𝘁𝗰𝗵 "casn".{status} 𝘄𝗶𝘁𝗵
+    | Before ->
         false
-    | After =>
+    | After ->
         true
-    | Undetermined "cass" as "old_status" =>
-        let: "is_after" := mcas_1٠status_to_bool "status" in
-        if:
-          Resolve
-            (CAS "casn".[status] "old_status" "status")
+    | Undetermined "cass" 𝗮𝘀 "old_status" ->
+        𝗹𝗲𝘁 "is_after" = mcas_1٠status_to_bool "status" 𝗶𝗻
+        𝗶𝗳
+          𝗿𝗲𝘀𝗼𝗹𝘃𝗲
+            (𝗰𝗮𝘀 "casn".[status] "old_status" "status")
             "casn".{proph}
             ("gid", "is_after")
-        then (
+        𝘁𝗵𝗲𝗻 (
           mcas_1٠clear "cass" "is_after"
-        ) else (
+        ) 𝗲𝗹𝘀𝗲 (
           ()
-        ) ;;
+        ) ⍮
         mcas_1٠status_to_bool "casn".{status}
-    end.
+    𝗲𝗻𝗱.
 
 #[local] Definition __zoo_recs_0 :=
-  ( recs: "determine_as" "casn" "cass" =>
-      let: "gid" := Id in
-      match: "cass" with
-      | [] =>
+  ( 𝗿𝗲𝗰𝘀 "determine_as" "casn" "cass" ->
+      𝗹𝗲𝘁 "gid" = 𝗶𝗱 𝗶𝗻
+      𝗺𝗮𝘁𝗰𝗵 "cass" 𝘄𝗶𝘁𝗵
+      | [] ->
           mcas_1٠finish "gid" "casn" §After
-      | "cas" :: "continue" as "retry" =>
-          let: "loc", "state" := "cas" in
-          let: "proph" := Proph in
-          let: "old_state" := !"loc" in
-          if: "state" == "old_state" then (
+      | "cas" :: "continue" 𝗮𝘀 "retry" ->
+          𝗹𝗲𝘁 "loc", "state" = "cas" 𝗶𝗻
+          𝗹𝗲𝘁 "proph" = 𝗽𝗿𝗼𝗽𝗵 𝗶𝗻
+          𝗹𝗲𝘁 "old_state" = !"loc" 𝗶𝗻
+          𝗶𝗳 "state" == "old_state" 𝘁𝗵𝗲𝗻 (
             "determine_as" "casn" "continue"
-          ) else if:
-             let: "@tmp" := "state".{before} == "eval" "old_state" in
-             Resolve Skip "proph" "@tmp" ;;
+          ) 𝗲𝗹𝘀𝗲 𝗶𝗳
+             𝗹𝗲𝘁 "@tmp" =
+               "state".{before} == "eval" "old_state"
+             𝗶𝗻
+             𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "@tmp" ⍮
              "@tmp"
-           then (
+           𝘁𝗵𝗲𝗻 (
             "lock" "casn" "loc" "old_state" "state" "retry" "continue"
-          ) else (
+          ) 𝗲𝗹𝘀𝗲 (
             mcas_1٠finish "gid" "casn" §Before
           )
-      end
-    and: "lock" "casn" "loc" "old_state" "state" "retry" "continue" =>
-      match: "casn".{status} with
-      | Before =>
+      𝗲𝗻𝗱
+    𝘄𝗶𝘁𝗵 "lock" "casn" "loc" "old_state" "state" "retry" "continue" ->
+      𝗺𝗮𝘁𝗰𝗵 "casn".{status} 𝘄𝗶𝘁𝗵
+      | Before ->
           false
-      | After =>
+      | After ->
           true
-      | Undetermined <> =>
-          if: CAS "loc".[contents] "old_state" "state" then (
+      | Undetermined ⎽ ->
+          𝗶𝗳
+            𝗰𝗮𝘀 "loc".[contents] "old_state" "state"
+          𝘁𝗵𝗲𝗻 (
             "determine_as" "casn" "continue"
-          ) else (
+          ) 𝗲𝗹𝘀𝗲 (
             "determine_as" "casn" "retry"
           )
-      end
-    and: "eval" "state" =>
-      if: "determine" "state".{casn} then (
+      𝗲𝗻𝗱
+    𝘄𝗶𝘁𝗵 "eval" "state" ->
+      𝗶𝗳 "determine" "state".{casn} 𝘁𝗵𝗲𝗻 (
         "state".{after}
-      ) else (
+      ) 𝗲𝗹𝘀𝗲 (
         "state".{before}
       )
-    and: "determine" "casn" =>
-      match: "casn".{status} with
-      | Before =>
+    𝘄𝗶𝘁𝗵 "determine" "casn" ->
+      𝗺𝗮𝘁𝗰𝗵 "casn".{status} 𝘄𝗶𝘁𝗵
+      | Before ->
           false
-      | After =>
+      | After ->
           true
-      | Undetermined "cass" =>
+      | Undetermined "cass" ->
           "determine_as" "casn" "cass"
-      end
+      𝗲𝗻𝗱
   )%zoo_recs.
 Definition mcas_1٠determine_as :=
   ValRecs 0 __zoo_recs_0.
@@ -145,26 +149,26 @@ Proof.
 Qed.
 
 Definition mcas_1٠make : val :=
-  fun: "v" =>
-    let: "_gid" := Id in
-    let: "casn" := { §After, Proph } in
-    let: "state" := { "casn", "v", "v" } in
-    ref "state".
+  𝗳𝘂𝗻 "v" ->
+    𝗹𝗲𝘁 "_gid" = 𝗶𝗱 𝗶𝗻
+    𝗹𝗲𝘁 "casn" = { §After, 𝗽𝗿𝗼𝗽𝗵 } 𝗶𝗻
+    𝗹𝗲𝘁 "state" = { "casn", "v", "v" } 𝗶𝗻
+    𝗿𝗲𝗳 "state".
 
 Definition mcas_1٠get : val :=
-  fun: "loc" =>
+  𝗳𝘂𝗻 "loc" ->
     mcas_1٠eval !"loc".
 
 Definition mcas_1٠mcas : val :=
-  fun: "cass" =>
-    let: "casn" := { §After, Proph } in
-    let: "cass" :=
+  𝗳𝘂𝗻 "cass" ->
+    𝗹𝗲𝘁 "casn" = { §After, 𝗽𝗿𝗼𝗽𝗵 } 𝗶𝗻
+    𝗹𝗲𝘁 "cass" =
       list٠map
-        (fun: "cas" =>
-           let: "loc", "before", "after" := "cas" in
-           let: "state" := { "casn", "before", "after" } in
+        (𝗳𝘂𝗻 "cas" ->
+           𝗹𝗲𝘁 "loc", "before", "after" = "cas" 𝗶𝗻
+           𝗹𝗲𝘁 "state" = { "casn", "before", "after" } 𝗶𝗻
            ("loc", "state"))
         "cass"
-    in
-    "casn" <-{status} ‘Undetermined@[ "cass" ] ;;
+    𝗶𝗻
+    "casn" <-{status} ‘Undetermined@[ "cass" ] ⍮
     mcas_1٠determine_as "casn" "cass".

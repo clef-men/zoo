@@ -729,7 +729,7 @@ Module base.
       wp۰apply+ (next𑁒spec with "[$]") as (res) "[-> | (%node' & -> & (:node۰model =node'))]"; last iSteps.
       wp۰pures.
 
-      wp۰bind (CAS _ _ _).
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner)".
       iDestruct (history۰at𑁒lookup with "Hhistory_auth Hhistory_at_node") as %Hlookup.
       iDestruct (xtchain𑁒lookup with "Hhist") as "(Hhist1 & _ & Hnode & Hhist2)"; first done.
@@ -781,12 +781,12 @@ Module base.
 
       wp۰rec. wp۰match.
 
-      wp۰bind (_ and _)%E.
+      wp۰bind (_ 𝗮𝗻𝗱 _)%E.
       wp۰apply (wp𑁒wand itype۰bool) as (res) "(%b & ->)".
       { wp۰apply+ (next𑁒spec new_back with "[$]") as (res) "[-> | (%new_back' & -> & (:node۰model =new_back'))]"; last iSteps.
         wp۰pures.
 
-        wp۰bind (CAS _ _ _).
+        wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
         iInv "Hinv" as "(:inv۰inner =1)".
         wp۰cas as _ | [= ->]; first iSteps.
         iDestruct (history۰at𑁒lookup with "Hhistory_auth Hhistory_at_new_back") as %Hnew_back%list_elem_of_lookup_2.
@@ -848,7 +848,7 @@ Module base.
       wp۰apply+ (next𑁒spec𑁒pop (λ o, _ -∗ Φ o)%I with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node۰model =new_front) & HΦ)]"; first iSteps.
       wp۰match. wp۰pures.
 
-      wp۰bind (CAS _ _ _).
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner =1)".
       iDestruct (history۰at𑁒lookup with "Hhistory_auth Hhistory_at_new_front") as %Hlookup.
       iDestruct (xtchain𑁒lookup𑁒acc with "Hhist") as "(_ & Hnode & Hhist)"; first done.

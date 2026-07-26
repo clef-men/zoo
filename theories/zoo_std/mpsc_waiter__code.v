@@ -7,38 +7,41 @@ Require Import zoo_std.mpsc_waiter__types.
 Require Import zoo.options.
 
 Definition mpsc_waiter٠create : val :=
-  fun: <> =>
+  𝗳𝘂𝗻 ⎽ ->
     { mutex٠create (), condition٠create (), false }.
 
 Definition mpsc_waiter٠notify : val :=
-  fun: "t" =>
-    if: "t".{flag} then (
+  𝗳𝘂𝗻 "t" ->
+    𝗶𝗳 "t".{flag} 𝘁𝗵𝗲𝗻 (
       true
-    ) else (
-      let: "res" :=
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "res" =
         mutex٠protect "t".{mutex}
-          (fun: <> =>
-             if: "t".{flag} then (
+          (𝗳𝘂𝗻 ⎽ ->
+             𝗶𝗳 "t".{flag} 𝘁𝗵𝗲𝗻 (
                true
-             ) else (
-               "t" <-{flag} true ;;
+             ) 𝗲𝗹𝘀𝗲 (
+               "t" <-{flag} true ⍮
                false
              ))
-      in
-      condition٠notify "t".{condition} ;;
+      𝗶𝗻
+      condition٠notify "t".{condition} ⍮
       "res"
     ).
 
 Definition mpsc_waiter٠try_wait : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t".{flag}.
 
 Definition mpsc_waiter٠wait : val :=
-  fun: "t" =>
-    if: ~ mpsc_waiter٠try_wait "t" then (
-      let: "mtx" := "t".{mutex} in
-      let: "cond" := "t".{condition} in
+  𝗳𝘂𝗻 "t" ->
+    𝗶𝗳 ~ mpsc_waiter٠try_wait "t" 𝘁𝗵𝗲𝗻 (
+      𝗹𝗲𝘁 "mtx" = "t".{mutex} 𝗶𝗻
+      𝗹𝗲𝘁 "cond" = "t".{condition} 𝗶𝗻
       mutex٠protect "mtx"
-        (fun: <> =>
-           condition٠wait_until "cond" "mtx" (fun: <> => "t".{flag}))
+        (𝗳𝘂𝗻 ⎽ ->
+           condition٠wait_until
+             "cond"
+             "mtx"
+             (𝗳𝘂𝗻 ⎽ -> "t".{flag}))
     ).

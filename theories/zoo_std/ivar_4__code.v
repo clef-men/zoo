@@ -31,6 +31,6 @@ Definition ivar_4٠set : val :=
   ivar_3٠set.
 
 Definition ivar_4٠notify : val :=
-  fun: "t" "ctx" "v" =>
-    let: "waiters" := ivar_4٠set "t" "v" in
-    list٠iter (fun: "waiter" => "waiter" "ctx" "v") "waiters".
+  𝗳𝘂𝗻 "t" "ctx" "v" ->
+    𝗹𝗲𝘁 "waiters" = ivar_4٠set "t" "v" 𝗶𝗻
+    list٠iter (𝗳𝘂𝗻 "waiter" -> "waiter" "ctx" "v") "waiters".

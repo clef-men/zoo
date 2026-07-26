@@ -522,7 +522,7 @@ Section mpsc_queue_3۰G.
 
       iApply wp𑁒match𑁒clist𑁒open. wp۰pures.
 
-      wp۰bind (CAS _ _ _).
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner =2)".
 
       + wp۰cas as _ | ->%(inj _)%(inj _); first iSteps.
@@ -589,7 +589,7 @@ Section mpsc_queue_3۰G.
 
     destruct front as [| v front]; wp۰pures.
 
-    - wp۰bind (Xchg _ _).
+    - wp۰bind (𝘅𝗰𝗵𝗴 _ _)%E.
       iInv "Hinv" as "(:inv۰inner)"; last first.
       { iDestruct (lstate𑁒open₁𑁒closed with "Hopen₁ Hclosed") as %[]. }
       wp۰xchg.
@@ -694,7 +694,7 @@ Section mpsc_queue_3۰G.
 
     wp۰rec. wp۰pures.
 
-    wp۰bind (Xchg _ _).
+    wp۰bind (𝘅𝗰𝗵𝗴 _ _)%E.
     iInv "Hinv" as "(:inv۰inner =1)"; last first.
     { iDestruct (lstate𑁒open₁𑁒closed with "Hopen₁ Hclosed") as %[]. }
     wp۰xchg.
@@ -733,7 +733,7 @@ Section mpsc_queue_3۰G.
 
     wp۰rec. wp۰pures.
 
-    wp۰bind (Xchg _ _).
+    wp۰bind (𝘅𝗰𝗵𝗴 _ _)%E.
     iInv "Hinv" as "(:inv۰inner =1 suff=)".
     { iDestruct (lstate𑁒open₂𑁒closed with "Hopen₂ Hclosed") as %[]. }
     iSteps.

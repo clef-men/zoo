@@ -8,54 +8,56 @@ Require Import zoo_parabs.vertex__types.
 Require Import zoo.options.
 
 Definition vertex٠create : val :=
-  fun: "task" =>
-    let: "task" :=
-      match: "task" with
-      | Some "task" =>
+  𝗳𝘂𝗻 "task" ->
+    𝗹𝗲𝘁 "task" =
+      𝗺𝗮𝘁𝗰𝗵 "task" 𝘄𝗶𝘁𝗵
+      | Some "task" ->
           "task"
-      | None =>
-          fun: <> => true
-      end
-    in
+      | None ->
+          𝗳𝘂𝗻 ⎽ -> true
+      𝗲𝗻𝗱
+    𝗶𝗻
     { "task", 1, mpmc_stack_2٠create () }.
 
 Definition vertex٠create' : val :=
-  fun: "task" =>
-    vertex٠create ‘Some( fun: "ctx" => "task" "ctx" ;;
-                                          true ).
+  𝗳𝘂𝗻 "task" ->
+    vertex٠create ‘Some( 𝗳𝘂𝗻 "ctx" -> "task" "ctx" ⍮
+                                                  true ).
 
 Definition vertex٠task : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t".{task}.
 
 Definition vertex٠set_task : val :=
-  fun: "t" "task" =>
+  𝗳𝘂𝗻 "t" "task" ->
     "t" <-{task} "task".
 
 Definition vertex٠precede : val :=
-  fun: "t1" "t2" =>
-    let: "succs1" := "t1".{succs} in
-    if: ~ mpmc_stack_2٠is_closed "succs1" then (
-      FAA "t2".[preds] 1 ;;
-      if: mpmc_stack_2٠push "succs1" "t2" then (
-        FAA "t2".[preds] (-1) ;;
+  𝗳𝘂𝗻 "t1" "t2" ->
+    𝗹𝗲𝘁 "succs1" = "t1".{succs} 𝗶𝗻
+    𝗶𝗳 ~ mpmc_stack_2٠is_closed "succs1" 𝘁𝗵𝗲𝗻 (
+      𝗳𝗮𝗮 "t2".[preds] 1 ⍮
+      𝗶𝗳 mpmc_stack_2٠push "succs1" "t2" 𝘁𝗵𝗲𝗻 (
+        𝗳𝗮𝗮 "t2".[preds] (-1) ⍮
         ()
       )
     ).
 
 #[local] Definition __zoo_recs_0 :=
-  ( recs: "release" "ctx" "t" =>
-      if: FAA "t".[preds] (-1) == 1 then (
+  ( 𝗿𝗲𝗰𝘀 "release" "ctx" "t" ->
+      𝗶𝗳 𝗳𝗮𝗮 "t".[preds] (-1) == 1 𝘁𝗵𝗲𝗻 (
         "run" "ctx" "t"
       )
-    and: "run" "ctx" "t" =>
+    𝘄𝗶𝘁𝗵 "run" "ctx" "t" ->
       pool٠async "ctx"
-        (fun: "ctx" =>
-           "t" <-{preds} 1 ;;
-           if: "t".{task} "ctx" then (
-             let: "succs" := mpmc_stack_2٠close "t".{succs} in
-             clist٠iter (fun: "succ" => "release" "ctx" "succ") "succs"
-           ) else (
+        (𝗳𝘂𝗻 "ctx" ->
+           "t" <-{preds} 1 ⍮
+           𝗶𝗳 "t".{task} "ctx" 𝘁𝗵𝗲𝗻 (
+             𝗹𝗲𝘁 "succs" = mpmc_stack_2٠close "t".{succs} 𝗶𝗻
+             clist٠iter
+               (𝗳𝘂𝗻 "succ" -> "release" "ctx" "succ")
+               "succs"
+           ) 𝗲𝗹𝘀𝗲 (
              "release" "ctx" "t"
            ))
   )%zoo_recs.
@@ -81,6 +83,6 @@ Proof.
 Qed.
 
 Definition vertex٠yield : val :=
-  fun: "vtx" "task" =>
-    vertex٠set_task "vtx" "task" ;;
+  𝗳𝘂𝗻 "vtx" "task" ->
+    vertex٠set_task "vtx" "task" ⍮
     false.

@@ -8,95 +8,105 @@ Require Import zoo_std.inf_array__types.
 Require Import zoo.options.
 
 Definition inf_array٠create : val :=
-  fun: "default" =>
-    let: "data" := array٠create () in
-    let: "mutex" := mutex٠create () in
+  𝗳𝘂𝗻 "default" ->
+    𝗹𝗲𝘁 "data" = array٠create () 𝗶𝗻
+    𝗹𝗲𝘁 "mutex" = mutex٠create () 𝗶𝗻
     { "data", "default", "mutex" }.
 
 Definition inf_array٠next_capacity : val :=
-  fun: "n" =>
-    int٠max 8 if: "n" ≤ 512 then (
-                 2 * "n"
-               ) else (
-                 "n" + "n" `quot` 2
-               ).
+  𝗳𝘂𝗻 "n" ->
+    int٠max
+      8
+      𝗶𝗳 "n" ≤ 512 𝘁𝗵𝗲𝗻 (
+        2 * "n"
+      ) 𝗲𝗹𝘀𝗲 (
+        "n" + "n" 𝗾𝘂𝗼𝘁 2
+      ).
 
 Definition inf_array٠reserve : val :=
-  fun: "t" "n" =>
-    let: "data" := "t".{data} in
-    let: "cap" := array٠size "data" in
-    if: "cap" < "n" then (
-      let: "cap" := int٠max "n" (inf_array٠next_capacity "cap") in
-      let: "data" := array٠unsafe_grow "data" "cap" "t".{default} in
+  𝗳𝘂𝗻 "t" "n" ->
+    𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+    𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
+    𝗶𝗳 "cap" < "n" 𝘁𝗵𝗲𝗻 (
+      𝗹𝗲𝘁 "cap" =
+        int٠max "n" (inf_array٠next_capacity "cap")
+      𝗶𝗻
+      𝗹𝗲𝘁 "data" =
+        array٠unsafe_grow "data" "cap" "t".{default}
+      𝗶𝗻
       "t" <-{data} "data"
     ).
 
 Definition inf_array٠get : val :=
-  fun: "t" "i" =>
+  𝗳𝘂𝗻 "t" "i" ->
     mutex٠protect "t".{mutex}
-      (fun: <> =>
-         let: "data" := "t".{data} in
-         if: "i" < array٠size "data" then (
+      (𝗳𝘂𝗻 ⎽ ->
+         𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+         𝗶𝗳 "i" < array٠size "data" 𝘁𝗵𝗲𝗻 (
            array٠unsafe_get "data" "i"
-         ) else (
+         ) 𝗲𝗹𝘀𝗲 (
            "t".{default}
          )).
 
 Definition inf_array٠update : val :=
-  fun: "t" "i" "fn" =>
+  𝗳𝘂𝗻 "t" "i" "fn" ->
     mutex٠protect "t".{mutex}
-      (fun: <> =>
-         inf_array٠reserve "t" ("i" + 1) ;;
-         let: "v" := array٠unsafe_get "t".{data} "i" in
-         array٠unsafe_set "t".{data} "i" ("fn" "v") ;;
+      (𝗳𝘂𝗻 ⎽ ->
+         inf_array٠reserve "t" ("i" + 1) ⍮
+         𝗹𝗲𝘁 "v" = array٠unsafe_get "t".{data} "i" 𝗶𝗻
+         array٠unsafe_set "t".{data} "i" ("fn" "v") ⍮
          "v").
 
 Definition inf_array٠xchg : val :=
-  fun: "t" "i" "v" =>
-    inf_array٠update "t" "i" (fun: <> => "v").
+  𝗳𝘂𝗻 "t" "i" "v" ->
+    inf_array٠update "t" "i" (𝗳𝘂𝗻 ⎽ -> "v").
 
 Definition inf_array٠xchg_resolve : val :=
-  fun: "t" "i" "v" "proph" "v_resolve" =>
+  𝗳𝘂𝗻 "t" "i" "v" "proph" "v_resolve" ->
     mutex٠protect "t".{mutex}
-      (fun: <> =>
-         inf_array٠reserve "t" ("i" + 1) ;;
-         let: "old_v" := array٠unsafe_get "t".{data} "i" in
-         array٠unsafe_set "t".{data} "i" "v" ;;
-         Resolve Skip "proph" "v_resolve" ;;
+      (𝗳𝘂𝗻 ⎽ ->
+         inf_array٠reserve "t" ("i" + 1) ⍮
+         𝗹𝗲𝘁 "old_v" = array٠unsafe_get "t".{data} "i" 𝗶𝗻
+         array٠unsafe_set "t".{data} "i" "v" ⍮
+         𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "v_resolve" ⍮
          "old_v").
 
 Definition inf_array٠set : val :=
-  fun: "t" "i" "v" =>
-    inf_array٠xchg "t" "i" "v" ;;
+  𝗳𝘂𝗻 "t" "i" "v" ->
+    inf_array٠xchg "t" "i" "v" ⍮
     ().
 
 Definition inf_array٠cas : val :=
-  fun: "t" "i" "v1" "v2" =>
+  𝗳𝘂𝗻 "t" "i" "v1" "v2" ->
     mutex٠protect "t".{mutex}
-      (fun: <> =>
-         inf_array٠reserve "t" ("i" + 1) ;;
-         let: "res" := array٠unsafe_get "t".{data} "i" == "v1" in
-         if: "res" then (
+      (𝗳𝘂𝗻 ⎽ ->
+         inf_array٠reserve "t" ("i" + 1) ⍮
+         𝗹𝗲𝘁 "res" =
+           array٠unsafe_get "t".{data} "i" == "v1"
+         𝗶𝗻
+         𝗶𝗳 "res" 𝘁𝗵𝗲𝗻 (
            array٠unsafe_set "t".{data} "i" "v2"
-         ) else (
+         ) 𝗲𝗹𝘀𝗲 (
            ()
-         ) ;;
+         ) ⍮
          "res").
 
 Definition inf_array٠cas_resolve : val :=
-  fun: "t" "i" "v1" "v2" "proph" "v_resolve" =>
+  𝗳𝘂𝗻 "t" "i" "v1" "v2" "proph" "v_resolve" ->
     mutex٠protect "t".{mutex}
-      (fun: <> =>
-         inf_array٠reserve "t" ("i" + 1) ;;
-         let: "res" := array٠unsafe_get "t".{data} "i" == "v1" in
-         if: "res" then (
+      (𝗳𝘂𝗻 ⎽ ->
+         inf_array٠reserve "t" ("i" + 1) ⍮
+         𝗹𝗲𝘁 "res" =
+           array٠unsafe_get "t".{data} "i" == "v1"
+         𝗶𝗻
+         𝗶𝗳 "res" 𝘁𝗵𝗲𝗻 (
            array٠unsafe_set "t".{data} "i" "v2"
-         ) else (
+         ) 𝗲𝗹𝘀𝗲 (
            ()
-         ) ;;
-         Resolve Skip "proph" "v_resolve" ;;
+         ) ⍮
+         𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "v_resolve" ⍮
          "res").
 
 Definition inf_array٠faa : val :=
-  fun: "t" "i" "incr" =>
-    inf_array٠update "t" "i" (fun: "n" => "n" + "incr").
+  𝗳𝘂𝗻 "t" "i" "incr" ->
+    inf_array٠update "t" "i" (𝗳𝘂𝗻 "n" -> "n" + "incr").

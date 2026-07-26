@@ -7,42 +7,42 @@ Require Import zoo_parabs.waiter__types.
 Require Import zoo.options.
 
 Definition waiter٠create : val :=
-  fun: <> =>
+  𝗳𝘂𝗻 ⎽ ->
     { mutex٠create (), condition٠create (), false }.
 
 Definition waiter٠notify : val :=
-  fun: "t" =>
-    mutex٠lock "t".{mutex} ;;
-    if: "t".{flag} then (
-      mutex٠unlock "t".{mutex} ;;
+  𝗳𝘂𝗻 "t" ->
+    mutex٠lock "t".{mutex} ⍮
+    𝗶𝗳 "t".{flag} 𝘁𝗵𝗲𝗻 (
+      mutex٠unlock "t".{mutex} ⍮
       false
-    ) else (
-      "t" <-{flag} true ;;
-      mutex٠unlock "t".{mutex} ;;
-      condition٠notify "t".{condition} ;;
+    ) 𝗲𝗹𝘀𝗲 (
+      "t" <-{flag} true ⍮
+      mutex٠unlock "t".{mutex} ⍮
+      condition٠notify "t".{condition} ⍮
       true
     ).
 
 Definition waiter٠prepare_wait : val :=
-  fun: "t" =>
-    mutex٠protect "t".{mutex} (fun: <> => "t" <-{flag} false).
+  𝗳𝘂𝗻 "t" ->
+    mutex٠protect "t".{mutex} (𝗳𝘂𝗻 ⎽ -> "t" <-{flag} false).
 
 Definition waiter٠cancel_wait : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     mutex٠protect "t".{mutex}
-      (fun: <> =>
-         if: "t".{flag} then (
+      (𝗳𝘂𝗻 ⎽ ->
+         𝗶𝗳 "t".{flag} 𝘁𝗵𝗲𝗻 (
            false
-         ) else (
-           "t" <-{flag} true ;;
+         ) 𝗲𝗹𝘀𝗲 (
+           "t" <-{flag} true ⍮
            true
          )).
 
 Definition waiter٠commit_wait : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     mutex٠protect "t".{mutex}
-      (fun: <> =>
+      (𝗳𝘂𝗻 ⎽ ->
          condition٠wait_until
            "t".{condition}
            "t".{mutex}
-           (fun: <> => "t".{flag})).
+           (𝗳𝘂𝗻 ⎽ -> "t".{flag})).

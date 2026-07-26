@@ -4,16 +4,20 @@ Require Import zoo_std.diverge.
 Require Import zoo.options.
 
 Definition assume : val :=
-  fun: "b" =>
-    if: ~ "b" then
-      diverge ().
+  𝗳𝘂𝗻 "b" ->
+    𝗶𝗳 ~ "b" 𝘁𝗵𝗲𝗻
+      𝗱𝗶𝘃𝗲𝗿𝗴𝗲 ().
+
+Notation "'𝗮𝘀𝘀𝘂𝗺𝗲'" :=
+  assume
+: expr_scope.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
   Lemma assume𑁒spec (b : bool) Φ :
     ▷ (⌜b = true⌝ → Φ ()%V) -∗
-    WP assume #b {{ Φ }}.
+    WP 𝗮𝘀𝘀𝘂𝗺𝗲 #b {{ Φ }}.
   Proof.
     iIntros "HΦ".
     wp۰rec. destruct b; first iSteps.
@@ -21,7 +25,7 @@ Section zoo۰G.
   Qed.
   Lemma assume𑁒spec' ϕ `{!Decision ϕ} Φ :
     ▷ (⌜ϕ⌝ → Φ ()%V) -∗
-    WP assume #(bool_decide ϕ) {{ Φ }}.
+    WP 𝗮𝘀𝘀𝘂𝗺𝗲 #(bool_decide ϕ) {{ Φ }}.
   Proof.
     iIntros "HΦ".
     wp۰apply assume𑁒spec as (Hϕ%bool_decide_eq_true_1) "".

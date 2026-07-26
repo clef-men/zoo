@@ -325,7 +325,7 @@ Section mpmc_bstack۰G.
 
       wp۰rec. wp۰pures.
 
-      wp۰bind (CAS _ _ _).
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner)".
       wp۰cas as _ | <-%list۰to_val𑁒inj'.
 
@@ -432,7 +432,7 @@ Section mpmc_bstack۰G.
 
       wp۰pures.
 
-      wp۰bind (CAS _ _ _).
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner =2)".
       wp۰cas as _ | Hcas; first iSteps.
       destruct vs2; first done.

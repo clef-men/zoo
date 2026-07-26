@@ -7,32 +7,32 @@ Require Import zoo_saturn.mpmc_stack_1__types.
 Require Import zoo.options.
 
 Definition mpmc_stack_1٠create : val :=
-  fun: <> =>
-    ref §Gnil.
+  𝗳𝘂𝗻 ⎽ ->
+    𝗿𝗲𝗳 §Gnil.
 
 Definition mpmc_stack_1٠push : val :=
-  rec: "push" "t" "v" =>
-    let: "old" := !"t" in
-    let: "new_" := ‘Gcons[ "v", "old" ] in
-    if: ~ CAS "t".[contents] "old" "new_" then (
-      domain٠yield () ;;
+  𝗿𝗲𝗰 "push" "t" "v" ->
+    𝗹𝗲𝘁 "old" = !"t" 𝗶𝗻
+    𝗹𝗲𝘁 "new_" = ‘Gcons[ "v", "old" ] 𝗶𝗻
+    𝗶𝗳 ~ 𝗰𝗮𝘀 "t".[contents] "old" "new_" 𝘁𝗵𝗲𝗻 (
+      domain٠yield () ⍮
       "push" "t" "v"
     ).
 
 Definition mpmc_stack_1٠pop : val :=
-  rec: "pop" "t" =>
-    match: !"t" with
-    | Gnil =>
+  𝗿𝗲𝗰 "pop" "t" ->
+    𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
+    | Gnil ->
         §None
-    | Gcons "v" "new_" as "old" =>
-        if: CAS "t".[contents] "old" "new_" then (
+    | Gcons "v" "new_" 𝗮𝘀 "old" ->
+        𝗶𝗳 𝗰𝗮𝘀 "t".[contents] "old" "new_" 𝘁𝗵𝗲𝗻 (
           ‘Some( "v" )
-        ) else (
-          domain٠yield () ;;
+        ) 𝗲𝗹𝘀𝗲 (
+          domain٠yield () ⍮
           "pop" "t"
         )
-    end.
+    𝗲𝗻𝗱.
 
 Definition mpmc_stack_1٠snapshot : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     !"t".

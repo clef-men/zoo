@@ -26,7 +26,7 @@ Section zoo۰G.
     {{{
       τ v
     }}}
-      ref v
+      𝗿𝗲𝗳 v
     {{{
       t
     , RET t;

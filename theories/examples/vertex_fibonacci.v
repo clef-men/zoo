@@ -42,7 +42,7 @@ Section vertex_fibonacci۰G.
       vtx
       (r ↦ᵣ #(fibonacci n))
       True
-      (fun: "ctx" => vertex_fibonacci٠main₀ "ctx" vtx #r #n)
+      (𝗳𝘂𝗻 "ctx" -> vertex_fibonacci٠main₀ "ctx" vtx #r #n)
       iter.
   Proof.
     iLöb as "HLöb" forall (vtx iter r n).

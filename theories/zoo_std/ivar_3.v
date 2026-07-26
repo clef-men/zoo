@@ -814,7 +814,7 @@ Module base.
 
         wp۰pures.
 
-        wp۰bind (CAS _ _ _).
+        wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
         iInv "Hinv" as "(:inv۰inner)".
         wp۰cas as Hcas.
 
@@ -857,7 +857,7 @@ Module base.
 
       wp۰rec. wp۰pures.
 
-      wp۰bind (Xchg _ _).
+      wp۰bind (𝘅𝗰𝗵𝗴 _ _)%E.
       iInv "Hinv" as "(:inv۰inner)".
       wp۰xchg.
       destruct state; last first.

@@ -719,7 +719,7 @@ Module base.
       , RET #t;
         meta_token t ⊤ ∗
         vertex۰inv t γ P R ∗
-        vertex۰model t γ (default (fun: <> => true)%V task) iter ∗
+        vertex۰model t γ (default (𝗳𝘂𝗻 ⎽ -> true)%V task) iter ∗
         vertex۰output γ P
       }}}.
     Proof.
@@ -729,7 +729,7 @@ Module base.
 
       wp۰bind (Match _ _ _ _).
       wp۰apply (wp𑁒wand (λ res,
-        ⌜res = default (fun: <> => true)%V task⌝
+        ⌜res = default (𝗳𝘂𝗻 ⎽ -> true)%V task⌝
       )%I) as (res) "->".
       { destruct task; iSteps. }
 
@@ -771,7 +771,7 @@ Module base.
       , RET #t;
         meta_token t ⊤ ∗
         vertex۰inv t γ P R ∗
-        vertex۰model t γ (fun: "ctx" => task "ctx" ;; true) iter ∗
+        vertex۰model t γ (𝗳𝘂𝗻 "ctx" -> task "ctx" ⍮ true) iter ∗
         vertex۰output γ P
       }}}.
     Proof.
@@ -862,7 +862,7 @@ Module base.
 
         wp۰pures.
 
-        wp۰bind (FAA _ _).
+        wp۰bind (𝗳𝗮𝗮 _ _)%E.
         iInv "Hinv_2" as "(:inv۰inner which=2 =1)".
         wp۰faa.
         iDestruct (state𑁒agree with "Hstate2₁ Hstate2₂") as %<-.
@@ -893,7 +893,7 @@ Module base.
 
           wp۰pures.
 
-          wp۰bind (FAA _ _).
+          wp۰bind (𝗳𝗮𝗮 _ _)%E.
           iInv "Hinv_2" as "(:inv۰inner which=2 =2)".
           wp۰faa.
           iDestruct (state𑁒agree with "Hstate2₁ Hstate2₂") as %<-.
@@ -978,7 +978,7 @@ Module base.
         iApply (wp𑁒frame𑁒wand with "HΦ").
         wp۰pures.
 
-        wp۰bind (FAA _ _).
+        wp۰bind (𝗳𝗮𝗮 _ _)%E.
         iInv "Hinv" as "(:inv۰inner =1)".
         wp۰faa.
         iDestruct (state𑁒agree with "Hstate₁ Hstate₂") as %<-.
@@ -1011,7 +1011,7 @@ Module base.
         iApply (wp𑁒frame𑁒wand with "HΦ").
         wp۰pures.
 
-        wp۰bind (FAA _ _).
+        wp۰bind (𝗳𝗮𝗮 _ _)%E.
         iInv "Hinv" as "(:inv۰inner)".
         wp۰faa.
         iDestruct (predecessors𑁒elem_of with "Hpredecessors_auth Hpredecessors_elem") as %Hπ.
@@ -1516,7 +1516,7 @@ Section vertex۰G.
       t iter
     , RET t;
       vertex۰inv t P R ∗
-      vertex۰model t (default (fun: <> => true)%V task) iter ∗
+      vertex۰model t (default (𝗳𝘂𝗻 ⎽ -> true)%V task) iter ∗
       vertex۰output t P
     }}}.
   Proof.
@@ -1537,7 +1537,7 @@ Section vertex۰G.
       t iter
     , RET t;
       vertex۰inv t P R ∗
-      vertex۰model t (fun: "ctx" => task "ctx" ;; true) iter ∗
+      vertex۰model t (𝗳𝘂𝗻 "ctx" -> task "ctx" ⍮ true) iter ∗
       vertex۰output t P
     }}}.
   Proof.

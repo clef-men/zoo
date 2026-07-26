@@ -7,79 +7,87 @@ Require Import zoo_saturn.mpsc_queue_3__types.
 Require Import zoo.options.
 
 Definition mpsc_queue_3٠create : val :=
-  fun: <> =>
+  𝗳𝘂𝗻 ⎽ ->
     { §ClistOpen, §ClistOpen }.
 
 Definition mpsc_queue_3٠is_empty : val :=
-  fun: "t" =>
-    match: "t".{front} with
-    | ClistClosed =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 "t".{front} 𝘄𝗶𝘁𝗵
+    | ClistClosed ->
         true
-    | ClistCons <> <> =>
+    | ClistCons ⎽ ⎽ ->
         false
-    | ClistOpen =>
-        match: "t".{back} with
-        | ClistCons <> <> =>
+    | ClistOpen ->
+        𝗺𝗮𝘁𝗰𝗵 "t".{back} 𝘄𝗶𝘁𝗵
+        | ClistCons ⎽ ⎽ ->
             false
-        |_ =>
+        | ⎽ ->
             true
-        end
-    end.
+        𝗲𝗻𝗱
+    𝗲𝗻𝗱.
 
 Definition mpsc_queue_3٠push_front : val :=
-  fun: "t" "v" =>
-    match: "t".{front} with
-    | ClistClosed =>
+  𝗳𝘂𝗻 "t" "v" ->
+    𝗺𝗮𝘁𝗰𝗵 "t".{front} 𝘄𝗶𝘁𝗵
+    | ClistClosed ->
         true
-    |_ as "front" =>
-        "t" <-{front} ‘ClistCons[ "v", "front" ] ;;
+    | ⎽ 𝗮𝘀 "front" ->
+        "t" <-{front} ‘ClistCons[ "v", "front" ] ⍮
         false
-    end.
+    𝗲𝗻𝗱.
 
 Definition mpsc_queue_3٠push_back : val :=
-  rec: "push_back" "t" "v" =>
-    match: "t".{back} with
-    | ClistClosed =>
+  𝗿𝗲𝗰 "push_back" "t" "v" ->
+    𝗺𝗮𝘁𝗰𝗵 "t".{back} 𝘄𝗶𝘁𝗵
+    | ClistClosed ->
         true
-    |_ as "back" =>
-        if: CAS "t".[back] "back" ‘ClistCons[ "v", "back" ] then (
+    | ⎽ 𝗮𝘀 "back" ->
+        𝗶𝗳
+          𝗰𝗮𝘀 "t".[back] "back" ‘ClistCons[ "v", "back" ]
+        𝘁𝗵𝗲𝗻 (
           false
-        ) else (
-          domain٠yield () ;;
+        ) 𝗲𝗹𝘀𝗲 (
+          domain٠yield () ⍮
           "push_back" "t" "v"
         )
-    end.
+    𝗲𝗻𝗱.
 
 Definition mpsc_queue_3٠pop : val :=
-  fun: "t" =>
-    match: "t".{front} with
-    | ClistClosed =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 "t".{front} 𝘄𝗶𝘁𝗵
+    | ClistClosed ->
         §None
-    | ClistCons "v" "front" =>
-        "t" <-{front} "front" ;;
+    | ClistCons "v" "front" ->
+        "t" <-{front} "front" ⍮
         ‘Some( "v" )
-    | ClistOpen =>
-        match: Xchg "t".[back] §ClistOpen with
-        | ClistOpen =>
+    | ClistOpen ->
+        𝗺𝗮𝘁𝗰𝗵
+          𝘅𝗰𝗵𝗴 "t".[back] §ClistOpen
+        𝘄𝗶𝘁𝗵
+        | ClistOpen ->
             §None
-        |_ as "back" =>
-            match: clist٠rev_app "back" §ClistOpen with
-            | ClistCons "v" "front" =>
-                "t" <-{front} "front" ;;
+        | ⎽ 𝗮𝘀 "back" ->
+            𝗺𝗮𝘁𝗰𝗵
+              clist٠rev_app "back" §ClistOpen
+            𝘄𝗶𝘁𝗵
+            | ClistCons "v" "front" ->
+                "t" <-{front} "front" ⍮
                 ‘Some( "v" )
-            |_ =>
-                Fail
-            end
-        end
-    end.
+            | ⎽ ->
+                𝗳𝗮𝗶𝗹
+            𝗲𝗻𝗱
+        𝗲𝗻𝗱
+    𝗲𝗻𝗱.
 
 Definition mpsc_queue_3٠close : val :=
-  fun: "t" =>
-    match: Xchg "t".[back] §ClistClosed with
-    | ClistClosed =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵
+      𝘅𝗰𝗵𝗴 "t".[back] §ClistClosed
+    𝘄𝗶𝘁𝗵
+    | ClistClosed ->
         true
-    |_ as "back" =>
+    | ⎽ 𝗮𝘀 "back" ->
         "t" <-{front}
-          clist٠app "t".{front} (clist٠rev_app "back" §ClistClosed) ;;
+          clist٠app "t".{front} (clist٠rev_app "back" §ClistClosed) ⍮
         false
-    end.
+    𝗲𝗻𝗱.

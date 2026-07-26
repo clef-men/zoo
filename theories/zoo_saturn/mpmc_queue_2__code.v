@@ -6,110 +6,110 @@ Require Import zoo_saturn.mpmc_queue_2__types.
 Require Import zoo.options.
 
 Definition mpmc_queue_2٠suffix_index : val :=
-  fun: "suff" =>
-    match: "suff" with
-    | Front "i" =>
+  𝗳𝘂𝗻 "suff" ->
+    𝗺𝗮𝘁𝗰𝗵 "suff" 𝘄𝗶𝘁𝗵
+    | Front "i" ->
         "i"
-    | Cons "i" <> <> =>
+    | Cons "i" ⎽ ⎽ ->
         "i"
-    end.
+    𝗲𝗻𝗱.
 
 Definition mpmc_queue_2٠prefix_index : val :=
-  fun: "pref" =>
-    match: "pref" with
-    | Back <> <> as "back_r" =>
+  𝗳𝘂𝗻 "pref" ->
+    𝗺𝗮𝘁𝗰𝗵 "pref" 𝘄𝗶𝘁𝗵
+    | Back ⎽ ⎽ 𝗮𝘀 "back_r" ->
         "back_r".{index}
-    | Snoc "i" <> <> =>
+    | Snoc "i" ⎽ ⎽ ->
         "i"
-    end.
+    𝗲𝗻𝗱.
 
 Definition mpmc_queue_2٠rev₀ : val :=
-  rec: "rev" "suff" "pref" =>
-    match: "suff" with
-    | Cons <> <> <> as "suff" =>
-        match: "pref" with
-        | Back <> <> =>
+  𝗿𝗲𝗰 "rev" "suff" "pref" ->
+    𝗺𝗮𝘁𝗰𝗵 "suff" 𝘄𝗶𝘁𝗵
+    | Cons ⎽ ⎽ ⎽ 𝗮𝘀 "suff" ->
+        𝗺𝗮𝘁𝗰𝗵 "pref" 𝘄𝗶𝘁𝗵
+        | Back ⎽ ⎽ ->
             "suff"
-        | Snoc "i" "v" "pref" =>
+        | Snoc "i" "v" "pref" ->
             "rev" ‘Cons[ "i", "v", "suff" ] "pref"
-        end
-    end.
+        𝗲𝗻𝗱
+    𝗲𝗻𝗱.
 
 Definition mpmc_queue_2٠rev : val :=
-  fun: "back" =>
-    match: "back" with
-    | Snoc "i" "v" "pref" =>
+  𝗳𝘂𝗻 "back" ->
+    𝗺𝗮𝘁𝗰𝗵 "back" 𝘄𝗶𝘁𝗵
+    | Snoc "i" "v" "pref" ->
         mpmc_queue_2٠rev₀ ‘Cons[ "i", "v", ‘Front[ "i" + 1 ] ] "pref"
-    end.
+    𝗲𝗻𝗱.
 
 Definition mpmc_queue_2٠create : val :=
-  fun: <> =>
+  𝗳𝘂𝗻 ⎽ ->
     { ‘Front[ 1 ], ‘Back{ 0, §Used } }.
 
 Definition mpmc_queue_2٠size : val :=
-  rec: "size" "t" =>
-    let: "front" := "t".{front} in
-    let: "proph" := Proph in
-    let: "back" := "t".{back} in
-    if:
-      let: "@tmp" := "t".{front} == "front" in
-      Resolve Skip "proph" "@tmp" ;;
+  𝗿𝗲𝗰 "size" "t" ->
+    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    𝗹𝗲𝘁 "proph" = 𝗽𝗿𝗼𝗽𝗵 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
+    𝗶𝗳
+      𝗹𝗲𝘁 "@tmp" = "t".{front} == "front" 𝗶𝗻
+      𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "@tmp" ⍮
       "@tmp"
-    then (
+    𝘁𝗵𝗲𝗻 (
       mpmc_queue_2٠prefix_index "back" - mpmc_queue_2٠suffix_index "front"
       +
       1
-    ) else (
+    ) 𝗲𝗹𝘀𝗲 (
       "size" "t"
     ).
 
 Definition mpmc_queue_2٠is_empty : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     mpmc_queue_2٠size "t" == 0.
 
 Definition mpmc_queue_2٠finish : val :=
-  fun: "back" =>
-    match: "back" with
-    | Back <> <> as "back_r" =>
+  𝗳𝘂𝗻 "back" ->
+    𝗺𝗮𝘁𝗰𝗵 "back" 𝘄𝗶𝘁𝗵
+    | Back ⎽ ⎽ 𝗮𝘀 "back_r" ->
         "back_r" <-{move} §Used
-    end.
+    𝗲𝗻𝗱.
 
 Definition mpmc_queue_2٠help : val :=
-  fun: "t" "back" "i_move" "move" =>
-    match: "t".{front} with
-    | Front "i_front" as "front" =>
-        if:
+  𝗳𝘂𝗻 "t" "back" "i_move" "move" ->
+    𝗺𝗮𝘁𝗰𝗵 "t".{front} 𝘄𝗶𝘁𝗵
+    | Front "i_front" 𝗮𝘀 "front" ->
+        𝗶𝗳
           "i_move" < "i_front"
-          or
-          CAS "t".[front] "front" (mpmc_queue_2٠rev "move")
-        then (
+          𝗼𝗿
+          𝗰𝗮𝘀 "t".[front] "front" (mpmc_queue_2٠rev "move")
+        𝘁𝗵𝗲𝗻 (
           mpmc_queue_2٠finish "back"
         )
-    |_ =>
+    | ⎽ ->
         mpmc_queue_2٠finish "back"
-    end.
+    𝗲𝗻𝗱.
 
 #[local] Definition __zoo_recs_0 :=
-  ( recs: "push_aux" "t" "v" "i" "back" =>
-      let: "new_back" := ‘Snoc[ "i" + 1, "v", "back" ] in
-      if: ~ CAS "t".[back] "back" "new_back" then (
-        domain٠yield () ;;
+  ( 𝗿𝗲𝗰𝘀 "push_aux" "t" "v" "i" "back" ->
+      𝗹𝗲𝘁 "new_back" = ‘Snoc[ "i" + 1, "v", "back" ] 𝗶𝗻
+      𝗶𝗳 ~ 𝗰𝗮𝘀 "t".[back] "back" "new_back" 𝘁𝗵𝗲𝗻 (
+        domain٠yield () ⍮
         "push" "t" "v"
       )
-    and: "push" "t" "v" =>
-      match: "t".{back} with
-      | Snoc "i" <> <> as "back" =>
+    𝘄𝗶𝘁𝗵 "push" "t" "v" ->
+      𝗺𝗮𝘁𝗰𝗵 "t".{back} 𝘄𝗶𝘁𝗵
+      | Snoc "i" ⎽ ⎽ 𝗮𝘀 "back" ->
           "push_aux" "t" "v" "i" "back"
-      | Back <> <> as "back" =>
-          let: "back_r" := "back" in
-          match: "back_r".{move} with
-          | Used =>
+      | Back ⎽ ⎽ 𝗮𝘀 "back" ->
+          𝗹𝗲𝘁 "back_r" = "back" 𝗶𝗻
+          𝗺𝗮𝘁𝗰𝗵 "back_r".{move} 𝘄𝗶𝘁𝗵
+          | Used ->
               "push_aux" "t" "v" "back_r".{index} "back"
-          | Snoc "i_move" <> <> as "move" =>
-              mpmc_queue_2٠help "t" "back" "i_move" "move" ;;
+          | Snoc "i_move" ⎽ ⎽ 𝗮𝘀 "move" ->
+              mpmc_queue_2٠help "t" "back" "i_move" "move" ⍮
               "push" "t" "v"
-          end
-      end
+          𝗲𝗻𝗱
+      𝗲𝗻𝗱
   )%zoo_recs.
 Definition mpmc_queue_2٠push_aux :=
   ValRecs 0 __zoo_recs_0.
@@ -133,60 +133,70 @@ Proof.
 Qed.
 
 #[local] Definition __zoo_recs_1 :=
-  ( recs: "pop_1" "t" "front" =>
-      match: "front" with
-      | Cons <> "v" "new_front" =>
-          if: CAS "t".[front] "front" "new_front" then (
+  ( 𝗿𝗲𝗰𝘀 "pop_1" "t" "front" ->
+      𝗺𝗮𝘁𝗰𝗵 "front" 𝘄𝗶𝘁𝗵
+      | Cons ⎽ "v" "new_front" ->
+          𝗶𝗳
+            𝗰𝗮𝘀 "t".[front] "front" "new_front"
+          𝘁𝗵𝗲𝗻 (
             ‘Some( "v" )
-          ) else (
-            domain٠yield () ;;
+          ) 𝗲𝗹𝘀𝗲 (
+            domain٠yield () ⍮
             "pop" "t"
           )
-      | Front "i_front" as "front" =>
-          match: "t".{back} with
-          | Snoc "i_move" "v" "move_pref" as "move" =>
-              if: "i_front" == "i_move" then (
-                if: CAS "t".[back] "move" "move_pref" then (
+      | Front "i_front" 𝗮𝘀 "front" ->
+          𝗺𝗮𝘁𝗰𝗵 "t".{back} 𝘄𝗶𝘁𝗵
+          | Snoc "i_move" "v" "move_pref" 𝗮𝘀 "move" ->
+              𝗶𝗳 "i_front" == "i_move" 𝘁𝗵𝗲𝗻 (
+                𝗶𝗳
+                  𝗰𝗮𝘀 "t".[back] "move" "move_pref"
+                𝘁𝗵𝗲𝗻 (
                   ‘Some( "v" )
-                ) else (
+                ) 𝗲𝗹𝘀𝗲 (
                   "pop" "t"
                 )
-              ) else (
-                match: ‘Back{ "i_move", "move" } with
-                | Back <> <> as "back" =>
-                    let: "front'" := "t".{front} in
-                    if: "front'" != "front" then (
+              ) 𝗲𝗹𝘀𝗲 (
+                𝗺𝗮𝘁𝗰𝗵
+                  ‘Back{ "i_move", "move" }
+                𝘄𝗶𝘁𝗵
+                | Back ⎽ ⎽ 𝗮𝘀 "back" ->
+                    𝗹𝗲𝘁 "front'" = "t".{front} 𝗶𝗻
+                    𝗶𝗳 "front'" != "front" 𝘁𝗵𝗲𝗻 (
                       "pop_1" "t" "front'"
-                    ) else if: CAS "t".[back] "move" "back" then (
+                    ) 𝗲𝗹𝘀𝗲 𝗶𝗳
+                       𝗰𝗮𝘀 "t".[back] "move" "back"
+                     𝘁𝗵𝗲𝗻 (
                       "pop_2" "t" "front" "back" "move"
-                    ) else (
+                    ) 𝗲𝗹𝘀𝗲 (
                       "pop" "t"
                     )
-                end
+                𝗲𝗻𝗱
               )
-          | Back <> <> =>
+          | Back ⎽ ⎽ ->
               "pop_3" "t" "front"
-          end
-      end
-    and: "pop_2" "t" "front" "back" "move" =>
-      match: mpmc_queue_2٠rev "move" with
-      | Cons <> "v" "new_front" =>
-          if: CAS "t".[front] "front" "new_front" then (
-            mpmc_queue_2٠finish "back" ;;
+          𝗲𝗻𝗱
+      𝗲𝗻𝗱
+    𝘄𝗶𝘁𝗵 "pop_2" "t" "front" "back" "move" ->
+      𝗺𝗮𝘁𝗰𝗵 mpmc_queue_2٠rev "move" 𝘄𝗶𝘁𝗵
+      | Cons ⎽ "v" "new_front" ->
+          𝗶𝗳
+            𝗰𝗮𝘀 "t".[front] "front" "new_front"
+          𝘁𝗵𝗲𝗻 (
+            mpmc_queue_2٠finish "back" ⍮
             ‘Some( "v" )
-          ) else (
-            domain٠yield () ;;
+          ) 𝗲𝗹𝘀𝗲 (
+            domain٠yield () ⍮
             "pop" "t"
           )
-      end
-    and: "pop_3" "t" "front" =>
-      let: "front'" := "t".{front} in
-      if: "front'" == "front" then (
+      𝗲𝗻𝗱
+    𝘄𝗶𝘁𝗵 "pop_3" "t" "front" ->
+      𝗹𝗲𝘁 "front'" = "t".{front} 𝗶𝗻
+      𝗶𝗳 "front'" == "front" 𝘁𝗵𝗲𝗻 (
         §None
-      ) else (
+      ) 𝗲𝗹𝘀𝗲 (
         "pop_1" "t" "front'"
       )
-    and: "pop" "t" =>
+    𝘄𝗶𝘁𝗵 "pop" "t" ->
       "pop_1" "t" "t".{front}
   )%zoo_recs.
 Definition mpmc_queue_2٠pop_1 :=

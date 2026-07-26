@@ -5,64 +5,69 @@ Require Import zoo_std.ivar_3__types.
 Require Import zoo.options.
 
 Definition ivar_3٠create : val :=
-  fun: <> =>
-    ref ‘Unset[ [] ].
+  𝗳𝘂𝗻 ⎽ ->
+    𝗿𝗲𝗳 ‘Unset[ [] ].
 
 Definition ivar_3٠make : val :=
-  fun: "v" =>
-    ref ‘Set( "v" ).
+  𝗳𝘂𝗻 "v" ->
+    𝗿𝗲𝗳 ‘Set( "v" ).
 
 Definition ivar_3٠is_unset : val :=
-  fun: "t" =>
-    match: !"t" with
-    | Unset <> =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
+    | Unset ⎽ ->
         true
-    | Set <> =>
+    | Set ⎽ ->
         false
-    end.
+    𝗲𝗻𝗱.
 
 Definition ivar_3٠is_set : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     ~ ivar_3٠is_unset "t".
 
 Definition ivar_3٠try_get : val :=
-  fun: "t" =>
-    match: !"t" with
-    | Unset <> =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
+    | Unset ⎽ ->
         §None
-    | Set "v" =>
+    | Set "v" ->
         ‘Some( "v" )
-    end.
+    𝗲𝗻𝗱.
 
 Definition ivar_3٠get : val :=
-  fun: "t" =>
-    match: !"t" with
-    | Unset <> =>
-        Fail
-    | Set "v" =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
+    | Unset ⎽ ->
+        𝗳𝗮𝗶𝗹
+    | Set "v" ->
         "v"
-    end.
+    𝗲𝗻𝗱.
 
 Definition ivar_3٠wait : val :=
-  rec: "wait" "t" "waiter" =>
-    match: !"t" with
-    | Unset "waiters" as "state" =>
-        if:
-          CAS "t".[contents] "state" ‘Unset[ "waiter" :: "waiters" ]
-        then (
+  𝗿𝗲𝗰 "wait" "t" "waiter" ->
+    𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
+    | Unset "waiters" 𝗮𝘀 "state" ->
+        𝗶𝗳
+          𝗰𝗮𝘀
+            "t".[contents]
+            "state"
+            ‘Unset[ "waiter" :: "waiters" ]
+        𝘁𝗵𝗲𝗻 (
           §None
-        ) else (
+        ) 𝗲𝗹𝘀𝗲 (
           "wait" "t" "waiter"
         )
-    | Set "v" =>
+    | Set "v" ->
         ‘Some( "v" )
-    end.
+    𝗲𝗻𝗱.
 
 Definition ivar_3٠set : val :=
-  fun: "t" "v" =>
-    match: Xchg "t".[contents] ‘Set( "v" ) with
-    | Set <> =>
-        Fail
-    | Unset "waiters" =>
+  𝗳𝘂𝗻 "t" "v" ->
+    𝗺𝗮𝘁𝗰𝗵
+      𝘅𝗰𝗵𝗴 "t".[contents] ‘Set( "v" )
+    𝘄𝗶𝘁𝗵
+    | Set ⎽ ->
+        𝗳𝗮𝗶𝗹
+    | Unset "waiters" ->
         "waiters"
-    end.
+    𝗲𝗻𝗱.

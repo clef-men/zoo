@@ -5,28 +5,28 @@ Require Import zoo_std.condition__types.
 Require Import zoo.options.
 
 Definition condition٠create : val :=
-  fun: <> =>
+  𝗳𝘂𝗻 ⎽ ->
     ().
 
 Definition condition٠notify : val :=
-  fun: "_t" =>
+  𝗳𝘂𝗻 "_t" ->
     ().
 
 Definition condition٠notify_all : val :=
-  fun: "_t" =>
+  𝗳𝘂𝗻 "_t" ->
     ().
 
 Definition condition٠wait : val :=
-  fun: "_t" "_mtx" =>
+  𝗳𝘂𝗻 "_t" "_mtx" ->
     ().
 
 Definition condition٠wait_until : val :=
-  rec: "wait_until" "t" "mtx" "pred" =>
-    if: ~ "pred" () then (
-      condition٠wait "t" "mtx" ;;
+  𝗿𝗲𝗰 "wait_until" "t" "mtx" "pred" ->
+    𝗶𝗳 ~ "pred" () 𝘁𝗵𝗲𝗻 (
+      condition٠wait "t" "mtx" ⍮
       "wait_until" "t" "mtx" "pred"
     ).
 
 Definition condition٠wait_while : val :=
-  fun: "t" "mtx" "pred" =>
-    condition٠wait_until "t" "mtx" (fun: <> => ~ "pred" ()).
+  𝗳𝘂𝗻 "t" "mtx" "pred" ->
+    condition٠wait_until "t" "mtx" (𝗳𝘂𝗻 ⎽ -> ~ "pred" ()).

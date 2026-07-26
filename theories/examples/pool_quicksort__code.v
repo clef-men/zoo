@@ -7,37 +7,39 @@ Require Import examples.pool_quicksort__types.
 Require Import zoo.options.
 
 Definition pool_quicksort٠partition : val :=
-  fun: "arr" "i" "sz" =>
-    let: "pivot" := array٠unsafe_get "arr" "i" in
-    let: "i1" := ref ("i" + 1) in
-    for: "i2" := "i" + 1 to "i" + "sz" begin
-      if: array٠unsafe_get "arr" "i2" < "pivot" then (
-        array٠unsafe_swap "arr" !"i1" "i2" ;;
+  𝗳𝘂𝗻 "arr" "i" "sz" ->
+    𝗹𝗲𝘁 "pivot" = array٠unsafe_get "arr" "i" 𝗶𝗻
+    𝗹𝗲𝘁 "i1" = 𝗿𝗲𝗳 ("i" + 1) 𝗶𝗻
+    𝗳𝗼𝗿 "i2" = "i" + 1 𝘁𝗼 "i" + "sz" 𝗱𝗼
+      𝗶𝗳 array٠unsafe_get "arr" "i2" < "pivot" 𝘁𝗵𝗲𝗻 (
+        array٠unsafe_swap "arr" !"i1" "i2" ⍮
         "i1" <- !"i1" + 1
       )
-    end ;;
-    array٠unsafe_swap "arr" "i" (!"i1" - 1) ;;
+    𝗱𝗼𝗻𝗲 ⍮
+    array٠unsafe_swap "arr" "i" (!"i1" - 1) ⍮
     !"i1" - 1.
 
 Definition pool_quicksort٠main₀ : val :=
-  rec: "main" "ctx" "arr" "i" "sz" =>
-    if: 1 < "sz" then (
-      let: "pivot" := pool_quicksort٠partition "arr" "i" "sz" in
+  𝗿𝗲𝗰 "main" "ctx" "arr" "i" "sz" ->
+    𝗶𝗳 1 < "sz" 𝘁𝗵𝗲𝗻 (
+      𝗹𝗲𝘁 "pivot" =
+        pool_quicksort٠partition "arr" "i" "sz"
+      𝗶𝗻
       pool٠async
         "ctx"
-        (fun: "ctx" => "main" "ctx" "arr" "i" ("pivot" - "i")) ;;
+        (𝗳𝘂𝗻 "ctx" -> "main" "ctx" "arr" "i" ("pivot" - "i")) ⍮
       pool٠async
         "ctx"
-        (fun: "ctx" =>
+        (𝗳𝘂𝗻 "ctx" ->
            "main" "ctx" "arr" ("pivot" + 1) ("sz" - ("pivot" - "i") - 1))
     ).
 
 Definition pool_quicksort٠main₁ : val :=
-  fun: "ctx" "arr" =>
+  𝗳𝘂𝗻 "ctx" "arr" ->
     pool_quicksort٠main₀ "ctx" "arr" 0 (array٠size "arr").
 
 Definition pool_quicksort٠main : val :=
-  fun: "num_worker" "arr" =>
+  𝗳𝘂𝗻 "num_worker" "arr" ->
     pool٠run
       "num_worker"
-      (fun: "ctx" => pool_quicksort٠main₁ "ctx" "arr").
+      (𝗳𝘂𝗻 "ctx" -> pool_quicksort٠main₁ "ctx" "arr").

@@ -6,47 +6,47 @@ Require Import zoo_persistent.parray__types.
 Require Import zoo.options.
 
 Definition parray٠make : val :=
-  fun: "equal" "sz" "v" =>
-    let: "data" := array٠unsafe_make "sz" "v" in
-    ref ‘Root( "equal", "data" ).
+  𝗳𝘂𝗻 "equal" "sz" "v" ->
+    𝗹𝗲𝘁 "data" = array٠unsafe_make "sz" "v" 𝗶𝗻
+    𝗿𝗲𝗳 ‘Root( "equal", "data" ).
 
 Definition parray٠reroot₀ : val :=
-  rec: "reroot" "t" =>
-    match: !"t" with
-    | Root <> <> as "root_r" =>
+  𝗿𝗲𝗰 "reroot" "t" ->
+    𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
+    | Root ⎽ ⎽ 𝗮𝘀 "root_r" ->
         ("root_r".<equal>, "root_r".<data>)
-    | Diff "i" "v" "t'" =>
-        let: "equal", "data" := "reroot" "t'" in
-        "t'" <- ‘Diff( "i", array٠unsafe_get "data" "i", "t" ) ;;
-        array٠unsafe_set "data" "i" "v" ;;
+    | Diff "i" "v" "t'" ->
+        𝗹𝗲𝘁 "equal", "data" = "reroot" "t'" 𝗶𝗻
+        "t'" <- ‘Diff( "i", array٠unsafe_get "data" "i", "t" ) ⍮
+        array٠unsafe_set "data" "i" "v" ⍮
         ("equal", "data")
-    end.
+    𝗲𝗻𝗱.
 
 Definition parray٠reroot : val :=
-  fun: "t" =>
-    match: !"t" with
-    | Root <> <> as "root_r" =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
+    | Root ⎽ ⎽ 𝗮𝘀 "root_r" ->
         ("root_r".<equal>, "root_r".<data>)
-    | Diff <> <> <> =>
-        let: "equal", "data" := parray٠reroot₀ "t" in
-        "t" <- ‘Root( "equal", "data" ) ;;
+    | Diff ⎽ ⎽ ⎽ ->
+        𝗹𝗲𝘁 "equal", "data" = parray٠reroot₀ "t" 𝗶𝗻
+        "t" <- ‘Root( "equal", "data" ) ⍮
         ("equal", "data")
-    end.
+    𝗲𝗻𝗱.
 
 Definition parray٠get : val :=
-  fun: "t" "i" =>
-    let: <>, "data" := parray٠reroot "t" in
+  𝗳𝘂𝗻 "t" "i" ->
+    𝗹𝗲𝘁 ⎽, "data" = parray٠reroot "t" 𝗶𝗻
     array٠unsafe_get "data" "i".
 
 Definition parray٠set : val :=
-  fun: "t" "i" "v" =>
-    let: "equal", "data" := parray٠reroot "t" in
-    let: "v'" := array٠unsafe_get "data" "i" in
-    if: "equal" "v" "v'" then (
+  𝗳𝘂𝗻 "t" "i" "v" ->
+    𝗹𝗲𝘁 "equal", "data" = parray٠reroot "t" 𝗶𝗻
+    𝗹𝗲𝘁 "v'" = array٠unsafe_get "data" "i" 𝗶𝗻
+    𝗶𝗳 "equal" "v" "v'" 𝘁𝗵𝗲𝗻 (
       "t"
-    ) else (
-      array٠unsafe_set "data" "i" "v" ;;
-      let: "t'" := ref !"t" in
-      "t" <- ‘Diff( "i", "v'", "t'" ) ;;
+    ) 𝗲𝗹𝘀𝗲 (
+      array٠unsafe_set "data" "i" "v" ⍮
+      𝗹𝗲𝘁 "t'" = 𝗿𝗲𝗳 !"t" 𝗶𝗻
+      "t" <- ‘Diff( "i", "v'", "t'" ) ⍮
       "t'"
     ).

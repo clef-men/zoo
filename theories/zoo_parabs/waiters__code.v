@@ -8,48 +8,48 @@ Require Import zoo_parabs.waiters__types.
 Require Import zoo.options.
 
 Definition waiters٠create : val :=
-  fun: "sz" =>
+  𝗳𝘂𝗻 "sz" ->
     (array٠unsafe_init "sz" waiter٠create, mpmc_queue_1٠create ()).
 
 Definition waiters٠notify : val :=
-  fun: "t" "i" =>
-    let: "waiter" := array٠unsafe_get "t".<waiters> "i" in
-    waiter٠notify "waiter" ;;
+  𝗳𝘂𝗻 "t" "i" ->
+    𝗹𝗲𝘁 "waiter" = array٠unsafe_get "t".<waiters> "i" 𝗶𝗻
+    waiter٠notify "waiter" ⍮
     ().
 
 Definition waiters٠notify_one : val :=
-  rec: "notify_one" "t" =>
-    match: mpmc_queue_1٠pop "t".<queue> with
-    | None =>
+  𝗿𝗲𝗰 "notify_one" "t" ->
+    𝗺𝗮𝘁𝗰𝗵 mpmc_queue_1٠pop "t".<queue> 𝘄𝗶𝘁𝗵
+    | None ->
         ()
-    | Some "waiter" =>
-        if: ~ waiter٠notify "waiter" then (
+    | Some "waiter" ->
+        𝗶𝗳 ~ waiter٠notify "waiter" 𝘁𝗵𝗲𝗻 (
           "notify_one" "t"
         )
-    end.
+    𝗲𝗻𝗱.
 
 Definition waiters٠notify_all : val :=
-  rec: "notify_all" "t" =>
-    match: mpmc_queue_1٠pop "t".<queue> with
-    | None =>
+  𝗿𝗲𝗰 "notify_all" "t" ->
+    𝗺𝗮𝘁𝗰𝗵 mpmc_queue_1٠pop "t".<queue> 𝘄𝗶𝘁𝗵
+    | None ->
         ()
-    | Some "waiter" =>
-        waiter٠notify "waiter" ;;
+    | Some "waiter" ->
+        waiter٠notify "waiter" ⍮
         "notify_all" "t"
-    end.
+    𝗲𝗻𝗱.
 
 Definition waiters٠prepare_wait : val :=
-  fun: "t" "i" =>
-    let: "waiter" := array٠unsafe_get "t".<waiters> "i" in
-    waiter٠prepare_wait "waiter" ;;
+  𝗳𝘂𝗻 "t" "i" ->
+    𝗹𝗲𝘁 "waiter" = array٠unsafe_get "t".<waiters> "i" 𝗶𝗻
+    waiter٠prepare_wait "waiter" ⍮
     mpmc_queue_1٠push "t".<queue> "waiter".
 
 Definition waiters٠cancel_wait : val :=
-  fun: "t" "i" =>
-    let: "waiter" := array٠unsafe_get "t".<waiters> "i" in
+  𝗳𝘂𝗻 "t" "i" ->
+    𝗹𝗲𝘁 "waiter" = array٠unsafe_get "t".<waiters> "i" 𝗶𝗻
     waiter٠cancel_wait "waiter".
 
 Definition waiters٠commit_wait : val :=
-  fun: "t" "i" =>
-    let: "waiter" := array٠unsafe_get "t".<waiters> "i" in
+  𝗳𝘂𝗻 "t" "i" ->
+    𝗹𝗲𝘁 "waiter" = array٠unsafe_get "t".<waiters> "i" 𝗶𝗻
     waiter٠commit_wait "waiter".

@@ -12,14 +12,14 @@ Definition pstack٠is_empty : val :=
   list٠is_empty.
 
 Definition pstack٠push : val :=
-  fun: "t" "v" =>
+  𝗳𝘂𝗻 "t" "v" ->
     "v" :: "t".
 
 Definition pstack٠pop : val :=
-  fun: "param" =>
-    match: "param" with
-    | [] =>
+  𝗳𝘂𝗻 "param" ->
+    𝗺𝗮𝘁𝗰𝗵 "param" 𝘄𝗶𝘁𝗵
+    | [] ->
         §None
-    | "v" :: "t" =>
+    | "v" :: "t" ->
         ‘Some( ("v", "t") )
-    end.
+    𝗲𝗻𝗱.

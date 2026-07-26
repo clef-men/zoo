@@ -3,8 +3,12 @@ Require Import zoo.base.
 Require Import zoo.options.
 
 Definition diverge : val :=
-  rec: "diverge" <> =>
+  𝗿𝗲𝗰 "diverge" ⎽ ->
     "diverge" ().
+
+Notation "'𝗱𝗶𝘃𝗲𝗿𝗴𝗲'" :=
+  diverge
+: expr_scope.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
@@ -12,7 +16,7 @@ Section zoo۰G.
   Implicit Type Φ : val → iProp Σ.
 
   Lemma diverge𑁒spec E Φ :
-    ⊢ WP diverge () @ E {{ Φ }}.
+    ⊢ WP 𝗱𝗶𝘃𝗲𝗿𝗴𝗲 () @ E {{ Φ }}.
   Proof.
     iLöb as "IH". wp۰rec. iSteps.
   Qed.
@@ -22,7 +26,7 @@ Section zoo۰G.
     {{
       True
     }}
-      diverge ()%V @ E
+      𝗱𝗶𝘃𝗲𝗿𝗴𝗲 ()%V @ E
     {{
       RET ();
       False

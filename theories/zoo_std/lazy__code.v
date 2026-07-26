@@ -6,43 +6,45 @@ Require Import zoo_std.lazy__types.
 Require Import zoo.options.
 
 Definition lazy٠make : val :=
-  fun: "fn" =>
-    ref ‘Unset( "fn" ).
+  𝗳𝘂𝗻 "fn" ->
+    𝗿𝗲𝗳 ‘Unset( "fn" ).
 
 Definition lazy٠return : val :=
-  fun: "res" =>
-    ref ‘Set( "res" ).
+  𝗳𝘂𝗻 "res" ->
+    𝗿𝗲𝗳 ‘Set( "res" ).
 
 Definition lazy٠is_set : val :=
-  fun: "t" =>
-    match: !"t" with
-    | Set <> =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
+    | Set ⎽ ->
         true
-    |_ =>
+    | ⎽ ->
         false
-    end.
+    𝗲𝗻𝗱.
 
 Definition lazy٠is_unset : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     ~ lazy٠is_set "t".
 
 Definition lazy٠get : val :=
-  rec: "get" "t" =>
-    match: !"t" with
-    | Set "res" =>
+  𝗿𝗲𝗰 "get" "t" ->
+    𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
+    | Set "res" ->
         "res"
-    | Setting "mtx" =>
-        mutex٠synchronize "mtx" ;;
+    | Setting "mtx" ->
+        mutex٠synchronize "mtx" ⍮
         "get" "t"
-    | Unset "fn" as "state" =>
-        let: "mtx" := mutex٠create_lock () in
-        if: CAS "t".[contents] "state" ‘Setting( "mtx" ) then (
-          let: "res" := "fn" () in
-          "t" <- ‘Set( "res" ) ;;
-          mutex٠unlock "mtx" ;;
+    | Unset "fn" 𝗮𝘀 "state" ->
+        𝗹𝗲𝘁 "mtx" = mutex٠create_lock () 𝗶𝗻
+        𝗶𝗳
+          𝗰𝗮𝘀 "t".[contents] "state" ‘Setting( "mtx" )
+        𝘁𝗵𝗲𝗻 (
+          𝗹𝗲𝘁 "res" = "fn" () 𝗶𝗻
+          "t" <- ‘Set( "res" ) ⍮
+          mutex٠unlock "mtx" ⍮
           "res"
-        ) else (
-          mutex٠unlock "mtx" ;;
+        ) 𝗲𝗹𝘀𝗲 (
+          mutex٠unlock "mtx" ⍮
           "get" "t"
         )
-    end.
+    𝗲𝗻𝗱.

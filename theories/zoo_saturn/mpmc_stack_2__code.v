@@ -8,44 +8,44 @@ Require Import zoo_saturn.mpmc_stack_2__types.
 Require Import zoo.options.
 
 Definition mpmc_stack_2٠create : val :=
-  fun: <> =>
-    ref §ClistOpen.
+  𝗳𝘂𝗻 ⎽ ->
+    𝗿𝗲𝗳 §ClistOpen.
 
 Definition mpmc_stack_2٠push : val :=
-  rec: "push" "t" "v" =>
-    match: !"t" with
-    | ClistClosed =>
+  𝗿𝗲𝗰 "push" "t" "v" ->
+    𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
+    | ClistClosed ->
         true
-    |_ as "old" =>
-        let: "new_" := ‘ClistCons[ "v", "old" ] in
-        if: CAS "t".[contents] "old" "new_" then (
+    | ⎽ 𝗮𝘀 "old" ->
+        𝗹𝗲𝘁 "new_" = ‘ClistCons[ "v", "old" ] 𝗶𝗻
+        𝗶𝗳 𝗰𝗮𝘀 "t".[contents] "old" "new_" 𝘁𝗵𝗲𝗻 (
           false
-        ) else (
-          domain٠yield () ;;
+        ) 𝗲𝗹𝘀𝗲 (
+          domain٠yield () ⍮
           "push" "t" "v"
         )
-    end.
+    𝗲𝗻𝗱.
 
 Definition mpmc_stack_2٠pop : val :=
-  rec: "pop" "t" =>
-    match: !"t" with
-    | ClistClosed =>
+  𝗿𝗲𝗰 "pop" "t" ->
+    𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
+    | ClistClosed ->
         §Anything
-    | ClistOpen =>
+    | ClistOpen ->
         §Nothing
-    | ClistCons "v" "new_" as "old" =>
-        if: CAS "t".[contents] "old" "new_" then (
+    | ClistCons "v" "new_" 𝗮𝘀 "old" ->
+        𝗶𝗳 𝗰𝗮𝘀 "t".[contents] "old" "new_" 𝘁𝗵𝗲𝗻 (
           ‘Something( "v" )
-        ) else (
-          domain٠yield () ;;
+        ) 𝗲𝗹𝘀𝗲 (
+          domain٠yield () ⍮
           "pop" "t"
         )
-    end.
+    𝗲𝗻𝗱.
 
 Definition mpmc_stack_2٠is_closed : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     !"t" == §ClistClosed.
 
 Definition mpmc_stack_2٠close : val :=
-  fun: "t" =>
-    Xchg "t".[contents] §ClistClosed.
+  𝗳𝘂𝗻 "t" ->
+    𝘅𝗰𝗵𝗴 "t".[contents] §ClistClosed.

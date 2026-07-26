@@ -203,7 +203,7 @@ Section zoo۰G.
       wp۰apply+ wp𑁒match𑁒clist𑁒open.
       wp۰pures.
 
-      wp۰bind (CAS _ _ _).
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner)".
       destruct vs as [vs |].
 
@@ -289,7 +289,7 @@ Section zoo۰G.
 
       wp۰pures.
 
-      wp۰bind (CAS _ _ _).
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner)".
       destruct vs as [vs |].
 

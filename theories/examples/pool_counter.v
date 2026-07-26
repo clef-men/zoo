@@ -143,7 +143,7 @@ Section pool_counter۰G.
         with "[- H $Hctx]") as "(Hctx & Hpool_consumer & _)".
         { iIntros "{% ctx scope} %ctx %scope Hctx".
           wp۰pures.
-          wp۰bind (FAA _ _).
+          wp۰bind (𝗳𝗮𝗮 _ _)%E.
           iInv "Hinv" as "((:inv۰inner) & Hinv_own)".
           wp۰faa.
           iMod (tokens𑁒incr with "Htokens_auth Htokens_frag") as "($ & Htokens_frag)".

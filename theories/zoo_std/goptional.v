@@ -73,7 +73,7 @@ Section zoo۰G.
       WP e2 {{ Φ }} ∧
       ∀ v, τ v -∗ WP subst' x v e3 {{ Φ }}
     ) -∗
-    WP match: t with Gnothing => e1 | Ganything => e2 | Gsomething x => e3 end {{ Φ }}.
+    WP 𝗺𝗮𝘁𝗰𝗵 t 𝘄𝗶𝘁𝗵 Gnothing -> e1 | Ganything -> e2 | Gsomething x -> e3 𝗲𝗻𝗱 {{ Φ }}.
   Proof.
     iIntros "[-> | [-> | (%v & -> & #Hv)]] H".
     1: rewrite bi.and_elim_l.

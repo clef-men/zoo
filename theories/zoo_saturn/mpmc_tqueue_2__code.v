@@ -7,52 +7,52 @@ Require Import zoo_saturn.mpmc_tqueue_2__types.
 Require Import zoo.options.
 
 Definition mpmc_tqueue_2٠create : val :=
-  fun: "cap" =>
-    let: "data" := atomic_array٠make "cap" §Nothing in
+  𝗳𝘂𝗻 "cap" ->
+    𝗹𝗲𝘁 "data" = atomic_array٠make "cap" §Nothing 𝗶𝗻
     { "cap", "data", 0, 0 }.
 
 Definition mpmc_tqueue_2٠make : val :=
-  fun: "cap" "v" =>
-    let: "data" := atomic_array٠make "cap" §Nothing in
-    atomic_array٠unsafe_set "data" 0 ‘Something( "v" ) ;;
+  𝗳𝘂𝗻 "cap" "v" ->
+    𝗹𝗲𝘁 "data" = atomic_array٠make "cap" §Nothing 𝗶𝗻
+    atomic_array٠unsafe_set "data" 0 ‘Something( "v" ) ⍮
     { "cap", "data", 0, 1 }.
 
 Definition mpmc_tqueue_2٠is_empty : val :=
-  fun: "t" =>
-    let: "front" := "t".{front} in
-    let: "back" := "t".{back} in
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
     "back" ≤ "front".
 
 Definition mpmc_tqueue_2٠push₀ : val :=
-  rec: "push" "t" "v" =>
-    let: "i" := FAA "t".[back] 1 in
-    if: "t".{capacity} ≤ "i" then (
+  𝗿𝗲𝗰 "push" "t" "v" ->
+    𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[back] 1 𝗶𝗻
+    𝗶𝗳 "t".{capacity} ≤ "i" 𝘁𝗵𝗲𝗻 (
       false
-    ) else if:
+    ) 𝗲𝗹𝘀𝗲 𝗶𝗳
        atomic_array٠unsafe_cas "t".{data} "i" §Nothing ‘Something( "v" )
-     then (
+     𝘁𝗵𝗲𝗻 (
       true
-    ) else (
+    ) 𝗲𝗹𝘀𝗲 (
       "push" "t" "v"
     ).
 
 Definition mpmc_tqueue_2٠push : val :=
-  fun: "t" "v" =>
-    if: "t".{capacity} ≤ "t".{back} then (
+  𝗳𝘂𝗻 "t" "v" ->
+    𝗶𝗳 "t".{capacity} ≤ "t".{back} 𝘁𝗵𝗲𝗻 (
       false
-    ) else (
+    ) 𝗲𝗹𝘀𝗲 (
       mpmc_tqueue_2٠push₀ "t" "v"
     ).
 
 Definition mpmc_tqueue_2٠pop : val :=
-  fun: "t" =>
-    if: "t".{capacity} ≤ "t".{front} then (
+  𝗳𝘂𝗻 "t" ->
+    𝗶𝗳 "t".{capacity} ≤ "t".{front} 𝘁𝗵𝗲𝗻 (
       §Anything
-    ) else (
-      let: "i" := FAA "t".[front] 1 in
-      if: "t".{capacity} ≤ "i" then (
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[front] 1 𝗶𝗻
+      𝗶𝗳 "t".{capacity} ≤ "i" 𝘁𝗵𝗲𝗻 (
         §Anything
-      ) else (
+      ) 𝗲𝗹𝘀𝗲 (
         atomic_array٠unsafe_xchg "t".{data} "i" §Anything
       )
     ).

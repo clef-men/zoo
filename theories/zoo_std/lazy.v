@@ -602,7 +602,7 @@ Module base.
         wp۰apply+ (mutex٠create_lock𑁒spec𑁒init with "[//]") as (mtx) "(Hmtx_init & Hmtx_locked)".
         wp۰pures.
 
-        wp۰bind (CAS _ _ _).
+        wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
         iInv "Hinv" as "(:inv۰inner)".
         wp۰cas as Hcas.
 

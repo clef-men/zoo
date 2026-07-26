@@ -11,5 +11,5 @@ Parameter random٠bits : val.
 Parameter random٠int : val.
 
 Definition random٠int_in_range : val :=
-  fun: "lb" "ub" =>
+  𝗳𝘂𝗻 "lb" "ub" ->
     "lb" + random٠int ("ub" - "lb").

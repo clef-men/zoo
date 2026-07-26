@@ -532,7 +532,7 @@ Section bag_2۰G.
     iMod (pointsto𑁒persist with "Hnode_next") as "#Hnode_next".
     wp۰match. wp۰pures.
 
-    wp۰bind (CAS _ _ _).
+    wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
     iInv "Hinv" as "(:inv۰inner =2)".
     wp۰cas as Hcas; first iSteps.
     assert (head nodes1 = head nodes2) as ->.

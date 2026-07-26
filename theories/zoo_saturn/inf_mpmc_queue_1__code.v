@@ -9,63 +9,63 @@ Require Import zoo_saturn.inf_mpmc_queue_1__types.
 Require Import zoo.options.
 
 Definition inf_mpmc_queue_1٠create : val :=
-  fun: <> =>
+  𝗳𝘂𝗻 ⎽ ->
     { inf_array٠create §Nothing, 0, 0 }.
 
 Definition inf_mpmc_queue_1٠size : val :=
-  rec: "size" "t" =>
-    let: "front" := "t".{front} in
-    let: "proph" := Proph in
-    let: "back" := "t".{back} in
-    if:
-      (let: "@tmp" := "t".{front} in
-       Resolve Skip "proph" "@tmp" ;;
+  𝗿𝗲𝗰 "size" "t" ->
+    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    𝗹𝗲𝘁 "proph" = 𝗽𝗿𝗼𝗽𝗵 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
+    𝗶𝗳
+      (𝗹𝗲𝘁 "@tmp" = "t".{front} 𝗶𝗻
+       𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "@tmp" ⍮
        "@tmp")
       ==
       "front"
-    then (
+    𝘁𝗵𝗲𝗻 (
       int٠positive_part ("back" - "front")
-    ) else (
+    ) 𝗲𝗹𝘀𝗲 (
       "size" "t"
     ).
 
 Definition inf_mpmc_queue_1٠is_empty : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     inf_mpmc_queue_1٠size "t" == 0.
 
 Definition inf_mpmc_queue_1٠is_empty_weak : val :=
-  fun: "t" =>
-    let: "front" := "t".{front} in
-    let: "back" := "t".{back} in
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
     "back" ≤ "front".
 
 Definition inf_mpmc_queue_1٠push : val :=
-  fun: "t" "v" =>
-    let: "i" := FAA "t".[back] 1 in
+  𝗳𝘂𝗻 "t" "v" ->
+    𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[back] 1 𝗶𝗻
     inf_array٠set "t".{data} "i" ‘Something( "v" ).
 
 Definition inf_mpmc_queue_1٠pop₀ : val :=
-  rec: "pop" "t" "i" =>
-    match: inf_array٠get "t".{data} "i" with
-    | Nothing =>
-        domain٠yield () ;;
+  𝗿𝗲𝗰 "pop" "t" "i" ->
+    𝗺𝗮𝘁𝗰𝗵 inf_array٠get "t".{data} "i" 𝘄𝗶𝘁𝗵
+    | Nothing ->
+        domain٠yield () ⍮
         "pop" "t" "i"
-    | Anything =>
-        Fail
-    | Something "v" =>
-        inf_array٠set "t".{data} "i" §Anything ;;
+    | Anything ->
+        𝗳𝗮𝗶𝗹
+    | Something "v" ->
+        inf_array٠set "t".{data} "i" §Anything ⍮
         "v"
-    end.
+    𝗲𝗻𝗱.
 
 Definition inf_mpmc_queue_1٠pop : val :=
-  fun: "t" =>
-    let: "i" := FAA "t".[front] 1 in
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[front] 1 𝗶𝗻
     inf_mpmc_queue_1٠pop₀ "t" "i".
 
 Definition inf_mpmc_queue_1٠try_pop : val :=
-  fun: "t" =>
-    if: inf_mpmc_queue_1٠is_empty_weak "t" then (
+  𝗳𝘂𝗻 "t" ->
+    𝗶𝗳 inf_mpmc_queue_1٠is_empty_weak "t" 𝘁𝗵𝗲𝗻 (
       §None
-    ) else (
+    ) 𝗲𝗹𝘀𝗲 (
       ‘Some( inf_mpmc_queue_1٠pop "t" )
     ).

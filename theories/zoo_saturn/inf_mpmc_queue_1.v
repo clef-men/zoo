@@ -710,7 +710,7 @@ Module base.
 
       wp۰rec. wp۰pures.
 
-      wp۰bind (FAA _ _).
+      wp۰bind (𝗳𝗮𝗮 _ _)%E.
       wp۰apply (wp𑁒wand (λ res,
         ∃ back,
         ⌜res = #back⌝ ∗
@@ -860,7 +860,7 @@ Module base.
 
       wp۰rec. wp۰pures.
 
-      wp۰bind (FAA _ _).
+      wp۰bind (𝗳𝗮𝗮 _ _)%E.
       wp۰apply (wp𑁒wand (λ res,
         ∃ front,
         ⌜res = #front⌝ ∗

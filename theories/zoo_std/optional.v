@@ -94,7 +94,7 @@ Section zoo۰G.
       WP e2 {{ Φ }} ∧
       ∀ v, τ v -∗ WP subst' x v e3 {{ Φ }}
     ) -∗
-    WP match: t with Nothing => e1 | Anything => e2 | Something x => e3 end {{ Φ }}.
+    WP 𝗺𝗮𝘁𝗰𝗵 t 𝘄𝗶𝘁𝗵 Nothing -> e1 | Anything -> e2 | Something x -> e3 𝗲𝗻𝗱 {{ Φ }}.
   Proof.
     iIntros "[-> | [-> | (%v & -> & #Hv)]] H".
     1: rewrite bi.and_elim_l.

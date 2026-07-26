@@ -5,21 +5,21 @@ Require Import zoo_std.int__types.
 Require Import zoo.options.
 
 Definition int٠min : val :=
-  fun: "n1" "n2" =>
-    if: "n1" < "n2" then (
+  𝗳𝘂𝗻 "n1" "n2" ->
+    𝗶𝗳 "n1" < "n2" 𝘁𝗵𝗲𝗻 (
       "n1"
-    ) else (
+    ) 𝗲𝗹𝘀𝗲 (
       "n2"
     ).
 
 Definition int٠max : val :=
-  fun: "n1" "n2" =>
-    if: "n1" < "n2" then (
+  𝗳𝘂𝗻 "n1" "n2" ->
+    𝗶𝗳 "n1" < "n2" 𝘁𝗵𝗲𝗻 (
       "n2"
-    ) else (
+    ) 𝗲𝗹𝘀𝗲 (
       "n1"
     ).
 
 Definition int٠positive_part : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     int٠max 0 "t".

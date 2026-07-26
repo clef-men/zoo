@@ -1935,7 +1935,7 @@ Module base.
 
       wp۰pures.
 
-      wp۰bind (if: _ then _ else _)%E.
+      wp۰bind (𝗶𝗳 _ 𝘁𝗵𝗲𝗻 _ 𝗲𝗹𝘀𝗲 _)%E.
       wp۰apply (wp𑁒wand (λ _,
         ∃ data cap us,
         ⌜back < front1 + cap⌝ ∗
@@ -2184,7 +2184,7 @@ Module base.
           rewrite ws_deque_1٠min_capacity𑁒unfold.
           wp۰pures.
 
-          wp۰bind (if: _ then _ else _)%E.
+          wp۰bind (𝗶𝗳 _ 𝘁𝗵𝗲𝗻 _ 𝗲𝗹𝘀𝗲 _)%E.
           wp۰apply (wp𑁒wand (λ _,
             array۰cslice data cap back (DfracOwn (1/2)) us ∗
             ( array۰cslice data cap back (DfracOwn (1/2)) us -∗

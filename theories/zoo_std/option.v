@@ -53,7 +53,7 @@ Section zoo۰G.
     ( WP e1 {{ Φ }} ∧
       ∀ v, τ v -∗ WP subst' x v e2 {{ Φ }}
     ) -∗
-    WP match: t with None => e1 | Some x => e2 end {{ Φ }}.
+    WP 𝗺𝗮𝘁𝗰𝗵 t 𝘄𝗶𝘁𝗵 None -> e1 | Some x -> e2 𝗲𝗻𝗱 {{ Φ }}.
   Proof.
     iIntros "[-> | (%v & -> & #Hv)] H";
       [rewrite bi.and_elim_l | rewrite bi.and_elim_r];

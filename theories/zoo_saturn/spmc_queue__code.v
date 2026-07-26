@@ -6,45 +6,47 @@ Require Import zoo_saturn.spmc_queue__types.
 Require Import zoo.options.
 
 Definition spmc_queue٠create : val :=
-  fun: <> =>
-    let: "front" := ‘Node{ §Null, () } in
+  𝗳𝘂𝗻 ⎽ ->
+    𝗹𝗲𝘁 "front" = ‘Node{ §Null, () } 𝗶𝗻
     { "front", "front" }.
 
 Definition spmc_queue٠is_empty : val :=
-  fun: "t" =>
-    match: "t".{front} with
-    | Node <> <> as "front_r" =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 "t".{front} 𝘄𝗶𝘁𝗵
+    | Node ⎽ ⎽ 𝗮𝘀 "front_r" ->
         "front_r".{next} == §Null
-    end.
+    𝗲𝗻𝗱.
 
 Definition spmc_queue٠push : val :=
-  fun: "t" "v" =>
-    match: ‘Node{ §Null, "v" } with
-    | Node <> <> as "new_back" =>
-        match: "t".{back} with
-        | Node <> <> as "back_r" =>
-            "back_r" <-{next} "new_back" ;;
+  𝗳𝘂𝗻 "t" "v" ->
+    𝗺𝗮𝘁𝗰𝗵 ‘Node{ §Null, "v" } 𝘄𝗶𝘁𝗵
+    | Node ⎽ ⎽ 𝗮𝘀 "new_back" ->
+        𝗺𝗮𝘁𝗰𝗵 "t".{back} 𝘄𝗶𝘁𝗵
+        | Node ⎽ ⎽ 𝗮𝘀 "back_r" ->
+            "back_r" <-{next} "new_back" ⍮
             "t" <-{back} "new_back"
-        end
-    end.
+        𝗲𝗻𝗱
+    𝗲𝗻𝗱.
 
 Definition spmc_queue٠pop : val :=
-  rec: "pop" "t" =>
-    match: "t".{front} with
-    | Node <> <> as "front" =>
-        let: "front_r" := "front" in
-        match: "front_r".{next} with
-        | Null =>
+  𝗿𝗲𝗰 "pop" "t" ->
+    𝗺𝗮𝘁𝗰𝗵 "t".{front} 𝘄𝗶𝘁𝗵
+    | Node ⎽ ⎽ 𝗮𝘀 "front" ->
+        𝗹𝗲𝘁 "front_r" = "front" 𝗶𝗻
+        𝗺𝗮𝘁𝗰𝗵 "front_r".{next} 𝘄𝗶𝘁𝗵
+        | Null ->
             §None
-        | Node <> <> as "new_front" =>
-            let: "new_front_r" := "new_front" in
-            if: CAS "t".[front] "front" "new_front" then (
-              let: "v" := "new_front_r".{data} in
-              "new_front_r" <-{data} () ;;
+        | Node ⎽ ⎽ 𝗮𝘀 "new_front" ->
+            𝗹𝗲𝘁 "new_front_r" = "new_front" 𝗶𝗻
+            𝗶𝗳
+              𝗰𝗮𝘀 "t".[front] "front" "new_front"
+            𝘁𝗵𝗲𝗻 (
+              𝗹𝗲𝘁 "v" = "new_front_r".{data} 𝗶𝗻
+              "new_front_r" <-{data} () ⍮
               ‘Some( "v" )
-            ) else (
-              domain٠yield () ;;
+            ) 𝗲𝗹𝘀𝗲 (
+              domain٠yield () ⍮
               "pop" "t"
             )
-        end
-    end.
+        𝗲𝗻𝗱
+    𝗲𝗻𝗱.

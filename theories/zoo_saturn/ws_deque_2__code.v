@@ -15,27 +15,27 @@ Definition ws_deque_2٠is_empty : val :=
   ws_deque_1٠is_empty.
 
 Definition ws_deque_2٠push : val :=
-  fun: "t" "v" =>
-    ws_deque_1٠push "t" (ref "v").
+  𝗳𝘂𝗻 "t" "v" ->
+    ws_deque_1٠push "t" (𝗿𝗲𝗳 "v").
 
 Definition ws_deque_2٠steal : val :=
-  fun: "t" =>
-    match: ws_deque_1٠steal "t" with
-    | None =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 ws_deque_1٠steal "t" 𝘄𝗶𝘁𝗵
+    | None ->
         §None
-    | Some "slot" =>
-        let: "v" := !"slot" in
-        "slot" <- () ;;
+    | Some "slot" ->
+        𝗹𝗲𝘁 "v" = !"slot" 𝗶𝗻
+        "slot" <- () ⍮
         ‘Some( "v" )
-    end.
+    𝗲𝗻𝗱.
 
 Definition ws_deque_2٠pop : val :=
-  fun: "t" =>
-    match: ws_deque_1٠pop "t" with
-    | None =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 ws_deque_1٠pop "t" 𝘄𝗶𝘁𝗵
+    | None ->
         §None
-    | Some "slot" =>
-        let: "v" := !"slot" in
-        "slot" <- () ;;
+    | Some "slot" ->
+        𝗹𝗲𝘁 "v" = !"slot" 𝗶𝗻
+        "slot" <- () ⍮
         ‘Some( "v" )
-    end.
+    𝗲𝗻𝗱.

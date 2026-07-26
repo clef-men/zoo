@@ -6,42 +6,44 @@ Require Import zoo_saturn.mpmc_bstack__types.
 Require Import zoo.options.
 
 Definition mpmc_bstack٠create : val :=
-  fun: "cap" =>
+  𝗳𝘂𝗻 "cap" ->
     { "cap", §Nil }.
 
 Definition mpmc_bstack٠size : val :=
-  fun: "t" =>
-    match: "t".{front} with
-    | Nil =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 "t".{front} 𝘄𝗶𝘁𝗵
+    | Nil ->
         0
-    | Cons "sz" <> <> =>
+    | Cons "sz" ⎽ ⎽ ->
         "sz"
-    end.
+    𝗲𝗻𝗱.
 
 Definition mpmc_bstack٠is_empty : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t".{front} == §Nil.
 
 #[local] Definition __zoo_recs_0 :=
-  ( recs: "push_aux" "t" "sz" "v" "front" =>
-      let: "new_front" := ‘Cons[ "sz" + 1, "v", "front" ] in
-      if: CAS "t".[front] "front" "new_front" then (
+  ( 𝗿𝗲𝗰𝘀 "push_aux" "t" "sz" "v" "front" ->
+      𝗹𝗲𝘁 "new_front" = ‘Cons[ "sz" + 1, "v", "front" ] 𝗶𝗻
+      𝗶𝗳
+        𝗰𝗮𝘀 "t".[front] "front" "new_front"
+      𝘁𝗵𝗲𝗻 (
         true
-      ) else (
-        domain٠yield () ;;
+      ) 𝗲𝗹𝘀𝗲 (
+        domain٠yield () ⍮
         "push" "t" "v"
       )
-    and: "push" "t" "v" =>
-      match: "t".{front} with
-      | Nil =>
+    𝘄𝗶𝘁𝗵 "push" "t" "v" ->
+      𝗺𝗮𝘁𝗰𝗵 "t".{front} 𝘄𝗶𝘁𝗵
+      | Nil ->
           "push_aux" "t" 0 "v" §Nil
-      | Cons "sz" <> <> as "front" =>
-          if: "t".{capacity} ≤ "sz" then (
+      | Cons "sz" ⎽ ⎽ 𝗮𝘀 "front" ->
+          𝗶𝗳 "t".{capacity} ≤ "sz" 𝘁𝗵𝗲𝗻 (
             false
-          ) else (
+          ) 𝗲𝗹𝘀𝗲 (
             "push_aux" "t" "sz" "v" "front"
           )
-      end
+      𝗲𝗻𝗱
   )%zoo_recs.
 Definition mpmc_bstack٠push_aux :=
   ValRecs 0 __zoo_recs_0.
@@ -65,15 +67,17 @@ Proof.
 Qed.
 
 Definition mpmc_bstack٠pop : val :=
-  rec: "pop" "t" =>
-    match: "t".{front} with
-    | Nil =>
+  𝗿𝗲𝗰 "pop" "t" ->
+    𝗺𝗮𝘁𝗰𝗵 "t".{front} 𝘄𝗶𝘁𝗵
+    | Nil ->
         §None
-    | Cons <> "v" "new_front" as "front" =>
-        if: CAS "t".[front] "front" "new_front" then (
+    | Cons ⎽ "v" "new_front" 𝗮𝘀 "front" ->
+        𝗶𝗳
+          𝗰𝗮𝘀 "t".[front] "front" "new_front"
+        𝘁𝗵𝗲𝗻 (
           ‘Some( "v" )
-        ) else (
-          domain٠yield () ;;
+        ) 𝗲𝗹𝘀𝗲 (
+          domain٠yield () ⍮
           "pop" "t"
         )
-    end.
+    𝗲𝗻𝗱.

@@ -981,7 +981,7 @@ Section zoo۰G.
     ( WP e1 {{ Φ }} ∧
       ∀ elem, itype۰element elem -∗ WP subst' x #elem e2 {{ Φ }}
     ) -∗
-    WP match: slot with Empty => e1 | Element <> as: x => e2 end {{ Φ }}.
+    WP 𝗺𝗮𝘁𝗰𝗵 slot 𝘄𝗶𝘁𝗵 Empty -> e1 | Element ⎽ 𝗮𝘀: x -> e2 𝗲𝗻𝗱 {{ Φ }}.
   Proof.
     iIntros "[-> | (%elem & -> & Helem_header & #Hinv)] H".
     1: rewrite bi.and_elim_l.

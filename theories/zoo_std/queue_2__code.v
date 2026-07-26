@@ -5,35 +5,35 @@ Require Import zoo_std.queue_2__types.
 Require Import zoo.options.
 
 Definition queue_2٠create : val :=
-  fun: <> =>
-    let: "front" := ‘Node{ §Null, () } in
+  𝗳𝘂𝗻 ⎽ ->
+    𝗹𝗲𝘁 "front" = ‘Node{ §Null, () } 𝗶𝗻
     { "front", "front" }.
 
 Definition queue_2٠is_empty : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t".{front} == "t".{back}.
 
 Definition queue_2٠push : val :=
-  fun: "t" "v" =>
-    match: ‘Node{ §Null, () } with
-    | Node <> <> as "new_back" =>
-        match: "t".{back} with
-        | Node <> <> as "back_r" =>
-            "back_r" <-{next} "new_back" ;;
-            "back_r" <-{data} "v" ;;
+  𝗳𝘂𝗻 "t" "v" ->
+    𝗺𝗮𝘁𝗰𝗵 ‘Node{ §Null, () } 𝘄𝗶𝘁𝗵
+    | Node ⎽ ⎽ 𝗮𝘀 "new_back" ->
+        𝗺𝗮𝘁𝗰𝗵 "t".{back} 𝘄𝗶𝘁𝗵
+        | Node ⎽ ⎽ 𝗮𝘀 "back_r" ->
+            "back_r" <-{next} "new_back" ⍮
+            "back_r" <-{data} "v" ⍮
             "t" <-{back} "new_back"
-        end
-    end.
+        𝗲𝗻𝗱
+    𝗲𝗻𝗱.
 
 Definition queue_2٠pop : val :=
-  fun: "t" =>
-    match: "t".{front} with
-    | Node <> <> as "front_r" =>
-        match: "front_r".{next} with
-        | Null =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 "t".{front} 𝘄𝗶𝘁𝗵
+    | Node ⎽ ⎽ 𝗮𝘀 "front_r" ->
+        𝗺𝗮𝘁𝗰𝗵 "front_r".{next} 𝘄𝗶𝘁𝗵
+        | Null ->
             §None
-        | Node <> <> as "next" =>
-            "t" <-{front} "next" ;;
+        | Node ⎽ ⎽ 𝗮𝘀 "next" ->
+            "t" <-{front} "next" ⍮
             ‘Some( "front_r".{data} )
-        end
-    end.
+        𝗲𝗻𝗱
+    𝗲𝗻𝗱.

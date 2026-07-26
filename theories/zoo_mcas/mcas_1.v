@@ -1325,7 +1325,7 @@ Section mcas_1۰G.
       wp۰apply+ (mcas_1٠status_to_bool𑁒spec with "[//]") as "_".
       wp۰load. wp۰pures.
 
-      wp۰bind (Resolve _ _ _).
+      wp۰bind (𝗿𝗲𝘀𝗼𝗹𝘃𝗲 _ _ _)%E.
       wp۰apply (wp𑁒wand (λ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -1461,7 +1461,7 @@ Section mcas_1۰G.
           iSteps.
       }
 
-      wp۰bind (if: _ then _ else _)%E.
+      wp۰bind (𝗶𝗳 _ 𝘁𝗵𝗲𝗻 _ 𝗲𝗹𝘀𝗲 _)%E.
       wp۰apply (wp𑁒wand itype۰unit with "[- HΦ]") as (res) "->".
       { destruct b; last iSteps.
         wp۰apply+ (mcas_1٠clear𑁒spec with "[$Hcasn_inv' $Hlstatus_lb]"); first auto.
@@ -1821,7 +1821,7 @@ Section mcas_1۰G.
 
             wp۰pures.
 
-            wp۰bind (CAS _ _ _).
+            wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
             iInv "Hloc_inv" as "(:loc۰inv۰inner > =3)".
             wp۰cas as _ | [= Hcas].
 
@@ -1929,7 +1929,7 @@ Section mcas_1۰G.
 
             wp۰pures.
 
-            wp۰bind (CAS _ _ _).
+            wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
             iInv "Hloc_inv" as "(:loc۰inv۰inner > =3)".
             wp۰cas as _ | [= Hcas].
 

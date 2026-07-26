@@ -1004,7 +1004,7 @@ Module base.
       wp۰apply+ (wp𑁒id with "[//]") as (id) "Hid".
       wp۰pures.
 
-      wp۰bind (FAA _ _).
+      wp۰bind (𝗳𝗮𝗮 _ _)%E.
       iInv "Hinv" as "(:inv۰inner =1)".
       wp۰faa.
       iMod (producers𑁒update with "Hproducers_auth") as "(Hproducers_auth & Hproducers_at)".
@@ -1248,7 +1248,7 @@ Module base.
       wp۰apply+ (wp𑁒id with "[//]") as (id) "Hid".
       wp۰pures.
 
-      wp۰bind (FAA _ _).
+      wp۰bind (𝗳𝗮𝗮 _ _)%E.
       iInv "Hinv" as "(:inv۰inner =1)".
       wp۰faa.
       iDestruct (prophet_multi۰full𑁒get' _ front1 with "Hprophet_model") as "(%prophs & #Hprophet_full)".

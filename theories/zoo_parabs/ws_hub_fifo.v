@@ -784,7 +784,7 @@ Section ws_hub_fifo۰G.
     - wp۰load.
       wp۰apply (waiters٠cancel_wait𑁒spec with "Hwaiters_inv") as (b) "_". 1: done.
 
-      wp۰bind (if: _ then _ else _)%E.
+      wp۰bind (𝗶𝗳 _ 𝘁𝗵𝗲𝗻 _ 𝗲𝗹𝘀𝗲 _)%E.
       wp۰apply (wp𑁒wand itype۰unit) as (res) "->".
       { destruct b; wp۰pures. 1: iSteps.
         wp۰load.

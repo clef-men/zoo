@@ -7,21 +7,21 @@ Require Import examples.future_fibonacci__types.
 Require Import zoo.options.
 
 Definition future_fibonacci٠main₀ : val :=
-  rec: "main" "ctx" "n" =>
-    if: "n" ≤ 1 then (
+  𝗿𝗲𝗰 "main" "ctx" "n" ->
+    𝗶𝗳 "n" ≤ 1 𝘁𝗵𝗲𝗻 (
       "n"
-    ) else (
-      let: "fut1" :=
-        future٠async "ctx" (fun: "ctx" => "main" "ctx" ("n" - 1))
-      in
-      let: "fut2" :=
-        future٠async "ctx" (fun: "ctx" => "main" "ctx" ("n" - 2))
-      in
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "fut1" =
+        future٠async "ctx" (𝗳𝘂𝗻 "ctx" -> "main" "ctx" ("n" - 1))
+      𝗶𝗻
+      𝗹𝗲𝘁 "fut2" =
+        future٠async "ctx" (𝗳𝘂𝗻 "ctx" -> "main" "ctx" ("n" - 2))
+      𝗶𝗻
       future٠wait "ctx" "fut1" + future٠wait "ctx" "fut2"
     ).
 
 Definition future_fibonacci٠main : val :=
-  fun: "num_worker" "n" =>
+  𝗳𝘂𝗻 "num_worker" "n" ->
     pool٠run
       "num_worker"
-      (fun: "ctx" => future_fibonacci٠main₀ "ctx" "n").
+      (𝗳𝘂𝗻 "ctx" -> future_fibonacci٠main₀ "ctx" "n").

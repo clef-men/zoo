@@ -7,24 +7,24 @@ Require Import zoo_std.random_round__types.
 Require Import zoo.options.
 
 Definition random_round٠create : val :=
-  fun: "sz" =>
+  𝗳𝘂𝗻 "sz" ->
     { random_state٠create (),
-      array٠unsafe_initi "sz" (fun: "i" => "i"),
+      array٠unsafe_initi "sz" (𝗳𝘂𝗻 "i" -> "i"),
       "sz"
     }.
 
 Definition random_round٠reset : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t" <-{index} array٠size "t".{array}.
 
 Definition random_round٠next : val :=
-  fun: "t" =>
-    let: "arr" := "t".{array} in
-    let: "i" := "t".{index} in
-    let: "j" := random_state٠int "t".{random} "i" in
-    let: "res" := array٠unsafe_get "arr" "j" in
-    let: "i" := "i" - 1 in
-    array٠unsafe_set "arr" "j" (array٠unsafe_get "arr" "i") ;;
-    array٠unsafe_set "arr" "i" "res" ;;
-    "t" <-{index} "i" ;;
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "arr" = "t".{array} 𝗶𝗻
+    𝗹𝗲𝘁 "i" = "t".{index} 𝗶𝗻
+    𝗹𝗲𝘁 "j" = random_state٠int "t".{random} "i" 𝗶𝗻
+    𝗹𝗲𝘁 "res" = array٠unsafe_get "arr" "j" 𝗶𝗻
+    𝗹𝗲𝘁 "i" = "i" - 1 𝗶𝗻
+    array٠unsafe_set "arr" "j" (array٠unsafe_get "arr" "i") ⍮
+    array٠unsafe_set "arr" "i" "res" ⍮
+    "t" <-{index} "i" ⍮
     "res".

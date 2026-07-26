@@ -6,13 +6,15 @@ Require Import examples.pool_counter__types.
 Require Import zoo.options.
 
 Definition pool_counter٠main : val :=
-  fun: "num_worker" "n" =>
-    let: "cnt" := ref 0 in
+  𝗳𝘂𝗻 "num_worker" "n" ->
+    𝗹𝗲𝘁 "cnt" = 𝗿𝗲𝗳 0 𝗶𝗻
     pool٠run
       "num_worker"
-      (fun: "ctx" =>
-         for: <> := 0 to "n" begin
-           pool٠async "ctx" (fun: "_ctx" => FAA "cnt".[contents] 1 ;;
-                                             ())
-         end) ;;
+      (𝗳𝘂𝗻 "ctx" ->
+         𝗳𝗼𝗿 ⎽ = 0 𝘁𝗼 "n" 𝗱𝗼
+           pool٠async
+             "ctx"
+             (𝗳𝘂𝗻 "_ctx" -> 𝗳𝗮𝗮 "cnt".[contents] 1 ⍮
+                                     ())
+         𝗱𝗼𝗻𝗲) ⍮
     !"cnt".

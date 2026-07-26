@@ -8,93 +8,95 @@ Require Import zoo_saturn.ws_bdeque_1__types.
 Require Import zoo.options.
 
 Definition ws_bdeque_1٠create : val :=
-  fun: "cap" =>
-    { "cap", 1, 1, 1, array٠unsafe_make "cap" (), Proph }.
+  𝗳𝘂𝗻 "cap" ->
+    { "cap", 1, 1, 1, array٠unsafe_make "cap" (), 𝗽𝗿𝗼𝗽𝗵 }.
 
 Definition ws_bdeque_1٠capacity : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t".{capacity}.
 
 Definition ws_bdeque_1٠size : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t".{back} - "t".{front}.
 
 Definition ws_bdeque_1٠is_empty : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     ws_bdeque_1٠size "t" == 0.
 
 Definition ws_bdeque_1٠front_cached : val :=
-  fun: "t" =>
-    let: "front" := "t".{front} in
-    "t" <-{front_cache} "front" ;;
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    "t" <-{front_cache} "front" ⍮
     "front".
 
 Definition ws_bdeque_1٠push : val :=
-  fun: "t" "v" =>
-    let: "back" := "t".{back} in
-    let: "data" := "t".{data} in
-    let: "cap" := array٠size "data" in
-    let: "front" := "t".{front_cache} in
-    if:
-      "back" < "front" + "cap" or "front" < ws_bdeque_1٠front_cached "t"
-    then (
-      array٠unsafe_cset "data" "back" "v" ;;
-      "t" <-{back} "back" + 1 ;;
+  𝗳𝘂𝗻 "t" "v" ->
+    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
+    𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+    𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
+    𝗹𝗲𝘁 "front" = "t".{front_cache} 𝗶𝗻
+    𝗶𝗳
+      "back" < "front" + "cap"
+      𝗼𝗿
+      "front" < ws_bdeque_1٠front_cached "t"
+    𝘁𝗵𝗲𝗻 (
+      array٠unsafe_cset "data" "back" "v" ⍮
+      "t" <-{back} "back" + 1 ⍮
       true
-    ) else (
+    ) 𝗲𝗹𝘀𝗲 (
       false
     ).
 
 Definition ws_bdeque_1٠steal : val :=
-  rec: "steal" "t" =>
-    let: "id" := Id in
-    let: "front" := "t".{front} in
-    let: "back" := "t".{back} in
-    if: "back" ≤ "front" then (
+  𝗿𝗲𝗰 "steal" "t" ->
+    𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
+    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
+    𝗶𝗳 "back" ≤ "front" 𝘁𝗵𝗲𝗻 (
       §None
-    ) else (
-      let: "data" := "t".{data} in
-      let: "v" := array٠unsafe_cget "data" "front" in
-      if:
-        Resolve
-          (CAS "t".[front] "front" ("front" + 1))
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+      𝗹𝗲𝘁 "v" = array٠unsafe_cget "data" "front" 𝗶𝗻
+      𝗶𝗳
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲
+          (𝗰𝗮𝘀 "t".[front] "front" ("front" + 1))
           "t".{proph}
           ("front", "id")
-      then (
+      𝘁𝗵𝗲𝗻 (
         ‘Some( "v" )
-      ) else (
-        domain٠yield () ;;
+      ) 𝗲𝗹𝘀𝗲 (
+        domain٠yield () ⍮
         "steal" "t"
       )
     ).
 
 Definition ws_bdeque_1٠pop₀ : val :=
-  fun: "t" "id" "back" =>
-    let: "front" := "t".{front} in
-    if: "back" < "front" then (
-      "t" <-{back} "front" ;;
+  𝗳𝘂𝗻 "t" "id" "back" ->
+    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    𝗶𝗳 "back" < "front" 𝘁𝗵𝗲𝗻 (
+      "t" <-{back} "front" ⍮
       §None
-    ) else if: "front" < "back" then (
+    ) 𝗲𝗹𝘀𝗲 𝗶𝗳 "front" < "back" 𝘁𝗵𝗲𝗻 (
       ‘Some( array٠unsafe_cget "t".{data} "back" )
-    ) else (
-      "t" <-{front_cache} "front" + 1 ;;
-      let: "won" :=
-        Resolve
-          (CAS "t".[front] "front" ("front" + 1))
+    ) 𝗲𝗹𝘀𝗲 (
+      "t" <-{front_cache} "front" + 1 ⍮
+      𝗹𝗲𝘁 "won" =
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲
+          (𝗰𝗮𝘀 "t".[front] "front" ("front" + 1))
           "t".{proph}
           ("front", "id")
-      in
-      "t" <-{back} "front" + 1 ;;
-      if: "won" then (
+      𝗶𝗻
+      "t" <-{back} "front" + 1 ⍮
+      𝗶𝗳 "won" 𝘁𝗵𝗲𝗻 (
         ‘Some( array٠unsafe_cget "t".{data} "front" )
-      ) else (
+      ) 𝗲𝗹𝘀𝗲 (
         §None
       )
     ).
 
 Definition ws_bdeque_1٠pop : val :=
-  fun: "t" =>
-    let: "id" := Id in
-    let: "back" := "t".{back} - 1 in
-    "t" <-{back} "back" ;;
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{back} - 1 𝗶𝗻
+    "t" <-{back} "back" ⍮
     ws_bdeque_1٠pop₀ "t" "id" "back".

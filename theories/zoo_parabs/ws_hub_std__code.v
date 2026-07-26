@@ -12,155 +12,163 @@ Require Import zoo_parabs.ws_hub_std__types.
 Require Import zoo.options.
 
 Definition ws_hub_std٠create : val :=
-  fun: "sz" =>
+  𝗳𝘂𝗻 "sz" ->
     { ws_deques_public٠create "sz",
       array٠unsafe_init
         "sz"
-        (fun: <> => random_round٠create (int٠positive_part ("sz" - 1))),
+        (𝗳𝘂𝗻 ⎽ ->
+           random_round٠create (int٠positive_part ("sz" - 1))),
       waiters٠create "sz",
       "sz" + 1
     }.
 
 Definition ws_hub_std٠size : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     array٠size "t".{rounds}.
 
 Definition ws_hub_std٠begin_inactive : val :=
-  fun: "t" =>
-    FAA "t".[num_active] (-1) ;;
+  𝗳𝘂𝗻 "t" ->
+    𝗳𝗮𝗮 "t".[num_active] (-1) ⍮
     ().
 
 Definition ws_hub_std٠end_inactive : val :=
-  fun: "t" =>
-    FAA "t".[num_active] 1 ;;
+  𝗳𝘂𝗻 "t" ->
+    𝗳𝗮𝗮 "t".[num_active] 1 ⍮
     ().
 
 Definition ws_hub_std٠block_active : val :=
-  fun: "t" "i" =>
+  𝗳𝘂𝗻 "t" "i" ->
     ws_deques_public٠block "t".{deques} "i".
 
 Definition ws_hub_std٠unblock_active : val :=
-  fun: "t" "i" =>
+  𝗳𝘂𝗻 "t" "i" ->
     ws_deques_public٠unblock "t".{deques} "i".
 
 Definition ws_hub_std٠block : val :=
-  fun: "t" "i" =>
-    ws_hub_std٠begin_inactive "t" ;;
+  𝗳𝘂𝗻 "t" "i" ->
+    ws_hub_std٠begin_inactive "t" ⍮
     ws_hub_std٠block_active "t" "i".
 
 Definition ws_hub_std٠unblock : val :=
-  fun: "t" "i" =>
-    ws_hub_std٠unblock_active "t" "i" ;;
+  𝗳𝘂𝗻 "t" "i" ->
+    ws_hub_std٠unblock_active "t" "i" ⍮
     ws_hub_std٠end_inactive "t".
 
 Definition ws_hub_std٠closed : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t".{num_active} == 0.
 
 Definition ws_hub_std٠notify : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     waiters٠notify_one "t".{waiters}.
 
 Definition ws_hub_std٠notify_all : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     waiters٠notify_all "t".{waiters}.
 
 Definition ws_hub_std٠push : val :=
-  fun: "t" "i" "v" =>
-    ws_deques_public٠push "t".{deques} "i" "v" ;;
+  𝗳𝘂𝗻 "t" "i" "v" ->
+    ws_deques_public٠push "t".{deques} "i" "v" ⍮
     ws_hub_std٠notify "t".
 
 Definition ws_hub_std٠pop : val :=
-  fun: "t" "i" =>
+  𝗳𝘂𝗻 "t" "i" ->
     ws_deques_public٠pop "t".{deques} "i".
 
 Definition ws_hub_std٠try_steal_once : val :=
-  fun: "t" "i" =>
-    let: "round" := array٠unsafe_get "t".{rounds} "i" in
-    random_round٠reset "round" ;;
+  𝗳𝘂𝗻 "t" "i" ->
+    𝗹𝗲𝘁 "round" = array٠unsafe_get "t".{rounds} "i" 𝗶𝗻
+    random_round٠reset "round" ⍮
     ws_deques_public٠steal_as "t".{deques} "i" "round".
 
 Definition ws_hub_std٠try_steal₀ : val :=
-  rec: "try_steal" "t" "i" "yield" "max_round" "pred" =>
-    if: "max_round" ≤ 0 then (
+  𝗿𝗲𝗰 "try_steal" "t" "i" "yield" "max_round" "pred" ->
+    𝗶𝗳 "max_round" ≤ 0 𝘁𝗵𝗲𝗻 (
       §Nothing
-    ) else (
-      match: ws_hub_std٠try_steal_once "t" "i" with
-      | Some "v" =>
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗺𝗮𝘁𝗰𝗵
+        ws_hub_std٠try_steal_once "t" "i"
+      𝘄𝗶𝘁𝗵
+      | Some "v" ->
           ‘Something( "v" )
-      | None =>
-          if: "pred" () then (
+      | None ->
+          𝗶𝗳 "pred" () 𝘁𝗵𝗲𝗻 (
             §Anything
-          ) else (
-            if: "yield" then (
+          ) 𝗲𝗹𝘀𝗲 (
+            𝗶𝗳 "yield" 𝘁𝗵𝗲𝗻 (
               domain٠yield ()
-            ) else (
+            ) 𝗲𝗹𝘀𝗲 (
               ()
-            ) ;;
+            ) ⍮
             "try_steal" "t" "i" "yield" ("max_round" - 1) "pred"
           )
-      end
+      𝗲𝗻𝗱
     ).
 
 Definition ws_hub_std٠try_steal : val :=
-  fun: "t" "i" "max_round_noyield" "max_round_yield" "pred" =>
-    match:
+  𝗳𝘂𝗻 "t" "i" "max_round_noyield" "max_round_yield" "pred" ->
+    𝗺𝗮𝘁𝗰𝗵
       ws_hub_std٠try_steal₀ "t" "i" false "max_round_noyield" "pred"
-    with
-    | Something <> as "res" =>
+    𝘄𝗶𝘁𝗵
+    | Something ⎽ 𝗮𝘀 "res" ->
         "res"
-    | Anything =>
+    | Anything ->
         §Anything
-    | Nothing =>
+    | Nothing ->
         ws_hub_std٠try_steal₀ "t" "i" true "max_round_yield" "pred"
-    end.
+    𝗲𝗻𝗱.
 
 Definition ws_hub_std٠steal_aux : val :=
-  rec: "steal_aux" "t" "i" "max_round_noyield" "max_round_yield" "notification" "pred" =>
-    match:
+  𝗿𝗲𝗰 "steal_aux" "t" "i" "max_round_noyield" "max_round_yield" "notification" "pred" ->
+    𝗺𝗮𝘁𝗰𝗵
       ws_hub_std٠try_steal
         "t"
         "i"
         "max_round_noyield"
         "max_round_yield"
         "pred"
-    with
-    | Something "v" =>
+    𝘄𝗶𝘁𝗵
+    | Something "v" ->
         ‘Some( "v" )
-    | Anything =>
+    | Anything ->
         §None
-    | Nothing =>
-        waiters٠prepare_wait "t".{waiters} "i" ;;
-        match: ws_hub_std٠try_steal_once "t" "i" with
-        | Some <> as "res" =>
-            waiters٠cancel_wait "t".{waiters} "i" ;;
+    | Nothing ->
+        waiters٠prepare_wait "t".{waiters} "i" ⍮
+        𝗺𝗮𝘁𝗰𝗵
+          ws_hub_std٠try_steal_once "t" "i"
+        𝘄𝗶𝘁𝗵
+        | Some ⎽ 𝗮𝘀 "res" ->
+            waiters٠cancel_wait "t".{waiters} "i" ⍮
             "res"
-        | None =>
-            "notification" (fun: <> => waiters٠notify "t".{waiters} "i") ;;
-            if: "pred" () then (
-              if: ~ waiters٠cancel_wait "t".{waiters} "i" then (
+        | None ->
+            "notification"
+              (𝗳𝘂𝗻 ⎽ -> waiters٠notify "t".{waiters} "i") ⍮
+            𝗶𝗳 "pred" () 𝘁𝗵𝗲𝗻 (
+              𝗶𝗳
+                ~ waiters٠cancel_wait "t".{waiters} "i"
+              𝘁𝗵𝗲𝗻 (
                 waiters٠notify_one "t".{waiters}
-              ) else (
+              ) 𝗲𝗹𝘀𝗲 (
                 ()
-              ) ;;
+              ) ⍮
               §None
-            ) else (
-              waiters٠commit_wait "t".{waiters} "i" ;;
+            ) 𝗲𝗹𝘀𝗲 (
+              waiters٠commit_wait "t".{waiters} "i" ⍮
               "steal_aux"
                 "t"
                 "i"
                 "max_round_noyield"
                 "max_round_yield"
-                (fun: <> => ())
+                (𝗳𝘂𝗻 ⎽ -> ())
                 "pred"
             )
-        end
-    end.
+        𝗲𝗻𝗱
+    𝗲𝗻𝗱.
 
 Definition ws_hub_std٠steal_until : val :=
-  fun: "t" "i" "max_round_noyield" "max_round_yield" "notification" "pred" =>
-    ws_hub_std٠block_active "t" "i" ;;
-    let: "res" :=
+  𝗳𝘂𝗻 "t" "i" "max_round_noyield" "max_round_yield" "notification" "pred" ->
+    ws_hub_std٠block_active "t" "i" ⍮
+    𝗹𝗲𝘁 "res" =
       ws_hub_std٠steal_aux
         "t"
         "i"
@@ -168,42 +176,42 @@ Definition ws_hub_std٠steal_until : val :=
         "max_round_yield"
         "notification"
         "pred"
-    in
-    ws_hub_std٠unblock_active "t" "i" ;;
+    𝗶𝗻
+    ws_hub_std٠unblock_active "t" "i" ⍮
     "res".
 
 Definition ws_hub_std٠steal : val :=
-  fun: "t" "i" "max_round_noyield" "max_round_yield" =>
-    ws_hub_std٠block "t" "i" ;;
-    let: "res" :=
+  𝗳𝘂𝗻 "t" "i" "max_round_noyield" "max_round_yield" ->
+    ws_hub_std٠block "t" "i" ⍮
+    𝗹𝗲𝘁 "res" =
       ws_hub_std٠steal_aux
         "t"
         "i"
         "max_round_noyield"
         "max_round_yield"
-        (fun: <> => ())
-        (fun: <> => ws_hub_std٠closed "t")
-    in
-    match: "res" with
-    | None =>
+        (𝗳𝘂𝗻 ⎽ -> ())
+        (𝗳𝘂𝗻 ⎽ -> ws_hub_std٠closed "t")
+    𝗶𝗻
+    𝗺𝗮𝘁𝗰𝗵 "res" 𝘄𝗶𝘁𝗵
+    | None ->
         ws_hub_std٠notify_all "t"
-    | Some <> =>
+    | Some ⎽ ->
         ws_hub_std٠unblock "t" "i"
-    end ;;
+    𝗲𝗻𝗱 ⍮
     "res".
 
 Definition ws_hub_std٠close : val :=
   ws_hub_std٠begin_inactive.
 
 Definition ws_hub_std٠pop_steal_until : val :=
-  fun: "t" "i" "max_round_noyield" "max_round_yield" "notification" "pred" =>
-    if: "pred" () then (
+  𝗳𝘂𝗻 "t" "i" "max_round_noyield" "max_round_yield" "notification" "pred" ->
+    𝗶𝗳 "pred" () 𝘁𝗵𝗲𝗻 (
       §None
-    ) else (
-      match: ws_hub_std٠pop "t" "i" with
-      | Some <> as "res" =>
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗺𝗮𝘁𝗰𝗵 ws_hub_std٠pop "t" "i" 𝘄𝗶𝘁𝗵
+      | Some ⎽ 𝗮𝘀 "res" ->
           "res"
-      | None =>
+      | None ->
           ws_hub_std٠steal_until
             "t"
             "i"
@@ -211,14 +219,14 @@ Definition ws_hub_std٠pop_steal_until : val :=
             "max_round_yield"
             "notification"
             "pred"
-      end
+      𝗲𝗻𝗱
     ).
 
 Definition ws_hub_std٠pop_steal : val :=
-  fun: "t" "i" "max_round_noyield" "max_round_yield" =>
-    match: ws_hub_std٠pop "t" "i" with
-    | Some <> as "res" =>
+  𝗳𝘂𝗻 "t" "i" "max_round_noyield" "max_round_yield" ->
+    𝗺𝗮𝘁𝗰𝗵 ws_hub_std٠pop "t" "i" 𝘄𝗶𝘁𝗵
+    | Some ⎽ 𝗮𝘀 "res" ->
         "res"
-    | None =>
+    | None ->
         ws_hub_std٠steal "t" "i" "max_round_noyield" "max_round_yield"
-    end.
+    𝗲𝗻𝗱.

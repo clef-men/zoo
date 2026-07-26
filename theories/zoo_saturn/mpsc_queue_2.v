@@ -352,7 +352,7 @@ Section mpsc_queue_2۰G.
 
     wp۰pures.
 
-    wp۰bind (CAS _ _ _).
+    wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
     iInv "Hinv" as "(:inv۰inner =2)".
     wp۰cas as _ | ->%(inj _); first iSteps.
     iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
@@ -387,7 +387,7 @@ Section mpsc_queue_2۰G.
     wp۰rec. wp۰load.
     destruct front as [| v front]; wp۰pures.
 
-    - wp۰bind (Xchg _ _).
+    - wp۰bind (𝘅𝗰𝗵𝗴 _ _)%E.
       iInv "Hinv" as "(:inv۰inner)".
       wp۰xchg.
       iDestruct (front𑁒agree with "Hfront₁ Hfront₂") as %<-.

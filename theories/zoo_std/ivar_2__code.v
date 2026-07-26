@@ -7,50 +7,52 @@ Require Import zoo_std.ivar_2__types.
 Require Import zoo.options.
 
 Definition ivar_2٠create : val :=
-  fun: <> =>
+  𝗳𝘂𝗻 ⎽ ->
     { mutex٠create (), condition٠create (), §None }.
 
 Definition ivar_2٠make : val :=
-  fun: "v" =>
+  𝗳𝘂𝗻 "v" ->
     { mutex٠create (), condition٠create (), ‘Some( "v" ) }.
 
 Definition ivar_2٠try_get : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t".{result}.
 
 Definition ivar_2٠is_unset : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     ivar_2٠try_get "t" == §None.
 
 Definition ivar_2٠is_set : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     ~ ivar_2٠is_unset "t".
 
 Definition ivar_2٠get : val :=
-  fun: "t" =>
-    match: ivar_2٠try_get "t" with
-    | Some "v" =>
-        mutex٠synchronize "t".{mutex} ;;
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 ivar_2٠try_get "t" 𝘄𝗶𝘁𝗵
+    | Some "v" ->
+        mutex٠synchronize "t".{mutex} ⍮
         "v"
-    | None =>
-        let: "mtx" := "t".{mutex} in
-        let: "cond" := "t".{condition} in
+    | None ->
+        𝗹𝗲𝘁 "mtx" = "t".{mutex} 𝗶𝗻
+        𝗹𝗲𝘁 "cond" = "t".{condition} 𝗶𝗻
         mutex٠protect
           "mtx"
-          (fun: <> =>
+          (𝗳𝘂𝗻 ⎽ ->
              condition٠wait_while
                "cond"
                "mtx"
-               (fun: <> => "t".{result} == §None)) ;;
-        match: "t".{result} with
-        | Some "v" =>
+               (𝗳𝘂𝗻 ⎽ -> "t".{result} == §None)) ⍮
+        𝗺𝗮𝘁𝗰𝗵 "t".{result} 𝘄𝗶𝘁𝗵
+        | Some "v" ->
             "v"
-        | None =>
-            Fail
-        end
-    end.
+        | None ->
+            𝗳𝗮𝗶𝗹
+        𝗲𝗻𝗱
+    𝗲𝗻𝗱.
 
 Definition ivar_2٠set : val :=
-  fun: "t" "v" =>
-    mutex٠protect "t".{mutex} (fun: <> => "t" <-{result} ‘Some( "v" )) ;;
+  𝗳𝘂𝗻 "t" "v" ->
+    mutex٠protect
+      "t".{mutex}
+      (𝗳𝘂𝗻 ⎽ -> "t" <-{result} ‘Some( "v" )) ⍮
     condition٠notify_all "t".{condition}.

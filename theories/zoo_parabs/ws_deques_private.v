@@ -1047,7 +1047,7 @@ Section ws_deques_private۰G.
     wp۰apply (array٠unsafe_get𑁒spec with "Hqueues_model") as "_"; [lia | done | lia |].
     wp۰apply (queue_3٠pop_front𑁒spec with "Hqueue_model") as "Hqueue_model".
 
-    wp۰bind (Match _ _ _ _)%E.
+    wp۰bind (Match _ _ _ _).
     wp۰apply (wp𑁒wand (λ res,
       ⌜res = response۰to_val $ head vs⌝
     )%I) as "%res ->".

@@ -373,9 +373,9 @@ Section zoo۰G.
 
   Lemma for𑁒type τ `{!iType (iProp Σ) τ} x beg _end body :
     {{{
-      (itype۰int_range beg _end --> itype۰unit)%T (fun: x => body)
+      (itype۰int_range beg _end --> itype۰unit)%T (𝗳𝘂𝗻 x -> body)
     }}}
-      for: x := #beg to #_end begin body end
+      𝗳𝗼𝗿 x = #beg 𝘁𝗼 #_end 𝗱𝗼 body 𝗱𝗼𝗻𝗲
     {{{
       RET ();
       True

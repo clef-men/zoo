@@ -15,78 +15,81 @@ Definition pool٠max_round_yield : val :=
   32.
 
 Definition pool٠context : val :=
-  fun: "sz" "hub" "id" =>
+  𝗳𝘂𝗻 "sz" "hub" "id" ->
     ("sz", "hub", "id").
 
 Definition pool٠context_main : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     pool٠context "t".{size} "t".{hub} 0.
 
 Definition pool٠execute : val :=
-  fun: "ctx" "job" =>
+  𝗳𝘂𝗻 "ctx" "job" ->
     "job" "ctx".
 
 Definition pool٠worker : val :=
-  rec: "worker" "ctx" =>
-    match:
+  𝗿𝗲𝗰 "worker" "ctx" ->
+    𝗺𝗮𝘁𝗰𝗵
       ws_hub_std٠pop_steal
         "ctx".<context_hub>
         "ctx".<context_id>
         pool٠max_round_noyield
         pool٠max_round_yield
-    with
-    | None =>
+    𝘄𝗶𝘁𝗵
+    | None ->
         ()
-    | Some "job" =>
-        pool٠execute "ctx" "job" ;;
+    | Some "job" ->
+        pool٠execute "ctx" "job" ⍮
         "worker" "ctx"
-    end.
+    𝗲𝗻𝗱.
 
 Definition pool٠create : val :=
-  fun: "sz" =>
-    let: "hub" := ws_hub_std٠create ("sz" + 1) in
-    ws_hub_std٠block "hub" 0 ;;
-    let: "domains" :=
+  𝗳𝘂𝗻 "sz" ->
+    𝗹𝗲𝘁 "hub" = ws_hub_std٠create ("sz" + 1) 𝗶𝗻
+    ws_hub_std٠block "hub" 0 ⍮
+    𝗹𝗲𝘁 "domains" =
       array٠unsafe_initi
         "sz"
-        (fun: "i" =>
+        (𝗳𝘂𝗻 "i" ->
            domain٠spawn
-             (fun: <> => pool٠worker (pool٠context "sz" "hub" ("i" + 1))))
-    in
+             (𝗳𝘂𝗻 ⎽ ->
+                pool٠worker (pool٠context "sz" "hub" ("i" + 1))))
+    𝗶𝗻
     { "sz", "hub", "domains", () }.
 
 Definition pool٠run_on : val :=
-  fun: "t" "task" =>
-    ws_hub_std٠unblock "t".{hub} 0 ;;
-    let: "res" := pool٠execute (pool٠context_main "t") "task" in
-    ws_hub_std٠block "t".{hub} 0 ;;
+  𝗳𝘂𝗻 "t" "task" ->
+    ws_hub_std٠unblock "t".{hub} 0 ⍮
+    𝗹𝗲𝘁 "res" =
+      pool٠execute (pool٠context_main "t") "task"
+    𝗶𝗻
+    ws_hub_std٠block "t".{hub} 0 ⍮
     "res".
 
 Definition pool٠close : val :=
-  fun: "t" =>
-    ws_hub_std٠close "t".{hub} ;;
-    ws_hub_std٠unblock "t".{hub} 0 ;;
-    pool٠worker (pool٠context_main "t") ;;
+  𝗳𝘂𝗻 "t" ->
+    ws_hub_std٠close "t".{hub} ⍮
+    ws_hub_std٠unblock "t".{hub} 0 ⍮
+    pool٠worker (pool٠context_main "t") ⍮
     array٠iter domain٠join "t".{domains}.
 
 Definition pool٠run : val :=
-  fun: "num_worker" "task" =>
-    let: "t" := pool٠create "num_worker" in
-    let: "res" := pool٠run_on "t" "task" in
-    pool٠close "t" ;;
+  𝗳𝘂𝗻 "num_worker" "task" ->
+    𝗹𝗲𝘁 "t" = pool٠create "num_worker" 𝗶𝗻
+    𝗹𝗲𝘁 "res" = pool٠run_on "t" "task" 𝗶𝗻
+    pool٠close "t" ⍮
     "res".
 
 Definition pool٠size : val :=
-  fun: "ctx" =>
+  𝗳𝘂𝗻 "ctx" ->
     "ctx".<context_size>.
 
 Definition pool٠async : val :=
-  fun: "ctx" "task" =>
+  𝗳𝘂𝗻 "ctx" "task" ->
     ws_hub_std٠push "ctx".<context_hub> "ctx".<context_id> "task".
 
 Definition pool٠wait₀ : val :=
-  rec: "wait" "ctx" "notification" "pred" =>
-    match:
+  𝗿𝗲𝗰 "wait" "ctx" "notification" "pred" ->
+    𝗺𝗮𝘁𝗰𝗵
       ws_hub_std٠pop_steal_until
         "ctx".<context_hub>
         "ctx".<context_id>
@@ -94,30 +97,30 @@ Definition pool٠wait₀ : val :=
         pool٠max_round_yield
         "notification"
         "pred"
-    with
-    | None =>
+    𝘄𝗶𝘁𝗵
+    | None ->
         ()
-    | Some "job" =>
-        pool٠execute "ctx" "job" ;;
+    | Some "job" ->
+        pool٠execute "ctx" "job" ⍮
         "wait" "ctx" "notification" "pred"
-    end.
+    𝗲𝗻𝗱.
 
 Definition pool٠wait : val :=
-  fun: "ctx" "notification" "pred" =>
-    let: "notification_registered" := ref false in
-    let: "notification" "notify" :=
-      if: ~ !"notification_registered" then (
-        "notification_registered" <- true ;;
+  𝗳𝘂𝗻 "ctx" "notification" "pred" ->
+    𝗹𝗲𝘁 "notification_registered" = 𝗿𝗲𝗳 false 𝗶𝗻
+    𝗹𝗲𝘁 "notification" "notify" =
+      𝗶𝗳 ~ !"notification_registered" 𝘁𝗵𝗲𝗻 (
+        "notification_registered" <- true ⍮
         "notification" "notify"
       )
-    in
+    𝗶𝗻
     pool٠wait₀ "ctx" "notification" "pred".
 
 Definition pool٠wait_ivar : val :=
-  fun: "ctx" "ivar" =>
+  𝗳𝘂𝗻 "ctx" "ivar" ->
     pool٠wait
       "ctx"
-      (fun: "notify" =>
-         ivar_4٠wait "ivar" (fun: "_ctx" "_v" => "notify" ()) ;;
+      (𝗳𝘂𝗻 "notify" ->
+         ivar_4٠wait "ivar" (𝗳𝘂𝗻 "_ctx" "_v" -> "notify" ()) ⍮
          ())
-      (fun: <> => ivar_4٠is_set "ivar").
+      (𝗳𝘂𝗻 ⎽ -> ivar_4٠is_set "ivar").

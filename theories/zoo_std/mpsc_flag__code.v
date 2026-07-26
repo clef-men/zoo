@@ -5,13 +5,13 @@ Require Import zoo_std.mpsc_flag__types.
 Require Import zoo.options.
 
 Definition mpsc_flag٠create : val :=
-  fun: <> =>
-    ref false.
+  𝗳𝘂𝗻 ⎽ ->
+    𝗿𝗲𝗳 false.
 
 Definition mpsc_flag٠get : val :=
-  fun: "1" =>
+  𝗳𝘂𝗻 "1" ->
     !"1".
 
 Definition mpsc_flag٠set : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t" <- true.

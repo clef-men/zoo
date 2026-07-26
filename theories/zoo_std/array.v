@@ -18,15 +18,15 @@ Implicit Type v t fn acc : val.
 Implicit Type vs vs_left vs_right ws : list val.
 
 Definition array٠unsafe_xchg : val :=
-  fun: "t" "i" "v" =>
+  𝗳𝘂𝗻 "t" "i" "v" ->
     Xchg ("t", "i") "v".
 
 Definition array٠unsafe_cas : val :=
-  fun: "t" "i" "v1" "v2" =>
+  𝗳𝘂𝗻 "t" "i" "v1" "v2" ->
     CAS ("t", "i") "v1" "v2".
 
 Definition array٠unsafe_faa : val :=
-  fun: "t" "i" "incr" =>
+  𝗳𝘂𝗻 "t" "i" "incr" ->
     FAA ("t", "i") "incr".
 
 Section zoo۰G.

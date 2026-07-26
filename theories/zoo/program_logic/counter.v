@@ -6,7 +6,7 @@ Require Import zoo.base.
 Require Import zoo.options.
 
 Definition zoo_counter٠incr : val :=
-  fun: <> =>
+  𝗳𝘂𝗻 ⎽ ->
     FAA (#zoo_counter).[contents] 1.
 
 Section zoo۰G.

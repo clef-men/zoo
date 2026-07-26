@@ -6,62 +6,62 @@ Require Import zoo_std.bqueue__types.
 Require Import zoo.options.
 
 Definition bqueue٠create : val :=
-  fun: "cap" =>
+  𝗳𝘂𝗻 "cap" ->
     { "cap", array٠unsafe_make "cap" (), 0, 0 }.
 
 Definition bqueue٠size : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t".{back} - "t".{front}.
 
 Definition bqueue٠is_empty : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     bqueue٠size "t" == 0.
 
 Definition bqueue٠unsafe_get : val :=
-  fun: "t" "i" =>
+  𝗳𝘂𝗻 "t" "i" ->
     array٠unsafe_cget "t".{data} ("t".{front} + "i").
 
 Definition bqueue٠unsafe_set : val :=
-  fun: "t" "i" "v" =>
+  𝗳𝘂𝗻 "t" "i" "v" ->
     array٠unsafe_cset "t".{data} ("t".{front} + "i") "v".
 
 Definition bqueue٠push : val :=
-  fun: "t" "v" =>
-    let: "front" := "t".{front} in
-    let: "back" := "t".{back} in
-    if: "front" + "t".{capacity} == "back" then (
+  𝗳𝘂𝗻 "t" "v" ->
+    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
+    𝗶𝗳 "front" + "t".{capacity} == "back" 𝘁𝗵𝗲𝗻 (
       false
-    ) else (
-      array٠unsafe_cset "t".{data} "back" "v" ;;
-      "t" <-{back} "back" + 1 ;;
+    ) 𝗲𝗹𝘀𝗲 (
+      array٠unsafe_cset "t".{data} "back" "v" ⍮
+      "t" <-{back} "back" + 1 ⍮
       true
     ).
 
 Definition bqueue٠pop_front : val :=
-  fun: "t" =>
-    let: "front" := "t".{front} in
-    let: "back" := "t".{back} in
-    if: "front" == "back" then (
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
+    𝗶𝗳 "front" == "back" 𝘁𝗵𝗲𝗻 (
       §None
-    ) else (
-      let: "data" := "t".{data} in
-      let: "v" := array٠unsafe_cget "data" "front" in
-      array٠unsafe_cset "data" "front" () ;;
-      "t" <-{front} "front" + 1 ;;
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+      𝗹𝗲𝘁 "v" = array٠unsafe_cget "data" "front" 𝗶𝗻
+      array٠unsafe_cset "data" "front" () ⍮
+      "t" <-{front} "front" + 1 ⍮
       ‘Some( "v" )
     ).
 
 Definition bqueue٠pop_back : val :=
-  fun: "t" =>
-    let: "front" := "t".{front} in
-    let: "back" := "t".{back} in
-    if: "front" == "back" then (
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
+    𝗶𝗳 "front" == "back" 𝘁𝗵𝗲𝗻 (
       §None
-    ) else (
-      let: "data" := "t".{data} in
-      let: "back" := "back" - 1 in
-      let: "v" := array٠unsafe_cget "data" "back" in
-      array٠unsafe_cset "data" "back" () ;;
-      "t" <-{back} "back" ;;
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+      𝗹𝗲𝘁 "back" = "back" - 1 𝗶𝗻
+      𝗹𝗲𝘁 "v" = array٠unsafe_cget "data" "back" 𝗶𝗻
+      array٠unsafe_cset "data" "back" () ⍮
+      "t" <-{back} "back" ⍮
       ‘Some( "v" )
     ).

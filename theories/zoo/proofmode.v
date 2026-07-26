@@ -323,7 +323,7 @@ Section zoo۰G.
       in
       envs_entails Δ3 (WP fill K #l ∷ tid @ E {{ Φ }})
     ) →
-    envs_entails Δ1 (WP fill K (ref v) ∷ tid @ E {{ Φ }}).
+    envs_entails Δ1 (WP fill K (𝗿𝗲𝗳 v) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ1 HΔ3.
     rewrite into_laterN_env_sound -wp𑁒bind'.
@@ -905,7 +905,7 @@ Tactic Notation "wp۰ref" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl)
     [ reshape_expr e ltac:(fun K e' =>
         eapply (tac𑁒wp𑁒ref _ _ Hheader' Hmeta' Hl' K)
       )
-    | fail 1 "wp۰ref: cannot find 'ref' in" e
+    | fail 1 "wp۰ref: cannot find '𝗿𝗲𝗳' in" e
     ];
     [ tc_solve
     | first

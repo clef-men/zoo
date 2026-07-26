@@ -29,49 +29,49 @@ Implicit Type ids : gmap val nat.
 ).
 
 Definition domain٠spawn : val :=
-  fun: "fn" =>
-    let: "t" := ivar_2٠create () in
-    Fork (
-      let: "local" := dynarray_1٠create () in
-      SetLocal "local" ;;
+  𝗳𝘂𝗻 "fn" ->
+    𝗹𝗲𝘁 "t" = ivar_2٠create () 𝗶𝗻
+    𝗳𝗼𝗿𝗸 (
+      𝗹𝗲𝘁 "local" = dynarray_1٠create () 𝗶𝗻
+      𝘀𝗲𝘁𝗹𝗼𝗰𝗮𝗹 "local" ⍮
       ivar_2٠set "t" ("fn" ())
-    ) ;;
+    ) ⍮
     "t".
 
 Definition domain٠join : val :=
   ivar_2٠get.
 
 Definition domain٠local_new : val :=
-  fun: "fn" =>
-    let: "id" := zoo_counter٠incr () in
+  𝗳𝘂𝗻 "fn" ->
+    𝗹𝗲𝘁 "id" = zoo_counter٠incr () 𝗶𝗻
     ("id", "fn").
 
 Definition domain٠key۰id : val :=
-  fun: "key" =>
+  𝗳𝘂𝗻 "key" ->
     "key".<id>.
 Definition domain٠key_init : val :=
-  fun: "key" =>
+  𝗳𝘂𝗻 "key" ->
     "key".<init> ().
 
 Definition domain٠local_get : val :=
-  fun: "key" =>
-    let: "local" := GetLocal in
-    let: "id" := domain٠key۰id "key" in
-    dynarray_1٠grow "local" ("id" + 1) §None ;;
-    match: dynarray_1٠get "local" "id" with
-    | None =>
-        let: "v" := domain٠key_init "key" in
-        dynarray_1٠set "local" "id" ‘Some( "v" ) ;;
+  𝗳𝘂𝗻 "key" ->
+    𝗹𝗲𝘁 "local" = 𝗹𝗼𝗰𝗮𝗹 𝗶𝗻
+    𝗹𝗲𝘁 "id" = domain٠key۰id "key" 𝗶𝗻
+    dynarray_1٠grow "local" ("id" + 1) §None ⍮
+    𝗺𝗮𝘁𝗰𝗵 dynarray_1٠get "local" "id" 𝘄𝗶𝘁𝗵
+    | None ->
+        𝗹𝗲𝘁 "v" = domain٠key_init "key" 𝗶𝗻
+        dynarray_1٠set "local" "id" ‘Some( "v" ) ⍮
         "v"
-    | Some "v" =>
+    | Some "v" ->
         "v"
-    end.
+    𝗲𝗻𝗱.
 
 Definition domain٠local_set : val :=
-  fun: "key" "v" =>
-    let: "local" := GetLocal in
-    let: "id" := domain٠key۰id "key" in
-    dynarray_1٠grow "local" ("id" + 1) §None ;;
+  𝗳𝘂𝗻 "key" "v" ->
+    𝗹𝗲𝘁 "local" = 𝗹𝗼𝗰𝗮𝗹 𝗶𝗻
+    𝗹𝗲𝘁 "id" = domain٠key۰id "key" 𝗶𝗻
+    dynarray_1٠grow "local" ("id" + 1) §None ⍮
     dynarray_1٠set "local" "id" ‘Some( "v" ).
 
 Class DomainG Σ `{zoo۰G : !ZooG Σ} :=

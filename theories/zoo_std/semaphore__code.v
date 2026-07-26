@@ -7,32 +7,34 @@ Require Import zoo_std.semaphore__types.
 Require Import zoo.options.
 
 Definition semaphore٠create : val :=
-  fun: "cap" =>
+  𝗳𝘂𝗻 "cap" ->
     { mutex٠create (), condition٠create (), "cap" - 1 }.
 
 Definition semaphore٠try_lock : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     mutex٠protect "t".{mutex}
-      (fun: <> =>
-         let: "cnt" := "t".{count} in
-         if: 0 < "cnt" then (
-           "t" <-{count} "cnt" - 1 ;;
+      (𝗳𝘂𝗻 ⎽ ->
+         𝗹𝗲𝘁 "cnt" = "t".{count} 𝗶𝗻
+         𝗶𝗳 0 < "cnt" 𝘁𝗵𝗲𝗻 (
+           "t" <-{count} "cnt" - 1 ⍮
            true
-         ) else (
+         ) 𝗲𝗹𝘀𝗲 (
            false
          )).
 
 Definition semaphore٠lock : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     mutex٠protect "t".{mutex}
-      (fun: <> =>
+      (𝗳𝘂𝗻 ⎽ ->
          condition٠wait_until
            "t".{condition}
            "t".{mutex}
-           (fun: <> => 0 < "t".{count}) ;;
+           (𝗳𝘂𝗻 ⎽ -> 0 < "t".{count}) ⍮
          "t" <-{count} "t".{count} - 1).
 
 Definition semaphore٠unlock : val :=
-  fun: "t" =>
-    mutex٠protect "t".{mutex} (fun: <> => "t" <-{count} "t".{count} + 1) ;;
+  𝗳𝘂𝗻 "t" ->
+    mutex٠protect
+      "t".{mutex}
+      (𝗳𝘂𝗻 ⎽ -> "t" <-{count} "t".{count} + 1) ⍮
     condition٠notify "t".{condition}.

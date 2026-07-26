@@ -524,7 +524,7 @@ Section inf_array۰G.
     wp۰pures.
 
     set vs' := <[₊i := v]> vs.
-    wp۰bind (Resolve _ _ _).
+    wp۰bind (𝗿𝗲𝘀𝗼𝗹𝘃𝗲 _ _ _)%E.
     wp۰apply (wp𑁒wand (λ _,
       model₂ γ vs' ∗
       Φ w
@@ -643,7 +643,7 @@ Section inf_array۰G.
     wp۰apply wp𑁒equal𑁒nobranch as (b) "%".
     wp۰pures.
 
-    wp۰bind (if: _ then _ else _)%E.
+    wp۰bind (𝗶𝗳 _ 𝘁𝗵𝗲𝗻 _ 𝗲𝗹𝘀𝗲 _)%E.
     wp۰apply (wp𑁒wand (λ res,
       l.[data] ↦ data ∗
       array۰model data (DfracOwn 1) (if b then <[₊i := v2]> us2 else us2)
@@ -711,7 +711,7 @@ Section inf_array۰G.
     wp۰apply wp𑁒equal𑁒nobranch as (b) "%".
     wp۰pures.
 
-    wp۰bind (if: _ then _ else _)%E.
+    wp۰bind (𝗶𝗳 _ 𝘁𝗵𝗲𝗻 _ 𝗲𝗹𝘀𝗲 _)%E.
     wp۰apply (wp𑁒wand (λ res,
       l.[data] ↦ data ∗
       array۰model data (DfracOwn 1) (if b then <[₊i := v2]> us2 else us2)
@@ -725,7 +725,7 @@ Section inf_array۰G.
     wp۰pures.
 
     set vs' := if b then <[₊i := v2]> vs else vs.
-    wp۰bind (Resolve _ _ _).
+    wp۰bind (𝗿𝗲𝘀𝗼𝗹𝘃𝗲 _ _ _)%E.
     wp۰apply (wp𑁒wand (λ _,
       model₂ γ vs' ∗
       Φ #b

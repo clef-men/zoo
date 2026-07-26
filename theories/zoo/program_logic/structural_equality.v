@@ -13,26 +13,26 @@ Implicit Type vs : list val.
 Implicit Type lv : lowval.
 
 #[local] Definition __zoo_recs := (
-  recs: "structeq" "v1" "v2" =>
-    if: IsImmediate "v1" then
-      if: IsImmediate "v2" then
+  𝗿𝗲𝗰𝘀 "structeq" "v1" "v2" ->
+    𝗶𝗳 𝗶𝗺𝗺𝗲𝗱𝗶𝗮𝘁𝗲 "v1" 𝘁𝗵𝗲𝗻
+      𝗶𝗳 𝗶𝗺𝗺𝗲𝗱𝗶𝗮𝘁𝗲 "v2" 𝘁𝗵𝗲𝗻
         "v1" == "v2"
-      else
+      𝗲𝗹𝘀𝗲
         false
-    else if: IsImmediate "v2" then
+    𝗲𝗹𝘀𝗲 𝗶𝗳 𝗶𝗺𝗺𝗲𝗱𝗶𝗮𝘁𝗲 "v2" 𝘁𝗵𝗲𝗻
       false
-    else (
-      GetTag "v1" == GetTag "v2" and
-      let: "sz" := GetSize "v1" in
-      "sz" == GetSize "v2" and
+    𝗲𝗹𝘀𝗲 (
+      𝘁𝗮𝗴 "v1" == 𝘁𝗮𝗴 "v2" 𝗮𝗻𝗱
+      𝗹𝗲𝘁 "sz" = 𝘀𝗶𝘇𝗲 "v1" 𝗶𝗻
+      "sz" == 𝘀𝗶𝘇𝗲 "v2" 𝗮𝗻𝗱
       "structeq_aux" "v1" "v2" "sz"
     )
-  and: "structeq_aux" "v1" "v2" "i" =>
-    if: "i" == 0 then
+  𝘄𝗶𝘁𝗵 "structeq_aux" "v1" "v2" "i" ->
+    𝗶𝗳 "i" == 0 𝘁𝗵𝗲𝗻
       true
-    else
-      let: "i" := "i" - 1 in
-      "structeq" (Load "v1" "i") (Load "v2" "i") and
+    𝗲𝗹𝘀𝗲
+      𝗹𝗲𝘁 "i" = "i" - 1 𝗶𝗻
+      "structeq" (𝗹𝗼𝗮𝗱 "v1" "i") (𝗹𝗼𝗮𝗱 "v2" "i") 𝗮𝗻𝗱
       "structeq_aux" "v1" "v2" "i"
 )%zoo_recs.
 Definition structeq :=

@@ -1639,7 +1639,7 @@ Module base.
       wp۰apply+ (array٠size𑁒spec𑁒cslice with "Hdata_cslice₂") as "Hdata_cslice₂".
       wp۰load. wp۰pures.
 
-      wp۰bind (_ or _)%E.
+      wp۰bind (_ 𝗼𝗿 _)%E.
       wp۰apply (wp𑁒wand (λ res,
         ∃ b front_cache,
         ⌜res = #b⌝ ∗

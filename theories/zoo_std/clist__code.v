@@ -5,35 +5,35 @@ Require Import zoo_std.clist__types.
 Require Import zoo.options.
 
 Definition clist٠app : val :=
-  rec: "app" "t1" "t2" =>
-    match: "t1" with
-    | ClistClosed =>
-        Fail
-    | ClistOpen =>
+  𝗿𝗲𝗰 "app" "t1" "t2" ->
+    𝗺𝗮𝘁𝗰𝗵 "t1" 𝘄𝗶𝘁𝗵
+    | ClistClosed ->
+        𝗳𝗮𝗶𝗹
+    | ClistOpen ->
         "t2"
-    | ClistCons "v" "t1" =>
+    | ClistCons "v" "t1" ->
         ‘ClistCons[ "v", "app" "t1" "t2" ]
-    end.
+    𝗲𝗻𝗱.
 
 Definition clist٠rev_app : val :=
-  rec: "rev_app" "t1" "t2" =>
-    match: "t1" with
-    | ClistClosed =>
-        Fail
-    | ClistOpen =>
+  𝗿𝗲𝗰 "rev_app" "t1" "t2" ->
+    𝗺𝗮𝘁𝗰𝗵 "t1" 𝘄𝗶𝘁𝗵
+    | ClistClosed ->
+        𝗳𝗮𝗶𝗹
+    | ClistOpen ->
         "t2"
-    | ClistCons "v" "t1" =>
+    | ClistCons "v" "t1" ->
         "rev_app" "t1" ‘ClistCons[ "v", "t2" ]
-    end.
+    𝗲𝗻𝗱.
 
 Definition clist٠iter : val :=
-  rec: "iter" "fn" "param" =>
-    match: "param" with
-    | ClistClosed =>
-        Fail
-    | ClistOpen =>
+  𝗿𝗲𝗰 "iter" "fn" "param" ->
+    𝗺𝗮𝘁𝗰𝗵 "param" 𝘄𝗶𝘁𝗵
+    | ClistClosed ->
+        𝗳𝗮𝗶𝗹
+    | ClistOpen ->
         ()
-    | ClistCons "v" "t" =>
-        "fn" "v" ;;
+    | ClistCons "v" "t" ->
+        "fn" "v" ⍮
         "iter" "fn" "t"
-    end.
+    𝗲𝗻𝗱.

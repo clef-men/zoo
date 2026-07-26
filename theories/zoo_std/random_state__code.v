@@ -11,5 +11,5 @@ Parameter random_state٠bits : val.
 Parameter random_state٠int : val.
 
 Definition random_state٠int_in_range : val :=
-  fun: "t" "lb" "ub" =>
+  𝗳𝘂𝗻 "t" "lb" "ub" ->
     "lb" + random_state٠int "t" ("ub" - "lb").

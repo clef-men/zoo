@@ -291,7 +291,7 @@ Section bag_1۰G.
 
     wp۰rec. wp۰pures.
 
-    wp۰bind (CAS _ _ _).
+    wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
     iInv "Hinv" as "(:inv۰inner)".
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
@@ -335,7 +335,7 @@ Section bag_1۰G.
     wp۰apply+ (array٠size𑁒spec with "Hdata_model") as "_".
     wp۰pures.
 
-    wp۰bind (FAA _ _).
+    wp۰bind (𝗳𝗮𝗮 _ _)%E.
     iInv "Hinv" as "(:inv۰inner)".
     wp۰faa.
     iSplitR "HΦ". { iFrameSteps. }
@@ -384,7 +384,7 @@ Section bag_1۰G.
     destruct o as [v |]; last iSteps.
     wp۰pures.
 
-    wp۰bind (CAS _ _ _).
+    wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
     iInv "Hinv" as "(:inv۰inner)".
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
@@ -433,7 +433,7 @@ Section bag_1۰G.
     wp۰apply+ (array٠size𑁒spec with "Hdata_model") as "_".
     wp۰pures.
 
-    wp۰bind (FAA _ _).
+    wp۰bind (𝗳𝗮𝗮 _ _)%E.
     iInv "Hinv" as "(:inv۰inner)".
     wp۰faa.
     iSplitR "HΦ". { iFrameSteps. }

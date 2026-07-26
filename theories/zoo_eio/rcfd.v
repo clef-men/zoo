@@ -700,7 +700,7 @@ Section rcfd۰G.
       wp۰pures.
       case_bool_decide as Hops3; wp۰pures; last iSteps.
 
-      wp۰bind (CAS _ _ _).
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner =2)".
       wp۰cas as _ | Hcas; first iSteps.
       destruct state2; first zoo_simplify.
@@ -731,7 +731,7 @@ Section rcfd۰G.
 
     wp۰rec. wp۰pures.
 
-    wp۰bind (FAA _ _).
+    wp۰bind (𝗳𝗮𝗮 _ _)%E.
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰faa.
     iSplitR "HΦ".
@@ -845,7 +845,7 @@ Section rcfd۰G.
 
     wp۰rec. wp۰pures.
 
-    wp۰bind (FAA _ _).
+    wp۰bind (𝗳𝗮𝗮 _ _)%E.
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰faa.
 
@@ -1151,7 +1151,7 @@ Section rcfd۰G.
 
       wp۰pures.
 
-      wp۰bind (CAS _ _ _).
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner =2)".
       wp۰cas as Hcas.
 
@@ -1303,7 +1303,7 @@ Section rcfd۰G.
       wp۰apply+ (spsc_waiter٠create𑁒spec (Ψ 1%Qp) with "[//]") as "%waiter (#Hwaiter_inv & Hwaiter_producer & Hwaiter_consumer)".
       wp۰pures.
 
-      wp۰bind (CAS _ _ _).
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner =2)".
       wp۰cas as Hcas.
 

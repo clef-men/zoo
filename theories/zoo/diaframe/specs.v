@@ -120,7 +120,7 @@ Section zoo۰G.
     {{
       True
     }}
-      ref e @ E
+      𝗿𝗲𝗳 e @ E
     {{ l,
       RET #l;
       l ↦ₕ Header 0 1 ∗
@@ -306,7 +306,7 @@ Section zoo۰G.
   Qed.
 
   #[global] Instance if𑁒bool𑁒decide𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
-    ReshapeExprAnd _ e K (if: #(bool_decide P) then e1 else e2)%E TCTrue →
+    ReshapeExprAnd _ e K (𝗶𝗳 #(bool_decide P) 𝘁𝗵𝗲𝗻 e1 𝗲𝗹𝘀𝗲 e2)%E TCTrue →
     Context K →
     HINT1 ε₀ ✱ [
       ∀ b,
@@ -330,7 +330,7 @@ Section zoo۰G.
     all: iSteps.
   Qed.
   #[global] Instance if𑁒bool𑁒decide𑁒neg𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
-    ReshapeExprAnd _ e K (if: #(bool_decide (¬ P)) then e1 else e2)%E TCTrue →
+    ReshapeExprAnd _ e K (𝗶𝗳 #(bool_decide (¬ P)) 𝘁𝗵𝗲𝗻 e1 𝗲𝗹𝘀𝗲 e2)%E TCTrue →
     Context K →
     HINT1 ε₀ ✱ [
       ∀ b,
@@ -354,7 +354,7 @@ Section zoo۰G.
     all: iSteps.
   Qed.
   #[global] Instance if𑁒negb𑁒bool𑁒decide𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
-    ReshapeExprAnd _ e K (if: #(negb $ bool_decide P) then e1 else e2)%E TCTrue →
+    ReshapeExprAnd _ e K (𝗶𝗳 #(negb $ bool_decide P) 𝘁𝗵𝗲𝗻 e1 𝗲𝗹𝘀𝗲 e2)%E TCTrue →
     Context K →
     HINT1 ε₀ ✱ [
       ∀ b,

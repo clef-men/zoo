@@ -1252,7 +1252,7 @@ Section mpmc_queue_2۰G.
         wp۰apply+ (mpmc_queue_2٠rev𑁒spec with "Hback_prev_header") as "_"; first lia.
         wp۰pures.
 
-        wp۰bind (CAS _ _ _).
+        wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
         iInv "Hinv" as "Hinv_inner".
         iDestruct (inv۰inner𑁒strengthen with "Hinv_inner") as "(:inv۰inner =2 >)".
         wp۰cas as _ | (-> & ->)%(inj2 suffix۰to_val _ _ _ []).
@@ -1328,7 +1328,7 @@ Section mpmc_queue_2۰G.
 
       wp۰rec. wp۰pures.
 
-      wp۰bind (CAS _ _ _).
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "Hinv_inner".
       iDestruct (inv۰inner𑁒strengthen with "Hinv_inner") as "(:inv۰inner =1 >)".
       iDestruct (state۰at𑁒valid with "Hstate_auth Hstate_at") as %(Hbacks1_lookup_ & _).
@@ -1601,7 +1601,7 @@ Section mpmc_queue_2۰G.
             replace i_front1 with ˖i1 by lia.
             simpl. clear.
 
-            wp۰bind (CAS _ _ _).
+            wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
             iInv "Hinv" as "(:inv۰inner =2 >)".
             wp۰cas as _ | (Hcas & -> & ->)%(prefix۰to_val𑁒inj' _ _ _ _ _ [v]).
 
@@ -1638,7 +1638,7 @@ Section mpmc_queue_2۰G.
             assert (0 < length vs_back1) as Hvs_back1 by lia.
             clear- Hvs_back1.
 
-            wp۰bind (CAS _ _ _).
+            wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
             iInv "Hinv" as "(:inv۰inner =4 >)".
             wp۰cas as _ | (Hcas & -> & ->)%(prefix۰to_val𑁒inj' _ _ _ _ _ (v :: vs_back1)).
 
@@ -1663,7 +1663,7 @@ Section mpmc_queue_2۰G.
                  iSteps.
                }
 
-      - wp۰bind (CAS _ _ _).
+      - wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
         iInv "Hinv" as "(:inv۰inner =1 >)".
         wp۰cas as _ | (-> & ->)%(inj2 suffix۰to_val _ _ _ (v :: vs_front)).
 
@@ -1696,7 +1696,7 @@ Section mpmc_queue_2۰G.
       destruct move as [| v move _] using rev_ind; first naive_solver lia.
       rewrite reverse_snoc /=. wp۰pures.
 
-      wp۰bind (CAS _ _ _).
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "Hinv_inner".
       iDestruct (inv۰inner𑁒strengthen with "Hinv_inner") as "(:inv۰inner =1 >)".
       wp۰cas as _ | (-> & ->)%(inj2 suffix۰to_val _ _ _ []).

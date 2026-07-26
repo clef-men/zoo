@@ -4,6 +4,10 @@ Require Import zoo.prelude.
 Require Export zoo.common.string.
 Require Import zoo.options.
 
+Notation "⎽" :=
+  BAnon
+: binder_scope.
+
 #[global] Program Instance binder𑁒beq : Beq binder :=
   {|beq bdr1 bdr2 :=
       match bdr1, bdr2 with

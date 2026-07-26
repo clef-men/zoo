@@ -6,81 +6,81 @@ Require Import zoo_persistent.sstore_2__types.
 Require Import zoo.options.
 
 Definition sstore_2٠create : val :=
-  fun: <> =>
-    { 0, ref §Root }.
+  𝗳𝘂𝗻 ⎽ ->
+    { 0, 𝗿𝗲𝗳 §Root }.
 
 Definition sstore_2٠ref : val :=
-  fun: "_t" "v" =>
+  𝗳𝘂𝗻 "_t" "v" ->
     { 0, "v" }.
 
 Definition sstore_2٠get : val :=
-  fun: "_t" "r" =>
+  𝗳𝘂𝗻 "_t" "r" ->
     "r".{ref_value}.
 
 Definition sstore_2٠set : val :=
-  fun: "t" "r" "v" =>
-    let: "g_t" := "t".{gen} in
-    let: "g_r" := "r".{ref_gen} in
-    if: "g_t" == "g_r" then (
+  𝗳𝘂𝗻 "t" "r" "v" ->
+    𝗹𝗲𝘁 "g_t" = "t".{gen} 𝗶𝗻
+    𝗹𝗲𝘁 "g_r" = "r".{ref_gen} 𝗶𝗻
+    𝗶𝗳 "g_t" == "g_r" 𝘁𝗵𝗲𝗻 (
       "r" <-{ref_value} "v"
-    ) else (
-      let: "root" := ref §Root in
-      "t".{root} <- ‘Diff( "r", "g_r", "r".{ref_value}, "root" ) ;;
-      "r" <-{ref_gen} "g_t" ;;
-      "r" <-{ref_value} "v" ;;
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "root" = 𝗿𝗲𝗳 §Root 𝗶𝗻
+      "t".{root} <- ‘Diff( "r", "g_r", "r".{ref_value}, "root" ) ⍮
+      "r" <-{ref_gen} "g_t" ⍮
+      "r" <-{ref_value} "v" ⍮
       "t" <-{root} "root"
     ).
 
 Definition sstore_2٠capture : val :=
-  fun: "t" =>
-    let: "g" := "t".{gen} in
-    "t" <-{gen} "g" + 1 ;;
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "g" = "t".{gen} 𝗶𝗻
+    "t" <-{gen} "g" + 1 ⍮
     ("t", "g", "t".{root}).
 
 Definition sstore_2٠collect : val :=
-  rec: "collect" "node" "path" =>
-    match: !"node" with
-    | Root =>
+  𝗿𝗲𝗰 "collect" "node" "path" ->
+    𝗺𝗮𝘁𝗰𝗵 !"node" 𝘄𝗶𝘁𝗵
+    | Root ->
         ("node", "path")
-    | Diff <> <> <> "node'" =>
+    | Diff ⎽ ⎽ ⎽ "node'" ->
         "collect" "node'" ("node" :: "path")
-    end.
+    𝗲𝗻𝗱.
 
 Definition sstore_2٠revert : val :=
-  rec: "revert" "node" "param" =>
-    match: "param" with
-    | [] =>
+  𝗿𝗲𝗰 "revert" "node" "param" ->
+    𝗺𝗮𝘁𝗰𝗵 "param" 𝘄𝗶𝘁𝗵
+    | [] ->
         "node" <- §Root
-    | "node'" :: "path" =>
-        match: !"node'" with
-        | Root =>
-            Fail
-        | Diff "r" "g" "v" "node_" =>
-            assert ("node_" == "node") ;;
-            "node" <- ‘Diff( "r", "r".{ref_gen}, "r".{ref_value}, "node'" ) ;;
-            "r" <-{ref_gen} "g" ;;
-            "r" <-{ref_value} "v" ;;
+    | "node'" :: "path" ->
+        𝗺𝗮𝘁𝗰𝗵 !"node'" 𝘄𝗶𝘁𝗵
+        | Root ->
+            𝗳𝗮𝗶𝗹
+        | Diff "r" "g" "v" "node_" ->
+            𝗮𝘀𝘀𝗲𝗿𝘁 ("node_" == "node") ⍮
+            "node" <- ‘Diff( "r", "r".{ref_gen}, "r".{ref_value}, "node'" ) ⍮
+            "r" <-{ref_gen} "g" ⍮
+            "r" <-{ref_value} "v" ⍮
             "revert" "node'" "path"
-        end
-    end.
+        𝗲𝗻𝗱
+    𝗲𝗻𝗱.
 
 Definition sstore_2٠reroot : val :=
-  fun: "node" =>
-    let: "root", "path" := sstore_2٠collect "node" [] in
+  𝗳𝘂𝗻 "node" ->
+    𝗹𝗲𝘁 "root", "path" = sstore_2٠collect "node" [] 𝗶𝗻
     sstore_2٠revert "root" "path".
 
 Definition sstore_2٠restore : val :=
-  fun: "t" "s" =>
-    if: "t" != "s".<snapshot_store> then (
-      Fail
-    ) else (
-      let: "root" := "s".<snapshot_root> in
-      match: !"root" with
-      | Root =>
+  𝗳𝘂𝗻 "t" "s" ->
+    𝗶𝗳 "t" != "s".<snapshot_store> 𝘁𝗵𝗲𝗻 (
+      𝗳𝗮𝗶𝗹
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "root" = "s".<snapshot_root> 𝗶𝗻
+      𝗺𝗮𝘁𝗰𝗵 !"root" 𝘄𝗶𝘁𝗵
+      | Root ->
           ()
-      | Diff <> <> <> <> =>
-          sstore_2٠reroot "root" ;;
-          "t" <-{gen} "s".<snapshot_gen> + 1 ;;
+      | Diff ⎽ ⎽ ⎽ ⎽ ->
+          sstore_2٠reroot "root" ⍮
+          "t" <-{gen} "s".<snapshot_gen> + 1 ⍮
           "t" <-{root} "root"
-      end
+      𝗲𝗻𝗱
     ).

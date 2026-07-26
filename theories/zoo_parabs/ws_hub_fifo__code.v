@@ -7,112 +7,112 @@ Require Import zoo_parabs.ws_hub_fifo__types.
 Require Import zoo.options.
 
 Definition ws_hub_fifo٠create : val :=
-  fun: "sz" =>
+  𝗳𝘂𝗻 "sz" ->
     { "sz", mpmc_queue_1٠create (), waiters٠create "sz", "sz" + 1 }.
 
 Definition ws_hub_fifo٠size : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t".{size}.
 
 Definition ws_hub_fifo٠begin_inactive : val :=
-  fun: "t" =>
-    FAA "t".[num_active] (-1) ;;
+  𝗳𝘂𝗻 "t" ->
+    𝗳𝗮𝗮 "t".[num_active] (-1) ⍮
     ().
 
 Definition ws_hub_fifo٠end_inactive : val :=
-  fun: "t" =>
-    FAA "t".[num_active] 1 ;;
+  𝗳𝘂𝗻 "t" ->
+    𝗳𝗮𝗮 "t".[num_active] 1 ⍮
     ().
 
 Definition ws_hub_fifo٠block : val :=
-  fun: "t" "_i" =>
+  𝗳𝘂𝗻 "t" "_i" ->
     ws_hub_fifo٠begin_inactive "t".
 
 Definition ws_hub_fifo٠unblock : val :=
-  fun: "t" "_i" =>
+  𝗳𝘂𝗻 "t" "_i" ->
     ws_hub_fifo٠end_inactive "t".
 
 Definition ws_hub_fifo٠closed : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t".{num_active} == 0.
 
 Definition ws_hub_fifo٠notify : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     waiters٠notify_one "t".{waiters}.
 
 Definition ws_hub_fifo٠notify_all : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     waiters٠notify_all "t".{waiters}.
 
 Definition ws_hub_fifo٠push : val :=
-  fun: "t" "_i" "v" =>
-    mpmc_queue_1٠push "t".{queue} "v" ;;
+  𝗳𝘂𝗻 "t" "_i" "v" ->
+    mpmc_queue_1٠push "t".{queue} "v" ⍮
     ws_hub_fifo٠notify "t".
 
 Definition ws_hub_fifo٠pop' : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     mpmc_queue_1٠pop "t".{queue}.
 
 Definition ws_hub_fifo٠pop : val :=
-  fun: "t" "_i" =>
+  𝗳𝘂𝗻 "t" "_i" ->
     ws_hub_fifo٠pop' "t".
 
 Definition ws_hub_fifo٠steal_aux : val :=
-  rec: "steal_aux" "t" "i" "notification" "pred" =>
-    waiters٠prepare_wait "t".{waiters} "i" ;;
-    "notification" (fun: <> => waiters٠notify "t".{waiters} "i") ;;
-    if: "pred" () then (
-      if: ~ waiters٠cancel_wait "t".{waiters} "i" then (
+  𝗿𝗲𝗰 "steal_aux" "t" "i" "notification" "pred" ->
+    waiters٠prepare_wait "t".{waiters} "i" ⍮
+    "notification" (𝗳𝘂𝗻 ⎽ -> waiters٠notify "t".{waiters} "i") ⍮
+    𝗶𝗳 "pred" () 𝘁𝗵𝗲𝗻 (
+      𝗶𝗳 ~ waiters٠cancel_wait "t".{waiters} "i" 𝘁𝗵𝗲𝗻 (
         waiters٠notify_one "t".{waiters}
-      ) else (
+      ) 𝗲𝗹𝘀𝗲 (
         ()
-      ) ;;
+      ) ⍮
       §None
-    ) else (
-      match: ws_hub_fifo٠pop' "t" with
-      | Some <> as "res" =>
-          waiters٠cancel_wait "t".{waiters} "i" ;;
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗺𝗮𝘁𝗰𝗵 ws_hub_fifo٠pop' "t" 𝘄𝗶𝘁𝗵
+      | Some ⎽ 𝗮𝘀 "res" ->
+          waiters٠cancel_wait "t".{waiters} "i" ⍮
           "res"
-      | None =>
-          waiters٠commit_wait "t".{waiters} "i" ;;
-          "steal_aux" "t" "i" (fun: <> => ()) "pred"
-      end
+      | None ->
+          waiters٠commit_wait "t".{waiters} "i" ⍮
+          "steal_aux" "t" "i" (𝗳𝘂𝗻 ⎽ -> ()) "pred"
+      𝗲𝗻𝗱
     ).
 
 Definition ws_hub_fifo٠steal_until : val :=
-  fun: "t" "i" <> <> "notification" "pred" =>
+  𝗳𝘂𝗻 "t" "i" ⎽ ⎽ "notification" "pred" ->
     ws_hub_fifo٠steal_aux "t" "i" "notification" "pred".
 
 Definition ws_hub_fifo٠steal : val :=
-  fun: "t" "i" <> <> =>
-    ws_hub_fifo٠begin_inactive "t" ;;
-    let: "res" :=
+  𝗳𝘂𝗻 "t" "i" ⎽ ⎽ ->
+    ws_hub_fifo٠begin_inactive "t" ⍮
+    𝗹𝗲𝘁 "res" =
       ws_hub_fifo٠steal_aux
         "t"
         "i"
-        (fun: <> => ())
-        (fun: <> => ws_hub_fifo٠closed "t")
-    in
-    match: "res" with
-    | None =>
+        (𝗳𝘂𝗻 ⎽ -> ())
+        (𝗳𝘂𝗻 ⎽ -> ws_hub_fifo٠closed "t")
+    𝗶𝗻
+    𝗺𝗮𝘁𝗰𝗵 "res" 𝘄𝗶𝘁𝗵
+    | None ->
         ws_hub_fifo٠notify_all "t"
-    | Some <> =>
+    | Some ⎽ ->
         ws_hub_fifo٠end_inactive "t"
-    end ;;
+    𝗲𝗻𝗱 ⍮
     "res".
 
 Definition ws_hub_fifo٠close : val :=
   ws_hub_fifo٠begin_inactive.
 
 Definition ws_hub_fifo٠pop_steal_until : val :=
-  fun: "t" "i" "max_round_noyield" "max_round_yield" "notification" "pred" =>
-    if: "pred" () then (
+  𝗳𝘂𝗻 "t" "i" "max_round_noyield" "max_round_yield" "notification" "pred" ->
+    𝗶𝗳 "pred" () 𝘁𝗵𝗲𝗻 (
       §None
-    ) else (
-      match: ws_hub_fifo٠pop "t" "i" with
-      | Some <> as "res" =>
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗺𝗮𝘁𝗰𝗵 ws_hub_fifo٠pop "t" "i" 𝘄𝗶𝘁𝗵
+      | Some ⎽ 𝗮𝘀 "res" ->
           "res"
-      | None =>
+      | None ->
           ws_hub_fifo٠steal_until
             "t"
             "i"
@@ -120,14 +120,14 @@ Definition ws_hub_fifo٠pop_steal_until : val :=
             "max_round_yield"
             "notification"
             "pred"
-      end
+      𝗲𝗻𝗱
     ).
 
 Definition ws_hub_fifo٠pop_steal : val :=
-  fun: "t" "i" "max_round_noyield" "max_round_yield" =>
-    match: ws_hub_fifo٠pop "t" "i" with
-    | Some <> as "res" =>
+  𝗳𝘂𝗻 "t" "i" "max_round_noyield" "max_round_yield" ->
+    𝗺𝗮𝘁𝗰𝗵 ws_hub_fifo٠pop "t" "i" 𝘄𝗶𝘁𝗵
+    | Some ⎽ 𝗮𝘀 "res" ->
         "res"
-    | None =>
+    | None ->
         ws_hub_fifo٠steal "t" "i" "max_round_noyield" "max_round_yield"
-    end.
+    𝗲𝗻𝗱.

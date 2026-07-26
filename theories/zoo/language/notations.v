@@ -35,6 +35,55 @@ Number Notation
   val۰to_int
 : val_scope.
 
+Notation "'𝗮𝗹𝗹𝗼𝗰'" :=
+  Alloc
+: expr_scope.
+Notation "'𝗰𝗮𝘀'" :=
+  CAS
+: expr_scope.
+Notation "'𝗳𝗮𝗮'" :=
+  FAA
+: expr_scope.
+Notation "'𝗳𝗮𝗶𝗹'" :=
+  Fail
+: expr_scope.
+Notation "'𝗳𝗼𝗿𝗸'" :=
+  Fork
+: expr_scope.
+Notation "'𝗹𝗼𝗰𝗮𝗹'" :=
+  GetLocal
+: expr_scope.
+Notation "'𝗶𝗺𝗺𝗲𝗱𝗶𝗮𝘁𝗲'" :=
+  IsImmediate
+: expr_scope.
+Notation "'𝗹𝗼𝗮𝗱'" :=
+  Load
+: expr_scope.
+Notation "'𝗽𝗿𝗼𝗽𝗵'" :=
+  Proph
+: expr_scope.
+Notation "'𝗿𝗲𝘀𝗼𝗹𝘃𝗲'" :=
+  Resolve
+: expr_scope.
+Notation "'𝘀𝗲𝘁𝗹𝗼𝗰𝗮𝗹'" :=
+  SetLocal
+: expr_scope.
+Notation "'𝘀𝗶𝘇𝗲'" :=
+  GetSize
+: expr_scope.
+Notation "'𝘀𝗸𝗶𝗽'" :=
+  Skip
+: expr_scope.
+Notation "'𝘀𝘁𝗼𝗿𝗲'" :=
+  Store
+: expr_scope.
+Notation "'𝘁𝗮𝗴'" :=
+  GetTag
+: expr_scope.
+Notation "'𝘅𝗰𝗵𝗴'" :=
+  Xchg
+: expr_scope.
+
 Notation "'true'" := (
   Corelib.Init.Datatypes.true
 ) : core_scope.
@@ -156,7 +205,7 @@ Notation "'#*@{' X }" := (
 )(only parsing
 ).
 
-Notation "f x => e" := (
+Notation "f x -> e" := (
   @pair (prod binder binder) expr
     (@pair binder binder f%binder x%binder)
     e%E
@@ -164,9 +213,9 @@ Notation "f x => e" := (
   f constr at level 1,
   x constr at level 1,
   e constr at level 200,
-  format "f  x  =>  '/  ' '[' e ']'"
+  format "f  x  ->  '/  ' '[' e ']'"
 ).
-Notation "f x0 x1 .. xn => e" := (
+Notation "f x0 x1 .. xn -> e" := (
   @pair (prod binder binder) expr
     (@pair binder binder f%binder x0%binder)
     (Fun x1%binder .. (Fun xn%binder e%E) ..)
@@ -176,116 +225,116 @@ Notation "f x0 x1 .. xn => e" := (
   x1 constr at level 1,
   xn constr at level 1,
   e constr at level 200,
-  format "f  x0  x1  ..  xn  =>  '/  ' '[' e ']'"
+  format "f  x0  x1  ..  xn  ->  '/  ' '[' e ']'"
 ).
-Notation "'recs:' rec1 'and:' .. 'and:' recn" := (
-  @cons recursive rec1 (.. (@cons recursive recn (@nil recursive)) ..)
+Notation "'𝗿𝗲𝗰𝘀' rec_1 '𝘄𝗶𝘁𝗵' .. '𝘄𝗶𝘁𝗵' rec_n" := (
+  @cons recursive rec_1 (.. (@cons recursive rec_n (@nil recursive)) ..)
 )(at level 200,
-  rec1 custom zoo_rec,
-  recn custom zoo_rec,
-  format "'[v' recs:  rec1 '/' and:  .. '/' and:  recn ']'"
+  rec_1 custom zoo_rec,
+  rec_n custom zoo_rec,
+  format "'[v' 𝗿𝗲𝗰𝘀  rec_1 '/' '𝘄𝗶𝘁𝗵'  .. '/' '𝘄𝗶𝘁𝗵'  rec_n ']'"
 ) : zoo_recs_scope.
 
-Notation "'rec:' f x => e" := (
+Notation "'𝗿𝗲𝗰' f x -> e" := (
   Rec f%binder x%binder e%E
 )(at level 200,
   f, x at level 1,
   e at level 200,
-  format "'[hv' 'rec:'  f  x  =>  '/  ' '[' e ']' ']'"
+  format "'[hv' '𝗿𝗲𝗰'  f  x  ->  '/  ' '[' e ']' ']'"
 ) : expr_scope.
-Notation "'rec:' f x => e" := (
+Notation "'𝗿𝗲𝗰' f x -> e" := (
   ValRec f%binder x%binder e%E
 )(at level 200,
   f, x at level 1,
   e at level 200,
-  format "'[hv' 'rec:'  f  x  =>  '/  ' '[' e ']' ']'"
+  format "'[hv' '𝗿𝗲𝗰'  f  x  ->  '/  ' '[' e ']' ']'"
 ) : val_scope.
-Notation "'rec:' f x0 x1 .. xn => e" := (
+Notation "'𝗿𝗲𝗰' f x0 x1 .. xn -> e" := (
   Rec f%binder x0%binder (Fun x1%binder .. (Fun xn%binder e%E) ..)
 )(at level 200,
   f, x0, x1, xn at level 1,
   e at level 200,
-  format "'[hv' 'rec:'  f  x0  x1  ..  xn  =>  '/  ' '[' e ']' ']'"
+  format "'[hv' '𝗿𝗲𝗰'  f  x0  x1  ..  xn  ->  '/  ' '[' e ']' ']'"
 ) : expr_scope.
-Notation "'rec:' f x0 x1 .. xn => e" := (
+Notation "'𝗿𝗲𝗰' f x0 x1 .. xn -> e" := (
   ValRec f%binder x0%binder (Fun x1%binder .. (Fun xn%binder e%E) ..)
 )(at level 200,
   f, x0, x1, xn at level 1,
   e at level 200,
-  format "'[hv' 'rec:'  f  x0  x1  ..  xn  =>  '/  ' '[' e ']' ']'"
+  format "'[hv' '𝗿𝗲𝗰'  f  x0  x1  ..  xn  ->  '/  ' '[' e ']' ']'"
 ) : val_scope.
 
-Notation "'fun:' x => e" := (
+Notation "'𝗳𝘂𝗻' x -> e" := (
   Fun x%binder e%E
 )(at level 200,
   x at level 1,
   e at level 200,
-  format "'[hv' 'fun:'  x  =>  '/  ' '[' e ']' ']'"
+  format "'[hv' '𝗳𝘂𝗻'  x  ->  '/  ' '[' e ']' ']'"
 ) : expr_scope.
-Notation "'fun:' x0 x1 .. xn => e" := (
+Notation "'𝗳𝘂𝗻' x0 x1 .. xn -> e" := (
   Fun x0%binder (Fun x1%binder .. (Fun xn%binder e%E) ..)
 )(at level 200,
   x0, x1, xn at level 1,
   e at level 200,
-  format "'[hv' 'fun:'  x0  x1  ..  xn  =>  '/  ' '[' e ']' ']'"
+  format "'[hv' '𝗳𝘂𝗻'  x0  x1  ..  xn  ->  '/  ' '[' e ']' ']'"
 ) : expr_scope.
-Notation "'fun:' x => e" := (
+Notation "'𝗳𝘂𝗻' x -> e" := (
   ValFun x%binder e%E
 )(at level 200,
   x at level 1,
   e at level 200,
-  format "'[hv' 'fun:'  x  =>  '/  ' '[' e ']' ']'"
+  format "'[hv' '𝗳𝘂𝗻'  x  ->  '/  ' '[' e ']' ']'"
 ) : val_scope.
-Notation "'fun:' x0 x1 .. xn => e" := (
+Notation "'𝗳𝘂𝗻' x0 x1 .. xn -> e" := (
   ValFun x0%binder (Fun x1%binder .. (Fun xn%binder e%E) .. )
 )(at level 200,
   x0, x1, xn at level 1,
   e at level 200,
-  format "'[hv' 'fun:'  x0  x1  ..  xn  =>  '/  ' '[' e ']' ']'"
+  format "'[hv' '𝗳𝘂𝗻'  x0  x1  ..  xn  ->  '/  ' '[' e ']' ']'"
 ) : val_scope.
 
-Notation "'letrec:' f x := e1 'in' e2" := (
+Notation "'𝗹𝗲𝘁𝗿𝗲𝗰' f x = e1 '𝗶𝗻' e2" := (
   Let f%binder (Rec f%binder x%binder e1%E) e2%E
 )(at level 200,
   f, x at level 1,
   e1, e2 at level 200,
-  format "'[v' '[hv' 'letrec:'  f  x  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
+  format "'[v' '[hv' '𝗹𝗲𝘁𝗿𝗲𝗰'  f  x  =  '/  ' '[' e1 ']'  '/' '𝗶𝗻'  ']' '/' e2 ']'"
 ) : expr_scope.
-Notation "'letrec:' f x0 x1 .. xn := e1 'in' e2" := (
+Notation "'𝗹𝗲𝘁𝗿𝗲𝗰' f x0 x1 .. xn = e1 '𝗶𝗻' e2" := (
   Let f%binder (Rec f%binder x0%binder (Fun x1%binder .. (Fun xn%binder e1%E) ..)) e2%E
 )(at level 200,
   f, x0, x1, xn at level 1,
   e1, e2 at level 200,
-  format "'[v' '[hv' 'letrec:'  f  x0  x1  ..  xn  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
+  format "'[v' '[hv' '𝗹𝗲𝘁𝗿𝗲𝗰'  f  x0  x1  ..  xn  =  '/  ' '[' e1 ']'  '/' '𝗶𝗻'  ']' '/' e2 ']'"
 ) : expr_scope.
 
-Notation "'let:' x := e1 'in' e2" := (
+Notation "'𝗹𝗲𝘁' x = e1 '𝗶𝗻' e2" := (
   Let x%binder e1%E e2%E
 )(at level 200,
   x at level 1,
   e1, e2 at level 200,
-  format "'[v' '[hv' 'let:'  x  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
+  format "'[v' '[hv' '𝗹𝗲𝘁'  x  =  '/  ' '[' e1 ']'  '/' '𝗶𝗻'  ']' '/' e2 ']'"
 ) : expr_scope.
-Notation "'let:' f x := e1 'in' e2" := (
+Notation "'𝗹𝗲𝘁' f x = e1 '𝗶𝗻' e2" := (
   Let f%binder (Fun x%binder e1%E) e2%E
 )(at level 200,
   f, x at level 1,
   e1, e2 at level 200,
-  format "'[v' '[hv' 'let:'  f  x  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
+  format "'[v' '[hv' '𝗹𝗲𝘁'  f  x  =  '/  ' '[' e1 ']'  '/' '𝗶𝗻'  ']' '/' e2 ']'"
 ) : expr_scope.
-Notation "'let:' f x0 x1 .. xn := e1 'in' e2" := (
+Notation "'𝗹𝗲𝘁' f x0 x1 .. xn = e1 '𝗶𝗻' e2" := (
   Let f%binder (Fun x0%binder (Fun x1%binder .. (Fun xn%binder e1%E) ..)) e2%E
 )(at level 200,
   f, x0, x1, xn at level 1,
   e1, e2 at level 200,
-  format "'[v' '[hv' 'let:'  f  x0  x1  ..  xn  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
+  format "'[v' '[hv' '𝗹𝗲𝘁'  f  x0  x1  ..  xn  =  '/  ' '[' e1 ']'  '/' '𝗶𝗻'  ']' '/' e2 ']'"
 ) : expr_scope.
 
-Notation "e1 ;; e2" := (
+Notation "e1 ⍮ e2" := (
   Let BAnon e1%E e2%E
 )(at level 100,
   e2 at level 200,
-  format "'[v' '[' e1 ']'  ;;  '/' e2 ']'"
+  format "'[v' '[' e1 ']'  ⍮  '/' e2 ']'"
 ) : expr_scope.
 
 Notation "~ e" := (
@@ -314,30 +363,30 @@ Notation "e1 * e2" := (
 )(at level 40,
   left associativity
 ) : expr_scope.
-Notation "e1 `quot` e2" := (
+Notation "e1 '𝗾𝘂𝗼𝘁' e2" := (
   Binop BinopQuot e1%E e2%E
 )(at level 35
 ) : expr_scope.
-Notation "e1 `rem` e2" := (
+Notation "e1 '𝗿𝗲𝗺' e2" := (
   Binop BinopRem e1%E e2%E
 )(at level 35
 ) : expr_scope.
-Notation "e1 `land` e2" := (
+Notation "e1 '𝗹𝗮𝗻𝗱' e2" := (
   Binop BinopLand e1%E e2%E
 )(at level 31,
   left associativity
 ) : expr_scope.
-Notation "e1 `lor` e2" := (
+Notation "e1 '𝗹𝗼𝗿' e2" := (
   Binop BinopLor e1%E e2%E
 )(at level 32,
   left associativity
 ) : expr_scope.
-Notation "e1 `lsl` e2" := (
+Notation "e1 '𝗹𝘀𝗹' e2" := (
   Binop BinopLsl e1%E e2%E
 )(at level 30,
   right associativity
 ) : expr_scope.
-Notation "e1 `lsr` e2" := (
+Notation "e1 '𝗹𝘀𝗿' e2" := (
   Binop BinopLsr e1%E e2%E
 )(at level 30,
   right associativity
@@ -372,45 +421,45 @@ Notation "e1 != e2" := (
 )(at level 70,
   no associativity
 ) : expr_scope.
-Notation "e1 'and' e2" := (
+Notation "e1 '𝗮𝗻𝗱' e2" := (
   If e1%E e2%E (ValBool false)
 )(at level 76,
   left associativity,
   only parsing
 ) : expr_scope.
-Notation "e1 'or' e2" := (
+Notation "e1 '𝗼𝗿' e2" := (
   If e1%E (ValBool true) e2%E
 )(at level 77,
   left associativity,
   only parsing
 ) : expr_scope.
 
-Notation "'if:' e0 'then' e1 'else' e2" := (
+Notation "'𝗶𝗳' e0 '𝘁𝗵𝗲𝗻' e1 '𝗲𝗹𝘀𝗲' e2" := (
   If e0%E e1%E e2%E
 )(at level 1,
   e0, e1 at level 200,
   e2 at level 1,
   only parsing
 ) : expr_scope.
-Notation "'if:' e0 'then' ( e1 ) 'else' ( e2 )" := (
+Notation "'𝗶𝗳' e0 '𝘁𝗵𝗲𝗻' ( e1 ) '𝗲𝗹𝘀𝗲' ( e2 )" := (
   If e0%E e1%E e2%E
 )(at level 1,
   e0, e1, e2 at level 200,
   only printing,
-  format "'[v' '[hv' if:  '/  ' '[' e0 ']'  '/' then  ( ']' '/  ' '[' e1 ']' '/' )  else  ( '/  ' '[' e2 ']' '/' ) ']'"
+  format "'[v' '[hv' '𝗶𝗳'  '/  ' '[' e0 ']'  '/' '𝘁𝗵𝗲𝗻'  ( ']' '/  ' '[' e1 ']' '/' )  '𝗲𝗹𝘀𝗲'  ( '/  ' '[' e2 ']' '/' ) ']'"
 ) : expr_scope.
-Notation "'if:' e0 'then' e1" := (
+Notation "'𝗶𝗳' e0 '𝘁𝗵𝗲𝗻' e1" := (
   If e0%E e1%E Unit
 )(at level 1,
   e0, e1 at level 200,
   only parsing
 ) : expr_scope.
 
-Notation "'for:' x := e1 'to' e2 'begin' e3 'end'" := (
+Notation "'𝗳𝗼𝗿' x = e1 '𝘁𝗼' e2 '𝗱𝗼' e3 '𝗱𝗼𝗻𝗲'" := (
   For e1%E e2%E (Fun x%binder e3%E)
 )(x at level 1,
   e1, e2, e3 at level 200,
-  format "'[v' '[hv' for:  x  :=  '/  ' '[' e1 ']'  '/' to  '/  ' '[' e2 ']'  '/' begin  ']' '/  ' '[' e3 ']'  '/' end ']'"
+  format "'[v' '[hv' '𝗳𝗼𝗿'  x  =  '/  ' '[' e1 ']'  '/' '𝘁𝗼'  '/  ' '[' e2 ']'  '/' '𝗱𝗼'  ']' '/  ' '[' e3 ']'  '/' '𝗱𝗼𝗻𝗲' ']'"
 ) : expr_scope.
 
 Notation "{ e1 , .. , en }" := (
@@ -534,7 +583,7 @@ Notation "()" :=
   ValUnit
 : val_scope.
 
-Notation "[ ] => e" := (
+Notation "[ ] -> e" := (
   @pair pattern expr
     ( Build_pattern
         (in_type "@list" 0)
@@ -544,9 +593,9 @@ Notation "[ ] => e" := (
     e%E
 )(in custom zoo_branch at level 200,
   e constr at level 200,
-  format "[ ]  =>  '/    ' '[' e ']'"
+  format "[ ]  ->  '/    ' '[' e ']'"
 ).
-Notation "[ ] 'as' x => e" := (
+Notation "[ ] '𝗮𝘀' x -> e" := (
   @pair pattern expr
     ( Build_pattern
         (in_type "@list" 0)
@@ -557,9 +606,9 @@ Notation "[ ] 'as' x => e" := (
 )(in custom zoo_branch at level 200,
   x constr at level 1,
   e constr at level 200,
-  format "[ ]  as  x  =>  '/    ' '[' e ']'"
+  format "[ ]  '𝗮𝘀'  x  ->  '/    ' '[' e ']'"
 ).
-Notation "x1 :: x2 => e" := (
+Notation "x1 :: x2 -> e" := (
   @pair pattern expr
     ( Build_pattern
         (in_type "@list" 1)
@@ -571,9 +620,9 @@ Notation "x1 :: x2 => e" := (
   x1 constr at level 1,
   x2 constr at level 1,
   e constr at level 200,
-  format "x1  ::  x2  =>  '/    ' '[' e ']'"
+  format "x1  ::  x2  ->  '/    ' '[' e ']'"
 ).
-Notation "x1 :: x2 'as' y => e" := (
+Notation "x1 :: x2 '𝗮𝘀' y -> e" := (
   @pair pattern expr
     ( Build_pattern
         (in_type "@list" 1)
@@ -586,9 +635,9 @@ Notation "x1 :: x2 'as' y => e" := (
   x2 constr at level 1,
   y constr at level 1,
   e constr at level 200,
-  format "x1  ::  x2  as  y  =>  '/    ' '[' e ']'"
+  format "x1  ::  x2  '𝗮𝘀'  y  ->  '/    ' '[' e ']'"
 ).
-Notation "tag => e" := (
+Notation "tag -> e" := (
   @pair pattern expr
     ( Build_pattern
         tag%core
@@ -599,9 +648,9 @@ Notation "tag => e" := (
 )(in custom zoo_branch at level 200,
   tag custom zoo_tag,
   e constr at level 200,
-  format "tag  =>  '/    ' '[' e ']'"
+  format "tag  ->  '/    ' '[' e ']'"
 ).
-Notation "tag 'as' x => e" := (
+Notation "tag '𝗮𝘀' x -> e" := (
   @pair pattern expr
     ( Build_pattern
         tag%core
@@ -613,9 +662,9 @@ Notation "tag 'as' x => e" := (
   tag custom zoo_tag,
   x constr at level 1,
   e constr at level 200,
-  format "tag  as  x  =>  '/    ' '[' e ']'"
+  format "tag  '𝗮𝘀'  x  ->  '/    ' '[' e ']'"
 ).
-Notation "tag 'as:' x => e" := (
+Notation "tag '𝗮𝘀:' x -> e" := (
   @pair pattern expr
     ( Build_pattern
         tag%core
@@ -627,9 +676,9 @@ Notation "tag 'as:' x => e" := (
   tag custom zoo_tag,
   x constr at level 1,
   e constr at level 200,
-  format "tag  as:  x  =>  '/    ' '[' e ']'"
+  format "tag  '𝗮𝘀:'  x  ->  '/    ' '[' e ']'"
 ).
-Notation "tag x1 .. xn => e" := (
+Notation "tag x1 .. xn -> e" := (
   @pair pattern expr
     ( Build_pattern
         tag%core
@@ -642,9 +691,9 @@ Notation "tag x1 .. xn => e" := (
   x1 constr at level 1,
   xn constr at level 1,
   e constr at level 200,
-  format "tag  x1  ..  xn  =>  '/    ' '[' e ']'"
+  format "tag  x1  ..  xn  ->  '/    ' '[' e ']'"
 ).
-Notation "tag x1 .. xn 'as' y => e" := (
+Notation "tag x1 .. xn '𝗮𝘀' y -> e" := (
   @pair pattern expr
     ( Build_pattern
         tag%core
@@ -658,9 +707,9 @@ Notation "tag x1 .. xn 'as' y => e" := (
   xn constr at level 1,
   y constr at level 1,
   e constr at level 200,
-  format "tag  x1  ..  xn  as  y  =>  '/    ' '[' e ']'"
+  format "tag  x1  ..  xn  '𝗮𝘀'  y  ->  '/    ' '[' e ']'"
 ).
-Notation "tag x1 .. xn 'as:' y => e" := (
+Notation "tag x1 .. xn '𝗮𝘀:' y -> e" := (
   @pair pattern expr
     ( Build_pattern
         tag%core
@@ -674,10 +723,10 @@ Notation "tag x1 .. xn 'as:' y => e" := (
   xn constr at level 1,
   y constr at level 1,
   e constr at level 200,
-  format "tag  x1  ..  xn  as:  y  =>  '/    ' '[' e ']'"
+  format "tag  x1  ..  xn  '𝗮𝘀:'  y  ->  '/    ' '[' e ']'"
 ).
 
-Notation "'match:' e 'with' | br_1 | .. | br_n 'end'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n '𝗲𝗻𝗱'" := (
   Match
     e%E
     BAnon
@@ -686,9 +735,9 @@ Notation "'match:' e 'with' | br_1 | .. | br_n 'end'" := (
 )(e at level 200,
   br_1 custom zoo_branch at level 200,
   br_n custom zoo_branch at level 200,
-  format "'[v' '[hv' match:  '/  ' '[' e ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' end ']'"
+  format "'[v' '[hv' '𝗺𝗮𝘁𝗰𝗵'  '/  ' '[' e ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' '𝗲𝗻𝗱' ']'"
 ) : expr_scope.
-Notation "'match:' e 'with' br_1 | .. | br_n 'end'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e '𝘄𝗶𝘁𝗵' br_1 | .. | br_n '𝗲𝗻𝗱'" := (
   Match
     e%E
     BAnon
@@ -699,7 +748,7 @@ Notation "'match:' e 'with' br_1 | .. | br_n 'end'" := (
   br_n custom zoo_branch at level 200,
   only parsing
 ) : expr_scope.
-Notation "'match:' e0 'with' | br_1 | .. | br_n |_ => e1 'end'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n | ⎽ -> e1 '𝗲𝗻𝗱'" := (
   Match
     e0%E
     BAnon
@@ -708,9 +757,9 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n |_ => e1 'end'" := (
 )(e0, e1 at level 200,
   br_1 custom zoo_branch at level 200,
   br_n custom zoo_branch at level 200,
-  format "'[v' '[hv' match:  '/  ' '[' e0 ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |_  =>  '/    ' '[' e1 ']'  '/' end ']'"
+  format "'[v' '[hv' 𝗺𝗮𝘁𝗰𝗵  '/  ' '[' e0 ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |  ⎽  ->  '/    ' '[' e1 ']'  '/' '𝗲𝗻𝗱' ']'"
 ) : expr_scope.
-Notation "'match:' e0 'with' br_1 | .. | br_n |_ => e1 'end'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n | ⎽ -> e1 '𝗲𝗻𝗱'" := (
   Match
     e0%E
     BAnon
@@ -721,7 +770,7 @@ Notation "'match:' e0 'with' br_1 | .. | br_n |_ => e1 'end'" := (
   br_n custom zoo_branch at level 200,
   only parsing
 ) : expr_scope.
-Notation "'match:' e0 'with' | br_1 | .. | br_n |_ 'as' x => e1 'end'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n | ⎽ '𝗮𝘀' x -> e1 '𝗲𝗻𝗱'" := (
   Match
     e0%E
     (BNamed x%string)
@@ -731,9 +780,9 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n |_ 'as' x => e1 'end'" := (
   br_1 custom zoo_branch at level 200,
   br_n custom zoo_branch at level 200,
   x at level 1,
-  format "'[v' '[hv' match:  '/  ' '[' e0 ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |_  as  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
+  format "'[v' '[hv' 𝗺𝗮𝘁𝗰𝗵  '/  ' '[' e0 ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |  ⎽  '𝗮𝘀'  x  ->  '/    ' '[' e1 ']'  '/' '𝗲𝗻𝗱' ']'"
 ) : expr_scope.
-Notation "'match:' e0 'with' br_1 | .. | br_n |_ 'as' x => e1 'end'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n | ⎽ 'as' x -> e1 '𝗲𝗻𝗱'" := (
   Match
     e0%E
     (BNamed x%string)
@@ -745,7 +794,7 @@ Notation "'match:' e0 'with' br_1 | .. | br_n |_ 'as' x => e1 'end'" := (
   x at level 1,
   only parsing
 ) : expr_scope.
-Notation "'match:' e0 'with' | br_1 | .. | br_n |_ 'as:' x => e1 'end'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n | ⎽ '𝗮𝘀:' x -> e1 '𝗲𝗻𝗱'" := (
   Match
     e0%E
     x%binder
@@ -755,9 +804,9 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n |_ 'as:' x => e1 'end'" := (
   br_1 custom zoo_branch at level 200,
   br_n custom zoo_branch at level 200,
   x at level 1,
-  format "'[v' '[hv' match:  '/  ' '[' e0 ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |_  as:  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
+  format "'[v' '[hv' 𝗺𝗮𝘁𝗰𝗵  '/  ' '[' e0 ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |  ⎽  '𝗮𝘀:'  x  ->  '/    ' '[' e1 ']'  '/' '𝗲𝗻𝗱' ']'"
 ) : expr_scope.
-Notation "'match:' e0 'with' br_1 | .. | br_n |_ 'as:' x => e1 'end'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n | ⎽ '𝗮𝘀:' x -> e1 '𝗲𝗻𝗱'" := (
   Match
     e0%E
     x%binder
@@ -770,7 +819,7 @@ Notation "'match:' e0 'with' br_1 | .. | br_n |_ 'as:' x => e1 'end'" := (
   only parsing
 ) : expr_scope.
 
-Notation "'let:' ‘ tag x1 .. xn := e1 'in' e2" := (
+Notation "'𝗹𝗲𝘁' ‘ tag x1 .. xn = e1 '𝗶𝗻' e2" := (
   Match
     e1%E
     BAnon
@@ -790,9 +839,9 @@ Notation "'let:' ‘ tag x1 .. xn := e1 'in' e2" := (
   tag custom zoo_tag,
   x1, xn at level 1,
   e1, e2 at level 200,
-  format "'[v' '[hv' 'let:'  ‘ tag  x1  ..  xn  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
+  format "'[v' '[hv' '𝗹𝗲𝘁'  ‘ tag  x1  ..  xn  =  '/  ' '[' e1 ']'  '/' '𝗶𝗻'  ']' '/' e2 ']'"
 ) : expr_scope.
-Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
+Notation "'𝗹𝗲𝘁' x0 , x1 , .. , xn = e1 '𝗶𝗻' e2" := (
   Match
     e1%E
     BAnon
@@ -811,7 +860,7 @@ Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
 )(at level 200,
   x0, x1, xn at level 1,
   e1, e2 at level 200,
-  format "'[v' '[hv' 'let:'  x0 ,  x1 ,  .. ,  xn  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
+  format "'[v' '[hv' '𝗹𝗲𝘁'  x0 ,  x1 ,  .. ,  xn  =  '/  ' '[' e1 ']'  '/' '𝗶𝗻'  ']' '/' e2 ']'"
 ) : expr_scope.
 
 Notation "e .{ fld }" := (
@@ -889,7 +938,7 @@ Notation "'contents'" := (
   in_type "@ref" 0
 )(in custom zoo_field
 ).
-Notation "'ref' e" := (
+Notation "'𝗿𝗲𝗳' e" := (
   Block Mutable (in_type "@ref" 0) (@cons expr e%E (@nil expr))
 )(at level 10
 ) : expr_scope.

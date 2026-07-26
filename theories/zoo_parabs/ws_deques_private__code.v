@@ -10,7 +10,7 @@ Require Import zoo_parabs.ws_deques_private__types.
 Require Import zoo.options.
 
 Definition ws_deques_private٠create : val :=
-  fun: "sz" =>
+  𝗳𝘂𝗻 "sz" ->
     { "sz",
       array٠unsafe_init "sz" queue_3٠create,
       array٠unsafe_make "sz" §Nonblocked,
@@ -20,98 +20,112 @@ Definition ws_deques_private٠create : val :=
     }.
 
 Definition ws_deques_private٠size : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t".{size}.
 
 Definition ws_deques_private٠block : val :=
-  fun: "t" "i" =>
-    array٠unsafe_set "t".{statuses} "i" §Blocked ;;
-    match: atomic_array٠unsafe_xchg "t".{requests} "i" §RequestBlocked with
-    | RequestSome "j" =>
+  𝗳𝘂𝗻 "t" "i" ->
+    array٠unsafe_set "t".{statuses} "i" §Blocked ⍮
+    𝗺𝗮𝘁𝗰𝗵
+      atomic_array٠unsafe_xchg "t".{requests} "i" §RequestBlocked
+    𝘄𝗶𝘁𝗵
+    | RequestSome "j" ->
         array٠unsafe_set "t".{responses} "j" §ResponseNone
-    |_ =>
+    | ⎽ ->
         ()
-    end.
+    𝗲𝗻𝗱.
 
 Definition ws_deques_private٠unblock : val :=
-  fun: "t" "i" =>
-    atomic_array٠unsafe_set "t".{requests} "i" §RequestNone ;;
+  𝗳𝘂𝗻 "t" "i" ->
+    atomic_array٠unsafe_set "t".{requests} "i" §RequestNone ⍮
     array٠unsafe_set "t".{statuses} "i" §Nonblocked.
 
 Definition ws_deques_private٠respond : val :=
-  fun: "t" "i" =>
-    match: atomic_array٠unsafe_get "t".{requests} "i" with
-    | RequestSome "j" =>
-        let: "response" :=
-          match: queue_3٠pop_front (array٠unsafe_get "t".{queues} "i") with
-          | Some "v" =>
+  𝗳𝘂𝗻 "t" "i" ->
+    𝗺𝗮𝘁𝗰𝗵
+      atomic_array٠unsafe_get "t".{requests} "i"
+    𝘄𝗶𝘁𝗵
+    | RequestSome "j" ->
+        𝗹𝗲𝘁 "response" =
+          𝗺𝗮𝘁𝗰𝗵
+            queue_3٠pop_front (array٠unsafe_get "t".{queues} "i")
+          𝘄𝗶𝘁𝗵
+          | Some "v" ->
               ‘ResponseSome( "v" )
-          |_ =>
+          | ⎽ ->
               §ResponseNone
-          end
-        in
-        array٠unsafe_set "t".{responses} "j" "response" ;;
+          𝗲𝗻𝗱
+        𝗶𝗻
+        array٠unsafe_set "t".{responses} "j" "response" ⍮
         atomic_array٠unsafe_set "t".{requests} "i" §RequestNone
-    |_ =>
+    | ⎽ ->
         ()
-    end.
+    𝗲𝗻𝗱.
 
 Definition ws_deques_private٠push : val :=
-  fun: "t" "i" "v" =>
-    queue_3٠push (array٠unsafe_get "t".{queues} "i") "v" ;;
+  𝗳𝘂𝗻 "t" "i" "v" ->
+    queue_3٠push (array٠unsafe_get "t".{queues} "i") "v" ⍮
     ws_deques_private٠respond "t" "i".
 
 Definition ws_deques_private٠pop : val :=
-  fun: "t" "i" =>
-    let: "res" := queue_3٠pop_back (array٠unsafe_get "t".{queues} "i") in
-    ws_deques_private٠respond "t" "i" ;;
+  𝗳𝘂𝗻 "t" "i" ->
+    𝗹𝗲𝘁 "res" =
+      queue_3٠pop_back (array٠unsafe_get "t".{queues} "i")
+    𝗶𝗻
+    ws_deques_private٠respond "t" "i" ⍮
     "res".
 
 Definition ws_deques_private٠steal_to₀ : val :=
-  rec: "steal_to" "t" "i" =>
-    match: array٠unsafe_get "t".{responses} "i" with
-    | ResponseWaiting =>
-        domain٠yield () ;;
+  𝗿𝗲𝗰 "steal_to" "t" "i" ->
+    𝗺𝗮𝘁𝗰𝗵
+      array٠unsafe_get "t".{responses} "i"
+    𝘄𝗶𝘁𝗵
+    | ResponseWaiting ->
+        domain٠yield () ⍮
         "steal_to" "t" "i"
-    | ResponseNone =>
-        array٠unsafe_set "t".{responses} "i" §ResponseWaiting ;;
+    | ResponseNone ->
+        array٠unsafe_set "t".{responses} "i" §ResponseWaiting ⍮
         §None
-    | ResponseSome "v" =>
-        array٠unsafe_set "t".{responses} "i" §ResponseWaiting ;;
+    | ResponseSome "v" ->
+        array٠unsafe_set "t".{responses} "i" §ResponseWaiting ⍮
         ‘Some( "v" )
-    end.
+    𝗲𝗻𝗱.
 
 Definition ws_deques_private٠steal_to : val :=
-  fun: "t" "i" "j" =>
-    if:
+  𝗳𝘂𝗻 "t" "i" "j" ->
+    𝗶𝗳
       array٠unsafe_get "t".{statuses} "j" == §Nonblocked
-      and
+      𝗮𝗻𝗱
       atomic_array٠unsafe_cas
         "t".{requests}
         "j"
         §RequestNone
         ‘RequestSome( "i" )
-    then (
+    𝘁𝗵𝗲𝗻 (
       ws_deques_private٠steal_to₀ "t" "i"
-    ) else (
+    ) 𝗲𝗹𝘀𝗲 (
       §None
     ).
 
 Definition ws_deques_private٠steal_as₀ : val :=
-  rec: "steal_as" "t" "sz" "i" "round" "n" =>
-    if: "n" ≤ 0 then (
+  𝗿𝗲𝗰 "steal_as" "t" "sz" "i" "round" "n" ->
+    𝗶𝗳 "n" ≤ 0 𝘁𝗵𝗲𝗻 (
       §None
-    ) else (
-      let: "j" := ("i" + 1 + random_round٠next "round") `rem` "sz" in
-      match: ws_deques_private٠steal_to "t" "i" "j" with
-      | None =>
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "j" =
+        ("i" + 1 + random_round٠next "round") 𝗿𝗲𝗺 "sz"
+      𝗶𝗻
+      𝗺𝗮𝘁𝗰𝗵
+        ws_deques_private٠steal_to "t" "i" "j"
+      𝘄𝗶𝘁𝗵
+      | None ->
           "steal_as" "t" "sz" "i" "round" ("n" - 1)
-      |_ as "res" =>
+      | ⎽ 𝗮𝘀 "res" ->
           "res"
-      end
+      𝗲𝗻𝗱
     ).
 
 Definition ws_deques_private٠steal_as : val :=
-  fun: "t" "i" "round" =>
-    let: "sz" := ws_deques_private٠size "t" in
+  𝗳𝘂𝗻 "t" "i" "round" ->
+    𝗹𝗲𝘁 "sz" = ws_deques_private٠size "t" 𝗶𝗻
     ws_deques_private٠steal_as₀ "t" "sz" "i" "round" ("sz" - 1).

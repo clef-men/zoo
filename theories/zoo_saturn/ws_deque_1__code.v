@@ -11,93 +11,101 @@ Definition ws_deque_1٠min_capacity : val :=
   16.
 
 Definition ws_deque_1٠create : val :=
-  fun: <> =>
-    { 1, 1, array٠unsafe_make ws_deque_1٠min_capacity (), Proph }.
+  𝗳𝘂𝗻 ⎽ ->
+    { 1,
+      1,
+      array٠unsafe_make ws_deque_1٠min_capacity (),
+      𝗽𝗿𝗼𝗽𝗵
+    }.
 
 Definition ws_deque_1٠size : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t".{back} - "t".{front}.
 
 Definition ws_deque_1٠is_empty : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     ws_deque_1٠size "t" == 0.
 
 Definition ws_deque_1٠push : val :=
-  fun: "t" "v" =>
-    let: "back" := "t".{back} in
-    let: "data" := "t".{data} in
-    let: "cap" := array٠size "data" in
-    let: "front" := "t".{front} in
-    if: "back" < "front" + "cap" then (
+  𝗳𝘂𝗻 "t" "v" ->
+    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
+    𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+    𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
+    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    𝗶𝗳 "back" < "front" + "cap" 𝘁𝗵𝗲𝗻 (
       array٠unsafe_cset "data" "back" "v"
-    ) else (
-      let: "new_cap" := "cap" `lsl` 1 in
-      let: "new_data" := array٠unsafe_cgrow "data" "front" "new_cap" () in
-      array٠unsafe_cset "new_data" "back" "v" ;;
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "new_cap" = "cap" 𝗹𝘀𝗹 1 𝗶𝗻
+      𝗹𝗲𝘁 "new_data" =
+        array٠unsafe_cgrow "data" "front" "new_cap" ()
+      𝗶𝗻
+      array٠unsafe_cset "new_data" "back" "v" ⍮
       "t" <-{data} "new_data"
-    ) ;;
+    ) ⍮
     "t" <-{back} "back" + 1.
 
 Definition ws_deque_1٠steal : val :=
-  rec: "steal" "t" =>
-    let: "id" := Id in
-    let: "front" := "t".{front} in
-    let: "back" := "t".{back} in
-    if: "back" ≤ "front" then (
+  𝗿𝗲𝗰 "steal" "t" ->
+    𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
+    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
+    𝗶𝗳 "back" ≤ "front" 𝘁𝗵𝗲𝗻 (
       §None
-    ) else (
-      let: "data" := "t".{data} in
-      let: "v" := array٠unsafe_cget "data" "front" in
-      if:
-        Resolve
-          (CAS "t".[front] "front" ("front" + 1))
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+      𝗹𝗲𝘁 "v" = array٠unsafe_cget "data" "front" 𝗶𝗻
+      𝗶𝗳
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲
+          (𝗰𝗮𝘀 "t".[front] "front" ("front" + 1))
           "t".{proph}
           ("front", "id")
-      then (
+      𝘁𝗵𝗲𝗻 (
         ‘Some( "v" )
-      ) else (
-        domain٠yield () ;;
+      ) 𝗲𝗹𝘀𝗲 (
+        domain٠yield () ⍮
         "steal" "t"
       )
     ).
 
 Definition ws_deque_1٠pop₀ : val :=
-  fun: "t" "id" "back" =>
-    let: "front" := "t".{front} in
-    if: "back" < "front" then (
-      "t" <-{back} "front" ;;
+  𝗳𝘂𝗻 "t" "id" "back" ->
+    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    𝗶𝗳 "back" < "front" 𝘁𝗵𝗲𝗻 (
+      "t" <-{back} "front" ⍮
       §None
-    ) else if: "front" < "back" then (
-      let: "data" := "t".{data} in
-      let: "cap" := array٠size "data" in
-      if: ws_deque_1٠min_capacity + 3 * ("back" - "front") ≤ "cap" then (
-        let: "new_cap" := "cap" `lsr` 1 in
-        let: "new_data" :=
+    ) 𝗲𝗹𝘀𝗲 𝗶𝗳 "front" < "back" 𝘁𝗵𝗲𝗻 (
+      𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+      𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
+      𝗶𝗳
+        ws_deque_1٠min_capacity + 3 * ("back" - "front") ≤ "cap"
+      𝘁𝗵𝗲𝗻 (
+        𝗹𝗲𝘁 "new_cap" = "cap" 𝗹𝘀𝗿 1 𝗶𝗻
+        𝗹𝗲𝘁 "new_data" =
           array٠unsafe_cshrink_slice "data" "front" "new_cap"
-        in
+        𝗶𝗻
         "t" <-{data} "new_data"
-      ) else (
+      ) 𝗲𝗹𝘀𝗲 (
         ()
-      ) ;;
+      ) ⍮
       ‘Some( array٠unsafe_cget "data" "back" )
-    ) else (
-      let: "won" :=
-        Resolve
-          (CAS "t".[front] "front" ("front" + 1))
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "won" =
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲
+          (𝗰𝗮𝘀 "t".[front] "front" ("front" + 1))
           "t".{proph}
           ("front", "id")
-      in
-      "t" <-{back} "front" + 1 ;;
-      if: "won" then (
+      𝗶𝗻
+      "t" <-{back} "front" + 1 ⍮
+      𝗶𝗳 "won" 𝘁𝗵𝗲𝗻 (
         ‘Some( array٠unsafe_cget "t".{data} "front" )
-      ) else (
+      ) 𝗲𝗹𝘀𝗲 (
         §None
       )
     ).
 
 Definition ws_deque_1٠pop : val :=
-  fun: "t" =>
-    let: "id" := Id in
-    let: "back" := "t".{back} - 1 in
-    "t" <-{back} "back" ;;
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{back} - 1 𝗶𝗻
+    "t" <-{back} "back" ⍮
     ws_deque_1٠pop₀ "t" "id" "back".

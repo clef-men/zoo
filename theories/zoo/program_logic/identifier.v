@@ -19,6 +19,9 @@ Notation ValId id := (
   ValProph id
 )(only parsing
 ).
+Notation "'𝗶𝗱'" :=
+  Id
+: expr_scope.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

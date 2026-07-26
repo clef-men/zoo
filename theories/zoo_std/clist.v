@@ -119,7 +119,7 @@ Section zoo۰G.
 
   Lemma wp𑁒match𑁒clist𑁒open vs e1 x2 e2 Φ :
     WP subst' x2 (list۰to_clist_open vs) e2 {{ Φ }} ⊢
-    WP match: list۰to_clist_open vs with ClistClosed => e1 |_ as: x2 => e2 end {{ Φ }}.
+    WP 𝗺𝗮𝘁𝗰𝗵 list۰to_clist_open vs 𝘄𝗶𝘁𝗵 ClistClosed -> e1 | ⎽ 𝗮𝘀: x2 -> e2 𝗲𝗻𝗱 {{ Φ }}.
   Proof.
     destruct vs; iSteps.
   Qed.

@@ -12,31 +12,31 @@ Definition deque٠is_empty : val :=
   xdeque٠is_empty.
 
 Definition deque٠push_front : val :=
-  fun: "t" "v" =>
+  𝗳𝘂𝗻 "t" "v" ->
     xdeque٠push_front "t" { "t", "t", "v" }.
 
 Definition deque٠push_back : val :=
-  fun: "t" "v" =>
+  𝗳𝘂𝗻 "t" "v" ->
     xdeque٠push_back "t" { "t", "t", "v" }.
 
 Definition deque٠pop_front : val :=
-  fun: "t" =>
-    match: xdeque٠pop_front "t" with
-    | None =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 xdeque٠pop_front "t" 𝘄𝗶𝘁𝗵
+    | None ->
         §None
-    | Some "node" =>
+    | Some "node" ->
         ‘Some( "node".{xdeque_data} )
-    end.
+    𝗲𝗻𝗱.
 
 Definition deque٠pop_back : val :=
-  fun: "t" =>
-    match: xdeque٠pop_back "t" with
-    | None =>
+  𝗳𝘂𝗻 "t" ->
+    𝗺𝗮𝘁𝗰𝗵 xdeque٠pop_back "t" 𝘄𝗶𝘁𝗵
+    | None ->
         §None
-    | Some "node" =>
+    | Some "node" ->
         ‘Some( "node".{xdeque_data} )
-    end.
+    𝗲𝗻𝗱.
 
 Definition deque٠iter : val :=
-  fun: "fn" =>
-    xdeque٠iter (fun: "node" => "fn" "node".{xdeque_data}).
+  𝗳𝘂𝗻 "fn" ->
+    xdeque٠iter (𝗳𝘂𝗻 "node" -> "fn" "node".{xdeque_data}).

@@ -8,38 +8,47 @@ Require Import zoo_saturn.bag_1__types.
 Require Import zoo.options.
 
 Definition bag_1٠create : val :=
-  fun: "sz" =>
-    { array٠unsafe_init "sz" (fun: <> => ref §Gnone), 0, 0 }.
+  𝗳𝘂𝗻 "sz" ->
+    { array٠unsafe_init "sz" (𝗳𝘂𝗻 ⎽ -> 𝗿𝗲𝗳 §Gnone),
+      0,
+      0
+    }.
 
 Definition bag_1٠push₀ : val :=
-  rec: "push" "slot" "o" =>
-    if: ~ CAS "slot".[contents] §Gnone "o" then (
-      domain٠yield () ;;
+  𝗿𝗲𝗰 "push" "slot" "o" ->
+    𝗶𝗳 ~ 𝗰𝗮𝘀 "slot".[contents] §Gnone "o" 𝘁𝗵𝗲𝗻 (
+      domain٠yield () ⍮
       "push" "slot" "o"
     ).
 
 Definition bag_1٠push : val :=
-  fun: "t" "v" =>
-    let: "data" := "t".{data} in
-    let: "i" := FAA "t".[back] 1 `rem` array٠size "data" in
+  𝗳𝘂𝗻 "t" "v" ->
+    𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+    𝗹𝗲𝘁 "i" =
+      𝗳𝗮𝗮 "t".[back] 1 𝗿𝗲𝗺 array٠size "data"
+    𝗶𝗻
     bag_1٠push₀ (array٠unsafe_get "data" "i") ‘Gsome[ "v" ].
 
 Definition bag_1٠pop₀ : val :=
-  rec: "pop" "slot" =>
-    match: !"slot" with
-    | Gnone =>
+  𝗿𝗲𝗰 "pop" "slot" ->
+    𝗺𝗮𝘁𝗰𝗵 !"slot" 𝘄𝗶𝘁𝗵
+    | Gnone ->
         "pop" "slot"
-    | Gsome "v" as "o" =>
-        if: CAS "slot".[contents] "o" §Gnone then (
+    | Gsome "v" 𝗮𝘀 "o" ->
+        𝗶𝗳
+          𝗰𝗮𝘀 "slot".[contents] "o" §Gnone
+        𝘁𝗵𝗲𝗻 (
           "v"
-        ) else (
-          domain٠yield () ;;
+        ) 𝗲𝗹𝘀𝗲 (
+          domain٠yield () ⍮
           "pop" "slot"
         )
-    end.
+    𝗲𝗻𝗱.
 
 Definition bag_1٠pop : val :=
-  fun: "t" =>
-    let: "data" := "t".{data} in
-    let: "i" := FAA "t".[front] 1 `rem` array٠size "data" in
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+    𝗹𝗲𝘁 "i" =
+      𝗳𝗮𝗮 "t".[front] 1 𝗿𝗲𝗺 array٠size "data"
+    𝗶𝗻
     bag_1٠pop₀ (array٠unsafe_get "data" "i").

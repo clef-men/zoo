@@ -5,31 +5,31 @@ Require Import zoo_std.mutex__types.
 Require Import zoo.options.
 
 Definition mutex٠create : val :=
-  fun: <> =>
-    ref false.
+  𝗳𝘂𝗻 ⎽ ->
+    𝗿𝗲𝗳 false.
 
 Definition mutex٠lock : val :=
-  rec: "lock" "t" =>
-    if: ~ CAS "t".[contents] false true then (
+  𝗿𝗲𝗰 "lock" "t" ->
+    𝗶𝗳 ~ 𝗰𝗮𝘀 "t".[contents] false true 𝘁𝗵𝗲𝗻 (
       "lock" "t"
     ).
 
 Definition mutex٠create_lock : val :=
-  fun: <> =>
-    ref true.
+  𝗳𝘂𝗻 ⎽ ->
+    𝗿𝗲𝗳 true.
 
 Definition mutex٠unlock : val :=
-  fun: "t" =>
+  𝗳𝘂𝗻 "t" ->
     "t" <- false.
 
 Definition mutex٠synchronize : val :=
-  fun: "t" =>
-    mutex٠lock "t" ;;
+  𝗳𝘂𝗻 "t" ->
+    mutex٠lock "t" ⍮
     mutex٠unlock "t".
 
 Definition mutex٠protect : val :=
-  fun: "t" "fn" =>
-    mutex٠lock "t" ;;
-    let: "res" := "fn" () in
-    mutex٠unlock "t" ;;
+  𝗳𝘂𝗻 "t" "fn" ->
+    mutex٠lock "t" ⍮
+    𝗹𝗲𝘁 "res" = "fn" () 𝗶𝗻
+    mutex٠unlock "t" ⍮
     "res".

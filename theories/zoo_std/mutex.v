@@ -218,7 +218,7 @@ Section mutex۰G.
 
     wp۰rec. wp۰pures.
 
-    wp۰bind (CAS _ _ _).
+    wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
     iInv "Hinv" as "(%b & Hl & Hb)".
     destruct b; last iSteps.
     wp۰cas as _ | [=].
