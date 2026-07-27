@@ -1,9 +1,9 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.mutex.
 Require Import zoo_std.array.
 Require Import zoo_std.int.
+Require Import zoo_std.mutex.
 Require Import zoo_std.inf_array__types.
 Require Import zoo.options.
 

@@ -1,10 +1,10 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
+Require Import zoo_std.domain.
 Require Import zoo_std.inf_array.
 Require Import zoo_std.int.
 Require Import zoo_std.optional.
-Require Import zoo_std.domain.
 Require Import zoo_saturn.inf_mpmc_queue_1__types.
 Require Import zoo.options.
 

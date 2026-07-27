@@ -1,9 +1,9 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.diverge.
 Require Import zoo_std.array.
 Require Import zoo_std.assume.
+Require Import zoo_std.diverge.
 Require Import zoo_std.int.
 Require Import zoo_std.dynarray_2__types.
 Require Import zoo.options.
