@@ -21,7 +21,7 @@ Section zoo۰G.
 
   Implicit Type Φ : val → iProp Σ.
 
-  #[global] Instance pure_step𑁒diaspec₁ e K ϕ n e1 e2 tid E Φ :
+  #[global] Instance pure_stepｰdiaspec₁ e K ϕ n e1 e2 tid E Φ :
     ReshapeExprAnd _ e K e1 (
       TCAnd
         (PureExecNorec ϕ n e1 e2)
@@ -38,13 +38,13 @@ Section zoo۰G.
   | 8.
   Proof.
     rewrite /PureExecNorec.
-    pose proof @pure_exec𑁒context.
+    pose proof @pure_execｰcontext.
     intros (-> & Hexec & Hϕ) HK.
     iSteps.
-    iApply wp𑁒pure_step; [done.. |].
+    iApply wpｰpure_step; [done.. |].
     iSteps.
   Qed.
-  #[global] Instance pure_step𑁒diaspec₂ e K ϕ n e1 e2 tid E Φ :
+  #[global] Instance pure_stepｰdiaspec₂ e K ϕ n e1 e2 tid E Φ :
     ReshapeExprAnd _ e K e1 (
       TCAnd
         ( ( ∀ x e v,
@@ -64,18 +64,18 @@ Section zoo۰G.
       WP e ∷ tid @ E {{ Φ }}.
   Proof.
     intros (-> & Hexec & Hϕ) HK.
-    eapply pure_step𑁒diaspec₁; try done.
+    eapply pure_stepｰdiaspec₁; try done.
     split; first done. split.
     - rewrite /PureExecNorec.
       apply Hexec => * _.
-      apply nsteps_once, pure_base_step𑁒pure_step.
+      apply nsteps_once, pure_base_stepｰpure_step.
       split.
       + auto with zoo.
       + intros. invert_base_step. done.
     - done.
   Qed.
 
-  #[global] Instance alloc𑁒diaspec tag n E :
+  #[global] Instance allocｰdiaspec tag n E :
     DIASPEC
     {{
       ⌜0 ≤ tag⌝%Z ∗
@@ -94,7 +94,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[global] Instance block𑁒diaspec tag es E :
+  #[global] Instance blockｰdiaspec tag es E :
     DIASPEC vs
     {{
       ⌜0 < length es⌝%nat ∗
@@ -114,7 +114,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[global] Instance ref𑁒diaspec e v E :
+  #[global] Instance refｰdiaspec e v E :
     AsVal e v →
     DIASPEC
     {{
@@ -135,7 +135,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[global] Instance block𑁒generative𑁒diaspec tag es E :
+  #[global] Instance blockｰgenerativeｰdiaspec tag es E :
     DIASPEC vs
     {{
       ⌜to_vals es = Some vs⌝
@@ -151,7 +151,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[global] Instance get_tag𑁒diaspec l E :
+  #[global] Instance get_tagｰdiaspec l E :
     DIASPEC hdr
     {{
       l ↦ₕ hdr
@@ -167,7 +167,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[global] Instance get_size𑁒diaspec l E :
+  #[global] Instance get_sizeｰdiaspec l E :
     DIASPEC hdr
     {{
       l ↦ₕ hdr
@@ -183,7 +183,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[global] Instance load𑁒diaspec l fld E :
+  #[global] Instance loadｰdiaspec l fld E :
     DIASPEC v dq
     {{
       ▷ (l +ₗ fld) ↦{dq} v
@@ -199,7 +199,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[global] Instance store𑁒diaspec l fld v E :
+  #[global] Instance storeｰdiaspec l fld v E :
     DIASPEC w
     {{
       ▷ (l +ₗ fld) ↦ w
@@ -215,7 +215,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[global] Instance xchg𑁒diaspec l fld v E :
+  #[global] Instance xchgｰdiaspec l fld v E :
     DIASPEC w
     {{
       ▷ (l +ₗ fld) ↦ w
@@ -231,7 +231,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[global] Instance cas𑁒diaspec l fld v1 v2 E :
+  #[global] Instance casｰdiaspec l fld v1 v2 E :
     DIASPEC v dq
     {{
       ▷ (l +ₗ fld) ↦{dq} v ∗
@@ -253,7 +253,7 @@ Section zoo۰G.
     all: iSteps.
   Qed.
 
-  #[global] Instance faa𑁒diaspec l fld (n : Z) E :
+  #[global] Instance faaｰdiaspec l fld (n : Z) E :
     DIASPEC (z : Z)
     {{
       ▷ (l +ₗ fld) ↦ #z
@@ -269,7 +269,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[global] Instance proph𑁒diaspec E :
+  #[global] Instance prophｰdiaspec E :
     DIASPEC
     {{
       True
@@ -281,11 +281,11 @@ Section zoo۰G.
     }}.
   Proof.
     iSteps.
-    iApply (wp𑁒proph with "[//]").
+    iApply (wpｰproph with "[//]").
     iSteps.
   Qed.
 
-  #[global] Instance match𑁒diaspec e K l x_fb e_fb brs tid E Φ :
+  #[global] Instance matchｰdiaspec e K l x_fb e_fb brs tid E Φ :
     ReshapeExprAnd _ e K (Match #l x_fb e_fb brs) TCTrue →
     Context K →
     HINT1 ε₀ ✱ [
@@ -301,11 +301,11 @@ Section zoo۰G.
   Proof.
     intros (->, _) HK.
     iSteps as (hdr e He) "Hl_header H".
-    iApply (wp𑁒match𑁒context with "Hl_header"); first done.
+    iApply (wpｰmatchｰcontext with "Hl_header"); first done.
     iSteps.
   Qed.
 
-  #[global] Instance if𑁒bool𑁒decide𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
+  #[global] Instance ifｰboolｰdecideｰdiaspec e K P `{!Decision P} e1 e2 tid E Φ :
     ReshapeExprAnd _ e K (𝗶𝗳 #(bool_decide P) 𝘁𝗵𝗲𝗻 e1 𝗲𝗹𝘀𝗲 e2)%E TCTrue →
     Context K →
     HINT1 ε₀ ✱ [
@@ -320,16 +320,16 @@ Section zoo۰G.
   | 50.
   Proof.
     rewrite /PureExecNorec.
-    pose proof @pure_exec𑁒context.
+    pose proof @pure_execｰcontext.
     intros (->, _) HK.
     iSteps as "H".
     case_bool_decide.
-    all: iApply wp𑁒pure_step; first done.
+    all: iApply wpｰpure_step; first done.
     1: iSpecialize ("H" $! true with "[]"); first iSteps.
     2: iSpecialize ("H" $! false with "[]"); first iSteps.
     all: iSteps.
   Qed.
-  #[global] Instance if𑁒bool𑁒decide𑁒neg𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
+  #[global] Instance ifｰboolｰdecideｰnegｰdiaspec e K P `{!Decision P} e1 e2 tid E Φ :
     ReshapeExprAnd _ e K (𝗶𝗳 #(bool_decide (¬ P)) 𝘁𝗵𝗲𝗻 e1 𝗲𝗹𝘀𝗲 e2)%E TCTrue →
     Context K →
     HINT1 ε₀ ✱ [
@@ -344,16 +344,16 @@ Section zoo۰G.
   | 49.
   Proof.
     rewrite /PureExecNorec.
-    pose proof @pure_exec𑁒context.
+    pose proof @pure_execｰcontext.
     intros (->, _) HK.
     iSteps as "H".
     case_bool_decide.
-    all: iApply wp𑁒pure_step; first done.
+    all: iApply wpｰpure_step; first done.
     1: iSpecialize ("H" $! true with "[]"); first iSteps.
     2: iSpecialize ("H" $! false with "[]"); first iSteps.
     all: iSteps.
   Qed.
-  #[global] Instance if𑁒negb𑁒bool𑁒decide𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
+  #[global] Instance ifｰnegbｰboolｰdecideｰdiaspec e K P `{!Decision P} e1 e2 tid E Φ :
     ReshapeExprAnd _ e K (𝗶𝗳 #(negb $ bool_decide P) 𝘁𝗵𝗲𝗻 e1 𝗲𝗹𝘀𝗲 e2)%E TCTrue →
     Context K →
     HINT1 ε₀ ✱ [
@@ -368,11 +368,11 @@ Section zoo۰G.
   | 49.
   Proof.
     rewrite /PureExecNorec.
-    pose proof @pure_exec𑁒context.
+    pose proof @pure_execｰcontext.
     intros (->, _) HK.
     iSteps as "H".
     case_bool_decide.
-    all: iApply wp𑁒pure_step; first done.
+    all: iApply wpｰpure_step; first done.
     1: iSpecialize ("H" $! false with "[]"); first iSteps.
     2: iSpecialize ("H" $! true with "[]"); first iSteps.
     all: iSteps.

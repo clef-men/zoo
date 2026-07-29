@@ -13,7 +13,7 @@ Section bi.
     Implicit Type P : PROP.
     Implicit Type Φ : K → PROP.
 
-    Lemma big_sepS𑁒impl𑁒thread {Φ1} P Φ2 s :
+    Lemma big_sepSｰimplｰthread {Φ1} P Φ2 s :
       ([∗ set] x ∈ s, Φ1 x) -∗
       P -∗
       □ (
@@ -29,10 +29,10 @@ Section bi.
     Proof.
       rewrite !big_sepS_elements.
       iIntros "Hs HP #HΦ".
-      iApply (big_sepL𑁒impl𑁒thread with "Hs HP"). iIntros "!>" (k x Hx%list_elem_of_lookup_2%elem_of_elements) "HΦ1 HP".
+      iApply (big_sepLｰimplｰthread with "Hs HP"). iIntros "!>" (k x Hx%list_elem_of_lookup_2%elem_of_elements) "HΦ1 HP".
       iApply ("HΦ" with "[//] HΦ1 HP").
     Qed.
-    Lemma big_sepS𑁒impl𑁒thread𑁒fupd `{!BiFUpd PROP} {Φ1} P Φ2 s E :
+    Lemma big_sepSｰimplｰthreadｰfupd `{!BiFUpd PROP} {Φ1} P Φ2 s E :
       ([∗ set] x ∈ s, Φ1 x) -∗
       P -∗
       □ (
@@ -50,17 +50,17 @@ Section bi.
     Proof.
       rewrite !big_sepS_elements.
       iIntros "Hs HP #HΦ".
-      iApply (big_sepL𑁒impl𑁒thread𑁒fupd with "Hs HP"). iIntros "!>" (k x Hx%list_elem_of_lookup_2%elem_of_elements) "HΦ1 HP".
+      iApply (big_sepLｰimplｰthreadｰfupd with "Hs HP"). iIntros "!>" (k x Hx%list_elem_of_lookup_2%elem_of_elements) "HΦ1 HP".
       iApply ("HΦ" with "[//] HΦ1 HP").
     Qed.
 
-    Lemma big_sepS𑁒exists `{!BiAffine PROP} {V} (Φ : K → V → PROP) s :
+    Lemma big_sepSｰexists `{!BiAffine PROP} {V} (Φ : K → V → PROP) s :
       ([∗ set] x ∈ s, ∃ v, Φ x v) ⊢
         ∃ m,
         ⌜dom m = s⌝ ∗
         [∗ map] x ↦ v ∈ m, Φ x v.
     Proof.
-      rewrite big_sepS_elements big_sepL𑁒exists.
+      rewrite big_sepS_elements big_sepLｰexists.
       setoid_rewrite big_sepL2_alt.
       iIntros "(%vs & %Hvs & _ & H)".
       iDestruct (big_sepM_list_to_map with "H") as "$".

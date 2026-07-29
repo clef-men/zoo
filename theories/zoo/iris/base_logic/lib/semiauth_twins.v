@@ -15,7 +15,7 @@ Definition semiauth_twins۰Σ (A : ofe) (R : relation A) F `{!oFunctorContractiv
   #[auth_twins۰Σ A R
   ; twins۰Σ F
   ].
-#[global] Instance subG𑁒semiauth_twins۰Σ Σ (A : ofe) (R : relation A) F `{!oFunctorContractive F} :
+#[global] Instance subGｰsemiauth_twins۰Σ Σ (A : ofe) (R : relation A) F `{!oFunctorContractive F} :
   subG (semiauth_twins۰Σ A R F) Σ →
   SemiauthTwinsG Σ A R F.
 Proof.
@@ -39,9 +39,9 @@ Section semiauth_twins۰G.
     }.
   Implicit Type γ : semiauth_twins۰name.
 
-  #[global] Instance semiauth_twins۰name𑁒eq_dec : EqDecision semiauth_twins۰name :=
+  #[global] Instance semiauth_twins۰nameｰeq_dec : EqDecision semiauth_twins۰name :=
     ltac:(solve_decision).
-  #[global] Instance semiauth_twins۰name𑁒countable :
+  #[global] Instance semiauth_twins۰nameｰcountable :
     Countable semiauth_twins۰name.
   Proof.
     solve_countable.
@@ -66,19 +66,19 @@ Section semiauth_twins۰G.
       )
     ".
 
-  #[global] Instance semiauth_twins۰auth𑁒timeless γ a :
+  #[global] Instance semiauth_twins۰authｰtimeless γ a :
     Timeless (semiauth_twins۰auth γ a).
   Proof.
     apply _.
   Qed.
-  #[global] Instance semiauth_twins۰twin₁𑁒timeless γ a 𝑎 :
+  #[global] Instance semiauth_twins۰twin₁ｰtimeless γ a 𝑎 :
     Discrete a →
     Discrete 𝑎 →
     Timeless (semiauth_twins۰twin₁ γ a 𝑎).
   Proof.
     apply _.
   Qed.
-  #[global] Instance semiauth_twins۰twin₂𑁒timeless γ a 𝑎 :
+  #[global] Instance semiauth_twins۰twin₂ｰtimeless γ a 𝑎 :
     Discrete a →
     Discrete 𝑎 →
     Timeless (semiauth_twins۰twin₂ γ a 𝑎).
@@ -86,15 +86,15 @@ Section semiauth_twins۰G.
     apply _.
   Qed.
 
-  Lemma semiauth_twins𑁒alloc a 𝑎 :
+  Lemma semiauth_twinsｰalloc a 𝑎 :
     ⊢ |==>
       ∃ γ,
       semiauth_twins۰auth γ a ∗
       semiauth_twins۰twin₁ γ a 𝑎 ∗
       semiauth_twins۰twin₂ γ a 𝑎.
   Proof.
-    iMod auth_twins𑁒alloc as "(%γ_left_twins & Hauth & Hltwin₁ & Hltwin₂)".
-    iMod twins𑁒alloc' as "(%γ_right_twins & Hrtwin₁ & Hrtwin₂)".
+    iMod auth_twinsｰalloc as "(%γ_left_twins & Hauth & Hltwin₁ & Hltwin₂)".
+    iMod twinsｰalloc' as "(%γ_right_twins & Hrtwin₁ & Hrtwin₂)".
     pose γ :=
       {|semiauth_twins۰name۰left_twins := γ_left_twins
       ; semiauth_twins۰name۰right_twins := γ_right_twins
@@ -102,84 +102,84 @@ Section semiauth_twins۰G.
     iExists γ. iSteps.
   Qed.
 
-  Lemma semiauth_twins۰auth𑁒exclusive `{!AntiSymm (≡) Rs} γ a1 a2 :
+  Lemma semiauth_twins۰authｰexclusive `{!AntiSymm (≡) Rs} γ a1 a2 :
     semiauth_twins۰auth γ a1 -∗
     semiauth_twins۰auth γ a2 -∗
     False.
   Proof.
-    apply: auth_twins۰auth𑁒exclusive.
+    apply: auth_twins۰authｰexclusive.
   Qed.
-  Lemma semiauth_twins۰auth𑁒exclusive𑁒L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ a1 a2 :
+  Lemma semiauth_twins۰authｰexclusiveｰL `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ a1 a2 :
     semiauth_twins۰auth γ a1 -∗
     semiauth_twins۰auth γ a2 -∗
     False.
   Proof.
-    apply: auth_twins۰auth𑁒exclusive𑁒L.
+    apply: auth_twins۰authｰexclusiveｰL.
   Qed.
 
-  Lemma semiauth_twins۰twin₁𑁒exclusive γ a1 𝑎1 a2 𝑎2 :
+  Lemma semiauth_twins۰twin₁ｰexclusive γ a1 𝑎1 a2 𝑎2 :
     semiauth_twins۰twin₁ γ a1 𝑎1 -∗
     semiauth_twins۰twin₁ γ a2 𝑎2 -∗
     False.
   Proof.
     iIntros "(:twin₁ =1) (:twin₁ =2)".
-    iApply (twins۰twin₁𑁒exclusive with "Hrtwin₁_1 Hrtwin₁_2").
+    iApply (twins۰twin₁ｰexclusive with "Hrtwin₁_1 Hrtwin₁_2").
   Qed.
 
-  Lemma semiauth_twins۰twin₂𑁒exclusive γ a1 𝑎1 a2 𝑎2 :
+  Lemma semiauth_twins۰twin₂ｰexclusive γ a1 𝑎1 a2 𝑎2 :
     semiauth_twins۰twin₂ γ a1 𝑎1 -∗
     semiauth_twins۰twin₂ γ a2 𝑎2 -∗
     False.
   Proof.
     iIntros "(:twin₂ =1) (:twin₂ =2)".
-    iApply (twins۰twin₂𑁒exclusive with "Hrtwin₂_1 Hrtwin₂_2").
+    iApply (twins۰twin₂ｰexclusive with "Hrtwin₂_1 Hrtwin₂_2").
   Qed.
 
-  Lemma semiauth_twins𑁒valid₁ γ a b 𝑎 :
+  Lemma semiauth_twinsｰvalid₁ γ a b 𝑎 :
     semiauth_twins۰auth γ a -∗
     semiauth_twins۰twin₁ γ b 𝑎 -∗
     ⌜Rs b a⌝.
   Proof.
     iIntros "Hauth (:twin₁)".
-    iApply (auth_twins𑁒valid₁ with "Hauth Hltwin₁").
+    iApply (auth_twinsｰvalid₁ with "Hauth Hltwin₁").
   Qed.
-  Lemma semiauth_twins𑁒valid₂ γ a b 𝑎 :
+  Lemma semiauth_twinsｰvalid₂ γ a b 𝑎 :
     semiauth_twins۰auth γ a -∗
     semiauth_twins۰twin₂ γ b 𝑎 -∗
     ⌜Rs b a⌝.
   Proof.
     iIntros "Hauth (:twin₂)".
-    iApply (auth_twins𑁒valid₂ with "Hauth Hltwin₂").
+    iApply (auth_twinsｰvalid₂ with "Hauth Hltwin₂").
   Qed.
 
-  Lemma semiauth_twins𑁒agree γ a1 𝑎1 a2 𝑎2 :
+  Lemma semiauth_twinsｰagree γ a1 𝑎1 a2 𝑎2 :
     semiauth_twins۰twin₁ γ a1 𝑎1 -∗
     semiauth_twins۰twin₂ γ a2 𝑎2 -∗
       a1 ≡ a2 ∗
       𝑎1 ≡ 𝑎2.
   Proof.
     iIntros "(:twin₁) (:twin₂)".
-    iDestruct (auth_twins𑁒agree with "Hltwin₁ Hltwin₂") as "$".
-    iDestruct (twins𑁒agree with "Hrtwin₁ Hrtwin₂") as "$".
+    iDestruct (auth_twinsｰagree with "Hltwin₁ Hltwin₂") as "$".
+    iDestruct (twinsｰagree with "Hrtwin₁ Hrtwin₂") as "$".
   Qed.
-  Lemma semiauth_twins𑁒agree𑁒discrete `{!OfeDiscrete A} `{!OfeDiscrete $ oFunctor_apply F $ iPropO Σ} γ a1 𝑎1 a2 𝑎2 :
+  Lemma semiauth_twinsｰagreeｰdiscrete `{!OfeDiscrete A} `{!OfeDiscrete $ oFunctor_apply F $ iPropO Σ} γ a1 𝑎1 a2 𝑎2 :
     semiauth_twins۰twin₁ γ a1 𝑎1 -∗
     semiauth_twins۰twin₂ γ a2 𝑎2 -∗
       ⌜a1 ≡ a2⌝ ∗
       ⌜𝑎1 ≡ 𝑎2⌝.
   Proof.
-    rewrite -!discrete_eq -semiauth_twins𑁒agree //.
+    rewrite -!discrete_eq -semiauth_twinsｰagree //.
   Qed.
-  Lemma semiauth_twins𑁒agree𑁒L `{!OfeDiscrete A} `{!LeibnizEquiv A} `{!OfeDiscrete $ oFunctor_apply F $ iPropO Σ} `{!LeibnizEquiv $ oFunctor_apply F $ iPropO Σ} γ a1 𝑎1 a2 𝑎2 :
+  Lemma semiauth_twinsｰagreeｰL `{!OfeDiscrete A} `{!LeibnizEquiv A} `{!OfeDiscrete $ oFunctor_apply F $ iPropO Σ} `{!LeibnizEquiv $ oFunctor_apply F $ iPropO Σ} γ a1 𝑎1 a2 𝑎2 :
     semiauth_twins۰twin₁ γ a1 𝑎1 -∗
     semiauth_twins۰twin₂ γ a2 𝑎2 -∗
       ⌜a1 = a2⌝ ∗
       ⌜𝑎1 = 𝑎2⌝.
   Proof.
-    rewrite -!leibniz_equiv_iff -semiauth_twins𑁒agree𑁒discrete //.
+    rewrite -!leibniz_equiv_iff -semiauth_twinsｰagreeｰdiscrete //.
   Qed.
 
-  Lemma semiauth_twins𑁒update𑁒auth {γ a b1 𝑎1 b2 𝑎2} a' :
+  Lemma semiauth_twinsｰupdateｰauth {γ a b1 𝑎1 b2 𝑎2} a' :
     semiauth_twins۰auth γ a -∗
     semiauth_twins۰twin₁ γ b1 𝑎1 -∗
     semiauth_twins۰twin₂ γ b2 𝑎2 ==∗
@@ -188,10 +188,10 @@ Section semiauth_twins۰G.
       semiauth_twins۰twin₂ γ a' 𝑎2.
   Proof.
     iIntros "Hauth (:twin₁) (:twin₂)".
-    iMod (auth_twins𑁒update𑁒auth with "Hauth Hltwin₁ Hltwin₂") as "(Hauth & Hltwin₁ & Hltwin₂)".
+    iMod (auth_twinsｰupdateｰauth with "Hauth Hltwin₁ Hltwin₂") as "(Hauth & Hltwin₁ & Hltwin₂)".
     iSteps.
   Qed.
-  Lemma semiauth_twins𑁒update𑁒twins {γ a1 𝑎1 a2 𝑎2} a 𝑎 :
+  Lemma semiauth_twinsｰupdateｰtwins {γ a1 𝑎1 a2 𝑎2} a 𝑎 :
     Rs a a1 →
     Rs a a2 →
     semiauth_twins۰twin₁ γ a1 𝑎1 -∗
@@ -200,11 +200,11 @@ Section semiauth_twins۰G.
       semiauth_twins۰twin₂ γ a 𝑎.
   Proof.
     iIntros "% % (:twin₁) (:twin₂)".
-    iMod (auth_twins𑁒update𑁒twins with "Hltwin₁ Hltwin₂") as "($ & $)"; [done.. |].
-    iMod (twins𑁒update with "Hrtwin₁ Hrtwin₂") as "($ & $)".
+    iMod (auth_twinsｰupdateｰtwins with "Hltwin₁ Hltwin₂") as "($ & $)"; [done.. |].
+    iMod (twinsｰupdate with "Hrtwin₁ Hrtwin₂") as "($ & $)".
     iSteps.
   Qed.
-  Lemma semiauth_twins𑁒update𑁒twins𑁒L `{!OfeDiscrete A} `{!LeibnizEquiv A} {γ a1 𝑎1 a2 𝑎2} a 𝑎 :
+  Lemma semiauth_twinsｰupdateｰtwinsｰL `{!OfeDiscrete A} `{!LeibnizEquiv A} {γ a1 𝑎1 a2 𝑎2} a 𝑎 :
     Rs a a1 →
     semiauth_twins۰twin₁ γ a1 𝑎1 -∗
     semiauth_twins۰twin₂ γ a2 𝑎2 ==∗
@@ -212,10 +212,10 @@ Section semiauth_twins۰G.
       semiauth_twins۰twin₂ γ a 𝑎.
   Proof.
     iIntros "%Ha Htwin₁ Htwin₂".
-    iDestruct (semiauth_twins𑁒agree with "Htwin₁ Htwin₂") as "#(<- & _)".
-    iApply (semiauth_twins𑁒update𑁒twins with "Htwin₁ Htwin₂"); done.
+    iDestruct (semiauth_twinsｰagree with "Htwin₁ Htwin₂") as "#(<- & _)".
+    iApply (semiauth_twinsｰupdateｰtwins with "Htwin₁ Htwin₂"); done.
   Qed.
-  Lemma semiauth_twins𑁒update𑁒left_twins {γ a1 𝑎1 a2 𝑎2} a :
+  Lemma semiauth_twinsｰupdateｰleft_twins {γ a1 𝑎1 a2 𝑎2} a :
     Rs a a1 →
     Rs a a2 →
     semiauth_twins۰twin₁ γ a1 𝑎1 -∗
@@ -224,10 +224,10 @@ Section semiauth_twins۰G.
       semiauth_twins۰twin₂ γ a 𝑎2.
   Proof.
     iIntros "% % (:twin₁) (:twin₂)".
-    iMod (auth_twins𑁒update𑁒twins with "Hltwin₁ Hltwin₂") as "($ & $)"; [done.. |].
+    iMod (auth_twinsｰupdateｰtwins with "Hltwin₁ Hltwin₂") as "($ & $)"; [done.. |].
     iSteps.
   Qed.
-  Lemma semiauth_twins𑁒update𑁒left_twins𑁒L `{!OfeDiscrete A} `{!LeibnizEquiv A} {γ a1 𝑎1 a2 𝑎2} a :
+  Lemma semiauth_twinsｰupdateｰleft_twinsｰL `{!OfeDiscrete A} `{!LeibnizEquiv A} {γ a1 𝑎1 a2 𝑎2} a :
     Rs a a1 →
     semiauth_twins۰twin₁ γ a1 𝑎1 -∗
     semiauth_twins۰twin₂ γ a2 𝑎2 ==∗
@@ -235,17 +235,17 @@ Section semiauth_twins۰G.
       semiauth_twins۰twin₂ γ a 𝑎2.
   Proof.
     iIntros "%Ha Htwin₁ Htwin₂".
-    iDestruct (semiauth_twins𑁒agree with "Htwin₁ Htwin₂") as "#(<- & _)".
-    iApply (semiauth_twins𑁒update𑁒left_twins with "Htwin₁ Htwin₂"); done.
+    iDestruct (semiauth_twinsｰagree with "Htwin₁ Htwin₂") as "#(<- & _)".
+    iApply (semiauth_twinsｰupdateｰleft_twins with "Htwin₁ Htwin₂"); done.
   Qed.
-  Lemma semiauth_twins𑁒update𑁒right_twins {γ a1 𝑎1 a2 𝑎2} 𝑎 :
+  Lemma semiauth_twinsｰupdateｰright_twins {γ a1 𝑎1 a2 𝑎2} 𝑎 :
     semiauth_twins۰twin₁ γ a1 𝑎1 -∗
     semiauth_twins۰twin₂ γ a2 𝑎2 ==∗
       semiauth_twins۰twin₁ γ a1 𝑎 ∗
       semiauth_twins۰twin₂ γ a2 𝑎.
   Proof.
     iIntros "(:twin₁) (:twin₂)".
-    iMod (twins𑁒update with "Hrtwin₁ Hrtwin₂") as "($ & $)".
+    iMod (twinsｰupdate with "Hrtwin₁ Hrtwin₂") as "($ & $)".
     iSteps.
   Qed.
 End semiauth_twins۰G.

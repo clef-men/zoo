@@ -23,15 +23,15 @@ Record descriptor :=
   ; descriptor۰next : location
   }.
 
-#[local] Instance descriptor𑁒inhabited : Inhabited descriptor :=
+#[local] Instance descriptorｰinhabited : Inhabited descriptor :=
   populate
     {|descriptor۰elts := inhabitant
     ; descriptor۰prev := inhabitant
     ; descriptor۰next := inhabitant
     |}.
-#[local] Instance descriptor𑁒eq_dec : EqDecision descriptor :=
+#[local] Instance descriptorｰeq_dec : EqDecision descriptor :=
   ltac:(solve_decision).
-#[local] Instance descriptor𑁒countable :
+#[local] Instance descriptorｰcountable :
   Countable descriptor.
 Proof.
   solve_countable.
@@ -47,7 +47,7 @@ Class PartitionG Σ `{zoo۰G : !ZooG Σ} :=
 Definition partition۰Σ :=
   #[mono_gset۰Σ location
   ].
-#[global] Instance subG𑁒partition۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰpartition۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG partition۰Σ Σ →
   PartitionG Σ.
 Proof.
@@ -141,46 +141,46 @@ Section partition۰G.
       )
     ".
 
-  #[global] Instance partition۰model𑁒timeless γ part :
+  #[global] Instance partition۰modelｰtimeless γ part :
     Timeless (partition۰model γ part).
   Proof.
     apply _.
   Qed.
-  #[global] Instance partition۰element𑁒timeless γ elt v :
+  #[global] Instance partition۰elementｰtimeless γ elt v :
     Timeless (partition۰element γ elt v).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance partition۰element𑁒persistent γ elt v :
+  #[global] Instance partition۰elementｰpersistent γ elt v :
     Persistent (partition۰element γ elt v).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma elements𑁒alloc :
+  #[local] Lemma elementsｰalloc :
     ⊢ |==>
       ∃ γ,
       elements۰auth γ ∅.
   Proof.
-    apply mono_gset𑁒alloc.
+    apply mono_gsetｰalloc.
   Qed.
-  #[local] Lemma elements۰elem𑁒valid γ elts elt :
+  #[local] Lemma elements۰elemｰvalid γ elts elt :
     elements۰auth γ elts -∗
     elements۰elem γ elt -∗
     ⌜elt ∈ elts⌝.
   Proof.
-    apply mono_gset۰elem𑁒valid.
+    apply mono_gset۰elemｰvalid.
   Qed.
-  #[local] Lemma elements𑁒insert {γ elts} elt :
+  #[local] Lemma elementsｰinsert {γ elts} elt :
     elements۰auth γ elts ⊢ |==>
       elements۰auth γ ({[elt]} ∪ elts) ∗
       elements۰elem γ elt.
   Proof.
-    apply mono_gset𑁒insert'.
+    apply mono_gsetｰinsert'.
   Qed.
 
-  #[local] Lemma model𑁒disjoint' {γ descrs} class1 descr1 class2 descr2 elt :
+  #[local] Lemma modelｰdisjoint' {γ descrs} class1 descr1 class2 descr2 elt :
     descrs !! class1 = Some descr1 →
     elt ∈ descr1.(descriptor۰elts) →
     descrs !! class2 = Some descr2 →
@@ -196,9 +196,9 @@ Section partition۰G.
     { rewrite lookup_delete_ne //. }
     iDestruct (big_sepL_lookup with "Helts1") as "(:element۰model suff=1)"; first done.
     iDestruct (big_sepL_lookup with "Helts2") as "(:element۰model suff=2)"; first done.
-    iDestruct (pointsto𑁒exclusive with "Helt_class_1 Helt_class_2") as %[].
+    iDestruct (pointstoｰexclusive with "Helt_class_1 Helt_class_2") as %[].
   Qed.
-  #[local] Lemma model𑁒disjoint'' {γ descrs} class descr elt :
+  #[local] Lemma modelｰdisjoint'' {γ descrs} class descr elt :
     descrs !! class = Some descr →
     elt ∈ descr.(descriptor۰elts) →
     model' γ descrs ⊢
@@ -210,9 +210,9 @@ Section partition۰G.
     ⌝.
   Proof.
     iIntros "%Hdescrs_lookup %Helts_elem Hmodel %class' %descr' %Hdescrs_lookup' %Helts_elem'".
-    iDestruct (model𑁒disjoint' class _ class' with "Hmodel") as %(<- & <-); done.
+    iDestruct (modelｰdisjoint' class _ class' with "Hmodel") as %(<- & <-); done.
   Qed.
-  #[local] Lemma partition۰element𑁒valid' γ descrs elt v :
+  #[local] Lemma partition۰elementｰvalid' γ descrs elt v :
     model' γ descrs -∗
     partition۰element γ elt v -∗
       ∃ class descr,
@@ -226,29 +226,29 @@ Section partition۰G.
       ⌝.
   Proof.
     iIntros "(:model') (:element)".
-    iDestruct (elements۰elem𑁒valid with "Helts_auth Helts_elem") as %(class & descr & Hdescrs_lookup & Helts_elem%elem_of_list_to_set)%big_unionM𑁒elem_of.
+    iDestruct (elements۰elemｰvalid with "Helts_auth Helts_elem") as %(class & descr & Hdescrs_lookup & Helts_elem%elem_of_list_to_set)%big_unionMｰelem_of.
     iStep 2.
-    iApply (model𑁒disjoint'' with "[$]"); done.
+    iApply (modelｰdisjoint'' with "[$]"); done.
   Qed.
-  #[local] Lemma model𑁒NoDup {γ descrs} class descr :
+  #[local] Lemma modelｰNoDup {γ descrs} class descr :
     descrs !! class = Some descr →
     model' γ descrs ⊢
     ⌜NoDup descr.(descriptor۰elts)⌝.
   Proof.
     iIntros "%Hdescrs_lookup (:model')".
     iDestruct (big_sepM_lookup with "Hdescrs") as "(:descriptor۰model)"; first done.
-    iApply (xdlchain𑁒NoDup with "Hchain").
+    iApply (xdlchainｰNoDup with "Hchain").
   Qed.
 
-  Lemma partition۰model𑁒empty :
+  Lemma partition۰modelｰempty :
     ⊢ |==>
       ∃ γ,
       partition۰model γ ∅.
   Proof.
-    iMod elements𑁒alloc as "(%γ & Helts_auth)".
+    iMod elementsｰalloc as "(%γ & Helts_auth)".
     iExists γ, ∅. rewrite /model' !big_opM_empty. iSteps.
   Qed.
-  Lemma partition۰model𑁒non_empty {γ part} cl :
+  Lemma partition۰modelｰnon_empty {γ part} cl :
     cl ∈ part →
     partition۰model γ part ⊢
     ⌜cl ≠ ∅⌝.
@@ -257,9 +257,9 @@ Section partition۰G.
     iDestruct "Hmodel" as "(:model')".
     apply elem_of_map_to_set in Hcl as (class & descr & Hdescrs_lookup & <-).
     iDestruct (big_sepM_lookup with "Hdescrs") as "(:descriptor۰model)"; first done.
-    iPureIntro. eapply list_to_set𑁒not_empty, hd_error_some_nil. done.
+    iPureIntro. eapply list_to_setｰnot_empty, hd_error_some_nil. done.
   Qed.
-  Lemma partition۰model𑁒disjoint {γ part} elt cl1 cl2 :
+  Lemma partition۰modelｰdisjoint {γ part} elt cl1 cl2 :
     cl1 ∈ part →
     elt ∈ cl1 →
     cl2 ∈ part →
@@ -272,10 +272,10 @@ Section partition۰G.
     apply elem_of_list_to_set in Hcl1_elem.
     apply elem_of_map_to_set in Hpart_elem_2 as (class2 & descr2 & Hdescrs_lookup_2 & <-).
     apply elem_of_list_to_set in Hcl2_elem.
-    iDestruct (model𑁒disjoint' class1 descr1 class2 descr2 with "Hmodel") as %(<- & <-); done.
+    iDestruct (modelｰdisjoint' class1 descr1 class2 descr2 with "Hmodel") as %(<- & <-); done.
   Qed.
 
-  Lemma partition۰element𑁒valid γ part elt v :
+  Lemma partition۰elementｰvalid γ part elt v :
     partition۰model γ part -∗
     partition۰element γ elt v -∗
       ∃ cl,
@@ -283,21 +283,21 @@ Section partition۰G.
       ⌜elt ∈ cl⌝.
   Proof.
     iIntros "(:model) Helt".
-    iDestruct (partition۰element𑁒valid' with "Hmodel Helt") as "(%class & %descr & %Hdescrs_lookup & %Helts_elem & _)".
+    iDestruct (partition۰elementｰvalid' with "Hmodel Helt") as "(%class & %descr & %Hdescrs_lookup & %Helts_elem & _)".
     iExists (list_to_set descr.(descriptor۰elts)). iSplit; iPureIntro.
     - apply elem_of_map_to_set. naive_solver.
     - rewrite elem_of_list_to_set //.
   Qed.
-  Lemma partition۰element𑁒agree γ elt v1 v2 :
+  Lemma partition۰elementｰagree γ elt v1 v2 :
     partition۰element γ elt v1 -∗
     partition۰element γ elt v2 -∗
     ⌜v1 = v2⌝.
   Proof.
     iIntros "(:element suff=1) (:element suff=2)".
-    iApply (pointsto𑁒agree with "Helt_data_1 Helt_data_2").
+    iApply (pointstoｰagree with "Helt_data_1 Helt_data_2").
   Qed.
 
-  #[local] Lemma partition٠dllist_create𑁒spec v v_class :
+  #[local] Lemma partition٠dllist_createｰspec v v_class :
     {{{
       True
     }}}
@@ -315,7 +315,7 @@ Section partition۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma partition٠get_class𑁒spec γ descrs elt v :
+  #[local] Lemma partition٠get_classｰspec γ descrs elt v :
     {{{
       model' γ descrs ∗
       partition۰element γ elt v
@@ -336,7 +336,7 @@ Section partition۰G.
     }}}.
   Proof.
     iIntros "%Φ (Hmodel & Helt) HΦ".
-    iDestruct (partition۰element𑁒valid' with "Hmodel Helt") as "(%class & %descr & %Hdescrs_lookup & %Helts_elem & %Helt)".
+    iDestruct (partition۰elementｰvalid' with "Hmodel Helt") as "(%class & %descr & %Hdescrs_lookup & %Helts_elem & %Helt)".
     iDestruct "Hmodel" as "(:model')".
     iDestruct (big_sepM_lookup_acc with "Hdescrs") as "((:descriptor۰model) & Hdescrs)"; first done.
     odestruct list_elem_of_lookup_1 as (i & Helts_lookup); first done.
@@ -347,7 +347,7 @@ Section partition۰G.
     iSteps; naive_solver.
   Qed.
 
-  Lemma partition٠make𑁒spec γ part v :
+  Lemma partition٠makeｰspec γ part v :
     {{{
       partition۰model γ part
     }}}
@@ -363,14 +363,14 @@ Section partition۰G.
     iDestruct "Hmodel" as "(:model')".
 
     wp۰rec.
-    wp۰apply (partition٠dllist_create𑁒spec with "[//]") as (elt) "(Helt_prev & Helt_next & #Helt_data & Helt_class & Helt_seen)".
+    wp۰apply (partition٠dllist_createｰspec with "[//]") as (elt) "(Helt_prev & Helt_next & #Helt_data & Helt_class & Helt_seen)".
     wp۰block class as "(Hclass_first & Hclass_last & Hclass_len & Hclass_split & Hclass_split_len & _)".
     wp۰store. wp۰pures.
 
     iAssert ⌜descrs !! class = None⌝%I as %Hclass.
     { rewrite -eq_None_ne_Some. iIntros "%descr %Hdescrs_lookup".
       iDestruct (big_sepM_lookup with "Hdescrs") as "(:descriptor۰model =')"; first done.
-      iApply (pointsto𑁒exclusive with "Hclass_first Hclass'_first").
+      iApply (pointstoｰexclusive with "Hclass_first Hclass'_first").
     }
 
     pose descr :=
@@ -378,7 +378,7 @@ Section partition۰G.
       ; descriptor۰prev := class
       ; descriptor۰next := class
       |}.
-    iMod (elements𑁒insert elt with "Helts_auth") as "(Helts_auth & #Helts_elem)".
+    iMod (elementsｰinsert elt with "Helts_auth") as "(Helts_auth & #Helts_elem)".
 
     iApply "HΦ".
     iModIntro. iSplitL; last iSteps.
@@ -387,18 +387,18 @@ Section partition۰G.
       rewrite map_to_set_insert_L //= right_id_L. set_solver.
     }
     iSplitL "Helts_auth".
-    { iApply (mono_gset۰auth𑁒proper with "Helts_auth").
+    { iApply (mono_gset۰authｰproper with "Helts_auth").
       rewrite big_opM_insert //. set_solver.
     }
     iApply (big_sepM_insert_2 with "[- Hdescrs] [Hdescrs]").
     - iExists elt, elt, descr, elt, descr, elt.
-      rewrite xdlchain𑁒singleton lookup_insert_eq //. iSteps.
+      rewrite xdlchainｰsingleton lookup_insert_eq //. iSteps.
     - iApply (big_sepM_impl with "Hdescrs"). iIntros "!> %class' %descr' %Hdescrs_lookup' (:descriptor۰model)".
       iExists first, last, prev_descr, prev, next_descr, next.
       rewrite !lookup_insert_ne //; [naive_solver.. |]. iSteps.
   Qed.
 
-  Lemma partition٠make_same_class𑁒spec γ part elt v v' :
+  Lemma partition٠make_same_classｰspec γ part elt v v' :
     {{{
       partition۰model γ part ∗
       partition۰element γ elt v
@@ -419,11 +419,11 @@ Section partition۰G.
     iIntros "%Φ ((:model) & #Helt) HΦ".
 
     wp۰rec.
-    wp۰apply+ (partition٠get_class𑁒spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
-    wp۰apply+ (partition٠dllist_create𑁒spec with "[//]") as (elt') "(Helt'_prev & Helt'_next & #Helt'_data & Helt'_class & Helt'_seen)".
+    wp۰apply+ (partition٠get_classｰspec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
+    wp۰apply+ (partition٠dllist_createｰspec with "[//]") as (elt') "(Helt'_prev & Helt'_next & #Helt'_data & Helt'_class & Helt'_seen)".
   Admitted.
 
-  Lemma partition٠get𑁒spec γ elt v :
+  Lemma partition٠getｰspec γ elt v :
     {{{
       partition۰element γ elt v
     }}}
@@ -436,7 +436,7 @@ Section partition۰G.
     iSteps.
   Qed.
 
-  Lemma partition٠equal𑁒spec γ elt1 v1 elt2 v2 :
+  Lemma partition٠equalｰspec γ elt1 v1 elt2 v2 :
     {{{
       True
     }}}
@@ -449,7 +449,7 @@ Section partition۰G.
     iSteps.
   Qed.
 
-  Lemma partition٠equiv𑁒spec γ part elt1 v1 elt2 v2 :
+  Lemma partition٠equivｰspec γ part elt1 v1 elt2 v2 :
     {{{
       partition۰model γ part ∗
       partition۰element γ elt1 v1 ∗
@@ -471,8 +471,8 @@ Section partition۰G.
   Proof.
     iIntros "%Φ ((:model) & #Helt1 & #Helt2) HΦ".
     wp۰rec.
-    wp۰apply+ (partition٠get_class𑁒spec with "[$Hmodel $Helt2]") as (class2 descr2) "(Hmodel & %Hdescrs_lookup_2 & %Helts2_elem & %Helt2)".
-    wp۰apply (partition٠get_class𑁒spec with "[$Hmodel $Helt1]") as (class1 descr1) "(Hmodel & %Hdescrs_lookup_1 & %Helts1_elem & %Helt1)".
+    wp۰apply+ (partition٠get_classｰspec with "[$Hmodel $Helt2]") as (class2 descr2) "(Hmodel & %Hdescrs_lookup_2 & %Helts2_elem & %Helt2)".
+    wp۰apply (partition٠get_classｰspec with "[$Hmodel $Helt1]") as (class1 descr1) "(Hmodel & %Hdescrs_lookup_1 & %Helts1_elem & %Helt1)".
     wp۰pures. case_bool_decide as Hcase.
     - subst class2.
       iSteps as (cl1 cl2 (class1' & descr1' & Hdescrs_lookup_1' & <-)%elem_of_map_to_set Helts1'_elem (class2' & descr2' & Hdescrs_lookup_2' & <-)%elem_of_map_to_set Helts2'_elem) / --silent. iPureIntro.
@@ -487,7 +487,7 @@ Section partition۰G.
       congruence.
   Qed.
 
-  Lemma partition٠repr𑁒spec γ part elt v :
+  Lemma partition٠reprｰspec γ part elt v :
     {{{
       partition۰model γ part ∗
       partition۰element γ elt v
@@ -505,18 +505,18 @@ Section partition۰G.
   Proof.
     iIntros "%Φ ((:model) & #Helt) HΦ".
     wp۰rec.
-    wp۰apply (partition٠get_class𑁒spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
+    wp۰apply (partition٠get_classｰspec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
     iDestruct "Hmodel" as "(:model')".
     iDestruct (big_sepM_lookup_acc with "Hdescrs") as "((:descriptor۰model) & Hdescrs)"; first done.
     wp۰load.
     iDestruct ("Hdescrs" with "[- Helts_auth Helt HΦ]") as "Hdescrs"; first iSteps.
     apply head_Some_elem_of in Hfirst.
-    iDestruct (model𑁒disjoint'' class descr first with "[$]") as %?; [done.. |].
+    iDestruct (modelｰdisjoint'' class descr first with "[$]") as %?; [done.. |].
     iSteps as (cl (class' & descr' & Hdescrs_lookup' & <-)%elem_of_map_to_set) / --silent. iPureIntro.
     rewrite !elem_of_list_to_set. naive_solver.
   Qed.
 
-  Lemma partition٠cardinal𑁒spec γ part elt v :
+  Lemma partition٠cardinalｰspec γ part elt v :
     {{{
       partition۰model γ part ∗
       partition۰element γ elt v
@@ -535,8 +535,8 @@ Section partition۰G.
   Proof.
     iIntros "%Φ ((:model) & #Helt) HΦ".
     wp۰rec.
-    wp۰apply (partition٠get_class𑁒spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
-    iDestruct (model𑁒NoDup with "Hmodel") as %?; first done.
+    wp۰apply (partition٠get_classｰspec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
+    iDestruct (modelｰNoDup with "Hmodel") as %?; first done.
     iDestruct "Hmodel" as "(:model')".
     iDestruct (big_sepM_lookup_acc with "Hdescrs") as "((:descriptor۰model) & Hdescrs)"; first done.
     wp۰load.
@@ -546,7 +546,7 @@ Section partition۰G.
     rewrite size_list_to_set //.
   Qed.
 
-  Lemma partition٠refine𑁒spec {γ part v_elts} elts :
+  Lemma partition٠refineｰspec {γ part v_elts} elts :
     list۰model' v_elts (#*@{location} elts) →
     {{{
       partition۰model γ part

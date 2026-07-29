@@ -15,7 +15,7 @@ Class MutexG Σ `{zoo۰G : !ZooG Σ} :=
 Definition mutex۰Σ :=
   #[excl۰Σ unitO
   ].
-#[global] Instance subG𑁒mutex۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰmutex۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG mutex۰Σ Σ →
   MutexG Σ.
 Proof.
@@ -61,48 +61,48 @@ Section mutex۰G.
     l ↪ γ ∗
     locked γ.
 
-  #[global] Instance mutex۰inv𑁒contractive t :
+  #[global] Instance mutex۰invｰcontractive t :
     Contractive (mutex۰inv t).
   Proof.
     rewrite /mutex۰inv /inv۰inner.
     solve_contractive.
   Qed.
-  #[global] Instance mutex۰inv𑁒ne t :
+  #[global] Instance mutex۰invｰne t :
     NonExpansive (mutex۰inv t).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mutex۰inv𑁒proper t :
+  #[global] Instance mutex۰invｰproper t :
     Proper ((≡) ==> (≡)) (mutex۰inv t).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mutex۰init𑁒timeless t b :
+  #[global] Instance mutex۰initｰtimeless t b :
     Timeless (mutex۰init t b).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mutex۰locked𑁒timeless t :
+  #[global] Instance mutex۰lockedｰtimeless t :
     Timeless (mutex۰locked t).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mutex۰inv𑁒persistent t P :
+  #[global] Instance mutex۰invｰpersistent t P :
     Persistent (mutex۰inv t P).
   Proof.
     apply _.
   Qed.
 
-  Lemma mutex۰init𑁒exclusive t b1 b2 :
+  Lemma mutex۰initｰexclusive t b1 b2 :
     mutex۰init t b1 -∗
     mutex۰init t b2 -∗
     False.
   Proof.
     iSteps.
   Qed.
-  Lemma mutex۰init𑁒to𑁒inv {t b} P E :
+  Lemma mutex۰initｰtoｰinv {t b} P E :
     mutex۰init t b -∗
     (if b then True else ▷ P) ={E}=∗
     mutex۰inv t P.
@@ -110,17 +110,17 @@ Section mutex۰G.
     destruct b; iSteps.
   Qed.
 
-  Lemma mutex۰locked𑁒exclusive t :
+  Lemma mutex۰lockedｰexclusive t :
     mutex۰locked t -∗
     mutex۰locked t -∗
     False.
   Proof.
     iIntros "(%l & %γ & -> & #Hmeta & Hlocked1) (%_l & %_γ & %Heq & _Hmeta & Hlocked2)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (excl𑁒exclusive with "Hlocked1 Hlocked2") as %[].
+    iDestruct (metaｰagree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iDestruct (exclｰexclusive with "Hlocked1 Hlocked2") as %[].
   Qed.
 
-  Lemma mutex٠create𑁒spec𑁒init :
+  Lemma mutex٠createｰspecｰinit :
     {{{
       True
     }}}
@@ -136,12 +136,12 @@ Section mutex۰G.
     wp۰rec.
     wp۰ref l as "Hmeta" "Hl".
 
-    iMod excl𑁒alloc as "(%γ & Hlocked)".
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iMod exclｰalloc as "(%γ & Hlocked)".
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
 
     iSteps.
   Qed.
-  Lemma mutex٠create𑁒spec P :
+  Lemma mutex٠createｰspec P :
     {{{
       P
     }}}
@@ -154,13 +154,13 @@ Section mutex۰G.
   Proof.
     iIntros "%Φ HP HΦ".
 
-    iApply wp𑁒fupd.
-    wp۰apply (mutex٠create𑁒spec𑁒init with "[//]") as (t) "Hinit".
-    iMod (mutex۰init𑁒to𑁒inv with "Hinit HP") as "Hinv".
+    iApply wpｰfupd.
+    wp۰apply (mutex٠createｰspecｰinit with "[//]") as (t) "Hinit".
+    iMod (mutex۰initｰtoｰinv with "Hinit HP") as "Hinv".
     iApply ("HΦ" with "Hinv").
   Qed.
 
-  Lemma mutex٠create_lock𑁒spec𑁒init :
+  Lemma mutex٠create_lockｰspecｰinit :
     {{{
       True
     }}}
@@ -177,12 +177,12 @@ Section mutex۰G.
     wp۰rec.
     wp۰ref l as "Hmeta" "Hl".
 
-    iMod excl𑁒alloc as "(%γ & Hlocked)".
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iMod exclｰalloc as "(%γ & Hlocked)".
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
 
     iSteps.
   Qed.
-  Lemma mutex٠create_lock𑁒spec P :
+  Lemma mutex٠create_lockｰspec P :
     {{{
       True
     }}}
@@ -196,13 +196,13 @@ Section mutex۰G.
   Proof.
     iIntros "%Φ HP HΦ".
 
-    iApply wp𑁒fupd.
-    wp۰apply (mutex٠create_lock𑁒spec𑁒init with "[//]") as (t) "(Hinit & Hlocked)".
-    iMod (mutex۰init𑁒to𑁒inv P with "Hinit [//]") as "Hinv".
+    iApply wpｰfupd.
+    wp۰apply (mutex٠create_lockｰspecｰinit with "[//]") as (t) "(Hinit & Hlocked)".
+    iMod (mutex۰initｰtoｰinv P with "Hinit [//]") as "Hinv".
     iApply ("HΦ" with "[$]").
   Qed.
 
-  Lemma mutex٠lock𑁒spec t P :
+  Lemma mutex٠lockｰspec t P :
     {{{
       mutex۰inv t P
     }}}
@@ -228,7 +228,7 @@ Section mutex۰G.
     wp۰pures.
     iApply ("HLöb" with "HΦ").
   Qed.
-  Lemma mutex٠lock𑁒spec𑁒init t :
+  Lemma mutex٠lockｰspecｰinit t :
     {{{
       mutex۰init t false
     }}}
@@ -242,7 +242,7 @@ Section mutex۰G.
     rewrite /mutex٠lock. iSteps.
   Qed.
 
-  Lemma mutex٠unlock𑁒spec t P :
+  Lemma mutex٠unlockｰspec t P :
     {{{
       mutex۰inv t P ∗
       mutex۰locked t ∗
@@ -255,11 +255,11 @@ Section mutex۰G.
     }}}.
   Proof.
     iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %_γ & %Heq & #_Hmeta & Hlocked) & HP) HΦ". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iDestruct (metaｰagree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     iSteps.
   Qed.
-  Lemma mutex٠unlock𑁒spec𑁒init t :
+  Lemma mutex٠unlockｰspecｰinit t :
     {{{
       mutex۰init t true ∗
       mutex۰locked t
@@ -273,7 +273,7 @@ Section mutex۰G.
     iSteps.
   Qed.
 
-  Lemma mutex٠synchronize𑁒spec t P :
+  Lemma mutex٠synchronizeｰspec t P :
     {{{
       mutex۰inv t P
     }}}
@@ -286,10 +286,10 @@ Section mutex۰G.
     iIntros "%Φ #Hinv HΦ".
 
     wp۰rec.
-    wp۰apply (mutex٠lock𑁒spec with "Hinv") as "(Hlocked & HP)".
-    wp۰apply+ (mutex٠unlock𑁒spec with "[$Hinv $Hlocked $HP] HΦ").
+    wp۰apply (mutex٠lockｰspec with "Hinv") as "(Hlocked & HP)".
+    wp۰apply+ (mutex٠unlockｰspec with "[$Hinv $Hlocked $HP] HΦ").
   Qed.
-  #[global] Instance mutex٠synchronize𑁒diaspec t P :
+  #[global] Instance mutex٠synchronizeｰdiaspec t P :
     DIASPEC
     {{
       mutex۰inv t P
@@ -301,10 +301,10 @@ Section mutex۰G.
     }}.
   Proof.
     iStep.
-    iApply mutex٠synchronize𑁒spec.
+    iApply mutex٠synchronizeｰspec.
   Qed.
 
-  Lemma mutex٠protect𑁒spec Ψ t P fn :
+  Lemma mutex٠protectｰspec Ψ t P fn :
     {{{
       mutex۰inv t P ∗
       ( mutex۰locked t -∗
@@ -326,9 +326,9 @@ Section mutex۰G.
     iIntros "%Φ (#Hinv & Hfn) HΦ".
 
     wp۰rec.
-    wp۰apply+ (mutex٠lock𑁒spec with "Hinv") as "(Hlocked & HP)".
-    wp۰apply+ (wp𑁒wand with "(Hfn Hlocked HP)") as "%v (Hlocked & HP & HΨ)".
-    wp۰apply+ (mutex٠unlock𑁒spec with "[$Hinv $Hlocked $HP]").
+    wp۰apply+ (mutex٠lockｰspec with "Hinv") as "(Hlocked & HP)".
+    wp۰apply+ (wpｰwand with "(Hfn Hlocked HP)") as "%v (Hlocked & HP & HΨ)".
+    wp۰apply+ (mutex٠unlockｰspec with "[$Hinv $Hlocked $HP]").
     iSteps.
   Qed.
 End mutex۰G.

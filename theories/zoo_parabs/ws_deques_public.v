@@ -21,7 +21,7 @@ Class WsDequesPublicG Σ `{zoo۰G : !ZooG Σ} :=
 Definition ws_deques_public۰Σ :=
   #[ws_deque_2۰Σ
   ].
-#[global] Instance subG𑁒ws_deques_public۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰws_deques_public۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG ws_deques_public۰Σ Σ →
   WsDequesPublicG Σ.
 Proof.
@@ -71,60 +71,60 @@ Section ws_deques_public۰G.
       )
     ".
 
-  #[global] Instance ws_deques_public۰model𑁒timeless t vss :
+  #[global] Instance ws_deques_public۰modelｰtimeless t vss :
     Timeless (ws_deques_public۰model t vss).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance ws_deques_public۰inv𑁒persistent t ι sz :
+  #[global] Instance ws_deques_public۰invｰpersistent t ι sz :
     Persistent (ws_deques_public۰inv t ι sz).
   Proof.
     apply _.
   Qed.
 
-  Lemma ws_deques_public۰inv𑁒agree t ι1 sz1 ι2 sz2 :
+  Lemma ws_deques_public۰invｰagree t ι1 sz1 ι2 sz2 :
     ws_deques_public۰inv t ι1 sz1 -∗
     ws_deques_public۰inv t ι2 sz2 -∗
     ⌜sz1 = sz2⌝.
   Proof.
     iIntros "(:inv =1) (:inv =2)".
-    iDestruct (array۰model𑁒agree with "Hqueues1 Hqueues2") as %<-.
+    iDestruct (array۰modelｰagree with "Hqueues1 Hqueues2") as %<-.
     iSteps.
   Qed.
 
-  Lemma ws_deques_public۰owner𑁒exclusive t i status1 ws1 status2 ws2 :
+  Lemma ws_deques_public۰ownerｰexclusive t i status1 ws1 status2 ws2 :
     ws_deques_public۰owner t i status1 ws1 -∗
     ws_deques_public۰owner t i status2 ws2 -∗
     False.
   Proof.
     iIntros "(:owner =1) (:owner =2)".
-    iDestruct (array۰model𑁒agree with "Hqueues1 Hqueues2") as %<-. iClear "Hqueues2".
+    iDestruct (array۰modelｰagree with "Hqueues1 Hqueues2") as %<-. iClear "Hqueues2".
     simplify.
-    iApply (ws_deque_2۰owner𑁒exclusive with "Hqueue1_owner Hqueue2_owner").
+    iApply (ws_deque_2۰ownerｰexclusive with "Hqueue1_owner Hqueue2_owner").
   Qed.
 
-  Lemma ws_deques_public𑁒inv𑁒model t ι sz vss :
+  Lemma ws_deques_publicｰinvｰmodel t ι sz vss :
     ws_deques_public۰inv t ι sz -∗
     ws_deques_public۰model t vss -∗
     ⌜length vss = sz⌝.
   Proof.
     iIntros "(:inv) (:model)".
     iDestruct (big_sepL2_length with "Hqueues_model") as %<-.
-    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-.
+    iDestruct (array۰modelｰagree with "Hqueues Hqueues_") as %<-.
     iSteps.
   Qed.
-  Lemma ws_deques_public𑁒inv𑁒owner t ι sz i status ws :
+  Lemma ws_deques_publicｰinvｰowner t ι sz i status ws :
     ws_deques_public۰inv t ι sz -∗
     ws_deques_public۰owner t i status ws -∗
     ⌜i < sz⌝.
   Proof.
     iIntros "(:inv) (:owner)".
-    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
+    iDestruct (array۰modelｰagree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
     iPureIntro. rewrite Hqueues_length. eapply lookup_lt_Some. done.
   Qed.
 
-  Lemma ws_deques_public𑁒model𑁒owner t vss i status ws :
+  Lemma ws_deques_publicｰmodelｰowner t vss i status ws :
     ws_deques_public۰model t vss -∗
     ws_deques_public۰owner t i status ws -∗
       ∃ vs,
@@ -132,12 +132,12 @@ Section ws_deques_public۰G.
       ⌜vs `suffix_of` ws⌝.
   Proof.
     iIntros "(:model =1) (:owner =2)".
-    iDestruct (array۰model𑁒agree with "Hqueues1 Hqueues2") as %<-. iClear "Hqueues2".
+    iDestruct (array۰modelｰagree with "Hqueues1 Hqueues2") as %<-. iClear "Hqueues2".
     iDestruct (big_sepL2_lookup_l with "Hqueues1_model") as "(%vs & $ & Hqueue2_model)"; first done.
-    iApply (ws_deque_2𑁒owner𑁒model with "Hqueue2_owner Hqueue2_model").
+    iApply (ws_deque_2ｰownerｰmodel with "Hqueue2_owner Hqueue2_model").
   Qed.
 
-  Lemma ws_deques_public٠create𑁒spec ι sz :
+  Lemma ws_deques_public٠createｰspec ι sz :
     (0 ≤ sz)%Z →
     {{{
       True
@@ -167,23 +167,23 @@ Section ws_deques_public۰G.
         ws_deque_2۰owner queue []
       )
     )%I).
-    iApply wp𑁒fupd.
-    wp۰apply+ (array٠unsafe_init𑁒spec Ψ) as (t queues) "(%Hqueues_length & Hqueues & (Hinv & Hmodel & Howner))"; first done.
+    iApply wpｰfupd.
+    wp۰apply+ (array٠unsafe_initｰspec Ψ) as (t queues) "(%Hqueues_length & Hqueues & (Hinv & Hmodel & Howner))"; first done.
     { iSplit; iSteps.
-      wp۰apply (ws_deque_2٠create𑁒spec with "[//]").
+      wp۰apply (ws_deque_2٠createｰspec with "[//]").
       rewrite /Ψ. setoid_rewrite big_sepL_snoc. iSteps.
     }
-    iMod (array۰model𑁒persist with "Hqueues") as "#Hqueues".
+    iMod (array۰modelｰpersist with "Hqueues") as "#Hqueues".
 
     iApply "HΦ". iSplitL "Hinv"; last iSplitL "Hmodel".
     - iExists queues. iSteps.
     - iExists queues. rewrite big_sepL2_replicate_r //. iSteps.
-    - rewrite big_sepL𑁒seq𑁒index //.
+    - rewrite big_sepLｰseqｰindex //.
       iApply (big_sepL_impl with "Howner").
       iSteps.
   Qed.
 
-  Lemma ws_deques_public٠size𑁒spec t ι sz :
+  Lemma ws_deques_public٠sizeｰspec t ι sz :
     {{{
       ws_deques_public۰inv t ι sz
     }}}
@@ -194,10 +194,10 @@ Section ws_deques_public۰G.
     }}}.
   Proof.
     iSteps.
-    wp۰apply array٠size𑁒spec; iSteps.
+    wp۰apply array٠sizeｰspec; iSteps.
   Qed.
 
-  Lemma ws_deques_public٠block𑁒spec t ι sz i i_ ws :
+  Lemma ws_deques_public٠blockｰspec t ι sz i i_ ws :
     i = ⁺i_ →
     {{{
       ws_deques_public۰inv t ι sz ∗
@@ -212,7 +212,7 @@ Section ws_deques_public۰G.
     iSteps.
   Qed.
 
-  Lemma ws_deques_public٠unblock𑁒spec t ι sz i i_ ws :
+  Lemma ws_deques_public٠unblockｰspec t ι sz i i_ ws :
     i = ⁺i_ →
     {{{
       ws_deques_public۰inv t ι sz ∗
@@ -227,7 +227,7 @@ Section ws_deques_public۰G.
     iSteps.
   Qed.
 
-  Lemma ws_deques_public٠push𑁒spec t ι sz i i_ ws v :
+  Lemma ws_deques_public٠pushｰspec t ι sz i i_ ws v :
     i = ⁺i_ →
     <<<
       ws_deques_public۰inv t ι sz ∗
@@ -246,16 +246,16 @@ Section ws_deques_public۰G.
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ".
-    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
+    iDestruct (array۰modelｰagree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
 
     wp۰rec.
-    wp۰apply+ (array٠unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done | lia |].
+    wp۰apply+ (array٠unsafe_getｰspec with "Hqueues") as "_"; [lia | done | lia |].
 
     iDestruct (big_sepL_lookup with "Hqueues_inv") as "Hqueue_inv"; first done.
-    awp۰apply+ (ws_deque_2٠push𑁒spec with "[$Hqueue_inv $Hqueue_owner]").
-    iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vss (:model)".
-    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
-    iDestruct (big_sepL2𑁒lookup𑁒Some𑁒l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
+    awp۰apply+ (ws_deque_2٠pushｰspec with "[$Hqueue_inv $Hqueue_owner]").
+    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vss (:model)".
+    iDestruct (array۰modelｰagree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
+    iDestruct (big_sepL2ｰlookupｰSomeｰl with "Hqueues_model") as %(vs & Hvss_lookup); first done.
     iDestruct (big_sepL2_insert_acc with "Hqueues_model") as "(Hqueue_model & Hqueues_model)"; [done.. |].
     iAaccIntro with "Hqueue_model".
 
@@ -268,7 +268,7 @@ Section ws_deques_public۰G.
       rewrite list_insert_id //. iSteps.
   Qed.
 
-  Lemma ws_deques_public٠pop𑁒spec t ι sz i i_ ws :
+  Lemma ws_deques_public٠popｰspec t ι sz i i_ ws :
     i = ⁺i_ →
     <<<
       ws_deques_public۰inv t ι sz ∗
@@ -296,16 +296,16 @@ Section ws_deques_public۰G.
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ".
-    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
+    iDestruct (array۰modelｰagree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
 
     wp۰rec.
-    wp۰apply+ (array٠unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done | lia |].
+    wp۰apply+ (array٠unsafe_getｰspec with "Hqueues") as "_"; [lia | done | lia |].
 
     iDestruct (big_sepL_lookup with "Hqueues_inv") as "Hqueue_inv"; first done.
-    awp۰apply+ (ws_deque_2٠pop𑁒spec with "[$Hqueue_inv $Hqueue_owner]").
-    iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vss (:model)".
-    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
-    iDestruct (big_sepL2𑁒lookup𑁒Some𑁒l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
+    awp۰apply+ (ws_deque_2٠popｰspec with "[$Hqueue_inv $Hqueue_owner]").
+    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vss (:model)".
+    iDestruct (array۰modelｰagree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
+    iDestruct (big_sepL2ｰlookupｰSomeｰl with "Hqueues_model") as %(vs & Hvss_lookup); first done.
     iDestruct (big_sepL2_insert_acc with "Hqueues_model") as "(Hqueue_model & Hqueues_model)"; [done.. |].
     iAaccIntro with "Hqueue_model".
 
@@ -326,7 +326,7 @@ Section ws_deques_public۰G.
         rewrite !list_insert_id //. iSteps.
   Qed.
 
-  Lemma ws_deques_public٠steal_to𑁒spec t ι (sz : nat) i i_ ws j :
+  Lemma ws_deques_public٠steal_toｰspec t ι (sz : nat) i i_ ws j :
     i = ⁺i_ →
     (0 ≤ j < sz)%Z →
     <<<
@@ -354,13 +354,13 @@ Section ws_deques_public۰G.
 
     wp۰rec.
     destruct (lookup_lt_is_Some_2 queues ₊j) as (queue & Hqueue_lookup); first lia.
-    wp۰apply+ (array٠unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done.. |].
+    wp۰apply+ (array٠unsafe_getｰspec with "Hqueues") as "_"; [lia | done.. |].
 
     iDestruct (big_sepL_lookup with "Hqueues_inv") as "#Hqueue_inv"; first done.
-    awp۰apply+ (ws_deque_2٠steal𑁒spec with "Hqueue_inv") without "Howner".
-    iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vss (:model)".
-    iDestruct (array۰model𑁒agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
-    iDestruct (big_sepL2𑁒lookup𑁒Some𑁒l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
+    awp۰apply+ (ws_deque_2٠stealｰspec with "Hqueue_inv") without "Howner".
+    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vss (:model)".
+    iDestruct (array۰modelｰagree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
+    iDestruct (big_sepL2ｰlookupｰSomeｰl with "Hqueues_model") as %(vs & Hvss_lookup); first done.
     iDestruct (big_sepL2_insert_acc with "Hqueues_model") as "(Hqueue_model & Hqueues_model)"; [done.. |].
     iAaccIntro with "Hqueue_model".
 
@@ -387,7 +387,7 @@ End ws_deques_public۰G.
 Section ws_deques_public۰G.
   Context `{ws_deques_public۰G : WsDequesPublicG Σ}.
 
-  #[local] Lemma ws_deques_public٠steal_as₀𑁒spec t ι (sz : nat) i i_ ws round (n : nat) :
+  #[local] Lemma ws_deques_public٠steal_as₀ｰspec t ι (sz : nat) i i_ ws round (n : nat) :
     i = ⁺i_ →
     <<<
       ws_deques_public۰inv t ι sz ∗
@@ -415,7 +415,7 @@ Section ws_deques_public۰G.
     >>>.
   Proof.
     iIntros (->) "%Φ (#Hinv & Howner & Hround) HΦ".
-    iDestruct (ws_deques_public𑁒inv𑁒owner with "Hinv Howner") as %Hi.
+    iDestruct (ws_deques_publicｰinvｰowner with "Hinv Howner") as %Hi.
 
     iLöb as "HLöb" forall (n).
 
@@ -425,14 +425,14 @@ Section ws_deques_public۰G.
     - iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
       iApply ("HΦ" $! None with "Hmodel [$Howner Hround]"); first iSteps.
 
-    - wp۰apply (random_round٠next𑁒spec' with "Hround") as (j) "(%Hj & Hround)"; first lia.
+    - wp۰apply (random_round٠nextｰspec' with "Hround") as (j) "(%Hj & Hround)"; first lia.
       wp۰pures.
       rewrite Nat2Z.id.
       pose k := (i_ + 1 + j) `mod` sz.
       assert ((i_ + 1 + j) `rem` sz = k)%Z as ->.
       { rewrite Z.rem_mod_nonneg; lia. }
-      awp۰apply+ (ws_deques_public٠steal_to𑁒spec with "[$Hinv $Howner]") without "Hround"; [done | lia |].
-      iApply (aacc𑁒aupd with "HΦ"); first done. iIntros "%vss Hmodel".
+      awp۰apply+ (ws_deques_public٠steal_toｰspec with "[$Hinv $Howner]") without "Hround"; [done | lia |].
+      iApply (aaccｰaupd with "HΦ"); first done. iIntros "%vss Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([ v |]).
 
       + rewrite Nat2Z.id.
@@ -448,7 +448,7 @@ Section ws_deques_public۰G.
         assert (n - 1 = (n - 1)%nat)%Z as -> by lia.
         iSteps.
   Qed.
-  Lemma ws_deques_public٠steal_as𑁒spec t ι sz i i_ ws round :
+  Lemma ws_deques_public٠steal_asｰspec t ι sz i i_ ws round :
     i = ⁺i_ →
     0 < sz →
     <<<
@@ -479,10 +479,10 @@ Section ws_deques_public۰G.
     iIntros (->) "%Hsz %Φ (#Hinv & Hround) HΦ".
 
     wp۰rec.
-    wp۰apply+ (ws_deques_public٠size𑁒spec with "Hinv") as "_".
+    wp۰apply+ (ws_deques_public٠sizeｰspec with "Hinv") as "_".
     wp۰pures.
     assert (sz - 1 = (sz - 1)%nat)%Z as -> by lia.
-    wp۰apply (ws_deques_public٠steal_as₀𑁒spec with "[$Hinv $Hround] HΦ"); first done.
+    wp۰apply (ws_deques_public٠steal_as₀ｰspec with "[$Hinv $Hround] HΦ"); first done.
   Qed.
 End ws_deques_public۰G.
 

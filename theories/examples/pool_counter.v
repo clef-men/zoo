@@ -25,7 +25,7 @@ Definition pool_counter۰Σ :=
   ; cinvΣ
   ; auth_frac۰Σ natUR
   ].
-#[global] Instance subG𑁒pool_counter۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰpool_counter۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG pool_counter۰Σ Σ →
   PoolCounterG Σ.
 Proof.
@@ -53,46 +53,46 @@ Section pool_counter۰G.
   #[local] Definition inv r γ η :=
     cinv nroot η (inv۰inner r γ).
 
-  #[local] Lemma tokens𑁒alloc n :
+  #[local] Lemma tokensｰalloc n :
     ⊢ |==>
       ∃ γ,
       tokens۰auth γ 0 ∗
       [∗ list] _ ∈ seq 0 n, tokens۰frag γ n 0.
   Proof.
-    iMod auth_frac𑁒alloc as "(%γ & $ & Hfrag)". 1: done.
-    iDestruct (auth_frac۰frag𑁒divide (replicate n 0) with "Hfrag") as "Hfrags".
+    iMod auth_fracｰalloc as "(%γ & $ & Hfrag)". 1: done.
+    iDestruct (auth_frac۰fragｰdivide (replicate n 0) with "Hfrag") as "Hfrags".
     { clear. induction n => //. }
     iEval (simpl_length) in "Hfrags".
-    iApply (big_sepL𑁒replicate₁ with "Hfrags").
+    iApply (big_sepLｰreplicate₁ with "Hfrags").
   Qed.
-  #[local] Lemma tokens𑁒incr γ cnt n contrib :
+  #[local] Lemma tokensｰincr γ cnt n contrib :
     tokens۰auth γ cnt -∗
     tokens۰frag γ n contrib ==∗
       tokens۰auth γ (cnt + 1) ∗
       tokens۰frag γ n (contrib + 1).
   Proof.
     iIntros "Hauth Hfrag".
-    iMod (auth_frac𑁒update with "Hauth Hfrag") as "($ & $)" => //.
+    iMod (auth_fracｰupdate with "Hauth Hfrag") as "($ & $)" => //.
     { apply nat_local_update. lia. }
   Qed.
-  #[local] Lemma tokens𑁒agree γ cnt n :
+  #[local] Lemma tokensｰagree γ cnt n :
     0 < n →
     tokens۰auth γ cnt -∗
     ([∗ list] _ ∈ seq 0 n, tokens۰frag γ n 1) -∗
     ⌜cnt = n⌝.
   Proof.
     iIntros "%Hn Hauth Hfrags".
-    iDestruct (big_sepL𑁒replicate₂ (λ _, tokens۰frag γ n) with "Hfrags") as "Hfrags".
-    iDestruct (auth_frac۰frag𑁒gather with "Hfrags") as "Hfrag". 1: simpl_length.
+    iDestruct (big_sepLｰreplicate₂ (λ _, tokens۰frag γ n) with "Hfrags") as "Hfrags".
+    iDestruct (auth_frac۰fragｰgather with "Hfrags") as "Hfrag". 1: simpl_length.
     iEval (simpl_length) in "Hfrag".
     iEval (rewrite Qp.mul_div_r) in "Hfrag".
-    iDestruct (auth_frac𑁒auth𑁒frag𑁒agree𑁒L with "Hauth Hfrag") as %->.
+    iDestruct (auth_fracｰauthｰfragｰagreeｰL with "Hauth Hfrag") as %->.
     iPureIntro.
     clear. induction n => //.
     rewrite replicate_S /=. auto.
   Qed.
 
-  Lemma pool_counter٠main𑁒spec (num_dom n : nat) :
+  Lemma pool_counter٠mainｰspec (num_dom n : nat) :
     0 < n →
     {{{
       True
@@ -108,12 +108,12 @@ Section pool_counter۰G.
     wp۰rec.
     wp۰ref r as "Hr".
 
-    iMod (tokens𑁒alloc n) as "(%γ & Htokens_auth & Htokens_frags)".
+    iMod (tokensｰalloc n) as "(%γ & Htokens_auth & Htokens_frags)".
     iMod (cinv_alloc _ nroot (inv۰inner r γ) with "[Hr Htokens_auth]") as (η) "(#Hinv & Hinv_own)". 1: iFrame.
-    iDestruct (cinv_own𑁒divide n with "Hinv_own") as "Hinv_owns". 1: lia.
+    iDestruct (cinv_ownｰdivide n with "Hinv_own") as "Hinv_owns". 1: lia.
     iDestruct (big_sepL_sep_2 with "Htokens_frags Hinv_owns") as "H".
 
-    wp۰apply+ (pool٠run𑁒spec (λ pool _,
+    wp۰apply+ (pool٠runｰspec (λ pool _,
       [∗ list] _ ∈ seq 0 n,
         pool۰consumer pool (
           tokens۰frag γ n 1 ∗
@@ -121,7 +121,7 @@ Section pool_counter۰G.
         )
     )%I with "[H]") as (pool ?) "(#Hpool_finished & H)". 1: lia.
     { iIntros "%pool %ctx %scope _ Hctx".
-      wp۰apply+ (for𑁒spec𑁒nat'
+      wp۰apply+ (forｰspecｰnat'
         (λ _ i,
           pool۰context pool ctx scope ∗
           [∗ list] _ ∈ seq 0 i,
@@ -134,8 +134,8 @@ Section pool_counter۰G.
       with "[Hctx H]") as "(Hctx & H)". 1: lia.
       { iFrameStep.
         iEval (rewrite Nat.sub_0_r).
-        iApply (big_sepL𑁒seq𑁒impl with "H"). iIntros "!> %k %Hk (Htokens_frag & Hinv_own) % -> (Hctx & H)".
-        wp۰apply+ (pool٠async𑁒spec
+        iApply (big_sepLｰseqｰimpl with "H"). iIntros "!> %k %Hk (Htokens_frag & Hinv_own) % -> (Hctx & H)".
+        wp۰apply+ (pool٠asyncｰspec
           ( tokens۰frag γ n 1 ∗
             cinv_own η (1 / Qp۰of_nat n)
           )
@@ -146,12 +146,12 @@ Section pool_counter۰G.
           wp۰bind (𝗳𝗮𝗮 _ _)%E.
           iInv "Hinv" as "((:inv۰inner) & Hinv_own)".
           wp۰faa.
-          iMod (tokens𑁒incr with "Htokens_auth Htokens_frag") as "($ & Htokens_frag)".
+          iMod (tokensｰincr with "Htokens_auth Htokens_frag") as "($ & Htokens_frag)".
           iFrameSteps.
         }
 
         iFrameSteps.
-        iApply (big_sepL𑁒seq𑁒shift𑁒1 (λ _, _) with "H").
+        iApply (big_sepLｰseqｰshiftｰ1 (λ _, _) with "H").
       }
 
       iEval (rewrite Nat.sub_0_r) in "H".
@@ -165,15 +165,15 @@ Section pool_counter۰G.
         cinv_own η (1 / Qp۰of_nat n)
     )%I with "[H]" as ">H".
     { iApply big_sepL_fupd.
-      iApply (big_sepL𑁒seq𑁒impl with "H"). iIntros "!> %k %Hk Hpool_consumer".
-      iApply (pool۰consumer𑁒finished with "Hpool_consumer Hpool_finished").
+      iApply (big_sepLｰseqｰimpl with "H"). iIntros "!> %k %Hk Hpool_consumer".
+      iApply (pool۰consumerｰfinished with "Hpool_consumer Hpool_finished").
     }
 
     iDestruct (big_sepL_sep with "H") as "(Htokens_frags & Hinv_owns)".
-    iDestruct (cinv_own𑁒gather with "Hinv_owns") as "Hinv_own". 1: lia.
+    iDestruct (cinv_ownｰgather with "Hinv_owns") as "Hinv_own". 1: lia.
 
     iMod (cinv_cancel with "Hinv Hinv_own") as "(:inv۰inner)". 1: done.
-    iDestruct (tokens𑁒agree with "Htokens_auth Htokens_frags") as %->. 1: done.
+    iDestruct (tokensｰagree with "Htokens_auth Htokens_frags") as %->. 1: done.
     iSteps.
   Qed.
 End pool_counter۰G.

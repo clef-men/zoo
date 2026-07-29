@@ -44,19 +44,19 @@ Section zoo۰G.
       )
     ".
 
-  #[global] Instance bqueue۰model𑁒timeless t cap vs :
+  #[global] Instance bqueue۰modelｰtimeless t cap vs :
     Timeless (bqueue۰model t cap vs).
   Proof.
     apply _.
   Qed.
 
-  Lemma bqueue۰model𑁒valid t cap vs :
+  Lemma bqueue۰modelｰvalid t cap vs :
     bqueue۰model t cap vs ⊢
     ⌜length vs ≤ cap⌝.
   Proof.
     iSteps.
   Qed.
-  Lemma bqueue۰model𑁒exclusive t cap1 vs1 cap2 vs2 :
+  Lemma bqueue۰modelｰexclusive t cap1 vs1 cap2 vs2 :
     bqueue۰model t cap1 vs1 -∗
     bqueue۰model t cap2 vs2 -∗
     False.
@@ -64,7 +64,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma bqueue٠create𑁒spec cap :
+  Lemma bqueue٠createｰspec cap :
     (0 ≤ cap)%Z →
     {{{
       True
@@ -79,15 +79,15 @@ Section zoo۰G.
     iIntros "% %Φ _ HΦ".
 
     wp۰rec.
-    wp۰apply (array٠unsafe_make𑁒spec with "[//]") as (data) "Hextra"; first done.
-    iApply array۰model𑁒to𑁒cslice in "Hextra". simpl_length.
-    iDestruct (array۰cslice𑁒to𑁒inv with "Hextra") as "#Hdata_inv".
-    iDestruct (array۰cslice𑁒nil with "Hdata_inv") as "Hvs".
+    wp۰apply (array٠unsafe_makeｰspec with "[//]") as (data) "Hextra"; first done.
+    iApply array۰modelｰtoｰcslice in "Hextra". simpl_length.
+    iDestruct (array۰csliceｰtoｰinv with "Hextra") as "#Hdata_inv".
+    iDestruct (array۰csliceｰnil with "Hdata_inv") as "Hvs".
     wp۰block l as "(Hl_capacity & Hl_data & Hl_front & Hl_back & _)".
     iFrameSteps. rewrite Z2Nat.id //. iSteps.
   Qed.
 
-  Lemma bqueue٠size𑁒spec t cap vs :
+  Lemma bqueue٠sizeｰspec t cap vs :
     {{{
       bqueue۰model t cap vs
     }}}
@@ -104,7 +104,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma bqueue٠is_empty𑁒spec t cap vs :
+  Lemma bqueue٠is_emptyｰspec t cap vs :
     {{{
       bqueue۰model t cap vs
     }}}
@@ -117,14 +117,14 @@ Section zoo۰G.
     iIntros "%Φ Hmodel HΦ".
 
     wp۰rec.
-    wp۰apply (bqueue٠size𑁒spec with "Hmodel") as "Hmodel".
+    wp۰apply (bqueue٠sizeｰspec with "Hmodel") as "Hmodel".
     wp۰pures.
     rewrite (bool_decide_ext (⁺(length vs) = 0) (vs = [])).
     { rewrite -length_zero_iff_nil. lia. }
     iApply ("HΦ" with "Hmodel").
   Qed.
 
-  Lemma bqueue٠unsafe_get𑁒spec {t cap vs i} v :
+  Lemma bqueue٠unsafe_getｰspec {t cap vs i} v :
     (0 ≤ i)%Z →
     vs !! ₊i = Some v →
     {{{
@@ -139,11 +139,11 @@ Section zoo۰G.
     iIntros "%Hi %Hlookup %Φ (:model) HΦ".
 
     wp۰rec. do 2 wp۰load.
-    wp۰apply (array٠unsafe_cget𑁒spec with "Hvs"); [lia | done | lia |].
+    wp۰apply (array٠unsafe_cgetｰspec with "Hvs"); [lia | done | lia |].
     iSteps.
   Qed.
 
-  Lemma bqueue٠unsafe_set𑁒spec t cap vs i v :
+  Lemma bqueue٠unsafe_setｰspec t cap vs i v :
     (0 ≤ i < length vs)%Z →
     {{{
       bqueue۰model t cap vs
@@ -157,12 +157,12 @@ Section zoo۰G.
     iIntros "%Hi %Φ (:model) HΦ".
 
     wp۰rec. do 2 wp۰load.
-    wp۰apply (array٠unsafe_cset𑁒spec with "Hvs"); first lia.
+    wp۰apply (array٠unsafe_csetｰspec with "Hvs"); first lia.
     replace (₊(front + i) - front) with ₊i by lia.
     iSteps; simpl_length.
   Qed.
 
-  Lemma bqueue٠push𑁒spec t cap vs v :
+  Lemma bqueue٠pushｰspec t cap vs v :
     {{{
       bqueue۰model t cap vs
     }}}
@@ -180,15 +180,15 @@ Section zoo۰G.
     case_bool_decide; first iSteps.
     wp۰load.
     destruct (Nat.lt_exists_pred 0 extra) as (extra' & -> & _); first lia.
-    iDestruct (array۰cslice𑁒cons with "Hextra") as "(Hcell & Hextra)". rewrite -/replicate.
-    wp۰apply (array٠unsafe_cset𑁒spec𑁒cell with "Hcell") as "Hcell"; first done.
-    iDestruct (array۰cslice𑁒app₁ with "Hvs Hcell") as "Hvs"; first done.
+    iDestruct (array۰csliceｰcons with "Hextra") as "(Hcell & Hextra)". rewrite -/replicate.
+    wp۰apply (array٠unsafe_csetｰspecｰcell with "Hcell") as "Hcell"; first done.
+    iDestruct (array۰csliceｰapp₁ with "Hvs Hcell") as "Hvs"; first done.
     wp۰store. wp۰pures.
     replace (back + 1)%Z with ⁺˖back by lia.
     iSteps; iPureIntro; simpl_length/=; lia.
   Qed.
 
-  Lemma bqueue٠pop_front𑁒spec t cap vs :
+  Lemma bqueue٠pop_frontｰspec t cap vs :
     {{{
       bqueue۰model t cap vs
     }}}
@@ -208,12 +208,12 @@ Section zoo۰G.
 
     - destruct vs as [| v vs]; first naive_solver. simpl in *.
       wp۰load.
-      iDestruct (array۰cslice𑁒cons with "Hvs") as "(Hcell & Hvs)".
-      wp۰apply+ (array٠unsafe_cget𑁒spec𑁒cell with "Hcell") as "Hcell"; first done.
-      wp۰apply+ (array٠unsafe_cset𑁒spec𑁒cell with "Hcell") as "Hcell"; first done.
+      iDestruct (array۰csliceｰcons with "Hvs") as "(Hcell & Hvs)".
+      wp۰apply+ (array٠unsafe_cgetｰspecｰcell with "Hcell") as "Hcell"; first done.
+      wp۰apply+ (array٠unsafe_csetｰspecｰcell with "Hcell") as "Hcell"; first done.
       wp۰store. wp۰pures.
-      iApply array۰cslice𑁒shift𑁒right in "Hcell".
-      iDestruct (array۰cslice𑁒app₁ with "Hextra Hcell") as "Hextra".
+      iApply array۰csliceｰshiftｰright in "Hcell".
+      iDestruct (array۰csliceｰapp₁ with "Hextra Hcell") as "Hextra".
       { simpl_length. lia. }
       iApply "HΦ".
       rewrite -replicate_S_end.
@@ -221,7 +221,7 @@ Section zoo۰G.
       iFrameSteps.
   Qed.
 
-  Lemma bqueue٠pop_back𑁒spec t cap vs :
+  Lemma bqueue٠pop_backｰspec t cap vs :
     {{{
       bqueue۰model t cap vs
     }}}
@@ -251,11 +251,11 @@ Section zoo۰G.
 
     - destruct vs as [| v vs _] using rev_ind; first naive_solver. simpl_length/= in *.
       wp۰load.
-      iDestruct (array۰cslice𑁒app with "Hvs") as "(Hvs & Hcell)".
-      wp۰apply+ (array٠unsafe_cget𑁒spec𑁒cell with "Hcell") as "Hcell"; first lia.
-      wp۰apply+ (array٠unsafe_cset𑁒spec𑁒cell with "Hcell") as "Hcell"; first lia.
+      iDestruct (array۰csliceｰapp with "Hvs") as "(Hvs & Hcell)".
+      wp۰apply+ (array٠unsafe_cgetｰspecｰcell with "Hcell") as "Hcell"; first lia.
+      wp۰apply+ (array٠unsafe_csetｰspecｰcell with "Hcell") as "Hcell"; first lia.
       wp۰store. wp۰pures.
-      iDestruct (array۰cslice𑁒cons₂' with "Hcell Hextra") as "Hextra"; first lia.
+      iDestruct (array۰csliceｰcons₂' with "Hcell Hextra") as "Hextra"; first lia.
       iApply ("HΦ" $! (Some v)).
       rewrite -replicate_S.
       iExists vs. iFrameSteps.

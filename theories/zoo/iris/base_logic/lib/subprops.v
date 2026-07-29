@@ -15,7 +15,7 @@ Class SubpropsG Σ :=
 Definition subprops۰Σ :=
   #[subpreds۰Σ ()
   ].
-#[global] Instance subG𑁒subprops۰Σ Σ :
+#[global] Instance subGｰsubprops۰Σ Σ :
   subG subprops۰Σ Σ →
   SubpropsG Σ.
 Proof.
@@ -33,37 +33,37 @@ Section subprops۰G.
   Definition subprops۰frag γ Q :=
     subpreds۰frag γ (λ _, Q).
 
-  #[global] Instance subprops۰auth𑁒ne γ n :
+  #[global] Instance subprops۰authｰne γ n :
     Proper ((≡{n}≡) ==> (=) ==> (≡{n}≡)) (subprops۰auth γ).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance subprops۰auth𑁒proper γ :
+  #[global] Instance subprops۰authｰproper γ :
     Proper ((≡) ==> (=) ==> (≡)) (subprops۰auth γ).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance subprops۰frag𑁒contractive γ :
+  #[global] Instance subprops۰fragｰcontractive γ :
     Contractive (subprops۰frag γ).
   Proof.
     solve_contractive.
   Qed.
-  #[global] Instance subprops۰frag𑁒proper γ :
+  #[global] Instance subprops۰fragｰproper γ :
     Proper ((≡) ==> (≡)) (subprops۰frag γ).
   Proof.
     solve_proper.
   Qed.
 
-  Lemma subprops𑁒alloc P :
+  Lemma subpropsｰalloc P :
     ⊢ |==>
       ∃ γ,
       subprops۰auth γ P false ∗
       subprops۰frag γ P.
   Proof.
-    apply subpreds𑁒alloc.
+    apply subpredsｰalloc.
   Qed.
 
-  Lemma subprops𑁒wand `{inv۰G : !invGS Σ} {γ P state Q1} Q2 E :
+  Lemma subpropsｰwand `{inv۰G : !invGS Σ} {γ P state Q1} Q2 E :
     ▷ subprops۰auth γ P state -∗
     subprops۰frag γ Q1 -∗
     (Q1 -∗ Q2) ={E}=∗
@@ -71,9 +71,9 @@ Section subprops۰G.
       subprops۰frag γ Q2.
   Proof.
     iIntros "Hauth Hfrag H".
-    iApply (subpreds𑁒wand with "Hauth Hfrag [H]"). 1: iSteps.
+    iApply (subpredsｰwand with "Hauth Hfrag [H]"). 1: iSteps.
   Qed.
-  Lemma subprops𑁒split `{inv۰G : !invGS Σ} {γ P state} Q1 Q2 E :
+  Lemma subpropsｰsplit `{inv۰G : !invGS Σ} {γ P state} Q1 Q2 E :
     ▷ subprops۰auth γ P state -∗
     subprops۰frag γ (Q1 ∗ Q2) ={E}=∗
       ▷ subprops۰auth γ P state ∗
@@ -81,35 +81,35 @@ Section subprops۰G.
       subprops۰frag γ Q2.
   Proof.
     iIntros "Hauth Hfrag".
-    iApply (subpreds𑁒split with "Hauth Hfrag").
+    iApply (subpredsｰsplit with "Hauth Hfrag").
   Qed.
-  Lemma subprops𑁒divide `{inv۰G : !invGS Σ} {γ P state} Qs E :
+  Lemma subpropsｰdivide `{inv۰G : !invGS Σ} {γ P state} Qs E :
     ▷ subprops۰auth γ P state -∗
     subprops۰frag γ ([∗ list] Q ∈ Qs, Q) ={E}=∗
       ▷ subprops۰auth γ P state ∗
       [∗ list] Q ∈ Qs, subprops۰frag γ Q.
   Proof.
     iIntros "Hauth Hfrag".
-    iMod (subpreds𑁒divide ((λ Q _, Q) <$> Qs) with "Hauth [Hfrag]") as "($ & Hfrags)".
+    iMod (subpredsｰdivide ((λ Q _, Q) <$> Qs) with "Hauth [Hfrag]") as "($ & Hfrags)".
     all: setoid_rewrite big_sepL_fmap.
     all: iSteps.
   Qed.
 
-  Lemma subprops𑁒produce γ P :
+  Lemma subpropsｰproduce γ P :
     subprops۰auth γ P false -∗
     P -∗
     subprops۰auth γ P true.
   Proof.
-    iApply subpreds𑁒produce.
+    iApply subpredsｰproduce.
   Qed.
 
-  Lemma subprops𑁒consume `{inv۰G : !invGS Σ} γ P Q E :
+  Lemma subpropsｰconsume `{inv۰G : !invGS Σ} γ P Q E :
     ▷ subprops۰auth γ P true -∗
     subprops۰frag γ Q ={E}=∗
       ▷ subprops۰auth γ P true ∗
       ▷^2 Q.
   Proof.
-    apply subpreds𑁒consume.
+    apply subpredsｰconsume.
   Qed.
 End subprops۰G.
 

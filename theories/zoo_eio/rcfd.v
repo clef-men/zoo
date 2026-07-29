@@ -29,9 +29,9 @@ Record metadata :=
   }.
 Implicit Type γ : metadata.
 
-#[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
+#[local] Instance metadataｰeq_dec : EqDecision metadata :=
   ltac:(solve_decision).
-#[local] Instance metadata𑁒countable :
+#[local] Instance metadataｰcountable :
   Countable metadata.
 Proof.
   solve_countable.
@@ -42,9 +42,9 @@ Variant state :=
   | Closing fn.
 Implicit Type state : state.
 
-#[local] Instance state𑁒inhabited : Inhabited state :=
+#[local] Instance stateｰinhabited : Inhabited state :=
   populate Open.
-#[local] Instance state𑁒eq_dec : EqDecision state :=
+#[local] Instance stateｰeq_dec : EqDecision state :=
   ltac:(solve_decision).
 
 #[local] Definition state۰to_val γ state :=
@@ -72,45 +72,45 @@ Implicit Type lstate : lstate.
       2
   end.
 
-#[global] Instance lstate𑁒inhabited : Inhabited lstate :=
+#[global] Instance lstateｰinhabited : Inhabited lstate :=
   populate LOpen.
-#[global] Instance lstate𑁒eq_dec : EqDecision lstate :=
+#[global] Instance lstateｰeq_dec : EqDecision lstate :=
   ltac:(solve_decision).
 
 Variant lstep : relation lstate :=
-  | lstep𑁒close𑁒users :
+  | lstepｰcloseｰusers :
       lstep LOpen LClosingUsers
-  | lstep𑁒close𑁒no𑁒users :
+  | lstepｰcloseｰnoｰusers :
       lstep LClosingUsers LClosingNoUsers.
 #[local] Hint Constructors lstep : core.
 
-#[local] Lemma lstep𑁒measure lstate1 lstate2 :
+#[local] Lemma lstepｰmeasure lstate1 lstate2 :
   lstep lstate1 lstate2 →
   lstate۰measure lstate1 < lstate۰measure lstate2.
 Proof.
   intros []; simpl; lia.
 Qed.
-#[local] Lemma lstep𑁒tc𑁒measure lstate1 lstate2 :
+#[local] Lemma lstepｰtcｰmeasure lstate1 lstate2 :
   tc lstep lstate1 lstate2 →
   lstate۰measure lstate1 < lstate۰measure lstate2.
 Proof.
   intros Hlsteps.
-  apply transitive𑁒tc; first apply _.
+  apply transitiveｰtc; first apply _.
   eapply (tc_congruence lstate۰measure); last done.
-  apply lstep𑁒measure.
+  apply lstepｰmeasure.
 Qed.
-#[local] Lemma lstep𑁒rtc𑁒measure lstate1 lstate2 :
+#[local] Lemma lstepｰrtcｰmeasure lstate1 lstate2 :
   rtc lstep lstate1 lstate2 →
   lstate۰measure lstate1 ≤ lstate۰measure lstate2.
 Proof.
-  intros [<- | Hlsteps%lstep𑁒tc𑁒measure]%rtc_tc; lia.
+  intros [<- | Hlsteps%lstepｰtcｰmeasure]%rtc_tc; lia.
 Qed.
 
-#[local] Instance lstep𑁒rtc𑁒antisymm :
+#[local] Instance lstepｰrtcｰantisymm :
   AntiSymm (=) (rtc lstep).
 Proof.
-  intros lstate1 lstate2 Hlsteps1 Hlsteps2%lstep𑁒rtc𑁒measure.
-  apply rtc_tc in Hlsteps1 as [<- | Hlsteps1%lstep𑁒tc𑁒measure]; first done.
+  intros lstate1 lstate2 Hlsteps1 Hlsteps2%lstepｰrtcｰmeasure.
+  apply rtc_tc in Hlsteps1 as [<- | Hlsteps1%lstepｰtcｰmeasure]; first done.
   lia.
 Qed.
 
@@ -125,7 +125,7 @@ Definition rcfd۰Σ :=
   ; auth_gmultiset۰Σ Qp
   ; auth_mono۰Σ (A := leibnizO lstate) lstep
   ].
-#[global] Instance subG𑁒rcfd۰Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰrcfd۰Σ `{zoo۰G : !ZooG Σ} :
   subG rcfd۰Σ Σ →
   RcfdG Σ.
 Proof.
@@ -282,7 +282,7 @@ Section rcfd۰G.
       )
     ".
 
-  #[local] Instance tokens۰auth'𑁒ne γ_tokens n :
+  #[local] Instance tokens۰auth'ｰne γ_tokens n :
     Proper (
       (pointwise_relation _ (≡{n}≡)) ==>
       (=) ==>
@@ -291,7 +291,7 @@ Section rcfd۰G.
   Proof.
     solve_proper.
   Qed.
-  #[local] Instance tokens۰auth'𑁒proper γ_tokens :
+  #[local] Instance tokens۰auth'ｰproper γ_tokens :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (=) ==>
@@ -301,7 +301,7 @@ Section rcfd۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance rcfd۰inv𑁒contractive t owned fd n :
+  #[global] Instance rcfd۰invｰcontractive t owned fd n :
     Proper (
       (pointwise_relation _ (dist_later n)) ==>
       (≡{n}≡)
@@ -310,7 +310,7 @@ Section rcfd۰G.
     rewrite /rcfd۰inv /inv' /inv۰inner /inv۰lstate /inv۰lstate۰open /inv۰lstate۰closing۰users.
     solve_contractive.
   Qed.
-  #[global] Instance rcfd۰inv𑁒proper t owned fd :
+  #[global] Instance rcfd۰invｰproper t owned fd :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (≡)
@@ -320,44 +320,44 @@ Section rcfd۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance rcfd۰owner𑁒timeless t :
+  #[global] Instance rcfd۰ownerｰtimeless t :
     Timeless (rcfd۰owner t).
   Proof.
     apply _.
   Qed.
-  #[global] Instance rcfd۰closing𑁒timeless t :
+  #[global] Instance rcfd۰closingｰtimeless t :
     Timeless (rcfd۰closing t).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance rcfd۰inv𑁒persistent t owned fd Ψ :
+  #[global] Instance rcfd۰invｰpersistent t owned fd Ψ :
     Persistent (rcfd۰inv t owned fd Ψ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance rcfd۰closing𑁒persistent t :
+  #[global] Instance rcfd۰closingｰpersistent t :
     Persistent (rcfd۰closing t).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma tokens𑁒alloc Ψ :
+  #[local] Lemma tokensｰalloc Ψ :
     Ψ 1%Qp ⊢ |==>
       ∃ γ_tokens,
       tokens۰auth' γ_tokens Ψ 0.
   Proof.
     iIntros "HΨ".
-    iMod auth_gmultiset𑁒alloc as "(%γ_tokens & $)".
+    iMod auth_gmultisetｰalloc as "(%γ_tokens & $)".
     iSteps.
   Qed.
-  #[local] Lemma tokens۰auth𑁒valid γ Ψ ops :
+  #[local] Lemma tokens۰authｰvalid γ Ψ ops :
     tokens۰auth γ Ψ ops ⊢
     ⌜(0 ≤ ops)%Z⌝.
   Proof.
     iSteps.
   Qed.
-  #[local] Lemma tokens۰auth𑁒consume γ Ψ :
+  #[local] Lemma tokens۰authｰconsume γ Ψ :
     tokens۰auth γ Ψ 0 ⊢
     Ψ 1%Qp.
   Proof.
@@ -366,7 +366,7 @@ Section rcfd۰G.
     rewrite gmultiset_set_fold_empty in Hqs.
     rewrite Hqs //.
   Qed.
-  #[local] Lemma tokens𑁒update𑁒alloc γ Ψ `{!Fractional Ψ} ops :
+  #[local] Lemma tokensｰupdateｰalloc γ Ψ `{!Fractional Ψ} ops :
     tokens۰auth γ Ψ ops ⊢ |==>
       ∃ q,
       tokens۰auth γ Ψ (ops + 1) ∗
@@ -374,30 +374,30 @@ Section rcfd۰G.
       Ψ q.
   Proof.
     iIntros "(:tokens۰auth)".
-    iMod (auth_gmultiset𑁒update𑁒alloc𑁒singleton (stock / 2)%Qp with "Hauth") as "($ & $)".
+    iMod (auth_gmultisetｰupdateｰallocｰsingleton (stock / 2)%Qp with "Hauth") as "($ & $)".
     iDestruct (fractional_half with "HΨ_stock") as "(HΨ_stock & HΨ)"; first done.
     iFrameSteps; iPureIntro.
     - rewrite gmultiset_size_disj_union gmultiset_size_singleton. lia.
     - rewrite gmultiset_set_fold_disj_union gmultiset_set_fold_singleton Qp.div_2 //.
   Qed.
-  #[local] Lemma tokens𑁒update𑁒dealloc γ Ψ `{!Fractional Ψ} ops q :
+  #[local] Lemma tokensｰupdateｰdealloc γ Ψ `{!Fractional Ψ} ops q :
     tokens۰auth γ Ψ ops -∗
     tokens۰frag γ q -∗
     Ψ q ==∗
     tokens۰auth γ Ψ (ops - 1).
   Proof.
     iIntros "(:tokens۰auth) Hfrag HΨ".
-    iDestruct (auth_gmultiset𑁒elem_of with "Hauth Hfrag") as %Hq.
-    iMod (auth_gmultiset𑁒update𑁒dealloc with "Hauth Hfrag") as "$".
+    iDestruct (auth_gmultisetｰelem_of with "Hauth Hfrag") as %Hq.
+    iMod (auth_gmultisetｰupdateｰdealloc with "Hauth Hfrag") as "$".
     iDestruct (fractional (Φ := Ψ) with "[$HΨ $HΨ_stock]") as "HΨ_stock".
     iFrameSteps; iPureIntro.
     - rewrite gmultiset_size_difference; first multiset_solver.
       rewrite gmultiset_size_singleton.
-      apply gmultiset𑁒elem_of𑁒size𑁒non_empty in Hq. lia.
+      apply gmultisetｰelem_ofｰsizeｰnon_empty in Hq. lia.
     - rewrite (gmultiset_disj_union_difference' q qs) // gmultiset_set_fold_disj_union gmultiset_set_fold_singleton // in Hqs.
   Qed.
 
-  #[local] Lemma lstate𑁒alloc owned :
+  #[local] Lemma lstateｰalloc owned :
     ⊢ |==>
       ∃ γ_lstate,
       lstate۰auth' γ_lstate owned LOpen ∗
@@ -406,66 +406,66 @@ Section rcfd۰G.
       else
         True.
   Proof.
-    iMod (auth_mono𑁒alloc (auth_mono۰G := rcfd۰G۰lstate۰G) _ LOpen) as "(%γ_lstate & Hauth)".
+    iMod (auth_monoｰalloc (auth_mono۰G := rcfd۰G۰lstate۰G) _ LOpen) as "(%γ_lstate & Hauth)".
     destruct owned; last iSteps.
     iEval (rewrite -Qp.quarter_three_quarter) in "Hauth".
     iDestruct "Hauth" as "(Hauth & Howner)".
     iSteps.
   Qed.
-  #[local] Lemma lstate۰lb𑁒get γ lstate :
+  #[local] Lemma lstate۰lbｰget γ lstate :
     lstate۰auth γ lstate ⊢
     lstate۰lb γ lstate.
   Proof.
-    apply auth_mono۰lb𑁒get.
+    apply auth_mono۰lbｰget.
   Qed.
-  #[local] Lemma lstate۰lb𑁒mono {γ lstate} lstate' :
+  #[local] Lemma lstate۰lbｰmono {γ lstate} lstate' :
     lstep lstate' lstate →
     lstate۰lb γ lstate ⊢
     lstate۰lb γ lstate'.
   Proof.
-    apply auth_mono۰lb𑁒mono'.
+    apply auth_mono۰lbｰmono'.
   Qed.
-  #[local] Lemma lstate𑁒valid γ lstate lstate' :
+  #[local] Lemma lstateｰvalid γ lstate lstate' :
     lstate۰auth γ lstate -∗
     lstate۰lb γ lstate' -∗
     ⌜rtc lstep lstate' lstate⌝.
   Proof.
-    apply: auth_mono۰lb𑁒valid.
+    apply: auth_mono۰lbｰvalid.
   Qed.
-  #[local] Lemma lstate𑁒valid𑁒closing𑁒users γ lstate :
+  #[local] Lemma lstateｰvalidｰclosingｰusers γ lstate :
     lstate۰auth γ lstate -∗
     lstate۰lb γ LClosingUsers -∗
     ⌜lstate ≠ LOpen⌝.
   Proof.
     iIntros "Hauth Hlb".
-    iDestruct (lstate𑁒valid with "Hauth Hlb") as %Hlsteps.
+    iDestruct (lstateｰvalid with "Hauth Hlb") as %Hlsteps.
     iPureIntro.
     apply rtc_inv in Hlsteps as [<- | (lstate' & Hlstep & Hlsteps)]; first naive_solver.
     invert Hlstep.
     apply rtc_inv in Hlsteps as [<- | (lstate' & Hlstep & Hlsteps)]; first naive_solver.
     invert Hlstep.
   Qed.
-  #[local] Lemma lstate𑁒valid𑁒closing𑁒users' γ lstate :
+  #[local] Lemma lstateｰvalidｰclosingｰusers' γ lstate :
     lstate۰auth γ lstate -∗
     lstate۰lb γ LClosingUsers -∗
     ⌜lstate = LClosingUsers ∨ lstate = LClosingNoUsers⌝.
   Proof.
     iIntros "Hauth Hlb".
-    iDestruct (lstate𑁒valid𑁒closing𑁒users with "Hauth Hlb") as %Hlstate.
+    iDestruct (lstateｰvalidｰclosingｰusers with "Hauth Hlb") as %Hlstate.
     destruct lstate; iSteps.
   Qed.
-  #[local] Lemma lstate𑁒valid𑁒closing𑁒no_users γ lstate :
+  #[local] Lemma lstateｰvalidｰclosingｰno_users γ lstate :
     lstate۰auth γ lstate -∗
     lstate۰lb γ LClosingNoUsers -∗
     ⌜lstate = LClosingNoUsers⌝.
   Proof.
     iIntros "Hauth Hlb".
-    iDestruct (lstate𑁒valid with "Hauth Hlb") as %Hlsteps.
+    iDestruct (lstateｰvalid with "Hauth Hlb") as %Hlsteps.
     iPureIntro.
     apply rtc_inv in Hlsteps as [<- | (lstate' & Hlstep & Hlsteps)]; first naive_solver.
     invert Hlstep.
   Qed.
-  #[local] Lemma lstate𑁒update𑁒close𑁒users γ :
+  #[local] Lemma lstateｰupdateｰcloseｰusers γ :
     lstate۰auth γ LOpen -∗
     (if γ.(metadata۰owned) then owner γ else True) ==∗
     lstate۰auth γ LClosingUsers.
@@ -478,53 +478,53 @@ Section rcfd۰G.
       iEval (rewrite Qp.quarter_three_quarter) in "Hauth".
       iSteps.
     }
-    iApply (auth_mono𑁒update' with "Hauth"); first done.
+    iApply (auth_monoｰupdate' with "Hauth"); first done.
   Qed.
-  #[local] Lemma lstate𑁒update𑁒close𑁒no_users γ :
+  #[local] Lemma lstateｰupdateｰcloseｰno_users γ :
     lstate۰auth γ LClosingUsers ⊢ |==>
     lstate۰auth γ LClosingNoUsers.
   Proof.
-    apply auth_mono𑁒update'; first done.
+    apply auth_monoｰupdate'; first done.
   Qed.
 
-  #[local] Lemma owner𑁒exclusive γ :
+  #[local] Lemma ownerｰexclusive γ :
     owner γ -∗
     owner γ -∗
     False.
   Proof.
     iIntros "Hauth_1 Hauth_2".
-    iDestruct (auth_mono۰auth𑁒valid𑁒2 with "Hauth_1 Hauth_2") as "(% & _)". done.
+    iDestruct (auth_mono۰authｰvalidｰ2 with "Hauth_1 Hauth_2") as "(% & _)". done.
   Qed.
-  #[local] Lemma owner𑁒lstate۰auth γ lstate :
+  #[local] Lemma ownerｰlstate۰auth γ lstate :
     owner γ -∗
     lstate۰auth γ lstate -∗
     ⌜lstate = LOpen⌝.
   Proof.
     iIntros "Howner Hauth".
-    iApply (auth_mono۰auth𑁒agree𑁒L with "Hauth Howner").
+    iApply (auth_mono۰authｰagreeｰL with "Hauth Howner").
   Qed.
-  #[local] Lemma owner𑁒lstate۰lb γ :
+  #[local] Lemma ownerｰlstate۰lb γ :
     owner γ -∗
     lstate۰lb γ LClosingUsers -∗
     False.
   Proof.
     iIntros "Hauth Hlb".
-    iDestruct (auth_mono۰lb𑁒valid with "Hauth Hlb") as %H%lstep𑁒rtc𑁒measure.
+    iDestruct (auth_mono۰lbｰvalid with "Hauth Hlb") as %H%lstepｰrtcｰmeasure.
     exfalso. simpl in H. lia.
   Qed.
 
   Opaque tokens۰auth'.
 
-  #[local] Lemma rcfd۰owner𑁒elim l γ :
+  #[local] Lemma rcfd۰ownerｰelim l γ :
     l ↪ γ -∗
     rcfd۰owner #l -∗
     owner γ.
   Proof.
     iIntros "#Hmeta (:owner)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-.
     iSteps.
   Qed.
-  #[local] Lemma rcfd۰owner𑁒elim' l γ b :
+  #[local] Lemma rcfd۰ownerｰelim' l γ b :
     l ↪ γ -∗
     ( if b then
         rcfd۰owner #l
@@ -538,37 +538,37 @@ Section rcfd۰G.
   Proof.
     iIntros "#Hmeta Howner".
     destruct b; last iSteps.
-    iApply (rcfd۰owner𑁒elim with "Hmeta Howner").
+    iApply (rcfd۰ownerｰelim with "Hmeta Howner").
   Qed.
-  Lemma rcfd۰owner𑁒exclusive t :
+  Lemma rcfd۰ownerｰexclusive t :
     rcfd۰owner t -∗
     rcfd۰owner t -∗
     False.
   Proof.
     iIntros "(:owner =1) (:owner =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (owner𑁒exclusive with "Howner_1 Howner_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (ownerｰexclusive with "Howner_1 Howner_2").
   Qed.
-  Lemma rcfd۰owner𑁒closing t :
+  Lemma rcfd۰ownerｰclosing t :
     rcfd۰owner t -∗
     rcfd۰closing t -∗
     False.
   Proof.
     iIntros "(:owner =1) (:closing =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (owner𑁒lstate۰lb with "Howner_1 Hlstate_lb_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (ownerｰlstate۰lb with "Howner_1 Hlstate_lb_2").
   Qed.
 
-  #[local] Lemma rcfd۰closing𑁒elim l γ :
+  #[local] Lemma rcfd۰closingｰelim l γ :
     l ↪ γ -∗
     rcfd۰closing #l -∗
     lstate۰lb γ LClosingUsers.
   Proof.
     iIntros "#Hmeta (:closing)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-.
     iSteps.
   Qed.
-  #[local] Lemma rcfd۰closing𑁒elim' l γ b P :
+  #[local] Lemma rcfd۰closingｰelim' l γ b P :
     l ↪ γ -∗
     ( if b then
         rcfd۰closing #l
@@ -582,16 +582,16 @@ Section rcfd۰G.
   Proof.
     iIntros "#Hmeta Hclosing".
     destruct b; last iSteps.
-    iApply (rcfd۰closing𑁒elim with "Hmeta Hclosing").
+    iApply (rcfd۰closingｰelim with "Hmeta Hclosing").
   Qed.
 
-  #[local] Lemma inv۰lstate𑁒Open γ Ψ lstate ops :
+  #[local] Lemma inv۰lstateｰOpen γ Ψ lstate ops :
     inv۰lstate γ Ψ Open lstate ops ⊢
     ⌜lstate = LOpen⌝.
   Proof.
     destruct lstate; iSteps.
   Qed.
-  #[local] Lemma inv۰lstate𑁒Closing γ Ψ state lstate ops :
+  #[local] Lemma inv۰lstateｰClosing γ Ψ state lstate ops :
     state ≠ Open →
     inv۰lstate γ Ψ state lstate ops -∗
     lstate۰auth γ lstate -∗
@@ -601,17 +601,17 @@ Section rcfd۰G.
       lstate۰lb γ LClosingUsers.
   Proof.
     iIntros "%Hlstate Hlstate Hlstate_auth".
-    iDestruct (lstate۰lb𑁒get with "Hlstate_auth") as "Hlstate_lb".
+    iDestruct (lstate۰lbｰget with "Hlstate_auth") as "Hlstate_lb".
     destruct lstate.
     - iDestruct "Hlstate" as "(:inv۰lstate۰open)".
       exfalso. done.
     - iDestruct "Hlstate" as "(:inv۰lstate۰closing۰users)".
       iSteps.
     - iDestruct "Hlstate" as "(:inv۰lstate۰closing۰no_users)".
-      iDestruct (lstate۰lb𑁒mono with "Hlstate_lb") as "$"; first done.
+      iDestruct (lstate۰lbｰmono with "Hlstate_lb") as "$"; first done.
       iSteps.
   Qed.
-  #[local] Lemma inv۰lstate𑁒LClosing γ Ψ state lstate ops :
+  #[local] Lemma inv۰lstateｰLClosing γ Ψ state lstate ops :
     lstate ≠ LOpen →
     inv۰lstate γ Ψ state lstate ops -∗
     lstate۰auth γ lstate -∗
@@ -620,16 +620,16 @@ Section rcfd۰G.
       lstate۰lb γ LClosingUsers.
   Proof.
     iIntros "%Hlstate Hlstate Hlstate_auth".
-    iDestruct (lstate۰lb𑁒get with "Hlstate_auth") as "Hlstate_lb".
+    iDestruct (lstate۰lbｰget with "Hlstate_auth") as "Hlstate_lb".
     destruct lstate; first done.
     - iDestruct "Hlstate" as "(:inv۰lstate۰closing۰users)".
       iSteps.
     - iDestruct "Hlstate" as "(:inv۰lstate۰closing۰no_users)".
-      iDestruct (lstate۰lb𑁒mono with "Hlstate_lb") as "$"; first done.
+      iDestruct (lstate۰lbｰmono with "Hlstate_lb") as "$"; first done.
       iSteps.
   Qed.
 
-  Lemma rcfd٠make𑁒spec owned Ψ fd :
+  Lemma rcfd٠makeｰspec owned Ψ fd :
     {{{
       Ψ 1%Qp
     }}}
@@ -650,8 +650,8 @@ Section rcfd۰G.
     wp۰block۰generative open.
     wp۰block l as "Hmeta" "(Hl_ops & Hl_fd & _)".
 
-    iMod (tokens𑁒alloc with "HΨ") as "(%γ_tokens & Htokens_auth)".
-    iMod (lstate𑁒alloc owned) as "(%γ_lstate & Hlstate_auth & Howner)".
+    iMod (tokensｰalloc with "HΨ") as "(%γ_tokens & Htokens_auth)".
+    iMod (lstateｰalloc owned) as "(%γ_lstate & Hlstate_auth & Howner)".
 
     pose γ :=
       {|metadata۰fd := fd
@@ -660,7 +660,7 @@ Section rcfd۰G.
       ; metadata۰tokens := γ_tokens
       ; metadata۰lstate := γ_lstate
       |}.
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
     iSplitR "Howner".
@@ -668,7 +668,7 @@ Section rcfd۰G.
     - destruct owned; iSteps.
   Qed.
 
-  #[local] Lemma rcfd٠finish𑁒spec l γ Ψ (close : val) :
+  #[local] Lemma rcfd٠finishｰspec l γ Ψ (close : val) :
     {{{
       inv' l γ Ψ ∗
       lstate۰lb γ LClosingUsers
@@ -686,14 +686,14 @@ Section rcfd۰G.
     wp۰bind (_.{ops})%E.
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰load.
-    iDestruct (lstate𑁒valid𑁒closing𑁒users' with "Hlstate_auth Hlstate_lb") as %[-> | ->].
+    iDestruct (lstateｰvalidｰclosingｰusers' with "Hlstate_auth Hlstate_lb") as %[-> | ->].
 
     - iDestruct "Hlstate" as "(:inv۰lstate۰closing۰users =1)".
       iSplitR "HΦ". { iFrameSteps 2. }
       iSteps.
 
     - iDestruct "Hlstate" as "(:inv۰lstate۰closing۰no_users =1)".
-      iDestruct (lstate۰lb𑁒get with "Hlstate_auth") as "{Hlstate_lb} #Hlstate_lb".
+      iDestruct (lstate۰lbｰget with "Hlstate_auth") as "{Hlstate_lb} #Hlstate_lb".
       iSplitR "HΦ". { iFrameSteps 2. }
       iIntros "!> {%}".
 
@@ -705,14 +705,14 @@ Section rcfd۰G.
       wp۰cas as _ | Hcas; first iSteps.
       destruct state2; first zoo_simplify.
       destruct Hcas as (_ & _ & [= <-]).
-      iDestruct (lstate𑁒valid𑁒closing𑁒no_users with "Hlstate_auth Hlstate_lb") as %->.
+      iDestruct (lstateｰvalidｰclosingｰno_users with "Hlstate_auth Hlstate_lb") as %->.
       iDestruct "Hlstate" as "(:inv۰lstate۰closing۰no_users =2 eq)". injection Heq as <-.
       iSplitR "Hfn2 HΦ".
       { iExists (Closing _). iFrameSteps. }
       iSteps.
   Qed.
 
-  #[local] Lemma rcfd٠put𑁒spec l γ Ψ `{!Fractional Ψ} :
+  #[local] Lemma rcfd٠putｰspec l γ Ψ `{!Fractional Ψ} :
     {{{
       inv' l γ Ψ ∗
       ( lstate۰lb γ LClosingNoUsers
@@ -736,18 +736,18 @@ Section rcfd۰G.
     wp۰faa.
     iSplitR "HΦ".
     { iDestruct "H" as "[#Hlstate_lb | (%q & Htokens_frag & HΨ)]".
-      - iDestruct (lstate𑁒valid𑁒closing𑁒no_users with "Hlstate_auth Hlstate_lb") as %->.
+      - iDestruct (lstateｰvalidｰclosingｰno_users with "Hlstate_auth Hlstate_lb") as %->.
         iDestruct "Hlstate" as "(:inv۰lstate۰closing۰no_users =1)".
         iFrameSteps 2.
       - destruct lstate1.
         + iDestruct "Hlstate" as "(:inv۰lstate۰open =1 !=)".
-          iMod (tokens𑁒update𑁒dealloc with "Htokens_auth Htokens_frag HΨ") as "Htokens_auth".
+          iMod (tokensｰupdateｰdealloc with "Htokens_auth Htokens_frag HΨ") as "Htokens_auth".
           iFrameSteps 2.
         + iDestruct "Hlstate" as "(:inv۰lstate۰closing۰users =1 !=)".
-          iMod (tokens𑁒update𑁒dealloc with "Htokens_auth Htokens_frag HΨ") as "Htokens_auth".
+          iMod (tokensｰupdateｰdealloc with "Htokens_auth Htokens_frag HΨ") as "Htokens_auth".
           destruct_decide (ops1 = 1) as -> | ?.
-          * iDestruct (tokens۰auth𑁒consume with "Htokens_auth") as "HΨ".
-            iMod (lstate𑁒update𑁒close𑁒no_users with "Hlstate_auth") as "Hlstate_auth".
+          * iDestruct (tokens۰authｰconsume with "Htokens_auth") as "HΨ".
+            iMod (lstateｰupdateｰcloseｰno_users with "Hlstate_auth") as "Hlstate_auth".
             iFrameSteps.
           * iFrameSteps 2.
         + iDestruct "Hlstate" as "(:inv۰lstate۰closing۰no_users =1)".
@@ -767,11 +767,11 @@ Section rcfd۰G.
       iSplitR "HΦ". { iFrameSteps 2. }
       iSteps.
 
-    - iDestruct (inv۰lstate𑁒LClosing with "Hlstate Hlstate_auth") as "(%fn2 & -> & #Hlstate_lb)"; first done.
+    - iDestruct (inv۰lstateｰLClosing with "Hlstate Hlstate_auth") as "(%fn2 & -> & #Hlstate_lb)"; first done.
       iSplitR "HΦ". { iFrameSteps 2. }
       iIntros "!> {%}".
 
-      wp۰apply+ (rcfd٠finish𑁒spec with "[$] HΦ").
+      wp۰apply+ (rcfd٠finishｰspec with "[$] HΦ").
   Qed.
 
   Variant specification :=
@@ -780,7 +780,7 @@ Section rcfd۰G.
     | SpecNormal.
   Implicit Type spec : specification.
 
-  #[local] Instance specification𑁒eq_dec : EqDecision specification :=
+  #[local] Instance specificationｰeq_dec : EqDecision specification :=
     ltac:(solve_decision).
 
   #[local] Definition specification۰pre₁ t spec : iProp Σ :=
@@ -801,18 +801,18 @@ Section rcfd۰G.
     | SpecNormal =>
         True
     end.
-  #[local] Lemma specification𑁒pre₁𑁒pre₂ l γ spec :
+  #[local] Lemma specificationｰpre₁ｰpre₂ l γ spec :
     l ↪ γ -∗
     specification۰pre₁ #l spec -∗
     specification۰pre₂ γ spec.
   Proof.
     iIntros "#Hmeta Hspec".
     destruct spec; last iSteps.
-    - iApply (rcfd۰owner𑁒elim with "Hmeta Hspec").
-    - iApply (rcfd۰closing𑁒elim with "Hmeta Hspec").
+    - iApply (rcfd۰ownerｰelim with "Hmeta Hspec").
+    - iApply (rcfd۰closingｰelim with "Hmeta Hspec").
   Qed.
 
-  #[local] Lemma rcfd٠get𑁒spec𑁒aux spec l γ Ψ `{HΨ : !Fractional Ψ} :
+  #[local] Lemma rcfd٠getｰspecｰaux spec l γ Ψ `{HΨ : !Fractional Ψ} :
     {{{
       inv' l γ Ψ ∗
       specification۰pre₂ γ spec
@@ -859,15 +859,15 @@ Section rcfd۰G.
     )%I with "[- Hspec HΦ]" as ">($ & H)".
     { destruct lstate1.
       - iDestruct "Hlstate" as "(:inv۰lstate۰open)".
-        iMod (tokens𑁒update𑁒alloc with "Htokens_auth") as "(%q & Htokens_auth & Htokens_frag & HΨ)".
+        iMod (tokensｰupdateｰalloc with "Htokens_auth") as "(%q & Htokens_auth & Htokens_frag & HΨ)".
         iSplitR "Htokens_frag HΨ"; last iSteps.
         iFrameSteps 2.
       - iDestruct "Hlstate" as "(:inv۰lstate۰closing۰users)".
-        iMod (tokens𑁒update𑁒alloc with "Htokens_auth") as "(%q & Htokens_auth & Htokens_frag & HΨ)".
+        iMod (tokensｰupdateｰalloc with "Htokens_auth") as "(%q & Htokens_auth & Htokens_frag & HΨ)".
         iSplitR "Htokens_frag HΨ"; last iSteps.
         iFrameSteps 2.
       - iDestruct "Hlstate" as "(:inv۰lstate۰closing۰no_users)".
-        iDestruct (lstate۰lb𑁒get with "Hlstate_auth") as "#Hlstate_lb".
+        iDestruct (lstate۰lbｰget with "Hlstate_auth") as "#Hlstate_lb".
         iFrameSteps 2.
     }
 
@@ -881,11 +881,11 @@ Section rcfd۰G.
     - iDestruct "Hlstate" as "(:inv۰lstate۰open)".
 
       iDestruct "H" as "[#Hlstate_lb | (%q' & Htokens_frag & HΨ_)]".
-      { iDestruct (lstate𑁒valid𑁒closing𑁒no_users with "Hlstate_auth Hlstate_lb") as %?. done. }
+      { iDestruct (lstateｰvalidｰclosingｰno_users with "Hlstate_auth Hlstate_lb") as %?. done. }
 
       iAssert ⌜spec ≠ SpecClosing⌝%I as %Hspec.
       { iIntros (->).
-        iDestruct (lstate𑁒valid𑁒closing𑁒users with "Hlstate_auth Hspec") as %?. congruence.
+        iDestruct (lstateｰvalidｰclosingｰusers with "Hlstate_auth Hspec") as %?. congruence.
       }
 
       iSplitR "Hspec Htokens_frag HΨ_ HΦ". { iFrameSteps 2. }
@@ -895,22 +895,22 @@ Section rcfd۰G.
       iApply ("HΦ" $! (Some _)).
       destruct spec; try congruence; iSteps.
 
-    - iDestruct (inv۰lstate𑁒LClosing with "Hlstate Hlstate_auth") as "#(%fn2 & -> & _)"; first done.
+    - iDestruct (inv۰lstateｰLClosing with "Hlstate Hlstate_auth") as "#(%fn2 & -> & _)"; first done.
 
       iAssert ⌜spec ≠ SpecOwner⌝%I as %Hspec.
       { iIntros (->).
-        iDestruct (owner𑁒lstate۰auth with "Hspec Hlstate_auth") as %->. congruence.
+        iDestruct (ownerｰlstate۰auth with "Hspec Hlstate_auth") as %->. congruence.
       }
 
       iSplitR "H HΦ". { iFrameSteps 2. }
       iIntros "!> {%- HΨ Hspec}".
 
-      wp۰apply+ (rcfd٠put𑁒spec with "[$]") as "_".
+      wp۰apply+ (rcfd٠putｰspec with "[$]") as "_".
       wp۰pures.
       iApply ("HΦ" $! None).
       destruct spec; try congruence; iSteps.
   Qed.
-  #[local] Lemma rcfd٠get𑁒spec l γ Ψ `{HΨ : !Fractional Ψ} :
+  #[local] Lemma rcfd٠getｰspec l γ Ψ `{HΨ : !Fractional Ψ} :
     {{{
       inv' l γ Ψ
     }}}
@@ -931,10 +931,10 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ #Hinv HΦ".
 
-    wp۰apply (rcfd٠get𑁒spec𑁒aux SpecNormal with "[$]").
+    wp۰apply (rcfd٠getｰspecｰaux SpecNormal with "[$]").
     iSteps.
   Qed.
-  #[local] Lemma rcfd٠get𑁒spec𑁒owner l γ Ψ `{HΨ : !Fractional Ψ} :
+  #[local] Lemma rcfd٠getｰspecｰowner l γ Ψ `{HΨ : !Fractional Ψ} :
     {{{
       inv' l γ Ψ ∗
       owner γ
@@ -950,10 +950,10 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ (#Hinv & Howner) HΦ".
 
-    wp۰apply (rcfd٠get𑁒spec𑁒aux SpecOwner with "[$]") as ([v |]) ""; last iSteps.
+    wp۰apply (rcfd٠getｰspecｰaux SpecOwner with "[$]") as ([v |]) ""; last iSteps.
     iSteps.
   Qed.
-  #[local] Lemma rcfd٠get𑁒spec𑁒closing l γ Ψ `{HΨ : !Fractional Ψ} :
+  #[local] Lemma rcfd٠getｰspecｰclosing l γ Ψ `{HΨ : !Fractional Ψ} :
     {{{
       inv' l γ Ψ ∗
       lstate۰lb γ LClosingUsers
@@ -966,11 +966,11 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ (#Hinv & #Hlstate_lb) HΦ".
 
-    wp۰apply (rcfd٠get𑁒spec𑁒aux SpecClosing with "[$]").
+    wp۰apply (rcfd٠getｰspecｰaux SpecClosing with "[$]").
     iSteps.
   Qed.
 
-  #[local] Lemma rcfd٠use𑁒spec𑁒aux spec Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
+  #[local] Lemma rcfd٠useｰspecｰaux spec Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
     {{{
       rcfd۰inv t owned fd Ψ ∗
       specification۰pre₁ t spec ∗
@@ -1007,10 +1007,10 @@ Section rcfd۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & Hspec & Hclosed & Hopen) HΦ".
-    iDestruct (specification𑁒pre₁𑁒pre₂ with "Hmeta Hspec") as "Hspec".
+    iDestruct (specificationｰpre₁ｰpre₂ with "Hmeta Hspec") as "Hspec".
 
     wp۰rec.
-    wp۰apply+ (rcfd٠get𑁒spec𑁒aux with "[$]") as ([v |]) "(Hspec & H)".
+    wp۰apply+ (rcfd٠getｰspecｰaux with "[$]") as ([v |]) "(Hspec & H)".
 
     - iDestruct "H" as "(%q & -> & Htoken & HΨ)".
 
@@ -1018,8 +1018,8 @@ Section rcfd۰G.
       { iDestruct "Hspec" as %[=]. }
       iEval (rewrite decide_True //) in "Hopen".
 
-      wp۰apply+ (wp𑁒wand with "(Hopen HΨ)") as "%res (HΨ & HΧ)".
-      wp۰apply+ (rcfd٠put𑁒spec with "[Htoken HΨ]") as "_"; first iSteps.
+      wp۰apply+ (wpｰwand with "(Hopen HΨ)") as "%res (HΨ & HΧ)".
+      wp۰apply+ (rcfd٠putｰspec with "[Htoken HΨ]") as "_"; first iSteps.
       wp۰pures.
       destruct spec; try congruence; iSteps.
 
@@ -1027,10 +1027,10 @@ Section rcfd۰G.
       { iDestruct "Hspec" as "(% & _)". congruence. }
       iEval (rewrite decide_True //) in "Hclosed".
 
-      wp۰apply+ (wp𑁒wand with "Hclosed") as "%res HΧ".
+      wp۰apply+ (wpｰwand with "Hclosed") as "%res HΧ".
       destruct spec; try congruence; iSteps.
   Qed.
-  Lemma rcfd٠use𑁒spec Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
+  Lemma rcfd٠useｰspec Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
     {{{
       rcfd۰inv t owned fd Ψ ∗
       WP closed () {{ Χ false }} ∗
@@ -1051,10 +1051,10 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ (#Hinv & Hclosed & Hopen) HΦ".
 
-    wp۰apply (rcfd٠use𑁒spec𑁒aux SpecNormal with "[$]").
+    wp۰apply (rcfd٠useｰspecｰaux SpecNormal with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd٠use𑁒spec𑁒owner Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
+  Lemma rcfd٠useｰspecｰowner Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
     {{{
       rcfd۰inv t owned fd Ψ ∗
       rcfd۰owner t ∗
@@ -1075,10 +1075,10 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ (#Hinv & Howner & Hopen) HΦ".
 
-    wp۰apply (rcfd٠use𑁒spec𑁒aux SpecOwner (const Χ) with "[$]").
+    wp۰apply (rcfd٠useｰspecｰaux SpecOwner (const Χ) with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd٠use𑁒spec𑁒closing Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
+  Lemma rcfd٠useｰspecｰclosing Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
     {{{
       rcfd۰inv t owned fd Ψ ∗
       rcfd۰closing t ∗
@@ -1093,11 +1093,11 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ (#Hinv & Howner & Hclosed) HΦ".
 
-    wp۰apply (rcfd٠use𑁒spec𑁒aux SpecClosing (const Χ) with "[$]").
+    wp۰apply (rcfd٠useｰspecｰaux SpecClosing (const Χ) with "[$]").
     iSteps.
   Qed.
 
-  #[local] Lemma rcfd٠close𑁒spec𑁒aux closing t owned fd Ψ :
+  #[local] Lemma rcfd٠closeｰspecｰaux closing t owned fd Ψ :
     {{{
       rcfd۰inv t owned fd Ψ ∗
       ( if owned then
@@ -1131,8 +1131,8 @@ Section rcfd۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & Howner & Hclosing) HΦ".
-    iDestruct (rcfd۰owner𑁒elim' with "Hmeta Howner") as "Howner".
-    iDestruct (rcfd۰closing𑁒elim' with "Hmeta Hclosing") as "Hclosing".
+    iDestruct (rcfd۰ownerｰelim' with "Hmeta Howner") as "Howner".
+    iDestruct (rcfd۰closingｰelim' with "Hmeta Hclosing") as "Hclosing".
 
     wp۰rec. wp۰pures.
 
@@ -1144,7 +1144,7 @@ Section rcfd۰G.
     - iDestruct "Hlstate" as "(:inv۰lstate۰open =1)".
 
       destruct closing.
-      { iDestruct (lstate𑁒valid𑁒closing𑁒users with "Hlstate_auth Hclosing") as %?. congruence. }
+      { iDestruct (lstateｰvalidｰclosingｰusers with "Hlstate_auth Hclosing") as %?. congruence. }
 
       iSplitR "Howner Hclosing HΦ". { iFrameSteps 2. }
       iIntros "!> {%}".
@@ -1155,41 +1155,41 @@ Section rcfd۰G.
       iInv "Hinv" as "(:inv۰inner =2)".
       wp۰cas as Hcas.
 
-      + iDestruct (inv۰lstate𑁒Closing with "Hlstate Hlstate_auth") as "(%fn2 & -> & %Hlstate2 & #Hlstate_lb)".
+      + iDestruct (inv۰lstateｰClosing with "Hlstate Hlstate_auth") as "(%fn2 & -> & %Hlstate2 & #Hlstate_lb)".
         { intros ->. zoo_simplify in Hcas. naive_solver. }
 
         destruct γ.(metadata۰owned).
-        { iDestruct (owner𑁒lstate۰auth with "Howner Hlstate_auth") as %->. congruence. }
+        { iDestruct (ownerｰlstate۰auth with "Howner Hlstate_auth") as %->. congruence. }
 
         iSplitR "HΦ". { iFrameSteps 2. }
         iSteps.
 
       + destruct state2; last zoo_simplify.
-        iDestruct (inv۰lstate𑁒Open with "Hlstate") as %->.
+        iDestruct (inv۰lstateｰOpen with "Hlstate") as %->.
         iDestruct "Hlstate" as "(:inv۰lstate۰open =2 eq)".
 
-        iMod (lstate𑁒update𑁒close𑁒users with "Hlstate_auth Howner") as "Hlstate_auth".
-        iDestruct (lstate۰lb𑁒get with "Hlstate_auth") as "#Hlstate_lb".
+        iMod (lstateｰupdateｰcloseｰusers with "Hlstate_auth Howner") as "Hlstate_auth".
+        iDestruct (lstate۰lbｰget with "Hlstate_auth") as "#Hlstate_lb".
         iSplitR "HΦ".
         { destruct_decide (ops2 = 0) as -> | Hops.
-          - iDestruct (tokens۰auth𑁒consume with "Htokens_auth") as "HΨ".
-            iMod (lstate𑁒update𑁒close𑁒no_users with "Hlstate_auth") as "Hlstate_auth".
+          - iDestruct (tokens۰authｰconsume with "Htokens_auth") as "HΨ".
+            iMod (lstateｰupdateｰcloseｰno_users with "Hlstate_auth") as "Hlstate_auth".
             iDestruct ("Hclosing" with "HΨ") as "(%chars & Hfd)".
             iExists (Closing _). iFrameSteps.
-          - iDestruct (tokens۰auth𑁒valid with "Htokens_auth") as %?.
+          - iDestruct (tokens۰authｰvalid with "Htokens_auth") as %?.
             iExists (Closing _). iFrame. iStep 6 as "HΨ".
             iDestruct ("Hclosing" with "HΨ") as "(%chars & Hfd)".
             iSteps.
         }
         iIntros "!> {%}".
 
-        wp۰apply+ (rcfd٠finish𑁒spec with "[$]").
+        wp۰apply+ (rcfd٠finishｰspec with "[$]").
         destruct γ.(metadata۰owned); iSteps.
 
-    - iDestruct (inv۰lstate𑁒LClosing with "Hlstate Hlstate_auth") as "(%fn1 & -> & #Hlstate_lb)"; first done.
+    - iDestruct (inv۰lstateｰLClosing with "Hlstate Hlstate_auth") as "(%fn1 & -> & #Hlstate_lb)"; first done.
 
       destruct γ.(metadata۰owned).
-      { iDestruct (owner𑁒lstate۰auth with "Howner Hlstate_auth") as %->. congruence. }
+      { iDestruct (ownerｰlstate۰auth with "Howner Hlstate_auth") as %->. congruence. }
 
       iSplitR "HΦ". { iFrameSteps 2. }
       iIntros "!> {%}".
@@ -1197,7 +1197,7 @@ Section rcfd۰G.
       wp۰pures.
       destruct closing; iSteps.
   Qed.
-  Lemma rcfd٠close𑁒spec t owned fd Ψ :
+  Lemma rcfd٠closeｰspec t owned fd Ψ :
     {{{
       rcfd۰inv t owned fd Ψ ∗
       ( if owned then
@@ -1223,10 +1223,10 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ (#Hinv & Howner & H) HΦ".
 
-    wp۰apply (rcfd٠close𑁒spec𑁒aux false with "[$]").
+    wp۰apply (rcfd٠closeｰspecｰaux false with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd٠close𑁒spec𑁒closing t fd Ψ :
+  Lemma rcfd٠closeｰspecｰclosing t fd Ψ :
     {{{
       rcfd۰inv t false fd Ψ ∗
       rcfd۰closing t
@@ -1239,11 +1239,11 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".
 
-    wp۰apply (rcfd٠close𑁒spec𑁒aux true with "[$]").
+    wp۰apply (rcfd٠closeｰspecｰaux true with "[$]").
     iSteps.
   Qed.
 
-  #[local] Lemma rcfd٠remove𑁒spec𑁒aux closing t owned fd Ψ :
+  #[local] Lemma rcfd٠removeｰspecｰaux closing t owned fd Ψ :
     {{{
       rcfd۰inv t owned fd Ψ ∗
       ( if owned then
@@ -1282,8 +1282,8 @@ Section rcfd۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & Howner & Hclosing) HΦ".
-    iDestruct (rcfd۰owner𑁒elim' with "Hmeta Howner") as "Howner".
-    iDestruct (rcfd۰closing𑁒elim' with "Hmeta Hclosing") as "Hclosing".
+    iDestruct (rcfd۰ownerｰelim' with "Hmeta Howner") as "Howner".
+    iDestruct (rcfd۰closingｰelim' with "Hmeta Hclosing") as "Hclosing".
 
     wp۰rec. wp۰pures.
 
@@ -1295,23 +1295,23 @@ Section rcfd۰G.
     - iDestruct "Hlstate" as "(:inv۰lstate۰open =1)".
 
       destruct closing.
-      { iDestruct (lstate𑁒valid𑁒closing𑁒users with "Hlstate_auth Hclosing") as %?. congruence. }
+      { iDestruct (lstateｰvalidｰclosingｰusers with "Hlstate_auth Hclosing") as %?. congruence. }
 
       iSplitR "Howner HΦ". { iFrameSteps 2. }
       iIntros "!> {%}".
 
-      wp۰apply+ (spsc_waiter٠create𑁒spec (Ψ 1%Qp) with "[//]") as "%waiter (#Hwaiter_inv & Hwaiter_producer & Hwaiter_consumer)".
+      wp۰apply+ (spsc_waiter٠createｰspec (Ψ 1%Qp) with "[//]") as "%waiter (#Hwaiter_inv & Hwaiter_producer & Hwaiter_consumer)".
       wp۰pures.
 
       wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner =2)".
       wp۰cas as Hcas.
 
-      + iDestruct (inv۰lstate𑁒Closing with "Hlstate Hlstate_auth") as "(%fn2 & -> & %Hlstate2 & #Hlstate_lb)".
+      + iDestruct (inv۰lstateｰClosing with "Hlstate Hlstate_auth") as "(%fn2 & -> & %Hlstate2 & #Hlstate_lb)".
         { intros ->. zoo_simplify in Hcas. naive_solver. }
 
         destruct γ.(metadata۰owned).
-        { iDestruct (owner𑁒lstate۰auth with "Howner Hlstate_auth") as %->. congruence. }
+        { iDestruct (ownerｰlstate۰auth with "Howner Hlstate_auth") as %->. congruence. }
 
         iSplitR "HΦ". { iFrameSteps 2. }
         iIntros "!> {%}".
@@ -1321,34 +1321,34 @@ Section rcfd۰G.
         iSteps.
 
       + destruct state2; last zoo_simplify.
-        iDestruct (inv۰lstate𑁒Open with "Hlstate") as %->.
+        iDestruct (inv۰lstateｰOpen with "Hlstate") as %->.
         iDestruct "Hlstate" as "(:inv۰lstate۰open =2 eq)".
 
-        iMod (lstate𑁒update𑁒close𑁒users with "Hlstate_auth Howner") as "Hlstate_auth".
-        iDestruct (lstate۰lb𑁒get with "Hlstate_auth") as "#Hlstate_lb".
+        iMod (lstateｰupdateｰcloseｰusers with "Hlstate_auth Howner") as "Hlstate_auth".
+        iDestruct (lstate۰lbｰget with "Hlstate_auth") as "#Hlstate_lb".
         iSplitR "Hwaiter_consumer HΦ".
         { destruct_decide (ops2 = 0) as -> | ?.
-          - iDestruct (tokens۰auth𑁒consume with "Htokens_auth") as "HΨ".
-            iMod (lstate𑁒update𑁒close𑁒no_users with "Hlstate_auth") as "Hlstate_auth".
+          - iDestruct (tokens۰authｰconsume with "Htokens_auth") as "HΨ".
+            iMod (lstateｰupdateｰcloseｰno_users with "Hlstate_auth") as "Hlstate_auth".
             iExists (Closing _). iFrameStep 8.
-            wp۰apply (spsc_waiter٠notify𑁒spec with "[$Hwaiter_inv $Hwaiter_producer $HΨ]").
+            wp۰apply (spsc_waiter٠notifyｰspec with "[$Hwaiter_inv $Hwaiter_producer $HΨ]").
             iSteps.
-          - iDestruct (tokens۰auth𑁒valid with "Htokens_auth") as %?.
+          - iDestruct (tokens۰authｰvalid with "Htokens_auth") as %?.
             iExists (Closing _). iFrame. iSteps as "HΨ".
-            wp۰apply (spsc_waiter٠notify𑁒spec with "[$Hwaiter_inv $Hwaiter_producer $HΨ]").
+            wp۰apply (spsc_waiter٠notifyｰspec with "[$Hwaiter_inv $Hwaiter_producer $HΨ]").
             iSteps.
         }
         iIntros "!> {%}".
 
-        wp۰apply+ (spsc_waiter٠wait𑁒spec with "[$Hwaiter_inv $Hwaiter_consumer]") as "HΨ".
+        wp۰apply+ (spsc_waiter٠waitｰspec with "[$Hwaiter_inv $Hwaiter_consumer]") as "HΨ".
         wp۰pures.
         iApply ("HΦ" $! (Some _)).
         destruct γ.(metadata۰owned); iSteps.
 
-    - iDestruct (inv۰lstate𑁒LClosing with "Hlstate Hlstate_auth") as "(%fn1 & -> & #Hlstate_lb)"; first done.
+    - iDestruct (inv۰lstateｰLClosing with "Hlstate Hlstate_auth") as "(%fn1 & -> & #Hlstate_lb)"; first done.
 
       destruct γ.(metadata۰owned).
-      { iDestruct (owner𑁒lstate۰auth with "Howner Hlstate_auth") as %->. congruence. }
+      { iDestruct (ownerｰlstate۰auth with "Howner Hlstate_auth") as %->. congruence. }
 
       iSplitR "HΦ". { iFrameSteps 2. }
       iIntros "!> {%}".
@@ -1357,7 +1357,7 @@ Section rcfd۰G.
       iApply ("HΦ" $! None).
       destruct closing; iSteps.
   Qed.
-  Lemma rcfd٠remove𑁒spec t owned fd Ψ :
+  Lemma rcfd٠removeｰspec t owned fd Ψ :
     {{{
       rcfd۰inv t owned fd Ψ ∗
       if owned then
@@ -1385,10 +1385,10 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ (#Hinv & Howner) HΦ".
 
-    wp۰apply (rcfd٠remove𑁒spec𑁒aux false with "[$]").
+    wp۰apply (rcfd٠removeｰspecｰaux false with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd٠remove𑁒spec𑁒closing t fd Ψ :
+  Lemma rcfd٠removeｰspecｰclosing t fd Ψ :
     {{{
       rcfd۰inv t false fd Ψ ∗
       rcfd۰closing t
@@ -1401,11 +1401,11 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".
 
-    wp۰apply (rcfd٠remove𑁒spec𑁒aux true with "[$]").
+    wp۰apply (rcfd٠removeｰspecｰaux true with "[$]").
     iSteps.
   Qed.
 
-  #[local] Lemma rcfd٠is_open𑁒spec𑁒aux spec t owned fd Ψ :
+  #[local] Lemma rcfd٠is_openｰspecｰaux spec t owned fd Ψ :
     {{{
       rcfd۰inv t owned fd Ψ ∗
       specification۰pre₁ t spec
@@ -1429,7 +1429,7 @@ Section rcfd۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & Hspec) HΦ".
-    iDestruct (specification𑁒pre₁𑁒pre₂ with "Hmeta Hspec") as "Hspec".
+    iDestruct (specificationｰpre₁ｰpre₂ with "Hmeta Hspec") as "Hspec".
 
     wp۰rec. wp۰pures.
 
@@ -1438,10 +1438,10 @@ Section rcfd۰G.
     wp۰load.
     destruct state as [| fn].
 
-    - iDestruct (inv۰lstate𑁒Open with "Hlstate") as %->.
+    - iDestruct (inv۰lstateｰOpen with "Hlstate") as %->.
 
       destruct_decide (spec = SpecClosing) as -> | Hspec.
-      { iDestruct (lstate𑁒valid𑁒closing𑁒users with "Hlstate_auth Hspec") as %?. congruence. }
+      { iDestruct (lstateｰvalidｰclosingｰusers with "Hlstate_auth Hspec") as %?. congruence. }
 
       iSplitR "Hspec HΦ". { iFrameSteps 2. }
       iIntros "!> {%- Hspec}".
@@ -1449,10 +1449,10 @@ Section rcfd۰G.
       wp۰pures.
       destruct spec; try congruence; iSteps.
 
-    - iDestruct (inv۰lstate𑁒Closing with "Hlstate Hlstate_auth") as "#(%fn_ & _ & %Hlstate & #Hlstate_lb)"; first done.
+    - iDestruct (inv۰lstateｰClosing with "Hlstate Hlstate_auth") as "#(%fn_ & _ & %Hlstate & #Hlstate_lb)"; first done.
 
       destruct_decide (spec = SpecOwner) as -> | Hspec.
-      { iDestruct (owner𑁒lstate۰auth with "Hspec Hlstate_auth") as %->. congruence. }
+      { iDestruct (ownerｰlstate۰auth with "Hspec Hlstate_auth") as %->. congruence. }
 
       iSplitR "HΦ". { iFrameSteps 2. }
       iIntros "!> {%- Hspec}".
@@ -1460,7 +1460,7 @@ Section rcfd۰G.
       wp۰pures.
       destruct spec; try congruence; iSteps.
   Qed.
-  Lemma rcfd٠is_open𑁒spec t owned fd Ψ :
+  Lemma rcfd٠is_openｰspec t owned fd Ψ :
     {{{
       rcfd۰inv t owned fd Ψ
     }}}
@@ -1476,10 +1476,10 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ #Hinv HΦ".
 
-    wp۰apply (rcfd٠is_open𑁒spec𑁒aux SpecNormal with "[$]").
+    wp۰apply (rcfd٠is_openｰspecｰaux SpecNormal with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd٠is_open𑁒spec𑁒owner t owned fd Ψ :
+  Lemma rcfd٠is_openｰspecｰowner t owned fd Ψ :
     {{{
       rcfd۰inv t owned fd Ψ ∗
       rcfd۰owner t
@@ -1492,10 +1492,10 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ (#Hinv & Howner) HΦ".
 
-    wp۰apply (rcfd٠is_open𑁒spec𑁒aux SpecOwner with "[$]").
+    wp۰apply (rcfd٠is_openｰspecｰaux SpecOwner with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd٠is_open𑁒spec𑁒closing t owned fd Ψ :
+  Lemma rcfd٠is_openｰspecｰclosing t owned fd Ψ :
     {{{
       rcfd۰inv t false fd Ψ ∗
       rcfd۰closing t
@@ -1508,11 +1508,11 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".
 
-    wp۰apply (rcfd٠is_open𑁒spec𑁒aux SpecClosing with "[$]").
+    wp۰apply (rcfd٠is_openｰspecｰaux SpecClosing with "[$]").
     iSteps.
   Qed.
 
-  #[local] Lemma rcfd٠peek𑁒spec𑁒aux spec t owned fd Ψ :
+  #[local] Lemma rcfd٠peekｰspecｰaux spec t owned fd Ψ :
     {{{
       rcfd۰inv t owned fd Ψ ∗
       specification۰pre₁ t spec
@@ -1538,7 +1538,7 @@ Section rcfd۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & Hspec) HΦ".
-    iDestruct (specification𑁒pre₁𑁒pre₂ with "Hmeta Hspec") as "Hspec".
+    iDestruct (specificationｰpre₁ｰpre₂ with "Hmeta Hspec") as "Hspec".
 
     wp۰rec. wp۰pures.
 
@@ -1547,10 +1547,10 @@ Section rcfd۰G.
     wp۰load.
     destruct state as [| fn].
 
-    - iDestruct (inv۰lstate𑁒Open with "Hlstate") as %->.
+    - iDestruct (inv۰lstateｰOpen with "Hlstate") as %->.
 
       destruct_decide (spec = SpecClosing) as -> | Hspec.
-      { iDestruct (lstate𑁒valid𑁒closing𑁒users with "Hlstate_auth Hspec") as %?. congruence. }
+      { iDestruct (lstateｰvalidｰclosingｰusers with "Hlstate_auth Hspec") as %?. congruence. }
 
       iSplitR "Hspec HΦ". { iFrameSteps 2. }
       iIntros "!> {%- Hspec}".
@@ -1559,10 +1559,10 @@ Section rcfd۰G.
       iApply ("HΦ" $! (Some _)).
       destruct spec; try congruence; iSteps.
 
-    - iDestruct (inv۰lstate𑁒Closing with "Hlstate Hlstate_auth") as "#(%fn_ & _ & %Hlstate & #Hlstate_lb)"; first done.
+    - iDestruct (inv۰lstateｰClosing with "Hlstate Hlstate_auth") as "#(%fn_ & _ & %Hlstate & #Hlstate_lb)"; first done.
 
       destruct_decide (spec = SpecOwner) as -> | Hspec.
-      { iDestruct (owner𑁒lstate۰auth with "Hspec Hlstate_auth") as %->. congruence. }
+      { iDestruct (ownerｰlstate۰auth with "Hspec Hlstate_auth") as %->. congruence. }
 
       iSplitR "HΦ". { iFrameSteps 2. }
       iIntros "!> {%- Hspec}".
@@ -1571,7 +1571,7 @@ Section rcfd۰G.
       iApply ("HΦ" $! None).
       destruct spec; try congruence; iSteps.
   Qed.
-  Lemma rcfd٠peek𑁒spec t owned fd Ψ :
+  Lemma rcfd٠peekｰspec t owned fd Ψ :
     {{{
       rcfd۰inv t owned fd Ψ
     }}}
@@ -1589,10 +1589,10 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ #Hinv HΦ".
 
-    wp۰apply (rcfd٠peek𑁒spec𑁒aux SpecNormal with "[$]").
+    wp۰apply (rcfd٠peekｰspecｰaux SpecNormal with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd٠peek𑁒spec𑁒owner t owned fd Ψ :
+  Lemma rcfd٠peekｰspecｰowner t owned fd Ψ :
     {{{
       rcfd۰inv t owned fd Ψ ∗
       rcfd۰owner t
@@ -1605,10 +1605,10 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ (#Hinv & Howner) HΦ".
 
-    wp۰apply (rcfd٠peek𑁒spec𑁒aux SpecOwner with "[$]").
+    wp۰apply (rcfd٠peekｰspecｰaux SpecOwner with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd٠peek𑁒spec𑁒closing t owned fd Ψ :
+  Lemma rcfd٠peekｰspecｰclosing t owned fd Ψ :
     {{{
       rcfd۰inv t owned fd Ψ ∗
       rcfd۰closing t
@@ -1621,7 +1621,7 @@ Section rcfd۰G.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".
 
-    wp۰apply (rcfd٠peek𑁒spec𑁒aux SpecClosing with "[$]").
+    wp۰apply (rcfd٠peekｰspecｰaux SpecClosing with "[$]").
     iSteps.
   Qed.
 End rcfd۰G.

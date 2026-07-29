@@ -8,7 +8,7 @@ Notation "⎽" :=
   BAnon
 : binder_scope.
 
-#[global] Program Instance binder𑁒beq : Beq binder :=
+#[global] Program Instance binderｰbeq : Beq binder :=
   {|beq bdr1 bdr2 :=
       match bdr1, bdr2 with
       | BAnon, BAnon =>
@@ -27,5 +27,5 @@ Next Obligation.
 Qed.
 Next Obligation.
   intros [] [] => //=.
-  rewrite beq𑁒spec. naive_solver.
+  rewrite beqｰspec. naive_solver.
 Qed.

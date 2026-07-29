@@ -33,13 +33,13 @@ Section zoo۰G.
       )
     ".
 
-  #[global] Instance chain۰model𑁒timeless tag t vs dst :
+  #[global] Instance chain۰modelｰtimeless tag t vs dst :
     Timeless (chain۰model tag t vs dst).
   Proof.
     move: t. induction vs; apply _.
   Qed.
 
-  Lemma chain𑁒physically𑁒distinct tag1 t1 vs1 dst1 tag2 t2 vs2 dst2 :
+  Lemma chainｰphysicallyｰdistinct tag1 t1 vs1 dst1 tag2 t2 vs2 dst2 :
     0 < length vs1 →
     0 < length vs2 →
     t1 ≉ t2 →
@@ -50,7 +50,7 @@ Section zoo۰G.
     intros Hlen1 Hlen2. destruct vs1, vs2; [naive_solver lia.. |].
     iSteps.
   Qed.
-  Lemma chain𑁒physically𑁒distinct' tag t vs dst :
+  Lemma chainｰphysicallyｰdistinct' tag t vs dst :
     0 < length vs →
     t ≉ t →
     chain۰model tag t vs dst ⊢
@@ -59,7 +59,7 @@ Section zoo۰G.
     intros Hlen1 Hlen2. destruct vs; first naive_solver lia.
     iIntros "(:model) //".
   Qed.
-  Lemma wp𑁒equal𑁒chain tag1 t1 vs1 dst1 tag2 t2 vs2 dst2 Φ :
+  Lemma wpｰequalｰchain tag1 t1 vs1 dst1 tag2 t2 vs2 dst2 Φ :
     0 < length vs1 →
     0 < length vs2 →
     chain۰model tag1 t1 vs1 dst1 -∗
@@ -81,7 +81,7 @@ Section zoo۰G.
     - iDestruct "HΦ" as "(HΦ & _)". iSteps.
   Qed.
 
-  Lemma chain۰model𑁒tag tag t vs dst :
+  Lemma chain۰modelｰtag tag t vs dst :
     length vs ≠ 0 →
     chain۰model (Some tag) t vs dst ⊢
       ∃ l,
@@ -92,25 +92,25 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma chain۰model𑁒nil tag t dst :
+  Lemma chain۰modelｰnil tag t dst :
     ⌜t = dst⌝ ⊣⊢
     chain۰model tag t [] dst.
   Proof.
     iSteps.
   Qed.
-  Lemma chain۰model𑁒nil₁ tag v :
+  Lemma chain۰modelｰnil₁ tag v :
     ⊢ chain۰model tag v [] v.
   Proof.
     iSteps.
   Qed.
-  Lemma chain۰model𑁒nil₂ tag t dst :
+  Lemma chain۰modelｰnil₂ tag t dst :
     chain۰model tag t [] dst ⊢
     ⌜t = dst⌝.
   Proof.
     iSteps.
   Qed.
 
-  Lemma chain۰model𑁒app₁ vs1 vs2 tag t vs dst :
+  Lemma chain۰modelｰapp₁ vs1 vs2 tag t vs dst :
     vs = vs1 ++ vs2 →
     chain۰model tag t vs dst ⊢
       ∃ t',
@@ -122,14 +122,14 @@ Section zoo۰G.
     iDestruct ("IH" with "[//] Hmodel'") as "(%t'' & Hmodel' & Hmodel'')".
     iSteps.
   Qed.
-  Lemma chain۰model𑁒app₂ tag t1 vs1 t2 vs2 dst :
+  Lemma chain۰modelｰapp₂ tag t1 vs1 t2 vs2 dst :
     chain۰model tag t1 vs1 t2 -∗
     chain۰model tag t2 vs2 dst -∗
     chain۰model tag t1 (vs1 ++ vs2) dst.
   Proof.
     iInduction vs1 as [| v1 vs1] "IH" forall (t1); iSteps.
   Qed.
-  Lemma chain۰model𑁒app tag t vs vs1 vs2 dst :
+  Lemma chain۰modelｰapp tag t vs vs1 vs2 dst :
     vs = vs1 ++ vs2 →
     chain۰model tag t vs dst ⊣⊢
       ∃ t',
@@ -138,38 +138,38 @@ Section zoo۰G.
   Proof.
     intros ->.
     iSplit.
-    - iApply chain۰model𑁒app₁; first done.
+    - iApply chain۰modelｰapp₁; first done.
     - iIntros "(%t' & Hmodel & Hmodel')".
-      iApply (chain۰model𑁒app₂ with "Hmodel Hmodel'").
+      iApply (chain۰modelｰapp₂ with "Hmodel Hmodel'").
   Qed.
 
-  Lemma chain۰model𑁒snoc tag t vs vs' v dst :
+  Lemma chain۰modelｰsnoc tag t vs vs' v dst :
     vs = vs' ++ [v] →
     chain۰model tag t vs dst ⊣⊢
       ∃ t',
       chain۰model tag t vs' t' ∗
       chain۰model tag t' [v] dst.
   Proof.
-    intros ->. rewrite chain۰model𑁒app //.
+    intros ->. rewrite chain۰modelｰapp //.
   Qed.
-  Lemma chain۰model𑁒snoc₁ tag t vs vs' v dst :
+  Lemma chain۰modelｰsnoc₁ tag t vs vs' v dst :
     vs = vs' ++ [v] →
     chain۰model tag t (vs ++ [v]) dst ⊢
       ∃ t',
       chain۰model tag t vs t' ∗
       chain۰model tag t' [v] dst.
   Proof.
-    intros ->. rewrite chain۰model𑁒snoc //.
+    intros ->. rewrite chain۰modelｰsnoc //.
   Qed.
-  Lemma chain۰model𑁒snoc₂ tag t1 vs t2 v dst :
+  Lemma chain۰modelｰsnoc₂ tag t1 vs t2 v dst :
     chain۰model tag t1 vs t2 -∗
     chain۰model tag t2 [v] dst -∗
     chain۰model tag t1 (vs ++ [v]) dst.
   Proof.
-    rewrite (chain۰model𑁒snoc _ _ (vs ++ [v])) //. iSteps.
+    rewrite (chain۰modelｰsnoc _ _ (vs ++ [v])) //. iSteps.
   Qed.
 
-  Lemma chain۰model𑁒exclusive t tag1 vs1 dst1 tag2 vs2 dst2 :
+  Lemma chain۰modelｰexclusive t tag1 vs1 dst1 tag2 vs2 dst2 :
     0 < length vs1 →
     0 < length vs2 →
     chain۰model tag1 t vs1 dst1 -∗
@@ -182,7 +182,7 @@ Section zoo۰G.
     iCombine "Hl1_next Hl2_next" gives %(? & _). done.
   Qed.
 
-  Lemma chain٠block𑁒spec tag t vs dst v :
+  Lemma chain٠blockｰspec tag t vs dst v :
     {{{
       chain۰model tag t vs dst
     }}}
@@ -196,7 +196,7 @@ Section zoo۰G.
     destruct tag; iSteps.
   Qed.
 
-  Lemma chain٠data𑁒spec tag t v vs dst :
+  Lemma chain٠dataｰspec tag t v vs dst :
     {{{
       chain۰model tag t (v :: vs) dst
     }}}
@@ -209,7 +209,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma chain٠next𑁒spec tag t v vs dst :
+  Lemma chain٠nextｰspec tag t v vs dst :
     {{{
       chain۰model tag t (v :: vs) dst
     }}}
@@ -223,7 +223,7 @@ Section zoo۰G.
   Proof.
     iSteps.
   Qed.
-  Lemma chain٠next𑁒spec𑁒singleton tag t v dst :
+  Lemma chain٠nextｰspecｰsingleton tag t v dst :
     {{{
       chain۰model tag t [v] dst
     }}}
@@ -236,7 +236,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma chain٠set_data𑁒spec tag t v vs dst w :
+  Lemma chain٠set_dataｰspec tag t v vs dst w :
     {{{
       chain۰model tag t (v :: vs) dst
     }}}
@@ -249,7 +249,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma chain٠set_next𑁒spec tag t v vs dst v' :
+  Lemma chain٠set_nextｰspec tag t v vs dst v' :
     {{{
       chain۰model tag t (v :: vs) dst
     }}}
@@ -263,7 +263,7 @@ Section zoo۰G.
   Proof.
     iSteps.
   Qed.
-  Lemma chain٠set_next𑁒spec𑁒singleton tag t v dst dst' :
+  Lemma chain٠set_nextｰspecｰsingleton tag t v dst dst' :
     {{{
       chain۰model tag t [v] dst
     }}}

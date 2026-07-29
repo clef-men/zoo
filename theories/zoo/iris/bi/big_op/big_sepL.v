@@ -12,7 +12,7 @@ Section bi.
 
     Implicit Type Φ : nat → A → PROP.
 
-    Lemma big_sepL𑁒to𑁒seq `{!BiAffine PROP} Φ l i :
+    Lemma big_sepLｰtoｰseq `{!BiAffine PROP} Φ l i :
       ([∗ list] k ↦ y ∈ l, Φ k y) ⊣⊢
       [∗ list] k ∈ seq i (length l),
         ∃ y,
@@ -33,14 +33,14 @@ Section bi.
         replace (˖(i + k) - i) with ˖k by lia.
         iSteps.
     Qed.
-    Lemma big_sepL𑁒to𑁒seq𑁒0 `{!BiAffine PROP} Φ l :
+    Lemma big_sepLｰtoｰseqｰ0 `{!BiAffine PROP} Φ l :
       ([∗ list] k ↦ y ∈ l, Φ k y) ⊣⊢
       [∗ list] k ∈ seq 0 (length l),
         ∃ y,
         ⌜l !! k = Some y⌝ ∗
         Φ k y.
     Proof.
-      rewrite (big_sepL𑁒to𑁒seq _ _ 0).
+      rewrite (big_sepLｰtoｰseq _ _ 0).
       setoid_rewrite Nat.sub_0_r. done.
     Qed.
   End big_sepL.
@@ -50,21 +50,21 @@ Section bi.
 
     Implicit Type Φ : nat → A → PROP.
 
-    Lemma big_sepL𑁒cons₁ Φ x l :
+    Lemma big_sepLｰcons₁ Φ x l :
       ([∗ list] k ↦ y ∈ (x :: l), Φ k y) ⊢
         Φ 0 x ∗
         [∗ list] k ↦ y ∈ l, Φ ˖k y.
     Proof.
       rewrite big_sepL_cons //.
     Qed.
-    Lemma big_sepL𑁒cons₂ Φ x l :
+    Lemma big_sepLｰcons₂ Φ x l :
       Φ 0 x -∗
       ([∗ list] k ↦ y ∈ l, Φ ˖k y) -∗
       [∗ list] k ↦ y ∈ (x :: l), Φ k y.
     Proof.
       rewrite big_sepL_cons. iSteps.
     Qed.
-    Lemma big_sepL𑁒cons₂' (Φ : A → PROP) x l :
+    Lemma big_sepLｰcons₂' (Φ : A → PROP) x l :
       Φ x -∗
       ([∗ list] y ∈ l, Φ y) -∗
       [∗ list] y ∈ (x :: l), Φ y.
@@ -72,14 +72,14 @@ Section bi.
       rewrite big_sepL_cons. iSteps.
     Qed.
 
-    Lemma big_sepL𑁒app₁ Φ l1 l2 :
+    Lemma big_sepLｰapp₁ Φ l1 l2 :
       ([∗ list] k ↦ y ∈ l1 ++ l2, Φ k y) ⊢
         ([∗ list] k ↦ y ∈ l1, Φ k y) ∗
         ([∗ list] k ↦ y ∈ l2, Φ (length l1 + k) y).
     Proof.
       rewrite big_sepL_app //.
     Qed.
-    Lemma big_sepL𑁒app₂ Φ l1 l2 :
+    Lemma big_sepLｰapp₂ Φ l1 l2 :
       ([∗ list] k ↦ y ∈ l1, Φ k y) -∗
       ([∗ list] k ↦ y ∈ l2, Φ (length l1 + k) y) -∗
       [∗ list] k ↦ y ∈ l1 ++ l2, Φ k y.
@@ -87,14 +87,14 @@ Section bi.
       rewrite big_sepL_app. iSteps.
     Qed.
 
-    Lemma big_sepL𑁒snoc₁ Φ l x :
+    Lemma big_sepLｰsnoc₁ Φ l x :
       ([∗ list] k ↦ y ∈ (l ++ [x]), Φ k y) ⊢
         ([∗ list] k ↦ y ∈ l, Φ k y) ∗
         Φ (length l) x.
     Proof.
       rewrite big_sepL_snoc //.
     Qed.
-    Lemma big_sepL𑁒snoc₂ {Φ l} x :
+    Lemma big_sepLｰsnoc₂ {Φ l} x :
       ([∗ list] k ↦ y ∈ l, Φ k y) -∗
       Φ (length l) x -∗
       ([∗ list] k ↦ y ∈ (l ++ [x]), Φ k y).
@@ -102,7 +102,7 @@ Section bi.
       rewrite big_sepL_snoc. iSteps.
     Qed.
 
-    Lemma big_sepL𑁒prefix `{!BiAffine PROP} {Φ l1} l2 :
+    Lemma big_sepLｰprefix `{!BiAffine PROP} {Φ l1} l2 :
       l2 `prefix_of` l1 →
       ([∗ list] k ↦ x ∈ l1, Φ k x) ⊢
       ([∗ list] k ↦ x ∈ l2, Φ k x).
@@ -111,7 +111,7 @@ Section bi.
       rewrite big_sepL_app. iSteps.
     Qed.
 
-    Lemma big_sepL𑁒suffix `{!BiAffine PROP} {Φ : A → PROP} {l1} l2 :
+    Lemma big_sepLｰsuffix `{!BiAffine PROP} {Φ : A → PROP} {l1} l2 :
       l2 `suffix_of` l1 →
       ([∗ list] x ∈ l1, Φ x) ⊢
       ([∗ list] x ∈ l2, Φ x).
@@ -120,7 +120,7 @@ Section bi.
       rewrite big_sepL_app. iSteps.
     Qed.
 
-    Lemma big_sepL𑁒impl𑁒stronger `{!BiAffine PROP} {A1 A2} (Φ1 : nat → A1 → PROP) l1 (Φ2 : nat → A2 → PROP) l2 :
+    Lemma big_sepLｰimplｰstronger `{!BiAffine PROP} {A1 A2} (Φ1 : nat → A1 → PROP) l1 (Φ2 : nat → A2 → PROP) l2 :
       length l1 = length l2 →
       ([∗ list] k ↦ x ∈ l1, Φ1 k x) -∗
       ( [∗ list] k ∈ seq 0 (length l1),
@@ -132,7 +132,7 @@ Section bi.
       ) -∗
       [∗ list] k ↦ x ∈ l2, Φ2 k x.
     Proof.
-      setoid_rewrite big_sepL𑁒to𑁒seq𑁒0. simpl_length.
+      setoid_rewrite big_sepLｰtoｰseqｰ0. simpl_length.
       iIntros "%Hlength Hl1 H". rewrite -Hlength.
       iDestruct (big_sepL_sep_2 with "Hl1 H") as "H".
       iApply (big_sepL_impl with "H"). iIntros "!>" (k ? (-> & Hk)%lookup_seq) "((%x1 & %Hl1_lookup & Hx1) & (% & %H & H))".
@@ -140,7 +140,7 @@ Section bi.
       destruct (lookup_lt_is_Some_2 l2 k) as (x2 & Hl2_lookup); first lia.
       iSteps.
     Qed.
-    Lemma big_sepL𑁒impl𑁒strong `{!BiAffine PROP} {A1 A2} (Φ1 : nat → A1 → PROP) (l1 : list A1) (Φ2 : nat → A2 → PROP) (l2 : list A2) :
+    Lemma big_sepLｰimplｰstrong `{!BiAffine PROP} {A1 A2} (Φ1 : nat → A1 → PROP) (l1 : list A1) (Φ2 : nat → A2 → PROP) (l2 : list A2) :
       length l1 = length l2 →
       ([∗ list] k ↦ x ∈ l1, Φ1 k x) -∗
       □ (
@@ -153,12 +153,12 @@ Section bi.
       [∗ list] k ↦ x ∈ l2, Φ2 k x.
     Proof.
       iIntros "% HΦ #H".
-      iApply (big_sepL𑁒impl𑁒stronger with "HΦ [H]"); first done.
+      iApply (big_sepLｰimplｰstronger with "HΦ [H]"); first done.
       iApply big_sepL_intro. iIntros "!> %k %k_ % %x1 %x2 % % HΦ".
       iSteps.
     Qed.
 
-    Lemma big_sepL𑁒impl𑁒sepL2 `{!BiAffine PROP} {B1 B2} Φ1 l (Φ2 : nat → B1 → B2 → PROP) 𝑙1 𝑙2 :
+    Lemma big_sepLｰimplｰsepL2 `{!BiAffine PROP} {B1 B2} Φ1 l (Φ2 : nat → B1 → B2 → PROP) 𝑙1 𝑙2 :
       length l = length 𝑙1 →
       length l = length 𝑙2 →
       ([∗ list] k ↦ y ∈ l, Φ1 k y) -∗
@@ -174,13 +174,13 @@ Section bi.
     Proof.
       rewrite big_sepL2_alt.
       iIntros "% % HΦ #H". iStep 2.
-      iApply (big_sepL𑁒impl𑁒strong with "HΦ").
+      iApply (big_sepLｰimplｰstrong with "HΦ").
       { simpl_length. lia. }
       iIntros "!>" (k x (𝑥1, 𝑥2) ? (? & ? & [= <- <-] & ? & ?)%lookup_zip_with_Some).
       iSteps.
     Qed.
 
-    Lemma big_sepL𑁒insert `{!BiAffine PROP} {Φ l} i x :
+    Lemma big_sepLｰinsert `{!BiAffine PROP} {Φ l} i x :
       i < length l →
       ([∗ list] k ↦ y ∈ l, Φ k y) -∗
       Φ i x -∗
@@ -190,7 +190,7 @@ Section bi.
       rewrite big_sepL_insert_acc //. iSteps.
     Qed.
 
-    Lemma big_sepL𑁒delete₁ Φ l i x :
+    Lemma big_sepLｰdelete₁ Φ l i x :
       l !! i = Some x →
       ([∗ list] k ↦ y ∈ l, Φ k y) ⊢
         Φ i x ∗
@@ -198,7 +198,7 @@ Section bi.
     Proof.
       intros. rewrite big_sepL_delete //.
     Qed.
-    Lemma big_sepL𑁒delete₂ Φ l i x :
+    Lemma big_sepLｰdelete₂ Φ l i x :
       l !! i = Some x →
       Φ i x -∗
       ([∗ list] k ↦ y ∈ l, if decide (k = i) then emp else Φ k y) -∗
@@ -208,7 +208,7 @@ Section bi.
       setoid_rewrite big_sepL_delete at 2; last done.
       iSteps.
     Qed.
-    Lemma big_sepL𑁒delete'₁ `{!BiAffine PROP} Φ l i x :
+    Lemma big_sepLｰdelete'₁ `{!BiAffine PROP} Φ l i x :
       l !! i = Some x →
       ([∗ list] k ↦ y ∈ l, Φ k y) ⊢
         Φ i x ∗
@@ -216,7 +216,7 @@ Section bi.
     Proof.
       intros. rewrite big_sepL_delete' //.
     Qed.
-    Lemma big_sepL𑁒delete'₂ `{!BiAffine PROP} Φ l i x :
+    Lemma big_sepLｰdelete'₂ `{!BiAffine PROP} Φ l i x :
       l !! i = Some x →
       Φ i x -∗
       ([∗ list] k ↦ y ∈ l, ⌜k ≠ i⌝ → Φ k y) -∗
@@ -227,44 +227,44 @@ Section bi.
       iSteps.
     Qed.
 
-    Lemma big_sepL𑁒replicate `{!BiAffine PROP} Φ n x :
+    Lemma big_sepLｰreplicate `{!BiAffine PROP} Φ n x :
       ([∗ list] k ↦ y ∈ replicate n x, Φ k y) ⊣⊢
       [∗ list] k ∈ seq 0 n, Φ k x.
     Proof.
       iSplit.
       all: iIntros "H".
-      all: iApply (big_sepL𑁒impl𑁒strong with "H"); first simpl_length.
+      all: iApply (big_sepLｰimplｰstrong with "H"); first simpl_length.
       1: iIntros "!>" (? ? ? (-> & _)%lookup_replicate_1 (-> & _)%lookup_seq).
       2: iIntros "!>" (? ? ? (-> & _)%lookup_seq (-> & _)%lookup_replicate_1).
       all: iSteps.
     Qed.
-    Lemma big_sepL𑁒replicate₁ `{!BiAffine PROP} Φ n x :
+    Lemma big_sepLｰreplicate₁ `{!BiAffine PROP} Φ n x :
       ([∗ list] k ↦ y ∈ replicate n x, Φ k y) ⊢
       [∗ list] k ∈ seq 0 n, Φ k x.
     Proof.
-      rewrite big_sepL𑁒replicate //.
+      rewrite big_sepLｰreplicate //.
     Qed.
-    Lemma big_sepL𑁒replicate₂ `{!BiAffine PROP} Φ n x :
+    Lemma big_sepLｰreplicate₂ `{!BiAffine PROP} Φ n x :
       ([∗ list] k ∈ seq 0 n, Φ k x) ⊢
       [∗ list] k ↦ y ∈ replicate n x, Φ k y.
     Proof.
-      rewrite big_sepL𑁒replicate //.
+      rewrite big_sepLｰreplicate //.
     Qed.
 
-    Lemma big_sepL𑁒or𑁒l Ψ l Φ :
+    Lemma big_sepLｰorｰl Ψ l Φ :
       ([∗ list] k ↦ x ∈ l, Φ k x) ⊢
       [∗ list] k ↦ x ∈ l, Ψ k x ∨ Φ k x.
     Proof.
       apply big_sepL_mono. iSteps.
     Qed.
-    Lemma big_sepL𑁒or𑁒r Ψ l Φ :
+    Lemma big_sepLｰorｰr Ψ l Φ :
       ([∗ list] k ↦ x ∈ l, Φ k x) ⊢
       [∗ list] k ↦ x ∈ l, Φ k x ∨ Ψ k x.
     Proof.
       apply big_sepL_mono. iSteps.
     Qed.
 
-    Lemma big_sepL𑁒exists `{!BiAffine PROP} {B} (Φ : nat → A → B → PROP) l :
+    Lemma big_sepLｰexists `{!BiAffine PROP} {B} (Φ : nat → A → B → PROP) l :
       ([∗ list] k ↦ x ∈ l, ∃ y, Φ k x y) ⊢
         ∃ ys,
         ⌜length ys = length l⌝ ∗
@@ -278,7 +278,7 @@ Section bi.
         iExists (y :: ys). iSteps.
     Qed.
 
-    Lemma big_sepL𑁒retract𑁒index Φ l :
+    Lemma big_sepLｰretractｰindex Φ l :
       ([∗ list] k ↦ x ∈ l, Φ k x) ⊢
       [∗ list] x ∈ l, ∃ k, Φ k x.
     Proof.
@@ -287,7 +287,7 @@ Section bi.
       iModIntro. iSteps.
     Qed.
 
-    Lemma big_sepL𑁒impl𑁒thread {Φ1} P Φ2 l :
+    Lemma big_sepLｰimplｰthread {Φ1} P Φ2 l :
       ([∗ list] k ↦ x ∈ l, Φ1 k x) -∗
       P -∗
       □ (
@@ -318,7 +318,7 @@ Section bi.
       { move/(_ 0) => //. }
       iIntros "%n Hl HP #HΦ".
       iInduction l as [| x l] "IH" forall (n); first iSteps.
-      iDestruct (big_sepL𑁒cons₁ with "Hl") as "(Hx & Hl)".
+      iDestruct (big_sepLｰcons₁ with "Hl") as "(Hx & Hl)".
       iDestruct ("HΦ" with "[%] Hx HP") as "($ & HP)"; first done.
       setoid_rewrite Nat.add_succ_r.
       iApply ("IH" $! ˖n with "[] Hl HP").
@@ -327,7 +327,7 @@ Section bi.
         iApply ("HΦ" with "[%] Hx' HP"); first done.
       }
     Qed.
-    Lemma big_sepL𑁒impl𑁒thread𑁒fupd `{!BiFUpd PROP} {Φ1} P Φ2 l E :
+    Lemma big_sepLｰimplｰthreadｰfupd `{!BiFUpd PROP} {Φ1} P Φ2 l E :
       ([∗ list] k ↦ x ∈ l, Φ1 k x) -∗
       P -∗
       □ (
@@ -362,7 +362,7 @@ Section bi.
       { move/(_ 0) => //. }
       iIntros "%n Hl HP #HΦ".
       iInduction l as [| x l] "IH" forall (n); first iSteps.
-      iDestruct (big_sepL𑁒cons₁ with "Hl") as "(Hx & Hl)".
+      iDestruct (big_sepLｰcons₁ with "Hl") as "(Hx & Hl)".
       iMod ("HΦ" with "[%] Hx HP") as "($ & HP)"; first done.
       setoid_rewrite Nat.add_succ_r.
       iApply ("IH" $! ˖n with "[] Hl HP").
@@ -372,7 +372,7 @@ Section bi.
       }
     Qed.
 
-    Lemma big_sepL𑁒Forall `{!BiPureForall PROP} (ϕ : A → Prop) l :
+    Lemma big_sepLｰForall `{!BiPureForall PROP} (ϕ : A → Prop) l :
       ([∗ list] x ∈ l, ⌜ϕ x⌝) ⊢@{PROP}
       ⌜Forall ϕ l⌝.
     Proof.
@@ -381,11 +381,11 @@ Section bi.
       iApply (big_sepL_lookup with "H"); first done.
     Qed.
 
-    Lemma big_sepL𑁒Foralli `{!BiPureForall PROP} (ϕ : nat → A → Prop) l :
+    Lemma big_sepLｰForalli `{!BiPureForall PROP} (ϕ : nat → A → Prop) l :
       ([∗ list] k ↦ x ∈ l, ⌜ϕ k x⌝) ⊢@{PROP}
       ⌜Foralli ϕ l⌝.
     Proof.
-      rewrite Foralli𑁒lookup.
+      rewrite Foralliｰlookup.
       iIntros "H %i %x %Hlookup".
       iApply (big_sepL_lookup with "H"); first done.
     Qed.

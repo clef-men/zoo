@@ -32,13 +32,13 @@ Section zoo۰G.
       )
     ".
 
-  #[global] Instance queue_1۰model𑁒timeless t vs :
+  #[global] Instance queue_1۰modelｰtimeless t vs :
     Timeless (queue_1۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  Lemma queue_1٠create𑁒spec :
+  Lemma queue_1٠createｰspec :
     {{{
       True
     }}}
@@ -51,14 +51,14 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ _ HΦ".
     wp۰rec.
-    wp۰apply (chain٠block𑁒spec None) as (back) "Hback_model".
-    { iApply chain۰model𑁒nil. iSteps. }
+    wp۰apply (chain٠blockｰspec None) as (back) "Hback_model".
+    { iApply chain۰modelｰnil. iSteps. }
     wp۰block l as "(Hfront & Hback & _)".
     iApply "HΦ". iExists l, back, back. iFrameSteps.
-    iApply chain۰model𑁒nil₁.
+    iApply chain۰modelｰnil₁.
   Qed.
 
-  Lemma queue_1٠is_empty𑁒spec t vs :
+  Lemma queue_1٠is_emptyｰspec t vs :
     {{{
       queue_1۰model t vs
     }}}
@@ -71,16 +71,16 @@ Section zoo۰G.
     iIntros "%Φ (:model) HΦ".
     wp۰rec. do 2 wp۰load.
     destruct vs as [| v vs].
-    - iDestruct (chain۰model𑁒nil with "Hfront") as %->.
+    - iDestruct (chain۰modelｰnil with "Hfront") as %->.
       wp۰equal as ? | _.
-      { iDestruct (chain𑁒physically𑁒distinct' with "Hback") as %[]; naive_solver. }
+      { iDestruct (chainｰphysicallyｰdistinct' with "Hback") as %[]; naive_solver. }
       iSteps.
-    - wp۰apply (wp𑁒equal𑁒chain with "Hfront Hback") as "Hfront Hback"; [naive_solver lia.. |].
+    - wp۰apply (wpｰequalｰchain with "Hfront Hback") as "Hfront Hback"; [naive_solver lia.. |].
       iSplit; first iSteps. iIntros "->".
-      iDestruct (chain۰model𑁒exclusive with "Hback Hfront") as %[]; naive_solver lia.
+      iDestruct (chain۰modelｰexclusive with "Hback Hfront") as %[]; naive_solver lia.
   Qed.
 
-  Lemma queue_1٠push𑁒spec t vs v :
+  Lemma queue_1٠pushｰspec t vs v :
     {{{
       queue_1۰model t vs
     }}}
@@ -93,15 +93,15 @@ Section zoo۰G.
     iIntros "%Φ (:model) HΦ".
     wp۰rec.
     wp۰load.
-    wp۰apply+ (chain٠block𑁒spec None) as (back') "Hback'".
-    { iApply chain۰model𑁒nil. iSteps. }
-    wp۰apply+ (chain٠set_next𑁒spec with "Hback") as (?) "(Hback & _)".
-    wp۰apply+ (chain٠set_data𑁒spec with "Hback") as "Hback".
-    iDestruct (chain۰model𑁒app₂ with "Hfront Hback") as "Hfront".
+    wp۰apply+ (chain٠blockｰspec None) as (back') "Hback'".
+    { iApply chain۰modelｰnil. iSteps. }
+    wp۰apply+ (chain٠set_nextｰspec with "Hback") as (?) "(Hback & _)".
+    wp۰apply+ (chain٠set_dataｰspec with "Hback") as "Hback".
+    iDestruct (chain۰modelｰapp₂ with "Hfront Hback") as "Hfront".
     iSteps.
   Qed.
 
-  Lemma queue_1٠pop𑁒spec t vs :
+  Lemma queue_1٠popｰspec t vs :
     {{{
       queue_1۰model t vs
     }}}
@@ -113,12 +113,12 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp۰rec.
-    wp۰apply (queue_1٠is_empty𑁒spec with "Hmodel") as "(:model)".
+    wp۰apply (queue_1٠is_emptyｰspec with "Hmodel") as "(:model)".
     destruct vs as [| v vs]; first iSteps.
     wp۰load.
-    wp۰apply+ (chain٠next𑁒spec with "Hfront") as (front') "(Hfront & Hfront')".
+    wp۰apply+ (chain٠nextｰspec with "Hfront") as (front') "(Hfront & Hfront')".
     wp۰store.
-    wp۰apply+ (chain٠data𑁒spec with "Hfront") as "Hfront".
+    wp۰apply+ (chain٠dataｰspec with "Hfront") as "Hfront".
     iSteps.
   Qed.
 End zoo۰G.

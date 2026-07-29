@@ -12,7 +12,7 @@ Class MonoGmultisetG Σ A `{Countable A} :=
 Definition mono_gmultiset۰Σ A `{Countable A} :=
   #[auth_mono۰Σ (A := leibnizO (gmultiset A)) subseteq
   ].
-#[global] Instance subG𑁒mono_gmultiset۰Σ Σ V `{Countable V} :
+#[global] Instance subGｰmono_gmultiset۰Σ Σ V `{Countable V} :
   subG (mono_gmultiset۰Σ V) Σ →
   MonoGmultisetG Σ V.
 Proof.
@@ -32,180 +32,180 @@ Section mono_gmultiset۰G.
   Definition mono_gmultiset۰elem γ a :=
     mono_gmultiset۰lb γ {[+a+]}.
 
-  #[global] Instance mono_gmultiset۰auth𑁒proper γ dq :
+  #[global] Instance mono_gmultiset۰authｰproper γ dq :
     Proper ((≡) ==> (≡)) (mono_gmultiset۰auth γ dq).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance mono_gmultiset۰lb𑁒proper γ :
+  #[global] Instance mono_gmultiset۰lbｰproper γ :
     Proper ((≡) ==> (≡)) (mono_gmultiset۰lb γ).
   Proof.
     solve_proper.
   Qed.
 
-  #[global] Instance mono_gmultiset۰auth𑁒timeless γ dq s :
+  #[global] Instance mono_gmultiset۰authｰtimeless γ dq s :
     Timeless (mono_gmultiset۰auth γ dq s).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_gmultiset۰lb𑁒timeless γ s :
+  #[global] Instance mono_gmultiset۰lbｰtimeless γ s :
     Timeless (mono_gmultiset۰lb γ s).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mono_gmultiset۰auth𑁒persistent γ s :
+  #[global] Instance mono_gmultiset۰authｰpersistent γ s :
     Persistent (mono_gmultiset۰auth γ DfracDiscarded s).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_gmultiset۰lb𑁒persistent γ s :
+  #[global] Instance mono_gmultiset۰lbｰpersistent γ s :
     Persistent (mono_gmultiset۰lb γ s).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mono_gmultiset۰auth𑁒fractional γ s :
+  #[global] Instance mono_gmultiset۰authｰfractional γ s :
     Fractional (λ q, mono_gmultiset۰auth γ (DfracOwn q) s).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_gmultiset۰auth𑁒as_fractional γ q s :
+  #[global] Instance mono_gmultiset۰authｰas_fractional γ q s :
     AsFractional (mono_gmultiset۰auth γ (DfracOwn q) s) (λ q, mono_gmultiset۰auth γ (DfracOwn q) s) q.
   Proof.
     apply _.
   Qed.
 
-  Lemma mono_gmultiset𑁒alloc s :
+  Lemma mono_gmultisetｰalloc s :
     ⊢ |==>
       ∃ γ,
       mono_gmultiset۰auth γ (DfracOwn 1) s.
   Proof.
-    apply auth_mono𑁒alloc.
+    apply auth_monoｰalloc.
   Qed.
 
-  Lemma mono_gmultiset۰auth𑁒valid γ dq s :
+  Lemma mono_gmultiset۰authｰvalid γ dq s :
     mono_gmultiset۰auth γ dq s ⊢
     ⌜✓ dq⌝.
   Proof.
-    apply auth_mono۰auth𑁒valid.
+    apply auth_mono۰authｰvalid.
   Qed.
-  Lemma mono_gmultiset۰auth𑁒combine γ dq1 s1 dq2 s2 :
+  Lemma mono_gmultiset۰authｰcombine γ dq1 s1 dq2 s2 :
     mono_gmultiset۰auth γ dq1 s1 -∗
     mono_gmultiset۰auth γ dq2 s2 -∗
       ⌜s1 = s2⌝ ∗
       mono_gmultiset۰auth γ (dq1 ⋅ dq2) s1.
   Proof.
-    apply: auth_mono۰auth𑁒combine.
+    apply: auth_mono۰authｰcombine.
   Qed.
-  Lemma mono_gmultiset۰auth𑁒valid𑁒2 γ dq1 s1 dq2 s2 :
+  Lemma mono_gmultiset۰authｰvalidｰ2 γ dq1 s1 dq2 s2 :
     mono_gmultiset۰auth γ dq1 s1 -∗
     mono_gmultiset۰auth γ dq2 s2 -∗
       ⌜✓ (dq1 ⋅ dq2)⌝ ∗
       ⌜s1 = s2⌝.
   Proof.
-    apply: auth_mono۰auth𑁒valid𑁒2.
+    apply: auth_mono۰authｰvalidｰ2.
   Qed.
-  Lemma mono_gmultiset۰auth𑁒agree γ dq1 s1 dq2 s2 :
+  Lemma mono_gmultiset۰authｰagree γ dq1 s1 dq2 s2 :
     mono_gmultiset۰auth γ dq1 s1 -∗
     mono_gmultiset۰auth γ dq2 s2 -∗
     ⌜s1 = s2⌝.
   Proof.
-    apply: auth_mono۰auth𑁒agree.
+    apply: auth_mono۰authｰagree.
   Qed.
-  Lemma mono_gmultiset۰auth𑁒dfrac𑁒ne γ1 dq1 s1 γ2 dq2 s2 :
+  Lemma mono_gmultiset۰authｰdfracｰne γ1 dq1 s1 γ2 dq2 s2 :
     ¬ ✓ (dq1 ⋅ dq2) →
     mono_gmultiset۰auth γ1 dq1 s1 -∗
     mono_gmultiset۰auth γ2 dq2 s2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    apply: auth_mono۰auth𑁒dfrac𑁒ne.
+    apply: auth_mono۰authｰdfracｰne.
   Qed.
-  Lemma mono_gmultiset۰auth𑁒ne γ1 s1 γ2 dq2 s2 :
+  Lemma mono_gmultiset۰authｰne γ1 s1 γ2 dq2 s2 :
     mono_gmultiset۰auth γ1 (DfracOwn 1) s1 -∗
     mono_gmultiset۰auth γ2 dq2 s2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    apply: auth_mono۰auth𑁒ne.
+    apply: auth_mono۰authｰne.
   Qed.
-  Lemma mono_gmultiset۰auth𑁒exclusive γ s1 dq2 s2 :
+  Lemma mono_gmultiset۰authｰexclusive γ s1 dq2 s2 :
     mono_gmultiset۰auth γ (DfracOwn 1) s1 -∗
     mono_gmultiset۰auth γ dq2 s2 -∗
     False.
   Proof.
-    apply: auth_mono۰auth𑁒exclusive.
+    apply: auth_mono۰authｰexclusive.
   Qed.
-  Lemma mono_gmultiset۰auth𑁒persist γ dq s :
+  Lemma mono_gmultiset۰authｰpersist γ dq s :
     mono_gmultiset۰auth γ dq s ⊢ |==>
     mono_gmultiset۰auth γ DfracDiscarded s.
   Proof.
-    apply auth_mono۰auth𑁒persist.
+    apply auth_mono۰authｰpersist.
   Qed.
 
-  Lemma mono_gmultiset۰lb𑁒get γ dq s :
+  Lemma mono_gmultiset۰lbｰget γ dq s :
     mono_gmultiset۰auth γ dq s ⊢
     mono_gmultiset۰lb γ s.
   Proof.
-    apply auth_mono۰lb𑁒get.
+    apply auth_mono۰lbｰget.
   Qed.
-  Lemma mono_gmultiset۰lb𑁒mono {γ s} s' :
+  Lemma mono_gmultiset۰lbｰmono {γ s} s' :
     s' ⊆ s →
     mono_gmultiset۰lb γ s ⊢
     mono_gmultiset۰lb γ s'.
   Proof.
-    apply auth_mono۰lb𑁒mono'.
+    apply auth_mono۰lbｰmono'.
   Qed.
-  Lemma mono_gmultiset۰elem𑁒get {γ dq s} a :
+  Lemma mono_gmultiset۰elemｰget {γ dq s} a :
     a ∈ s →
     mono_gmultiset۰auth γ dq s ⊢
     mono_gmultiset۰elem γ a.
   Proof.
     iIntros "%Ha Hauth".
-    iDestruct (mono_gmultiset۰lb𑁒get with "Hauth") as "Hlb".
-    iApply (mono_gmultiset۰lb𑁒mono with "Hlb").
+    iDestruct (mono_gmultiset۰lbｰget with "Hauth") as "Hlb".
+    iApply (mono_gmultiset۰lbｰmono with "Hlb").
     multiset_solver.
   Qed.
 
-  Lemma mono_gmultiset۰lb𑁒valid γ dq s1 s2 :
+  Lemma mono_gmultiset۰lbｰvalid γ dq s1 s2 :
     mono_gmultiset۰auth γ dq s1 -∗
     mono_gmultiset۰lb γ s2 -∗
     ⌜s2 ⊆ s1⌝.
   Proof.
     iIntros "Hauth Hlb".
-    iDestruct (auth_mono۰lb𑁒valid with "Hauth Hlb") as %Hs2.
-    rewrite preorder𑁒rtc in Hs2. iSteps.
+    iDestruct (auth_mono۰lbｰvalid with "Hauth Hlb") as %Hs2.
+    rewrite preorderｰrtc in Hs2. iSteps.
   Qed.
-  Lemma mono_gmultiset۰elem𑁒valid γ dq s a :
+  Lemma mono_gmultiset۰elemｰvalid γ dq s a :
     mono_gmultiset۰auth γ dq s -∗
     mono_gmultiset۰elem γ a -∗
     ⌜a ∈ s⌝.
   Proof.
     iIntros "Hauth Helem".
-    iDestruct (mono_gmultiset۰lb𑁒valid with "Hauth Helem") as %?%gmultiset_singleton_subseteq_l.
+    iDestruct (mono_gmultiset۰lbｰvalid with "Hauth Helem") as %?%gmultiset_singleton_subseteq_l.
     iSteps.
   Qed.
 
-  Lemma mono_gmultiset𑁒update {γ s} s' :
+  Lemma mono_gmultisetｰupdate {γ s} s' :
     s ⊆ s' →
     mono_gmultiset۰auth γ (DfracOwn 1) s ⊢ |==>
     mono_gmultiset۰auth γ (DfracOwn 1) s'.
   Proof.
-    apply auth_mono𑁒update'.
+    apply auth_monoｰupdate'.
   Qed.
-  Lemma mono_gmultiset𑁒insert {γ s} a :
+  Lemma mono_gmultisetｰinsert {γ s} a :
     mono_gmultiset۰auth γ (DfracOwn 1) s ⊢ |==>
     mono_gmultiset۰auth γ (DfracOwn 1) ({[+a+]} ⊎ s).
   Proof.
-    apply mono_gmultiset𑁒update, gmultiset_disj_union_subseteq_r.
+    apply mono_gmultisetｰupdate, gmultiset_disj_union_subseteq_r.
   Qed.
-  Lemma mono_gmultiset𑁒insert' {γ s} a :
+  Lemma mono_gmultisetｰinsert' {γ s} a :
     mono_gmultiset۰auth γ (DfracOwn 1) s ⊢ |==>
       mono_gmultiset۰auth γ (DfracOwn 1) ({[+a+]} ⊎ s) ∗
       mono_gmultiset۰elem γ a.
   Proof.
     iIntros "Hauth".
-    iMod (mono_gmultiset𑁒insert a with "Hauth") as "Hauth".
-    iDestruct (mono_gmultiset۰elem𑁒get a with "Hauth") as "#Helem"; first multiset_solver.
+    iMod (mono_gmultisetｰinsert a with "Hauth") as "Hauth".
+    iDestruct (mono_gmultiset۰elemｰget a with "Hauth") as "#Helem"; first multiset_solver.
     iSteps.
   Qed.
 End mono_gmultiset۰G.

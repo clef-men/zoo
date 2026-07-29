@@ -25,7 +25,7 @@ Class Bag1G Σ `{zoo۰G : !ZooG Σ} :=
 Definition bag_1۰Σ :=
   #[twins۰Σ (leibnizO (gmultiset val))
   ].
-#[global] Instance subG𑁒bag_1۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰbag_1۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG bag_1۰Σ Σ →
   Bag1G Σ.
 Proof.
@@ -36,7 +36,7 @@ Section consistent.
   #[local] Definition consistent vs os :=
     vs = ⋃+ (singletonMS <$> oflatten os).
 
-  #[local] Lemma consistent𑁒lookup vs os i v :
+  #[local] Lemma consistentｰlookup vs os i v :
     os !! i = Some $ Some v →
     consistent vs os →
     v ∈ vs.
@@ -44,29 +44,29 @@ Section consistent.
     intros Hlookup%list_elem_of_lookup_2 ->.
     setoid_rewrite elem_of_gmultiset_disj_union_list.
     setoid_rewrite list_elem_of_fmap.
-    setoid_rewrite elem_of𑁒oflatten.
+    setoid_rewrite elem_ofｰoflatten.
     eexists. split; naive_solver set_solver.
   Qed.
-  #[local] Lemma consistent𑁒insert {vs os i} v :
+  #[local] Lemma consistentｰinsert {vs os i} v :
     os !! i = Some None →
     consistent vs os →
     consistent ({[+v+]} ⊎ vs) (<[i := Some v]> os).
   Proof.
     intros Hlookup ->.
-    rewrite /consistent oflatten𑁒insert𑁒None𑁒Some //.
+    rewrite /consistent oflattenｰinsertｰNoneｰSome //.
   Qed.
-  #[local] Lemma consistent𑁒remove vs os i v :
+  #[local] Lemma consistentｰremove vs os i v :
     os !! i = Some $ Some v →
     consistent vs os →
     consistent (vs ∖ {[+v+]}) (<[i := None]> os).
   Proof.
     intros Hlookup ->.
     rewrite /consistent.
-    erewrite oflatten𑁒insert𑁒Some𑁒None; last done.
+    erewrite oflattenｰinsertｰSomeｰNone; last done.
     rewrite list_fmap_delete.
-    erewrite gmultiset𑁒disj_union_list𑁒delete; first done.
+    erewrite gmultisetｰdisj_union_listｰdelete; first done.
     rewrite list_lookup_fmap_Some.
-    erewrite oflatten𑁒lookup𑁒Some; last done.
+    erewrite oflattenｰlookupｰSome; last done.
     eauto.
   Qed.
 End consistent.
@@ -84,9 +84,9 @@ Section bag_1۰G.
     }.
   Implicit Type γ : metadata.
 
-  #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
+  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance metadata𑁒countable :
+  #[local] Instance metadataｰcountable :
     Countable metadata.
   Proof.
     solve_countable.
@@ -159,60 +159,60 @@ Section bag_1۰G.
       )
     ".
 
-  #[global] Instance bag_1۰model𑁒timeless t vs :
+  #[global] Instance bag_1۰modelｰtimeless t vs :
     Timeless (bag_1۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance bag_1۰inv𑁒persistent t ι :
+  #[global] Instance bag_1۰invｰpersistent t ι :
     Persistent (bag_1۰inv t ι).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma model𑁒alloc :
+  #[local] Lemma modelｰalloc :
     ⊢ |==>
       ∃ γ_model,
       model₁' γ_model ∅ ∗
       model₂' γ_model ∅.
   Proof.
-    apply twins𑁒alloc'.
+    apply twinsｰalloc'.
   Qed.
-  #[local] Lemma model₁𑁒exclusive γ vs1 vs2 :
+  #[local] Lemma model₁ｰexclusive γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₁ γ vs2 -∗
     False.
   Proof.
-    apply twins۰twin₁𑁒exclusive.
+    apply twins۰twin₁ｰexclusive.
   Qed.
-  #[local] Lemma model𑁒agree γ vs1 vs2 :
+  #[local] Lemma modelｰagree γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₂ γ vs2 -∗
     ⌜vs1 = vs2⌝.
   Proof.
-    apply: twins𑁒agree𑁒L.
+    apply: twinsｰagreeｰL.
   Qed.
-  #[local] Lemma model𑁒update {γ vs1 vs2} vs :
+  #[local] Lemma modelｰupdate {γ vs1 vs2} vs :
     model₁ γ vs1 -∗
     model₂ γ vs2 ==∗
       model₁ γ vs ∗
       model₂ γ vs.
   Proof.
-    apply twins𑁒update.
+    apply twinsｰupdate.
   Qed.
 
-  Lemma bag_1۰model𑁒exclusive t vs1 vs2 :
+  Lemma bag_1۰modelｰexclusive t vs1 vs2 :
     bag_1۰model t vs1 -∗
     bag_1۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (model₁𑁒exclusive with "Hmodel₁_1 Hmodel₁_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma bag_1٠create𑁒spec ι (sz : Z) :
+  Lemma bag_1٠createｰspec ι (sz : Z) :
     (0 < sz)%Z →
     {{{
       True
@@ -235,7 +235,7 @@ Section bag_1۰G.
       [∗ list] slot ∈ slots,
         slot ↦ᵣ None
     )%I).
-    wp۰apply+ (array٠unsafe_init𑁒spec Ψ) as "%data % (%Hslots & Hdata_model & (%slots & -> & Hslots))"; first lia.
+    wp۰apply+ (array٠unsafe_initｰspec Ψ) as "%data % (%Hslots & Hdata_model & (%slots & -> & Hslots))"; first lia.
     { iSplitL.
       - iSteps. iExists []. iSteps.
       - iIntros "!> %data %i %vs % % (%slots & %Hslots & Hslots)".
@@ -246,9 +246,9 @@ Section bag_1۰G.
           iSteps.
     }
     wp۰block l as "Hmeta" "(Hdata & Hfront & Hback & _)".
-    iMod (array۰model𑁒persist with "Hdata_model") as "#Hdata_model".
+    iMod (array۰modelｰpersist with "Hdata_model") as "#Hdata_model".
 
-    iMod model𑁒alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
     pose γ :=
       {|metadata۰data := data
@@ -256,7 +256,7 @@ Section bag_1۰G.
       ; metadata۰inv := ι
       ; metadata۰model := γ_model
       |}.
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
     iSplitR "Hmodel₁"; last iSteps.
@@ -269,7 +269,7 @@ Section bag_1۰G.
       iSteps.
   Qed.
 
-  #[local] Lemma bag_1٠push₀𑁒spec slot v l γ :
+  #[local] Lemma bag_1٠push₀ｰspec slot v l γ :
     slot ∈ γ.(metadata۰slots) →
     <<<
       l ↪ γ ∗
@@ -304,19 +304,19 @@ Section bag_1۰G.
       iSteps.
 
     - iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (model𑁒update with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (modelｰupdate with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
       iDestruct ("Hslots" $! _ (Some v) with "Hslot") as "Hslots".
       rewrite list_insert_id //.
       iSplitR "HΦ".
       { iFrameSteps. iPureIntro.
-        apply consistent𑁒insert; done.
+        apply consistentｰinsert; done.
       }
       iSteps.
   Qed.
-  Lemma bag_1٠push𑁒spec t ι v :
+  Lemma bag_1٠pushｰspec t ι v :
     <<<
       bag_1۰inv t ι
     | ∀∀ vs,
@@ -332,7 +332,7 @@ Section bag_1۰G.
     iIntros "%Φ (:inv) HΦ".
 
     wp۰rec. wp۰load.
-    wp۰apply+ (array٠size𑁒spec with "Hdata_model") as "_".
+    wp۰apply+ (array٠sizeｰspec with "Hdata_model") as "_".
     wp۰pures.
 
     wp۰bind (𝗳𝗮𝗮 _ _)%E.
@@ -342,13 +342,13 @@ Section bag_1۰G.
     iIntros "!> {%- Hsz}".
 
     simpl_length.
-    wp۰apply+ (array٠unsafe_get𑁒spec with "Hdata_model") as "_"; [lia | | done |].
+    wp۰apply+ (array٠unsafe_getｰspec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
-    wp۰apply (bag_1٠push₀𑁒spec with "[$Hmeta $Hinv] HΦ").
+    wp۰apply (bag_1٠push₀ｰspec with "[$Hmeta $Hinv] HΦ").
     apply list_elem_of_lookup_total_2. lia.
   Qed.
 
-  #[local] Lemma bag_1٠pop₀𑁒spec slot l γ :
+  #[local] Lemma bag_1٠pop₀ｰspec slot l γ :
     slot ∈ γ.(metadata۰slots) →
     <<<
       l ↪ γ ∗
@@ -397,22 +397,22 @@ Section bag_1۰G.
       iSteps.
 
     - iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (model𑁒update with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (modelｰupdate with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[$Hmodel₁]") as "HΦ".
       { iSplit; last iSteps. iPureIntro.
-        eapply gmultiset_disj_union_difference', consistent𑁒lookup; done.
+        eapply gmultiset_disj_union_difference', consistentｰlookup; done.
       }
       iDestruct ("Hslots" $! _ None with "Hslot") as "Hslots".
       rewrite list_insert_id //.
       iSplitR "HΦ".
       { iFrameSteps. iPureIntro.
-        apply consistent𑁒remove; done.
+        apply consistentｰremove; done.
       }
       iSteps.
   Qed.
-  Lemma bag_1٠pop𑁒spec t ι :
+  Lemma bag_1٠popｰspec t ι :
     <<<
       bag_1۰inv t ι
     | ∀∀ vs,
@@ -430,7 +430,7 @@ Section bag_1۰G.
     iIntros "%Φ (:inv) HΦ".
 
     wp۰rec. wp۰load.
-    wp۰apply+ (array٠size𑁒spec with "Hdata_model") as "_".
+    wp۰apply+ (array٠sizeｰspec with "Hdata_model") as "_".
     wp۰pures.
 
     wp۰bind (𝗳𝗮𝗮 _ _)%E.
@@ -440,9 +440,9 @@ Section bag_1۰G.
     iIntros "!> {%- Hsz}".
 
     simpl_length.
-    wp۰apply+ (array٠unsafe_get𑁒spec with "Hdata_model") as "_"; [lia | | done |].
+    wp۰apply+ (array٠unsafe_getｰspec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
-    wp۰apply (bag_1٠pop₀𑁒spec with "[$Hmeta $Hinv] HΦ").
+    wp۰apply (bag_1٠pop₀ｰspec with "[$Hmeta $Hinv] HΦ").
     apply list_elem_of_lookup_total_2. lia.
   Qed.
 End bag_1۰G.

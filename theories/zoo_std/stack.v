@@ -12,13 +12,13 @@ Section zoo۰G.
   Definition stack۰model t vs :=
     dynarray_1۰model t (reverse vs).
 
-  #[global] Instance stack۰model𑁒timeless t vs :
+  #[global] Instance stack۰modelｰtimeless t vs :
     Timeless (stack۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  Lemma stack٠make𑁒spec :
+  Lemma stack٠makeｰspec :
     {{{
       True
     }}}
@@ -29,10 +29,10 @@ Section zoo۰G.
       stack۰model t []
     }}}.
   Proof.
-    apply dynarray_1٠create𑁒spec.
+    apply dynarray_1٠createｰspec.
   Qed.
 
-  Lemma stack٠is_empty𑁒spec t vs :
+  Lemma stack٠is_emptyｰspec t vs :
     {{{
       stack۰model t vs
     }}}
@@ -43,11 +43,11 @@ Section zoo۰G.
     }}}.
   Proof.
     iIntros "%Φ Ht HΦ".
-    wp۰apply (dynarray_1٠is_empty𑁒spec with "Ht").
+    wp۰apply (dynarray_1٠is_emptyｰspec with "Ht").
     rewrite (bool_decide_ext (reverse vs = []) (vs = [])) // -{1}reverse_nil. naive_solver.
   Qed.
 
-  Lemma stack٠push𑁒spec t vs v :
+  Lemma stack٠pushｰspec t vs v :
     {{{
       stack۰model t vs
     }}}
@@ -58,11 +58,11 @@ Section zoo۰G.
     }}}.
   Proof.
     iIntros "%Φ Ht HΦ".
-    wp۰apply (dynarray_1٠push𑁒spec with "Ht").
+    wp۰apply (dynarray_1٠pushｰspec with "Ht").
     rewrite -reverse_cons //.
   Qed.
 
-  Lemma stack٠pop𑁒spec {t vs} v vs' :
+  Lemma stack٠popｰspec {t vs} v vs' :
     vs = v :: vs' →
     {{{
       stack۰model t vs
@@ -74,7 +74,7 @@ Section zoo۰G.
     }}}.
   Proof.
     iIntros (->) "%Φ Ht HΦ".
-    wp۰apply (dynarray_1٠pop𑁒spec with "Ht"); last iSteps.
+    wp۰apply (dynarray_1٠popｰspec with "Ht"); last iSteps.
     rewrite reverse_cons //.
   Qed.
 End zoo۰G.

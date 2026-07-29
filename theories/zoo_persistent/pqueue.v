@@ -17,25 +17,25 @@ Section zoo۰G.
     ∃ front back,
     ⌜t = (list۰to_val front, list۰to_val back)%V ∧ vs = front ++ reverse back⌝.
 
-  #[global] Instance pqueue۰model𑁒timeless t vs :
+  #[global] Instance pqueue۰modelｰtimeless t vs :
     Timeless (pqueue۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance pqueue۰model𑁒persistent t vs :
+  #[global] Instance pqueue۰modelｰpersistent t vs :
     Persistent (pqueue۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  Lemma pqueue۰model𑁒nil :
+  Lemma pqueue۰modelｰnil :
     ⊢ pqueue۰model pqueue٠empty [].
   Proof.
     iExists [], []. iSteps.
   Qed.
 
-  Lemma pqueue٠is_empty𑁒spec t vs :
+  Lemma pqueue٠is_emptyｰspec t vs :
     {{{
       pqueue۰model t vs
     }}}
@@ -47,14 +47,14 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (%front & %back & (-> & ->)) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠is_empty𑁒spec with "[//]") as "_"; first done.
+    wp۰apply+ (list٠is_emptyｰspec with "[//]") as "_"; first done.
     destruct front as [| v front]; wp۰pures.
-    - wp۰apply (list٠is_empty𑁒spec with "[//]") as "_"; first done.
-      erewrite bool_decide_ext by apply reverse𑁒nil𑁒iff. iSteps.
+    - wp۰apply (list٠is_emptyｰspec with "[//]") as "_"; first done.
+      erewrite bool_decide_ext by apply reverseｰnilｰiff. iSteps.
     - rewrite bool_decide_eq_false_2 //. iSteps.
   Qed.
 
-  Lemma pqueue٠push𑁒spec t vs v :
+  Lemma pqueue٠pushｰspec t vs v :
     {{{
       pqueue۰model t vs
     }}}
@@ -71,7 +71,7 @@ Section zoo۰G.
     iExists front, (v :: back). iSteps. rewrite reverse_cons assoc //.
   Qed.
 
-  Lemma pqueue٠pop𑁒spec t vs :
+  Lemma pqueue٠popｰspec t vs :
     {{{
       pqueue۰model t vs
     }}}
@@ -93,7 +93,7 @@ Section zoo۰G.
     iIntros "%Φ (%front & %back & (-> & ->)) HΦ".
     wp۰rec.
     destruct front as [| v front]; wp۰pures.
-    - wp۰apply (list٠rev𑁒spec with "[//]") as "%front ->"; first done.
+    - wp۰apply (list٠revｰspec with "[//]") as "%front ->"; first done.
       destruct back as [| v back _] using rev_ind.
       + wp۰pures.
         iApply ("HΦ" $! None with "[//]").

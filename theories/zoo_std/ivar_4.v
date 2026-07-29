@@ -24,7 +24,7 @@ Definition ivar_4۰Σ :=
   #[ivar_3۰Σ gname
   ; saved_prop۰Σ
   ].
-#[global] Instance subG𑁒ivar_4۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰivar_4۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG ivar_4۰Σ Σ →
   Ivar4G Σ.
 Proof.
@@ -92,7 +92,7 @@ Section ivar_4۰G.
       )
     ".
 
-  #[global] Instance ivar_4۰inv𑁒contractive t n :
+  #[global] Instance ivar_4۰invｰcontractive t n :
     Proper (
       (pointwise_relation _ $ dist_later n) ==>
       (pointwise_relation _ $ dist_later n) ==>
@@ -107,7 +107,7 @@ Section ivar_4۰G.
     apply dist_dist_later.
     solve_proper.
   Qed.
-  #[global] Instance ivar_4۰inv𑁒proper t :
+  #[global] Instance ivar_4۰invｰproper t :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (pointwise_relation _ (≡)) ==>
@@ -118,7 +118,7 @@ Section ivar_4۰G.
     rewrite /ivar_4۰inv /waiter۰model₂ /waiter۰model₁.
     solve_proper.
   Qed.
-  #[global] Instance ivar_4۰consumer𑁒contractive t n :
+  #[global] Instance ivar_4۰consumerｰcontractive t n :
     Proper (
       (pointwise_relation _ $ dist_later n) ==>
       (≡{n}≡)
@@ -126,7 +126,7 @@ Section ivar_4۰G.
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance ivar_4۰consumer𑁒proper t :
+  #[global] Instance ivar_4۰consumerｰproper t :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (≡)
@@ -135,111 +135,111 @@ Section ivar_4۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance ivar_4۰producer𑁒timeless t :
+  #[global] Instance ivar_4۰producerｰtimeless t :
     Timeless (ivar_4۰producer t).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_4۰result𑁒timeless t v :
+  #[global] Instance ivar_4۰resultｰtimeless t v :
     Timeless (ivar_4۰result t v).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance ivar_4۰inv𑁒persistent t Ψ Ξ Γ :
+  #[global] Instance ivar_4۰invｰpersistent t Ψ Ξ Γ :
     Persistent (ivar_4۰inv t Ψ Ξ Γ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_4۰result𑁒persistent t v :
+  #[global] Instance ivar_4۰resultｰpersistent t v :
     Persistent (ivar_4۰result t v).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_4۰waiters𑁒persistent t waiters Ps :
+  #[global] Instance ivar_4۰waitersｰpersistent t waiters Ps :
     Persistent (ivar_4۰waiters t waiters Ps).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_4۰waiter𑁒persistent t waiter P :
+  #[global] Instance ivar_4۰waiterｰpersistent t waiter P :
     Persistent (ivar_4۰waiter t waiter P).
   Proof.
     apply _.
   Qed.
 
-  Lemma ivar_4۰producer𑁒exclusive t :
+  Lemma ivar_4۰producerｰexclusive t :
     ivar_4۰producer t -∗
     ivar_4۰producer t -∗
     False.
   Proof.
-    apply ivar_3۰producer𑁒exclusive.
+    apply ivar_3۰producerｰexclusive.
   Qed.
 
-  Lemma ivar_4۰consumer𑁒wand {t Ψ Ξ Γ Χ1} Χ2 :
+  Lemma ivar_4۰consumerｰwand {t Ψ Ξ Γ Χ1} Χ2 :
     ivar_4۰inv t Ψ Ξ Γ -∗
     ivar_4۰consumer t Χ1 -∗
     (∀ v, Χ1 v -∗ Χ2 v) ={⊤}=∗
     ivar_4۰consumer t Χ2.
   Proof.
-    apply ivar_3۰consumer𑁒wand.
+    apply ivar_3۰consumerｰwand.
   Qed.
-  Lemma ivar_4۰consumer𑁒divide {t Ψ Ξ Γ} Χs :
+  Lemma ivar_4۰consumerｰdivide {t Ψ Ξ Γ} Χs :
     ivar_4۰inv t Ψ Ξ Γ -∗
     ivar_4۰consumer t (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
     [∗ list] Χ ∈ Χs, ivar_4۰consumer t Χ.
   Proof.
-    apply ivar_3۰consumer𑁒divide.
+    apply ivar_3۰consumerｰdivide.
   Qed.
-  Lemma ivar_4۰consumer𑁒split {t Ψ Ξ Γ} Χ1 Χ2 :
+  Lemma ivar_4۰consumerｰsplit {t Ψ Ξ Γ} Χ1 Χ2 :
     ivar_4۰inv t Ψ Ξ Γ -∗
     ivar_4۰consumer t (λ v, Χ1 v ∗ Χ2 v) ={⊤}=∗
       ivar_4۰consumer t Χ1 ∗
       ivar_4۰consumer t Χ2.
   Proof.
-    apply ivar_3۰consumer𑁒split.
+    apply ivar_3۰consumerｰsplit.
   Qed.
 
-  Lemma ivar_4۰result𑁒agree t v1 v2 :
+  Lemma ivar_4۰resultｰagree t v1 v2 :
     ivar_4۰result t v1 -∗
     ivar_4۰result t v2 -∗
     ⌜v1 = v2⌝.
   Proof.
-    apply ivar_3۰result𑁒agree.
+    apply ivar_3۰resultｰagree.
   Qed.
 
-  Lemma ivar_4𑁒producer𑁒result t v :
+  Lemma ivar_4ｰproducerｰresult t v :
     ivar_4۰producer t -∗
     ivar_4۰result t v -∗
     False.
   Proof.
-    apply ivar_3𑁒producer𑁒result.
+    apply ivar_3ｰproducerｰresult.
   Qed.
 
-  Lemma ivar_4𑁒inv𑁒result t Ψ Ξ Γ v :
+  Lemma ivar_4ｰinvｰresult t Ψ Ξ Γ v :
     ivar_4۰inv t Ψ Ξ Γ -∗
     ivar_4۰result t v ={⊤}=∗
     ▷ □ Ξ v.
   Proof.
-    apply ivar_3𑁒inv𑁒result.
+    apply ivar_3ｰinvｰresult.
   Qed.
-  Lemma ivar_4𑁒inv𑁒result' t Ψ Ξ Γ v :
+  Lemma ivar_4ｰinvｰresult' t Ψ Ξ Γ v :
     £ 1 -∗
     ivar_4۰inv t Ψ Ξ Γ -∗
     ivar_4۰result t v ={⊤}=∗
     □ Ξ v.
   Proof.
-    apply ivar_3𑁒inv𑁒result'.
+    apply ivar_3ｰinvｰresult'.
   Qed.
-  Lemma ivar_4𑁒inv𑁒result𑁒consumer t Ψ Ξ Γ v Χ :
+  Lemma ivar_4ｰinvｰresultｰconsumer t Ψ Ξ Γ v Χ :
     ivar_4۰inv t Ψ Ξ Γ -∗
     ivar_4۰result t v -∗
     ivar_4۰consumer t Χ ={⊤}=∗
       ▷^2 Χ v ∗
       ▷ □ Ξ v.
   Proof.
-    apply ivar_3𑁒inv𑁒result𑁒consumer.
+    apply ivar_3ｰinvｰresultｰconsumer.
   Qed.
-  Lemma ivar_4𑁒inv𑁒result𑁒consumer' t Ψ Ξ Γ v Χ :
+  Lemma ivar_4ｰinvｰresultｰconsumer' t Ψ Ξ Γ v Χ :
     £ 2 -∗
     ivar_4۰inv t Ψ Ξ Γ -∗
     ivar_4۰result t v -∗
@@ -247,10 +247,10 @@ Section ivar_4۰G.
       Χ v ∗
       □ Ξ v.
   Proof.
-    apply ivar_3𑁒inv𑁒result𑁒consumer'.
+    apply ivar_3ｰinvｰresultｰconsumer'.
   Qed.
 
-  Lemma ivar_4۰waiter𑁒valid t waiters Ps waiter P :
+  Lemma ivar_4۰waiterｰvalid t waiters Ps waiter P :
     ivar_4۰waiters t waiters Ps -∗
     ivar_4۰waiter t waiter P -∗
       ∃ i P_,
@@ -259,13 +259,13 @@ Section ivar_4۰G.
       ▷ (P ≡ P_).
   Proof.
     iIntros "(:waiters) (:waiter)".
-    iDestruct (ivar_3۰waiter𑁒valid with "Hwaiters Hwaiter") as "(%i & %Hwaiters_lookup & %Hωs_lookup)".
+    iDestruct (ivar_3۰waiterｰvalid with "Hwaiters Hwaiter") as "(%i & %Hwaiters_lookup & %Hωs_lookup)".
     iDestruct (big_sepL2_lookup_l with "Hωs") as "(%P_ & %HPs_lookup & Hω_)". 1: done.
-    iDestruct (saved_prop𑁒agree with "Hω Hω_") as "Heq".
+    iDestruct (saved_propｰagree with "Hω Hω_") as "Heq".
     iFrame "%#".
   Qed.
 
-  Lemma ivar_4٠create𑁒spec Ψ Ξ Γ :
+  Lemma ivar_4٠createｰspec Ψ Ξ Γ :
     {{{
       True
     }}}
@@ -278,10 +278,10 @@ Section ivar_4۰G.
       ivar_4۰consumer t Ψ
     }}}.
   Proof.
-    apply ivar_3٠create𑁒spec.
+    apply ivar_3٠createｰspec.
   Qed.
 
-  Lemma ivar_4٠make𑁒spec Ψ Ξ Γ v :
+  Lemma ivar_4٠makeｰspec Ψ Ξ Γ v :
     {{{
       ▷ Ψ v ∗
       ▷ □ Ξ v
@@ -298,11 +298,11 @@ Section ivar_4۰G.
   Proof.
     iIntros "%Φ (HΨ & HΞ) HΦ".
 
-    wp۰apply (ivar_3٠make𑁒spec with "[$HΨ $HΞ]").
+    wp۰apply (ivar_3٠makeｰspec with "[$HΨ $HΞ]").
     iSteps.
   Qed.
 
-  Lemma ivar_4٠is_unset𑁒spec t Ψ Ξ Γ :
+  Lemma ivar_4٠is_unsetｰspec t Ψ Ξ Γ :
     {{{
       ivar_4۰inv t Ψ Ξ Γ
     }}}
@@ -317,9 +317,9 @@ Section ivar_4۰G.
         ivar_4۰resolved t
     }}}.
   Proof.
-    apply ivar_3٠is_unset𑁒spec.
+    apply ivar_3٠is_unsetｰspec.
   Qed.
-  Lemma ivar_4٠is_unset𑁒spec𑁒result t Ψ Ξ Γ v :
+  Lemma ivar_4٠is_unsetｰspecｰresult t Ψ Ξ Γ v :
     {{{
       ivar_4۰inv t Ψ Ξ Γ ∗
       ivar_4۰result t v
@@ -330,10 +330,10 @@ Section ivar_4۰G.
       £ 2
     }}}.
   Proof.
-    apply ivar_3٠is_unset𑁒spec𑁒result.
+    apply ivar_3٠is_unsetｰspecｰresult.
   Qed.
 
-  Lemma ivar_4٠is_set𑁒spec t Ψ Ξ Γ :
+  Lemma ivar_4٠is_setｰspec t Ψ Ξ Γ :
     {{{
       ivar_4۰inv t Ψ Ξ Γ
     }}}
@@ -348,9 +348,9 @@ Section ivar_4۰G.
         True
     }}}.
   Proof.
-    apply ivar_3٠is_set𑁒spec.
+    apply ivar_3٠is_setｰspec.
   Qed.
-  Lemma ivar_4٠is_set𑁒spec𑁒result t Ψ Ξ Γ v :
+  Lemma ivar_4٠is_setｰspecｰresult t Ψ Ξ Γ v :
     {{{
       ivar_4۰inv t Ψ Ξ Γ ∗
       ivar_4۰result t v
@@ -361,10 +361,10 @@ Section ivar_4۰G.
       £ 2
     }}}.
   Proof.
-    apply ivar_3٠is_set𑁒spec𑁒result.
+    apply ivar_3٠is_setｰspecｰresult.
   Qed.
 
-  Lemma ivar_4٠try_get𑁒spec t Ψ Ξ Γ :
+  Lemma ivar_4٠try_getｰspec t Ψ Ξ Γ :
     {{{
       ivar_4۰inv t Ψ Ξ Γ
     }}}
@@ -379,9 +379,9 @@ Section ivar_4۰G.
         True
     }}}.
   Proof.
-    apply ivar_3٠try_get𑁒spec.
+    apply ivar_3٠try_getｰspec.
   Qed.
-  Lemma ivar_4٠try_get𑁒spec𑁒result t Ψ Ξ Γ v :
+  Lemma ivar_4٠try_getｰspecｰresult t Ψ Ξ Γ v :
     {{{
       ivar_4۰inv t Ψ Ξ Γ ∗
       ivar_4۰result t v
@@ -392,10 +392,10 @@ Section ivar_4۰G.
       £ 2
     }}}.
   Proof.
-    apply ivar_3٠try_get𑁒spec𑁒result.
+    apply ivar_3٠try_getｰspecｰresult.
   Qed.
 
-  Lemma ivar_4٠get𑁒spec t Ψ Ξ Γ v :
+  Lemma ivar_4٠getｰspec t Ψ Ξ Γ v :
     {{{
       ivar_4۰inv t Ψ Ξ Γ ∗
       ivar_4۰result t v
@@ -406,10 +406,10 @@ Section ivar_4۰G.
       £ 2
     }}}.
   Proof.
-    apply ivar_3٠get𑁒spec.
+    apply ivar_3٠getｰspec.
   Qed.
 
-  Lemma ivar_4٠wait𑁒spec P Q t Ψ Ξ Γ waiter :
+  Lemma ivar_4٠waitｰspec P Q t Ψ Ξ Γ waiter :
     {{{
       ivar_4۰inv t Ψ Ξ Γ ∗
       Q ∗
@@ -438,14 +438,14 @@ Section ivar_4۰G.
   Proof.
     iIntros "%Φ (#Hinv & HQ & Hwaiter) HΦ".
 
-    iMod (saved_prop𑁒alloc P) as "(%ω & #Hω)".
-    wp۰apply (ivar_3٠wait𑁒spec ω Q with "[$Hinv $HQ Hwaiter]") as (o) "Ho". 1: iSteps.
+    iMod (saved_propｰalloc P) as "(%ω & #Hω)".
+    wp۰apply (ivar_3٠waitｰspec ω Q with "[$Hinv $HQ Hwaiter]") as (o) "Ho". 1: iSteps.
 
     iSpecialize ("HΦ" $! o).
     destruct o; iSteps.
   Qed.
 
-  Lemma ivar_4٠set𑁒spec t Ψ Ξ Γ v :
+  Lemma ivar_4٠setｰspec t Ψ Ξ Γ v :
     {{{
       ivar_4۰inv t Ψ Ξ Γ ∗
       ivar_4۰producer t ∗
@@ -471,16 +471,16 @@ Section ivar_4۰G.
   Proof.
     iIntros "%Φ (Hinv & Hproducer & HΨ & HΞ) HΦ".
 
-    wp۰apply (ivar_3٠set𑁒spec _ Ψ Ξ with "[$]") as (waiters ωs) "(Hresult & Hwaiters & Hωs)".
+    wp۰apply (ivar_3٠setｰspec _ Ψ Ξ with "[$]") as (waiters ωs) "(Hresult & Hwaiters & Hωs)".
 
-    iDestruct (big_sepL2𑁒exists with "Hωs") as "(%Ps & _ & _ & Hωs)".
-    iDestruct (big_sepL3𑁒sep with "Hωs") as "(Hωs & HPs)".
-    iDestruct (big_sepL3𑁒const𑁒sepL2₁ with "Hωs") as "(_ & _ & Hωs)".
-    iDestruct (big_sepL3𑁒const𑁒sepL2₂ with "HPs") as "(_ & _ & HPs)".
+    iDestruct (big_sepL2ｰexists with "Hωs") as "(%Ps & _ & _ & Hωs)".
+    iDestruct (big_sepL3ｰsep with "Hωs") as "(Hωs & HPs)".
+    iDestruct (big_sepL3ｰconstｰsepL2₁ with "Hωs") as "(_ & _ & Hωs)".
+    iDestruct (big_sepL3ｰconstｰsepL2₂ with "HPs") as "(_ & _ & HPs)".
     iSteps.
   Qed.
 
-  Lemma ivar_4٠notify𑁒spec {t Ψ Ξ Γ ctx} 𝑐𝑡𝑥 v :
+  Lemma ivar_4٠notifyｰspec {t Ψ Ξ Γ ctx} 𝑐𝑡𝑥 v :
     {{{
       ivar_4۰inv t Ψ Ξ Γ ∗
       ivar_4۰producer t ∗
@@ -501,11 +501,11 @@ Section ivar_4۰G.
     iIntros "%Φ (#Hinv & Hproducer & HΓ & HΨ & HΞ) HΦ".
 
     wp۰rec.
-    wp۰apply+ (ivar_4٠set𑁒spec with "[$Hinv $Hproducer $HΨ $HΞ]") as (waiters Ps) "(#Hresult & #Hwaiters & HPs)".
+    wp۰apply+ (ivar_4٠setｰspec with "[$Hinv $Hproducer $HΨ $HΞ]") as (waiters Ps) "(#Hresult & #Hwaiters & HPs)".
 
     iDestruct (big_sepL2_length with "HPs") as %Hlength.
 
-    wp۰apply+ (list٠iter𑁒spec (λ i _,
+    wp۰apply+ (list٠iterｰspec (λ i _,
       Γ ctx 𝑐𝑡𝑥 ∗
       ([∗ list] P ∈ take i Ps, □ P) ∗
       ( [∗ list] waiter; P ∈ drop i waiters; drop i Ps,
@@ -517,9 +517,9 @@ Section ivar_4۰G.
 
       iEval (rewrite (drop_S waiters waiter) //) in "HPs_2".
       iDestruct (big_sepL2_cons_inv_l with "HPs_2") as "(%P & %Ps' & %Heq & HP & HPs_2)".
-      apply drop𑁒cons𑁒inv in Heq as (HPs_lookup & ->).
+      apply dropｰconsｰinv in Heq as (HPs_lookup & ->).
 
-      wp۰apply+ (wp𑁒wand with "(HP HΓ Hresult)") as (res) "(-> & HΓ & HP)".
+      wp۰apply+ (wpｰwand with "(HP HΓ Hresult)") as (res) "(-> & HΓ & HP)".
 
       iFrameStep.
       iEval (rewrite (take_S_r _ _ P) //).

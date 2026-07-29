@@ -46,7 +46,7 @@ Class ZooG₀ Σ :=
   ; ghost_list۰Σ val
   ; mono_list۰Σ val
   ].
-#[local] Instance subG𑁒zoo۰Σ₀ Σ :
+#[local] Instance subGｰzoo۰Σ₀ Σ :
   subG zoo۰Σ₀ Σ →
   ZooG₀ Σ.
 Proof.
@@ -62,7 +62,7 @@ Definition zoo۰Σ :=
   #[invΣ
   ; zoo۰Σ₀
   ].
-#[global] Instance subG𑁒zoo۰Σ Σ :
+#[global] Instance subGｰzoo۰Σ Σ :
   subG zoo۰Σ Σ →
   ZooGpre Σ.
 Proof.
@@ -94,12 +94,12 @@ Section zoo۰G₀.
   #[local] Definition meta' `{Countable A} γ_headers l ι (x : A) :=
     ghost_heap۰meta γ_headers l ι x.
 
-  #[local] Lemma headers𑁒alloc hdrs :
+  #[local] Lemma headersｰalloc hdrs :
     ⊢ |==>
       ∃ γ_headers,
       headers۰auth' γ_headers hdrs.
   Proof.
-    iMod (ghost_heap𑁒alloc hdrs) as "(%γ_headers & $ & _)" => //.
+    iMod (ghost_heapｰalloc hdrs) as "(%γ_headers & $ & _)" => //.
   Qed.
 End zoo۰G₀.
 
@@ -137,80 +137,80 @@ Notation "l ↪ x" := (
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  #[global] Instance headers۰at𑁒timeless l hdr :
+  #[global] Instance headers۰atｰtimeless l hdr :
     Timeless (l ↦ₕ hdr).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance headers۰at𑁒persistent l hdr :
+  #[global] Instance headers۰atｰpersistent l hdr :
     Persistent (l ↦ₕ hdr).
   Proof.
     apply _.
   Qed.
 
-  Lemma headers۰at𑁒agree l hdr1 hdr2 :
+  Lemma headers۰atｰagree l hdr1 hdr2 :
     l ↦ₕ hdr1 -∗
     l ↦ₕ hdr2 -∗
     ⌜hdr1 = hdr2⌝.
   Proof.
-    apply ghost_heap۰at𑁒agree.
+    apply ghost_heap۰atｰagree.
   Qed.
 End zoo۰G.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  #[global] Instance meta_token𑁒timeless l N :
+  #[global] Instance meta_tokenｰtimeless l N :
     Timeless (meta_token l N).
   Proof.
     apply _.
   Qed.
-  #[global] Instance meta𑁒timeless `{Countable A} l ι (x : A) :
+  #[global] Instance metaｰtimeless `{Countable A} l ι (x : A) :
     Timeless (l ↪[ι] x).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance meta𑁒persistent `{Countable A} l ι (x : A) :
+  #[global] Instance metaｰpersistent `{Countable A} l ι (x : A) :
     Persistent (l ↪[ι] x).
   Proof.
     apply _.
   Qed.
 
-  Lemma meta_token𑁒difference {l} E1 E2 :
+  Lemma meta_tokenｰdifference {l} E1 E2 :
     E1 ⊆ E2 →
     meta_token l E2 ⊣⊢
       meta_token l E1 ∗
       meta_token l (E2 ∖ E1).
   Proof.
-    apply ghost_heap۰meta_token𑁒difference.
+    apply ghost_heap۰meta_tokenｰdifference.
   Qed.
 
-  Lemma meta𑁒set `{Countable A} {l E} (x : A) ι :
+  Lemma metaｰset `{Countable A} {l E} (x : A) ι :
     ↑ ι ⊆ E →
     meta_token l E ⊢ |==>
     l ↪[ι] x.
   Proof.
-    apply ghost_heap۰meta𑁒set.
+    apply ghost_heap۰metaｰset.
   Qed.
-  Lemma meta𑁒agree `{Countable A} l ι (x1 x2 : A) :
+  Lemma metaｰagree `{Countable A} l ι (x1 x2 : A) :
     l ↪[ι] x1 -∗
     l ↪[ι] x2 -∗
     ⌜x1 = x2⌝.
   Proof.
-    apply ghost_heap۰meta𑁒agree.
+    apply ghost_heap۰metaｰagree.
   Qed.
 
-  Lemma headers𑁒lookup hdrs l hdr :
+  Lemma headersｰlookup hdrs l hdr :
     headers۰auth hdrs -∗
     l ↦ₕ hdr -∗
     ⌜hdrs !! l = Some hdr⌝.
   Proof.
-    apply ghost_heap𑁒lookup.
+    apply ghost_heapｰlookup.
   Qed.
 
-  Lemma headers𑁒insert {hdrs} l hdr :
+  Lemma headersｰinsert {hdrs} l hdr :
     hdrs !! l = None →
     headers۰auth hdrs ⊢ |==>
       headers۰auth (<[l := hdr]> hdrs) ∗
@@ -218,8 +218,8 @@ Section zoo۰G.
       meta_token l ⊤.
   Proof.
     iIntros "% Hauth".
-    iMod (ghost_heap𑁒insert with "Hauth") as "($ & Hat & $)". 1: done.
-    iApply (ghost_heap۰at𑁒persist with "Hat").
+    iMod (ghost_heapｰinsert with "Hauth") as "($ & Hat & $)". 1: done.
+    iApply (ghost_heap۰atｰpersist with "Hat").
   Qed.
 End zoo۰G.
 
@@ -236,7 +236,7 @@ Section zoo۰G₀.
   #[local] Definition pointsto' γ_heap l dq v :=
     ghost_map_elem (V := val) γ_heap l dq v.
 
-  #[local] Lemma heap𑁒alloc h :
+  #[local] Lemma heapｰalloc h :
     ⊢ |==>
       ∃ γ_heap,
       heap۰auth' γ_heap h ∗
@@ -294,36 +294,36 @@ Notation "l ↦ᵣ-" := (
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  #[global] Instance pointsto𑁒timeless l dq v :
+  #[global] Instance pointstoｰtimeless l dq v :
     Timeless (l ↦{dq} v).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance pointsto𑁒persistent l v :
+  #[global] Instance pointstoｰpersistent l v :
     Persistent (l ↦□ v).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance pointsto𑁒fractional l v :
+  #[global] Instance pointstoｰfractional l v :
     Fractional (λ q, l ↦{#q} v)%I.
   Proof.
     apply _.
   Qed.
-  #[global] Instance pointsto𑁒as_fractional l q v :
+  #[global] Instance pointstoｰas_fractional l q v :
     AsFractional (l ↦{#q} v) (λ q, l ↦{#q} v)%I q.
   Proof.
     apply _.
   Qed.
 
-  Lemma pointsto𑁒valid l dq v :
+  Lemma pointstoｰvalid l dq v :
     l ↦{dq} v ⊢
     ⌜✓ dq⌝.
   Proof.
     apply bi.wand_entails', ghost_map_elem_valid.
   Qed.
-  Lemma pointsto𑁒combine l dq1 v1 dq2 v2 :
+  Lemma pointstoｰcombine l dq1 v1 dq2 v2 :
     l ↦{dq1} v1 -∗
     l ↦{dq2} v2 -∗
       ⌜v1 = v2⌝ ∗
@@ -331,7 +331,7 @@ Section zoo۰G.
   Proof.
     rewrite comm. apply ghost_map_elem_combine.
   Qed.
-  Lemma pointsto𑁒valid𑁒2 l dq1 v1 dq2 v2 :
+  Lemma pointstoｰvalidｰ2 l dq1 v1 dq2 v2 :
     l ↦{dq1} v1 -∗
     l ↦{dq2} v2 -∗
       ⌜✓ (dq1 ⋅ dq2)⌝ ∗
@@ -340,14 +340,14 @@ Section zoo۰G.
     iIntros "H1 H2".
     iDestruct (ghost_map_elem_valid_2 with "H1 H2") as "$".
   Qed.
-  Lemma pointsto𑁒agree l dq2 v1 dq1 v2 :
+  Lemma pointstoｰagree l dq2 v1 dq1 v2 :
     l ↦{dq1} v1 -∗
     l ↦{dq2} v2 -∗
     ⌜v1 = v2⌝.
   Proof.
     apply ghost_map_elem_agree.
   Qed.
-  Lemma pointsto𑁒dfrac𑁒ne l1 dq1 v1 l2 dq2 v2 :
+  Lemma pointstoｰdfracｰne l1 dq1 v1 l2 dq2 v2 :
     ¬ ✓ (dq1 ⋅ dq2) →
     l1 ↦{dq1} v1 -∗
     l2 ↦{dq2} v2 -∗
@@ -355,14 +355,14 @@ Section zoo۰G.
   Proof.
     apply ghost_map_elem_frac_ne.
   Qed.
-  Lemma pointsto𑁒ne l1 v1 l2 dq2 v2 :
+  Lemma pointstoｰne l1 v1 l2 dq2 v2 :
     l1 ↦ v1 -∗
     l2 ↦{dq2} v2 -∗
     ⌜l1 ≠ l2⌝.
   Proof.
     apply ghost_map_elem_ne.
   Qed.
-  Lemma pointsto𑁒exclusive l v1 dq2 v2 :
+  Lemma pointstoｰexclusive l v1 dq2 v2 :
     l ↦ v1 -∗
     l ↦{dq2} v2 -∗
     False.
@@ -370,26 +370,26 @@ Section zoo۰G.
     iIntros "H1 H2".
     iDestruct (ghost_map_elem_ne with "H1 H2") as %?. done.
   Qed.
-  Lemma pointsto𑁒persist l dq v :
+  Lemma pointstoｰpersist l dq v :
     l ↦{dq} v ⊢ |==>
     l ↦□ v.
   Proof.
     apply bi.wand_entails', ghost_map_elem_persist.
   Qed.
 
-  #[global] Instance pointsto𑁒combine_sep_gives l dq1 v1 dq2 v2 :
+  #[global] Instance pointstoｰcombine_sep_gives l dq1 v1 dq2 v2 :
     CombineSepGives (l ↦{dq1} v1) (l ↦{dq2} v2) ⌜✓ (dq1 ⋅ dq2) ∧ v1 = v2⌝
   | 30.
   Proof.
     apply _.
   Qed.
-  #[global] Instance pointsto𑁒combine_as l dq1 dq2 v1 v2 :
+  #[global] Instance pointstoｰcombine_as l dq1 dq2 v1 v2 :
     CombineSepAs (l ↦{dq1} v1) (l ↦{dq2} v2) (l ↦{dq1 ⋅ dq2} v1)
   | 60.
   Proof.
     apply _.
   Qed.
-  #[global] Instance frame𑁒pointsto p l v q1 q2 q :
+  #[global] Instance frameｰpointsto p l v q1 q2 q :
     FrameFractionalQp q1 q2 q →
     Frame p (l ↦{#q1} v) (l ↦{#q2} v) (l ↦{#q} v)
   | 5.
@@ -397,14 +397,14 @@ Section zoo۰G.
     apply: frame_fractional.
   Qed.
 
-  Lemma heap𑁒lookup h a dq c :
+  Lemma heapｰlookup h a dq c :
     heap۰auth h -∗
     a ↦{dq} c -∗
     ⌜h !! a = Some c⌝.
   Proof.
     apply ghost_map_lookup.
   Qed.
-  Lemma heap𑁒insert {h1} h2 :
+  Lemma heapｰinsert {h1} h2 :
     h2 ##ₘ h1 →
     heap۰auth h1 ⊢ |==>
       heap۰auth (h2 ∪ h1) ∗
@@ -413,7 +413,7 @@ Section zoo۰G.
     intros.
     apply bi.wand_entails', ghost_map_insert_big => //.
   Qed.
-  Lemma heap𑁒update {h a c1} c2 :
+  Lemma heapｰupdate {h a c1} c2 :
     heap۰auth h -∗
     a ↦ c1 ==∗
       heap۰auth (<[a := c2]> h) ∗
@@ -429,30 +429,30 @@ End zoo۰G.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Lemma big_sepL2𑁒pointsto𑁒agree ls dq1 vs1 dq2 vs2 :
+  Lemma big_sepL2ｰpointstoｰagree ls dq1 vs1 dq2 vs2 :
     ([∗ list] l; v ∈ ls; vs1, l ↦{dq1} v) -∗
     ([∗ list] l; v ∈ ls; vs2, l ↦{dq2} v) -∗
     ⌜vs1 = vs2⌝.
   Proof.
     iIntros "H1 H2".
     rewrite list_eq_Forall2.
-    iApply big_sepL2𑁒Forall2.
-    iDestruct (big_sepL2𑁒retract𑁒l with "H1") as "(% & H1)".
-    iDestruct (big_sepL2𑁒retract𑁒l with "H2") as "(% & H2)".
+    iApply big_sepL2ｰForall2.
+    iDestruct (big_sepL2ｰretractｰl with "H1") as "(% & H1)".
+    iDestruct (big_sepL2ｰretractｰl with "H2") as "(% & H2)".
     iDestruct (big_sepL2_sepL_2 with "H1 H2") as "H"; first congruence.
     iApply (big_sepL2_impl with "H"). iIntros "!> %k %v1 %v2 _ _ ((%l1 & %Hl1_lookup & Hl1) & (%l2 & %Hl2_lookup & Hl2))". simplify.
-    iApply (pointsto𑁒agree with "Hl1 Hl2").
+    iApply (pointstoｰagree with "Hl1 Hl2").
   Qed.
-  Lemma big_sepL2𑁒ref𑁒pointsto𑁒agree ls dq1 vs1 dq2 vs2 :
+  Lemma big_sepL2ｰrefｰpointstoｰagree ls dq1 vs1 dq2 vs2 :
     ([∗ list] l; v ∈ ls; vs1, l ↦ᵣ{dq1} v) -∗
     ([∗ list] l; v ∈ ls; vs2, l ↦ᵣ{dq2} v) -∗
     ⌜vs1 = vs2⌝.
   Proof.
-    setoid_rewrite location۰add𑁒0.
-    apply big_sepL2𑁒pointsto𑁒agree.
+    setoid_rewrite location۰addｰ0.
+    apply big_sepL2ｰpointstoｰagree.
   Qed.
 
-  Lemma big_sepL2𑁒pointsto𑁒prefix ls1 dq1 vs1 ls2 dq2 vs2 :
+  Lemma big_sepL2ｰpointstoｰprefix ls1 dq1 vs1 ls2 dq2 vs2 :
     ls1 `prefix_of` ls2 →
     ([∗ list] l; v ∈ ls1; vs1, l ↦{dq1} v) -∗
     ([∗ list] l; v ∈ ls2; vs2, l ↦{dq2} v) -∗
@@ -460,20 +460,20 @@ Section zoo۰G.
   Proof.
     iIntros ((ls & ->)) "H1 H2".
     iDestruct (big_sepL2_app_inv_l with "H2") as "(%vs & %vs1_ & -> & H1_ & _)".
-    iDestruct (big_sepL2𑁒pointsto𑁒agree with "H1 H1_") as %<-.
+    iDestruct (big_sepL2ｰpointstoｰagree with "H1 H1_") as %<-.
     iPureIntro. apply prefix_app_r. done.
   Qed.
-  Lemma big_sepL2𑁒ref𑁒pointsto𑁒prefix ls1 dq1 vs1 ls2 dq2 vs2 :
+  Lemma big_sepL2ｰrefｰpointstoｰprefix ls1 dq1 vs1 ls2 dq2 vs2 :
     ls1 `prefix_of` ls2 →
     ([∗ list] l; v ∈ ls1; vs1, l ↦ᵣ{dq1} v) -∗
     ([∗ list] l; v ∈ ls2; vs2, l ↦ᵣ{dq2} v) -∗
     ⌜vs1 `prefix_of` vs2⌝.
   Proof.
-    setoid_rewrite location۰add𑁒0.
-    apply big_sepL2𑁒pointsto𑁒prefix.
+    setoid_rewrite location۰addｰ0.
+    apply big_sepL2ｰpointstoｰprefix.
   Qed.
 
-  Lemma big_sepL2𑁒pointsto𑁒suffix ls1 dq1 vs1 ls2 dq2 vs2 :
+  Lemma big_sepL2ｰpointstoｰsuffix ls1 dq1 vs1 ls2 dq2 vs2 :
     ls1 `suffix_of` ls2 →
     ([∗ list] l; v ∈ ls1; vs1, l ↦{dq1} v) -∗
     ([∗ list] l; v ∈ ls2; vs2, l ↦{dq2} v) -∗
@@ -481,17 +481,17 @@ Section zoo۰G.
   Proof.
     iIntros ((ls & ->)) "H1 H2".
     iDestruct (big_sepL2_app_inv_l with "H2") as "(%vs & %vs1_ & -> & _ & H1_)".
-    iDestruct (big_sepL2𑁒pointsto𑁒agree with "H1 H1_") as %<-.
+    iDestruct (big_sepL2ｰpointstoｰagree with "H1 H1_") as %<-.
     iPureIntro. solve_suffix.
   Qed.
-  Lemma big_sepL2𑁒ref𑁒pointsto𑁒suffix ls1 dq1 vs1 ls2 dq2 vs2 :
+  Lemma big_sepL2ｰrefｰpointstoｰsuffix ls1 dq1 vs1 ls2 dq2 vs2 :
     ls1 `suffix_of` ls2 →
     ([∗ list] l; v ∈ ls1; vs1, l ↦ᵣ{dq1} v) -∗
     ([∗ list] l; v ∈ ls2; vs2, l ↦ᵣ{dq2} v) -∗
     ⌜vs1 `suffix_of` vs2⌝.
   Proof.
-    setoid_rewrite location۰add𑁒0.
-    apply big_sepL2𑁒pointsto𑁒suffix.
+    setoid_rewrite location۰addｰ0.
+    apply big_sepL2ｰpointstoｰsuffix.
   Qed.
 End zoo۰G.
 
@@ -510,7 +510,7 @@ Section resolve_prophecies.
   #[local] Definition resolve_prophets prophets κs :=
     map_Forall (λ pid prophs, prophs = resolve_prophecies κs pid) prophets.
 
-  #[local] Lemma resolve_prophets𑁒insert κs pid prophets :
+  #[local] Lemma resolve_prophetsｰinsert κs pid prophets :
     resolve_prophets prophets κs →
     pid ∉ dom prophets →
     resolve_prophets (<[pid := resolve_prophecies κs pid]> prophets) κs.
@@ -535,7 +535,7 @@ Section zoo۰G₀.
   #[local] Definition prophet۰model' γ_prophets pid prophs :=
     ghost_map_elem γ_prophets pid (DfracOwn 1) prophs.
 
-  #[local] Lemma prophets𑁒alloc κs pids :
+  #[local] Lemma prophetsｰalloc κs pids :
     ⊢ |==>
       ∃ γ_prophets,
       prophets۰auth' γ_prophets κs pids.
@@ -552,13 +552,13 @@ Section zoo۰G.
   Definition prophet۰model :=
     prophet۰model' zoo۰G۰prophets۰name.
 
-  #[global] Instance prophet۰model𑁒timeless pid prophs :
+  #[global] Instance prophet۰modelｰtimeless pid prophs :
     Timeless (prophet۰model pid prophs).
   Proof.
     apply _.
   Qed.
 
-  Lemma prophet۰model𑁒exclusive pid prophs1 prophs2 :
+  Lemma prophet۰modelｰexclusive pid prophs1 prophs2 :
     prophet۰model pid prophs1 -∗
     prophet۰model pid prophs2 -∗
     False.
@@ -567,7 +567,7 @@ Section zoo۰G.
     iDestruct (ghost_map_elem_ne with "H1 H2") as %[] => //.
   Qed.
 
-  Lemma prophets𑁒new {κs pids} pid :
+  Lemma prophetsｰnew {κs pids} pid :
     pid ∉ pids →
     prophets۰auth κs pids ⊢ |==>
       ∃ prophs,
@@ -578,11 +578,11 @@ Section zoo۰G.
     iMod (ghost_map_insert pid (resolve_prophecies κs pid) with "Hauth") as "(Hauth & Helem)".
     { apply not_elem_of_dom. set_solver. }
     iFrame. iPureIntro. split.
-    - apply resolve_prophets𑁒insert; first done. set_solver.
+    - apply resolve_prophetsｰinsert; first done. set_solver.
     - rewrite dom_insert. set_solver.
   Qed.
 
-  Lemma prophets𑁒resolve pid proph κs pids prophs :
+  Lemma prophetsｰresolve pid proph κs pids prophs :
     prophets۰auth ((pid, proph) :: κs) pids -∗
     prophet۰model pid prophs ==∗
       ∃ prophs',
@@ -617,12 +617,12 @@ Section zoo۰G₀.
   #[local] Definition steps۰lb' :=
     auth_nat_max۰lb.
 
-  #[local] Lemma steps𑁒alloc :
+  #[local] Lemma stepsｰalloc :
     ⊢ |==>
       ∃ γ_steps,
       steps۰auth' γ_steps 0.
   Proof.
-    apply auth_nat_max𑁒alloc.
+    apply auth_nat_maxｰalloc.
   Qed.
 End zoo۰G₀.
 
@@ -644,37 +644,37 @@ Notation "⧖ n" := (
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  #[global] Instance steps۰auth𑁒timeless ns :
+  #[global] Instance steps۰authｰtimeless ns :
     Timeless (steps۰auth ns).
   Proof.
     apply _.
   Qed.
-  #[global] Instance steps۰lb𑁒timeless ns :
+  #[global] Instance steps۰lbｰtimeless ns :
     Timeless (⧖ ns).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance steps۰lb𑁒persistent ns :
+  #[global] Instance steps۰lbｰpersistent ns :
     Persistent (⧖ ns).
   Proof.
     apply _.
   Qed.
 
-  Lemma steps۰lb𑁒0 :
+  Lemma steps۰lbｰ0 :
     ⊢ |==>
       ⧖ 0.
   Proof.
-    apply auth_nat_max۰lb𑁒0.
+    apply auth_nat_max۰lbｰ0.
   Qed.
-  Lemma steps۰lb𑁒le ns1 ns2 :
+  Lemma steps۰lbｰle ns1 ns2 :
     ns2 ≤ ns1 →
     ⧖ ns1 ⊢
     ⧖ ns2.
   Proof.
-    apply auth_nat_max۰lb𑁒le.
+    apply auth_nat_max۰lbｰle.
   Qed.
-  Lemma steps۰lb𑁒max ns1 ns2 :
+  Lemma steps۰lbｰmax ns1 ns2 :
     ⧖ ns1 -∗
     ⧖ ns2 -∗
     ⧖ (ns1 `max` ns2).
@@ -683,28 +683,28 @@ Section zoo۰G.
     destruct (Nat.max_spec ns1 ns2) as [(_ & ->) | (_ & ->)] => //.
   Qed.
 
-  Lemma steps۰lb𑁒get ns :
+  Lemma steps۰lbｰget ns :
     steps۰auth ns ⊢
     ⧖ ns.
   Proof.
-    apply auth_nat_max۰lb𑁒get.
+    apply auth_nat_max۰lbｰget.
   Qed.
-  Lemma steps۰lb𑁒valid ns1 ns2 :
+  Lemma steps۰lbｰvalid ns1 ns2 :
     steps۰auth ns1 -∗
     ⧖ ns2 -∗
     ⌜ns2 ≤ ns1⌝.
   Proof.
-    apply auth_nat_max۰lb𑁒valid.
+    apply auth_nat_max۰lbｰvalid.
   Qed.
 
-  Lemma steps𑁒update ns :
+  Lemma stepsｰupdate ns :
     steps۰auth ns ⊢ |==>
     steps۰auth ˖ns.
   Proof.
-    apply auth_nat_max𑁒update. lia.
+    apply auth_nat_maxｰupdate. lia.
   Qed.
 
-  #[global] Instance hint𑁒steps۰lb𑁒le ns1 ns2 :
+  #[global] Instance hintｰsteps۰lbｰle ns1 ns2 :
     SolveSepSideCondition (ns1 ≤ ns2) →
     HINT
       ⧖ ns2
@@ -719,9 +719,9 @@ Section zoo۰G.
   Proof.
     intros.
     iStep as "H⧖".
-    iDestruct (steps۰lb𑁒le with "H⧖") as "$"; first done.
+    iDestruct (steps۰lbｰle with "H⧖") as "$"; first done.
   Qed.
-  #[global] Instance merge𑁒steps۰lb ns1 ns2 :
+  #[global] Instance mergeｰsteps۰lb ns1 ns2 :
     MergableConsume (⧖ ns1) true (λ p Pin Pout,
       TCAnd (
         TCEq Pin (⧖ ns2)%I
@@ -733,7 +733,7 @@ Section zoo۰G.
     move=> p Pin Pout [-> ->].
     rewrite bi.intuitionistically_if_elim.
     iIntros "(H⧖_1 & H⧖_2)".
-    iApply (steps۰lb𑁒max with "H⧖_1 H⧖_2").
+    iApply (steps۰lbｰmax with "H⧖_1 H⧖_2").
   Qed.
 End zoo۰G.
 
@@ -748,13 +748,13 @@ Section zoo۰G₀.
   #[local] Definition local_pointsto' γ_locals tid dq v :=
     ghost_list۰at γ_locals tid dq v.
 
-  #[local] Lemma locals𑁒alloc vs :
+  #[local] Lemma localsｰalloc vs :
     ⊢ |==>
       ∃ γ_locals,
       locals۰auth' γ_locals vs ∗
       [∗ list] tid ↦ v ∈ vs, local_pointsto' γ_locals tid (DfracOwn 1) v.
   Proof.
-    apply: ghost_list𑁒alloc vs.
+    apply: ghost_listｰalloc vs.
   Qed.
 End zoo۰G₀.
 
@@ -782,111 +782,111 @@ Notation "tid ↦ₗ-" := (
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  #[global] Instance local_pointsto𑁒timeless tid dq v :
+  #[global] Instance local_pointstoｰtimeless tid dq v :
     Timeless (tid ↦ₗ{dq} v).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance local_pointsto𑁒persistent tid v :
+  #[global] Instance local_pointstoｰpersistent tid v :
     Persistent (tid ↦ₗ□ v).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance local_pointsto𑁒fractional tid v :
+  #[global] Instance local_pointstoｰfractional tid v :
     Fractional (λ q, tid ↦ₗ{#q} v)%I.
   Proof.
     apply _.
   Qed.
-  #[global] Instance local_pointsto𑁒as_fractional tid q v :
+  #[global] Instance local_pointstoｰas_fractional tid q v :
     AsFractional (tid ↦ₗ{#q} v) (λ q, tid ↦ₗ{#q} v)%I q.
   Proof.
     apply _.
   Qed.
 
-  Lemma local_pointsto𑁒valid tid dq v :
+  Lemma local_pointstoｰvalid tid dq v :
     tid ↦ₗ{dq} v ⊢
     ⌜✓ dq⌝.
   Proof.
-    apply ghost_list۰at𑁒valid.
+    apply ghost_list۰atｰvalid.
   Qed.
-  Lemma local_pointsto𑁒combine tid dq1 v1 dq2 v2 :
+  Lemma local_pointstoｰcombine tid dq1 v1 dq2 v2 :
     tid ↦ₗ{dq1} v1 -∗
     tid ↦ₗ{dq2} v2 -∗
       ⌜v1 = v2⌝ ∗
       tid ↦ₗ{dq1 ⋅ dq2} v1.
   Proof.
-    apply ghost_list۰at𑁒combine.
+    apply ghost_list۰atｰcombine.
   Qed.
-  Lemma local_pointsto𑁒valid𑁒2 tid dq1 v1 dq2 v2 :
+  Lemma local_pointstoｰvalidｰ2 tid dq1 v1 dq2 v2 :
     tid ↦ₗ{dq1} v1 -∗
     tid ↦ₗ{dq2} v2 -∗
       ⌜✓ (dq1 ⋅ dq2)⌝ ∗
       ⌜v1 = v2⌝.
   Proof.
-    apply ghost_list۰at𑁒valid𑁒2.
+    apply ghost_list۰atｰvalidｰ2.
   Qed.
-  Lemma local_pointsto𑁒agree tid dq2 v1 dq1 v2 :
+  Lemma local_pointstoｰagree tid dq2 v1 dq1 v2 :
     tid ↦ₗ{dq1} v1 -∗
     tid ↦ₗ{dq2} v2 -∗
     ⌜v1 = v2⌝.
   Proof.
-    apply ghost_list۰at𑁒agree.
+    apply ghost_list۰atｰagree.
   Qed.
-  Lemma local_pointsto𑁒dfrac𑁒ne tid1 dq1 v1 tid2 dq2 v2 :
+  Lemma local_pointstoｰdfracｰne tid1 dq1 v1 tid2 dq2 v2 :
     ¬ ✓ (dq1 ⋅ dq2) →
     tid1 ↦ₗ{dq1} v1 -∗
     tid2 ↦ₗ{dq2} v2 -∗
     ⌜tid1 ≠ tid2⌝.
   Proof.
     iIntros "% H1 H2".
-    iDestruct (ghost_list۰at𑁒dfrac𑁒ne with "H1 H2") as %[]; done.
+    iDestruct (ghost_list۰atｰdfracｰne with "H1 H2") as %[]; done.
   Qed.
-  Lemma local_pointsto𑁒ne tid1 v1 tid2 dq2 v2 :
+  Lemma local_pointstoｰne tid1 v1 tid2 dq2 v2 :
     tid1 ↦ₗ v1 -∗
     tid2 ↦ₗ{dq2} v2 -∗
     ⌜tid1 ≠ tid2⌝.
   Proof.
     iIntros "H1 H2".
-    iDestruct (ghost_list۰at𑁒ne with "H1 H2") as %[]; done.
+    iDestruct (ghost_list۰atｰne with "H1 H2") as %[]; done.
   Qed.
-  Lemma local_pointsto𑁒exclusive tid v1 dq2 v2 :
+  Lemma local_pointstoｰexclusive tid v1 dq2 v2 :
     tid ↦ₗ v1 -∗
     tid ↦ₗ{dq2} v2 -∗
     False.
   Proof.
-    apply ghost_list۰at𑁒exclusive.
+    apply ghost_list۰atｰexclusive.
   Qed.
-  Lemma local_pointsto𑁒persist tid dq v :
+  Lemma local_pointstoｰpersist tid dq v :
     tid ↦ₗ{dq} v ⊢ |==>
     tid ↦ₗ□ v.
   Proof.
-    apply ghost_list۰at𑁒persist.
+    apply ghost_list۰atｰpersist.
   Qed.
 
-  Lemma locals𑁒lookup vs tid dq v :
+  Lemma localsｰlookup vs tid dq v :
     locals۰auth vs -∗
     tid ↦ₗ{dq} v -∗
     ⌜vs !! tid = Some v⌝.
   Proof.
-    apply ghost_list𑁒lookup.
+    apply ghost_listｰlookup.
   Qed.
 
-  Lemma locals𑁒update𑁒push {vs} v :
+  Lemma localsｰupdateｰpush {vs} v :
     locals۰auth vs ⊢ |==>
       locals۰auth (vs ++ [v]) ∗
       length vs ↦ₗ v.
   Proof.
-    apply ghost_list𑁒update𑁒push.
+    apply ghost_listｰupdateｰpush.
   Qed.
-  Lemma locals𑁒update𑁒pointsto {vs tid v} v' :
+  Lemma localsｰupdateｰpointsto {vs tid v} v' :
     locals۰auth vs -∗
     tid ↦ₗ v ==∗
       locals۰auth (<[tid := v']> vs) ∗
       tid ↦ₗ v'.
   Proof.
-    apply ghost_list𑁒update𑁒at.
+    apply ghost_listｰupdateｰat.
   Qed.
 End zoo۰G.
 
@@ -901,12 +901,12 @@ Section zoo۰G₀.
   #[local] Definition zoo_counter۰at' γ_counter id v :=
     mono_list۰at γ_counter id v.
 
-  #[local] Lemma zoo_counter𑁒alloc :
+  #[local] Lemma zoo_counterｰalloc :
     ⊢ |==>
       ∃ γ_counter,
       zoo_counter۰auth' γ_counter (replicate 0 inhabitant).
   Proof.
-    apply mono_list𑁒alloc.
+    apply mono_listｰalloc.
   Qed.
 End zoo۰G₀.
 
@@ -918,50 +918,50 @@ Section zoo۰G.
   Definition zoo_counter۰at :=
     zoo_counter۰at' zoo۰G۰counter۰name.
 
-  #[global] Instance zoo_counter۰auth𑁒timeless vs :
+  #[global] Instance zoo_counter۰authｰtimeless vs :
     Timeless (zoo_counter۰auth vs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance zoo_counter۰at𑁒timeless id v :
+  #[global] Instance zoo_counter۰atｰtimeless id v :
     Timeless (zoo_counter۰at id v).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance zoo_counter۰at𑁒persistent id v :
+  #[global] Instance zoo_counter۰atｰpersistent id v :
     Persistent (zoo_counter۰at id v).
   Proof.
     apply _.
   Qed.
 
-  Lemma zoo_counter۰at𑁒get {vs} id v :
+  Lemma zoo_counter۰atｰget {vs} id v :
     vs !! id = Some v →
     zoo_counter۰auth vs ⊢
     zoo_counter۰at id v.
   Proof.
-    apply mono_list۰at𑁒get.
+    apply mono_list۰atｰget.
   Qed.
-  Lemma zoo_counter۰at𑁒valid vs id v :
+  Lemma zoo_counter۰atｰvalid vs id v :
     zoo_counter۰auth vs -∗
     zoo_counter۰at id v -∗
     ⌜vs !! id = Some v⌝.
   Proof.
-    apply mono_list۰at𑁒valid.
+    apply mono_list۰atｰvalid.
   Qed.
-  Lemma zoo_counter۰at𑁒agree id v1 v2 :
+  Lemma zoo_counter۰atｰagree id v1 v2 :
     zoo_counter۰at id v1 -∗
     zoo_counter۰at id v2 -∗
     ⌜v1 = v2⌝.
   Proof.
-    apply mono_list۰at𑁒agree.
+    apply mono_list۰atｰagree.
   Qed.
 
-  Lemma zoo_counter𑁒update {vs} v :
+  Lemma zoo_counterｰupdate {vs} v :
     zoo_counter۰auth vs ⊢ |==>
     zoo_counter۰auth (vs ++ [v]).
   Proof.
-    apply mono_list𑁒update𑁒snoc.
+    apply mono_listｰupdateｰsnoc.
   Qed.
 End zoo۰G.
 
@@ -982,7 +982,7 @@ Section zoo۰G.
     inv nroot zoo_counter۰inv۰inner.
 End zoo۰G.
 
-Lemma zoo𑁒init `{zoo۰Gpre : !ZooGpre Σ} `{inv۰G : !invGS Σ} hdrs h pids vs κs :
+Lemma zooｰinit `{zoo۰Gpre : !ZooGpre Σ} `{inv۰G : !invGS Σ} hdrs h pids vs κs :
   h !! zoo_counter = Some 0%V →
   ⊢ |={⊤}=>
     ∃ zoo۰G : ZooG Σ,
@@ -998,19 +998,19 @@ Lemma zoo𑁒init `{zoo۰Gpre : !ZooGpre Σ} `{inv۰G : !invGS Σ} hdrs h pids v
 Proof.
   intros Hh_lookup_zoo_counter.
 
-  iMod (headers𑁒alloc hdrs) as "(%γ_headers & Hheaders_auth)".
+  iMod (headersｰalloc hdrs) as "(%γ_headers & Hheaders_auth)".
 
-  iMod (heap𑁒alloc h) as "(%γ_heap & Hheap_auth & Hheap)".
+  iMod (heapｰalloc h) as "(%γ_heap & Hheap_auth & Hheap)".
   iDestruct (big_sepM_delete with "Hheap") as "(Hcounter & Hheap)". 1: done.
-  iEval (rewrite -(location۰add𑁒0 zoo_counter)) in "Hcounter".
+  iEval (rewrite -(location۰addｰ0 zoo_counter)) in "Hcounter".
 
-  iMod (prophets𑁒alloc κs pids) as "(%γ_prophets & Hprophets_interp)".
+  iMod (prophetsｰalloc κs pids) as "(%γ_prophets & Hprophets_interp)".
 
-  iMod steps𑁒alloc as "(%γ_steps & Hsteps_auth)".
+  iMod stepsｰalloc as "(%γ_steps & Hsteps_auth)".
 
-  iMod locals𑁒alloc as "(%γ_locals & Hlocals_auth & Hlocals)".
+  iMod localsｰalloc as "(%γ_locals & Hlocals_auth & Hlocals)".
 
-  iMod zoo_counter𑁒alloc as "(%γ_counter & Hcounter_auth)".
+  iMod zoo_counterｰalloc as "(%γ_counter & Hcounter_auth)".
 
   set zoo۰G :=
     {|zoo۰G۰headers۰name := γ_headers

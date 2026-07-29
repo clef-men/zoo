@@ -18,7 +18,7 @@ Section zoo۰G.
     [∗ list] i ↦ e; Φ ∈ es; Φs,
       BWP e ∶ nt + i {{ Φ }}.
 
-  #[local] Lemma bwp𑁒step tid e1 σ1 e2 σ2 κ κs es ns nt Φ :
+  #[local] Lemma bwpｰstep tid e1 σ1 e2 σ2 κ κs es ns nt Φ :
     prim_step tid e1 σ1 κ e2 σ2 es →
     state_interp ns nt σ1 (κ ++ κs) -∗
     £ (later۰function ns) -∗
@@ -29,13 +29,13 @@ Section zoo۰G.
       bwps nt es (replicate (length es) fork_post).
   Proof.
     iIntros "%Hstep Hinterp H£ H".
-    rewrite {1}bwp𑁒unfold /bwp۰pre (prim_step𑁒not_val tid e1 σ1 κ e2 σ2 es) //.
+    rewrite {1}bwpｰunfold /bwp۰pre (prim_stepｰnot_val tid e1 σ1 κ e2 σ2 es) //.
     iMod ("H" with "Hinterp") as "(_ & >H)".
     iMod ("H" with "[//] [//] H£") as "H".
     iModIntro.
     iSteps. rewrite /bwps big_sepL2_replicate_r //.
   Qed.
-  #[local] Lemma bwps𑁒step es1 σ1 es2 σ2 κ κs ns Φs :
+  #[local] Lemma bwpsｰstep es1 σ1 es2 σ2 κ κs ns Φs :
     step (es1, σ1) κ (es2, σ2) →
     state_interp ns (length es1) σ1 (κ ++ κs) -∗
     £ (later۰function ns) -∗
@@ -45,15 +45,15 @@ Section zoo۰G.
       bwps 0 es2 (Φs ++ replicate (length es2 - length es1) fork_post).
   Proof.
     iIntros ((i & e1 & e2 & σ2' & es & Hstep & Hes1_lookup & [= -> <-])) "Hinterp H£ H".
-    iDestruct (big_sepL2𑁒insert𑁒acc𑁒l with "H") as "(%Φ & %HΦs_lookup & He1 & H)"; first done.
-    iMod (bwp𑁒step with "Hinterp H£ He1") as "He1"; first done.
+    iDestruct (big_sepL2ｰinsertｰaccｰl with "H") as "(%Φ & %HΦs_lookup & He1 & H)"; first done.
+    iMod (bwpｰstep with "Hinterp H£ He1") as "He1"; first done.
     do 2 iModIntro.
     iMod "He1" as "(Hinterp & He2 & Hes)".
     iDestruct ("H" with "He2") as "H".
     simpl_length. rewrite Nat.add_sub' (list_insert_id Φs) // big_sepL2_app. simpl_length.
     iSteps.
   Qed.
-  #[local] Lemma bwps𑁒steps n es1 σ1 es2 σ2 κs1 κs2 ns Φs :
+  #[local] Lemma bwpsｰsteps n es1 σ1 es2 σ2 κs1 κs2 ns Φs :
     nsteps n (es1, σ1) κs1 (es2, σ2) →
     state_interp ns (length es1) σ1 (κs1 ++ κs2) -∗
     £ (later۰sum ns n) -∗
@@ -70,7 +70,7 @@ Section zoo۰G.
     - invert Hsteps as [| ? ? (es1' & σ1') ? κ κs1' Hstep Hsteps'].
       rewrite -(assoc (++)).
       iDestruct "H£s" as "(H£ & H£s)".
-      iMod (bwps𑁒step with "Hinterp H£ H") as "H"; [done.. |].
+      iMod (bwpsｰstep with "Hinterp H£ H") as "H"; [done.. |].
       do 3 iModIntro.
       iApply (fupd_trans _ ⊤).
       iMod "H" as "(Hinterp & H)".
@@ -81,21 +81,21 @@ Section zoo۰G.
       iDestruct "H" as "(Hinterp & H)".
       rewrite -assoc -replicate_add Nat.add_succ_comm.
       assert (length es1' - length es1 + (length es2 - length es1') = length es2 - length es1) as ->.
-      { apply step𑁒length in Hstep.
-        apply nsteps𑁒length in Hsteps'.
+      { apply stepｰlength in Hstep.
+        apply nstepsｰlength in Hsteps'.
         naive_solver lia.
       }
       iFrameSteps.
   Qed.
 
-  #[local] Lemma bwp𑁒not𑁒stuck e tid ns nt σ κs Φ :
+  #[local] Lemma bwpｰnotｰstuck e tid ns nt σ κs Φ :
     state_interp ns nt σ κs -∗
     BWP e ∶ tid {{ Φ }} -∗
       |={⊤, ∅}=>
       ⌜not_stuck tid e σ⌝.
   Proof.
     iIntros "Hinterp H".
-    rewrite bwp𑁒unfold /bwp۰pre /not_stuck.
+    rewrite bwpｰunfold /bwp۰pre /not_stuck.
     destruct (to_val e) as [v |] eqn:He.
     - iMod (fupd_mask_subseteq ∅); first done.
       iSteps.
@@ -103,7 +103,7 @@ Section zoo۰G.
       iSteps.
   Qed.
 
-  #[local] Lemma bwps𑁒progress n es1 σ1 tid e2 es2 σ2 κs1 κs2 ns Φs :
+  #[local] Lemma bwpsｰprogress n es1 σ1 tid e2 es2 σ2 κs1 κs2 ns Φs :
     nsteps n (es1, σ1) κs1 (es2, σ2) →
     es2 !! tid = Some e2 →
     state_interp ns (length es1) σ1 (κs1 ++ κs2) -∗
@@ -113,17 +113,17 @@ Section zoo۰G.
       ⌜not_stuck tid e2 σ2⌝.
   Proof.
     iIntros (Hsteps Hes2_lookup) "Hinterp H£s He".
-    iMod (bwps𑁒steps with "Hinterp H£s He") as "H"; [done.. |].
+    iMod (bwpsｰsteps with "Hinterp H£s He") as "H"; [done.. |].
     iModIntro.
     iApply (step_fupdN_wand with "H").
     iMod 1 as "(Hinterp & H)".
-    iDestruct (big_sepL2𑁒lookup𑁒Some𑁒l with "H") as %(Φ & Hposts_lookup); first done.
+    iDestruct (big_sepL2ｰlookupｰSomeｰl with "H") as %(Φ & Hposts_lookup); first done.
     iDestruct (big_sepL2_lookup with "H") as "H"; [done.. |].
-    iApply (bwp𑁒not𑁒stuck with "Hinterp H").
+    iApply (bwpｰnotｰstuck with "Hinterp H").
   Qed.
 End zoo۰G.
 
-Lemma bwp𑁒progress `{inv_Gpre : !invGpreS Σ} n es1 σ1 es2 σ2 κs :
+Lemma bwpｰprogress `{inv_Gpre : !invGpreS Σ} n es1 σ1 es2 σ2 κs :
   ( ∀ `{inv۰G : !invGS Σ},
     ⊢ |={⊤}=>
       ∃ (zoo۰G : ZooG Σ) Φs,
@@ -135,18 +135,18 @@ Lemma bwp𑁒progress `{inv_Gpre : !invGpreS Σ} n es1 σ1 es2 σ2 κs :
   Foralli (λ tid e2, not_stuck tid e2 σ2) es2.
 Proof.
   intros H Hsteps.
-  apply Foralli𑁒lookup => tid e2 Hlookup.
+  apply Foralliｰlookup => tid e2 Hlookup.
   apply (pure_soundness (PROP := iPropI Σ)), (step_fupdN_soundness_lc _ n (later۰sum 0 n)).
   iIntros "%Hinv_G H£s".
   iMod H as "(%zoo۰G & %Φs & <- & Hinterp & H)".
-  iMod (bwps𑁒progress with "[Hinterp] H£s H") as "H". 1,2: done.
+  iMod (bwpsｰprogress with "[Hinterp] H£s H") as "H". 1,2: done.
   { erewrite app_nil_r => //. }
   destruct n.
   - iMod "H". iSteps.
   - iApply step_fupdN_S_fupd. iSteps.
 Qed.
 
-Lemma bwp𑁒adequacy' `{inv_Gpre : !invGpreS Σ} e σ :
+Lemma bwpｰadequacy' `{inv_Gpre : !invGpreS Σ} e σ :
   ( ∀ `{inv۰G : !invGS Σ} κs,
     ⊢ |={⊤}=>
       ∃ (zoo۰G : ZooG Σ) Φ,
@@ -156,12 +156,12 @@ Lemma bwp𑁒adequacy' `{inv_Gpre : !invGpreS Σ} e σ :
   ) →
   safe ([e], σ).
 Proof.
-  intros H (es, σ') (n & κs & Hsteps)%silent_steps𑁒nsteps.
-  move: Hsteps. apply: bwp𑁒progress => inv۰G.
+  intros H (es, σ') (n & κs & Hsteps)%silent_stepsｰnsteps.
+  move: Hsteps. apply: bwpｰprogress => inv۰G.
   iMod H as "(%zoo۰G & %Φ & <- & Hinterp & H)".
   iExists zoo۰G, [Φ]. iFrameSteps.
 Qed.
-Lemma bwp𑁒adequacy `{zoo۰Gpre : !ZooGpre Σ} {e σ} v :
+Lemma bwpｰadequacy `{zoo۰Gpre : !ZooGpre Σ} {e σ} v :
   state۰wf σ v →
   ( ∀ `{zoo۰G : !ZooG Σ},
     ⊢ ∃ Φ,
@@ -172,8 +172,8 @@ Lemma bwp𑁒adequacy `{zoo۰Gpre : !ZooGpre Σ} {e σ} v :
   safe ([e], σ).
 Proof.
   intros Hwf Hwp.
-  apply: bwp𑁒adequacy' => // Hinv_G κs.
-  iMod (state_interp𑁒init σ v κs) as "(%zoo۰G & <- & Hinterp & Hheap & Hlocals)"; first done.
+  apply: bwpｰadequacy' => // Hinv_G κs.
+  iMod (state_interpｰinit σ v κs) as "(%zoo۰G & <- & Hinterp & Hheap & Hlocals)"; first done.
   iDestruct (Hwp zoo۰G) as "(%Φ & Hwp)".
   iExists zoo۰G, Φ. iFrameSteps.
 Qed.

@@ -32,7 +32,7 @@ Notation "(.≈ x2 )" := (
 )(only parsing
 ) : stdpp_scope.
 
-#[global] Instance list𑁒similar X `{!Similar X} : Similar (list X) :=
+#[global] Instance listｰsimilar X `{!Similar X} : Similar (list X) :=
   Forall2 similar.
 
 Class Nonsimilar X :=
@@ -68,7 +68,7 @@ Notation "(.≉ x2 )" := (
 
 Class Beq {X} :=
   { beq : X → X → bool
-  ; beq𑁒spec x1 x2 :
+  ; beqｰspec x1 x2 :
       beq x1 x2 = true ↔
       x1 = x2
   }.
@@ -106,60 +106,60 @@ Notation "(.≟ x2 )" := (
 Section beq.
   Context `{!Beq X}.
 
-  Lemma beq𑁒spec' x1 x2 :
+  Lemma beqｰspec' x1 x2 :
     x1 ≟ x2 = false ↔
     x1 ≠ x2.
   Proof.
-    rewrite -beq𑁒spec not_true_iff_false //.
+    rewrite -beqｰspec not_true_iff_false //.
   Qed.
 
-  Lemma beq𑁒eq x1 x2 :
+  Lemma beqｰeq x1 x2 :
     x1 ≟ x2 = true →
     x1 = x2.
   Proof.
-    apply beq𑁒spec.
+    apply beqｰspec.
   Qed.
-  Lemma beq𑁒ne x1 x2 :
+  Lemma beqｰne x1 x2 :
     x1 ≟ x2 = false →
     x1 ≠ x2.
   Proof.
-    apply beq𑁒spec'.
+    apply beqｰspec'.
   Qed.
 
-  Lemma beq𑁒true x1 x2 :
+  Lemma beqｰtrue x1 x2 :
     x1 = x2 →
     x1 ≟ x2 = true.
   Proof.
-    apply beq𑁒spec.
+    apply beqｰspec.
   Qed.
-  Lemma beq𑁒true' x :
+  Lemma beqｰtrue' x :
     x ≟ x = true.
   Proof.
-    apply beq𑁒true. done.
+    apply beqｰtrue. done.
   Qed.
-  Lemma beq𑁒false x1 x2 :
+  Lemma beqｰfalse x1 x2 :
     x1 ≠ x2 →
     x1 ≟ x2 = false.
   Proof.
-    apply beq𑁒spec'.
+    apply beqｰspec'.
   Qed.
 End beq.
 
-#[global] Program Instance bool𑁒beq : Beq bool :=
+#[global] Program Instance boolｰbeq : Beq bool :=
   {|beq := Bool.eqb
   |}.
 Next Obligation.
   apply Bool.eqb_true_iff.
 Qed.
 
-#[global] Program Instance nat𑁒beq : Beq nat :=
+#[global] Program Instance natｰbeq : Beq nat :=
   {|beq := Nat.eqb
   |}.
 Next Obligation.
   apply Nat.eqb_eq.
 Qed.
 
-#[global] Program Instance Z𑁒beq : Beq Z :=
+#[global] Program Instance Zｰbeq : Beq Z :=
   {|beq := Z.eqb
   |}.
 Next Obligation.

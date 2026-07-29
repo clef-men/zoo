@@ -9,7 +9,7 @@ Require Import zoo.options.
 Section future۰G.
   Context `{future۰G : FutureG Σ}.
 
-  #[local] Lemma future_fibonacci٠main₀𑁒spec n pool ctx scope :
+  #[local] Lemma future_fibonacci٠main₀ｰspec n pool ctx scope :
     (0 ≤ n)%Z →
     {{{
       pool۰context pool ctx scope
@@ -29,7 +29,7 @@ Section future۰G.
 
     - assert (n = 0 ∨ n = 1) as [-> | ->] by lia; iSteps.
 
-    - wp۰apply (future٠async𑁒spec
+    - wp۰apply (future٠asyncｰspec
         (λ v1, ⌜v1 = #_⌝)%I
         (λ _, True)%I
       with "[$Hctx]") as (fut1) "(Hctx & #Hfut1_inv & Hfut1_consumer)".
@@ -37,7 +37,7 @@ Section future۰G.
         wp۰apply+ ("HLöb" with "[] Hctx"); iSteps.
       }
 
-      wp۰apply+ (future٠async𑁒spec
+      wp۰apply+ (future٠asyncｰspec
         (λ v2, ⌜v2 = #_⌝)%I
         (λ _, True)%I
       with "[$Hctx]") as (fut2) "(Hctx & #Hfut2_inv & Hfut2_consumer)".
@@ -45,19 +45,19 @@ Section future۰G.
         wp۰apply+ ("HLöb" with "[] Hctx"); iSteps.
       }
 
-      wp۰apply+ (future٠wait𑁒spec with "[$Hctx $Hfut2_inv]") as (res) "(H£ & Hctx & Hfut2_result)".
-      iMod (future𑁒inv𑁒result𑁒consumer' with "H£ Hfut2_inv Hfut2_result Hfut2_consumer") as "(-> & _)".
+      wp۰apply+ (future٠waitｰspec with "[$Hctx $Hfut2_inv]") as (res) "(H£ & Hctx & Hfut2_result)".
+      iMod (futureｰinvｰresultｰconsumer' with "H£ Hfut2_inv Hfut2_result Hfut2_consumer") as "(-> & _)".
 
-      wp۰apply+ (future٠wait𑁒spec with "[$Hctx $Hfut1_inv]") as (res) "(H£ & Hctx & Hfut1_result)".
-      iMod (future𑁒inv𑁒result𑁒consumer' with "H£ Hfut1_inv Hfut1_result Hfut1_consumer") as "(-> & _)".
+      wp۰apply+ (future٠waitｰspec with "[$Hctx $Hfut1_inv]") as (res) "(H£ & Hctx & Hfut1_result)".
+      iMod (futureｰinvｰresultｰconsumer' with "H£ Hfut1_inv Hfut1_result Hfut1_consumer") as "(-> & _)".
 
       wp۰pures.
 
-      rewrite (fibonacci𑁒spec𑁒Z n) // -Nat2Z.inj_add.
+      rewrite (fibonacciｰspecｰZ n) // -Nat2Z.inj_add.
       rewrite decide_False; first lia.
       iSteps.
   Qed.
-  Lemma future_fibonacci٠main𑁒spec (num_dom n : nat) :
+  Lemma future_fibonacci٠mainｰspec (num_dom n : nat) :
     {{{
       True
     }}}
@@ -71,11 +71,11 @@ Section future۰G.
 
     wp۰rec.
 
-    wp۰apply+ (pool٠run𑁒spec (λ pool v,
+    wp۰apply+ (pool٠runｰspec (λ pool v,
       ⌜v = #_⌝
     )%I) as (pool ?) "(_ & ->)". 1: lia.
     { iIntros "%pool %ctx %scope _ Hctx".
-      wp۰apply+ (future_fibonacci٠main₀𑁒spec with "Hctx"); first lia.
+      wp۰apply+ (future_fibonacci٠main₀ｰspec with "Hctx"); first lia.
       rewrite Nat2Z.id. iSteps.
     }
 

@@ -30,7 +30,7 @@ Definition bag_2۰Σ :=
   ; mono_gmap۰Σ location val
   ; twins۰Σ (leibnizO (gmap val (list val)))
   ].
-#[global] Instance subG𑁒bag_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰbag_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG bag_2۰Σ Σ →
   Bag2G Σ.
 Proof.
@@ -48,14 +48,14 @@ Implicit Type 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : producer.
     #𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node)
   ).
 
-#[local] Lemma producer𑁒eq𑁒alt 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2 :
+#[local] Lemma producerｰeqｰalt 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2 :
   𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1.(producer۰queue) = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2.(producer۰queue) →
   𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1.(producer۰node) = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2.(producer۰node) →
   𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1 = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2.
 Proof.
   destruct 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1, 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2; naive_solver.
 Qed.
-#[local] Instance producer۰to_val𑁒inj :
+#[local] Instance producer۰to_valｰinj :
   Inj (=) (=) producer۰to_val.
 Proof.
   intros [] []; naive_solver.
@@ -78,7 +78,7 @@ Implicit Type descrs : gmap location descriptor.
   ; producer۰node := node
   |}.
 
-#[local] Lemma descriptor۰to_producer𑁒inj descr1 node1 descr2 node2 :
+#[local] Lemma descriptor۰to_producerｰinj descr1 node1 descr2 node2 :
   descriptor۰to_producer descr1 node1 = descriptor۰to_producer descr2 node2 →
   node1 = node2.
 Proof.
@@ -95,9 +95,9 @@ Section bag_2۰G.
     }.
   Implicit Type γ : metadata.
 
-  #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
+  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance metadata𑁒countable :
+  #[local] Instance metadataｰcountable :
     Countable metadata.
   Proof.
     solve_countable.
@@ -256,32 +256,32 @@ Section bag_2۰G.
       )
     ".
 
-  #[local] Instance queues۰auth𑁒timeless γ nodes descrs wss :
+  #[local] Instance queues۰authｰtimeless γ nodes descrs wss :
     Timeless (queues۰auth γ nodes descrs wss).
   Proof.
     apply _.
   Qed.
-  #[global] Instance bag_2۰model𑁒timeless t vss :
+  #[global] Instance bag_2۰modelｰtimeless t vss :
     Timeless (bag_2۰model t vss).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance bag_2۰inv𑁒persistent t ι :
+  #[global] Instance bag_2۰invｰpersistent t ι :
     Persistent (bag_2۰inv t ι).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma queues𑁒alloc :
+  #[local] Lemma queuesｰalloc :
     ⊢ |==>
       ∃ γ_queues,
       queues۰auth' γ_queues [] ∅ ∅.
   Proof.
-    iMod mono_gmap𑁒alloc as "(%γ_queues & Hauth)".
+    iMod mono_gmapｰalloc as "(%γ_queues & Hauth)".
     iSteps.
   Qed.
-  #[local] Lemma queues۰at𑁒get {γ nodes descrs wss} i node :
+  #[local] Lemma queues۰atｰget {γ nodes descrs wss} i node :
     nodes !! i = Some node →
     queues۰auth γ nodes descrs wss ⊢
       ∃ descr,
@@ -289,13 +289,13 @@ Section bag_2۰G.
       queues۰at γ node descr.(descriptor۰queue).
   Proof.
     iIntros "%Hnodes_lookup (:queues۰auth)".
-    destruct (elem_of𑁒dom₁ descrs node) as (descr & Hdescrs_lookup).
+    destruct (elem_ofｰdom₁ descrs node) as (descr & Hdescrs_lookup).
     { rewrite Hnodes elem_of_list_to_set list_elem_of_lookup. eauto. }
-    iDestruct (mono_gmap۰at𑁒get with "Hauth") as "#Hat".
+    iDestruct (mono_gmap۰atｰget with "Hauth") as "#Hat".
     { rewrite lookup_fmap_Some. eauto. }
     iSteps.
   Qed.
-  #[local] Lemma queues۰at𑁒valid γ nodes descrs wss node queue :
+  #[local] Lemma queues۰atｰvalid γ nodes descrs wss node queue :
     queues۰auth γ nodes descrs wss -∗
     queues۰at γ node queue -∗
       ∃ descr,
@@ -304,10 +304,10 @@ Section bag_2۰G.
       ⌜wss !! (descriptor۰to_producer descr node : val) = Some descr.(descriptor۰vals)⌝.
   Proof.
     iIntros "(:queues۰auth) Hat".
-    iDestruct (mono_gmap۰at𑁒valid with "Hauth Hat") as %(descr & ? & Hdescrs_lookup)%lookup_fmap_Some.
+    iDestruct (mono_gmap۰atｰvalid with "Hauth Hat") as %(descr & ? & Hdescrs_lookup)%lookup_fmap_Some.
     iSteps.
   Qed.
-  #[local] Lemma queues۰at𑁒valid𑁒producer γ nodes descrs wss 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :
+  #[local] Lemma queues۰atｰvalidｰproducer γ nodes descrs wss 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :
     queues۰auth γ nodes descrs wss -∗
     queues۰at γ 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node) 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue) -∗
       ∃ descr,
@@ -316,11 +316,11 @@ Section bag_2۰G.
       ⌜wss !! (𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : val) = Some descr.(descriptor۰vals)⌝.
   Proof.
     iIntros "Hauth Hat".
-    iDestruct (queues۰at𑁒valid with "Hauth Hat") as "(%descr & %Hdescrs_lookup & %Hdescr_queue & %Hwss_lookup)".
-    rewrite (producer𑁒eq𑁒alt 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 (descriptor۰to_producer descr 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node))) //.
+    iDestruct (queues۰atｰvalid with "Hauth Hat") as "(%descr & %Hdescrs_lookup & %Hdescr_queue & %Hwss_lookup)".
+    rewrite (producerｰeqｰalt 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 (descriptor۰to_producer descr 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node))) //.
     iSteps.
   Qed.
-  #[local] Lemma queues𑁒insert {γ nodes descrs wss} node descr :
+  #[local] Lemma queuesｰinsert {γ nodes descrs wss} node descr :
     descrs !! node = None →
     queues۰auth γ nodes descrs wss ⊢ |==>
       queues۰auth γ
@@ -330,19 +330,19 @@ Section bag_2۰G.
       queues۰at γ node descr.(descriptor۰queue).
   Proof.
     iIntros "%Hdescrs_lookup (:queues۰auth)".
-    iMod (mono_gmap𑁒insert' node descr.(descriptor۰queue) with "Hauth") as "(Hauth & Hat)".
+    iMod (mono_gmapｰinsert' node descr.(descriptor۰queue) with "Hauth") as "(Hauth & Hat)".
     { rewrite lookup_fmap Hdescrs_lookup //. }
     rewrite -fmap_insert. iSteps; iPureIntro.
     - set_solver.
     - apply map_Forall_insert_2.
       + rewrite lookup_insert_eq //.
-      + eapply map_Forall𑁒impl'; first done. move=> /= node' descr' Hdescrs_lookup' Hwss_lookup.
+      + eapply map_Forallｰimpl'; first done. move=> /= node' descr' Hdescrs_lookup' Hwss_lookup.
         destruct_decide (node' = node) as -> | ?.
         * simplify.
         * rewrite lookup_insert_ne //.
-          intros ?%(inj _)%descriptor۰to_producer𑁒inj. done.
+          intros ?%(inj _)%descriptor۰to_producerｰinj. done.
   Qed.
-  #[local] Lemma queues𑁒update {γ nodes descrs wss} node descr f :
+  #[local] Lemma queuesｰupdate {γ nodes descrs wss} node descr f :
     descrs !! node = Some descr →
     queues۰auth γ nodes descrs wss ⊢
     queues۰auth γ
@@ -355,13 +355,13 @@ Section bag_2۰G.
     rewrite fmap_insert /= -fmap_insert insert_id //.
     iFrame. iSplit; iPureIntro.
     - rewrite dom_insert_lookup_L //.
-    - apply map_Forall𑁒insert₂'.
+    - apply map_Forallｰinsert₂'.
       + rewrite lookup_insert_eq //.
-      + apply map_Forall𑁒delete𑁒lookup => node' descr' Hnode' Hdescrs_lookup'.
+      + apply map_Forallｰdeleteｰlookup => node' descr' Hnode' Hdescrs_lookup'.
         rewrite lookup_insert_ne; first naive_solver.
         rewrite map_Forall_lookup in Hdescrs. auto.
   Qed.
-  #[local] Lemma queues𑁒update𑁒producer {γ nodes descrs wss} 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 descr f :
+  #[local] Lemma queuesｰupdateｰproducer {γ nodes descrs wss} 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 descr f :
     descrs !! 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node) = Some descr →
     descr.(descriptor۰queue) = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue) →
     queues۰auth γ nodes descrs wss ⊢
@@ -371,54 +371,54 @@ Section bag_2۰G.
       (<[𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : val := f descr.(descriptor۰vals)]> wss).
   Proof.
     intros Hdescrs_lookup Hdescr_queue.
-    rewrite (queues𑁒update 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node) descr f) //.
+    rewrite (queuesｰupdate 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node) descr f) //.
     rewrite /descriptor۰to_producer Hdescr_queue //.
   Qed.
 
-  #[local] Lemma model𑁒alloc :
+  #[local] Lemma modelｰalloc :
     ⊢ |==>
       ∃ γ_model,
       model₁' γ_model ∅ ∗
       model₂' γ_model ∅.
   Proof.
-    apply twins𑁒alloc'.
+    apply twinsｰalloc'.
   Qed.
-  #[local] Lemma model₁𑁒exclusive γ vss1 vss2 :
+  #[local] Lemma model₁ｰexclusive γ vss1 vss2 :
     model₁ γ vss1 -∗
     model₁ γ vss2 -∗
     False.
   Proof.
-    apply twins۰twin₁𑁒exclusive.
+    apply twins۰twin₁ｰexclusive.
   Qed.
-  #[local] Lemma model𑁒agree γ vss1 vss2 :
+  #[local] Lemma modelｰagree γ vss1 vss2 :
     model₁ γ vss1 -∗
     model₂ γ vss2 -∗
     ⌜vss1 = vss2⌝.
   Proof.
-    apply: twins𑁒agree𑁒L.
+    apply: twinsｰagreeｰL.
   Qed.
-  #[local] Lemma model𑁒update {γ vss1 vss2} vss :
+  #[local] Lemma modelｰupdate {γ vss1 vss2} vss :
     model₁ γ vss1 -∗
     model₂ γ vss2 ==∗
       model₁ γ vss ∗
       model₂ γ vss.
   Proof.
-    apply twins𑁒update.
+    apply twinsｰupdate.
   Qed.
 
   Opaque queues۰auth'.
 
-  Lemma bag_2۰model𑁒exclusive t vss1 vss2 :
+  Lemma bag_2۰modelｰexclusive t vss1 vss2 :
     bag_2۰model t vss1 -∗
     bag_2۰model t vss2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (model₁𑁒exclusive with "Hmodel₁_1 Hmodel₁_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma bag_2۰producer𑁒valid t ι vss producer ws E :
+  Lemma bag_2۰producerｰvalid t ι vss producer ws E :
     ↑ι ⊆ E →
     bag_2۰inv t ι -∗
     bag_2۰model t vss -∗
@@ -428,39 +428,39 @@ Section bag_2۰G.
       ⌜vs `suffix_of` ws⌝.
   Proof.
     iIntros "% (:inv) (:model =1) (:producer =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_2") as %<-. iClear "Hmeta_2".
+    iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
+    iDestruct (metaｰagree with "Hmeta Hmeta_2") as %<-. iClear "Hmeta_2".
 
     iInv "Hinv" as "(:inv۰inner)".
-    iDestruct (model𑁒agree with "Hmodel₁_1 Hmodel₂") as %<-.
-    iDestruct (queues۰at𑁒valid𑁒producer with "Hqueues_auth Hqueues_at_2") as %(descr & Hdescrs_lookup & Hdescr_queue & Hvss_lookup).
+    iDestruct (modelｰagree with "Hmodel₁_1 Hmodel₂") as %<-.
+    iDestruct (queues۰atｰvalidｰproducer with "Hqueues_auth Hqueues_at_2") as %(descr & Hdescrs_lookup & Hdescr_queue & Hvss_lookup).
     iAssert (◇ ⌜descr.(descriptor۰vals) `suffix_of` ws⌝)%I as "#>%".
     { iDestruct (big_sepM_lookup with "Hdescrs") as "(:descriptor۰model >)"; first done.
       rewrite Hdescr_queue.
-      iApply (spmc_queue۰producer𑁒valid with "Hqueue_producer_2 Hqueue_model").
+      iApply (spmc_queue۰producerｰvalid with "Hqueue_producer_2 Hqueue_model").
     }
     iSplitL. { iFrameSteps. }
     iSteps.
   Qed.
-  Lemma bag_2۰producer𑁒exclusive t1 t2 producer ws1 ws2 :
+  Lemma bag_2۰producerｰexclusive t1 t2 producer ws1 ws2 :
     bag_2۰producer t1 producer ws1 -∗
     bag_2۰producer t2 producer ws2 -∗
     False.
   Proof.
     iIntros "(:producer =1) (:producer =2)". simplify.
-    iApply (spmc_queue۰producer𑁒exclusive with "Hqueue_producer_1 Hqueue_producer_2").
+    iApply (spmc_queue۰producerｰexclusive with "Hqueue_producer_1 Hqueue_producer_2").
   Qed.
 
-  Lemma bag_2۰consumer𑁒exclusive t1 t2 consumer :
+  Lemma bag_2۰consumerｰexclusive t1 t2 consumer :
     bag_2۰consumer t1 consumer -∗
     bag_2۰consumer t2 consumer -∗
     False.
   Proof.
     iIntros "(:consumer =1) (:consumer =2)". simplify.
-    iApply (pointsto𑁒exclusive with "Hconsumer_queue_1 Hconsumer_queue_2").
+    iApply (pointstoｰexclusive with "Hconsumer_queue_1 Hconsumer_queue_2").
   Qed.
 
-  Lemma bag_2٠create𑁒spec ι :
+  Lemma bag_2٠createｰspec ι :
     {{{
       True
     }}}
@@ -477,24 +477,24 @@ Section bag_2۰G.
     wp۰rec.
     wp۰block l as "Hmeta" "(Hl_producers & _)".
 
-    iMod model𑁒alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
-    iMod queues𑁒alloc as "(%γ_queues & Hqueues_auth)".
+    iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod queuesｰalloc as "(%γ_queues & Hqueues_auth)".
 
     pose γ :=
       {|metadata۰inv := ι
       ; metadata۰model := γ_model
       ; metadata۰queues := γ_queues
       |}.
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
     iSplitR "Hmodel₁"; last iSteps.
     iExists l, γ. iStep 3. iApply inv_alloc. iFrame.
-    iDestruct xtchain𑁒nil as "$".
+    iDestruct xtchainｰnil as "$".
     rewrite big_sepM_empty. iSteps.
   Qed.
 
-  #[local] Lemma bag_2٠add_producer₀𑁒spec l γ (queue : val) :
+  #[local] Lemma bag_2٠add_producer₀ｰspec l γ (queue : val) :
     <<<
       l ↪ γ ∗
       inv' l γ ∗
@@ -529,7 +529,7 @@ Section bag_2۰G.
     iIntros "!> {%}".
 
     wp۰block node as "#Hnode_header" "_" "(Hnode_next & Hnode_queue & _)".
-    iMod (pointsto𑁒persist with "Hnode_next") as "#Hnode_next".
+    iMod (pointstoｰpersist with "Hnode_next") as "#Hnode_next".
     wp۰match. wp۰pures.
 
     wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
@@ -537,33 +537,33 @@ Section bag_2۰G.
     wp۰cas as Hcas; first iSteps.
     assert (head nodes1 = head nodes2) as ->.
     { destruct nodes1, nodes2; zoo_simplify; done. }
-    iDestruct (xtchain𑁒cons₂ with "Hnode_header [] Hnodes2") as "Hnodes"; first iSteps.
+    iDestruct (xtchainｰcons₂ with "Hnode_header [] Hnodes2") as "Hnodes"; first iSteps.
 
     iAssert ⌜descrs2 !! node = None⌝%I as %Hdescr2_lookup.
     { rewrite eq_None_not_Some. iIntros "(%descr' & %)".
       iDestruct (big_sepM_lookup with "Hdescrs") as "(:descriptor۰model =')"; first done.
-      iApply (pointsto𑁒exclusive with "Hnode_queue Hnode'_queue").
+      iApply (pointstoｰexclusive with "Hnode_queue Hnode'_queue").
     }
 
     pose descr :=
       {|descriptor۰queue := queue
       ; descriptor۰vals := []
       |}.
-    iMod (queues𑁒insert node descr with "Hqueues_auth") as "(Hqueues_auth & #Hqueues_at)"; first done.
+    iMod (queuesｰinsert node descr with "Hqueues_auth") as "(Hqueues_auth & #Hqueues_at)"; first done.
     iDestruct (big_sepM_insert_2 _ _ node descr with "[Hnode_queue Hqueue_model] Hdescrs") as "Hdescrs".
     { iExists (Some queue). iSteps. }
 
     iMod "HΦ" as "(%vss & Hmodel₁ & _ & HΦ)".
-    iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %<-.
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %<-.
     set vss' :=
       <[descriptor۰to_producer descr node : val := []]> vss.
-    iMod (model𑁒update vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iMod (modelｰupdate vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "Hmodel₁ [$Hnode_header $Hqueues_at]") as "HΦ".
 
     iSplitR "HΦ". { iFrameSteps. }
     iSteps.
   Qed.
-  #[local] Lemma bag_2٠add_producer𑁒spec l γ (queue : val) :
+  #[local] Lemma bag_2٠add_producerｰspec l γ (queue : val) :
     <<<
       l ↪ γ ∗
       inv' l γ ∗
@@ -589,9 +589,9 @@ Section bag_2۰G.
     iIntros "%Φ H HΦ".
 
     wp۰rec.
-    wp۰apply+ (bag_2٠add_producer₀𑁒spec with "H HΦ").
+    wp۰apply+ (bag_2٠add_producer₀ｰspec with "H HΦ").
   Qed.
-  Lemma bag_2٠create_producer𑁒spec t ι :
+  Lemma bag_2٠create_producerｰspec t ι :
     <<<
       bag_2۰inv t ι
     | ∀∀ vss,
@@ -608,15 +608,15 @@ Section bag_2۰G.
     iIntros "%Φ (:inv) HΦ".
 
     wp۰rec.
-    wp۰apply (spmc_queue٠create𑁒spec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model & Hqueue_producer)".
+    wp۰apply (spmc_queue٠createｰspec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model & Hqueue_producer)".
 
-    awp۰apply+ (bag_2٠add_producer𑁒spec with "[$Hmeta $Hinv $Hqueue_inv $Hqueue_model]") without "Hqueue_producer".
-    iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    awp۰apply+ (bag_2٠add_producerｰspec with "[$Hmeta $Hinv $Hqueue_inv $Hqueue_model]") without "Hqueue_producer".
+    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hmodel₁"; iSteps.
   Qed.
 
-  Lemma bag_2٠close_producer𑁒spec t ι producer ws :
+  Lemma bag_2٠close_producerｰspec t ι producer ws :
     {{{
       bag_2۰inv t ι ∗
       bag_2۰producer t producer ws
@@ -628,12 +628,12 @@ Section bag_2۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & (:producer)) HΦ". injection Ht_eq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp۰rec. wp۰match.
 
     iInv "Hinv" as "(:inv۰inner)".
-    iDestruct (queues۰at𑁒valid𑁒producer with "Hqueues_auth Hqueues_at") as %(descr & Hdescrs_lookup & Hdescr_queue & Hwss_lookup).
+    iDestruct (queues۰atｰvalidｰproducer with "Hqueues_auth Hqueues_at") as %(descr & Hdescrs_lookup & Hdescr_queue & Hwss_lookup).
     iDestruct (big_sepM_lookup_acc with "Hdescrs") as "((:descriptor۰model >) & Hdescrs)"; first done.
     wp۰store.
     iDestruct ("Hdescrs" with "[Hnode_queue Hqueue_model]") as "Hdescrs".
@@ -642,7 +642,7 @@ Section bag_2۰G.
     iSteps.
   Qed.
 
-  Lemma bag_2٠create_consumer𑁒spec t ι :
+  Lemma bag_2٠create_consumerｰspec t ι :
     {{{
       bag_2۰inv t ι
     }}}
@@ -660,7 +660,7 @@ Section bag_2۰G.
     iSteps. iExists None. iSteps.
   Qed.
 
-  Lemma bag_2٠push𑁒spec t ι producer ws v :
+  Lemma bag_2٠pushｰspec t ι producer ws v :
     <<<
       bag_2۰inv t ι ∗
       bag_2۰producer t producer ws
@@ -677,36 +677,36 @@ Section bag_2۰G.
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:producer)) HΦ". injection Ht_eq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp۰rec.
 
-    awp۰apply+ (spmc_queue٠push𑁒spec with "[$Hqueue_inv $Hqueue_producer]").
+    awp۰apply+ (spmc_queue٠pushｰspec with "[$Hqueue_inv $Hqueue_producer]").
     iInv "Hinv" as "(:inv۰inner)".
-    iDestruct (queues۰at𑁒valid𑁒producer with "Hqueues_auth Hqueues_at") as %(descr & Hdescrs_lookup & Hdescr_queue & Hwss_lookup). rewrite -Hdescr_queue.
+    iDestruct (queues۰atｰvalidｰproducer with "Hqueues_auth Hqueues_at") as %(descr & Hdescrs_lookup & Hdescr_queue & Hwss_lookup). rewrite -Hdescr_queue.
     iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor۰model >) & Hdescrs)"; first done.
     iAaccIntro with "Hqueue_model"; iIntros "Hqueue_model".
     { iDestruct ("Hdescrs" with "[Hnode_queue Hqueue_model]") as "Hdescrs"; first iSteps.
       rewrite insert_id //. iFrameSteps.
     }
-    iDestruct (queues𑁒update𑁒producer 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 descr (.++ [v]) with "Hqueues_auth") as "Hqueues_auth"; [done.. |].
+    iDestruct (queuesｰupdateｰproducer 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 descr (.++ [v]) with "Hqueues_auth") as "Hqueues_auth"; [done.. |].
     set descr' :=
       descriptor۰update_vals descr (.++ [v]).
     iDestruct ("Hdescrs" $! descr' with "[Hnode_queue Hqueue_model]") as "Hdescrs"; first iSteps.
 
     iMod "HΦ" as "(%vss & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %<-.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %<-.
     set vss' :=
       <[𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : val := descr.(descriptor۰vals) ++ [v]]> vss.
-    iMod (model𑁒update vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iMod (modelｰupdate vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
 
     iSplitR "HΦ". { iFrameSteps. }
     rewrite Hdescr_queue. iSteps.
   Qed.
 
-  #[local] Lemma bag_2٠pop₀𑁒spec l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val) nodes :
+  #[local] Lemma bag_2٠pop₀ｰspec l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val) nodes :
     <<<
       l ↪ γ ∗
       inv' l γ ∗
@@ -750,13 +750,13 @@ Section bag_2۰G.
 
       iSteps.
 
-    - iDestruct (xtchain𑁒cons' with "Hnodes") as "-#(#Hnode_header & #Hnode_next & #Hnodes)".
-      iDestruct (big_sepL𑁒cons₁ with "Hqueues_ats") as "-#((%queue0 & #Hqueues_at) & #Hqueues_ats)".
+    - iDestruct (xtchainｰcons' with "Hnodes") as "-#(#Hnode_header & #Hnode_next & #Hnodes)".
+      iDestruct (big_sepLｰcons₁ with "Hqueues_ats") as "-#((%queue0 & #Hqueues_at) & #Hqueues_ats)".
       wp۰match.
 
       wp۰bind (_.{queue})%E.
       iInv "Hinv" as "(:inv۰inner =1)".
-      iDestruct (queues۰at𑁒valid with "Hqueues_auth Hqueues_at") as "#(%descr & %Hdescrs1_lookup & %Hdescr_queue & _)".
+      iDestruct (queues۰atｰvalid with "Hqueues_auth Hqueues_at") as "#(%descr & %Hdescrs1_lookup & %Hdescr_queue & _)".
       iDestruct (big_sepM_lookup_acc with "Hdescrs") as "((:descriptor۰model =0 > inv=) & Hdescrs)"; first done.
       wp۰load.
       iSplitR "Hconsumer_queue HΦ". { iFrameSteps. }
@@ -766,9 +766,9 @@ Section bag_2۰G.
 
       + rewrite Ho0 Hdescr_queue. clear.
 
-        awp۰apply+ (spmc_queue٠pop𑁒spec with "Hqueue0_inv") without "Hconsumer_queue".
+        awp۰apply+ (spmc_queue٠popｰspec with "Hqueue0_inv") without "Hconsumer_queue".
         iInv "Hinv" as "(:inv۰inner =2)".
-        iDestruct (queues۰at𑁒valid with "Hqueues_auth Hqueues_at") as "(%descr & %Hdescrs_lookup & %Hdescr_queue & %Hwss_lookup)".
+        iDestruct (queues۰atｰvalid with "Hqueues_auth Hqueues_at") as "(%descr & %Hdescrs_lookup & %Hdescr_queue & %Hwss_lookup)".
         iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor۰model >) & Hdescrs)"; first done.
         rewrite -Hdescr_queue.
         iAaccIntro with "Hqueue_model"; iIntros "Hqueue_model".
@@ -787,13 +787,13 @@ Section bag_2۰G.
           wp۰apply ("HLöb" $! nodes with "Hconsumer_queue Hnodes [$] HΦ").
 
         * iMod "HΦ" as "(%vss & Hmodel₁ & _ & HΦ)".
-          iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %<-.
+          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %<-.
           set vss' :=
             <[descriptor۰to_producer descr node : val := vs]> vss.
-          iMod (model𑁒update vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+          iMod (modelｰupdate vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
           iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ"; first iSteps.
 
-          iDestruct (queues𑁒update node descr (const vs) with "Hqueues_auth") as "Hqueues_auth"; first done.
+          iDestruct (queuesｰupdate node descr (const vs) with "Hqueues_auth") as "Hqueues_auth"; first done.
           set descr' :=
             descriptor۰update_vals descr (const vs).
           iDestruct ("Hdescrs" $! descr' with "[Hnode_queue Hqueue_model]") as "Hdescrs"; first iFrameSteps.
@@ -804,7 +804,7 @@ Section bag_2۰G.
       + wp۰load.
         wp۰apply ("HLöb" $! nodes with "Hconsumer_queue Hnodes [$] HΦ").
   Qed.
-  #[local] Lemma bag_2٠pop₁𑁒spec t ι consumer :
+  #[local] Lemma bag_2٠pop₁ｰspec t ι consumer :
     <<<
       bag_2۰inv t ι ∗
       bag_2۰consumer t consumer
@@ -827,7 +827,7 @@ Section bag_2۰G.
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp۰rec. wp۰pures.
 
@@ -842,22 +842,22 @@ Section bag_2۰G.
         queues۰at γ node queue
     )%I as "#queues۰ats".
     { iApply big_sepL_forall. iIntros "%i %node %Hnodes_lookup".
-      iDestruct (queues۰at𑁒get with "Hqueues_auth") as "(%descr & %Hdescrs_lookup & #Hqueues_at)"; first done.
+      iDestruct (queues۰atｰget with "Hqueues_auth") as "(%descr & %Hdescrs_lookup & #Hqueues_at)"; first done.
       iSteps.
     }
 
     iSplitR "Hconsumer_queue HΦ". { iFrameSteps. }
     iIntros "{%} !>".
 
-    awp۰apply+ (bag_2٠pop₀𑁒spec with "[- HΦ]"); first iFrameSteps.
-    iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    awp۰apply+ (bag_2٠pop₀ｰspec with "[- HΦ]"); first iFrameSteps.
+    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hmodel₁"; first iSteps. iIntros "%o Hmodel₁ !>".
     iExists o. destruct o as [v |]; last iSteps.
     iDestruct "Hmodel₁" as "(%producer & %vs & %Hvss_lookup & Hmodel₁)".
     iSteps.
   Qed.
-  Lemma bag_2٠pop𑁒spec t ι consumer :
+  Lemma bag_2٠popｰspec t ι consumer :
     <<<
       bag_2۰inv t ι ∗
       bag_2۰consumer t consumer
@@ -880,15 +880,15 @@ Section bag_2۰G.
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp۰rec. wp۰load.
     destruct queue as [queue |].
 
     - iDestruct "Hqueues_elem" as "(:queues۰elem)".
-      awp۰apply+ (spmc_queue٠pop𑁒spec with "Hqueue_inv") without "Hconsumer_queue".
+      awp۰apply+ (spmc_queue٠popｰspec with "Hqueue_inv") without "Hconsumer_queue".
       iInv "Hinv" as "(:inv۰inner)".
-      iDestruct (queues۰at𑁒valid with "Hqueues_auth Hqueues_at") as "(%descr & %Hdescrs_lookup & %Hdescr_queue & %Hwss_lookup)".
+      iDestruct (queues۰atｰvalid with "Hqueues_auth Hqueues_at") as "(%descr & %Hdescrs_lookup & %Hdescr_queue & %Hwss_lookup)".
       iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor۰model >) & Hdescrs)"; first done.
       rewrite -Hdescr_queue.
       iAaccIntro with "Hqueue_model"; iIntros "Hqueue_model".
@@ -903,18 +903,18 @@ Section bag_2۰G.
         iSplitR "HΦ". { iFrameSteps. }
         iIntros "{%} !> _ Hconsumer_queue".
 
-        wp۰apply+ (bag_2٠pop₁𑁒spec with "[- HΦ] HΦ").
+        wp۰apply+ (bag_2٠pop₁ｰspec with "[- HΦ] HΦ").
         { iSplitR; iSteps. iExists (Some _). iSteps. }
 
       + iMod "HΦ" as "(%vss & (:model) & _ & HΦ)". injection Heq as <-.
-        iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-        iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %<-.
+        iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %<-.
         set vss' :=
           <[descriptor۰to_producer descr node : val := vs]> vss.
-        iMod (model𑁒update vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+        iMod (modelｰupdate vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
         iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ"; first iSteps.
 
-        iDestruct (queues𑁒update node descr (const vs) with "Hqueues_auth") as "Hqueues_auth"; first done.
+        iDestruct (queuesｰupdate node descr (const vs) with "Hqueues_auth") as "Hqueues_auth"; first done.
         set descr' :=
           descriptor۰update_vals descr (const vs).
         iDestruct ("Hdescrs" $! descr' with "[Hnode_queue Hqueue_model]") as "Hdescrs"; first iFrameSteps.
@@ -922,7 +922,7 @@ Section bag_2۰G.
         iSplitR "HΦ". { iFrameSteps. }
         iSteps. iExists (Some _). iSteps.
 
-    - wp۰apply+ (bag_2٠pop₁𑁒spec with "[- HΦ] HΦ").
+    - wp۰apply+ (bag_2٠pop₁ｰspec with "[- HΦ] HΦ").
       { iSplitR; iSteps. iExists None. iSteps. }
   Qed.
 End bag_2۰G.

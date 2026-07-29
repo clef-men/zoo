@@ -16,29 +16,29 @@ Fixpoint glist۰to_val vs :=
   end.
 #[global] Arguments glist۰to_val !_ / : assert.
 
-#[global] Instance glist۰to_val𑁒inj𑁒similar :
+#[global] Instance glist۰to_valｰinjｰsimilar :
   Inj (=) (≈@{val}) glist۰to_val.
 Proof.
   intros vs1. induction vs1 as [| v1 vs1 IH]; intros [| v2 vs2]; [done.. |].
-  intros (_ & _ & [= <- <-%val𑁒similar𑁒refl%IH]). done.
+  intros (_ & _ & [= <- <-%valｰsimilarｰrefl%IH]). done.
 Qed.
-#[global] Instance glist۰to_val𑁒inj :
+#[global] Instance glist۰to_valｰinj :
   Inj (=) (=) glist۰to_val.
 Proof.
-  intros ?* ->%val𑁒similar𑁒refl%(inj _). done.
+  intros ?* ->%valｰsimilarｰrefl%(inj _). done.
 Qed.
 
-Lemma glist۰to_val𑁒nil :
+Lemma glist۰to_valｰnil :
   glist۰to_val [] = §Gnil%V.
 Proof.
   done.
 Qed.
-Lemma glist۰to_val𑁒cons v vs :
+Lemma glist۰to_valｰcons v vs :
   glist۰to_val (v :: vs) = ‘Gcons[ v, glist۰to_val vs ]%V.
 Proof.
   done.
 Qed.
-Lemma glist۰to_val𑁒singleton v :
+Lemma glist۰to_valｰsingleton v :
   glist۰to_val [v] = ‘Gcons[ v, §Gnil ]%V.
 Proof.
   done.
@@ -52,7 +52,7 @@ Section zoo۰G.
   Definition glist۰model t vs : iProp Σ :=
     ⌜glist۰model' t vs⌝.
 
-  Lemma glist٠rev_app𑁒spec {t1} vs1 {t2} vs2 :
+  Lemma glist٠rev_appｰspec {t1} vs1 {t2} vs2 :
     glist۰model' t1 vs1 →
     glist۰model' t2 vs2 →
     {{{
@@ -73,7 +73,7 @@ Section zoo۰G.
       rewrite reverse_cons -assoc. iSteps.
   Qed.
 
-  Lemma glist٠rev𑁒spec {t} vs :
+  Lemma glist٠revｰspec {t} vs :
     glist۰model' t vs →
     {{{
       True
@@ -86,7 +86,7 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ _ HΦ".
     wp۰rec.
-    wp۰apply (glist٠rev_app𑁒spec _ [] with "[//]"); [done.. |].
+    wp۰apply (glist٠rev_appｰspec _ [] with "[//]"); [done.. |].
     rewrite right_id //.
   Qed.
 End zoo۰G.

@@ -14,8 +14,8 @@ Parameter gc۰location : Type.
 Implicit Type ω : gc۰location.
 Implicit Type ωs : list gc۰location.
 
-Parameter gc۰location𑁒inhabited : Inhabited gc۰location.
-#[global] Existing Instance gc۰location𑁒inhabited.
+Parameter gc۰locationｰinhabited : Inhabited gc۰location.
+#[global] Existing Instance gc۰locationｰinhabited.
 
 Parameter gc۰val : Type.
 Parameter GcInt : Z → gc۰val.
@@ -49,12 +49,12 @@ Notation "root '↦root[' gc ] ω" := (
   format "root  ↦root[ gc ]  ω"
 ) : bi_scope.
 
-Axiom gc۰realized𑁒agree : ∀ gc ω l1 l2,
+Axiom gc۰realizedｰagree : ∀ gc ω l1 l2,
   ω ↦gc[gc] l1 →
   ω ↦gc[gc] l2 →
   l1 = l2.
 
-Parameter gc𑁒wp𑁒load : ∀ `{zoo۰G : !ZooG Σ} ν gc ω νs l i,
+Parameter gcｰwpｰload : ∀ `{zoo۰G : !ZooG Σ} ν gc ω νs l i,
   (0 ≤ i)%Z →
   νs !! ₊i = Some ν →
   ω ↦gc[gc] l →
@@ -69,7 +69,7 @@ Parameter gc𑁒wp𑁒load : ∀ `{zoo۰G : !ZooG Σ} ν gc ω νs l i,
     ω ↦gc νs
   }}}.
 
-Parameter gc𑁒wp𑁒store : ∀ `{zoo۰G : !ZooG Σ} ν gc ω νs l i v,
+Parameter gcｰwpｰstore : ∀ `{zoo۰G : !ZooG Σ} ν gc ω νs l i v,
   (0 ≤ i < length νs)%Z →
   gc۰val۰of_val v = Some ν →
   ω ↦gc[gc] l →
@@ -84,7 +84,7 @@ Parameter gc𑁒wp𑁒store : ∀ `{zoo۰G : !ZooG Σ} ν gc ω νs l i v,
     ω ↦gc <[₊i := ν]> νs
   }}}.
 
-Lemma gc𑁒wp𑁒load𑁒root `{zoo۰G : !ZooG Σ} gc root ω root_base root_ofs :
+Lemma gcｰwpｰloadｰroot `{zoo۰G : !ZooG Σ} gc root ω root_base root_ofs :
   root = root_base +ₗ root_ofs →
   {{{
     root ↦root[gc] ω
@@ -99,7 +99,7 @@ Lemma gc𑁒wp𑁒load𑁒root `{zoo۰G : !ZooG Σ} gc root ω root_base root_of
 Proof.
   iSteps.
 Qed.
-Lemma gc𑁒wp𑁒load𑁒root' `{zoo۰G : !ZooG Σ} {gc root ω} l root_base root_ofs :
+Lemma gcｰwpｰloadｰroot' `{zoo۰G : !ZooG Σ} {gc root ω} l root_base root_ofs :
   root = root_base +ₗ root_ofs →
   ω ↦gc[gc] l →
   {{{
@@ -112,11 +112,11 @@ Lemma gc𑁒wp𑁒load𑁒root' `{zoo۰G : !ZooG Σ} {gc root ω} l root_base ro
   }}}.
 Proof.
   iIntros (->) "%Hω %Φ (%_l & Hroot & %_Hω) HΦ".
-  opose proof* (gc۰realized𑁒agree _ _ l _l) as <-; [done.. |].
+  opose proof* (gc۰realizedｰagree _ _ l _l) as <-; [done.. |].
   iSteps.
 Qed.
 
-Lemma gc𑁒wp𑁒store𑁒root `{zoo۰G : !ZooG Σ} {gc root ω'} ω l root_base root_ofs :
+Lemma gcｰwpｰstoreｰroot `{zoo۰G : !ZooG Σ} {gc root ω'} ω l root_base root_ofs :
   root = root_base +ₗ root_ofs →
   ω ↦gc[gc] l →
   {{{
@@ -133,7 +133,7 @@ Qed.
 
 Parameter gc۰roots : ∀ `{zoo۰G : !ZooG Σ}, (gc۰state → iProp Σ) → iProp Σ.
 Parameter gc٠set_roots : val.
-Axiom gc٠set_roots𑁒spec : ∀ `{zoo۰G : !ZooG Σ} {gc Χ' iter} Χ Ξ ofs,
+Axiom gc٠set_rootsｰspec : ∀ `{zoo۰G : !ZooG Σ} {gc Χ' iter} Χ Ξ ofs,
   {{{
     gc۰model gc ∗
     gc۰roots Χ' ∗
@@ -177,7 +177,7 @@ Axiom gc٠set_roots𑁒spec : ∀ `{zoo۰G : !ZooG Σ} {gc Χ' iter} Χ Ξ ofs,
   }}}.
 
 Parameter gc٠alloc : val.
-Axiom gc٠alloc𑁒spec : ∀ `{zoo۰G : !ZooG Σ} gc Χ n,
+Axiom gc٠allocｰspec : ∀ `{zoo۰G : !ZooG Σ} gc Χ n,
   (0 < n)%Z →
   {{{
     gc۰model gc ∗

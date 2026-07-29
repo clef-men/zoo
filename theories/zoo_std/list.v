@@ -17,22 +17,22 @@ Fixpoint plist۰to_val nil vs :=
   end.
 #[global] Arguments plist۰to_val _ !_ : assert.
 
-Lemma plist۰to_val𑁒nil nil :
+Lemma plist۰to_valｰnil nil :
   plist۰to_val nil [] = nil.
 Proof.
   done.
 Qed.
-Lemma plist۰to_val𑁒cons nil v vs :
+Lemma plist۰to_valｰcons nil v vs :
   plist۰to_val nil (v :: vs) = (v :: plist۰to_val nil vs)%V.
 Proof.
   done.
 Qed.
-Lemma plist۰to_val𑁒singleton nil v :
+Lemma plist۰to_valｰsingleton nil v :
   plist۰to_val nil [v] = (v :: nil)%V.
 Proof.
-  apply plist۰to_val𑁒cons.
+  apply plist۰to_valｰcons.
 Qed.
-Lemma plist۰to_val𑁒app vs1 nil vs2 :
+Lemma plist۰to_valｰapp vs1 nil vs2 :
   plist۰to_val (plist۰to_val nil vs2) vs1 = plist۰to_val nil (vs1 ++ vs2).
 Proof.
   induction vs1; first done.
@@ -48,42 +48,42 @@ Fixpoint list۰to_val vs :=
   end.
 #[global] Arguments list۰to_val !_ : assert.
 
-Lemma list۰to_val𑁒plist۰to_val vs :
+Lemma list۰to_valｰplist۰to_val vs :
   list۰to_val vs = plist۰to_val [] vs.
 Proof.
   induction vs as [| v vs IH]; first done.
   rewrite /= IH //.
 Qed.
 
-#[global] Instance list۰to_val𑁒inj :
+#[global] Instance list۰to_valｰinj :
   Inj (=) (=) list۰to_val.
 Proof.
   intros vs1. induction vs1 as []; intros []; naive_solver.
 Qed.
 
-Lemma list۰to_val𑁒nil :
+Lemma list۰to_valｰnil :
   list۰to_val [] = []%V.
 Proof.
-  rewrite list۰to_val𑁒plist۰to_val.
-  apply plist۰to_val𑁒nil.
+  rewrite list۰to_valｰplist۰to_val.
+  apply plist۰to_valｰnil.
 Qed.
-Lemma list۰to_val𑁒cons v vs :
+Lemma list۰to_valｰcons v vs :
   list۰to_val (v :: vs) = (v :: list۰to_val vs)%V.
 Proof.
-  rewrite !list۰to_val𑁒plist۰to_val.
-  apply plist۰to_val𑁒cons.
+  rewrite !list۰to_valｰplist۰to_val.
+  apply plist۰to_valｰcons.
 Qed.
-Lemma list۰to_val𑁒singleton v :
+Lemma list۰to_valｰsingleton v :
   list۰to_val [v] = (v :: [])%V.
 Proof.
-  rewrite list۰to_val𑁒plist۰to_val.
-  apply plist۰to_val𑁒singleton.
+  rewrite list۰to_valｰplist۰to_val.
+  apply plist۰to_valｰsingleton.
 Qed.
-Lemma list۰to_val𑁒app vs1 vs2 :
+Lemma list۰to_valｰapp vs1 vs2 :
   plist۰to_val (list۰to_val vs2) vs1 = list۰to_val (vs1 ++ vs2).
 Proof.
-  rewrite !list۰to_val𑁒plist۰to_val.
-  apply plist۰to_val𑁒app.
+  rewrite !list۰to_valｰplist۰to_val.
+  apply plist۰to_valｰapp.
 Qed.
 
 Section zoo۰G.
@@ -99,14 +99,14 @@ Section zoo۰G.
   Definition list۰model t vs : iProp Σ :=
     ⌜list۰model' t vs⌝.
 
-  Lemma list۰model'𑁒plist۰model' t vs :
+  Lemma list۰model'ｰplist۰model' t vs :
     list۰model' t vs ↔
     plist۰model' t [] vs.
   Proof.
-    rewrite /list۰model' list۰to_val𑁒plist۰to_val //.
+    rewrite /list۰model' list۰to_valｰplist۰to_val //.
   Qed.
 
-  Lemma list٠singleton𑁒spec v :
+  Lemma list٠singletonｰspec v :
     {{{
       True
     }}}
@@ -120,7 +120,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma list٠head𑁒spec {t vs} v vs' :
+  Lemma list٠headｰspec {t vs} v vs' :
     vs = v :: vs' →
     list۰model' t vs →
     {{{
@@ -135,7 +135,7 @@ Section zoo۰G.
     rewrite /list۰model'. iSteps.
   Qed.
 
-  Lemma list٠tail𑁒spec {t vs} v vs' :
+  Lemma list٠tailｰspec {t vs} v vs' :
     vs = v :: vs' →
     list۰model' t vs →
     {{{
@@ -151,7 +151,7 @@ Section zoo۰G.
     rewrite /list۰model'. iSteps.
   Qed.
 
-  Lemma list٠is_empty𑁒spec t vs :
+  Lemma list٠is_emptyｰspec t vs :
     list۰model' t vs →
     {{{
       True
@@ -166,7 +166,7 @@ Section zoo۰G.
     destruct vs; iSteps.
   Qed.
 
-  Lemma list٠get𑁒spec v t (i : Z) vs :
+  Lemma list٠getｰspec v t (i : Z) vs :
     vs !! ₊i = Some v →
     list۰model' t vs →
     {{{
@@ -185,14 +185,14 @@ Section zoo۰G.
     all: destruct vs as [| v' vs]; simpl in Hi; first lia; simplify.
     all: wp۰rec; wp۰pures.
     - rewrite bool_decide_eq_true_2; first lia. wp۰pures.
-      wp۰apply list٠head𑁒spec; [done.. |].
+      wp۰apply list٠headｰspec; [done.. |].
       iSteps.
     - rewrite bool_decide_eq_false_2; first lia. wp۰pures.
-      wp۰apply list٠tail𑁒spec as "%t' %Ht'"; [done.. |].
+      wp۰apply list٠tailｰspec as "%t' %Ht'"; [done.. |].
       wp۰apply ("IH" with "[%] [//] [//] [//] HΦ"); first lia.
   Qed.
 
-  #[local] Lemma list٠initi₀𑁒spec vs_left Ψ sz fn i :
+  #[local] Lemma list٠initi₀ｰspec vs_left Ψ sz fn i :
     i ≤ ₊sz →
     i = length vs_left →
     {{{
@@ -223,7 +223,7 @@ Section zoo۰G.
       iApply ("HΦ" $! _ []).
       rewrite !right_id. assert (₊sz = i) as <- by lia. iSteps.
     - rewrite bool_decide_eq_false_2; first lia. wp۰pures.
-      wp۰apply (wp𑁒wand with "(Hfn [] HΨ)") as "%v HΨ"; first iSteps.
+      wp۰apply (wpｰwand with "(Hfn [] HΨ)") as "%v HΨ"; first iSteps.
       wp۰pures.
       rewrite Z.add_1_r -Nat2Z.inj_succ.
       wp۰apply ("IH" $! (vs_left ++ [v]) ˖i with "[] [] [] [$HΨ //]"); simpl_length/=; [iSteps.. |].
@@ -232,7 +232,7 @@ Section zoo۰G.
       iApply ("HΦ" $! _ (v :: vs_right)).
       rewrite -assoc. iSteps.
   Qed.
-  Lemma list٠initi𑁒spec Ψ sz fn :
+  Lemma list٠initiｰspec Ψ sz fn :
     {{{
       ▷ Ψ 0 [] ∗
       □ (
@@ -255,9 +255,9 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠initi₀𑁒spec [] Ψ with "[$HΨ $Hfn] HΦ"); simpl; lia.
+    wp۰apply+ (list٠initi₀ｰspec [] Ψ with "[$HΨ $Hfn] HΦ"); simpl; lia.
   Qed.
-  Lemma list٠initi𑁒spec' Ψ sz fn :
+  Lemma list٠initiｰspec' Ψ sz fn :
     {{{
       ▷ Ψ 0 [] ∗
       ( [∗ list] i ∈ seq 0 ₊sz,
@@ -284,14 +284,14 @@ Section zoo۰G.
       Ψ i vs ∗
       [∗ list] j ∈ seq i (₊sz - i), Ξ j
     )%I).
-    wp۰apply (list٠initi𑁒spec Ψ' with "[$HΨ Hfn]"); last iSteps.
+    wp۰apply (list٠initiｰspec Ψ' with "[$HΨ Hfn]"); last iSteps.
     rewrite Nat.sub_0_r. iFrame. iIntros "!> %i %vs (%Hi1 & %Hi2) (HΨ & HΞ)".
     destruct (Nat.lt_exists_pred 0 (₊sz - i)) as (k & Hk & _); first lia. rewrite Hk.
     rewrite -cons_seq. iDestruct "HΞ" as "(Hfn & HΞ)".
-    wp۰apply (wp𑁒wand with "(Hfn [//] HΨ)"). iSteps.
+    wp۰apply (wpｰwand with "(Hfn [//] HΨ)"). iSteps.
     rewrite Nat.sub_succ_r Hk //.
   Qed.
-  Lemma list٠initi𑁒spec𑁒disentangled Ψ sz fn :
+  Lemma list٠initiｰspecｰdisentangled Ψ sz fn :
     {{{
       □ (
         ∀ i,
@@ -316,11 +316,11 @@ Section zoo۰G.
     pose (Ψ' i vs := (
       [∗ list] j ↦ v ∈ vs, Ψ j v
     )%I).
-    wp۰apply (list٠initi𑁒spec Ψ'); last iSteps.
+    wp۰apply (list٠initiｰspec Ψ'); last iSteps.
     rewrite /Ψ'. iSteps.
     rewrite big_sepL_snoc. iSteps.
   Qed.
-  Lemma list٠initi𑁒spec𑁒disentangled' Ψ sz fn :
+  Lemma list٠initiｰspecｰdisentangled' Ψ sz fn :
     {{{
       [∗ list] i ∈ seq 0 ₊sz,
         WP fn #i {{ v,
@@ -342,13 +342,13 @@ Section zoo۰G.
     pose (Ψ' i vs := (
       [∗ list] j ↦ v ∈ vs, Ψ j v
     )%I).
-    wp۰apply (list٠initi𑁒spec' Ψ' with "[Hfn]"); last iSteps.
+    wp۰apply (list٠initiｰspec' Ψ' with "[Hfn]"); last iSteps.
     rewrite /Ψ'. iSteps.
     iApply (big_sepL_impl with "Hfn"). iSteps.
     rewrite big_sepL_snoc. iSteps.
   Qed.
 
-  Lemma list٠init𑁒spec Ψ sz fn :
+  Lemma list٠initｰspec Ψ sz fn :
     {{{
       ▷ Ψ 0 [] ∗
       □ (
@@ -371,10 +371,10 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠initi𑁒spec Ψ with "[$HΨ] HΦ").
+    wp۰apply+ (list٠initiｰspec Ψ with "[$HΨ] HΦ").
     iSteps.
   Qed.
-  Lemma list٠init𑁒spec' Ψ sz fn :
+  Lemma list٠initｰspec' Ψ sz fn :
     {{{
       ▷ Ψ 0 [] ∗
       ( [∗ list] i ∈ seq 0 ₊sz,
@@ -397,11 +397,11 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (HΨ & Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠initi𑁒spec' Ψ with "[$HΨ Hfn] HΦ").
+    wp۰apply+ (list٠initiｰspec' Ψ with "[$HΨ Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
-  Lemma list٠init𑁒spec𑁒disentangled Ψ sz fn :
+  Lemma list٠initｰspecｰdisentangled Ψ sz fn :
     {{{
       □ (
         ∀ i,
@@ -424,10 +424,10 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ #Hfn HΦ".
     wp۰rec.
-    wp۰apply+ (list٠initi𑁒spec𑁒disentangled Ψ with "[] HΦ").
+    wp۰apply+ (list٠initiｰspecｰdisentangled Ψ with "[] HΦ").
     iSteps.
   Qed.
-  Lemma list٠init𑁒spec𑁒disentangled' Ψ sz fn :
+  Lemma list٠initｰspecｰdisentangled' Ψ sz fn :
     {{{
       [∗ list] i ∈ seq 0 ₊sz,
         WP fn () {{ v,
@@ -447,12 +447,12 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ Hfn HΦ".
     wp۰rec.
-    wp۰apply+ (list٠initi𑁒spec𑁒disentangled' Ψ with "[Hfn] HΦ").
+    wp۰apply+ (list٠initiｰspecｰdisentangled' Ψ with "[Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
 
-  #[local] Lemma list٠foldli₀𑁒spec vs_left Ψ vs fn i acc t vs_right :
+  #[local] Lemma list٠foldli₀ｰspec vs_left Ψ vs fn i acc t vs_right :
     vs = vs_left ++ vs_right →
     i = length vs_left →
     list۰model' t vs_right →
@@ -479,7 +479,7 @@ Section zoo۰G.
     all: iIntros "%Hi %Ht %Φ (HΨ & #Hfn) HΦ"; invert Ht.
     all: wp۰rec; wp۰pures.
     - rewrite !right_id. iSteps.
-    - wp۰apply (wp𑁒wand with "(Hfn [] [HΨ])") as "{% acc} %acc HΨ".
+    - wp۰apply (wpｰwand with "(Hfn [] [HΨ])") as "{% acc} %acc HΨ".
       { rewrite list_lookup_middle //. }
       { rewrite take_app_length //. }
       wp۰pures.
@@ -489,7 +489,7 @@ Section zoo۰G.
       { simpl_length/=. lia. }
       iSteps.
   Qed.
-  Lemma list٠foldli𑁒spec Ψ fn acc t vs :
+  Lemma list٠foldliｰspec Ψ fn acc t vs :
     list۰model' t vs →
     {{{
       ▷ Ψ 0 [] acc ∗
@@ -512,9 +512,9 @@ Section zoo۰G.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp۰rec.
     rewrite -Nat2Z.inj_0.
-    wp۰apply+ (list٠foldli₀𑁒spec [] Ψ with "[$HΨ $Hfn //] HΦ"); done.
+    wp۰apply+ (list٠foldli₀ｰspec [] Ψ with "[$HΨ $Hfn //] HΦ"); done.
   Qed.
-  Lemma list٠foldli𑁒spec' Ψ fn acc t vs :
+  Lemma list٠foldliｰspec' Ψ fn acc t vs :
     list۰model' t vs →
     {{{
       ▷ Ψ 0 [] acc ∗
@@ -539,14 +539,14 @@ Section zoo۰G.
       Ψ i vs_left acc ∗
       [∗ list] j ↦ v ∈ drop i vs, Ξ (i + j) v
     )%I).
-    wp۰apply (list٠foldli𑁒spec Ψ' with "[$HΨ $Hfn]"); [done | | iSteps].
+    wp۰apply (list٠foldliｰspec Ψ' with "[$HΨ $Hfn]"); [done | | iSteps].
     iIntros "!> {% acc} %i %v %acc %Hlookup (HΨ & HΞ)".
     erewrite drop_S => //.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.
 
-  Lemma list٠foldl𑁒spec Ψ fn acc t vs :
+  Lemma list٠foldlｰspec Ψ fn acc t vs :
     list۰model' t vs →
     {{{
       ▷ Ψ 0 [] acc ∗
@@ -568,10 +568,10 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠foldli𑁒spec Ψ with "[$HΨ] HΦ"); first done.
+    wp۰apply+ (list٠foldliｰspec Ψ with "[$HΨ] HΦ"); first done.
     iSteps.
   Qed.
-  Lemma list٠foldl𑁒spec' Ψ fn acc t vs :
+  Lemma list٠foldlｰspec' Ψ fn acc t vs :
     list۰model' t vs →
     {{{
       ▷ Ψ 0 [] acc ∗
@@ -592,12 +592,12 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ (HΨ & Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠foldli𑁒spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
+    wp۰apply+ (list٠foldliｰspec' Ψ with "[$HΨ Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
 
-  #[local] Lemma list٠foldri₀𑁒spec vs_left Ψ vs fn i t vs_right acc :
+  #[local] Lemma list٠foldri₀ｰspec vs_left Ψ vs fn i t vs_right acc :
     vs = vs_left ++ vs_right →
     i = length vs_left →
     list۰model' t vs_right →
@@ -628,13 +628,13 @@ Section zoo۰G.
       wp۰apply ("IH" with "[%] [%] [//] [$HΨ $Hfn]") as "{% acc} %acc HΨ".
       { rewrite (assoc (++) _ [_]) //. }
       { simpl_length/=. lia. }
-      iApply wp𑁒fupd. wp۰apply (wp𑁒wand with "(Hfn [] [HΨ])") as "{% acc} %acc HΨ".
+      iApply wpｰfupd. wp۰apply (wpｰwand with "(Hfn [] [HΨ])") as "{% acc} %acc HΨ".
       { rewrite list_lookup_middle //. }
       all: rewrite (assoc (++) _ [_]) drop_app_length' //; first (simpl_length/=; lia).
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       iSteps.
   Qed.
-  Lemma list٠foldri𑁒spec Ψ fn t vs acc :
+  Lemma list٠foldriｰspec Ψ fn t vs acc :
     list۰model' t vs →
     {{{
       ▷ Ψ (length vs) acc [] ∗
@@ -657,9 +657,9 @@ Section zoo۰G.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp۰rec.
     rewrite -Nat2Z.inj_0.
-    wp۰apply+ (list٠foldri₀𑁒spec [] Ψ with "[$HΨ $Hfn] HΦ"); done.
+    wp۰apply+ (list٠foldri₀ｰspec [] Ψ with "[$HΨ $Hfn] HΦ"); done.
   Qed.
-  Lemma list٠foldri𑁒spec' Ψ fn t vs acc :
+  Lemma list٠foldriｰspec' Ψ fn t vs acc :
     list۰model' t vs →
     {{{
       ▷ Ψ (length vs) acc [] ∗
@@ -684,7 +684,7 @@ Section zoo۰G.
       Ψ i acc vs_right ∗
       [∗ list] j ↦ v ∈ take i vs, Ξ j v
     )%I).
-    wp۰apply (list٠foldri𑁒spec Ψ' with "[HΨ Hfn]"); [done | | iSteps].
+    wp۰apply (list٠foldriｰspec Ψ' with "[HΨ Hfn]"); [done | | iSteps].
     iFrame. rewrite firstn_all2; first lia. iFrame.
     iIntros "!> {% acc} %i %v %acc %Hlookup (HΨ & HΞ)".
     pose proof Hlookup as Hi%lookup_lt_Some.
@@ -693,7 +693,7 @@ Section zoo۰G.
     rewrite Nat.add_0_r length_take Nat.min_l; first lia. iSteps.
   Qed.
 
-  Lemma list٠foldr𑁒spec Ψ fn t vs acc :
+  Lemma list٠foldrｰspec Ψ fn t vs acc :
     list۰model' t vs →
     {{{
       ▷ Ψ (length vs) acc [] ∗
@@ -715,10 +715,10 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠foldri𑁒spec Ψ with "[$HΨ] HΦ"); first done.
+    wp۰apply+ (list٠foldriｰspec Ψ with "[$HΨ] HΦ"); first done.
     iSteps.
   Qed.
-  Lemma list٠foldr𑁒spec' Ψ fn t vs acc :
+  Lemma list٠foldrｰspec' Ψ fn t vs acc :
     list۰model' t vs →
     {{{
       ▷ Ψ (length vs) acc [] ∗
@@ -739,12 +739,12 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ (HΨ & Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠foldri𑁒spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
+    wp۰apply+ (list٠foldriｰspec' Ψ with "[$HΨ Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
 
-  Lemma list٠size𑁒spec t vs :
+  Lemma list٠sizeｰspec t vs :
     list۰model' t vs →
     {{{
       True
@@ -760,11 +760,11 @@ Section zoo۰G.
     pose Ψ i vs_left acc : iProp Σ := (
       ⌜acc = #(length vs_left)⌝
     )%I.
-    wp۰apply+ (list٠foldl𑁒spec Ψ); [done | | iSteps].
+    wp۰apply+ (list٠foldlｰspec Ψ); [done | | iSteps].
     iSteps. simpl_length. iSteps.
   Qed.
 
-  Lemma list٠rev_app𑁒spec t1 vs1 t2 vs2 :
+  Lemma list٠rev_appｰspec t1 vs1 t2 vs2 :
     list۰model' t1 vs1 →
     list۰model' t2 vs2 →
     {{{
@@ -782,11 +782,11 @@ Section zoo۰G.
     pose Ψ i vs acc : iProp Σ := (
       list۰model acc (reverse vs ++ vs2)
     )%I.
-    wp۰apply+ (list٠foldl𑁒spec Ψ); [done | | iSteps].
+    wp۰apply+ (list٠foldlｰspec Ψ); [done | | iSteps].
     iSteps as (? ? ? ? [= ->]). rewrite reverse_app //.
   Qed.
 
-  Lemma list٠rev𑁒spec t vs :
+  Lemma list٠revｰspec t vs :
     list۰model' t vs →
     {{{
       True
@@ -800,11 +800,11 @@ Section zoo۰G.
   Proof.
     iIntros "%ht %Φ _ HΦ".
     wp۰rec.
-    wp۰apply (list٠rev_app𑁒spec _ _ _ [] with "[//]"); [done.. |].
+    wp۰apply (list٠rev_appｰspec _ _ _ [] with "[//]"); [done.. |].
     rewrite right_id //.
   Qed.
 
-  Lemma list٠app𑁒spec t1 vs1 t2 vs2 :
+  Lemma list٠appｰspec t1 vs1 t2 vs2 :
     list۰model' t1 vs1 →
     list۰model' t2 vs2 →
     {{{
@@ -822,11 +822,11 @@ Section zoo۰G.
     pose Ψ i acc vs : iProp Σ := (
       list۰model acc (vs ++ vs2)
     )%I.
-    wp۰apply+ (list٠foldr𑁒spec Ψ); [done | | iSteps].
+    wp۰apply+ (list٠foldrｰspec Ψ); [done | | iSteps].
     iSteps as (? ? ? ? [= ->]). iSteps.
   Qed.
 
-  Lemma list٠snoc𑁒spec t vs v :
+  Lemma list٠snocｰspec t vs v :
     list۰model' t vs →
     {{{
       True
@@ -840,11 +840,11 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ _ HΦ".
     wp۰rec.
-    wp۰apply+ (list٠singleton𑁒spec with "[//]") as "%t' %Ht'".
-    wp۰apply (list٠app𑁒spec _ _ t' with "[//] HΦ"); done.
+    wp۰apply+ (list٠singletonｰspec with "[//]") as "%t' %Ht'".
+    wp۰apply (list٠appｰspec _ _ t' with "[//] HΦ"); done.
   Qed.
 
-  Lemma list٠iteri𑁒spec Ψ fn t vs :
+  Lemma list٠iteriｰspec Ψ fn t vs :
     list۰model' t vs →
     {{{
       ▷ Ψ 0 [] ∗
@@ -870,9 +870,9 @@ Section zoo۰G.
       ⌜acc = ()%V⌝ ∗
       Ψ i vs
     )%I.
-    wp۰apply+ (list٠foldli𑁒spec Ψ' with "[$HΨ]"); [done | iSteps..].
+    wp۰apply+ (list٠foldliｰspec Ψ' with "[$HΨ]"); [done | iSteps..].
   Qed.
-  Lemma list٠iteri𑁒spec' Ψ fn t vs :
+  Lemma list٠iteriｰspec' Ψ fn t vs :
     list۰model' t vs →
     {{{
       ▷ Ψ 0 [] ∗
@@ -896,11 +896,11 @@ Section zoo۰G.
       ⌜acc = ()%V⌝ ∗
       Ψ i vs
     )%I.
-    wp۰apply+ (list٠foldli𑁒spec' Ψ' with "[$HΨ Hfn]"); [done | iSteps..].
+    wp۰apply+ (list٠foldliｰspec' Ψ' with "[$HΨ Hfn]"); [done | iSteps..].
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
-  Lemma list٠iteri𑁒spec𑁒disentangled Ψ fn t vs :
+  Lemma list٠iteriｰspecｰdisentangled Ψ fn t vs :
     list۰model' t vs →
     {{{
       □ (
@@ -924,12 +924,12 @@ Section zoo۰G.
     pose (Ψ' i vs := (
       [∗ list] j ↦ v ∈ vs, Ψ j v
     )%I).
-    wp۰apply (list٠iteri𑁒spec Ψ'); [done | | iSteps].
+    wp۰apply (list٠iteriｰspec Ψ'); [done | | iSteps].
     rewrite /Ψ'. iSteps.
     rewrite big_sepL_snoc length_take Nat.min_l; last iSteps.
     eapply Nat.lt_le_incl, lookup_lt_Some. done.
   Qed.
-  Lemma list٠iteri𑁒spec𑁒disentangled' Ψ fn t vs :
+  Lemma list٠iteriｰspecｰdisentangled' Ψ fn t vs :
     list۰model' t vs →
     {{{
       ( [∗ list] i ↦ v ∈ vs,
@@ -951,14 +951,14 @@ Section zoo۰G.
     pose (Ψ' i vs := (
       [∗ list] j ↦ v ∈ vs, Ψ j v
     )%I).
-    wp۰apply (list٠iteri𑁒spec' Ψ' with "[Hfn]"); [done | | iSteps].
+    wp۰apply (list٠iteriｰspec' Ψ' with "[Hfn]"); [done | | iSteps].
     rewrite /Ψ'. iSteps.
     iApply (big_sepL_impl with "Hfn"). iSteps.
     rewrite big_sepL_snoc length_take Nat.min_l; last iSteps.
     eapply Nat.lt_le_incl, lookup_lt_Some. done.
   Qed.
 
-  Lemma list٠iter𑁒spec Ψ fn t vs :
+  Lemma list٠iterｰspec Ψ fn t vs :
     list۰model' t vs →
     {{{
       ▷ Ψ 0 [] ∗
@@ -980,10 +980,10 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠iteri𑁒spec Ψ with "[$HΨ] HΦ"); first done.
+    wp۰apply+ (list٠iteriｰspec Ψ with "[$HΨ] HΦ"); first done.
     iSteps.
   Qed.
-  Lemma list٠iter𑁒spec' Ψ fn t vs :
+  Lemma list٠iterｰspec' Ψ fn t vs :
     list۰model' t vs →
     {{{
       ▷ Ψ 0 [] ∗
@@ -1003,11 +1003,11 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ (HΨ & Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠iteri𑁒spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
+    wp۰apply+ (list٠iteriｰspec' Ψ with "[$HΨ Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
-  Lemma list٠iter𑁒spec𑁒disentangled Ψ fn t vs :
+  Lemma list٠iterｰspecｰdisentangled Ψ fn t vs :
     list۰model' t vs →
     {{{
       □ (
@@ -1029,10 +1029,10 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ #Hfn HΦ".
     wp۰rec.
-    wp۰apply+ (list٠iteri𑁒spec𑁒disentangled Ψ with "[] HΦ"); first done.
+    wp۰apply+ (list٠iteriｰspecｰdisentangled Ψ with "[] HΦ"); first done.
     iSteps.
   Qed.
-  Lemma list٠iter𑁒spec𑁒disentangled' Ψ fn t vs :
+  Lemma list٠iterｰspecｰdisentangled' Ψ fn t vs :
     list۰model' t vs →
     {{{
       ( [∗ list] i ↦ v ∈ vs,
@@ -1052,12 +1052,12 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ Hfn HΦ".
     wp۰rec.
-    wp۰apply+ (list٠iteri𑁒spec𑁒disentangled' Ψ with "[Hfn] HΦ"); first done.
+    wp۰apply+ (list٠iteriｰspecｰdisentangled' Ψ with "[Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
 
-  #[local] Lemma list٠mapi₀𑁒spec vs_left ws_left Ψ vs fn i t vs_right :
+  #[local] Lemma list٠mapi₀ｰspec vs_left ws_left Ψ vs fn i t vs_right :
     vs = vs_left ++ vs_right →
     i = length vs_left →
     i = length ws_left →
@@ -1088,7 +1088,7 @@ Section zoo۰G.
     all: wp۰rec; wp۰pures.
     - iApply ("HΦ" $! _ []).
       rewrite !right_id. iSteps.
-    - wp۰apply (wp𑁒wand with "(Hfn [] [HΨ])") as "%w HΨ".
+    - wp۰apply (wpｰwand with "(Hfn [] [HΨ])") as "%w HΨ".
       { rewrite list_lookup_middle //. }
       { rewrite take_app_length //. }
       wp۰pures.
@@ -1101,7 +1101,7 @@ Section zoo۰G.
       iApply ("HΦ" $! _ (w :: ws_right)).
       rewrite -!assoc. simpl_length/= in Hvs. rewrite Ht'. iSteps.
   Qed.
-  Lemma list٠mapi𑁒spec Ψ fn t vs :
+  Lemma list٠mapiｰspec Ψ fn t vs :
     list۰model' t vs →
     {{{
       ▷ Ψ 0 [] [] ∗
@@ -1125,10 +1125,10 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠mapi₀𑁒spec [] [] Ψ with "[$HΨ $Hfn]"); [done.. |].
+    wp۰apply+ (list٠mapi₀ｰspec [] [] Ψ with "[$HΨ $Hfn]"); [done.. |].
     iSteps.
   Qed.
-  Lemma list٠mapi𑁒spec' Ψ fn t vs :
+  Lemma list٠mapiｰspec' Ψ fn t vs :
     list۰model' t vs →
     {{{
       ▷ Ψ 0 [] [] ∗
@@ -1156,13 +1156,13 @@ Section zoo۰G.
       Ψ i vs_left ws ∗
       [∗ list] j ↦ v ∈ drop i vs, Ξ (i + j) v
     )%I).
-    wp۰apply (list٠mapi𑁒spec Ψ' with "[$HΨ $Hfn]"); [done | | iSteps]. iIntros "!> %i %v %ws (%Hlookup & %Hi) (HΨ & HΞ)".
+    wp۰apply (list٠mapiｰspec Ψ' with "[$HΨ $Hfn]"); [done | | iSteps]. iIntros "!> %i %v %ws (%Hlookup & %Hi) (HΨ & HΞ)".
 
     erewrite drop_S => //.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.
-  Lemma list٠mapi𑁒spec𑁒disentangled Ψ fn t vs :
+  Lemma list٠mapiｰspecｰdisentangled Ψ fn t vs :
     list۰model' t vs →
     {{{
       □ (
@@ -1188,12 +1188,12 @@ Section zoo۰G.
     pose Ψ' i vs_left ws := (
       [∗ list] j ↦ v; w ∈ vs_left; ws, Ψ j v w
     )%I.
-    wp۰apply (list٠mapi𑁒spec Ψ'); [done | | iSteps].
+    wp۰apply (list٠mapiｰspec Ψ'); [done | | iSteps].
     rewrite /Ψ'. iSteps.
     rewrite big_sepL2_snoc length_take Nat.min_l; last iSteps.
     eapply Nat.lt_le_incl, lookup_lt_Some. done.
   Qed.
-  Lemma list٠mapi𑁒spec𑁒disentangled' Ψ fn t vs :
+  Lemma list٠mapiｰspecｰdisentangled' Ψ fn t vs :
     list۰model' t vs →
     {{{
       ( [∗ list] i ↦ v ∈ vs,
@@ -1217,14 +1217,14 @@ Section zoo۰G.
     pose Ψ' i vs_left ws := (
       [∗ list] j ↦ v; w ∈ vs_left; ws, Ψ j v w
     )%I.
-    wp۰apply (list٠mapi𑁒spec' Ψ' with "[Hfn]"); [done | | iSteps].
+    wp۰apply (list٠mapiｰspec' Ψ' with "[Hfn]"); [done | | iSteps].
     rewrite /Ψ'. iSteps.
     iApply (big_sepL_impl with "Hfn"). iSteps.
     rewrite big_sepL2_snoc length_take Nat.min_l; last iSteps.
     eapply Nat.lt_le_incl, lookup_lt_Some. done.
   Qed.
 
-  Lemma list٠map𑁒spec Ψ fn t vs :
+  Lemma list٠mapｰspec Ψ fn t vs :
     list۰model' t vs →
     {{{
       ▷ Ψ 0 [] [] ∗
@@ -1248,10 +1248,10 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠mapi𑁒spec Ψ with "[$HΨ] HΦ"); first done.
+    wp۰apply+ (list٠mapiｰspec Ψ with "[$HΨ] HΦ"); first done.
     iSteps.
   Qed.
-  Lemma list٠map𑁒spec' Ψ fn t vs :
+  Lemma list٠mapｰspec' Ψ fn t vs :
     list۰model' t vs →
     {{{
       ▷ Ψ 0 [] [] ∗
@@ -1275,11 +1275,11 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ (HΨ & Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠mapi𑁒spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
+    wp۰apply+ (list٠mapiｰspec' Ψ with "[$HΨ Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
-  Lemma list٠map𑁒spec𑁒disentangled Ψ fn t vs :
+  Lemma list٠mapｰspecｰdisentangled Ψ fn t vs :
     list۰model' t vs →
     {{{
       □ (
@@ -1303,10 +1303,10 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ #Hfn HΦ".
     wp۰rec.
-    wp۰apply+ (list٠mapi𑁒spec𑁒disentangled Ψ with "[] HΦ"); first done.
+    wp۰apply+ (list٠mapiｰspecｰdisentangled Ψ with "[] HΦ"); first done.
     iSteps.
   Qed.
-  Lemma list٠map𑁒spec𑁒disentangled' Ψ fn t vs :
+  Lemma list٠mapｰspecｰdisentangled' Ψ fn t vs :
     list۰model' t vs →
     {{{
       ( [∗ list] i ↦ v ∈ vs,
@@ -1328,12 +1328,12 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ Hfn HΦ".
     wp۰rec.
-    wp۰apply+ (list٠mapi𑁒spec𑁒disentangled' Ψ with "[Hfn] HΦ"); first done.
+    wp۰apply+ (list٠mapiｰspecｰdisentangled' Ψ with "[Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
 
-  Lemma list٠forall𑁒spec Ψ pred t vs :
+  Lemma list٠forallｰspec Ψ pred t vs :
     list۰model' t vs →
     {{{
       □ (
@@ -1362,7 +1362,7 @@ Section zoo۰G.
     all: iIntros (->) "%Φ #Hpred HΦ".
     all: wp۰rec.
     - iSteps.
-    - wp۰apply+ (wp𑁒wand with "(Hpred [%])") as (res) "(%b & -> & HΨ0)".
+    - wp۰apply+ (wpｰwand with "(Hpred [%])") as (res) "(%b & -> & HΨ0)".
       { rewrite lookup_cons_Some. left. done. }
       destruct b.
       + wp۰apply+ ("IH" $! (λ i, Ψ ˖i) with "[//]") as ([]) "HΨ".
@@ -1376,7 +1376,7 @@ Section zoo۰G.
       + iSteps. iExists 0. iSteps.
   Qed.
 
-  Lemma list٠exists𑁒spec Ψ pred t vs :
+  Lemma list٠existsｰspec Ψ pred t vs :
     list۰model' t vs →
     {{{
       □ (
@@ -1405,7 +1405,7 @@ Section zoo۰G.
     all: iIntros (->) "%Φ #Hpred HΦ".
     all: wp۰rec.
     - iSteps.
-    - wp۰apply+ (wp𑁒wand with "(Hpred [%])") as (res) "(%b & -> & HΨ0)".
+    - wp۰apply+ (wpｰwand with "(Hpred [%])") as (res) "(%b & -> & HΨ0)".
       { rewrite lookup_cons_Some. left. done. }
       destruct b.
       + iSteps. iExists 0. iSteps.

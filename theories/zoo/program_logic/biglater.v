@@ -32,26 +32,26 @@ Section zoo۰G.
 
   Implicit Type P : iProp Σ.
 
-  #[global] Instance biglater𑁒ne :
+  #[global] Instance biglaterｰne :
     NonExpansive biglater.
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance biglater𑁒proper :
+  #[global] Instance biglaterｰproper :
     Proper ((≡) ==> (≡)) biglater.
   Proof.
     solve_proper.
   Qed.
 
-  Lemma biglater𑁒intro P :
+  Lemma biglaterｰintro P :
     P ⊢ |==>
     ▶ P.
   Proof.
     iIntros "HP".
-    iMod steps۰lb𑁒0 as "$" => //.
+    iMod steps۰lbｰ0 as "$" => //.
   Qed.
 
-  Lemma biglater𑁒mono P1 P2 :
+  Lemma biglaterｰmono P1 P2 :
     (P1 ⊢ P2) →
     (▶ P1) ⊢ ▶ P2.
   Proof.
@@ -59,20 +59,20 @@ Section zoo۰G.
     iFrame "#". iNext.
     iApply (HP with "HP1").
   Qed.
-  #[global] Instance biglater𑁒mono' :
+  #[global] Instance biglaterｰmono' :
     Proper ((⊢) ==> (⊢)) biglater.
   Proof.
     iIntros "%P1 %P2 %HP".
-    iApply biglater𑁒mono; first done.
+    iApply biglaterｰmono; first done.
   Qed.
-  #[global] Instance biglater𑁒flip𑁒mono' :
+  #[global] Instance biglaterｰflipｰmono' :
     Proper (flip (⊢) ==> flip (⊢)) biglater.
   Proof.
     iIntros "%P1 %P2 %HP".
-    iApply biglater𑁒mono; first done.
+    iApply biglaterｰmono; first done.
   Qed.
 
-  Lemma biglater𑁒or₁ P1 P2 :
+  Lemma biglaterｰor₁ P1 P2 :
     ▶ (P1 ∨ P2) ⊢
     ▶ P1 ∨ ▶ P2.
   Proof.
@@ -80,22 +80,22 @@ Section zoo۰G.
     iFrame "#".
     rewrite bi.laterN_or //.
   Qed.
-  Lemma biglater𑁒or₂ P1 P2 :
+  Lemma biglaterｰor₂ P1 P2 :
     ▶ P1 ∨ ▶ P2 ⊢
     ▶ (P1 ∨ P2).
   Proof.
     iSteps.
   Qed.
-  Lemma biglater𑁒or P1 P2 :
+  Lemma biglaterｰor P1 P2 :
     ▶ (P1 ∨ P2) ⊣⊢
     ▶ P1 ∨ ▶ P2.
   Proof.
     iSplit.
-    - iApply biglater𑁒or₁.
-    - iApply biglater𑁒or₂.
+    - iApply biglaterｰor₁.
+    - iApply biglaterｰor₂.
   Qed.
 
-  Lemma biglater𑁒and P1 P2 :
+  Lemma biglaterｰand P1 P2 :
     ▶ (P1 ∧ P2) ⊢
     ▶ P1 ∧ ▶ P2.
   Proof.
@@ -105,100 +105,100 @@ Section zoo۰G.
     iApply (bi.laterN_mono with "HP"); first done.
   Qed.
 
-  Lemma biglater𑁒exist₁ `{!Inhabited X} (Φ : X → iProp Σ) :
+  Lemma biglaterｰexist₁ `{!Inhabited X} (Φ : X → iProp Σ) :
     ▶ (∃ x, Φ x) ⊢
     ∃ x, ▶ Φ x.
   Proof.
     iSteps.
   Qed.
-  Lemma biglater𑁒exist₂ `(Φ : X → iProp Σ) :
+  Lemma biglaterｰexist₂ `(Φ : X → iProp Σ) :
     (∃ x, ▶ Φ x) ⊢
     ▶ ∃ x, Φ x.
   Proof.
     iSteps.
   Qed.
-  Lemma biglater𑁒exist `{!Inhabited X} (Φ : X → iProp Σ) :
+  Lemma biglaterｰexist `{!Inhabited X} (Φ : X → iProp Σ) :
     ▶ (∃ x, Φ x) ⊣⊢
     ∃ x, ▶ Φ x.
   Proof.
     iSplit.
-    - iApply @biglater𑁒exist₁.
-    - iApply biglater𑁒exist₂.
+    - iApply @biglaterｰexist₁.
+    - iApply biglaterｰexist₂.
   Qed.
 
-  Lemma biglater𑁒forall `(Φ : X → iProp Σ) :
+  Lemma biglaterｰforall `(Φ : X → iProp Σ) :
     ▶ (∀ x, Φ x) ⊢
     ∀ x, ▶ Φ x.
   Proof.
     iSteps.
   Qed.
 
-  Lemma biglater𑁒sep₁ P1 P2 :
+  Lemma biglaterｰsep₁ P1 P2 :
     ▶ (P1 ∗ P2) ⊢
       ▶ P1 ∗
       ▶ P2.
   Proof.
     iSteps.
   Qed.
-  Lemma biglater𑁒sep₂ P1 P2 :
+  Lemma biglaterｰsep₂ P1 P2 :
     ▶ P1 -∗
     ▶ P2 -∗
     ▶ (P1 ∗ P2).
   Proof.
     iIntros "(:biglater =1) (:biglater =2)".
     iExists (ns1 `max` ns2). iSplitR.
-    - iApply (steps۰lb𑁒max with "H⧖_1 H⧖_2").
+    - iApply (steps۰lbｰmax with "H⧖_1 H⧖_2").
     - iApply bi.laterN_sep.
       iDestruct (bi.laterN_le with "HP1") as "$".
       { auto with lia. }
       iDestruct (bi.laterN_le with "HP2") as "$".
       { auto with lia. }
   Qed.
-  Lemma biglater𑁒sep P1 P2 :
+  Lemma biglaterｰsep P1 P2 :
     ▶ (P1 ∗ P2) ⊣⊢
       ▶ P1 ∗
       ▶ P2.
   Proof.
     iSplit.
-    - iApply biglater𑁒sep₁.
+    - iApply biglaterｰsep₁.
     - iIntros "(HP1 & HP2)".
-      iApply (biglater𑁒sep₂ with "HP1 HP2").
+      iApply (biglaterｰsep₂ with "HP1 HP2").
   Qed.
 
-  Lemma biglater𑁒frame𑁒l P1 P2 :
+  Lemma biglaterｰframeｰl P1 P2 :
     P1 -∗
     ▶ P2 -∗
     ▶ (P1 ∗ P2).
   Proof.
     iSteps.
   Qed.
-  Lemma biglater𑁒frame𑁒r P1 P2 :
+  Lemma biglaterｰframeｰr P1 P2 :
     ▶ P1 -∗
     P2 -∗
     ▶ (P1 ∗ P2).
   Proof.
     rewrite bi.sep_comm.
     iIntros "HP1 HP2".
-    iApply (biglater𑁒frame𑁒l with "HP2 HP1").
+    iApply (biglaterｰframeｰl with "HP2 HP1").
   Qed.
 
-  Lemma biglater𑁒wand𑁒l P1 P2 :
+  Lemma biglaterｰwandｰl P1 P2 :
     (P1 -∗ P2) -∗
     (▶ P1) -∗
     ▶ P2.
   Proof.
     iSteps.
   Qed.
-  Lemma biglater𑁒wand𑁒r P1 P2 :
+  Lemma biglaterｰwandｰr P1 P2 :
     (▶ P1) -∗
     (P1 -∗ P2) -∗
     ▶ P2.
   Proof.
     iIntros "HP1 HP2".
-    iApply (biglater𑁒wand𑁒l with "HP2 HP1").
+    iApply (biglaterｰwandｰl with "HP2 HP1").
   Qed.
 
-  Lemma biglater𑁒persistently P :
+  Lemma biglaterｰpersistently P :
     ▶ <pers> P ⊢
     <pers> ▶ P.
   Proof.
@@ -213,129 +213,129 @@ Section zoo۰G.
 
   Implicit Type P : iProp Σ.
 
-  #[global] Instance into_wand𑁒biglater p q R P Q :
+  #[global] Instance into_wandｰbiglater p q R P Q :
     IntoWand false false R P Q →
     IntoWand p q (▶ R) (▶ P) (▶ Q).
   Proof.
     rewrite /IntoWand /=.
     rewrite !bi.intuitionistically_if_elim.
     iIntros "%H HR HP".
-    iDestruct (biglater𑁒sep₂ with "HR HP") as "H".
-    iApply (biglater𑁒wand𑁒r with "H"). iIntros "(HR & HP)".
+    iDestruct (biglaterｰsep₂ with "HR HP") as "H".
+    iApply (biglaterｰwandｰr with "H"). iIntros "(HR & HP)".
     iApply (H with "HR HP").
   Qed.
-  #[global] Instance into_wand𑁒biglater𑁒args p q R P Q :
+  #[global] Instance into_wandｰbiglaterｰargs p q R P Q :
     IntoWand p false R P Q →
     IntoWand' p q R (▶ P) (▶ Q).
   Proof.
     rewrite /IntoWand' /IntoWand /=.
     rewrite (bi.intuitionistically_if_elim q).
     iIntros "%H HR HP".
-    iApply (biglater𑁒wand𑁒r with "HP"). iIntros "HP".
+    iApply (biglaterｰwandｰr with "HP"). iIntros "HP".
     iApply (H with "HR HP").
   Qed.
 
-  #[global] Instance from_sep𑁒biglater P Q1 Q2 :
+  #[global] Instance from_sepｰbiglater P Q1 Q2 :
     FromSep P Q1 Q2 →
     FromSep (▶ P) (▶ Q1) (▶ Q2).
   Proof.
     rewrite /FromSep.
-    rewrite -biglater𑁒sep.
-    apply biglater𑁒mono.
+    rewrite -biglaterｰsep.
+    apply biglaterｰmono.
   Qed.
 
-  #[global] Instance maybe_combine_sep_as𑁒biglater Q1 Q2 P progress :
+  #[global] Instance maybe_combine_sep_asｰbiglater Q1 Q2 P progress :
     MaybeCombineSepAs Q1 Q2 P progress →
     MaybeCombineSepAs (▶ Q1) (▶ Q2) (▶ P) progress.
   Proof.
     rewrite /MaybeCombineSepAs.
-    rewrite -biglater𑁒sep => -> //.
+    rewrite -biglaterｰsep => -> //.
   Qed.
 
-  #[global] Instance combine_sep_gives𑁒biglater Q1 Q2 P :
+  #[global] Instance combine_sep_givesｰbiglater Q1 Q2 P :
     CombineSepGives Q1 Q2 P →
     CombineSepGives (▶ Q1) (▶ Q2) (▶ P).
   Proof.
     rewrite /CombineSepGives.
-    rewrite -biglater𑁒sep -biglater𑁒persistently => -> //.
+    rewrite -biglaterｰsep -biglaterｰpersistently => -> //.
   Qed.
 
-  #[global] Instance into_and𑁒biglater P Q1 Q2 :
+  #[global] Instance into_andｰbiglater P Q1 Q2 :
     IntoAnd false P Q1 Q2 →
     IntoAnd false (▶ P) (▶ Q1) (▶ Q2).
   Proof.
     rewrite /IntoAnd /= => ->.
-    apply biglater𑁒and.
+    apply biglaterｰand.
   Qed.
 
-  #[global] Instance into_sep𑁒biglater P Q1 Q2 :
+  #[global] Instance into_sepｰbiglater P Q1 Q2 :
     IntoSep P Q1 Q2 →
     IntoSep (▶ P) (▶ Q1) (▶ Q2).
   Proof.
     rewrite /IntoSep => ->.
-    rewrite biglater𑁒sep //.
+    rewrite biglaterｰsep //.
   Qed.
 
-  #[global] Instance from_or𑁒biglater P Q1 Q2 :
+  #[global] Instance from_orｰbiglater P Q1 Q2 :
     FromOr P Q1 Q2 →
     FromOr (▶ P) (▶ Q1) (▶ Q2).
   Proof.
     rewrite /FromOr.
-    rewrite -biglater𑁒or.
-    apply biglater𑁒mono.
+    rewrite -biglaterｰor.
+    apply biglaterｰmono.
   Qed.
 
-  #[global] Instance into_or𑁒biglater P Q1 Q2 :
+  #[global] Instance into_orｰbiglater P Q1 Q2 :
     IntoOr P Q1 Q2 →
     IntoOr (▶ P) (▶ Q1) (▶ Q2).
   Proof.
     rewrite /IntoOr => ->.
-    rewrite biglater𑁒or //.
+    rewrite biglaterｰor //.
   Qed.
 
-  #[global] Instance from_exist𑁒biglater {X} P (Φ : X → iProp Σ) :
+  #[global] Instance from_existｰbiglater {X} P (Φ : X → iProp Σ) :
     FromExist P Φ →
     FromExist (▶ P) (λ x, ▶ Φ x)%I.
   Proof.
     rewrite /FromExist.
-    rewrite biglater𑁒exist₂.
-    apply biglater𑁒mono.
+    rewrite biglaterｰexist₂.
+    apply biglaterｰmono.
   Qed.
 
-  #[global] Instance into_exist𑁒biglater {X} P (Φ : X → iProp Σ) name :
+  #[global] Instance into_existｰbiglater {X} P (Φ : X → iProp Σ) name :
     IntoExist P Φ name →
     Inhabited X →
     IntoExist (▶ P) (λ a, ▶ (Φ a))%I name.
   Proof.
     rewrite /IntoExist => HP HX.
-    rewrite HP biglater𑁒exist //.
+    rewrite HP biglaterｰexist //.
   Qed.
 
-  #[global] Instance into_forall𑁒biglater {X} P (Φ : X → iProp Σ) :
+  #[global] Instance into_forallｰbiglater {X} P (Φ : X → iProp Σ) :
     IntoForall P Φ →
     IntoForall (▶ P) (λ x, ▶ Φ x)%I.
   Proof.
     rewrite /IntoForall.
-    rewrite -biglater𑁒forall.
-    apply biglater𑁒mono.
+    rewrite -biglaterｰforall.
+    apply biglaterｰmono.
   Qed.
 
-  #[global] Instance frame𑁒biglater p R P Q :
+  #[global] Instance frameｰbiglater p R P Q :
     Frame p R P Q →
     Frame p R (▶ P) (▶ Q)
   | 2.
   Proof.
     rewrite /Frame => <-.
     iIntros "(HR & HQ)".
-    iApply (biglater𑁒frame𑁒l with "HR HQ").
+    iApply (biglaterｰframeｰl with "HR HQ").
   Qed.
 
-  #[global] Instance biglater𑁒strong_modality :
+  #[global] Instance biglaterｰstrong_modality :
     ModalityStrongMono biglater.
   Proof.
     split=> P Q.
     - move=> -> //.
     - iIntros "(HP & HQ)".
-      iApply (biglater𑁒frame𑁒r with "HP HQ").
+      iApply (biglaterｰframeｰr with "HP HQ").
   Qed.
 End zoo۰G.

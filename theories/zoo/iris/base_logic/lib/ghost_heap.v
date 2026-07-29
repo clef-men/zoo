@@ -24,7 +24,7 @@ Definition ghost_heap۰Σ L V `{Countable L} :=
   ; ghost_mapΣ L gname
   ; GFunctor (reservation_mapR $ agreeR positiveO)
   ].
-#[global] Instance subG𑁒ghost_heap۰Σ Σ L V `{Countable L} :
+#[global] Instance subGｰghost_heap۰Σ Σ L V `{Countable L} :
   subG (ghost_heap۰Σ L V) Σ →
   GhostHeapG Σ L V.
 Proof.
@@ -45,9 +45,9 @@ Section ghost_heap۰G.
     }.
   Implicit Type γ : ghost_heap۰name.
 
-  #[global] Instance ghost_heap۰name𑁒eq_dec : EqDecision ghost_heap۰name :=
+  #[global] Instance ghost_heap۰nameｰeq_dec : EqDecision ghost_heap۰name :=
     ltac:(solve_decision).
-  #[global] Instance ghost_heap۰name𑁒countable :
+  #[global] Instance ghost_heap۰nameｰcountable :
     Countable ghost_heap۰name.
   Proof.
     solve_countable.
@@ -91,41 +91,41 @@ Section ghost_heap۰G.
       )
     ".
 
-  #[global] Instance ghost_heap۰auth𑁒timeless γ σ :
+  #[global] Instance ghost_heap۰authｰtimeless γ σ :
     Timeless (ghost_heap۰auth γ σ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ghost_heap۰at𑁒timeless γ l dq v :
+  #[global] Instance ghost_heap۰atｰtimeless γ l dq v :
     Timeless (ghost_heap۰at γ l dq v).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance ghost_heap۰at𑁒persistent γ l v :
+  #[global] Instance ghost_heap۰atｰpersistent γ l v :
     Persistent (ghost_heap۰at γ l DfracDiscarded v).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance ghost_heap۰at𑁒fractional γ l v :
+  #[global] Instance ghost_heap۰atｰfractional γ l v :
     Fractional (λ q, ghost_heap۰at γ l (DfracOwn q) v)%I.
   Proof.
     apply _.
   Qed.
-  #[global] Instance ghost_heap۰at𑁒as_fractional γ l q v :
+  #[global] Instance ghost_heap۰atｰas_fractional γ l q v :
     AsFractional (ghost_heap۰at γ l (DfracOwn q) v) (λ q, ghost_heap۰at γ l (DfracOwn q) v)%I q.
   Proof.
     apply _.
   Qed.
 
-  Lemma ghost_heap۰at𑁒valid γ l dq v :
+  Lemma ghost_heap۰atｰvalid γ l dq v :
     ghost_heap۰at γ l dq v ⊢
     ⌜✓ dq⌝.
   Proof.
     apply bi.wand_entails', ghost_map_elem_valid.
   Qed.
-  Lemma ghost_heap۰at𑁒combine γ l dq1 v1 dq2 v2 :
+  Lemma ghost_heap۰atｰcombine γ l dq1 v1 dq2 v2 :
     ghost_heap۰at γ l dq1 v1 -∗
     ghost_heap۰at γ l dq2 v2 -∗
       ⌜v1 = v2⌝ ∗
@@ -133,7 +133,7 @@ Section ghost_heap۰G.
   Proof.
     rewrite comm. apply ghost_map_elem_combine.
   Qed.
-  Lemma ghost_heap۰at𑁒valid𑁒2 γ l dq1 v1 dq2 v2 :
+  Lemma ghost_heap۰atｰvalidｰ2 γ l dq1 v1 dq2 v2 :
     ghost_heap۰at γ l dq1 v1 -∗
     ghost_heap۰at γ l dq2 v2 -∗
       ⌜✓ (dq1 ⋅ dq2)⌝ ∗
@@ -142,14 +142,14 @@ Section ghost_heap۰G.
     iIntros "H1 H2".
     iDestruct (ghost_map_elem_valid_2 with "H1 H2") as "$".
   Qed.
-  Lemma ghost_heap۰at𑁒agree γ l dq1 v1 dq2 v2 :
+  Lemma ghost_heap۰atｰagree γ l dq1 v1 dq2 v2 :
     ghost_heap۰at γ l dq1 v1 -∗
     ghost_heap۰at γ l dq2 v2 -∗
     ⌜v1 = v2⌝.
   Proof.
     apply ghost_map_elem_agree.
   Qed.
-  Lemma ghost_heap۰at𑁒dfrac𑁒ne γ l1 dq1 v1 l2 dq2 v2 :
+  Lemma ghost_heap۰atｰdfracｰne γ l1 dq1 v1 l2 dq2 v2 :
     ¬ ✓ (dq1 ⋅ dq2) →
     ghost_heap۰at γ l1 dq1 v1 -∗
     ghost_heap۰at γ l2 dq2 v2 -∗
@@ -157,14 +157,14 @@ Section ghost_heap۰G.
   Proof.
     apply ghost_map_elem_frac_ne.
   Qed.
-  Lemma ghost_heap۰at𑁒ne γ l1 v1 l2 dq2 v2 :
+  Lemma ghost_heap۰atｰne γ l1 v1 l2 dq2 v2 :
     ghost_heap۰at γ l1 (DfracOwn 1) v1 -∗
     ghost_heap۰at γ l2 dq2 v2 -∗
     ⌜l1 ≠ l2⌝.
   Proof.
     apply ghost_map_elem_ne.
   Qed.
-  Lemma ghost_heap۰at𑁒exclusive γ l v1 dq2 v2 :
+  Lemma ghost_heap۰atｰexclusive γ l v1 dq2 v2 :
     ghost_heap۰at γ l (DfracOwn 1) v1 -∗
     ghost_heap۰at γ l dq2 v2 -∗
     False.
@@ -172,26 +172,26 @@ Section ghost_heap۰G.
     iIntros "H1 H2".
     iDestruct (ghost_map_elem_ne with "H1 H2") as %?. done.
   Qed.
-  Lemma ghost_heap۰at𑁒persist γ l dq v :
+  Lemma ghost_heap۰atｰpersist γ l dq v :
     ghost_heap۰at γ l dq v ⊢ |==>
     ghost_heap۰at γ l DfracDiscarded v.
   Proof.
     apply bi.wand_entails', ghost_map_elem_persist.
   Qed.
 
-  #[global] Instance ghost_heap۰at𑁒combine_sep_gives γ l dq1 v1 dq2 v2 :
+  #[global] Instance ghost_heap۰atｰcombine_sep_gives γ l dq1 v1 dq2 v2 :
     CombineSepGives (ghost_heap۰at γ l dq1 v1) (ghost_heap۰at γ l dq2 v2) ⌜✓ (dq1 ⋅ dq2) ∧ v1 = v2⌝
   | 30.
   Proof.
     apply _.
   Qed.
-  #[global] Instance ghost_heap۰at𑁒combine_as γ l dq1 dq2 v1 v2 :
+  #[global] Instance ghost_heap۰atｰcombine_as γ l dq1 dq2 v1 v2 :
     CombineSepAs (ghost_heap۰at γ l dq1 v1) (ghost_heap۰at γ l dq2 v2) (ghost_heap۰at γ l (dq1 ⋅ dq2) v1)
   | 60.
   Proof.
     apply _.
   Qed.
-  #[global] Instance frame𑁒ghost_heap۰at p γ l v q1 q2 q :
+  #[global] Instance frameｰghost_heap۰at p γ l v q1 q2 q :
     FrameFractionalQp q1 q2 q →
     Frame p (ghost_heap۰at γ l (DfracOwn q1) v) (ghost_heap۰at γ l (DfracOwn q2) v) (ghost_heap۰at γ l (DfracOwn q) v)
   | 5.
@@ -199,24 +199,24 @@ Section ghost_heap۰G.
     apply: frame_fractional.
   Qed.
 
-  #[global] Instance ghost_heap۰meta_token𑁒timeless γ l E :
+  #[global] Instance ghost_heap۰meta_tokenｰtimeless γ l E :
     Timeless (ghost_heap۰meta_token γ l E).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ghost_heap۰meta𑁒timeless `{Countable A} γ l ι (x : A) :
+  #[global] Instance ghost_heap۰metaｰtimeless `{Countable A} γ l ι (x : A) :
     Timeless (ghost_heap۰meta γ l ι x).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance ghost_heap۰meta𑁒persistent `{Countable A} γ l ι (x : A) :
+  #[global] Instance ghost_heap۰metaｰpersistent `{Countable A} γ l ι (x : A) :
     Persistent (ghost_heap۰meta γ l ι x).
   Proof.
     apply _.
   Qed.
 
-  Lemma ghost_heap۰meta_token𑁒union₁ γ l E1 E2 :
+  Lemma ghost_heap۰meta_tokenｰunion₁ γ l E1 E2 :
     E1 ## E2 →
     ghost_heap۰meta_token γ l (E1 ∪ E2) ⊢
       ghost_heap۰meta_token γ l E1 ∗
@@ -228,7 +228,7 @@ Section ghost_heap۰G.
     iDestruct "Hη" as "($ & $)".
     iSteps.
   Qed.
-  Lemma ghost_heap۰meta_token𑁒union₂ γ l E1 E2 :
+  Lemma ghost_heap۰meta_tokenｰunion₂ γ l E1 E2 :
     ghost_heap۰meta_token γ l E1 -∗
     ghost_heap۰meta_token γ l E2 -∗
     ghost_heap۰meta_token γ l (E1 ∪ E2).
@@ -241,7 +241,7 @@ Section ghost_heap۰G.
     iEval (rewrite own_op).
     iFrame.
   Qed.
-  Lemma ghost_heap۰meta_token𑁒union γ l E1 E2 :
+  Lemma ghost_heap۰meta_tokenｰunion γ l E1 E2 :
     E1 ## E2 →
     ghost_heap۰meta_token γ l (E1 ∪ E2) ⊣⊢
       ghost_heap۰meta_token γ l E1 ∗
@@ -249,12 +249,12 @@ Section ghost_heap۰G.
   Proof.
     intros.
     iSplit.
-    - iApply ghost_heap۰meta_token𑁒union₁. 1: done.
+    - iApply ghost_heap۰meta_tokenｰunion₁. 1: done.
     - iIntros "(H1 & H2)".
-      iApply (ghost_heap۰meta_token𑁒union₂ with "H1 H2").
+      iApply (ghost_heap۰meta_tokenｰunion₂ with "H1 H2").
   Qed.
 
-  Lemma ghost_heap۰meta_token𑁒difference γ l E1 E2 :
+  Lemma ghost_heap۰meta_tokenｰdifference γ l E1 E2 :
     E1 ⊆ E2 →
     ghost_heap۰meta_token γ l E2 ⊣⊢
       ghost_heap۰meta_token γ l E1 ∗
@@ -262,10 +262,10 @@ Section ghost_heap۰G.
   Proof.
     intros.
     rewrite {1}(union_difference_L E1 E2) //.
-    rewrite ghost_heap۰meta_token𑁒union //. 1: set_solver.
+    rewrite ghost_heap۰meta_tokenｰunion //. 1: set_solver.
   Qed.
 
-  Lemma ghost_heap۰meta𑁒agree `{Countable A} γ l ι (x1 x2 : A) :
+  Lemma ghost_heap۰metaｰagree `{Countable A} γ l ι (x1 x2 : A) :
     ghost_heap۰meta γ l ι x1 -∗
     ghost_heap۰meta γ l ι x2 -∗
     ⌜x1 = x2⌝.
@@ -277,7 +277,7 @@ Section ghost_heap۰G.
     rewrite -reservation_map_data_op reservation_map_data_valid.
     move=> /to_agree_op_inv_L. naive_solver.
   Qed.
-  Lemma ghost_heap۰meta𑁒set `{Countable A} γ E l (x : A) ι :
+  Lemma ghost_heap۰metaｰset `{Countable A} γ E l (x : A) ι :
     ↑ι ⊆ E →
     ghost_heap۰meta_token γ l E ⊢ |==>
     ghost_heap۰meta γ l ι x.
@@ -290,7 +290,7 @@ Section ghost_heap۰G.
     }
   Qed.
 
-  Lemma ghost_heap𑁒meta𑁒meta_token𑁒valid `{Countable A} γ l (x : A) ι E :
+  Lemma ghost_heapｰmetaｰmeta_tokenｰvalid `{Countable A} γ l (x : A) ι E :
     ghost_heap۰meta γ l ι x -∗
     ghost_heap۰meta_token γ l E -∗
     ⌜↑ι ⊈ E⌝.
@@ -305,24 +305,24 @@ Section ghost_heap۰G.
     rewrite lookup_singleton_eq in Hvalid.
     pose proof (coPpick_elem_of (↑ι) (nclose_non_empty _)). set_solver.
   Qed.
-  Lemma ghost_heap𑁒meta𑁒meta_token𑁒valid' `{Countable A} γ l (x : A) ι E :
+  Lemma ghost_heapｰmetaｰmeta_tokenｰvalid' `{Countable A} γ l (x : A) ι E :
     ↑ι ⊆ E →
     ghost_heap۰meta γ l ι x -∗
     ghost_heap۰meta_token γ l E -∗
     False.
   Proof.
     iIntros (?) "#Hmeta Htoken".
-    iDestruct (ghost_heap𑁒meta𑁒meta_token𑁒valid with "Hmeta Htoken") as %[] => //.
+    iDestruct (ghost_heapｰmetaｰmeta_tokenｰvalid with "Hmeta Htoken") as %[] => //.
   Qed.
 
-  #[global] Instance ghost_heap𑁒combine_sep_gives𑁒meta𑁒meta_token₁ `{Countable A} γ l (x : A) ι E :
+  #[global] Instance ghost_heapｰcombine_sep_givesｰmetaｰmeta_token₁ `{Countable A} γ l (x : A) ι E :
     CombineSepGives (ghost_heap۰meta γ l ι x) (ghost_heap۰meta_token γ l E) ⌜↑ι ⊈ E⌝.
   Proof.
     rewrite /CombineSepGives.
     iIntros "(#Hmeta & Htoken)".
-    iDestruct (ghost_heap𑁒meta𑁒meta_token𑁒valid with "Hmeta Htoken") as %?. auto.
+    iDestruct (ghost_heapｰmetaｰmeta_tokenｰvalid with "Hmeta Htoken") as %?. auto.
   Qed.
-  #[global] Instance ghost_heap𑁒combine_sep_gives𑁒meta𑁒meta_token₂ `{Countable A} γ l (x : A) ι E :
+  #[global] Instance ghost_heapｰcombine_sep_givesｰmetaｰmeta_token₂ `{Countable A} γ l (x : A) ι E :
     CombineSepGives (ghost_heap۰meta_token γ l E) (ghost_heap۰meta γ l ι x) ⌜↑ι ⊈ E⌝.
   Proof.
     rewrite /CombineSepGives.
@@ -330,7 +330,7 @@ Section ghost_heap۰G.
     iCombine "Hmeta Htoken" gives %?. auto.
   Qed.
 
-  Lemma ghost_heap𑁒lookup γ σ l dq v :
+  Lemma ghost_heapｰlookup γ σ l dq v :
     ghost_heap۰auth γ σ -∗
     ghost_heap۰at γ l dq v -∗
     ⌜σ !! l = Some v⌝.
@@ -339,7 +339,7 @@ Section ghost_heap۰G.
     iApply (ghost_map_lookup with "Hσ Hl").
   Qed.
 
-  Lemma ghost_heap𑁒insert {γ σ} l v :
+  Lemma ghost_heapｰinsert {γ σ} l v :
     σ !! l = None →
     ghost_heap۰auth γ σ ⊢ |==>
       ghost_heap۰auth γ (<[l := v]> σ) ∗
@@ -356,7 +356,7 @@ Section ghost_heap۰G.
     }
     iPureIntro. set_solver.
   Qed.
-  Lemma ghost_heap𑁒insert𑁒big {γ σ1} σ2 :
+  Lemma ghost_heapｰinsertｰbig {γ σ1} σ2 :
     σ2 ##ₘ σ1 →
     ghost_heap۰auth γ σ1 ⊢ |==>
       ghost_heap۰auth γ (σ2 ∪ σ1) ∗
@@ -371,12 +371,12 @@ Section ghost_heap۰G.
       decompose_map_disjoint.
       iEval (rewrite !big_opM_insert //).
       iEval (rewrite -insert_union_l //).
-      iMod (ghost_heap𑁒insert l v with "Hauth") as "($ & $ & $)".
+      iMod (ghost_heapｰinsert l v with "Hauth") as "($ & $ & $)".
       { apply lookup_union_None => //. }
       iFrameSteps.
   Qed.
 
-  Lemma ghost_heap𑁒update {γ σ l v1} v2 :
+  Lemma ghost_heapｰupdate {γ σ l v1} v2 :
     ghost_heap۰auth γ σ -∗
     ghost_heap۰at γ l (DfracOwn 1) v1 ==∗
       ghost_heap۰auth γ (<[l := v2]> σ) ∗
@@ -388,7 +388,7 @@ Section ghost_heap۰G.
     iFrame. iPureIntro. set_solver.
   Qed.
 
-  Lemma ghost_heap𑁒alloc σ :
+  Lemma ghost_heapｰalloc σ :
     ⊢ |==>
       ∃ γ,
       ghost_heap۰auth γ σ ∗
@@ -402,7 +402,7 @@ Section ghost_heap۰G.
       ; ghost_heap۰name۰meta := γ_meta
       |}.
     iAssert (ghost_heap۰auth γ ∅) with "[$Hσ $Hm //]" as "Hauth".
-    iMod (ghost_heap𑁒insert𑁒big with "Hauth") as "(Hauth & $ & $)". 1: set_solver.
+    iMod (ghost_heapｰinsertｰbig with "Hauth") as "(Hauth & $ & $)". 1: set_solver.
     iEval (rewrite right_id_L) in "Hauth" => //.
   Qed.
 End ghost_heap۰G.

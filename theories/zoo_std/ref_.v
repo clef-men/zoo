@@ -16,13 +16,13 @@ Section zoo۰G.
       l ↦ᵣ w ∗
       τ w
     ).
-  #[global] Instance itype۰ref𑁒itype :
+  #[global] Instance itype۰refｰitype :
     iType _ itype۰ref.
   Proof.
     split. apply _.
   Qed.
 
-  Lemma ref٠make𑁒type v :
+  Lemma ref٠makeｰtype v :
     {{{
       τ v
     }}}
@@ -36,7 +36,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma ref٠get𑁒type t :
+  Lemma ref٠getｰtype t :
     {{{
       itype۰ref t
     }}}
@@ -50,7 +50,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma ref٠set𑁒type t v :
+  Lemma ref٠setｰtype t v :
     {{{
       itype۰ref t ∗
       τ v

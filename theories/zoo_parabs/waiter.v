@@ -20,7 +20,7 @@ Class WaiterG Σ `{zoo۰G : !ZooG Σ} :=
 Definition waiter۰Σ :=
   #[mutex۰Σ
   ].
-#[global] Instance subG𑁒ws_hub_Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰws_hub_Σ Σ `{zoo۰G : !ZooG Σ} :
   subG waiter۰Σ Σ →
   WaiterG Σ.
 Proof.
@@ -57,13 +57,13 @@ Section waiter۰G.
       )
     ".
 
-  #[global] Instance waiter۰inv𑁒persistent t :
+  #[global] Instance waiter۰invｰpersistent t :
     Persistent (waiter۰inv t).
   Proof.
     apply _.
   Qed.
 
-  Lemma waiter٠create𑁒spec :
+  Lemma waiter٠createｰspec :
     {{{
       True
     }}}
@@ -77,15 +77,15 @@ Section waiter۰G.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰apply (condition٠create𑁒spec with "[//]") as "%cond #Hcond_inv".
-    wp۰apply (mutex٠create𑁒spec𑁒init with "[//]") as "%mtx Hmtx_init".
+    wp۰apply (condition٠createｰspec with "[//]") as "%cond #Hcond_inv".
+    wp۰apply (mutex٠createｰspecｰinit with "[//]") as "%mtx Hmtx_init".
     wp۰block 𝑡 as "(H𝑡_mutex & H𝑡_condition & H𝑡_flag & _)".
 
-    iMod (mutex۰init𑁒to𑁒inv (inv۰inner 𝑡) with "Hmtx_init [$H𝑡_flag]").
+    iMod (mutex۰initｰtoｰinv (inv۰inner 𝑡) with "Hmtx_init [$H𝑡_flag]").
     iSteps.
   Qed.
 
-  Lemma waiter٠notify𑁒spec t :
+  Lemma waiter٠notifyｰspec t :
     {{{
       waiter۰inv t
     }}}
@@ -99,21 +99,21 @@ Section waiter۰G.
     iIntros "%Φ (:inv) HΦ".
 
     wp۰rec. wp۰load.
-    wp۰apply (mutex٠lock𑁒spec with "Hmtx_inv") as "(Hmtx_locked & (:inv۰inner))".
+    wp۰apply (mutex٠lockｰspec with "Hmtx_inv") as "(Hmtx_locked & (:inv۰inner))".
     wp۰load.
     destruct b; wp۰pures.
 
     - wp۰load.
-      wp۰apply (mutex٠unlock𑁒spec with "[$Hmtx_inv $Hmtx_locked $H𝑡_flag]").
+      wp۰apply (mutex٠unlockｰspec with "[$Hmtx_inv $Hmtx_locked $H𝑡_flag]").
       iSteps.
 
     - wp۰bind (_ <-{flag} _)%E.
       wp۰store. wp۰load.
-      wp۰apply (mutex٠unlock𑁒spec with "[$Hmtx_inv $Hmtx_locked $H𝑡_flag]").
+      wp۰apply (mutex٠unlockｰspec with "[$Hmtx_inv $Hmtx_locked $H𝑡_flag]").
       iSteps.
   Qed.
 
-  Lemma waiter٠prepare_wait𑁒spec t :
+  Lemma waiter٠prepare_waitｰspec t :
     {{{
       waiter۰inv t
     }}}
@@ -126,11 +126,11 @@ Section waiter۰G.
     iIntros "%Φ (:inv) HΦ".
 
     wp۰rec. wp۰load.
-    wp۰apply (mutex٠protect𑁒spec itype۰unit with "[$Hmtx_inv]"). 1: iSteps.
+    wp۰apply (mutex٠protectｰspec itype۰unit with "[$Hmtx_inv]"). 1: iSteps.
     iSteps.
   Qed.
 
-  Lemma waiter٠cancel_wait𑁒spec t :
+  Lemma waiter٠cancel_waitｰspec t :
     {{{
       waiter۰inv t
     }}}
@@ -144,14 +144,14 @@ Section waiter۰G.
     iIntros "%Φ (:inv) HΦ".
 
     wp۰rec. wp۰load.
-    wp۰apply (mutex٠protect𑁒spec itype۰bool with "[$Hmtx_inv]"). 2: iSteps.
+    wp۰apply (mutex٠protectｰspec itype۰bool with "[$Hmtx_inv]"). 2: iSteps.
     { iIntros "Hmtx_locked (:inv۰inner)".
       wp۰load.
       destruct b; iSteps.
     }
   Qed.
 
-  Lemma waiter٠commit_wait𑁒spec t :
+  Lemma waiter٠commit_waitｰspec t :
     {{{
       waiter۰inv t
     }}}
@@ -164,10 +164,10 @@ Section waiter۰G.
     iIntros "%Φ (:inv) HΦ".
 
     wp۰rec. wp۰load.
-    wp۰apply (mutex٠protect𑁒spec itype۰unit with "[$Hmtx_inv]"). 2: iSteps.
+    wp۰apply (mutex٠protectｰspec itype۰unit with "[$Hmtx_inv]"). 2: iSteps.
     iIntros "Hmtx_locked (:inv۰inner)".
     do 2 wp۰load.
-    wp۰apply (condition٠wait_until𑁒spec (λ _, True)%I with "[$Hcond_inv $Hmtx_inv $Hmtx_locked $H𝑡_flag]"). 1: iSteps.
+    wp۰apply (condition٠wait_untilｰspec (λ _, True)%I with "[$Hcond_inv $Hmtx_inv $Hmtx_locked $H𝑡_flag]"). 1: iSteps.
     iSteps.
   Qed.
 End waiter۰G.

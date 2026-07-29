@@ -11,9 +11,9 @@ Variant goptional {A} :=
   | Gsomething (a : A).
 #[global] Arguments goptional : clear implicits.
 
-#[global] Instance goptional𑁒inhabited A : Inhabited (goptional A) :=
+#[global] Instance goptionalｰinhabited A : Inhabited (goptional A) :=
   populate Gnothing.
-#[global] Instance Gsomething𑁒inj A :
+#[global] Instance Gsomethingｰinj A :
   Inj (=) (=) (@Gsomething A).
 Proof.
   rewrite /Inj. naive_solver.
@@ -39,16 +39,16 @@ Coercion goptional۰to_val o :=
   end%V.
 #[global] Arguments goptional۰to_val !_ / : assert.
 
-#[global] Instance goptional۰to_val𑁒inj𑁒similar :
+#[global] Instance goptional۰to_valｰinjｰsimilar :
   Inj (=) (≈@{val}) goptional۰to_val.
 Proof.
   intros [] [] ?; try done.
   zoo_simplify. done.
 Qed.
-#[global] Instance goptional۰to_val𑁒inj :
+#[global] Instance goptional۰to_valｰinj :
   Inj (=) (=) goptional۰to_val.
 Proof.
-  intros ?* ->%val𑁒similar𑁒refl%(inj _). done.
+  intros ?* ->%valｰsimilarｰrefl%(inj _). done.
 Qed.
 
 Section zoo۰G.
@@ -61,13 +61,13 @@ Section zoo۰G.
     ∨ ∃ v,
       ⌜t = ‘Gsomething( v )%V⌝ ∗
       τ v.
-  #[global] Instance itype۰goptional𑁒itype :
+  #[global] Instance itype۰goptionalｰitype :
     iType _ itype۰goptional.
   Proof.
     split. apply _.
   Qed.
 
-  Lemma wp𑁒match𑁒goptional t e1 e2 x e3 Φ :
+  Lemma wpｰmatchｰgoptional t e1 e2 x e3 Φ :
     itype۰goptional t -∗
     ( WP e1 {{ Φ }} ∧
       WP e2 {{ Φ }} ∧

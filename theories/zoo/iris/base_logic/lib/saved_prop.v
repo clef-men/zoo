@@ -11,7 +11,7 @@ Class SavedPropG Σ :=
 Definition saved_prop۰Σ :=
   #[agree۰Σ (▶ ∙)
   ].
-#[global] Instance subG𑁒saved_prop۰Σ Σ :
+#[global] Instance subGｰsaved_prop۰Σ Σ :
   subG saved_prop۰Σ Σ →
   SavedPropG Σ.
 Proof.
@@ -26,45 +26,45 @@ Section saved_prop۰G.
   Definition saved_prop γ P :=
     agree۰on γ (Next P).
 
-  #[global] Instance saved_prop𑁒contractive γ :
+  #[global] Instance saved_propｰcontractive γ :
     Contractive (saved_prop γ).
   Proof.
     solve_contractive.
   Qed.
-  #[global] Instance saved_prop𑁒proper γ :
+  #[global] Instance saved_propｰproper γ :
     Proper ((≡) ==> (≡)) (saved_prop γ).
   Proof.
     solve_proper.
   Qed.
 
-  #[global] Instance saved_prop𑁒persistent γ P :
+  #[global] Instance saved_propｰpersistent γ P :
     Persistent (saved_prop γ P).
   Proof.
     apply _.
   Qed.
 
-  Lemma saved_prop𑁒alloc P :
+  Lemma saved_propｰalloc P :
     ⊢ |==>
       ∃ γ,
       saved_prop γ P.
   Proof.
-    apply agree𑁒alloc.
+    apply agreeｰalloc.
   Qed.
-  Lemma saved_prop𑁒alloc𑁒cofinite (γs : gset gname) P :
+  Lemma saved_propｰallocｰcofinite (γs : gset gname) P :
     ⊢ |==>
       ∃ γ,
       ⌜γ ∉ γs⌝ ∗
       saved_prop γ P.
   Proof.
-    apply agree𑁒alloc𑁒cofinite.
+    apply agreeｰallocｰcofinite.
   Qed.
 
-  Lemma saved_prop𑁒agree γ P1 P2 :
+  Lemma saved_propｰagree γ P1 P2 :
     saved_prop γ P1 -∗
     saved_prop γ P2 -∗
     ▷ (P1 ≡ P2).
   Proof.
-    rewrite -later_equivI. apply: agree۰on𑁒agree.
+    rewrite -later_equivI. apply: agree۰onｰagree.
   Qed.
 End saved_prop۰G.
 

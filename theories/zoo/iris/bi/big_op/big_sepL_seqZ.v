@@ -13,7 +13,7 @@ Section bi.
     Implicit Type l : list A.
     Implicit Type Φ : Z → PROP.
 
-    Lemma big_sepL𑁒seqZ𑁒intro Φ i n :
+    Lemma big_sepLｰseqZｰintro Φ i n :
       □ (
         ∀ k,
         ⌜i ≤ k < i + n⌝%Z -∗
@@ -26,7 +26,7 @@ Section bi.
       iSteps.
     Qed.
 
-    Lemma big_sepL𑁒seqZ𑁒impl Φ1 Φ2 i n :
+    Lemma big_sepLｰseqZｰimpl Φ1 Φ2 i n :
       ([∗ list] k ∈ seqZ i n, Φ1 k) -∗
       □ (
         ∀ k,
@@ -41,7 +41,7 @@ Section bi.
       iSteps.
     Qed.
 
-    Lemma big_sepL𑁒seqZ𑁒cons Φ i n :
+    Lemma big_sepLｰseqZｰcons Φ i n :
       (0 < n)%Z →
       ([∗ list] k ∈ seqZ i n, Φ k) ⊣⊢
         Φ i ∗
@@ -51,28 +51,28 @@ Section bi.
       rewrite seqZ_cons; first lia.
       rewrite big_sepL_cons //.
     Qed.
-    Lemma big_sepL𑁒seqZ𑁒cons₁ Φ i n :
+    Lemma big_sepLｰseqZｰcons₁ Φ i n :
       (0 < n)%Z →
       ([∗ list] k ∈ seqZ i n, Φ k) ⊢
         Φ i ∗
         ([∗ list] k ∈ seqZ (Z.succ i) (Z.pred n), Φ k).
     Proof.
       intros.
-      rewrite big_sepL𑁒seqZ𑁒cons //.
+      rewrite big_sepLｰseqZｰcons //.
     Qed.
-    Lemma big_sepL𑁒seqZ𑁒cons₂ Φ i n :
+    Lemma big_sepLｰseqZｰcons₂ Φ i n :
       (0 ≤ n)%Z →
       ([∗ list] k ∈ seqZ i n, Φ k) -∗
       Φ (Z.pred i) -∗
       [∗ list] k ∈ seqZ (Z.pred i) (Z.succ n), Φ k.
     Proof.
       intros.
-      rewrite (big_sepL𑁒seqZ𑁒cons _ (Z.pred i)); first lia.
+      rewrite (big_sepLｰseqZｰcons _ (Z.pred i)); first lia.
       rewrite Z.succ_pred Z.pred_succ.
       iSteps.
     Qed.
 
-    Lemma big_sepL𑁒seqZ𑁒snoc Φ i n :
+    Lemma big_sepLｰseqZｰsnoc Φ i n :
       (0 ≤ n)%Z →
       ([∗ list] k ∈ seqZ i (Z.succ n), Φ k) ⊣⊢
         ([∗ list] k ∈ seqZ i n, Φ k) ∗
@@ -82,27 +82,27 @@ Section bi.
       Z_to_nat n.
       rewrite -Nat2Z.inj_succ seqZ_S big_sepL_snoc //.
     Qed.
-    Lemma big_sepL𑁒seqZ𑁒snoc₁ Φ i n :
+    Lemma big_sepLｰseqZｰsnoc₁ Φ i n :
       (0 ≤ n)%Z →
       ([∗ list] k ∈ seqZ i (Z.succ n), Φ k) ⊢
         ([∗ list] k ∈ seqZ i n, Φ k) ∗
         Φ (i + n)%Z.
     Proof.
       intros.
-      rewrite big_sepL𑁒seqZ𑁒snoc //.
+      rewrite big_sepLｰseqZｰsnoc //.
     Qed.
-    Lemma big_sepL𑁒seqZ𑁒snoc₂ Φ i n :
+    Lemma big_sepLｰseqZｰsnoc₂ Φ i n :
       (0 ≤ n)%Z →
       ([∗ list] k ∈ seqZ i n, Φ k) -∗
       Φ (i + n)%Z -∗
       [∗ list] k ∈ seqZ i (Z.succ n), Φ k.
     Proof.
       intros.
-      rewrite big_sepL𑁒seqZ𑁒snoc //.
+      rewrite big_sepLｰseqZｰsnoc //.
       iSteps.
     Qed.
 
-    Lemma big_sepL𑁒seqZ𑁒app Φ i n1 n2 :
+    Lemma big_sepLｰseqZｰapp Φ i n1 n2 :
       (0 ≤ n1)%Z →
       (0 ≤ n2)%Z →
       ([∗ list] k ∈ seqZ i (n1 + n2), Φ k) ⊣⊢
@@ -112,7 +112,7 @@ Section bi.
       intros.
       rewrite seqZ_app // big_sepL_app //.
     Qed.
-    Lemma big_sepL𑁒seqZ𑁒app₁ {Φ i n} n1 n2 :
+    Lemma big_sepLｰseqZｰapp₁ {Φ i n} n1 n2 :
       n = (n1 + n2)%Z →
       (0 ≤ n1)%Z →
       (0 ≤ n2)%Z →
@@ -121,9 +121,9 @@ Section bi.
         ([∗ list] k ∈ seqZ (i + n1) n2, Φ k).
     Proof.
       intros -> ? ?.
-      rewrite big_sepL𑁒seqZ𑁒app //.
+      rewrite big_sepLｰseqZｰapp //.
     Qed.
-    Lemma big_sepL𑁒seqZ𑁒app₂ Φ i1 n1 i2 n2 :
+    Lemma big_sepLｰseqZｰapp₂ Φ i1 n1 i2 n2 :
       (0 ≤ n1)%Z →
       (0 ≤ n2)%Z →
       i2 = (i1 + n1)%Z →
@@ -132,34 +132,34 @@ Section bi.
       [∗ list] k ∈ seqZ i1 (n1 + n2), Φ k.
     Proof.
       intros ? ? ->.
-      rewrite big_sepL𑁒seqZ𑁒app //.
+      rewrite big_sepLｰseqZｰapp //.
       iSteps.
     Qed.
 
-    Lemma big_sepL𑁒seqZ𑁒to𑁒seq `{!BiAffine PROP} Φ i n :
+    Lemma big_sepLｰseqZｰtoｰseq `{!BiAffine PROP} Φ i n :
       (0 ≤ i)%Z →
       (0 ≤ n)%Z →
       ([∗ list] k ∈ seqZ i n, Φ k) ⊢
       [∗ list] k ∈ seq ₊i ₊n, Φ ⁺k.
     Proof.
       iIntros "%Hi %Hn H".
-      iApply (big_sepL𑁒impl𑁒strong with "H").
+      iApply (big_sepLｰimplｰstrong with "H").
       { simpl_length. }
       iIntros "!>" (k k1 k2 (-> & _)%lookup_seqZ (-> & _)%lookup_seq) "HΦ".
       replace ⁺(₊i + k) with (i + k)%Z by lia. done.
     Qed.
-    Lemma big_sepL𑁒seqZ𑁒to𑁒seq' `{!BiAffine PROP} (Φ : nat → PROP) i n :
+    Lemma big_sepLｰseqZｰtoｰseq' `{!BiAffine PROP} (Φ : nat → PROP) i n :
       (0 ≤ i)%Z →
       (0 ≤ n)%Z →
       ([∗ list] k ∈ seqZ i n, Φ ₊k) ⊢
       [∗ list] k ∈ seq ₊i ₊n, Φ k.
     Proof.
       intros.
-      rewrite big_sepL𑁒seqZ𑁒to𑁒seq //.
+      rewrite big_sepLｰseqZｰtoｰseq //.
       setoid_rewrite Nat2Z.id => //.
     Qed.
 
-    Lemma big_sepL𑁒seqZ𑁒lookup `{!BiAffine PROP} {Φ i1 n} i2 :
+    Lemma big_sepLｰseqZｰlookup `{!BiAffine PROP} {Φ i1 n} i2 :
       (i1 ≤ i2 < i1 + n)%Z →
       ([∗ list] k ∈ seqZ i1 n, Φ k) ⊢
       Φ i2.

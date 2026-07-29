@@ -10,7 +10,7 @@ Section basic.
   Implicit Type x y : A.
   Implicit Type X Y : gmultiset A.
 
-  Lemma gmultiset𑁒empty𑁒elem_of X :
+  Lemma gmultisetｰemptyｰelem_of X :
     X = ∅ ↔
       ∀ x,
       x ∉ X.
@@ -18,28 +18,28 @@ Section basic.
     multiset_solver.
   Qed.
 
-  Lemma gmultiset𑁒disj_union𑁒empty X1 X2 :
+  Lemma gmultisetｰdisj_unionｰempty X1 X2 :
     X1 ⊎ X2 = ∅ ↔
       X1 = ∅ ∧
       X2 = ∅.
   Proof.
     multiset_solver.
   Qed.
-  Lemma gmultiset𑁒disj_union𑁒empty𑁒inv X1 X2 :
+  Lemma gmultisetｰdisj_unionｰemptyｰinv X1 X2 :
     X1 ⊎ X2 = ∅ →
       X1 = ∅ ∧
       X2 = ∅.
   Proof.
-    rewrite gmultiset𑁒disj_union𑁒empty //.
+    rewrite gmultisetｰdisj_unionｰempty //.
   Qed.
 
-  Lemma elem_of𑁒gmultiset𑁒disj_union𑁒l x X1 X2 :
+  Lemma elem_ofｰgmultisetｰdisj_unionｰl x X1 X2 :
     x ∈ X1 →
     x ∈ X1 ⊎ X2.
   Proof.
     multiset_solver.
   Qed.
-  Lemma elem_of𑁒gmultiset𑁒disj_union𑁒r x X1 X2 :
+  Lemma elem_ofｰgmultisetｰdisj_unionｰr x X1 X2 :
     x ∈ X2 →
     x ∈ X1 ⊎ X2.
   Proof.
@@ -53,7 +53,7 @@ Section size.
   Implicit Type x y : A.
   Implicit Type X Y : gmultiset A.
 
-  Lemma gmultiset𑁒size𑁒singleton𑁒inv X x y :
+  Lemma gmultisetｰsizeｰsingletonｰinv X x y :
     size X = 1 →
     x ∈ X →
     y ∈ X →
@@ -63,7 +63,7 @@ Section size.
     generalize (elements X). intros [| ? l] ?*; simplify.
     rewrite (nil_length_inv l) // !list_elem_of_singleton. congruence.
   Qed.
-  Lemma gmultiset𑁒size𑁒1𑁒elem_of X :
+  Lemma gmultisetｰsizeｰ1ｰelem_of X :
     size X = 1 →
       ∃ x,
       X = {[+x+]}.
@@ -76,7 +76,7 @@ Section size.
     rewrite -gmultiset_size_empty_iff gmultiset_size_difference // gmultiset_size_singleton. lia.
   Qed.
 
-  Lemma gmultiset𑁒elem_of𑁒size𑁒non_empty x X :
+  Lemma gmultisetｰelem_ofｰsizeｰnon_empty x X :
     x ∈ X →
     size X ≠ 0.
   Proof.
@@ -94,7 +94,7 @@ Section map.
   Implicit Type X Y : gmultiset A.
   Implicit Type 𝑋 𝑌 : gmultiset B.
 
-  Lemma gmultiset𑁒size𑁒map X :
+  Lemma gmultisetｰsizeｰmap X :
     size (gmultiset_map f X) = size X.
   Proof.
     induction X as [| x X IH] using gmultiset_ind.
@@ -104,7 +104,7 @@ Section map.
       auto.
   Qed.
 
-  Lemma gmultiset_map𑁒empty𑁒inv X :
+  Lemma gmultiset_mapｰemptyｰinv X :
     gmultiset_map f X = ∅ →
     X = ∅.
   Proof.
@@ -115,7 +115,7 @@ Section map.
       rewrite gmultiset_size_disj_union gmultiset_size_singleton gmultiset_size_empty // in Hsize.
   Qed.
 
-  Lemma gmultiset_map𑁒singleton𑁒inv X 𝑥 :
+  Lemma gmultiset_mapｰsingletonｰinv X 𝑥 :
     gmultiset_map f X = {[+𝑥+]} →
       ∃ x,
       X = {[+x+]} ∧
@@ -127,14 +127,14 @@ Section map.
     - rewrite gmultiset_map_disj_union gmultiset_map_singleton in Heq.
       assert (size X = 0) as ->%gmultiset_size_empty_inv.
       { apply (f_equal size) in Heq.
-        rewrite gmultiset_size_disj_union gmultiset𑁒size𑁒map !gmultiset_size_singleton in Heq.
+        rewrite gmultiset_size_disj_union gmultisetｰsizeｰmap !gmultiset_size_singleton in Heq.
         lia.
       }
       rewrite gmultiset_map_empty right_id in Heq.
       set_solver.
   Qed.
 
-  Lemma gmultiset_map𑁒disj_union𑁒inv X 𝑋1 𝑋2 :
+  Lemma gmultiset_mapｰdisj_unionｰinv X 𝑋1 𝑋2 :
     gmultiset_map f X = 𝑋1 ⊎ 𝑋2 →
       ∃ X1 X2,
       X = X1 ⊎ X2 ∧
@@ -144,7 +144,7 @@ Section map.
     move: 𝑋1 𝑋2. induction X as [| x X IH] using gmultiset_ind => 𝑋1 𝑋2 Heq.
     - exists ∅, ∅.
       rewrite gmultiset_map_empty in Heq.
-      apply symmetry, gmultiset𑁒disj_union𑁒empty in Heq as (-> & ->).
+      apply symmetry, gmultisetｰdisj_unionｰempty in Heq as (-> & ->).
       done.
     - rewrite gmultiset_map_disj_union gmultiset_map_singleton in Heq.
       assert (f x ∈ 𝑋1 ⊎ 𝑋2) as Helem by multiset_solver.
@@ -166,17 +166,17 @@ Section map.
         * rewrite gmultiset_map_disj_union gmultiset_map_singleton.
           multiset_solver.
   Qed.
-  Lemma gmultiset_map𑁒disj_union𑁒singleton𑁒l𑁒inv X 𝑥 𝑋 :
+  Lemma gmultiset_mapｰdisj_unionｰsingletonｰlｰinv X 𝑥 𝑋 :
     gmultiset_map f X = {[+𝑥+]} ⊎ 𝑋 →
       ∃ x X',
       X = {[+x+]} ⊎ X' ∧
       𝑥 = f x ∧
       𝑋 = gmultiset_map f X'.
   Proof.
-    intros (X1 & X2 & -> & (x & -> & ->)%symmetry%gmultiset_map𑁒singleton𑁒inv & Heq)%gmultiset_map𑁒disj_union𑁒inv.
+    intros (X1 & X2 & -> & (x & -> & ->)%symmetry%gmultiset_mapｰsingletonｰinv & Heq)%gmultiset_mapｰdisj_unionｰinv.
     eauto.
   Qed.
-  Lemma gmultiset_map𑁒disj_union𑁒singleton𑁒r𑁒inv X 𝑥 𝑋 :
+  Lemma gmultiset_mapｰdisj_unionｰsingletonｰrｰinv X 𝑥 𝑋 :
     gmultiset_map f X = 𝑋 ⊎ {[+𝑥+]} →
       ∃ X' x,
       X = X' ⊎ {[+x+]} ∧
@@ -184,7 +184,7 @@ Section map.
       𝑥 = f x.
   Proof.
     setoid_rewrite (comm (⊎)) at 1 3.
-    intros (x & X' & -> & -> & ->)%gmultiset_map𑁒disj_union𑁒singleton𑁒l𑁒inv.
+    intros (x & X' & -> & -> & ->)%gmultiset_mapｰdisj_unionｰsingletonｰlｰinv.
     eauto.
   Qed.
 End map.
@@ -195,7 +195,7 @@ Section list_to_set_disj.
   Implicit Type x y : A.
   Implicit Type l : list A.
 
-  Lemma list_to_set_disj𑁒empty l :
+  Lemma list_to_set_disjｰempty l :
     list_to_set_disj l =@{gmultiset _} ∅ ↔
     l = [].
   Proof.
@@ -206,7 +206,7 @@ Section list_to_set_disj.
       apply list_to_set_disj_nil.
   Qed.
 
-  Lemma list_to_set_disj𑁒snoc l x :
+  Lemma list_to_set_disjｰsnoc l x :
     list_to_set_disj (l ++ [x]) =@{gmultiset _} {[+x+]} ⊎ list_to_set_disj l.
   Proof.
     rewrite list_to_set_disj_app list_to_set_disj_cons right_id (comm (⊎)) //.
@@ -220,23 +220,23 @@ Section disj_union_list.
   Implicit Type X Y : gmultiset A.
   Implicit Type Xs Ys : list $ gmultiset A.
 
-  Lemma gmultiset𑁒disj_union_list𑁒empty Xs :
+  Lemma gmultisetｰdisj_union_listｰempty Xs :
     ⋃+ Xs = ∅ ↔
       ∀ X,
       X ∈ Xs →
       X = ∅.
   Proof.
-    setoid_rewrite gmultiset𑁒empty𑁒elem_of.
+    setoid_rewrite gmultisetｰemptyｰelem_of.
     setoid_rewrite elem_of_gmultiset_disj_union_list.
     naive_solver.
   Qed.
-  Lemma gmultiset𑁒disj_union_list𑁒replicate𑁒empty n :
+  Lemma gmultisetｰdisj_union_listｰreplicateｰempty n :
     ⋃+ replicate n ∅ =@{gmultiset A} ∅.
   Proof.
-    apply gmultiset𑁒disj_union_list𑁒empty. intros X (-> & _)%elem_of_replicate => //.
+    apply gmultisetｰdisj_union_listｰempty. intros X (-> & _)%elem_of_replicate => //.
   Qed.
 
-  Lemma gmultiset𑁒disj_union_list𑁒delete Xs i X :
+  Lemma gmultisetｰdisj_union_listｰdelete Xs i X :
     Xs !! i = Some X →
     ⋃+ (delete i Xs) = ⋃+ Xs ∖ X.
   Proof.
@@ -244,7 +244,7 @@ Section disj_union_list.
     rewrite {2}(delete_Permutation Xs i X) //.
     multiset_solver.
   Qed.
-  Lemma gmultiset𑁒disj_union_list𑁒delete' Xs i X :
+  Lemma gmultisetｰdisj_union_listｰdelete' Xs i X :
     Xs !! i = Some X →
     ⋃+ Xs = X ⊎ ⋃+ (delete i Xs).
   Proof.
@@ -252,39 +252,39 @@ Section disj_union_list.
     rewrite {1}(delete_Permutation Xs i X) //.
   Qed.
 
-  Lemma gmultiset𑁒disj_union_list𑁒insert Xs i X :
+  Lemma gmultisetｰdisj_union_listｰinsert Xs i X :
     is_Some (Xs !! i) →
     ⋃+ <[i := X]> Xs = X ⊎ ⋃+ (delete i Xs).
   Proof.
     intros (Y & Hlookup).
     opose proof* (lookup_lt_Some Xs i Y); first done.
-    rewrite (gmultiset𑁒disj_union_list𑁒delete' (<[i := X]> Xs) i X).
+    rewrite (gmultisetｰdisj_union_listｰdelete' (<[i := X]> Xs) i X).
     { rewrite list_lookup_insert_eq //. }
-    rewrite list𑁒delete𑁒insert𑁒eq //.
+    rewrite listｰdeleteｰinsertｰeq //.
   Qed.
-  Lemma gmultiset𑁒disj_union_list𑁒insert𑁒id Xs i X :
+  Lemma gmultisetｰdisj_union_listｰinsertｰid Xs i X :
     Xs !! i = Some X →
     ⋃+ <[i := X]> Xs = ⋃+ Xs.
   Proof.
     intros Hlookup.
-    rewrite gmultiset𑁒disj_union_list𑁒insert //.
+    rewrite gmultisetｰdisj_union_listｰinsert //.
     rewrite {2}(delete_Permutation Xs i X) //.
   Qed.
-  Lemma gmultiset𑁒disj_union_list𑁒insert𑁒disj_union𑁒l Xs i X1 X2 :
+  Lemma gmultisetｰdisj_union_listｰinsertｰdisj_unionｰl Xs i X1 X2 :
     Xs !! i = Some X2 →
     ⋃+ <[i := X1 ⊎ X2]> Xs = X1 ⊎ ⋃+ Xs.
   Proof.
     intros Hlookup.
-    rewrite gmultiset𑁒disj_union_list𑁒insert //.
+    rewrite gmultisetｰdisj_union_listｰinsert //.
     rewrite -assoc. f_equal.
-    rewrite -gmultiset𑁒disj_union_list𑁒insert //.
-    rewrite gmultiset𑁒disj_union_list𑁒insert𑁒id //.
+    rewrite -gmultisetｰdisj_union_listｰinsert //.
+    rewrite gmultisetｰdisj_union_listｰinsertｰid //.
   Qed.
-  Lemma gmultiset𑁒disj_union_list𑁒insert𑁒disj_union𑁒r Xs i X1 X2 :
+  Lemma gmultisetｰdisj_union_listｰinsertｰdisj_unionｰr Xs i X1 X2 :
     Xs !! i = Some X1 →
     ⋃+ <[i := X1 ⊎ X2]> Xs = X2 ⊎ ⋃+ Xs.
   Proof.
     intros Hlookup.
-    rewrite (comm (⊎)) gmultiset𑁒disj_union_list𑁒insert𑁒disj_union𑁒l //.
+    rewrite (comm (⊎)) gmultisetｰdisj_union_listｰinsertｰdisj_unionｰl //.
   Qed.
 End disj_union_list.

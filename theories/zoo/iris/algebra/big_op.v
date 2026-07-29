@@ -12,7 +12,7 @@ Section big_opS.
 
   Implicit Type f : A → M.
 
-  Lemma big_opS𑁒singleton𑁒L `{!LeibnizEquiv M} f x :
+  Lemma big_opSｰsingletonｰL `{!LeibnizEquiv M} f x :
     ([^o set] y ∈ {[x]}, f y) = f x.
   Proof.
     apply leibniz_equiv, big_opS_singleton.
@@ -45,7 +45,7 @@ Section big_unionL.
   Implicit Type l : list A.
   Implicit Type f : nat → A → gset K.
 
-  Lemma big_unionL𑁒elem_of {f} y l :
+  Lemma big_unionLｰelem_of {f} y l :
     y ∈ ([∪ list] k ↦ x ∈ l, f k x) →
       ∃ i x,
       l !! i = Some x ∧
@@ -87,14 +87,14 @@ Section big_unionS.
   Implicit Type X : gset A.
   Implicit Type f : A → gset K.
 
-  Lemma big_unionS𑁒elem_of {f} y X :
+  Lemma big_unionSｰelem_of {f} y X :
     y ∈ ([∪ set] x ∈ X, f x) →
       ∃ x,
       x ∈ X ∧
       y ∈ f x.
   Proof.
     rewrite big_opS_elements.
-    intros (i & s & Hs%list_elem_of_lookup_2%elem_of_elements & Hy)%big_unionL𑁒elem_of.
+    intros (i & s & Hs%list_elem_of_lookup_2%elem_of_elements & Hy)%big_unionLｰelem_of.
     naive_solver.
   Qed.
 End big_unionS.
@@ -128,14 +128,14 @@ Section big_unionM.
   Implicit Type m : gmap K A.
   Implicit Type f : K → A → gset B.
 
-  Lemma big_unionM𑁒elem_of {f} y m :
+  Lemma big_unionMｰelem_of {f} y m :
     y ∈ ([∪ map] k ↦ x ∈ m, f k x) →
       ∃ k x,
       m !! k = Some x ∧
       y ∈ f k x.
   Proof.
     rewrite big_opM_map_to_list.
-    intros (i & (k, x) & Hlookup%list_elem_of_lookup_2%elem_of_map_to_list & Hy)%big_unionL𑁒elem_of.
+    intros (i & (k, x) & Hlookup%list_elem_of_lookup_2%elem_of_map_to_list & Hy)%big_unionLｰelem_of.
     naive_solver.
   Qed.
 End big_unionM.

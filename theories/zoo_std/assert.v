@@ -14,7 +14,7 @@ Notation "'𝗮𝘀𝘀𝗲𝗿𝘁'" :=
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Lemma assert𑁒spec (b : bool) Φ :
+  Lemma assertｰspec (b : bool) Φ :
     b = true →
     ▷ Φ ()%V -∗
     WP 𝗮𝘀𝘀𝗲𝗿𝘁 #b {{ Φ }}.

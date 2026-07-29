@@ -271,9 +271,9 @@ Module tests.
   Record test₁ :=
     { test₁₁ : nat
     }.
-  #[local] Instance test₁𑁒eq_dec : EqDecision test₁ :=
+  #[local] Instance test₁ｰeq_dec : EqDecision test₁ :=
     ltac:(solve_decision).
-  #[local] Instance test₁𑁒countable :
+  #[local] Instance test₁ｰcountable :
     Countable test₁.
   Proof.
     solve_countable.
@@ -284,9 +284,9 @@ Module tests.
     ; test₂₂ : A2
     ; test₂₃ : A3
     }.
-  #[local] Instance test₂𑁒eq_dec `{!EqDecision A1, !EqDecision A2, !EqDecision A3} : EqDecision (test₂ A1 A2 A3) :=
+  #[local] Instance test₂ｰeq_dec `{!EqDecision A1, !EqDecision A2, !EqDecision A3} : EqDecision (test₂ A1 A2 A3) :=
     ltac:(solve_decision).
-  #[local] Instance test₂𑁒countable `{Countable A1, Countable A2, Countable A3} :
+  #[local] Instance test₂ｰcountable `{Countable A1, Countable A2, Countable A3} :
     Countable (test₂ A1 A2 A3).
   Proof.
     solve_countable.
@@ -296,9 +296,9 @@ Module tests.
     | Test31 : test₃
     | Test32 : nat → test₃
     | Test33 : nat → bool → test₃.
-  #[local] Instance test₃𑁒eq_dec : EqDecision test₃ :=
+  #[local] Instance test₃ｰeq_dec : EqDecision test₃ :=
     ltac:(solve_decision).
-  #[local] Instance test₃𑁒countable :
+  #[local] Instance test₃ｰcountable :
     Countable test₃.
   Proof.
     solve_countable.
@@ -315,9 +315,9 @@ Module tests.
     | Test48 : A1 → A3 → test₄ A1 A2 A3
     | Test49 : A2 → A3 → test₄ A1 A2 A3
     | Test410 : A1 → A2 → A3 → test₄ A1 A2 A3.
-  #[local] Instance test₄𑁒eq_dec `{!EqDecision A1, !EqDecision A2, !EqDecision A3} : EqDecision (test₄ A1 A2 A3) :=
+  #[local] Instance test₄ｰeq_dec `{!EqDecision A1, !EqDecision A2, !EqDecision A3} : EqDecision (test₄ A1 A2 A3) :=
     ltac:(solve_decision).
-  #[local] Instance test₄𑁒countable `{Countable A1, Countable A2, Countable A3} :
+  #[local] Instance test₄ｰcountable `{Countable A1, Countable A2, Countable A3} :
     Countable (test₄ A1 A2 A3).
   Proof.
     solve_countable.

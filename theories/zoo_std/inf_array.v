@@ -28,7 +28,7 @@ Definition inf_array۰Σ :=
   #[mutex۰Σ
   ; twins۰Σ (nat -d> val_O)
   ].
-#[global] Instance subG𑁒inf_array۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰinf_array۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG inf_array۰Σ Σ →
   InfArrayG Σ .
 Proof.
@@ -44,9 +44,9 @@ Section inf_array۰G.
     }.
   Implicit Type γ : metadata.
 
-  #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
+  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance metadata𑁒countable :
+  #[local] Instance metadataｰcountable :
     Countable metadata.
   Proof.
     solve_countable.
@@ -122,105 +122,105 @@ Section inf_array۰G.
         if decide (i < length vsₗ) then vsₗ !!! i else vsᵣ (i - length vsₗ)
     ).
 
-  #[global] Instance inf_array۰inv𑁒persistent t :
+  #[global] Instance inf_array۰invｰpersistent t :
     Persistent (inf_array۰inv t).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance inf_array۰model𑁒ne t n :
+  #[global] Instance inf_array۰modelｰne t n :
     Proper (pointwise_relation nat (=) ==> (≡{n}≡)) (inf_array۰model t).
   Proof.
     intros vs1 vs2 ->%functional_extensionality. done.
   Qed.
-  #[global] Instance inf_array۰model𑁒proper t :
+  #[global] Instance inf_array۰modelｰproper t :
     Proper (pointwise_relation nat (=) ==> (≡)) (inf_array۰model t).
   Proof.
     intros vs1 vs2 Hvs. rewrite equiv_dist. solve_proper.
   Qed.
 
-  #[global] Instance inf_array۰model𑁒timeless t vs :
+  #[global] Instance inf_array۰modelｰtimeless t vs :
     Timeless (inf_array۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance inf_array۰model'𑁒ne t n :
+  #[global] Instance inf_array۰model'ｰne t n :
     Proper ((=) ==> pointwise_relation nat (=) ==> (≡{n}≡)) (inf_array۰model' t).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance inf_array۰model'𑁒proper t :
+  #[global] Instance inf_array۰model'ｰproper t :
     Proper ((=) ==> pointwise_relation nat (=) ==> (≡)) (inf_array۰model' t).
   Proof.
     solve_proper.
   Qed.
 
-  #[global] Instance inf_array۰model'𑁒timeless t vsₗ vsᵣ :
+  #[global] Instance inf_array۰model'ｰtimeless t vsₗ vsᵣ :
     Timeless (inf_array۰model' t vsₗ vsᵣ).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma model𑁒alloc default :
+  #[local] Lemma modelｰalloc default :
     ⊢ |==>
       ∃ γ_model,
       model₁' γ_model (λ _, default) ∗
       model₂' γ_model (λ _, default).
   Proof.
-    apply twins𑁒alloc'.
+    apply twinsｰalloc'.
   Qed.
-  #[local] Lemma model𑁒agree γ vs1 vs2 :
+  #[local] Lemma modelｰagree γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₂ γ vs2 -∗
     ⌜vs1 = vs2⌝.
   Proof.
     iIntros "Hmodel₁ Hmodel₂".
-    iDestruct (twins𑁒agree𑁒discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
+    iDestruct (twinsｰagreeｰdiscrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
     iSteps.
   Qed.
-  #[local] Lemma model𑁒update {γ vs1 vs2} vs :
+  #[local] Lemma modelｰupdate {γ vs1 vs2} vs :
     model₁ γ vs1 -∗
     model₂ γ vs2 ==∗
       model₁ γ vs ∗
       model₂ γ vs.
   Proof.
-    apply twins𑁒update.
+    apply twinsｰupdate.
   Qed.
 
-  Lemma inf_array۰model𑁒to𑁒model' {t vs} vsₗ :
+  Lemma inf_array۰modelｰtoｰmodel' {t vs} vsₗ :
     (∀ i v, vsₗ !! i = Some v → vs i = v) →
     inf_array۰model t vs ⊢
     inf_array۰model' t vsₗ (λ i, vs (length vsₗ + i)).
   Proof.
     intros Hvs.
-    rewrite /inf_array۰model' inf_array۰model𑁒proper; last done.
+    rewrite /inf_array۰model' inf_array۰modelｰproper; last done.
     intros i. case_decide.
     - apply Hvs, list_lookup_lookup_total_lt. done.
     - rewrite -Nat.le_add_sub //; first lia.
   Qed.
-  Lemma inf_array۰model𑁒to𑁒model'𑁒replicate {t vs} n v :
+  Lemma inf_array۰modelｰtoｰmodel'ｰreplicate {t vs} n v :
     (∀ i, i < n → vs i = v) →
     inf_array۰model t vs ⊢
     inf_array۰model' t (replicate n v) (λ i, vs (n + i)).
   Proof.
     intros Hvs.
     rewrite -{2}(length_replicate n v).
-    apply inf_array۰model𑁒to𑁒model'. intros i v_ (-> & Hi)%lookup_replicate.
+    apply inf_array۰modelｰtoｰmodel'. intros i v_ (-> & Hi)%lookup_replicate.
     auto.
   Qed.
-  Lemma inf_array۰model𑁒to𑁒model'𑁒constant {t v} n :
+  Lemma inf_array۰modelｰtoｰmodel'ｰconstant {t v} n :
     inf_array۰model t (λ _, v) ⊢
     inf_array۰model' t (replicate n v) (λ _, v).
   Proof.
-    apply: inf_array۰model𑁒to𑁒model'𑁒replicate. done.
+    apply: inf_array۰modelｰtoｰmodel'ｰreplicate. done.
   Qed.
 
-  Lemma inf_array۰model'𑁒shift t vsₗ v vsᵣ :
+  Lemma inf_array۰model'ｰshift t vsₗ v vsᵣ :
     inf_array۰model' t (vsₗ ++ [v]) vsᵣ ⊣⊢
     inf_array۰model' t vsₗ (v .: vsᵣ).
   Proof.
-    rewrite /inf_array۰model' inf_array۰model𑁒proper; last done.
+    rewrite /inf_array۰model' inf_array۰modelｰproper; last done.
     intros j. simpl_length/=.
     destruct (Nat.lt_total j (length vsₗ)) as [| [-> |]].
     - rewrite !decide_True; try lia.
@@ -232,29 +232,29 @@ Section inf_array۰G.
     - rewrite !decide_False; try lia.
       rewrite /scons. case_match; [lia | f_equal; lia].
   Qed.
-  Lemma inf_array۰model'𑁒shift𑁒r t vsₗ v vsᵣ :
+  Lemma inf_array۰model'ｰshiftｰr t vsₗ v vsᵣ :
     inf_array۰model' t (vsₗ ++ [v]) vsᵣ ⊢
     inf_array۰model' t vsₗ (v .: vsᵣ).
   Proof.
-    rewrite inf_array۰model'𑁒shift. iSteps.
+    rewrite inf_array۰model'ｰshift. iSteps.
   Qed.
-  Lemma inf_array۰model'𑁒shift𑁒l t vsₗ vsᵣ v vsᵣ' :
+  Lemma inf_array۰model'ｰshiftｰl t vsₗ vsᵣ v vsᵣ' :
     vsᵣ ≡ᶠ v .: vsᵣ' →
     inf_array۰model' t vsₗ vsᵣ ⊢
     inf_array۰model' t (vsₗ ++ [v]) vsᵣ'.
   Proof.
     intros.
-    rewrite inf_array۰model'𑁒shift inf_array۰model'𑁒proper //.
+    rewrite inf_array۰model'ｰshift inf_array۰model'ｰproper //.
   Qed.
-  Lemma inf_array۰model'𑁒shift𑁒l' t vsₗ vsᵣ :
+  Lemma inf_array۰model'ｰshiftｰl' t vsₗ vsᵣ :
     inf_array۰model' t vsₗ vsᵣ ⊢
     inf_array۰model' t (vsₗ ++ [vsᵣ 0]) (vsᵣ ∘ S).
   Proof.
-    rewrite inf_array۰model'𑁒shift𑁒l //.
+    rewrite inf_array۰model'ｰshiftｰl //.
     intros []; done.
   Qed.
 
-  Lemma inf_array٠create𑁒spec default :
+  Lemma inf_array٠createｰspec default :
     {{{
       True
     }}}
@@ -269,25 +269,25 @@ Section inf_array۰G.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰apply (array٠create𑁒spec with "[//]") as "%data Hdata".
-    wp۰apply+ (mutex٠create𑁒spec𑁒init with "[//]") as (mtx) "Hmtx_init".
+    wp۰apply (array٠createｰspec with "[//]") as "%data Hdata".
+    wp۰apply+ (mutex٠createｰspecｰinit with "[//]") as (mtx) "Hmtx_init".
     wp۰block l as "Hmeta" "(Hl_data & Hl_default & Hl_mtx & _)".
-    iMod (pointsto𑁒persist with "Hl_default") as "#Hl_default".
+    iMod (pointstoｰpersist with "Hl_default") as "#Hl_default".
 
-    iMod (model𑁒alloc default) as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod (modelｰalloc default) as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
     pose γ :=
       {|metadata۰default := default
       ; metadata۰model := γ_model
       |}.
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
 
-    iMod (mutex۰init𑁒to𑁒inv (inv₁ l γ) with "Hmtx_init [Hl_data Hdata Hmodel₂]") as "#Hmtx_inv".
+    iMod (mutex۰initｰtoｰinv (inv₁ l γ) with "Hmtx_init [Hl_data Hdata Hmodel₂]") as "#Hmtx_inv".
     { rewrite /inv₁. iSteps. }
     iSteps.
   Qed.
 
-  #[local] Lemma inf_array٠next_capacity𑁒spec n :
+  #[local] Lemma inf_array٠next_capacityｰspec n :
     (0 ≤ n)%Z →
     {{{
       True
@@ -301,7 +301,7 @@ Section inf_array۰G.
   Proof.
     iSteps.
   Qed.
-  #[local] Lemma inf_array٠reserve𑁒spec l γ us n :
+  #[local] Lemma inf_array٠reserveｰspec l γ us n :
     (0 ≤ n)%Z →
     {{{
       l.[default] ↦□ γ.(metadata۰default) ∗
@@ -318,12 +318,12 @@ Section inf_array۰G.
     iIntros "%Hn %Φ (#Hl_default & (:inv₂)) HΦ".
 
     wp۰rec. wp۰load.
-    wp۰apply+ (array٠size𑁒spec with "Hdata") as "Hdata".
+    wp۰apply+ (array٠sizeｰspec with "Hdata") as "Hdata".
     wp۰pures. case_bool_decide; last iSteps.
-    wp۰apply+ (inf_array٠next_capacity𑁒spec with "[//]") as (?) "%"; first lia.
-    wp۰apply int٠max𑁒spec.
+    wp۰apply+ (inf_array٠next_capacityｰspec with "[//]") as (?) "%"; first lia.
+    wp۰apply int٠maxｰspec.
     wp۰load.
-    wp۰apply+ (array٠unsafe_grow𑁒spec with "Hdata") as (data') "(Hdata & Hdata')"; first lia.
+    wp۰apply+ (array٠unsafe_growｰspec with "Hdata") as (data') "(Hdata & Hdata')"; first lia.
     wp۰store.
 
     iSteps; iPureIntro; simpl_length; last lia.
@@ -336,7 +336,7 @@ Section inf_array۰G.
     - done.
   Qed.
 
-  Lemma inf_array٠get𑁒spec t i :
+  Lemma inf_array٠getｰspec t i :
     (0 ≤ i)%Z →
     <<<
       inf_array۰inv t
@@ -353,19 +353,19 @@ Section inf_array۰G.
     iIntros "% %Φ (:inv) HΦ".
 
     wp۰rec credit:"H£". wp۰load.
-    wp۰apply (mutex٠protect𑁒spec Φ with "[$Hmtx_inv H£ HΦ]"); last iSteps. iIntros "$ (:inv₁)".
+    wp۰apply (mutex٠protectｰspec Φ with "[$Hmtx_inv H£ HΦ]"); last iSteps. iIntros "$ (:inv₁)".
     wp۰load.
-    wp۰apply+ (array٠size𑁒spec with "Hdata") as "Hdata".
+    wp۰apply+ (array٠sizeｰspec with "Hdata") as "Hdata".
     wp۰pures. case_decide.
 
     - rewrite bool_decide_eq_true_2; first lia.
-      iApply wp𑁒fupd.
-      wp۰apply+ (array٠unsafe_get𑁒spec with "Hdata"); [done | | done |].
+      iApply wpｰfupd.
+      wp۰apply+ (array٠unsafe_getｰspec with "Hdata"); [done | | done |].
       { rewrite list_lookup_lookup_total_lt //. lia. }
 
       iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
 
       rewrite /inv₁. iSteps.
@@ -374,14 +374,14 @@ Section inf_array۰G.
     - rewrite bool_decide_eq_false_2; first lia. wp۰load.
 
       iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("HΦ" with "[$Hmodel₁] H£") as "HΦ"; first iSteps.
 
       rewrite /inv₁. iSteps.
       rewrite Hvs decide_False; first lia. iSteps.
   Qed.
-  Lemma inf_array٠get𑁒spec' t i :
+  Lemma inf_array٠getｰspec' t i :
     (0 ≤ i)%Z →
     <<<
       inf_array۰inv t
@@ -400,12 +400,12 @@ Section inf_array۰G.
     >>>.
   Proof.
     iIntros "% %Φ Hinv HΦ".
-    awp۰apply (inf_array٠get𑁒spec with "Hinv"); first done.
-    iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vsₗ %vsᵣ Hmodel".
+    awp۰apply (inf_array٠getｰspec with "Hinv"); first done.
+    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vsₗ %vsᵣ Hmodel".
     iAaccIntro with "Hmodel"; iSteps.
   Qed.
 
-  Lemma inf_array٠update𑁒spec Ψ1 Ψ2 t i fn :
+  Lemma inf_array٠updateｰspec Ψ1 Ψ2 t i fn :
     (0 ≤ i)%Z →
     <<<
       inf_array۰inv t ∗
@@ -426,15 +426,15 @@ Section inf_array۰G.
     iIntros "% %Φ ((:inv) & Hfn) HΦ".
 
     wp۰rec credit:"H£". wp۰load.
-    wp۰apply (mutex٠protect𑁒spec Φ with "[$Hmtx_inv Hfn H£ HΦ]"); last iSteps. iIntros "$ (:inv₁ =1 lazy=)".
-    wp۰apply+ (inf_array٠reserve𑁒spec with "[$]") as "%us2 ((:inv₂) & %)"; first lia.
+    wp۰apply (mutex٠protectｰspec Φ with "[$Hmtx_inv Hfn H£ HΦ]"); last iSteps. iIntros "$ (:inv₁ =1 lazy=)".
+    wp۰apply+ (inf_array٠reserveｰspec with "[$]") as "%us2 ((:inv₂) & %)"; first lia.
     wp۰load.
 
     destruct (lookup_lt_is_Some_2 us2 ₊i) as (v & Hlookup); first lia.
-    iApply fupd𑁒wp.
+    iApply fupdｰwp.
     iMod "HΦ" as "(%vs_ & ((:model) & #Hv) & HΦ & _)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
     assert (vs ₊i = v) as Hv.
     { rewrite Hvs decide_True; first lia.
       apply list_lookup_total_correct. done.
@@ -443,16 +443,16 @@ Section inf_array۰G.
     iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
     iModIntro.
 
-    wp۰apply (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
-    wp۰apply+ (wp𑁒wand with "(Hfn Hv)") as (w) "Hw".
+    wp۰apply (array٠unsafe_getｰspec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp۰apply+ (wpｰwand with "(Hfn Hv)") as (w) "Hw".
     wp۰load.
-    wp۰apply+ (array٠unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
+    wp۰apply+ (array٠unsafe_setｰspec with "Hdata") as "Hdata"; first lia.
     wp۰pures.
 
     iMod "HΦ" as "(%vs_ & ((:model) & _) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
-    iMod (model𑁒update (<[₊i := w]> vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+    iMod (modelｰupdate (<[₊i := w]> vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[$Hmodel₁ Hw] H£") as "HΦ"; first naive_solver.
 
     iFrame. rewrite Hv. iSplitR "HΦ"; last iSteps. iPureIntro.
@@ -465,7 +465,7 @@ Section inf_array۰G.
       rewrite list_lookup_total_insert_ne //.
   Qed.
 
-  Lemma inf_array٠xchg𑁒spec t i v :
+  Lemma inf_array٠xchgｰspec t i v :
     (0 ≤ i)%Z →
     <<<
       inf_array۰inv t
@@ -482,12 +482,12 @@ Section inf_array۰G.
     iIntros "% %Φ Hinv HΦ".
 
     wp۰rec.
-    awp۰apply+ (inf_array٠update𑁒spec (λ _, True)%I (λ _ w, ⌜w = v⌝)%I with "[$Hinv]"); [done | iSteps |].
-    iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vs Hmodel".
+    awp۰apply+ (inf_array٠updateｰspec (λ _, True)%I (λ _ w, ⌜w = v⌝)%I with "[$Hinv]"); [done | iSteps |].
+    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "[$Hmodel]"; iSteps.
   Qed.
 
-  Lemma inf_array٠xchg_resolve𑁒spec t i v pid v_resolve Φ E :
+  Lemma inf_array٠xchg_resolveｰspec t i v pid v_resolve Φ E :
     (0 ≤ i)%Z →
     inf_array۰inv t -∗
     ( |={⊤,E}=>
@@ -508,8 +508,8 @@ Section inf_array۰G.
     iIntros "% (:inv) HΦ".
 
     wp۰rec. wp۰load.
-    wp۰apply (mutex٠protect𑁒spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv₁ =1 lazy=)".
-    wp۰apply+ (inf_array٠reserve𑁒spec with "[$]") as "%us2 ((:inv₂) & %)"; first lia.
+    wp۰apply (mutex٠protectｰspec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv₁ =1 lazy=)".
+    wp۰apply+ (inf_array٠reserveｰspec with "[$]") as "%us2 ((:inv₂) & %)"; first lia.
     wp۰load.
 
     destruct (lookup_lt_is_Some_2 us2 ₊i) as (w & Hlookup); first lia.
@@ -518,23 +518,23 @@ Section inf_array۰G.
       apply list_lookup_total_correct. done.
     }
 
-    wp۰apply (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp۰apply (array٠unsafe_getｰspec with "Hdata") as "Hdata"; [lia | done.. |].
     wp۰load.
-    wp۰apply+ (array٠unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
+    wp۰apply+ (array٠unsafe_setｰspec with "Hdata") as "Hdata"; first lia.
     wp۰pures.
 
     set vs' := <[₊i := v]> vs.
     wp۰bind (𝗿𝗲𝘀𝗼𝗹𝘃𝗲 _ _ _)%E.
-    wp۰apply (wp𑁒wand (λ _,
+    wp۰apply (wpｰwand (λ _,
       model₂ γ vs' ∗
       Φ w
     )%I with "[Hmodel₂ HΦ]") as (?) "(Hmodel₂ & HΦ)".
     { iMod "HΦ" as "(%vs_ & (:model) & HΦ)". injection Heq as <-.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (model𑁒update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & $)".
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (modelｰupdate vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & $)".
       rewrite Hw.
-      wp۰apply (wp𑁒wand with "(HΦ [%] [%] [Hmodel₁])") as (?) "$".
+      wp۰apply (wpｰwand with "(HΦ [%] [%] [Hmodel₁])") as (?) "$".
       { done. }
       { iSteps. }
     }
@@ -550,7 +550,7 @@ Section inf_array۰G.
       rewrite list_lookup_total_insert_ne //.
   Qed.
 
-  Lemma inf_array٠set𑁒spec t i v :
+  Lemma inf_array٠setｰspec t i v :
     (0 ≤ i)%Z →
     <<<
       inf_array۰inv t
@@ -567,11 +567,11 @@ Section inf_array۰G.
     iIntros "% %Φ Hinv HΦ".
 
     wp۰rec.
-    wp۰apply+ (inf_array٠xchg𑁒spec with "Hinv"); first done.
-    iApply (atomic_update𑁒wand with "HΦ").
+    wp۰apply+ (inf_array٠xchgｰspec with "Hinv"); first done.
+    iApply (atomic_updateｰwand with "HΦ").
     iSteps.
   Qed.
-  Lemma inf_array٠set𑁒spec' t i v :
+  Lemma inf_array٠setｰspec' t i v :
     (0 ≤ i)%Z →
     <<<
       inf_array۰inv t
@@ -589,12 +589,12 @@ Section inf_array۰G.
     >>>.
   Proof.
     iIntros "% %Φ Hinv HΦ".
-    awp۰apply (inf_array٠set𑁒spec with "Hinv"); first done.
-    iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vsₗ %vsᵣ Hmodel".
+    awp۰apply (inf_array٠setｰspec with "Hinv"); first done.
+    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vsₗ %vsᵣ Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros "Hmodel !>".
     iSplitL "Hmodel"; last iSteps.
     Z_to_nat i. rewrite Nat2Z.id. case_decide.
-    all: iApply (inf_array۰model𑁒proper with "Hmodel"); intros j.
+    all: iApply (inf_array۰modelｰproper with "Hmodel"); intros j.
     - simpl_length. case_decide.
       + destruct_decide (j = i) as -> | ?.
         * rewrite list_lookup_total_insert_eq // fn_lookup_insert //.
@@ -610,7 +610,7 @@ Section inf_array۰G.
           rewrite decide_False //.
   Qed.
 
-  Lemma inf_array٠cas𑁒spec t i v1 v2 :
+  Lemma inf_array٠casｰspec t i v1 v2 :
     (0 ≤ i)%Z →
     <<<
       inf_array۰inv t
@@ -629,8 +629,8 @@ Section inf_array۰G.
     iIntros "% %Φ (:inv) HΦ".
 
     wp۰rec credit:"H£". wp۰load.
-    wp۰apply (mutex٠protect𑁒spec Φ with "[$Hmtx_inv H£ HΦ]"); last iSteps. iIntros "$ (:inv₁ =1 lazy=)".
-    wp۰apply+ (inf_array٠reserve𑁒spec with "[$]") as "%us2 ((:inv₂) & %)"; first lia.
+    wp۰apply (mutex٠protectｰspec Φ with "[$Hmtx_inv H£ HΦ]"); last iSteps. iIntros "$ (:inv₁ =1 lazy=)".
+    wp۰apply+ (inf_array٠reserveｰspec with "[$]") as "%us2 ((:inv₂) & %)"; first lia.
     wp۰load.
 
     destruct (lookup_lt_is_Some_2 us2 ₊i) as (v & Hlookup); first lia.
@@ -639,28 +639,28 @@ Section inf_array۰G.
       apply list_lookup_total_correct. done.
     }
 
-    wp۰apply (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
-    wp۰apply wp𑁒equal𑁒nobranch as (b) "%".
+    wp۰apply (array٠unsafe_getｰspec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp۰apply wpｰequalｰnobranch as (b) "%".
     wp۰pures.
 
     wp۰bind (𝗶𝗳 _ 𝘁𝗵𝗲𝗻 _ 𝗲𝗹𝘀𝗲 _)%E.
-    wp۰apply (wp𑁒wand (λ res,
+    wp۰apply (wpｰwand (λ res,
       l.[data] ↦ data ∗
       array۰model data (DfracOwn 1) (if b then <[₊i := v2]> us2 else us2)
     )%I with "[Hl_data Hdata]") as (res) "(Hl_data & Hdata)".
     { destruct b; last iSteps.
       wp۰load.
-      wp۰apply (array٠unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
+      wp۰apply (array٠unsafe_setｰspec with "Hdata") as "Hdata"; first lia.
       iSteps.
     }
 
     wp۰pures.
 
     iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
     set vs' := if b then <[₊i := v2]> vs else vs.
-    iMod (model𑁒update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iMod (modelｰupdate vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" $! b with "[Hmodel₁] H£") as "$".
     { rewrite Hv. iSteps. }
 
@@ -675,7 +675,7 @@ Section inf_array۰G.
       rewrite list_lookup_total_insert_ne //.
   Qed.
 
-  Lemma inf_array٠cas_resolve𑁒spec t i v1 v2 pid v_resolve Φ E :
+  Lemma inf_array٠cas_resolveｰspec t i v1 v2 pid v_resolve Φ E :
     (0 ≤ i)%Z →
     inf_array۰inv t -∗
     ( |={⊤,E}=>
@@ -697,8 +697,8 @@ Section inf_array۰G.
     iIntros "% (:inv) HΦ".
 
     wp۰rec. wp۰load.
-    wp۰apply (mutex٠protect𑁒spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv₁ =1 lazy=)".
-    wp۰apply+ (inf_array٠reserve𑁒spec with "[$]") as "%us2 ((:inv₂) & %)"; first lia.
+    wp۰apply (mutex٠protectｰspec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv₁ =1 lazy=)".
+    wp۰apply+ (inf_array٠reserveｰspec with "[$]") as "%us2 ((:inv₂) & %)"; first lia.
     wp۰load.
 
     destruct (lookup_lt_is_Some_2 us2 ₊i) as (v & Hlookup); first lia.
@@ -707,18 +707,18 @@ Section inf_array۰G.
       apply list_lookup_total_correct. done.
     }
 
-    wp۰apply (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
-    wp۰apply wp𑁒equal𑁒nobranch as (b) "%".
+    wp۰apply (array٠unsafe_getｰspec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp۰apply wpｰequalｰnobranch as (b) "%".
     wp۰pures.
 
     wp۰bind (𝗶𝗳 _ 𝘁𝗵𝗲𝗻 _ 𝗲𝗹𝘀𝗲 _)%E.
-    wp۰apply (wp𑁒wand (λ res,
+    wp۰apply (wpｰwand (λ res,
       l.[data] ↦ data ∗
       array۰model data (DfracOwn 1) (if b then <[₊i := v2]> us2 else us2)
     )%I with "[Hl_data Hdata]") as (res) "(Hl_data & Hdata)".
     { destruct b; last iSteps.
       wp۰load.
-      wp۰apply (array٠unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
+      wp۰apply (array٠unsafe_setｰspec with "Hdata") as "Hdata"; first lia.
       iSteps.
     }
 
@@ -726,15 +726,15 @@ Section inf_array۰G.
 
     set vs' := if b then <[₊i := v2]> vs else vs.
     wp۰bind (𝗿𝗲𝘀𝗼𝗹𝘃𝗲 _ _ _)%E.
-    wp۰apply (wp𑁒wand (λ _,
+    wp۰apply (wpｰwand (λ _,
       model₂ γ vs' ∗
       Φ #b
     )%I with "[Hmodel₂ HΦ]") as (?) "(Hmodel₂ & HΦ)".
     { iMod "HΦ" as "(%vs_ & (:model) & HΦ)". injection Heq as <-.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (model𑁒update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & $)".
-      wp۰apply (wp𑁒wand with "(HΦ [%] [%] [%] [Hmodel₁])") as (?) "$".
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (modelｰupdate vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & $)".
+      wp۰apply (wpｰwand with "(HΦ [%] [%] [%] [Hmodel₁])") as (?) "$".
       { done. }
       { rewrite Hv //. }
       { iSteps. }
@@ -752,7 +752,7 @@ Section inf_array۰G.
       rewrite list_lookup_total_insert_ne //.
   Qed.
 
-  Lemma inf_array٠faa𑁒spec t i (incr : Z) :
+  Lemma inf_array٠faaｰspec t i (incr : Z) :
     (0 ≤ i)%Z →
     <<<
       inf_array۰inv t
@@ -770,8 +770,8 @@ Section inf_array۰G.
     iIntros "% %Φ Hinv HΦ".
 
     wp۰rec.
-    awp۰apply+ (inf_array٠update𑁒spec (λ v, ∃ n : Z, ⌜v = #n⌝)%I (λ v w, ∃ n : Z, ⌜v = #n ∧ w = #(n + incr)⌝)%I with "[$Hinv]"); [done | iSteps |].
-    iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vs %n (%Hn & Hmodel)".
+    awp۰apply+ (inf_array٠updateｰspec (λ v, ∃ n : Z, ⌜v = #n⌝)%I (λ v w, ∃ n : Z, ⌜v = #n ∧ w = #(n + incr)⌝)%I with "[$Hinv]"); [done | iSteps |].
+    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs %n (%Hn & Hmodel)".
     iAaccIntro with "[$Hmodel]". 1,2: iSteps. iSteps as (l γ n_ Hn_) / --silent.
     rewrite Hn_ in Hn. injection Hn as ->. iSteps.
   Qed.

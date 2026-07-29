@@ -17,7 +17,7 @@ Require Import zoo.options.
 Definition split_on chr str :=
   split_on_go chr str "".
 
-#[global] Program Instance string𑁒beq : Beq string :=
+#[global] Program Instance stringｰbeq : Beq string :=
   {|beq := String.eqb
   |}.
 Next Obligation.

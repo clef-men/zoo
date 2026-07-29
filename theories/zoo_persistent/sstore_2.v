@@ -55,7 +55,7 @@ Module base.
   Definition sstore_2۰Σ :=
     #[ghost_mapΣ location descriptor
     ].
-  #[global] Instance subG𑁒sstore_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  #[global] Instance subGｰsstore_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
     subG sstore_2۰Σ Σ →
     Sstore2G Σ.
   Proof.
@@ -168,12 +168,12 @@ Module base.
       l ↪[nroot.@"impl"] γ ∗
       cnodes۰elem γ cnode descr.
 
-    #[local] Instance deltas۰chain𑁒timeless node δs dst :
+    #[local] Instance deltas۰chainｰtimeless node δs dst :
       Timeless (deltas۰chain node δs dst).
     Proof.
       move: node. induction δs; apply _.
     Qed.
-    #[global] Instance sstore_2۰model𑁒timeless t σ₀ σ :
+    #[global] Instance sstore_2۰modelｰtimeless t σ₀ σ :
       Timeless (sstore_2۰model t σ₀ σ).
     Proof.
       rewrite /Timeless. iIntros "(%l & %γ & %g & H)".
@@ -181,24 +181,24 @@ Module base.
       case_decide; iApply (timeless with "H").
     Qed.
 
-    #[global] Instance sstore_2۰snapshot𑁒persistent s t σ :
+    #[global] Instance sstore_2۰snapshotｰpersistent s t σ :
       Persistent (sstore_2۰snapshot s t σ).
     Proof.
       apply _.
     Qed.
 
-    #[local] Lemma store۰on𑁒dom σ₀ ς :
+    #[local] Lemma store۰onｰdom σ₀ ς :
       dom (store۰on σ₀ ς) = dom σ₀ ∪ dom ς.
     Proof.
       set_solver.
     Qed.
-    #[local] Lemma store۰on𑁒dom' σ₀ ς :
+    #[local] Lemma store۰onｰdom' σ₀ ς :
       dom ς ⊆ dom σ₀ →
       dom (store۰on σ₀ ς) = dom σ₀.
     Proof.
       set_solver.
     Qed.
-    #[local] Lemma store۰on𑁒lookup {σ₀ ς} r data :
+    #[local] Lemma store۰onｰlookup {σ₀ ς} r data :
       store۰on σ₀ ς !! r = Some data ↔
           ς !! r = Some data
         ∨ ς !! r = None ∧
@@ -208,18 +208,18 @@ Module base.
       destruct data as (g, v).
       rewrite lookup_union_Some_raw lookup_fmap_Some. naive_solver.
     Qed.
-    #[local] Lemma store۰on𑁒lookup' {σ₀ ς} r data :
+    #[local] Lemma store۰onｰlookup' {σ₀ ς} r data :
       ς !! r = Some data →
       store۰on σ₀ ς !! r = Some data.
     Proof.
       apply lookup_union_Some_l.
     Qed.
-    #[local] Lemma store۰on𑁒insert r data σ₀ ς :
+    #[local] Lemma store۰onｰinsert r data σ₀ ς :
       store۰on σ₀ (<[r := data]> ς) = <[r := data]> (store۰on σ₀ ς).
     Proof.
       rewrite insert_union_l //.
     Qed.
-    #[local] Lemma store۰on𑁒insert𑁒support r v σ₀ ς :
+    #[local] Lemma store۰onｰinsertｰsupport r v σ₀ ς :
       σ₀ !! r = None →
       dom ς ⊆ dom σ₀ →
       store۰on (<[r := v]> σ₀) ς = <[r := (0, v)]> (store۰on σ₀ ς).
@@ -229,13 +229,13 @@ Module base.
       { apply not_elem_of_dom. set_solver. }
       rewrite insert_union_r // -fmap_insert //.
     Qed.
-    #[local] Lemma store۰on𑁒deltas۰apply σ₀ δs ς :
+    #[local] Lemma store۰onｰdeltas۰apply σ₀ δs ς :
       store۰on σ₀ (deltas۰apply δs ς) = deltas۰apply δs (store۰on σ₀ ς).
     Proof.
       rewrite /deltas۰apply assoc //.
     Qed.
 
-    #[local] Lemma store۰generation𑁒le {g ς} g' :
+    #[local] Lemma store۰generationｰle {g ς} g' :
       g ≤ g' →
       store۰generation g ς →
       store۰generation g' ς.
@@ -244,7 +244,7 @@ Module base.
       eapply map_Forall_impl; first done.
       naive_solver lia.
     Qed.
-    #[local] Lemma store۰generation𑁒insert g ς r data :
+    #[local] Lemma store۰generationｰinsert g ς r data :
       store۰generation g ς →
       data.(gen) ≤ g →
       store۰generation g (<[r := data]> ς).
@@ -253,43 +253,43 @@ Module base.
       apply map_Forall_insert_2; done.
     Qed.
 
-    #[local] Lemma deltas۰apply𑁒nil ς :
+    #[local] Lemma deltas۰applyｰnil ς :
       deltas۰apply [] ς = ς.
     Proof.
       rewrite /deltas۰apply list_to_map_nil left_id //.
     Qed.
-    #[local] Lemma deltas۰apply𑁒cons δ δs ς :
+    #[local] Lemma deltas۰applyｰcons δ δs ς :
       deltas۰apply (δ :: δs) ς = <[δ.(delta۰ref) := δ.(delta۰data)]> (deltas۰apply δs ς).
     Proof.
       destruct δ as (r, gen, v, node).
       rewrite /deltas۰apply list_to_map_cons insert_union_l //.
     Qed.
-    #[local] Lemma deltas۰apply𑁒singleton δ ς :
+    #[local] Lemma deltas۰applyｰsingleton δ ς :
       deltas۰apply [δ] ς = <[δ.(delta۰ref) := δ.(delta۰data)]> ς.
     Proof.
-      rewrite deltas۰apply𑁒cons deltas۰apply𑁒nil //.
+      rewrite deltas۰applyｰcons deltas۰applyｰnil //.
     Qed.
-    #[local] Lemma deltas۰apply𑁒app δs1 δs2 ς :
+    #[local] Lemma deltas۰applyｰapp δs1 δs2 ς :
       deltas۰apply (δs1 ++ δs2) ς = deltas۰apply δs1 (deltas۰apply δs2 ς).
     Proof.
       rewrite /deltas۰apply fmap_app list_to_map_app assoc //.
     Qed.
-    #[local] Lemma deltas۰apply𑁒snoc δs δ ς :
+    #[local] Lemma deltas۰applyｰsnoc δs δ ς :
       deltas۰apply (δs ++ [δ]) ς = deltas۰apply δs (<[δ.(delta۰ref) := δ.(delta۰data)]> ς).
     Proof.
-      rewrite deltas۰apply𑁒app deltas۰apply𑁒singleton //.
+      rewrite deltas۰applyｰapp deltas۰applyｰsingleton //.
     Qed.
-    #[local] Lemma deltas۰apply𑁒snoc' δs r g v node ς :
+    #[local] Lemma deltas۰applyｰsnoc' δs r g v node ς :
       deltas۰apply (δs ++ [Delta r g v node]) ς = deltas۰apply δs (<[r := (g, v)]> ς).
     Proof.
-      apply (deltas۰apply𑁒snoc _ (Delta r g v node)).
+      apply (deltas۰applyｰsnoc _ (Delta r g v node)).
     Qed.
-    #[local] Lemma deltas۰apply𑁒dom δs ς :
+    #[local] Lemma deltas۰applyｰdom δs ς :
       dom (deltas۰apply δs ς) = list_to_set (delta۰ref <$> δs) ∪ dom ς.
     Proof.
       rewrite dom_union_L dom_list_to_map_L -list_fmap_compose //.
     Qed.
-    #[local] Lemma deltas۰apply𑁒lookup δs δ r data ς :
+    #[local] Lemma deltas۰applyｰlookup δs δ r data ς :
       NoDup (delta۰ref <$> δs) →
       δ ∈ δs →
       r = δ.(delta۰ref) →
@@ -301,15 +301,15 @@ Module base.
       - rewrite -list_fmap_compose //.
       - rewrite list_elem_of_fmap. eauto.
     Qed.
-    #[local] Lemma deltas۰apply𑁒lookup' δs r data ς :
+    #[local] Lemma deltas۰applyｰlookup' δs r data ς :
       NoDup (delta۰ref <$> δs) →
       (r, data) ∈ delta۰patch <$> δs →
       deltas۰apply δs ς !! r = Some data.
     Proof.
       intros Hδs_nodup ((_r, g, v, node) & [= ] & Hδ)%list_elem_of_fmap.
-      eapply deltas۰apply𑁒lookup; done.
+      eapply deltas۰applyｰlookup; done.
     Qed.
-    #[local] Lemma deltas۰apply۰lookup𑁒ne r δs ς :
+    #[local] Lemma deltas۰apply۰lookupｰne r δs ς :
       NoDup (delta۰ref <$> δs) →
       r ∉ (delta۰ref <$> δs) →
       deltas۰apply δs ς !! r = ς !! r.
@@ -318,7 +318,7 @@ Module base.
       apply lookup_union_r, not_elem_of_list_to_map_1.
       rewrite -list_fmap_compose //.
     Qed.
-    #[local] Lemma deltas۰apply𑁒permutation δs1 δs2 ς :
+    #[local] Lemma deltas۰applyｰpermutation δs1 δs2 ς :
       NoDup (delta۰ref <$> δs1) →
       δs1 ≡ₚ δs2 →
       deltas۰apply δs1 ς = deltas۰apply δs2 ς.
@@ -328,34 +328,34 @@ Module base.
       { f_equiv. done. }
     Qed.
 
-    #[local] Lemma deltas۰chain𑁒cons src δ δs dst :
+    #[local] Lemma deltas۰chainｰcons src δ δs dst :
       src ↦ᵣ ‘Diff( #δ.(delta۰ref), #δ.(delta۰gen), δ.(delta۰val), #δ.(delta۰node) ) -∗
       deltas۰chain δ.(delta۰node) δs dst -∗
         deltas۰chain src (δ :: δs) dst.
     Proof.
       iSteps.
     Qed.
-    #[local] Lemma deltas۰chain𑁒nil𑁒inv src dst :
+    #[local] Lemma deltas۰chainｰnilｰinv src dst :
       deltas۰chain src [] dst ⊢
       ⌜src = dst⌝.
     Proof.
       iSteps.
     Qed.
-    #[local] Lemma deltas۰chain𑁒cons𑁒inv src δ δs dst :
+    #[local] Lemma deltas۰chainｰconsｰinv src δ δs dst :
       deltas۰chain src (δ :: δs) dst ⊢
         src ↦ᵣ ‘Diff( #δ.(delta۰ref), #δ.(delta۰gen), δ.(delta۰val), #δ.(delta۰node) ) ∗
         deltas۰chain δ.(delta۰node) δs dst.
     Proof.
       iSteps.
     Qed.
-    #[local] Lemma deltas۰chain𑁒snoc {src δs dst} r g v dst' :
+    #[local] Lemma deltas۰chainｰsnoc {src δs dst} r g v dst' :
       deltas۰chain src δs dst -∗
       dst ↦ᵣ ‘Diff( #r, #g, v, #dst' ) -∗
       deltas۰chain src (δs ++ [Delta r g v dst']) dst'.
     Proof.
       iInduction δs as [] "IH" forall (src); iSteps.
     Qed.
-    #[local] Lemma deltas۰chain𑁒app₁ src δs1 δs2 dst :
+    #[local] Lemma deltas۰chainｰapp₁ src δs1 δs2 dst :
       deltas۰chain src (δs1 ++ δs2) dst ⊢
         let node := default src $ delta۰node <$> last δs1 in
         deltas۰chain src δs1 node ∗
@@ -371,7 +371,7 @@ Module base.
       { rewrite last_is_Some //. }
       rewrite -> Heq in *. iSteps.
     Qed.
-    #[local] Lemma deltas۰chain𑁒app₂ src δs1 node δs2 dst :
+    #[local] Lemma deltas۰chainｰapp₂ src δs1 node δs2 dst :
       deltas۰chain src δs1 node -∗
       deltas۰chain node δs2 dst -∗
       deltas۰chain src (δs1 ++ δs2) dst.
@@ -380,16 +380,16 @@ Module base.
       iInduction δs1 as [] "IH" forall (src); last iSteps.
       iDestruct "Hδs1" as %<-. iSteps.
     Qed.
-    #[local] Lemma deltas۰chain𑁒snoc𑁒inv src δs δ dst :
+    #[local] Lemma deltas۰chainｰsnocｰinv src δs δ dst :
       deltas۰chain src (δs ++ [δ]) dst ⊢
         let node := default src $ delta۰node <$> last δs in
         ⌜δ.(delta۰node) = dst⌝ ∗
         deltas۰chain src δs node ∗
         node ↦ᵣ ‘Diff( #δ.(delta۰ref), #δ.(delta۰gen), δ.(delta۰val), #dst ).
     Proof.
-      rewrite deltas۰chain𑁒app₁. iSteps.
+      rewrite deltas۰chainｰapp₁. iSteps.
     Qed.
-    #[local] Lemma deltas۰chain𑁒lookup {src δs dst} i δ :
+    #[local] Lemma deltas۰chainｰlookup {src δs dst} i δ :
       δs !! i = Some δ →
       deltas۰chain src δs dst ⊢
         deltas۰chain src (take ˖i δs) δ.(delta۰node) ∗
@@ -397,10 +397,10 @@ Module base.
     Proof.
       iIntros "%δs_lookup Hδs".
       rewrite -{1}(take_drop ˖i δs).
-      iDestruct (deltas۰chain𑁒app₁ with "Hδs") as "Hδs".
+      iDestruct (deltas۰chainｰapp₁ with "Hδs") as "Hδs".
       rewrite {2 3}(take_S_r δs i δ) // last_snoc //.
     Qed.
-    #[local] Lemma deltas۰chain𑁒lookup' {src δs dst} i δ :
+    #[local] Lemma deltas۰chainｰlookup' {src δs dst} i δ :
       δs !! i = Some δ →
       deltas۰chain src δs dst ⊢
         ∃ node,
@@ -416,17 +416,17 @@ Module base.
         deltas۰chain δ.(delta۰node) (drop ˖i δs) dst.
     Proof.
       iIntros "%Hδs_lookup Hδs".
-      iDestruct (deltas۰chain𑁒lookup with "Hδs") as "(Hδs1 & Hδs2)"; first done.
+      iDestruct (deltas۰chainｰlookup with "Hδs") as "(Hδs1 & Hδs2)"; first done.
       rewrite (take_S_r δs i δ) //.
       destruct i; simpl; first iSteps.
-      iDestruct (deltas۰chain𑁒snoc𑁒inv with "Hδs1") as "(_ & Hδs1 & Hδ)".
+      iDestruct (deltas۰chainｰsnocｰinv with "Hδs1") as "(_ & Hδs1 & Hδ)".
       opose proof* (lookup_lt_is_Some_2 δs i) as (δ' & Hδs_lookup').
       { apply lookup_lt_Some in Hδs_lookup. lia. }
       rewrite {2 3}(take_S_r δs i δ') // last_snoc.
       iSteps.
     Qed.
 
-    #[local] Definition cnodes𑁒alloc root :
+    #[local] Definition cnodesｰalloc root :
       ⊢ |==>
         ∃ γ,
         cnodes۰auth γ ∅.
@@ -434,14 +434,14 @@ Module base.
       iMod ghost_map_alloc as "(%γ & Hauth & _)".
       iSteps.
     Qed.
-    #[local] Definition cnodes𑁒lookup γ cnodes cnode descr :
+    #[local] Definition cnodesｰlookup γ cnodes cnode descr :
       cnodes۰auth γ cnodes -∗
       cnodes۰elem γ cnode descr -∗
       ⌜cnodes !! cnode = Some descr⌝.
     Proof.
       apply ghost_map_lookup.
     Qed.
-    #[local] Lemma cnodes𑁒insert {γ cnodes} cnode descr :
+    #[local] Lemma cnodesｰinsert {γ cnodes} cnode descr :
       cnodes !! cnode = None →
       cnodes۰auth γ cnodes ⊢ |==>
         cnodes۰auth γ (<[cnode := descr]> cnodes) ∗
@@ -452,23 +452,23 @@ Module base.
       iApply (ghost_map_elem_persist with "Helem").
     Qed.
 
-    Lemma sstore_2۰model𑁒valid t σ₀ σ :
+    Lemma sstore_2۰modelｰvalid t σ₀ σ :
       sstore_2۰model t σ₀ σ ⊢
       ⌜dom σ ⊆ dom σ₀⌝.
     Proof.
       iIntros "(%l & %γ & %g & %root & %ς & -> & -> & #Hmeta & Hl_gen & Hl_root & Hroot & Hς & (%Hς_dom & %Hς_gen) & _)".
       rewrite dom_fmap //.
     Qed.
-    Lemma sstore_2۰model𑁒exclusive t σ₀1 σ1 σ₀2 σ2 :
+    Lemma sstore_2۰modelｰexclusive t σ₀1 σ1 σ₀2 σ2 :
       sstore_2۰model t σ₀1 σ1 -∗
       sstore_2۰model t σ₀2 σ2 -∗
       False.
     Proof.
       iIntros "(%l1 & %γ1 & %g1 & %root1 & %ς1 & %Heq1 & -> & _ & Hl_gen_1 & _) (%l2 & %γ2 & %g2 & %root2 & %ς2 & %Heq2 & -> & _ & Hl_gen_2 & _)". simplify.
-      iApply (pointsto𑁒exclusive with "Hl_gen_1 Hl_gen_2").
+      iApply (pointstoｰexclusive with "Hl_gen_1 Hl_gen_2").
     Qed.
 
-    Lemma sstore_2٠create𑁒spec :
+    Lemma sstore_2٠createｰspec :
       {{{
         True
       }}}
@@ -486,17 +486,17 @@ Module base.
       wp۰ref root as "Hroot".
       wp۰block l as "Hmeta" "(Hl_gen & Hl_root & _)".
 
-      iMod (cnodes𑁒alloc root) as "(%γ & Hauth)".
+      iMod (cnodesｰalloc root) as "(%γ & Hauth)".
 
-      iDestruct (meta_token𑁒difference (↑nroot.@"user") with "Hmeta") as "(Hmeta_user & Hmeta)"; first done.
-      iDestruct (meta_token𑁒difference (↑nroot.@"impl") with "Hmeta") as "(Hmeta & _)"; first solve_ndisj.
-      iMod (meta𑁒set γ with "Hmeta") as "Hmeta"; first done.
+      iDestruct (meta_tokenｰdifference (↑nroot.@"user") with "Hmeta") as "(Hmeta_user & Hmeta)"; first done.
+      iDestruct (meta_tokenｰdifference (↑nroot.@"impl") with "Hmeta") as "(Hmeta & _)"; first solve_ndisj.
+      iMod (metaｰset γ with "Hmeta") as "Hmeta"; first done.
 
       iApply "HΦ".
       iStep. iExists l, γ, 0, root, ∅. iFrame. rewrite big_sepM_empty. iSteps.
     Qed.
 
-    Lemma sstore_2٠ref𑁒spec t σ₀ σ v :
+    Lemma sstore_2٠refｰspec t σ₀ σ v :
       {{{
         sstore_2۰model t σ₀ σ
       }}}
@@ -514,13 +514,13 @@ Module base.
       iAssert ⌜σ₀ !! r = None⌝%I as %Hr.
       { rewrite -not_elem_of_dom. iIntros "%Hr".
         iDestruct (big_sepM_lookup with "Hς") as "(_Hr_gen & _)".
-        { apply lookup_lookup_total_dom. rewrite store۰on𑁒dom' //. }
-        iApply (pointsto𑁒exclusive with "Hr_gen _Hr_gen").
+        { apply lookup_lookup_total_dom. rewrite store۰onｰdom' //. }
+        iApply (pointstoｰexclusive with "Hr_gen _Hr_gen").
       }
       iApply "HΦ".
       iSplitR; first iSteps. iExists l, γ, g, root, ς. iFrame "#∗". iStep 2.
       iSplitL "Hς Hr_gen Hr_value".
-      { rewrite store۰on𑁒insert𑁒support //.
+      { rewrite store۰onｰinsertｰsupport //.
         iApply (big_sepM_insert_2 with "[Hr_gen Hr_value] Hς").
         iSteps.
       }
@@ -529,7 +529,7 @@ Module base.
       iDecompose "Hmodel" as (cnodes ϵs base descr δs Hϵs Hcnodes_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs Hδs_nil Hδs_gen) "Helem_base Hauth Hδs Hcnodes".
       iSteps; try iPureIntro.
       { rewrite /descriptor۰wf. set_solver. }
-      { rewrite !store۰on𑁒insert𑁒support //; last congruence.
+      { rewrite !store۰onｰinsertｰsupport //; last congruence.
         apply (f_equal dom) in Hδs. set_solver.
       } {
         iClear "Helem_base". clear dependent descr δs.
@@ -537,12 +537,12 @@ Module base.
         simpl in *.
         iSteps; iPureIntro.
         - rewrite /descriptor۰wf. set_solver.
-        - rewrite !store۰on𑁒insert𑁒support //; last congruence.
+        - rewrite !store۰onｰinsertｰsupport //; last congruence.
           apply (f_equal dom) in Hδs'. set_solver.
       }
     Qed.
 
-    Lemma sstore_2٠get𑁒spec {t σ₀ σ r} v :
+    Lemma sstore_2٠getｰspec {t σ₀ σ r} v :
       (σ ∪ σ₀) !! r = Some v →
       {{{
         sstore_2۰model t σ₀ σ
@@ -557,11 +557,11 @@ Module base.
 
       wp۰rec.
       assert (∃ g_r, store۰on σ₀ ς !! r = Some (g_r, v)) as (g_r & Hς_lookup).
-      { setoid_rewrite store۰on𑁒lookup.
+      { setoid_rewrite store۰onｰlookup.
         apply lookup_union_Some_raw in Hσ_lookup as [Hσ_lookup | (Hσ_lookup & Hσ₀_lookup)].
         - apply lookup_fmap_Some in Hσ_lookup as ((g_r & _v) & ? & Hς_lookup).
           naive_solver.
-        - rewrite lookup𑁒fmap𑁒None in Hσ_lookup.
+        - rewrite lookupｰfmapｰNone in Hσ_lookup.
           naive_solver.
       }
       iDestruct (big_sepM_lookup_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
@@ -569,7 +569,7 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma sstore_2٠set𑁒spec t σ₀ σ r v :
+    Lemma sstore_2٠setｰspec t σ₀ σ r v :
       r ∈ dom σ₀ →
       {{{
         sstore_2۰model t σ₀ σ
@@ -585,7 +585,7 @@ Module base.
 
       wp۰rec. wp۰load.
       assert (∃ g_r w, store۰on σ₀ ς !! r = Some (g_r, w) ∧ g_r ≤ g) as (g_r & w & Hς_lookup & Hg_r).
-      { setoid_rewrite store۰on𑁒lookup.
+      { setoid_rewrite store۰onｰlookup.
         destruct (ς !! r) as [(g_r, w) |] eqn:Hς_lookup.
         - exists g_r, w. split; first naive_solver.
           opose proof* map_Forall_lookup_1; done.
@@ -622,14 +622,14 @@ Module base.
             induction δs as [| (r', g', v', node') δs IH] using rev_ind.
             all: intros ς Hς_dom Hς_gen Hς_lookup Hδs.
             - exfalso.
-              rewrite deltas۰apply𑁒nil in Hδs.
-              rewrite -Hδs store۰on𑁒lookup in Hς_lookup.
+              rewrite deltas۰applyｰnil in Hδs.
+              rewrite -Hδs store۰onｰlookup in Hς_lookup.
               destruct Hς_lookup as [Hstore_lookup |]; last naive_solver.
               opose proof* (map_Forall_lookup_1 _ descr.(descriptor۰store)); [done.. |].
               naive_solver lia.
-            - rewrite deltas۰apply𑁒snoc /=.
+            - rewrite deltas۰applyｰsnoc /=.
               destruct_decide (r = r') as <- | Hr'.
-              + rewrite deltas۰apply𑁒snoc /= in Hδs.
+              + rewrite deltas۰applyｰsnoc /= in Hδs.
                 rewrite insert_insert_eq //.
               + rewrite insert_insert_ne //.
                 apply IH; simpl.
@@ -637,23 +637,23 @@ Module base.
                 * rewrite dom_insert union_subseteq singleton_subseteq_l.
                   split; last done.
                   apply (f_equal dom) in Hδs.
-                  rewrite store۰on𑁒dom' // store۰on𑁒dom in Hδs.
-                  rewrite Hδs deltas۰apply𑁒dom. set_solver.
+                  rewrite store۰onｰdom' // store۰onｰdom in Hδs.
+                  rewrite Hδs deltas۰applyｰdom. set_solver.
                 * apply map_Forall_insert_2; last done.
                   trans descr.(descriptor۰gen); last lia.
-                  assert (store۰on σ₀ descr.(descriptor۰store) !! r' = Some (g', v')) as [Hstore_lookup | (_ & ? & _)]%store۰on𑁒lookup.
+                  assert (store۰on σ₀ descr.(descriptor۰store) !! r' = Some (g', v')) as [Hstore_lookup | (_ & ? & _)]%store۰onｰlookup.
                   { rewrite Hδs.
-                    apply store۰on𑁒lookup', deltas۰apply𑁒lookup'; first done.
+                    apply store۰onｰlookup', deltas۰applyｰlookup'; first done.
                     rewrite fmap_app. set_solver.
                   }
                   -- eapply map_Forall_lookup_1 in Hstore_gen; done.
                   -- simpl in *. lia.
                 * rewrite /store۰on -insert_union_l lookup_insert_ne //.
-                * rewrite deltas۰apply𑁒snoc // in Hδs.
+                * rewrite deltas۰applyｰsnoc // in Hδs.
           } {
             intros ->. specialize (Hδs_nil eq_refl) as ->.
             exfalso.
-            apply store۰on𑁒lookup in Hς_lookup as [].
+            apply store۰onｰlookup in Hς_lookup as [].
             - opose proof* map_Forall_lookup_1; [done.. |].
               naive_solver lia.
             - naive_solver lia.
@@ -677,28 +677,28 @@ Module base.
           assert (r ∉ delta۰ref <$> δs) as Hr_notin_δs.
           { intros (i & ((?, ?, ?, ?) & -> & Hδs_lookup)%list_lookup_fmap_Some_1)%list_elem_of_lookup.
             opose proof* Forall_lookup_1 as H; [done.. |].
-            apply store۰on𑁒lookup in Hς_lookup. naive_solver.
+            apply store۰onｰlookup in Hς_lookup. naive_solver.
           }
           assert (store۰on σ₀ descr.(descriptor۰store) !! r = Some (g_r, w)) as Hstore_lookup.
-          { rewrite Hδs store۰on𑁒lookup deltas۰apply۰lookup𑁒ne //.
-            rewrite store۰on𑁒lookup // in Hς_lookup.
+          { rewrite Hδs store۰onｰlookup deltas۰apply۰lookupｰne //.
+            rewrite store۰onｰlookup // in Hς_lookup.
           }
-          iDestruct (deltas۰chain𑁒snoc with "Hδs Hroot") as "Hδs".
+          iDestruct (deltas۰chainｰsnoc with "Hδs Hroot") as "Hδs".
           iExists _, _, _, _, (δs ++ [Delta r g_r w root']). iSteps; iPureIntro.
           { rewrite fmap_app NoDup_app. split_and!; first done.
             - set_solver.
             - apply NoDup_singleton.
           } {
-            rewrite deltas۰apply𑁒snoc insert_insert_eq. cbn.
-            erewrite <- deltas۰apply𑁒snoc'.
-            rewrite (deltas۰apply𑁒permutation _ (Delta r g_r w root' :: δs)).
+            rewrite deltas۰applyｰsnoc insert_insert_eq. cbn.
+            erewrite <- deltas۰applyｰsnoc'.
+            rewrite (deltas۰applyｰpermutation _ (Delta r g_r w root' :: δs)).
             { rewrite fmap_app NoDup_app. split_and!; first done.
               - cbn. set_solver.
               - apply NoDup_singleton.
             } {
               solve_Permutation.
             }
-            rewrite deltas۰apply𑁒cons store۰on𑁒insert -Hδs insert_id //.
+            rewrite deltas۰applyｰcons store۰onｰinsert -Hδs insert_id //.
           } {
             intros []%symmetry%app_cons_not_nil.
           } {
@@ -710,7 +710,7 @@ Module base.
           }
     Qed.
 
-    Lemma sstore_2٠capture𑁒spec t σ₀ σ :
+    Lemma sstore_2٠captureｰspec t σ₀ σ :
       {{{
         sstore_2۰model t σ₀ σ
       }}}
@@ -729,7 +729,7 @@ Module base.
       case_decide as [-> | Hg].
 
       - pose descr := Descriptor 0 ς.
-        iMod (cnodes𑁒insert root descr with "Hmodel") as "(Hauth & #Helem)"; first done.
+        iMod (cnodesｰinsert root descr with "Hmodel") as "(Hauth & #Helem)"; first done.
         iSplitL; last first.
         { iSteps. iExists (Descriptor 0 ς). iSteps. }
         iExists l, γ, 1, root, ς. iFrame "#∗". iStep 2. iSplitR.
@@ -737,10 +737,10 @@ Module base.
           eapply map_Forall_impl; first done. naive_solver.
         }
         iExists ∅, []. iSteps; try iPureIntro.
-        { apply treemap۰rooted𑁒empty. }
+        { apply treemap۰rootedｰempty. }
         { rewrite lookup_insert_eq //. }
         { rewrite NoDup_nil //. }
-        { rewrite deltas۰apply𑁒nil //. }
+        { rewrite deltas۰applyｰnil //. }
         rewrite delete_insert_eq.
         iApply (big_sepM2_empty with "[//]").
 
@@ -748,7 +748,7 @@ Module base.
         destruct δs as [| δ δs]; simpl.
 
         + specialize (Hδs_nil eq_refl) as ->.
-          iDestruct (deltas۰chain𑁒nil𑁒inv with "Hδs") as %<-.
+          iDestruct (deltas۰chainｰnilｰinv with "Hδs") as %<-.
           iSplitL; iSteps.
           { iPureIntro. split; first done.
             eapply map_Forall_impl => //. naive_solver lia.
@@ -763,16 +763,16 @@ Module base.
           }
           iAssert ⌜cnodes !! root = None⌝%I as %Hcnodes_lookup_root.
           { destruct_decide (root = base) as -> | Hcase.
-            - iDestruct (deltas۰chain𑁒cons𑁒inv with "Hδs") as "(Hbase & _)".
-              iDestruct (pointsto𑁒exclusive with "Hroot Hbase") as %[].
+            - iDestruct (deltas۰chainｰconsｰinv with "Hδs") as "(Hbase & _)".
+              iDestruct (pointstoｰexclusive with "Hroot Hbase") as %[].
             - rewrite -eq_None_ne_Some. iIntros "%descr' %Hcnodes_lookup".
               iDestruct (big_sepM2_lookup_l with "Hcnodes") as ((cnode' & δs')) "(%Hϵs_lookup_root & %descr'' & _ & _ & _ & _ & _ & Hδs') /=".
               { rewrite lookup_delete_Some //. }
               destruct δs' as [| δ' δs'].
-              + iDestruct (deltas۰chain𑁒nil𑁒inv with "Hδs'") as %<-.
-                opose proof* treemap۰rooted𑁒acyclic as []; done.
-              + iDestruct (deltas۰chain𑁒cons𑁒inv with "Hδs'") as "(_Hroot & _)".
-                iApply (pointsto𑁒exclusive with "Hroot _Hroot").
+              + iDestruct (deltas۰chainｰnilｰinv with "Hδs'") as %<-.
+                opose proof* treemap۰rootedｰacyclic as []; done.
+              + iDestruct (deltas۰chainｰconsｰinv with "Hδs'") as "(_Hroot & _)".
+                iApply (pointstoｰexclusive with "Hroot _Hroot").
           }
           iAssert ⌜ϵs !! root = None⌝%I as %Hϵs_lookup_root.
           { iDestruct (big_sepM2_lookup_iff with "Hcnodes") as %H.
@@ -780,17 +780,17 @@ Module base.
             rewrite eq_None_not_Some -{}H. intros (_ & [])%lookup_delete_is_Some. congruence.
           }
           pose descr_root := Descriptor g ς.
-          iMod (cnodes𑁒insert root descr_root with "Hauth") as "(Hauth & #Helem_root)"; first done.
+          iMod (cnodesｰinsert root descr_root with "Hauth") as "(Hauth & #Helem_root)"; first done.
           iSplitL; last first.
           { iSteps. iExists descr_root. iSteps. }
           iExists l, γ, ˖g, root, ς. iFrame "#∗". iStep 3.
           iSplitR; first iSteps.
           set ϵ := (root, δ :: δs).
           iExists (<[base := ϵ]> ϵs), []. iSteps; try iPureIntro.
-          { eapply treemap۰rooted𑁒lift; [done.. | congruence]. }
+          { eapply treemap۰rootedｰlift; [done.. | congruence]. }
           { rewrite lookup_insert_eq //. }
           { rewrite NoDup_nil //. }
-          { rewrite deltas۰apply𑁒nil //. }
+          { rewrite deltas۰applyｰnil //. }
           rewrite delete_insert_id //.
           iApply big_sepM2_delete_l; first done.
           iExists ϵ. iSteps.
@@ -822,7 +822,7 @@ Module base.
         ∃ descr',
         ⌜cnodes !! ϵ.1 = Some descr'⌝ ∗
         cnode۰model γ σ₀ cnode descr ϵ descr'.(descriptor۰store).
-    #[local] Lemma sstore_2٠collect𑁒spec𑁒base𑁒chain {γ σ₀ root ς cnodes ϵs base descr δs} i δ node acc :
+    #[local] Lemma sstore_2٠collectｰspecｰbaseｰchain {γ σ₀ root ς cnodes ϵs base descr δs} i δ node acc :
       δs !! i = Some δ →
       δ.(delta۰node) = node →
       {{{
@@ -843,17 +843,17 @@ Module base.
       simpl in *.
 
       wp۰rec.
-      iDestruct (deltas۰chain𑁒lookup i δ with "Hδs") as "(Hδs1 & Hδs2)"; first done.
+      iDestruct (deltas۰chainｰlookup i δ with "Hδs") as "(Hδs1 & Hδs2)"; first done.
       rewrite Hnode.
       destruct (drop ˖i δs) as [| δ' δs'] eqn:Hdrop_δs.
 
-      - iDestruct (deltas۰chain𑁒nil𑁒inv with "Hδs2") as %->.
-        iDestruct (deltas۰chain𑁒app₂ with "Hδs1 Hδs2") as "Hδs".
+      - iDestruct (deltas۰chainｰnilｰinv with "Hδs2") as %->.
+        iDestruct (deltas۰chainｰapp₂ with "Hδs1 Hδs2") as "Hδs".
         rewrite -Hdrop_δs take_drop (drop_S δs δ i) // Hdrop_δs /=.
         wp۰load.
         iSteps.
 
-      - iDestruct (deltas۰chain𑁒cons𑁒inv with "Hδs2") as "(Hδ' & Hδs2)".
+      - iDestruct (deltas۰chainｰconsｰinv with "Hδs2") as "(Hδ' & Hδs2)".
         wp۰load.
         assert (δs !! ˖i = Some δ') as Hδs_lookup'.
         { rewrite -(take_drop ˖i δs) Hdrop_δs lookup_app_r length_take; first lia.
@@ -864,17 +864,17 @@ Module base.
         assert (drop ˖˖i δs = δs') as Hdrop_δs'.
         { erewrite drop_S in Hdrop_δs => //. congruence. }
         wp۰apply+ ("HLöb" $! ˖i δ' with "[//] [//] [- HΦ]") as (acc') "(Hinv & %Hacc')".
-        { iDestruct (deltas۰chain𑁒cons with "Hδ' Hδs2") as "Hδs2".
-          iDestruct (deltas۰chain𑁒app₂ with "Hδs1 Hδs2") as "Hδs".
+        { iDestruct (deltas۰chainｰcons with "Hδ' Hδs2") as "Hδs2".
+          iDestruct (deltas۰chainｰapp₂ with "Hδs1 Hδs2") as "Hδs".
           rewrite -Hdrop_δs take_drop. iSteps.
         }
         iSteps. iPureIntro.
-        rewrite /plist۰model' Hacc' -plist۰to_val𑁒singleton plist۰to_val𑁒app. f_equal.
-        rewrite (drop_S δs δ i) // reverse_cons fmap_app /= Hnode tail𑁒app //.
+        rewrite /plist۰model' Hacc' -plist۰to_valｰsingleton plist۰to_valｰapp. f_equal.
+        rewrite (drop_S δs δ i) // reverse_cons fmap_app /= Hnode tailｰapp //.
         rewrite Hdrop_δs reverse_cons fmap_app /=.
         symmetry. apply app_cons_not_nil.
     Qed.
-    #[local] Definition collect𑁒specification γ σ₀ root ς cnodes ϵs base descr δs : iProp Σ :=
+    #[local] Definition collectｰspecification γ σ₀ root ς cnodes ϵs base descr δs : iProp Σ :=
       ∀ cnode descr_cnode path acc,
       {{{
         ⌜cnodes !! cnode = Some descr_cnode⌝ ∗
@@ -891,14 +891,14 @@ Module base.
           ((λ δ, #δ.(delta۰node)) <$> reverse (concat path)) ++
           [ #cnode]
       }}}.
-    #[local] Lemma sstore_2٠collect𑁒spec𑁒chain {γ σ₀ root ς cnodes ϵs base descr δs} cnode ϵ i 𝝳 node path acc :
+    #[local] Lemma sstore_2٠collectｰspecｰchain {γ σ₀ root ς cnodes ϵs base descr δs} cnode ϵ i 𝝳 node path acc :
       ϵs !! cnode = Some ϵ →
       ϵ.2 !! i = Some 𝝳 →
       𝝳.(delta۰node) = node →
       treemap۰path ϵs base ϵ.1 path →
       {{{
         collect۰inv γ σ₀ root ς cnodes ϵs base descr δs ∗
-        collect𑁒specification γ σ₀ root ς cnodes ϵs base descr δs
+        collectｰspecification γ σ₀ root ς cnodes ϵs base descr δs
       }}}
         sstore_2٠collect #node acc
       {{{
@@ -923,17 +923,17 @@ Module base.
         iSteps.
       }
       iDestruct (big_sepM2_lookup_acc with "Hcnodes") as "((%descr_cnode' & %Hcnodes_lookup' & (%Hcnode_store_dom & %Hcnode_store_gen) & #Helem_cnode & %H𝝳s_nodup & %H𝝳s & H𝝳s) & Hcnodes)"; [done.. |].
-      iDestruct (deltas۰chain𑁒lookup i 𝝳 with "H𝝳s") as "(H𝝳s1 & H𝝳s2)"; first done.
+      iDestruct (deltas۰chainｰlookup i 𝝳 with "H𝝳s") as "(H𝝳s1 & H𝝳s2)"; first done.
       rewrite Hnode /=.
       destruct (drop ˖i 𝝳s) as [| 𝝳' 𝝳s'] eqn:Hdrop_𝝳s.
 
-      - iDestruct (deltas۰chain𑁒nil𑁒inv with "H𝝳s2") as %->.
-        iDestruct (deltas۰chain𑁒app₂ with "H𝝳s1 H𝝳s2") as "H𝝳s".
+      - iDestruct (deltas۰chainｰnilｰinv with "H𝝳s2") as %->.
+        iDestruct (deltas۰chainｰapp₂ with "H𝝳s1 H𝝳s2") as "H𝝳s".
         rewrite -Hdrop_𝝳s take_drop (drop_S 𝝳s 𝝳 i) // Hdrop_𝝳s /=.
         wp۰apply ("Hspec" with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; first iSteps.
         rewrite Hnode. iSteps.
 
-      - iDestruct (deltas۰chain𑁒cons𑁒inv with "H𝝳s2") as "(H𝝳' & H𝝳s2)".
+      - iDestruct (deltas۰chainｰconsｰinv with "H𝝳s2") as "(H𝝳' & H𝝳s2)".
         wp۰rec. wp۰load.
         assert (𝝳s !! ˖i = Some 𝝳') as H𝝳s_lookup'.
         { rewrite -(take_drop ˖i 𝝳s) Hdrop_𝝳s lookup_app_r length_take; first lia.
@@ -944,18 +944,18 @@ Module base.
         assert (drop ˖˖i 𝝳s = 𝝳s') as Hdrop_𝝳s'.
         { erewrite drop_S in Hdrop_𝝳s => //. congruence. }
         wp۰apply+ ("HLöb" $! ˖i 𝝳' with "[//] [//] [//] [//] [- HΦ]") as (acc') "(Hinv & %Hacc')".
-        { iDestruct (deltas۰chain𑁒cons with "H𝝳' H𝝳s2") as "H𝝳s2".
-          iDestruct (deltas۰chain𑁒app₂ with "H𝝳s1 H𝝳s2") as "H𝝳s".
+        { iDestruct (deltas۰chainｰcons with "H𝝳' H𝝳s2") as "H𝝳s2".
+          iDestruct (deltas۰chainｰapp₂ with "H𝝳s1 H𝝳s2") as "H𝝳s".
           iFrame "Hspec".
           rewrite -Hdrop_𝝳s take_drop. iSteps.
         }
         iSteps. iPureIntro.
-        rewrite /plist۰model' Hacc' -plist۰to_val𑁒singleton plist۰to_val𑁒app. f_equal.
-        rewrite (drop_S 𝝳s 𝝳 i) // reverse_cons fmap_app /= Hnode 2!(assoc _ _ _ [_]) -tail𑁒app //.
+        rewrite /plist۰model' Hacc' -plist۰to_valｰsingleton plist۰to_valｰapp. f_equal.
+        rewrite (drop_S 𝝳s 𝝳 i) // reverse_cons fmap_app /= Hnode 2!(assoc _ _ _ [_]) -tailｰapp //.
         rewrite Hdrop_𝝳s reverse_cons fmap_app /= 2!assoc.
         symmetry. apply app_cons_not_nil.
     Qed.
-    #[local] Lemma sstore_2٠collect𑁒spec {γ σ₀ root ς cnodes ϵs base descr δs} cnode descr_cnode path acc :
+    #[local] Lemma sstore_2٠collectｰspec {γ σ₀ root ς cnodes ϵs base descr δs} cnode descr_cnode path acc :
       cnodes !! cnode = Some descr_cnode →
       treemap۰path ϵs base cnode path →
       {{{
@@ -980,42 +980,42 @@ Module base.
       wp۰rec.
       destruct_decide (cnode = base) as -> | Hcnode.
 
-      - apply treemap۰path𑁒is_nil in Hpath as ->; last done.
+      - apply treemap۰pathｰis_nil in Hpath as ->; last done.
         destruct δs as [| δ δs].
 
-        + iDestruct (deltas۰chain𑁒nil𑁒inv with "Hδs") as %<-.
+        + iDestruct (deltas۰chainｰnilｰinv with "Hδs") as %<-.
           iSteps.
 
-        + iDestruct (deltas۰chain𑁒cons𑁒inv with "Hδs") as "(Hδ & Hδs)".
+        + iDestruct (deltas۰chainｰconsｰinv with "Hδs") as "(Hδ & Hδs)".
           wp۰load.
-          iDestruct (deltas۰chain𑁒cons with "Hδ Hδs") as "Hδs".
-          wp۰apply+ (sstore_2٠collect𑁒spec𑁒base𑁒chain (δs := δ :: δs) 0 δ with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | iFrameSteps |].
+          iDestruct (deltas۰chainｰcons with "Hδ Hδs") as "Hδs".
+          wp۰apply+ (sstore_2٠collectｰspecｰbaseｰchain (δs := δ :: δs) 0 δ with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | iFrameSteps |].
           iSteps. iPureIntro.
-          rewrite /plist۰model' Hacc' -plist۰to_val𑁒singleton plist۰to_val𑁒app. f_equal.
-          rewrite -tail𑁒app // reverse_cons fmap_app.
+          rewrite /plist۰model' Hacc' -plist۰to_valｰsingleton plist۰to_valｰapp. f_equal.
+          rewrite -tailｰapp // reverse_cons fmap_app.
           symmetry. apply app_cons_not_nil.
 
-      - apply treemap۰path𑁒is_cons in Hpath as (cnode' & 𝝳s & path' & -> & Hϵs_lookup & Hpath'); [| done..].
+      - apply treemap۰pathｰis_cons in Hpath as (cnode' & 𝝳s & path' & -> & Hϵs_lookup & Hpath'); [| done..].
         assert (delete base cnodes !! cnode = Some descr_cnode) as Hdelete_cnodes_lookup.
         { rewrite lookup_delete_ne //. }
         iDestruct (big_sepM2_lookup_acc with "Hcnodes") as "((%descr_cnode' & %Hcnodes_lookup' & (%Hcnode_store_dom & %Hcnode_store_gen) & #Helem_cnode & %H𝝳s_nodup & %H𝝳s & H𝝳s) & Hcnodes)"; [done.. |].
         destruct 𝝳s as [| 𝝳 𝝳s].
 
-        + iDestruct (deltas۰chain𑁒nil𑁒inv with "H𝝳s") as %[= <-].
-          opose proof* treemap۰rooted𑁒acyclic as []; done.
+        + iDestruct (deltas۰chainｰnilｰinv with "H𝝳s") as %[= <-].
+          opose proof* treemap۰rootedｰacyclic as []; done.
 
-        + iDestruct (deltas۰chain𑁒cons𑁒inv with "H𝝳s") as "(H𝝳 & H𝝳s)".
+        + iDestruct (deltas۰chainｰconsｰinv with "H𝝳s") as "(H𝝳 & H𝝳s)".
           wp۰load.
-          iDestruct (deltas۰chain𑁒cons with "H𝝳 H𝝳s") as "H𝝳s".
-          wp۰apply+ (sstore_2٠collect𑁒spec𑁒chain cnode _ 0 𝝳 with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | |].
+          iDestruct (deltas۰chainｰcons with "H𝝳 H𝝳s") as "H𝝳s".
+          wp۰apply+ (sstore_2٠collectｰspecｰchain cnode _ 0 𝝳 with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | |].
           { iSplitL; first iFrameSteps.
             iClear "Helem_cnode". clear.
             iIntros "%cnode %descr_cnode %path %acc !> %Φ (%Hcnodes_lookup & %Hpath & Hinv) HΦ".
             wp۰apply ("HLöb" with "[//] [//] Hinv HΦ").
           }
           iSteps. iPureIntro.
-          rewrite /plist۰model' Hacc' -plist۰to_val𑁒singleton plist۰to_val𑁒app. f_equal.
-          rewrite !reverse_cons reverse_app !fmap_app !assoc -tail𑁒app //.
+          rewrite /plist۰model' Hacc' -plist۰to_valｰsingleton plist۰to_valｰapp. f_equal.
+          rewrite !reverse_cons reverse_app !fmap_app !assoc -tailｰapp //.
           symmetry. apply app_cons_not_nil.
     Qed.
 
@@ -1072,7 +1072,7 @@ Module base.
         ∃ descr',
         ⌜cnodes !! ϵ.1 = Some descr'⌝ ∗
         cnode۰model γ σ₀ cnode descr ϵ descr'.(descriptor۰store).
-    #[local] Lemma sstore_2٠revert𑁒spec𑁒aux {γ σ₀ ς cnodes ϵs base descr_base δs_base cnode descr_cnode δs_cnode node} base' descr_base' path δs acc :
+    #[local] Lemma sstore_2٠revertｰspecｰaux {γ σ₀ ς cnodes ϵs base descr_base δs_base cnode descr_cnode δs_cnode node} base' descr_base' path δs acc :
       cnodes !! base' = Some descr_base' →
       treemap۰path ϵs cnode base' path →
       ϵs !! cnode = Some (base, δs) →
@@ -1098,19 +1098,19 @@ Module base.
 
       destruct δs_cnode as [| (r1, g1, v1, _node) δs_cnode _] using rev_ind; first naive_solver lia.
       simpl in *.
-      iDestruct (deltas۰chain𑁒snoc𑁒inv with "Hδs_cnode") as "(%Hnode & Hδs_cnode & Hδ)".
+      iDestruct (deltas۰chainｰsnocｰinv with "Hδs_cnode") as "(%Hnode & Hδs_cnode & Hδ)".
       simplify.
 
       wp۰rec.
       destruct δs_cnode as [| (r2, g2, v2, node') δs_cnode _] using rev_ind.
 
-      - iDestruct (deltas۰chain𑁒nil𑁒inv with "Hδs_cnode") as %->.
+      - iDestruct (deltas۰chainｰnilｰinv with "Hδs_cnode") as %->.
         simpl in *.
         destruct path as [| δs_cnode path _] using rev_ind => /=.
 
-        + apply treemap۰path𑁒nil𑁒inv in Hpath as <-.
+        + apply treemap۰pathｰnilｰinv in Hpath as <-.
           wp۰load.
-          wp۰apply+ assert𑁒spec; first rewrite bool_decide_eq_true_2 //.
+          wp۰apply+ assertｰspec; first rewrite bool_decide_eq_true_2 //.
           assert (∃ data, store۰on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
           { apply elem_of_dom.
             apply (f_equal dom) in Hδs_cnode.
@@ -1119,51 +1119,51 @@ Module base.
           iDestruct (big_sepM_insert_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
           do 2 wp۰load. do 3 wp۰store. wp۰pures. wp۰rec. wp۰store.
           iDestruct ("Hς" $! (_, _) with "[$Hr_gen $Hr_value]") as "Hς".
-          rewrite deltas۰apply𑁒singleton store۰on𑁒insert in Hδs_cnode.
+          rewrite deltas۰applyｰsingleton store۰onｰinsert in Hδs_cnode.
           rewrite -Hδs_cnode.
           set δs_base' := δs_base ++ [Delta r1 g1' v1' base'].
-          opose proof* (treemap𑁒reroot𑁒rooted _ _ δs_base') as Hϵs'; [done.. |].
+          opose proof* (treemapｰrerootｰrooted _ _ δs_base') as Hϵs'; [done.. |].
           iApply "HΦ".
           simplify. iSteps; try iPureIntro.
           { apply NoDup_nil_2. }
-          { rewrite deltas۰apply𑁒nil //. }
+          { rewrite deltas۰applyｰnil //. }
           { rewrite -{2}(insert_id (delete base' cnodes) base descr_base).
             { rewrite lookup_delete_ne //.
-              eapply (treemap۰rooted𑁒acyclic (tree := ϵs)); done.
+              eapply (treemap۰rootedｰacyclic (tree := ϵs)); done.
             }
             rewrite -insert_delete_eq.
             iApply (big_sepM2_insert_2 with "[- Hcnodes] Hcnodes").
             iSteps; try iPureIntro.
             { rewrite /δs_base' -Permutation_cons_append //. }
-            { rewrite Hδs_base (store۰on𑁒deltas۰apply _ _ descr_base'.(descriptor۰store)) Hδs_cnode.
-              rewrite (deltas۰apply𑁒permutation δs_base' (δs_base ++ [Delta r1 g1' v1' base'])) //.
+            { rewrite Hδs_base (store۰onｰdeltas۰apply _ _ descr_base'.(descriptor۰store)) Hδs_cnode.
+              rewrite (deltas۰applyｰpermutation δs_base' (δs_base ++ [Delta r1 g1' v1' base'])) //.
               { rewrite /δs_base' -Permutation_cons_append //. }
-              rewrite deltas۰apply𑁒snoc insert_insert_eq insert_id // store۰on𑁒deltas۰apply //.
+              rewrite deltas۰applyｰsnoc insert_insert_eq insert_id // store۰onｰdeltas۰apply //.
             } {
-              iApply (deltas۰chain𑁒snoc with "Hδs_base Hnode").
+              iApply (deltas۰chainｰsnoc with "Hδs_base Hnode").
             }
           }
 
-        + pose proof Hpath as (cnode' & Hpath' & (? & Hϵs_lookup_cnode' & ->%treemap۰path𑁒nil𑁒inv)%treemap۰path𑁒cons𑁒inv)%treemap۰path𑁒app𑁒inv.
+        + pose proof Hpath as (cnode' & Hpath' & (? & Hϵs_lookup_cnode' & ->%treemap۰pathｰnilｰinv)%treemap۰pathｰconsｰinv)%treemap۰pathｰappｰinv.
           rewrite concat_app reverse_app fmap_app /= right_id.
           assert (cnode' ≠ cnode).
-          { eapply treemap۰rooted𑁒acyclic; done. }
+          { eapply treemap۰rootedｰacyclic; done. }
           assert (cnode' ≠ base).
-          { pose proof Hϵs as ?%treemap۰rooted𑁒root. congruence. }
+          { pose proof Hϵs as ?%treemap۰rootedｰroot. congruence. }
           iDestruct (big_sepM2_delete_r with "Hcnodes") as "(%descr_cnode' & %Hcnodes_lookup_cnode' & (%descr_cnode_ & %Hcnodes_lookup_cnode_ & ((%descr_cnode_dom' & %descr_cnode_gen') & #Helem_cnode' & %Hδs_cnode'_nodup & %Hδs_cnode' & Hδs_cnode')) & Hcnodes)".
           { rewrite lookup_delete_ne //. }
           simpl in *.
           rewrite Hcnodes_lookup_cnode in Hcnodes_lookup_cnode_. injection Hcnodes_lookup_cnode_ as <-.
           destruct δs_cnode as [| (r2, g2, v2, cnode_) δs_cnode _] using rev_ind.
-          { iDestruct (deltas۰chain𑁒nil𑁒inv with "Hδs_cnode'") as %<-.
-            opose proof* treemap۰rooted𑁒acyclic as []; done.
+          { iDestruct (deltas۰chainｰnilｰinv with "Hδs_cnode'") as %<-.
+            opose proof* treemap۰rootedｰacyclic as []; done.
           }
           rewrite reverse_snoc. cbn.
-          iDestruct (deltas۰chain𑁒snoc𑁒inv with "Hδs_cnode'") as "(%Hcnode & Hδs_cnode' & Hδ')".
+          iDestruct (deltas۰chainｰsnocｰinv with "Hδs_cnode'") as "(%Hcnode & Hδs_cnode' & Hδ')".
           simpl in Hcnode. subst cnode_.
           wp۰load.
-          iDestruct (deltas۰chain𑁒snoc with "Hδs_cnode' Hδ'") as "Hδs_cnode'".
-          wp۰apply+ assert𑁒spec; first rewrite bool_decide_eq_true_2 //.
+          iDestruct (deltas۰chainｰsnoc with "Hδs_cnode' Hδ'") as "Hδs_cnode'".
+          wp۰apply+ assertｰspec; first rewrite bool_decide_eq_true_2 //.
           assert (∃ data, store۰on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
           { apply elem_of_dom.
             apply (f_equal dom) in Hδs_cnode.
@@ -1172,55 +1172,55 @@ Module base.
           iDestruct (big_sepM_insert_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
           do 2 wp۰load. do 3 wp۰store.
           iDestruct ("Hς" $! (g1, v1) with "[$Hr_gen $Hr_value]") as "Hς".
-          rewrite deltas۰apply𑁒singleton store۰on𑁒insert in Hδs_cnode.
+          rewrite deltas۰applyｰsingleton store۰onｰinsert in Hδs_cnode.
           rewrite -Hδs_cnode.
           set δs_base' := δs_base ++ [Delta r1 g1' v1' cnode].
           set ϵs' := treemap۰reroot ϵs base cnode δs_base'.
-          opose proof* (treemap𑁒reroot𑁒rooted cnode _ δs_base') as Hϵs'; [done.. |].
+          opose proof* (treemapｰrerootｰrooted cnode _ δs_base') as Hϵs'; [done.. |].
           wp۰apply+ ("HLöb" $! _ ϵs' cnode descr_cnode [] cnode' descr_cnode' (δs_cnode ++ [_]) with "[] [] [] [] [] [] [- HΦ]"); try iPureIntro; try done.
-          { eapply treemap𑁒reroot𑁒path; done. }
+          { eapply treemapｰrerootｰpath; done. }
           { rewrite lookup_insert_ne // lookup_delete_ne //. }
           { simpl_length/=. lia. }
           { rewrite right_id //. }
           { rewrite reverse_snoc assoc //. }
           iSteps; try iPureIntro.
           { apply NoDup_nil_2. }
-          { rewrite deltas۰apply𑁒nil //. }
+          { rewrite deltas۰applyｰnil //. }
           { do 2 rewrite lookup_delete_ne // in Hcnodes_lookup_cnode'. }
           { rewrite (delete_delete _ cnode' base) (delete_delete _ cnode cnode') delete_insert_ne //.
             rewrite -{2}(insert_delete_id (delete cnode' $ delete cnode cnodes) base descr_base).
             { rewrite lookup_delete_ne // lookup_delete_ne //.
-              eapply (treemap۰rooted𑁒acyclic (tree := ϵs)); done.
+              eapply (treemap۰rootedｰacyclic (tree := ϵs)); done.
             }
             iApply (big_sepM2_insert_2 with "[- Hcnodes] Hcnodes").
             iSteps; try iPureIntro.
             { rewrite /δs_base' -Permutation_cons_append //. }
-            { rewrite Hδs_base (store۰on𑁒deltas۰apply _ _ descr_cnode.(descriptor۰store)) Hδs_cnode.
-              rewrite (deltas۰apply𑁒permutation δs_base' (δs_base ++ [Delta r1 g1' v1' cnode])) //.
+            { rewrite Hδs_base (store۰onｰdeltas۰apply _ _ descr_cnode.(descriptor۰store)) Hδs_cnode.
+              rewrite (deltas۰applyｰpermutation δs_base' (δs_base ++ [Delta r1 g1' v1' cnode])) //.
               { rewrite /δs_base' -Permutation_cons_append //. }
-              rewrite deltas۰apply𑁒snoc insert_insert_eq insert_id // store۰on𑁒deltas۰apply //.
+              rewrite deltas۰applyｰsnoc insert_insert_eq insert_id // store۰onｰdeltas۰apply //.
             } {
-              iApply (deltas۰chain𑁒snoc with "Hδs_base Hnode").
+              iApply (deltas۰chainｰsnoc with "Hδs_base Hnode").
             }
           }
 
       - rewrite 2!reverse_snoc.
-        iDestruct (deltas۰chain𑁒snoc𑁒inv with "Hδs_cnode") as "(_ & Hδs_cnode & Hδ')".
+        iDestruct (deltas۰chainｰsnocｰinv with "Hδs_cnode") as "(_ & Hδs_cnode & Hδ')".
         rewrite !last_snoc. cbn.
         wp۰load.
-        wp۰apply+ assert𑁒spec; first rewrite bool_decide_eq_true_2 //.
+        wp۰apply+ assertｰspec; first rewrite bool_decide_eq_true_2 //.
         assert (∃ data, store۰on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
         { apply elem_of_dom.
-          rewrite deltas۰apply𑁒snoc in Hδs_cnode.
+          rewrite deltas۰applyｰsnoc in Hδs_cnode.
           apply (f_equal dom) in Hδs_cnode.
           set_solver.
         }
         iDestruct (big_sepM_insert_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
         do 2 wp۰load. do 3 wp۰store.
         iDestruct ("Hς" $! (g1, v1) with "[$Hr_gen $Hr_value]") as "Hς".
-        rewrite -store۰on𑁒insert.
-        iDestruct (deltas۰chain𑁒snoc with "Hδs_base Hnode") as "Hδs_base".
-        iDestruct (deltas۰chain𑁒snoc with "Hδs_cnode Hδ'") as "Hδs_cnode".
+        rewrite -store۰onｰinsert.
+        iDestruct (deltas۰chainｰsnoc with "Hδs_base Hnode") as "Hδs_base".
+        iDestruct (deltas۰chainｰsnoc with "Hδs_cnode Hδ'") as "Hδs_cnode".
         set ς' := <[r1 := (g1, v1)]> ς.
         set δs_base' := δs_base ++ [Delta r1 g1' v1' node'].
         set δs_cnode' := δs_cnode ++ [Delta r2 g2 v2 node'].
@@ -1235,16 +1235,16 @@ Module base.
           apply NoDup_app in Hnodup as (_ & _ & Hnodup).
           rewrite /δs_base' Permutation_app_comm //.
         } {
-          rewrite deltas۰apply𑁒snoc insert_insert_eq store۰on𑁒deltas۰apply store۰on𑁒insert insert_id // -store۰on𑁒deltas۰apply //.
+          rewrite deltas۰applyｰsnoc insert_insert_eq store۰onｰdeltas۰apply store۰onｰinsert insert_id // -store۰onｰdeltas۰apply //.
         } {
           rewrite -assoc fmap_app in Hnodup.
           apply NoDup_app in Hnodup as (Hnodup & _ & _).
           done.
         } {
-          rewrite /ς' -(deltas۰apply𑁒snoc' _ _ _ _ node) //.
+          rewrite /ς' -(deltas۰applyｰsnoc' _ _ _ _ node) //.
         }
     Qed.
-    #[local] Lemma sstore_2٠revert𑁒spec {γ σ₀ root ς cnodes ϵs base descr_base δs} base' descr_base' path acc :
+    #[local] Lemma sstore_2٠revertｰspec {γ σ₀ root ς cnodes ϵs base descr_base δs} base' descr_base' path acc :
       cnodes !! base' = Some descr_base' →
       treemap۰path ϵs base base' path →
       list۰model' acc $ tail $
@@ -1268,34 +1268,34 @@ Module base.
 
       destruct δs as [| (r1, g1, v1, _root) δs _] using rev_ind.
 
-      - iDestruct (deltas۰chain𑁒nil𑁒inv with "Hδs") as %<-.
+      - iDestruct (deltas۰chainｰnilｰinv with "Hδs") as %<-.
         specialize (Hδs_nil eq_refl) as ->.
         destruct path as [| δs_cnode path _] using rev_ind => /=.
 
-        + apply treemap۰path𑁒nil𑁒inv in Hpath as ->.
+        + apply treemap۰pathｰnilｰinv in Hpath as ->.
           assert (descr_base' = descr_base) as -> by congruence.
           wp۰rec.
           iSteps.
 
-        + apply treemap۰path𑁒app𑁒inv in Hpath as (cnode & Hpath' & (? & Hϵs_lookup_cnode & ->%treemap۰path𑁒nil𑁒inv)%treemap۰path𑁒cons𑁒inv).
+        + apply treemap۰pathｰappｰinv in Hpath as (cnode & Hpath' & (? & Hϵs_lookup_cnode & ->%treemap۰pathｰnilｰinv)%treemap۰pathｰconsｰinv).
           iDestruct (big_sepM2_delete_r with "Hcnodes") as "(%descr_cnode & %Hcnodes_lookup_cnode & (%descr_base_ & %Hcnodes_lookup_base_ & ((%Hcnode_store_dom & %Hcnode_store_gen) & #Helem_cnode & %Hδs_cnode_nodup & %Hδs_cnode & Hδs_cnode)) & Hcnodes)"; first done.
           simpl in Hcnodes_lookup_base_. assert (descr_base_ = descr_base) as -> by congruence.
           assert (cnode ≠ base) as Hcnode.
           { intros ->.
-            opose proof* treemap۰rooted𑁒acyclic as []; done.
+            opose proof* treemap۰rootedｰacyclic as []; done.
           }
           iAssert ⌜0 < length δs_cnode⌝%I as %Hδs_cnode_length.
           { destruct δs_cnode; last iSteps.
-            iDestruct (deltas۰chain𑁒nil𑁒inv with "Hδs_cnode") as %?. done.
+            iDestruct (deltas۰chainｰnilｰinv with "Hδs_cnode") as %?. done.
           }
           rewrite lookup_delete_ne // in Hcnodes_lookup_cnode.
           rewrite delete_delete.
-          wp۰apply (sstore_2٠revert𑁒spec𑁒aux (δs_base := []) (δs_cnode := δs_cnode) base' with "[- HΦ]"); try done.
+          wp۰apply (sstore_2٠revertｰspecｰaux (δs_base := []) (δs_cnode := δs_cnode) base' with "[- HΦ]"); try done.
           { rewrite right_id //. }
           { rewrite concat_app reverse_app fmap_app -assoc /= right_id //. }
           { iSteps. }
 
-      - iDestruct (deltas۰chain𑁒snoc𑁒inv with "Hδs") as "(%Heq & Hδs & Hδ)".
+      - iDestruct (deltas۰chainｰsnocｰinv with "Hδs") as "(%Heq & Hδs & Hδ)".
         simpl in Heq. subst _root.
         rewrite reverse_snoc. cbn.
         wp۰rec.
@@ -1303,43 +1303,43 @@ Module base.
 
         + destruct path as [| δs_cnode path _] using rev_ind => /=.
 
-          * apply treemap۰path𑁒nil𑁒inv in Hpath as ->.
+          * apply treemap۰pathｰnilｰinv in Hpath as ->.
             assert (descr_base' = descr_base) as -> by congruence.
             wp۰load.
-            wp۰apply+ assert𑁒spec; first rewrite bool_decide_eq_true_2 //.
+            wp۰apply+ assertｰspec; first rewrite bool_decide_eq_true_2 //.
             assert (∃ data, store۰on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
             { apply elem_of_dom.
-              rewrite deltas۰apply𑁒snoc in Hδs.
+              rewrite deltas۰applyｰsnoc in Hδs.
               apply (f_equal dom) in Hδs.
               set_solver.
             }
             iDestruct (big_sepM_insert_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
             do 2 wp۰load. do 3 wp۰store. wp۰pures. wp۰rec. wp۰store.
             iDestruct ("Hς" $! (g1, v1) with "[$Hr_gen $Hr_value]") as "Hς".
-            rewrite deltas۰apply𑁒singleton store۰on𑁒insert in Hδs.
+            rewrite deltas۰applyｰsingleton store۰onｰinsert in Hδs.
             rewrite -Hδs.
             iSteps; iPureIntro.
             { apply NoDup_nil_2. }
-            { rewrite deltas۰apply𑁒nil //. }
+            { rewrite deltas۰applyｰnil //. }
 
-          * apply treemap۰path𑁒app𑁒inv in Hpath as (cnode & Hpath' & (? & Hϵs_lookup_cnode & ->%treemap۰path𑁒nil𑁒inv)%treemap۰path𑁒cons𑁒inv).
+          * apply treemap۰pathｰappｰinv in Hpath as (cnode & Hpath' & (? & Hϵs_lookup_cnode & ->%treemap۰pathｰnilｰinv)%treemap۰pathｰconsｰinv).
             iDestruct (big_sepM2_delete_r with "Hcnodes") as "(%descr_cnode & %Hcnodes_lookup_cnode & (%descr_base_ & %Hcnodes_lookup_base_ & ((%Hcnode_store_dom & %Hcnode_store_gen) & #Helem_cnode & %Hδs_cnode_nodup & %Hδs_cnode & Hδs_cnode)) & Hcnodes)"; first done.
             simpl in Hcnodes_lookup_base_. assert (descr_base_ = descr_base) as -> by congruence.
             assert (cnode ≠ base) as Hcnode.
             { intros ->.
-              opose proof* treemap۰rooted𑁒acyclic as []; done.
+              opose proof* treemap۰rootedｰacyclic as []; done.
             }
             destruct δs_cnode as [| (r2, g2, v2, _base) δs_cnode' _] using rev_ind.
-            { iDestruct (deltas۰chain𑁒nil𑁒inv with "Hδs_cnode") as %?. done. }
-            iDestruct (deltas۰chain𑁒snoc𑁒inv with "Hδs_cnode") as "(%Heq & Hδs_cnode & Hδ')".
+            { iDestruct (deltas۰chainｰnilｰinv with "Hδs_cnode") as %?. done. }
+            iDestruct (deltas۰chainｰsnocｰinv with "Hδs_cnode") as "(%Heq & Hδs_cnode & Hδ')".
             simpl in Heq. subst _base.
             rewrite concat_app reverse_app fmap_app /= right_id reverse_app /=.
             wp۰load.
-            iDestruct (deltas۰chain𑁒snoc with "Hδs_cnode Hδ'") as "Hδs_cnode". cbn.
-            wp۰apply+ assert𑁒spec; first rewrite bool_decide_eq_true_2 //.
+            iDestruct (deltas۰chainｰsnoc with "Hδs_cnode Hδ'") as "Hδs_cnode". cbn.
+            wp۰apply+ assertｰspec; first rewrite bool_decide_eq_true_2 //.
             assert (∃ data, store۰on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
             { apply elem_of_dom.
-              rewrite deltas۰apply𑁒snoc in Hδs.
+              rewrite deltas۰applyｰsnoc in Hδs.
               apply (f_equal dom) in Hδs.
               set_solver.
             }
@@ -1347,32 +1347,32 @@ Module base.
             do 2 wp۰load. do 3 wp۰store.
             iDestruct ("Hς" $! (g1, v1) with "[$Hr_gen $Hr_value]") as "Hς".
             rewrite lookup_delete_ne // in Hcnodes_lookup_cnode.
-            rewrite deltas۰apply𑁒singleton store۰on𑁒insert in Hδs.
+            rewrite deltas۰applyｰsingleton store۰onｰinsert in Hδs.
             rewrite -Hδs delete_delete.
-            wp۰apply+ (sstore_2٠revert𑁒spec𑁒aux (δs_base := []) (δs_cnode := δs_cnode' ++ [_]) base' with "[- HΦ]"); try done.
+            wp۰apply+ (sstore_2٠revertｰspecｰaux (δs_base := []) (δs_cnode := δs_cnode' ++ [_]) base' with "[- HΦ]"); try done.
             { simpl_length/=. lia. }
             { rewrite right_id //. }
             { rewrite reverse_app fmap_app -assoc //. }
             { iSteps; try iPureIntro.
               { apply NoDup_nil_2. }
-              { rewrite deltas۰apply𑁒nil //. }
+              { rewrite deltas۰applyｰnil //. }
             }
 
         + rewrite last_snoc reverse_snoc /=.
-          iDestruct (deltas۰chain𑁒snoc𑁒inv with "Hδs") as "(_ & Hδs & Hδ')".
+          iDestruct (deltas۰chainｰsnocｰinv with "Hδs") as "(_ & Hδs & Hδ')".
           wp۰load.
-          iDestruct (deltas۰chain𑁒snoc with "Hδs Hδ'") as "Hδs". cbn.
-          wp۰apply+ assert𑁒spec; first rewrite bool_decide_eq_true_2 //.
+          iDestruct (deltas۰chainｰsnoc with "Hδs Hδ'") as "Hδs". cbn.
+          wp۰apply+ assertｰspec; first rewrite bool_decide_eq_true_2 //.
           assert (∃ data, store۰on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
           { apply elem_of_dom.
-            rewrite deltas۰apply𑁒snoc in Hδs.
+            rewrite deltas۰applyｰsnoc in Hδs.
             apply (f_equal dom) in Hδs.
             set_solver.
           }
           iDestruct (big_sepM_insert_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
           do 2 wp۰load. do 3 wp۰store.
           iDestruct ("Hς" $! (g1, v1) with "[$Hr_gen $Hr_value]") as "Hς".
-          rewrite -store۰on𑁒insert.
+          rewrite -store۰onｰinsert.
           wp۰apply+ ("HLöb" $! node _ (δs ++ [Delta r2 g2 v2 node]) with "[%] [%] [%] [- HΦ]"); try done.
           { rewrite reverse_app fmap_app -assoc //. }
           { iSteps; iPureIntro.
@@ -1380,12 +1380,12 @@ Module base.
               apply NoDup_app in Hδs_nodup as (Hnodup & _ & _).
               done.
             }
-            { erewrite <- deltas۰apply𑁒snoc' => //. }
+            { erewrite <- deltas۰applyｰsnoc' => //. }
             { intros []%symmetry%app_cons_not_nil. }
           }
     Qed.
 
-    #[local] Lemma sstore_2٠reroot𑁒spec {γ σ₀ root ς cnodes ϵs base descr δs} base' descr' path :
+    #[local] Lemma sstore_2٠rerootｰspec {γ σ₀ root ς cnodes ϵs base descr δs} base' descr' path :
       cnodes !! base' = Some descr' →
       treemap۰path ϵs base base' path →
       {{{
@@ -1401,14 +1401,14 @@ Module base.
       iIntros "%Hcnodes_lookup_base' %Hpath %Φ Hinv HΦ".
 
       wp۰rec.
-      wp۰apply (sstore_2٠collect𑁒spec with "Hinv") as (acc) "(Hinv & %Hacc)"; [done.. |].
-      wp۰apply+ (sstore_2٠revert𑁒spec with "[Hinv] HΦ"); [done.. | |].
-      { rewrite list۰model'𑁒plist۰model' //. }
+      wp۰apply (sstore_2٠collectｰspec with "Hinv") as (acc) "(Hinv & %Hacc)"; [done.. |].
+      wp۰apply+ (sstore_2٠revertｰspec with "[Hinv] HΦ"); [done.. | |].
+      { rewrite list۰model'ｰplist۰model' //. }
       iDestruct "Hinv" as "(Hroot & Hς & %Hϵs & Hauth & %Hcnodes_lookup_base & ((%Hstore_dom & %Hstore_gen) & #Helem_base & %Hδs_nodup & %Hδs & Hδs) & %Hδs_nil & Hcnodes)".
       iSteps.
     Qed.
 
-    Lemma sstore_2٠restore𑁒spec t σ₀ σ s σ' :
+    Lemma sstore_2٠restoreｰspec t σ₀ σ s σ' :
       {{{
         sstore_2۰model t σ₀ σ ∗
         sstore_2۰snapshot s t σ'
@@ -1420,13 +1420,13 @@ Module base.
       }}}.
     Proof.
       iIntros "%Φ ((%l & %γ & %g & %root & %ς & -> & -> & #Hmeta & Hl_gen & Hl_root & Hroot & Hς & (%Hς_dom & %Hς_gen) & Hmodel) & (%_l & %_γ & %g' & %base' & %descr' & %Heq & -> & -> & %Hg' & #_Hmeta & #Helem_base')) HΦ". injection Heq as <-.
-      iDestruct (meta𑁒agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+      iDestruct (metaｰagree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
       wp۰rec. wp۰pures. rewrite bool_decide_eq_true_2 //. wp۰pures.
       case_decide as [-> | Hg].
-      { iDestruct (cnodes𑁒lookup with "Hmodel Helem_base'") as %[]%lookup_empty_Some. }
+      { iDestruct (cnodesｰlookup with "Hmodel Helem_base'") as %[]%lookup_empty_Some. }
       iDecompose "Hmodel" as (cnodes ϵs base descr δs Hϵs Hcnodes_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs Hδs_nil Hδs_gen) "Helem_base Hauth Hδs Hcnodes".
-      iDestruct (cnodes𑁒lookup with "Hauth Helem_base'") as %Hcnodes_lookup_base'.
+      iDestruct (cnodesｰlookup with "Hauth Helem_base'") as %Hcnodes_lookup_base'.
       destruct_decide (base' = root) as -> | Hbase'.
 
       - destruct_decide (root = base) as -> | Hroot; last first.
@@ -1438,16 +1438,16 @@ Module base.
           }
           iDestruct (big_sepM2_lookup_acc with "Hcnodes") as "((%descr_root & %Hcnodes_lookup_root & (%Hroot_store_dom & %Hroot_store_gen) & #Helem_root & %Hδs'_nodup & %Hδs' & Hδs') & Hcnodes)"; [done.. |].
           destruct ϵ.2 as [| δ δs'] eqn:Hδ.
-          { iDestruct (deltas۰chain𑁒nil𑁒inv with "Hδs'") as %?.
-            opose proof* treemap۰rooted𑁒acyclic as []; done.
+          { iDestruct (deltas۰chainｰnilｰinv with "Hδs'") as %?.
+            opose proof* treemap۰rootedｰacyclic as []; done.
           }
-          iDestruct (deltas۰chain𑁒cons𑁒inv with "Hδs'") as "(Hδ & Hδs')".
-          iDestruct (pointsto𑁒exclusive with "Hroot Hδ") as %[].
+          iDestruct (deltas۰chainｰconsｰinv with "Hδs'") as "(Hδ & Hδs')".
+          iDestruct (pointstoｰexclusive with "Hroot Hδ") as %[].
         }
         assert (descr = descr') as <- by congruence.
         destruct δs as [| δ δs]; last first.
-        { iDestruct (deltas۰chain𑁒cons𑁒inv with "Hδs") as "(Hδ & _)".
-          iDestruct (pointsto𑁒exclusive with "Hroot Hδ") as %[].
+        { iDestruct (deltas۰chainｰconsｰinv with "Hδs") as "(Hδ & _)".
+          iDestruct (pointstoｰexclusive with "Hroot Hδ") as %[].
         }
         specialize (Hδs_nil eq_refl) as ->.
         iSteps. rewrite decide_False //. iSteps.
@@ -1456,18 +1456,18 @@ Module base.
 
         + assert (descr = descr') as <- by congruence.
           destruct δs as [| δ δs].
-          { iDestruct (deltas۰chain𑁒nil𑁒inv with "Hδs") as %?. done. }
-          iDestruct (deltas۰chain𑁒cons𑁒inv with "Hδs") as "(Hδ & Hδs)".
+          { iDestruct (deltas۰chainｰnilｰinv with "Hδs") as %?. done. }
+          iDestruct (deltas۰chainｰconsｰinv with "Hδs") as "(Hδ & Hδs)".
           wp۰load.
-          iDestruct (deltas۰chain𑁒cons with "Hδ Hδs") as "Hδs".
-          wp۰apply+ (sstore_2٠reroot𑁒spec with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase & Hstore & %Hϵs' & Hauth & Hdescr & Hcnodes)"; first done.
-          { apply treemap۰path𑁒nil. }
+          iDestruct (deltas۰chainｰcons with "Hδ Hδs") as "Hδs".
+          wp۰apply+ (sstore_2٠rerootｰspec with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase & Hstore & %Hϵs' & Hauth & Hdescr & Hcnodes)"; first done.
+          { apply treemap۰pathｰnil. }
           { iFrame "#∗". iSteps. }
           do 2 wp۰store.
           iApply "HΦ".
           iExists l, γ, ˖g', base, descr.(descriptor۰store). unshelve iStep 8.
           { iPureIntro. split; first done.
-            eapply store۰generation𑁒le; last done. naive_solver.
+            eapply store۰generationｰle; last done. naive_solver.
           }
           iExists cnodes, ϵs', base, descr, []. iSteps.
 
@@ -1479,21 +1479,21 @@ Module base.
           }
           iDestruct (big_sepM2_lookup_acc with "Hcnodes") as "((%descr_cnode & %Hcnodes_lookup_cnode & (%Hcnode_store_dom & %Hcnode_store_gen) & #Helem_cnode & %Hδs'_nodup & %Hδs' & Hδs') & Hcnodes)"; [done.. |].
           destruct ϵ.2 as [| δ δs'] eqn:Hδ.
-          { iDestruct (deltas۰chain𑁒nil𑁒inv with "Hδs'") as %?.
-            opose proof* treemap۰rooted𑁒acyclic as []; done.
+          { iDestruct (deltas۰chainｰnilｰinv with "Hδs'") as %?.
+            opose proof* treemap۰rootedｰacyclic as []; done.
           }
-          iDestruct (deltas۰chain𑁒cons𑁒inv with "Hδs'") as "(Hδ & Hδs')".
+          iDestruct (deltas۰chainｰconsｰinv with "Hδs'") as "(Hδ & Hδs')".
           wp۰load. wp۰pures.
-          iDestruct (deltas۰chain𑁒cons with "Hδ Hδs'") as "Hδs'".
+          iDestruct (deltas۰chainｰcons with "Hδ Hδs'") as "Hδs'".
           rewrite <- Hδ in *. clear Hδ δ δs'.
-          opose proof* treemap۰rooted𑁒path as (path & Hpath); [done.. |].
-          wp۰apply+ (sstore_2٠reroot𑁒spec (cnodes := cnodes) with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase' & Hstore' & %Hϵs' & Hauth & Hdescr' & Hcnodes)"; [done.. | |].
+          opose proof* treemap۰rootedｰpath as (path & Hpath); [done.. |].
+          wp۰apply+ (sstore_2٠rerootｰspec (cnodes := cnodes) with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase' & Hstore' & %Hϵs' & Hauth & Hdescr' & Hcnodes)"; [done.. | |].
           { iFrame "#∗". iSteps. }
           do 2 wp۰store.
           iApply "HΦ".
           iExists l, γ, ˖g', base', descr'.(descriptor۰store). unshelve iStep 8.
           { iPureIntro. split; first done.
-            eapply store۰generation𑁒le; last done. naive_solver.
+            eapply store۰generationｰle; last done. naive_solver.
           }
           iExists cnodes, ϵs', base', descr', []. iSteps.
     Qed.
@@ -1514,7 +1514,7 @@ Definition sstore_2۰Σ :=
   #[base.sstore_2۰Σ
   ; mono_gmap۰Σ location val
   ].
-#[global] Instance subG𑁒sstore_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰsstore_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG sstore_2۰Σ Σ →
   Sstore2G Σ.
 Proof.
@@ -1544,28 +1544,28 @@ Section sstore_2۰G.
     mono_gmap۰lb γ σ₀ ∗
     base.sstore_2۰snapshot s t ς.
 
-  #[global] Instance sstore_2۰model𑁒timeless t σ :
+  #[global] Instance sstore_2۰modelｰtimeless t σ :
     Timeless (sstore_2۰model t σ).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance sstore_2۰snapshot𑁒persistent s t σ :
+  #[global] Instance sstore_2۰snapshotｰpersistent s t σ :
     Persistent (sstore_2۰snapshot s t σ).
   Proof.
     apply _.
   Qed.
 
-  Lemma sstore_2۰model𑁒exclusive t σ1 σ2 :
+  Lemma sstore_2۰modelｰexclusive t σ1 σ2 :
     sstore_2۰model t σ1 -∗
     sstore_2۰model t σ2 -∗
     False.
   Proof.
     iIntros "(%l1 & %γ1 & %σ₀1 & %ς1 & %Heq1 & _ & _ & _ & Hmodel1) (%l2 & %γ2 & %σ₀2 & %ς2 & %Heq2 & _ & _ & _ & Hmodel2)".
-    iApply (base.sstore_2۰model𑁒exclusive with "Hmodel1 Hmodel2").
+    iApply (base.sstore_2۰modelｰexclusive with "Hmodel1 Hmodel2").
   Qed.
 
-  Lemma sstore_2٠create𑁒spec :
+  Lemma sstore_2٠createｰspec :
     {{{
       True
     }}}
@@ -1577,14 +1577,14 @@ Section sstore_2۰G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    iApply wp𑁒fupd.
-    wp۰apply (base.sstore_2٠create𑁒spec with "[//]") as (t) "((%l & -> & Hmeta) & Ht)".
-    iMod mono_gmap𑁒alloc as "(%γ & Hauth)".
-    iMod (meta𑁒set γ with "Hmeta") as "Hmeta"; first done.
+    iApply wpｰfupd.
+    wp۰apply (base.sstore_2٠createｰspec with "[//]") as (t) "((%l & -> & Hmeta) & Ht)".
+    iMod mono_gmapｰalloc as "(%γ & Hauth)".
+    iMod (metaｰset γ with "Hmeta") as "Hmeta"; first done.
     iSteps. iExists ∅, ∅. iSteps.
   Qed.
 
-  Lemma sstore_2٠ref𑁒spec t σ v :
+  Lemma sstore_2٠refｰspec t σ v :
     {{{
       sstore_2۰model t σ
     }}}
@@ -1597,20 +1597,20 @@ Section sstore_2۰G.
     }}}.
   Proof.
     iIntros "%Φ (%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
-    iDestruct (base.sstore_2۰model𑁒valid with "Ht") as %Hς_dom.
-    iApply wp𑁒fupd.
-    wp۰apply (base.sstore_2٠ref𑁒spec with "Ht") as (r) "(%Hσ₀_lookup & Ht)".
+    iDestruct (base.sstore_2۰modelｰvalid with "Ht") as %Hς_dom.
+    iApply wpｰfupd.
+    wp۰apply (base.sstore_2٠refｰspec with "Ht") as (r) "(%Hσ₀_lookup & Ht)".
     assert (ς !! r = None) as Hς_lookup.
     { rewrite -!not_elem_of_dom in Hσ₀_lookup |- *. set_solver. }
     assert (σ !! r = None) as Hσ_lookup.
     { eapply lookup_weaken_None; last done. apply lookup_union_None_2; done. }
-    iMod (mono_gmap𑁒insert with "Hauth") as "Hauth"; first done.
+    iMod (mono_gmapｰinsert with "Hauth") as "Hauth"; first done.
     iApply "HΦ".
     iStep. iExists l, γ, (<[r := v]> σ₀), ς. iSteps. iPureIntro.
     rewrite -insert_union_r //. apply insert_mono. done.
   Qed.
 
-  Lemma sstore_2٠get𑁒spec {t σ r} v :
+  Lemma sstore_2٠getｰspec {t σ r} v :
     σ !! r = Some v →
     {{{
       sstore_2۰model t σ
@@ -1622,12 +1622,12 @@ Section sstore_2۰G.
     }}}.
   Proof.
     iIntros "%Hσ_lookup %Φ (%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
-    wp۰apply (base.sstore_2٠get𑁒spec with "Ht") as "Ht".
+    wp۰apply (base.sstore_2٠getｰspec with "Ht") as "Ht".
     { eapply lookup_weaken; done. }
     iSteps.
   Qed.
 
-  Lemma sstore_2٠set𑁒spec t σ r v :
+  Lemma sstore_2٠setｰspec t σ r v :
     r ∈ dom σ →
     {{{
       sstore_2۰model t σ
@@ -1639,15 +1639,15 @@ Section sstore_2۰G.
     }}}.
   Proof.
     iIntros "%Hr %Φ (%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
-    iDestruct (base.sstore_2۰model𑁒valid with "Ht") as %Hς_dom.
-    wp۰apply (base.sstore_2٠set𑁒spec with "Ht") as "Ht".
+    iDestruct (base.sstore_2۰modelｰvalid with "Ht") as %Hς_dom.
+    wp۰apply (base.sstore_2٠setｰspec with "Ht") as "Ht".
     { apply subseteq_dom in Hσ. set_solver. }
     iApply "HΦ".
     iExists l, γ, σ₀, (<[r := v]> ς). iSteps. iPureIntro.
     rewrite -insert_union_l. apply insert_mono. done.
   Qed.
 
-  Lemma sstore_2٠capture𑁒spec t σ :
+  Lemma sstore_2٠captureｰspec t σ :
     {{{
       sstore_2۰model t σ
     }}}
@@ -1660,12 +1660,12 @@ Section sstore_2۰G.
     }}}.
   Proof.
     iIntros "%Φ (%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
-    iDestruct (mono_gmap۰lb𑁒get with "Hauth") as "#Hlb".
-    wp۰apply (base.sstore_2٠capture𑁒spec with "Ht") as (s) "(Ht & Hs)".
+    iDestruct (mono_gmap۰lbｰget with "Hauth") as "#Hlb".
+    wp۰apply (base.sstore_2٠captureｰspec with "Ht") as (s) "(Ht & Hs)".
     iSteps.
   Qed.
 
-  Lemma sstore_2٠restore𑁒spec t σ s σ' :
+  Lemma sstore_2٠restoreｰspec t σ s σ' :
     {{{
       sstore_2۰model t σ ∗
       sstore_2۰snapshot s t σ'
@@ -1677,9 +1677,9 @@ Section sstore_2۰G.
     }}}.
   Proof.
     iIntros "%Φ ((%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) & (%_l & %_γ & %σ₀' & %ς' & %Heq & %Hσ' & _Hmeta & #Hlb & Hs)) HΦ". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    wp۰apply (base.sstore_2٠restore𑁒spec with "[$Ht $Hs]") as "Ht".
-    iDestruct (mono_gmap۰lb𑁒valid with "Hauth Hlb") as %Hσ₀'.
+    iDestruct (metaｰagree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    wp۰apply (base.sstore_2٠restoreｰspec with "[$Ht $Hs]") as "Ht".
+    iDestruct (mono_gmap۰lbｰvalid with "Hauth Hlb") as %Hσ₀'.
     iApply "HΦ".
     iExists l, γ, σ₀, ς'. iSteps. iPureIntro.
     trans (ς' ∪ σ₀'); first done. apply map_union_mono_l. done.

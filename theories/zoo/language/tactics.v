@@ -135,57 +135,57 @@ Tactic Notation "zoo_simplify" "in" hyp(H) :=
   zoo_simpl in H;
   try match type of H with
   | to_val _ = Some _ =>
-      apply of_val𑁒to_val in H
+      apply of_valｰto_val in H
 
   | @nonsimilar val _ (ValLit (LitBool _)) (ValLit (LitBool _)) =>
-      apply val𑁒nonsimilar𑁒bool in H
+      apply valｰnonsimilarｰbool in H
   | @nonsimilar val _ (ValLit (LitInt (Z.of_nat _))) (ValLit (LitInt (Z.of_nat _))) =>
-      apply val𑁒nonsimilar𑁒nat in H
+      apply valｰnonsimilarｰnat in H
   | @nonsimilar val _ (ValLit (LitInt _)) (ValLit (LitInt _)) =>
-      apply val𑁒nonsimilar𑁒int in H
+      apply valｰnonsimilarｰint in H
   | @nonsimilar val _ (ValLit (LitLoc _)) (ValLit (LitLoc _)) =>
-      apply val𑁒nonsimilar𑁒location in H
+      apply valｰnonsimilarｰlocation in H
   | @nonsimilar val _ (ValBlock _ _ nil) (ValBlock _ _ nil) =>
-      apply val𑁒nonsimilar𑁒block𑁒empty in H
+      apply valｰnonsimilarｰblockｰempty in H
   | @nonsimilar val _ (ValBlock (Generative (Some _)) _ _) (ValBlock (Generative (Some _)) _ _) =>
-      apply val𑁒nonsimilar𑁒block𑁒generative in H; try done
+      apply valｰnonsimilarｰblockｰgenerative in H; try done
 
   | @similar val _ (ValLit (LitBool _)) (ValLit (LitBool _)) =>
-      apply val𑁒similar𑁒bool in H
+      apply valｰsimilarｰbool in H
   | @similar val _ (ValLit (LitInt (Z.of_nat _))) (ValLit (LitInt (Z.of_nat _))) =>
-      apply val𑁒similar𑁒nat in H
+      apply valｰsimilarｰnat in H
   | @similar val _ (ValLit (LitInt _)) (ValLit (LitInt _)) =>
-      apply val𑁒similar𑁒int in H
+      apply valｰsimilarｰint in H
   | @similar val _ (ValLit (LitLoc _)) (ValLit (LitLoc _)) =>
-      apply val𑁒similar𑁒location in H
+      apply valｰsimilarｰlocation in H
   | @similar val _ (ValBlock _ _ nil) (ValBlock _ _ nil) =>
-      apply val𑁒similar𑁒block𑁒empty in H
+      apply valｰsimilarｰblockｰempty in H
   | @similar val _ (ValBlock _ _ nil) (ValBlock _ _ (cons _ _)) =>
-      apply val𑁒similar𑁒block𑁒empty₁ in H as []
+      apply valｰsimilarｰblockｰempty₁ in H as []
   | @similar val _ (ValBlock _ _ (cons _ _)) (ValBlock _ _ nil) =>
-      apply val𑁒similar𑁒block𑁒empty₂ in H as []
+      apply valｰsimilarｰblockｰempty₂ in H as []
   | @similar val _ (ValBlock (Generative _) _ _) (ValBlock (Generative _) _ _) =>
       let H1 := fresh in
       let H2 := fresh in
       let H3 := fresh in
-      apply val𑁒similar𑁒block𑁒generative in H as (H1 & H2 & H3); last naive_solver;
+      apply valｰsimilarｰblockｰgenerative in H as (H1 & H2 & H3); last naive_solver;
       zoo_simpl in H1;
       zoo_simpl in H2;
       zoo_simpl in H3
   | @similar val _ (ValBlock Nongenerative _ _) (ValBlock Nongenerative _ _) =>
       let H1 := fresh in
       let H2 := fresh in
-      apply val𑁒similar𑁒block𑁒nongenerative in H as (H1 & H2);
+      apply valｰsimilarｰblockｰnongenerative in H as (H1 & H2);
       zoo_simpl in H1;
       zoo_simpl in H2
   | @similar val _ (ValLit (LitLoc _)) (ValBlock _ _ _) =>
-      apply val𑁒similar𑁒location𑁒block in H as []
+      apply valｰsimilarｰlocationｰblock in H as []
   | @similar val _ (ValBlock _ _ _) (ValLit (LitLoc _)) =>
-      apply val𑁒similar𑁒block𑁒location in H as []
+      apply valｰsimilarｰblockｰlocation in H as []
   | @similar val _ (ValBlock (Generative _) _ _) (ValBlock Nongenerative _ _) =>
-      apply val𑁒similar𑁒block𑁒generative𑁒nongenerative in H as []; done
+      apply valｰsimilarｰblockｰgenerativeｰnongenerative in H as []; done
   | @similar val _ (ValBlock Nongenerative _ _) (ValBlock (Generative _) _ _) =>
-      apply val𑁒similar𑁒block𑁒nongenerative𑁒generative in H as []; done
+      apply valｰsimilarｰblockｰnongenerativeｰgenerative in H as []; done
   end;
   try zoo_simpl in H.
 Tactic Notation "zoo_simplify" :=
@@ -207,15 +207,15 @@ Ltac invert_base_step :=
 Create HintDb zoo.
 
 #[global] Hint Resolve
-  val𑁒similar𑁒refl
+  valｰsimilarｰrefl
 
-  base_reducible_no_obs𑁒equal
-  base_reducible𑁒equal
-  reducible𑁒equal
+  base_reducible_no_obsｰequal
+  base_reducibleｰequal
+  reducibleｰequal
 
-  base_reducible_no_obs𑁒cas
-  base_reducible𑁒cas
-  reducible𑁒cas
+  base_reducible_no_obsｰcas
+  base_reducibleｰcas
+  reducibleｰcas
 : zoo.
 
 #[global] Hint Extern 0 (
@@ -248,34 +248,34 @@ Create HintDb zoo.
 #[global] Hint Extern 0 (
   base_step _ (Equal _ _) _ _ _ _ _
 ) =>
-  eapply base_step𑁒equal𑁒fail;
+  eapply base_stepｰequalｰfail;
   simpl; try naive_solver done
 : zoo.
 #[global] Hint Extern 0 (
   base_step _ (Equal _ _) _ _ _ _ _
 ) =>
-  eapply base_step𑁒equal𑁒success;
+  eapply base_stepｰequalｰsuccess;
   simpl
 : zoo.
 #[global] Hint Extern 0 (
   base_step _ (Alloc _ _) _ _ _ _ _
 ) =>
-  apply base_step𑁒alloc'
+  apply base_stepｰalloc'
 : zoo.
 #[global] Hint Extern 0 (
   base_step _ (Block Mutable _ _) _ _ _ _ _
 ) =>
-  eapply base_step𑁒block𑁒mutable'
+  eapply base_stepｰblockｰmutable'
 : zoo.
 #[global] Hint Extern 0 (
   base_step _ (Block ImmutableGenerativeStrong _ _) _ _ _ _ _
 ) =>
-  eapply base_step𑁒block𑁒immutable𑁒generative𑁒strong'
+  eapply base_stepｰblockｰimmutableｰgenerativeｰstrong'
 : zoo.
 #[global] Hint Extern 0 (
   base_step _ (CAS _ _ _) _ _ _ _ _
 ) =>
-  eapply base_step𑁒cas𑁒fail;
+  eapply base_stepｰcasｰfail;
   [ try done
   | simpl; try naive_solver done
   ]
@@ -283,16 +283,16 @@ Create HintDb zoo.
 #[global] Hint Extern 0 (
   base_step _ (CAS _ _ _) _ _ _ _ _
 ) =>
-  eapply base_step𑁒cas𑁒success;
+  eapply base_stepｰcasｰsuccess;
   simpl
 : zoo.
 #[global] Hint Extern 0 (
   base_step _ (Fork _) _ _ _ _ _
 ) =>
-  apply base_step𑁒fork'
+  apply base_stepｰfork'
 : zoo.
 #[global] Hint Extern 0 (
   base_step _ Proph _ _ _ _ _
 ) =>
-  apply base_step𑁒proph'
+  apply base_stepｰproph'
 : zoo.

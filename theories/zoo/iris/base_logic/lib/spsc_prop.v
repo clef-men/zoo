@@ -17,7 +17,7 @@ Definition spsc_prop۰Σ :=
   #[oneshot۰Σ () ()
   ; excl۰Σ unitO
   ].
-#[global] Instance subG𑁒spsc_prop۰Σ Σ `{inv۰G : !invGS Σ} :
+#[global] Instance subGｰspsc_prop۰Σ Σ `{inv۰G : !invGS Σ} :
   subG spsc_prop۰Σ Σ →
   SpscPropG Σ.
 Proof.
@@ -35,9 +35,9 @@ Section spsc_prop۰G.
     }.
   Implicit Type γ : spsc_prop۰name.
 
-  #[global] Instance spsc_prop۰name𑁒eq_dec : EqDecision spsc_prop۰name :=
+  #[global] Instance spsc_prop۰nameｰeq_dec : EqDecision spsc_prop۰name :=
     ltac:(solve_decision).
-  #[global] Instance spsc_prop۰name𑁒countable :
+  #[global] Instance spsc_prop۰nameｰcountable :
     Countable spsc_prop۰name.
   Proof.
     solve_countable.
@@ -105,83 +105,83 @@ Section spsc_prop۰G.
     " #Hstate_set
     ".
 
-  #[global] Instance spsc_prop۰inv𑁒contractive γ ι :
+  #[global] Instance spsc_prop۰invｰcontractive γ ι :
     Contractive (spsc_prop۰inv γ ι).
   Proof.
     rewrite /spsc_prop۰inv /inv۰inner /inv۰consumer.
     solve_contractive.
   Qed.
-  #[global] Instance spsc_prop۰inv𑁒ne γ ι :
+  #[global] Instance spsc_prop۰invｰne γ ι :
     NonExpansive (spsc_prop۰inv γ ι).
   Proof.
     apply _.
   Qed.
-  #[global] Instance spsc_prop۰inv𑁒proper γ ι :
+  #[global] Instance spsc_prop۰invｰproper γ ι :
     Proper ((≡) ==> (≡)) (spsc_prop۰inv γ ι).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance spsc_prop۰producer𑁒timeless γ :
+  #[global] Instance spsc_prop۰producerｰtimeless γ :
     Timeless (spsc_prop۰producer γ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance spsc_prop۰consumer𑁒timeless γ :
+  #[global] Instance spsc_prop۰consumerｰtimeless γ :
     Timeless (spsc_prop۰consumer γ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance spsc_prop۰resolved𑁒timeless γ :
+  #[global] Instance spsc_prop۰resolvedｰtimeless γ :
     Timeless (spsc_prop۰resolved γ).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance spsc_prop۰inv𑁒persistent γ ι P :
+  #[global] Instance spsc_prop۰invｰpersistent γ ι P :
     Persistent (spsc_prop۰inv γ ι P).
   Proof.
     apply _.
   Qed.
-  #[global] Instance spsc_prop۰resolved𑁒persistent γ :
+  #[global] Instance spsc_prop۰resolvedｰpersistent γ :
     Persistent (spsc_prop۰resolved γ).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma state𑁒alloc :
+  #[local] Lemma stateｰalloc :
     ⊢ |==>
       ∃ γ_state,
       state۰unset₁' γ_state ∗
       state۰unset₂' γ_state.
   Proof.
-    iMod oneshot𑁒alloc as "(%γ_state & Hstate_unset)".
+    iMod oneshotｰalloc as "(%γ_state & Hstate_unset)".
     assert (1 = 2/3 + 1/3)%Qp as -> by compute_done.
     iDestruct "Hstate_unset" as "($ & $)" => //.
   Qed.
-  #[local] Lemma state۰unset₁𑁒exclusive γ :
+  #[local] Lemma state۰unset₁ｰexclusive γ :
     state۰unset₁ γ -∗
     state۰unset₁ γ -∗
     False.
   Proof.
     iIntros "Hunset₁_1 Hunset₁_2".
-    iDestruct (oneshot۰pending𑁒valid𑁒2 with "Hunset₁_1 Hunset₁_2") as %(? & _) => //.
+    iDestruct (oneshot۰pendingｰvalidｰ2 with "Hunset₁_1 Hunset₁_2") as %(? & _) => //.
   Qed.
-  #[local] Lemma state۰unset₁𑁒set γ :
+  #[local] Lemma state۰unset₁ｰset γ :
     state۰unset₁ γ -∗
     state۰set γ -∗
     False.
   Proof.
-    apply oneshot𑁒pending𑁒shot.
+    apply oneshotｰpendingｰshot.
   Qed.
-  #[local] Lemma state۰unset₂𑁒set γ :
+  #[local] Lemma state۰unset₂ｰset γ :
     state۰unset₂ γ -∗
     state۰set γ -∗
     False.
   Proof.
-    apply oneshot𑁒pending𑁒shot.
+    apply oneshotｰpendingｰshot.
   Qed.
-  #[local] Lemma state𑁒update γ :
+  #[local] Lemma stateｰupdate γ :
     state۰unset₁ γ -∗
     state۰unset₂ γ ==∗
     state۰set γ.
@@ -189,33 +189,33 @@ Section spsc_prop۰G.
     iIntros "Hstate_unset₁ Hstate_unset₂".
     iCombine "Hstate_unset₁ Hstate_unset₂" as "Hstate_unset".
     assert (2/3 + 1/3 = 1)%Qp as -> by compute_done.
-    iApply (oneshot𑁒update𑁒shot with "Hstate_unset").
+    iApply (oneshotｰupdateｰshot with "Hstate_unset").
   Qed.
 
-  #[local] Lemma consumer𑁒alloc :
+  #[local] Lemma consumerｰalloc :
     ⊢ |==>
       ∃ γ_consumer,
       consumer' γ_consumer.
   Proof.
-    apply excl𑁒alloc.
+    apply exclｰalloc.
   Qed.
-  #[local] Lemma consumer𑁒exclusive γ :
+  #[local] Lemma consumerｰexclusive γ :
     consumer γ -∗
     consumer γ -∗
     False.
   Proof.
-    apply excl𑁒exclusive.
+    apply exclｰexclusive.
   Qed.
 
-  Lemma spsc_prop𑁒alloc ι P E :
+  Lemma spsc_propｰalloc ι P E :
     ⊢ |={E}=>
       ∃ γ,
       spsc_prop۰inv γ ι P ∗
       spsc_prop۰producer γ ∗
       spsc_prop۰consumer γ.
   Proof.
-    iMod state𑁒alloc as "(%γ_state & Hstate_unset₁ & Hstate_unset₂)".
-    iMod consumer𑁒alloc as "(%γ_consumer & Hconsumer)".
+    iMod stateｰalloc as "(%γ_state & Hstate_unset₁ & Hstate_unset₂)".
+    iMod consumerｰalloc as "(%γ_consumer & Hconsumer)".
     pose γ :=
       {|spsc_prop۰name۰state := γ_state
       ; spsc_prop۰name۰consumer := γ_consumer
@@ -225,30 +225,30 @@ Section spsc_prop۰G.
     iFrame.
   Qed.
 
-  Lemma spsc_prop۰producer𑁒exclusive γ :
+  Lemma spsc_prop۰producerｰexclusive γ :
     spsc_prop۰producer γ -∗
     spsc_prop۰producer γ -∗
     False.
   Proof.
-    apply state۰unset₁𑁒exclusive.
+    apply state۰unset₁ｰexclusive.
   Qed.
-  Lemma spcc_prop۰producer𑁒resolved γ :
+  Lemma spcc_prop۰producerｰresolved γ :
     spsc_prop۰producer γ -∗
     spsc_prop۰resolved γ -∗
     False.
   Proof.
-    apply state۰unset₁𑁒set.
+    apply state۰unset₁ｰset.
   Qed.
 
-  Lemma spsc_prop۰consumer𑁒exclusive γ :
+  Lemma spsc_prop۰consumerｰexclusive γ :
     spsc_prop۰consumer γ -∗
     spsc_prop۰consumer γ -∗
     False.
   Proof.
-    apply consumer𑁒exclusive.
+    apply consumerｰexclusive.
   Qed.
 
-  Lemma spsc_prop𑁒produce γ ι P E :
+  Lemma spsc_propｰproduce γ ι P E :
     ↑ι ⊆ E →
     spsc_prop۰inv γ ι P -∗
     spsc_prop۰producer γ -∗
@@ -257,11 +257,11 @@ Section spsc_prop۰G.
   Proof.
     iIntros "%HE (:inv) (:producer) HP".
     iInv "Hinv" as "(:inv۰inner)".
-    - iMod (state𑁒update with "Hstate_unset₁ Hstate_unset₂") as "#Hstate_set".
+    - iMod (stateｰupdate with "Hstate_unset₁ Hstate_unset₂") as "#Hstate_set".
       iSteps.
-    - iDestruct (state۰unset₁𑁒set with "Hstate_unset₁ Hstate_set") as %[].
+    - iDestruct (state۰unset₁ｰset with "Hstate_unset₁ Hstate_set") as %[].
   Qed.
-  Lemma spsc_prop𑁒consume γ ι P E :
+  Lemma spsc_propｰconsume γ ι P E :
     ↑ι ⊆ E →
     spsc_prop۰inv γ ι P -∗
     spsc_prop۰consumer γ -∗
@@ -270,10 +270,10 @@ Section spsc_prop۰G.
   Proof.
     iIntros "%H (:inv) (:consumer) (:resolved)".
     iInv "Hinv" as "(:inv۰inner !=)".
-    - iDestruct (state۰unset₂𑁒set with "Hstate_unset₂ Hstate_set") as %[].
+    - iDestruct (state۰unset₂ｰset with "Hstate_unset₂ Hstate_set") as %[].
     - iDestruct "Hinv_consumer" as "(:inv۰consumer !=)".
       + iFrameSteps.
-      + iDestruct (consumer𑁒exclusive with "Hconsumer Hconsumer_") as %[].
+      + iDestruct (consumerｰexclusive with "Hconsumer Hconsumer_") as %[].
   Qed.
 End spsc_prop۰G.
 

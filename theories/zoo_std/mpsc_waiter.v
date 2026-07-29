@@ -22,7 +22,7 @@ Definition mpsc_waiter۰Σ :=
   ; oneshot۰Σ unit unit
   ; excl۰Σ unitO
   ].
-#[global] Instance subG𑁒mpsc_waiter۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰmpsc_waiter۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG mpsc_waiter۰Σ Σ →
   MpscWaiterG Σ .
 Proof.
@@ -40,9 +40,9 @@ Section mpsc_waiter۰G.
     }.
   Implicit Type γ : metadata.
 
-  #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
+  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance metadata𑁒countable :
+  #[local] Instance metadataｰcountable :
     Countable metadata.
   Proof.
     solve_countable.
@@ -78,55 +78,55 @@ Section mpsc_waiter۰G.
     𝑡 ↪ γ ∗
     oneshot۰shot γ.(metadata۰lstate) ().
 
-  #[global] Instance mpsc_waiter۰inv𑁒contractive t :
+  #[global] Instance mpsc_waiter۰invｰcontractive t :
     Contractive (mpsc_waiter۰inv t).
   Proof.
     rewrite /mpsc_waiter۰inv /inv۰inner. solve_contractive.
   Qed.
-  #[global] Instance mpsc_waiter۰inv𑁒ne t :
+  #[global] Instance mpsc_waiter۰invｰne t :
     NonExpansive (mpsc_waiter۰inv t).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpsc_waiter۰inv𑁒proper t :
+  #[global] Instance mpsc_waiter۰invｰproper t :
     Proper ((≡) ==> (≡)) (mpsc_waiter۰inv t).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpsc_waiter۰consumer𑁒timeless t :
+  #[global] Instance mpsc_waiter۰consumerｰtimeless t :
     Timeless (mpsc_waiter۰consumer t).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpsc_waiter۰notified𑁒timeless t :
+  #[global] Instance mpsc_waiter۰notifiedｰtimeless t :
     Timeless (mpsc_waiter۰notified t).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpsc_waiter۰inv𑁒persistent t P :
+  #[global] Instance mpsc_waiter۰invｰpersistent t P :
     Persistent (mpsc_waiter۰inv t P).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpsc_waiter۰notified𑁒persistent t :
+  #[global] Instance mpsc_waiter۰notifiedｰpersistent t :
     Persistent (mpsc_waiter۰notified t).
   Proof.
     apply _.
   Qed.
 
-  Lemma mpsc_waiter۰consumer𑁒exclusive t :
+  Lemma mpsc_waiter۰consumerｰexclusive t :
     mpsc_waiter۰consumer t -∗
     mpsc_waiter۰consumer t -∗
     False.
   Proof.
     iIntros "(%𝑡 & %γ & -> & #Hmeta & Hconsumer1) (%𝑡_ & %γ_ & %Heq & Hmeta_ & Hconsumer2)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iApply (excl𑁒exclusive with "Hconsumer1 Hconsumer2").
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iApply (exclｰexclusive with "Hconsumer1 Hconsumer2").
   Qed.
 
-  Lemma mpsc_waiter٠create𑁒spec P :
+  Lemma mpsc_waiter٠createｰspec P :
     {{{
       True
     }}}
@@ -141,15 +141,15 @@ Section mpsc_waiter۰G.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰apply+ (condition٠create𑁒spec with "[//]") as "%cond #Hcondition_inv".
-    wp۰apply+ (mutex٠create𑁒spec True with "[//]") as "%mtx #Hmutex_inv".
+    wp۰apply+ (condition٠createｰspec with "[//]") as "%cond #Hcondition_inv".
+    wp۰apply+ (mutex٠createｰspec True with "[//]") as "%mtx #Hmutex_inv".
     wp۰block 𝑡 as "Hmeta" "(H𝑡_mutex & H𝑡_condition & H𝑡_flag & _)".
-    iMod (pointsto𑁒persist with "H𝑡_mutex") as "H𝑡_mutex".
-    iMod (pointsto𑁒persist with "H𝑡_condition") as "H𝑡_condition".
+    iMod (pointstoｰpersist with "H𝑡_mutex") as "H𝑡_mutex".
+    iMod (pointstoｰpersist with "H𝑡_condition") as "H𝑡_condition".
 
-    iMod (oneshot𑁒alloc ()) as "(%γ_lstate & Hpending)".
+    iMod (oneshotｰalloc ()) as "(%γ_lstate & Hpending)".
 
-    iMod (excl𑁒alloc (excl۰G := mpsc_waiter۰G۰consumer۰G) ()) as "(%γ_consumer & Hconsumer)".
+    iMod (exclｰalloc (excl۰G := mpsc_waiter۰G۰consumer۰G) ()) as "(%γ_consumer & Hconsumer)".
 
     pose γ :=
       {|metadata۰mutex := mtx
@@ -157,12 +157,12 @@ Section mpsc_waiter۰G.
       ; metadata۰lstate := γ_lstate
       ; metadata۰consumer := γ_consumer
       |}.
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
 
     iSteps.
   Qed.
 
-  Lemma mpsc_waiter٠notify𑁒spec t P :
+  Lemma mpsc_waiter٠notifyｰspec t P :
     {{{
       mpsc_waiter۰inv t P ∗
       P
@@ -191,7 +191,7 @@ Section mpsc_waiter۰G.
       ⌜res = #b⌝ ∗
       oneshot۰shot γ.(metadata۰lstate)  ()
     )%I).
-    wp۰apply+ (mutex٠protect𑁒spec Ψ_mtx with "[$Hmutex_inv HP]"); last iSteps.
+    wp۰apply+ (mutex٠protectｰspec Ψ_mtx with "[$Hmutex_inv HP]"); last iSteps.
     iIntros "Hmutex_locked _".
     wp۰pures.
 
@@ -208,11 +208,11 @@ Section mpsc_waiter۰G.
     iInv "Hinv" as "(%b & H𝑡_flag & Hb)".
     wp۰store.
     destruct b; first iSteps.
-    iMod (oneshot𑁒update𑁒shot with "Hb") as "#Hshot".
+    iMod (oneshotｰupdateｰshot with "Hb") as "#Hshot".
     iSteps.
   Qed.
 
-  Lemma mpsc_waiter٠try_wait𑁒spec t P :
+  Lemma mpsc_waiter٠try_waitｰspec t P :
     {{{
       mpsc_waiter۰inv t P ∗
       mpsc_waiter۰consumer t
@@ -228,7 +228,7 @@ Section mpsc_waiter۰G.
     }}}.
   Proof.
     iIntros "%Φ ((%𝑡 & %γ & -> & #Hmeta & #H𝑡_mutex & #Hmutex_inv & #H𝑡_condition & #Hcondition_inv & #Hinv) & (%𝑡_ & %γ_ & %Heq & Hmeta_ & Hconsumer)) HΦ". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp۰rec. wp۰pures.
 
@@ -236,10 +236,10 @@ Section mpsc_waiter۰G.
     wp۰load.
     destruct b; last iSteps.
     iDestruct "Hb" as "(Hshot & [HP | Hconsumer'])"; last first.
-    { iDestruct (excl𑁒exclusive with "Hconsumer Hconsumer'") as %[]. }
+    { iDestruct (exclｰexclusive with "Hconsumer Hconsumer'") as %[]. }
     iSmash.
   Qed.
-  Lemma mpsc_waiter٠try_wait𑁒spec𑁒notified t P :
+  Lemma mpsc_waiter٠try_waitｰspecｰnotified t P :
     {{{
       mpsc_waiter۰inv t P ∗
       mpsc_waiter۰consumer t ∗
@@ -252,21 +252,21 @@ Section mpsc_waiter۰G.
     }}}.
   Proof.
     iIntros "%Φ ((%𝑡 & %γ & -> & #Hmeta & #H𝑡_mutex & #Hmutex_inv & #H𝑡_condition & #Hcondition_inv & #Hinv) & (%𝑡1 & %γ1 & %Heq1 & Hmeta_1 & Hconsumer) & (%𝑡2 & %γ2 & %Heq2 & Hmeta_2 & #Hshot)) HΦ". injection Heq1 as <-. injection Heq2 as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_2") as %<-. iClear "Hmeta_2".
+    iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
+    iDestruct (metaｰagree with "Hmeta Hmeta_2") as %<-. iClear "Hmeta_2".
 
     wp۰rec. wp۰pures.
 
     iInv "Hinv" as "(%b & H𝑡_flag & Hb)".
     wp۰load.
     destruct b; last first.
-    { iDestruct (oneshot𑁒pending𑁒shot with "Hb Hshot") as %[]. }
+    { iDestruct (oneshotｰpendingｰshot with "Hb Hshot") as %[]. }
     iDestruct "Hb" as "(_ & [HP | Hconsumer'])"; last first.
-    { iDestruct (excl𑁒exclusive with "Hconsumer Hconsumer'") as %[]. }
+    { iDestruct (exclｰexclusive with "Hconsumer Hconsumer'") as %[]. }
     iSmash.
   Qed.
 
-  Lemma mpsc_waiter٠wait𑁒spec t P :
+  Lemma mpsc_waiter٠waitｰspec t P :
     {{{
       mpsc_waiter۰inv t P ∗
       mpsc_waiter۰consumer t
@@ -280,18 +280,18 @@ Section mpsc_waiter۰G.
     iIntros "%Φ (#Hinv & Hconsumer) HΦ".
 
     wp۰rec.
-    wp۰apply (mpsc_waiter٠try_wait𑁒spec with "[$Hinv $Hconsumer]") as ([]) "Hconsumer"; first iSteps.
+    wp۰apply (mpsc_waiter٠try_waitｰspec with "[$Hinv $Hconsumer]") as ([]) "Hconsumer"; first iSteps.
 
     iDestruct "Hinv" as "(%𝑡 & %γ & -> & #Hmeta & #H𝑡_mutex & #Hmutex_inv & #H𝑡_condition & #Hcondition_inv & #Hinv)".
     iDestruct "Hconsumer" as "(%𝑡_ & %γ_ & %Heq & Hmeta_ & Hconsumer)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     do 2 wp۰load.
     pose Ψ_mtx res := (
       ⌜res = ()%V⌝ ∗
       P
     )%I.
-    wp۰apply+ (mutex٠protect𑁒spec Ψ_mtx with "[$Hmutex_inv Hconsumer]"); last iSteps.
+    wp۰apply+ (mutex٠protectｰspec Ψ_mtx with "[$Hmutex_inv Hconsumer]"); last iSteps.
     iIntros "Hmutex_locked _".
     pose (Ψ_cond b := (
       if b then
@@ -299,7 +299,7 @@ Section mpsc_waiter۰G.
       else
         excl γ.(metadata۰consumer) ()
     )%I).
-    wp۰apply+ (condition٠wait_until𑁒spec Ψ_cond with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked $Hconsumer]"); last iSteps.
+    wp۰apply+ (condition٠wait_untilｰspec Ψ_cond with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked $Hconsumer]"); last iSteps.
 
     iIntros "!> Hmutex_locked _ Hconsumer".
     wp۰pures.
@@ -308,7 +308,7 @@ Section mpsc_waiter۰G.
     wp۰load.
     destruct b; last iSteps.
     iDestruct "Hb" as "(Hshot & [HP | Hconsumer'])"; last first.
-    { iDestruct (excl𑁒exclusive with "Hconsumer Hconsumer'") as %[]. }
+    { iDestruct (exclｰexclusive with "Hconsumer Hconsumer'") as %[]. }
     iSmash.
   Qed.
 End mpsc_waiter۰G.

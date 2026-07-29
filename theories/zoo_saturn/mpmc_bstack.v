@@ -20,7 +20,7 @@ Class MpmcBstackG Σ `{zoo۰G : !ZooG Σ} :=
 Definition mpmc_bstack۰Σ :=
   #[twins۰Σ (leibnizO (list val))
   ].
-#[global] Instance subG𑁒mpmc_bstack۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰmpmc_bstack۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG mpmc_bstack۰Σ Σ →
   MpmcBstackG Σ.
 Proof.
@@ -36,9 +36,9 @@ Section mpmc_bstack۰G.
     }.
   Implicit Type γ : metadata.
 
-  #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
+  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance metadata𑁒countable :
+  #[local] Instance metadataｰcountable :
     Countable metadata.
   Proof.
     solve_countable.
@@ -52,19 +52,19 @@ Section mpmc_bstack۰G.
         ‘Cons[ #sz, v, list۰to_val (sz - 1) vs ]%V
     end.
 
-  #[local] Instance list۰to_val𑁒inj𑁒similar sz :
+  #[local] Instance list۰to_valｰinjｰsimilar sz :
     Inj (=) (≈@{val}) (list۰to_val sz).
   Proof.
     intros vs1. move: sz. induction vs1 as [| v1 vs1 IH]; intros sz [| v2 vs2]; [done.. |].
-    intros (_ & _ & [= <- <-%val𑁒similar𑁒refl%IH]). done.
+    intros (_ & _ & [= <- <-%valｰsimilarｰrefl%IH]). done.
   Qed.
-  #[local] Instance list۰to_val𑁒inj sz :
+  #[local] Instance list۰to_valｰinj sz :
     Inj (=) (=) (list۰to_val sz).
   Proof.
-    intros ?* ->%val𑁒similar𑁒refl%(inj _). done.
+    intros ?* ->%valｰsimilarｰrefl%(inj _). done.
   Qed.
 
-  Lemma list۰to_val𑁒inj' vs1 vs2 :
+  Lemma list۰to_valｰinj' vs1 vs2 :
     list۰to_val (length vs1) vs1 ≈ list۰to_val (length vs2) vs2 →
     vs1 = vs2.
   Proof.
@@ -127,69 +127,69 @@ Section mpmc_bstack۰G.
       )
     ".
 
-  #[global] Instance mpmc_bstack۰model𑁒timeless t vs :
+  #[global] Instance mpmc_bstack۰modelｰtimeless t vs :
     Timeless (mpmc_bstack۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpmc_bstack۰inv𑁒persistent t ι cap :
+  #[global] Instance mpmc_bstack۰invｰpersistent t ι cap :
     Persistent (mpmc_bstack۰inv t ι cap).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma model𑁒alloc :
+  #[local] Lemma modelｰalloc :
     ⊢ |==>
       ∃ γ_model,
       model₁' γ_model [] ∗
       model₂' γ_model [].
   Proof.
-    apply twins𑁒alloc'.
+    apply twinsｰalloc'.
   Qed.
-  #[local] Lemma model₁𑁒exclusive γ vs1 vs2 :
+  #[local] Lemma model₁ｰexclusive γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₁ γ vs2 -∗
     False.
   Proof.
-    apply: twins۰twin₁𑁒exclusive.
+    apply: twins۰twin₁ｰexclusive.
   Qed.
-  #[local] Lemma model𑁒agree γ vs1 vs2 :
+  #[local] Lemma modelｰagree γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₂ γ vs2 -∗
     ⌜vs1 = vs2⌝.
   Proof.
-    apply: twins𑁒agree𑁒L.
+    apply: twinsｰagreeｰL.
   Qed.
-  #[local] Lemma model𑁒update {γ vs1 vs2} vs :
+  #[local] Lemma modelｰupdate {γ vs1 vs2} vs :
     model₁ γ vs1 -∗
     model₂ γ vs2 ==∗
       model₁ γ vs ∗
       model₂ γ vs.
   Proof.
-    apply twins𑁒update.
+    apply twinsｰupdate.
   Qed.
 
-  Lemma mpmc_bstack۰model𑁒valid t ι cap vs :
+  Lemma mpmc_bstack۰modelｰvalid t ι cap vs :
     mpmc_bstack۰inv t ι cap -∗
     mpmc_bstack۰model t vs -∗
     ⌜length vs ≤ cap⌝.
   Proof.
     iIntros "(:inv) (:model)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iSteps.
   Qed.
-  Lemma mpmc_bstack۰model𑁒exclusive t vs1 vs2 :
+  Lemma mpmc_bstack۰modelｰexclusive t vs1 vs2 :
     mpmc_bstack۰model t vs1 -∗
     mpmc_bstack۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (model₁𑁒exclusive with "Hmodel₁_1 Hmodel₁_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma mpmc_bstack٠create𑁒spec ι (cap : Z) :
+  Lemma mpmc_bstack٠createｰspec ι (cap : Z) :
     (0 < cap)%Z →
     {{{
       True
@@ -206,23 +206,23 @@ Section mpmc_bstack۰G.
 
     wp۰rec.
     wp۰block l as "Hmeta" "(Hl_capacity & Hl_front & _)".
-    iMod (pointsto𑁒persist with "Hl_capacity") as "#Hl_capacity".
+    iMod (pointstoｰpersist with "Hl_capacity") as "#Hl_capacity".
     rewrite -{1}(Z2Nat.id cap); first lia.
 
-    iMod model𑁒alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
     pose γ :=
       {|metadata۰capacity := ₊cap
       ; metadata۰model := γ_model
       |}.
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
     iSplitR "Hmodel₁"; last iSteps.
     iStep 5. iApply inv_alloc. iExists []. iSteps.
   Qed.
 
-  Lemma mpmc_bstack٠size𑁒spec t ι cap :
+  Lemma mpmc_bstack٠sizeｰspec t ι cap :
     <<<
       mpmc_bstack۰inv t ι cap
     | ∀∀ vs,
@@ -243,8 +243,8 @@ Section mpmc_bstack۰G.
     iInv "Hinv" as "(:inv۰inner)".
     wp۰load.
     iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
     iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
     iSplitR "HΦ". { iFrameSteps. }
     iIntros "!> {%}".
@@ -252,7 +252,7 @@ Section mpmc_bstack۰G.
     destruct vs as [| v vs]; iSteps.
   Qed.
 
-  Lemma mpmc_bstack٠is_empty𑁒spec t ι cap :
+  Lemma mpmc_bstack٠is_emptyｰspec t ι cap :
     <<<
       mpmc_bstack۰inv t ι cap
     | ∀∀ vs,
@@ -273,8 +273,8 @@ Section mpmc_bstack۰G.
     iInv "Hinv" as "(:inv۰inner)".
     wp۰load.
     iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
     iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
     iSplitR "HΦ". { iFrameSteps. }
     iIntros "!> {%}".
@@ -282,7 +282,7 @@ Section mpmc_bstack۰G.
     destruct vs as [| v vs]; iSteps.
   Qed.
 
-  #[local] Lemma mpmc_bstack٠push_aux_push𑁒spec t ι cap v :
+  #[local] Lemma mpmc_bstack٠push_aux_pushｰspec t ι cap v :
     ⊢ (
       ∀ (sz : Z) front ws,
       <<<
@@ -327,15 +327,15 @@ Section mpmc_bstack۰G.
 
       wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner)".
-      wp۰cas as _ | <-%list۰to_val𑁒inj'.
+      wp۰cas as _ | <-%list۰to_valｰinj'.
 
       + iSplitR "HΦ". { iFrameSteps. }
         iSteps.
 
       + iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-        iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-        iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
-        iMod (model𑁒update (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+        iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+        iMod (modelｰupdate (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
         rewrite bool_decide_eq_true_2 //.
         iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
         rewrite Z.add_1_r -Nat2Z.inj_succ.
@@ -353,8 +353,8 @@ Section mpmc_bstack۰G.
       destruct_decide (γ.(metadata۰capacity) ≤ length vs) as Hlen.
 
       + iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-        iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-        iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+        iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
         rewrite bool_decide_eq_false_2; first lia.
         iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
         iSplitR "HΦ". { iFrameSteps. }
@@ -377,7 +377,7 @@ Section mpmc_bstack۰G.
           rewrite bool_decide_eq_false_2; first lia.
           wp۰apply+ ("IHpush_aux" $! _ _ (w :: vs) with "[] HΦ"); first iSteps.
   Qed.
-  Lemma mpmc_bstack٠push𑁒spec t ι cap v :
+  Lemma mpmc_bstack٠pushｰspec t ι cap v :
     <<<
       mpmc_bstack۰inv t ι cap
     | ∀∀ vs,
@@ -392,11 +392,11 @@ Section mpmc_bstack۰G.
       True
     >>>.
   Proof.
-    iPoseProof mpmc_bstack٠push_aux_push𑁒spec as "(_ & H)".
+    iPoseProof mpmc_bstack٠push_aux_pushｰspec as "(_ & H)".
     iApply "H".
   Qed.
 
-  Lemma mpmc_bstack٠pop𑁒spec t ι cap :
+  Lemma mpmc_bstack٠popｰspec t ι cap :
     <<<
       mpmc_bstack۰inv t ι cap
     | ∀∀ vs,
@@ -421,8 +421,8 @@ Section mpmc_bstack۰G.
     destruct vs1 as [| v vs1].
 
     - iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
       iSplitR "HΦ". { iFrameSteps. }
       iSteps.
@@ -438,9 +438,9 @@ Section mpmc_bstack۰G.
       destruct vs2; first done.
       destruct Hcas as (_ & _ & [= ->%(inj _) -> ->%(inj _)]).
       iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (model𑁒update vs1 with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (modelｰupdate vs1 with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[$Hmodel₁]") as "HΦ".
       { simpl in Hvs. iSteps. }
       iSplitR "HΦ". { iFrameSteps. }

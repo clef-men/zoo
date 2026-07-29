@@ -8,7 +8,7 @@ Implicit Type e : expr.
 Implicit Type v : val.
 Implicit Type σ : state.
 
-Lemma wp𑁒adequacy' `{inv_Gpre : !invGpreS Σ} e σ :
+Lemma wpｰadequacy' `{inv_Gpre : !invGpreS Σ} e σ :
   ( ∀ `{inv۰G : !invGS Σ} κs,
     ⊢ |={⊤}=>
       ∃ (zoo۰G : ZooG Σ) Φ,
@@ -19,12 +19,12 @@ Lemma wp𑁒adequacy' `{inv_Gpre : !invGpreS Σ} e σ :
   safe ([e], σ).
 Proof.
   intros H.
-  apply: bwp𑁒adequacy' => inv۰G κs.
+  apply: bwpｰadequacy' => inv۰G κs.
   iMod H as "(%zoo۰G & %Φ & <- & Hinterp & Hwp)".
   iExists zoo۰G, Φ. iFrameSteps.
-  iApply (wp𑁒bwp with "Hwp").
+  iApply (wpｰbwp with "Hwp").
 Qed.
-Lemma wp𑁒adequacy `{zoo۰Gpre : !ZooGpre Σ} {e σ} v :
+Lemma wpｰadequacy `{zoo۰Gpre : !ZooGpre Σ} {e σ} v :
   state۰wf σ v →
   ( ∀ `{zoo۰G : !ZooG Σ},
     ⊢ ∃ Φ,
@@ -35,8 +35,8 @@ Lemma wp𑁒adequacy `{zoo۰Gpre : !ZooGpre Σ} {e σ} v :
   safe ([e], σ).
 Proof.
   intros Hwf Hwp.
-  apply: wp𑁒adequacy' => // Hinv_G κs.
-  iMod (state_interp𑁒init σ v κs) as "(%zoo۰G & <- & Hinterp & Hheap & Hlocals)"; first done.
+  apply: wpｰadequacy' => // Hinv_G κs.
+  iMod (state_interpｰinit σ v κs) as "(%zoo۰G & <- & Hinterp & Hheap & Hlocals)"; first done.
   iDestruct (Hwp zoo۰G) as "(%Φ & Hwp)".
   iExists zoo۰G, Φ. iFrameSteps.
 Qed.

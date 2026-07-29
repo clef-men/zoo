@@ -29,9 +29,9 @@ Variant state :=
   | Finished.
 Implicit Type state : state.
 
-#[local] Instance state𑁒inhabited : Inhabited state :=
+#[local] Instance stateｰinhabited : Inhabited state :=
   populate Init.
-#[local] Instance state𑁒eq_dec : EqDecision state :=
+#[local] Instance stateｰeq_dec : EqDecision state :=
   ltac:(solve_decision).
 
 Record vertex۰name :=
@@ -43,9 +43,9 @@ Record vertex۰name :=
   }.
 Implicit Type γ δ π : vertex۰name.
 
-#[local] Instance vertex۰name𑁒eq_dec : EqDecision vertex۰name :=
+#[local] Instance vertex۰nameｰeq_dec : EqDecision vertex۰name :=
   ltac:(solve_decision).
-#[local] Instance vertex۰name𑁒countable :
+#[local] Instance vertex۰nameｰcountable :
   Countable vertex۰name.
 Proof.
   solve_countable.
@@ -73,7 +73,7 @@ Definition vertex۰Σ :=
   ; auth_gmultiset۰Σ vertex۰name
   ; subprops۰Σ
   ].
-#[global] Instance subG𑁒vertex۰Σ Σ `{pool۰G : PoolG Σ}:
+#[global] Instance subGｰvertex۰Σ Σ `{pool۰G : PoolG Σ}:
   subG vertex۰Σ Σ →
   VertexG Σ.
 Proof.
@@ -181,13 +181,13 @@ Module base.
       val -d> vertex۰iteration -d> iProp Σ
     :=
       vertex۰wp۰body.
-    #[local] Instance vertex۰wp۰pre𑁒contractive t γ P R :
+    #[local] Instance vertex۰wp۰preｰcontractive t γ P R :
       Contractive (vertex۰wp۰pre t γ P R).
     Proof.
       rewrite /vertex۰wp۰pre /vertex۰wp۰body.
       solve_contractive.
     Qed.
-    #[local] Instance vertex۰wp۰pre𑁒ne t γ P R :
+    #[local] Instance vertex۰wp۰preｰne t γ P R :
       NonExpansive (vertex۰wp۰pre t γ P R).
     Proof.
       apply _.
@@ -195,13 +195,13 @@ Module base.
     Definition vertex۰wp t γ P R : val → vertex۰iteration → iProp Σ :=
       fixpoint (vertex۰wp۰pre t γ P R).
 
-    Lemma vertex۰wp𑁒unfold t γ P R task iter :
+    Lemma vertex۰wpｰunfold t γ P R task iter :
       vertex۰wp t γ P R task iter ⊣⊢
       vertex۰wp۰body t γ P R (vertex۰wp t γ P R) task iter.
     Proof.
       apply (fixpoint_unfold (vertex۰wp۰pre t γ P R)).
     Qed.
-    #[global] Instance vertex۰wp𑁒ne n :
+    #[global] Instance vertex۰wpｰne n :
       Proper (
         (=) ==>
         (=) ==>
@@ -214,7 +214,7 @@ Module base.
     Proof.
       intros t t_ <- γ γ_ <-.
       induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR task task_ <- iter iter_ <-.
-      rewrite !vertex۰wp𑁒unfold /vertex۰wp۰body.
+      rewrite !vertex۰wpｰunfold /vertex۰wp۰body.
       do 21 f_equiv. 1: solve_proper.
       f_contractive.
       apply (dist_le _ m) in HP; last by apply SIdx.lt_le_incl.
@@ -346,7 +346,7 @@ Module base.
         & #Hinv{_{}}
         )
       ".
-    #[local] Instance inv۰pre𑁒contractive :
+    #[local] Instance inv۰preｰcontractive :
       Contractive inv۰pre.
     Proof.
       rewrite /inv۰pre /inv۰inner /inv۰successors /inv۰successor.
@@ -356,13 +356,13 @@ Module base.
     Definition vertex۰inv : location → vertex۰name → iProp Σ → iProp Σ → iProp Σ :=
       fixpoint inv۰pre.
 
-    #[local] Lemma vertex۰inv𑁒unfold t γ P R :
+    #[local] Lemma vertex۰invｰunfold t γ P R :
       vertex۰inv t γ P R ⊣⊢
       inv۰pre vertex۰inv t γ P R.
     Proof.
       apply (fixpoint_unfold inv۰pre).
     Qed.
-    #[local] Instance vertex۰inv𑁒contractive t γ n :
+    #[local] Instance vertex۰invｰcontractive t γ n :
       Proper (
         dist_later n ==>
         dist_later n ==>
@@ -370,10 +370,10 @@ Module base.
       ) (vertex۰inv t γ).
     Proof.
       induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR.
-      rewrite !vertex۰inv𑁒unfold /inv۰pre /inv۰inner /inv۰state /inv۰state۰released /inv۰state۰finished /inv۰successors /inv۰successor.
+      rewrite !vertex۰invｰunfold /inv۰pre /inv۰inner /inv۰state /inv۰state۰released /inv۰state۰finished /inv۰successors /inv۰successor.
       solve_contractive.
     Qed.
-    #[global] Instance vertex۰inv𑁒ne t γ n :
+    #[global] Instance vertex۰invｰne t γ n :
       Proper (
         (≡{n}≡) ==>
         (≡{n}≡) ==>
@@ -381,10 +381,10 @@ Module base.
       ) (vertex۰inv t γ).
     Proof.
       intros P1 P2 HP R1 R2 HR.
-      apply vertex۰inv𑁒contractive.
+      apply vertex۰invｰcontractive.
       all: apply dist_dist_later; done.
     Qed.
-    #[global] Instance vertex۰inv𑁒proper t γ :
+    #[global] Instance vertex۰invｰproper t γ :
       Proper (
         (≡) ==>
         (≡) ==>
@@ -393,7 +393,7 @@ Module base.
     Proof.
       intros P1 P2 HP R1 R2 HR.
       rewrite !equiv_dist in HP HR |- * => n.
-      apply vertex۰inv𑁒ne; done.
+      apply vertex۰invｰne; done.
     Qed.
 
     Definition vertex۰output γ Q :=
@@ -402,12 +402,12 @@ Module base.
       " Houtput{which;}_frag{_{}}
       ".
 
-    #[global] Instance vertex۰output𑁒contractive γ :
+    #[global] Instance vertex۰outputｰcontractive γ :
       Contractive (vertex۰output γ).
     Proof.
       solve_contractive.
     Qed.
-    #[global] Instance vertex۰output𑁒proper γ :
+    #[global] Instance vertex۰outputｰproper γ :
       Proper ((≡) ==> (≡)) (vertex۰output γ).
     Proof.
       solve_proper.
@@ -419,297 +419,297 @@ Module base.
       " #Hdependencies{which;}_elem{_{}}
       ".
 
-    #[global] Instance vertex۰model𑁒timeless t γ task iter :
+    #[global] Instance vertex۰modelｰtimeless t γ task iter :
       Timeless (vertex۰model t γ task iter).
     Proof.
       apply _.
     Qed.
-    #[global] Instance vertex۰ready𑁒timeless iter :
+    #[global] Instance vertex۰readyｰtimeless iter :
       Timeless (vertex۰ready iter).
     Proof.
       apply _.
     Qed.
-    #[global] Instance vertex۰finished𑁒timeless γ :
+    #[global] Instance vertex۰finishedｰtimeless γ :
       Timeless (vertex۰finished γ).
     Proof.
       apply _.
     Qed.
-    #[global] Instance vertex۰predecessor𑁒timeless γ iter :
+    #[global] Instance vertex۰predecessorｰtimeless γ iter :
       Timeless (vertex۰predecessor γ iter).
     Proof.
       apply _.
     Qed.
 
-    #[global] Instance vertex۰inv𑁒persistent t γ P R :
+    #[global] Instance vertex۰invｰpersistent t γ P R :
       Persistent (vertex۰inv t γ P R).
     Proof.
-      rewrite vertex۰inv𑁒unfold.
+      rewrite vertex۰invｰunfold.
       apply _.
     Qed.
-    #[global] Instance vertex۰ready𑁒persistent iter :
+    #[global] Instance vertex۰readyｰpersistent iter :
       Persistent (vertex۰ready iter).
     Proof.
       apply _.
     Qed.
-    #[global] Instance vertex۰finished𑁒persistent γ :
+    #[global] Instance vertex۰finishedｰpersistent γ :
       Persistent (vertex۰finished γ).
     Proof.
       apply _.
     Qed.
-    #[global] Instance vertex۰predecessor𑁒persistent γ iter :
+    #[global] Instance vertex۰predecessorｰpersistent γ iter :
       Persistent (vertex۰predecessor γ iter).
     Proof.
       apply _.
     Qed.
 
-    #[local] Lemma state𑁒alloc :
+    #[local] Lemma stateｰalloc :
       ⊢ |==>
         ∃ γ_state,
         state₁' γ_state Own Init ∗
         state₂' γ_state Init.
     Proof.
-      apply twins𑁒alloc'.
+      apply twinsｰalloc'.
     Qed.
-    #[local] Lemma state𑁒agree γ own1 state1 state2 :
+    #[local] Lemma stateｰagree γ own1 state1 state2 :
       state₁ γ own1 state1 -∗
       state₂ γ state2 -∗
       ⌜state1 = state2⌝.
     Proof.
-      apply: twins𑁒agree𑁒L.
+      apply: twinsｰagreeｰL.
     Qed.
-    #[local] Lemma state₁𑁒exclusive γ state1 own2 state2 :
+    #[local] Lemma state₁ｰexclusive γ state1 own2 state2 :
       state₁ γ Own state1 -∗
       state₁ γ own2 state2 -∗
       False.
     Proof.
-      apply twins۰twin₁𑁒exclusive.
+      apply twins۰twin₁ｰexclusive.
     Qed.
-    #[local] Lemma state𑁒update {γ state1 state2} state :
+    #[local] Lemma stateｰupdate {γ state1 state2} state :
       state₁ γ Own state1 -∗
       state₂ γ state2 ==∗
         state₁ γ Own state ∗
         state₂ γ state.
     Proof.
-      apply twins𑁒update.
+      apply twinsｰupdate.
     Qed.
-    #[local] Lemma state₁𑁒discard γ state :
+    #[local] Lemma state₁ｰdiscard γ state :
       state₁ γ Own state ⊢ |==>
       state₁ γ Discard state.
     Proof.
-      apply twins۰twin₁𑁒persist.
+      apply twins۰twin₁ｰpersist.
     Qed.
 
-    #[local] Lemma iteration𑁒alloc iter :
+    #[local] Lemma iterationｰalloc iter :
       ⊢ |==>
         ∃ γ_iteration,
         iteration₁' γ_iteration iter ∗
         iteration₂' γ_iteration iter.
     Proof.
-      apply twins𑁒alloc'.
+      apply twinsｰalloc'.
     Qed.
-    #[local] Lemma iteration𑁒agree γ iteration1 iteration2 :
+    #[local] Lemma iterationｰagree γ iteration1 iteration2 :
       iteration₁ γ iteration1 -∗
       iteration₂ γ iteration2 -∗
       ⌜iteration1 = iteration2⌝.
     Proof.
-      apply: twins𑁒agree𑁒L.
+      apply: twinsｰagreeｰL.
     Qed.
-    #[local] Lemma iteration₁𑁒exclusive γ iteration1 iteration2 :
+    #[local] Lemma iteration₁ｰexclusive γ iteration1 iteration2 :
       iteration₁ γ iteration1 -∗
       iteration₁ γ iteration2 -∗
       False.
     Proof.
-      apply twins۰twin₁𑁒exclusive.
+      apply twins۰twin₁ｰexclusive.
     Qed.
-    #[local] Lemma iteration𑁒update {γ iteration1 iteration2} iteration :
+    #[local] Lemma iterationｰupdate {γ iteration1 iteration2} iteration :
       iteration₁ γ iteration1 -∗
       iteration₂ γ iteration2 ==∗
         iteration₁ γ iteration ∗
         iteration₂ γ iteration.
     Proof.
-      apply twins𑁒update.
+      apply twinsｰupdate.
     Qed.
 
-    #[local] Lemma dependencies𑁒alloc :
+    #[local] Lemma dependenciesｰalloc :
       ⊢ |==>
         ∃ iter,
         dependencies۰auth iter Own ∅.
     Proof.
-      apply mono_gmultiset𑁒alloc.
+      apply mono_gmultisetｰalloc.
     Qed.
-    #[local] Lemma dependencies𑁒add {iter Δ} δ :
+    #[local] Lemma dependenciesｰadd {iter Δ} δ :
       dependencies۰auth iter Own Δ ⊢ |==>
         dependencies۰auth iter Own ({[+δ+]} ⊎ Δ) ∗
         dependencies۰elem iter δ.
     Proof.
-      apply mono_gmultiset𑁒insert'.
+      apply mono_gmultisetｰinsert'.
     Qed.
-    #[local] Lemma dependencies𑁒elem_of iter own Δ δ :
+    #[local] Lemma dependenciesｰelem_of iter own Δ δ :
       dependencies۰auth iter own Δ -∗
       dependencies۰elem iter δ -∗
       ⌜δ ∈ Δ⌝.
     Proof.
-      apply mono_gmultiset۰elem𑁒valid.
+      apply mono_gmultiset۰elemｰvalid.
     Qed.
-    #[local] Lemma dependencies𑁒discard iter Δ :
+    #[local] Lemma dependenciesｰdiscard iter Δ :
       dependencies۰auth iter Own Δ ⊢ |==>
       dependencies۰auth iter Discard Δ.
     Proof.
-      apply mono_gmultiset۰auth𑁒persist.
+      apply mono_gmultiset۰authｰpersist.
     Qed.
 
-    #[local] Lemma predecessors𑁒alloc :
+    #[local] Lemma predecessorsｰalloc :
       ⊢ |==>
         ∃ γ_predecessors,
         predecessors۰auth' γ_predecessors ∅.
     Proof.
-      apply auth_gmultiset𑁒alloc.
+      apply auth_gmultisetｰalloc.
     Qed.
-    #[local] Lemma predecessors𑁒elem_of γ Π π :
+    #[local] Lemma predecessorsｰelem_of γ Π π :
       predecessors۰auth γ Π -∗
       predecessors۰elem γ π -∗
       ⌜π ∈ Π⌝.
     Proof.
-      apply auth_gmultiset𑁒elem_of.
+      apply auth_gmultisetｰelem_of.
     Qed.
-    #[local] Lemma predecessors𑁒add {γ Π} π :
+    #[local] Lemma predecessorsｰadd {γ Π} π :
       predecessors۰auth γ Π ⊢ |==>
         predecessors۰auth γ ({[+π+]} ⊎ Π) ∗
         predecessors۰elem γ π.
     Proof.
-      apply auth_gmultiset𑁒update𑁒alloc𑁒singleton.
+      apply auth_gmultisetｰupdateｰallocｰsingleton.
     Qed.
-    #[local] Lemma predecessors𑁒remove γ Π π :
+    #[local] Lemma predecessorsｰremove γ Π π :
       predecessors۰auth γ Π -∗
       predecessors۰elem γ π ==∗
       predecessors۰auth γ (Π ∖ {[+π+]}).
     Proof.
-      apply auth_gmultiset𑁒update𑁒dealloc.
+      apply auth_gmultisetｰupdateｰdealloc.
     Qed.
 
-    #[local] Lemma output𑁒alloc P :
+    #[local] Lemma outputｰalloc P :
       ⊢ |==>
         ∃ γ_output,
         output۰auth' γ_output P false ∗
         output۰frag' γ_output P.
     Proof.
-      apply subprops𑁒alloc.
+      apply subpropsｰalloc.
     Qed.
-    #[local] Lemma output𑁒wand {γ P finished Q1} Q2 E :
+    #[local] Lemma outputｰwand {γ P finished Q1} Q2 E :
       ▷ output۰auth γ P finished -∗
       output۰frag γ Q1 -∗
       (Q1 -∗ Q2) ={E}=∗
         ▷ output۰auth γ P finished ∗
         output۰frag γ Q2.
     Proof.
-      apply subprops𑁒wand.
+      apply subpropsｰwand.
     Qed.
-    #[local] Lemma output𑁒divide {γ P finished} Qs E :
+    #[local] Lemma outputｰdivide {γ P finished} Qs E :
       ▷ output۰auth γ P finished -∗
       output۰frag γ ([∗ list] Q ∈ Qs, Q) ={E}=∗
         ▷ output۰auth γ P finished ∗
         [∗ list] Q ∈ Qs, output۰frag γ Q.
     Proof.
-      apply subprops𑁒divide.
+      apply subpropsｰdivide.
     Qed.
-    #[local] Lemma output𑁒produce γ P :
+    #[local] Lemma outputｰproduce γ P :
       ▷ output۰auth γ P false -∗
       P -∗
       ▷ output۰auth γ P true.
     Proof.
       iIntros "Hauth HP".
-      iApply (subprops𑁒produce with "Hauth [$HP]").
+      iApply (subpropsｰproduce with "Hauth [$HP]").
     Qed.
-    #[local] Lemma output𑁒consume γ P Q E :
+    #[local] Lemma outputｰconsume γ P Q E :
       ▷ output۰auth γ P true -∗
       output۰frag γ Q ={E}=∗
         ▷ output۰auth γ P true ∗
         ▷^2 Q.
     Proof.
-      apply subprops𑁒consume.
+      apply subpropsｰconsume.
     Qed.
 
-    Lemma vertex۰model𑁒exclusive t γ task1 iter1 task2 iter2 :
+    Lemma vertex۰modelｰexclusive t γ task1 iter1 task2 iter2 :
       vertex۰model t γ task1 iter1 -∗
       vertex۰model t γ task2 iter2 -∗
       False.
     Proof.
       iIntros "(:model =1) (:model =2)".
-      iApply (iteration₁𑁒exclusive with "Hiteration₁_1 Hiteration₁_2").
+      iApply (iteration₁ｰexclusive with "Hiteration₁_1 Hiteration₁_2").
     Qed.
-    Lemma vertex۰model𑁒finished t γ task iter :
+    Lemma vertex۰modelｰfinished t γ task iter :
       vertex۰model t γ task iter -∗
       vertex۰finished γ -∗
       False.
     Proof.
       iIntros "(:model =1) (:finished =2)".
-      iApply (state₁𑁒exclusive with "Hstate₁_1 Hstate₁_2").
+      iApply (state₁ｰexclusive with "Hstate₁_1 Hstate₁_2").
     Qed.
 
-    Lemma vertex۰output𑁒wand {t γ P R Q1} Q2 :
+    Lemma vertex۰outputｰwand {t γ P R Q1} Q2 :
       vertex۰inv t γ P R -∗
       vertex۰output γ Q1 -∗
       (Q1 -∗ Q2) ={⊤}=∗
       vertex۰output γ Q2.
     Proof.
-      rewrite vertex۰inv𑁒unfold.
+      rewrite vertex۰invｰunfold.
       iIntros "(:inv۰pre) (:output) H".
       iInv "Hinv" as "(:inv۰inner)".
-      iMod (output𑁒wand with "Houtput_auth Houtput_frag H") as "($ & $)".
+      iMod (outputｰwand with "Houtput_auth Houtput_frag H") as "($ & $)".
       iFrameSteps.
     Qed.
-    Lemma vertex۰output𑁒divide {t γ P R} Qs :
+    Lemma vertex۰outputｰdivide {t γ P R} Qs :
       vertex۰inv t γ P R -∗
       vertex۰output γ ([∗ list] Q ∈ Qs, Q) ={⊤}=∗
       [∗ list] Q ∈ Qs, vertex۰output γ Q.
     Proof.
-      rewrite vertex۰inv𑁒unfold.
+      rewrite vertex۰invｰunfold.
       iIntros "(:inv۰pre) (:output)".
       iInv "Hinv" as "(:inv۰inner)".
-      iMod (output𑁒divide with "Houtput_auth Houtput_frag") as "($ & $)".
+      iMod (outputｰdivide with "Houtput_auth Houtput_frag") as "($ & $)".
       iFrameSteps.
     Qed.
 
-    Lemma vertex𑁒predecessor𑁒finished γ iter :
+    Lemma vertexｰpredecessorｰfinished γ iter :
       vertex۰predecessor γ iter -∗
       vertex۰ready iter -∗
       vertex۰finished γ.
     Proof.
       iIntros "(:predecessor) (:ready)".
-      iDestruct (dependencies𑁒elem_of with "Hdependencies_auth Hdependencies_elem") as %Hγ.
+      iDestruct (dependenciesｰelem_of with "Hdependencies_auth Hdependencies_elem") as %Hγ.
       iDestruct (big_sepMS_elem_of with "HΔ") as "#Hstate₁"; first done.
       iSteps.
     Qed.
 
-    Lemma vertex𑁒inv𑁒finished t γ P R :
+    Lemma vertexｰinvｰfinished t γ P R :
       vertex۰inv t γ P R -∗
       vertex۰finished γ ={⊤}=∗
       ▷ □ R.
     Proof.
-      setoid_rewrite vertex۰inv𑁒unfold.
+      setoid_rewrite vertex۰invｰunfold.
       iIntros "(:inv۰pre) (:finished)".
       iInv "Hinv" as "(:inv۰inner)".
-      iDestruct (state𑁒agree with "Hstate₁ Hstate₂") as %<-.
+      iDestruct (stateｰagree with "Hstate₁ Hstate₂") as %<-.
       iDestruct "Hinv_state" as "{Hstate₁} (:inv۰state۰finished >)".
       iSplitL. { iFrameSteps. }
       iSteps.
     Qed.
-    Lemma vertex𑁒inv𑁒finished𑁒output t γ P R Q :
+    Lemma vertexｰinvｰfinishedｰoutput t γ P R Q :
       vertex۰inv t γ P R -∗
       vertex۰finished γ -∗
       vertex۰output γ Q ={⊤}=∗
       ▷^2 Q.
     Proof.
-      setoid_rewrite vertex۰inv𑁒unfold.
+      setoid_rewrite vertex۰invｰunfold.
       iIntros "(:inv۰pre) (:finished) (:output)".
       iInv "Hinv" as "(:inv۰inner)".
-      iDestruct (state𑁒agree with "Hstate₁ Hstate₂") as %<-.
-      iMod (output𑁒consume with "Houtput_auth Houtput_frag") as "(Houtput_auth & HP)".
+      iDestruct (stateｰagree with "Hstate₁ Hstate₂") as %<-.
+      iMod (outputｰconsume with "Houtput_auth Houtput_frag") as "(Houtput_auth & HP)".
       iSplitR "HP". { iFrameSteps. }
       iSteps.
     Qed.
 
-    Lemma vertex٠create𑁒spec P R (task : option val) :
+    Lemma vertex٠createｰspec P R (task : option val) :
       {{{
         True
       }}}
@@ -728,20 +728,20 @@ Module base.
       wp۰rec.
 
       wp۰bind (Match _ _ _ _).
-      wp۰apply (wp𑁒wand (λ res,
+      wp۰apply (wpｰwand (λ res,
         ⌜res = default (𝗳𝘂𝗻 ⎽ -> true)%V task⌝
       )%I) as (res) "->".
       { destruct task; iSteps. }
 
-      wp۰apply+ (mpmc_stack_2٠create𑁒spec with "[//]") as (succs) "(#Hsuccessors_inv & Hsuccessors_model)".
+      wp۰apply+ (mpmc_stack_2٠createｰspec with "[//]") as (succs) "(#Hsuccessors_inv & Hsuccessors_model)".
       wp۰block t as "Hmeta" "(Ht_task & Ht_preds & Ht_succs & _)".
-      iMod (pointsto𑁒persist with "Ht_succs") as "#Ht_succs".
+      iMod (pointstoｰpersist with "Ht_succs") as "#Ht_succs".
 
-      iMod state𑁒alloc as "(%γ_state & Hstate₁ & Hstate₂)".
-      iMod dependencies𑁒alloc as "(%iter & Hdependencies_auth)".
-      iMod (iteration𑁒alloc iter) as "(%γ_iteration & Hiteration₁ & Hiteration₂)".
-      iMod predecessors𑁒alloc as "(%γ_predecessors & Hpredecessors_auth)".
-      iMod (output𑁒alloc P) as "(%γ_output & Houtput_auth & Houtput_frag)".
+      iMod stateｰalloc as "(%γ_state & Hstate₁ & Hstate₂)".
+      iMod dependenciesｰalloc as "(%iter & Hdependencies_auth)".
+      iMod (iterationｰalloc iter) as "(%γ_iteration & Hiteration₁ & Hiteration₂)".
+      iMod predecessorsｰalloc as "(%γ_predecessors & Hpredecessors_auth)".
+      iMod (outputｰalloc P) as "(%γ_output & Houtput_auth & Houtput_frag)".
 
       pose γ :=
         {|vertex۰name۰successors := succs
@@ -753,7 +753,7 @@ Module base.
 
       iApply ("HΦ" $! t γ).
       iFrame.
-      rewrite vertex۰inv𑁒unfold. iStep 2.
+      rewrite vertex۰invｰunfold. iStep 2.
       iApply inv_alloc.
       iExists 1, Init, iter, ∅. iFrame. iSplitR "Hsuccessors_model".
       - rewrite /inv۰state /inv۰state۰init.
@@ -761,7 +761,7 @@ Module base.
       - iExists []. iSteps.
     Qed.
 
-    Lemma vertex٠create'𑁒spec P R task :
+    Lemma vertex٠create'ｰspec P R task :
       {{{
         True
       }}}
@@ -778,11 +778,11 @@ Module base.
       iIntros "%Φ _ HΦ".
 
       wp۰rec.
-      wp۰apply+ (vertex٠create𑁒spec P R (Some _) with "[//]").
+      wp۰apply+ (vertex٠createｰspec P R (Some _) with "[//]").
       iSteps.
     Qed.
 
-    Lemma vertex٠task𑁒spec t γ task iter :
+    Lemma vertex٠taskｰspec t γ task iter :
       {{{
         vertex۰model t γ task iter
       }}}
@@ -795,7 +795,7 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma vertex٠set_task𑁒spec t γ task1 iter task2 :
+    Lemma vertex٠set_taskｰspec t γ task1 iter task2 :
       {{{
         vertex۰model t γ task1 iter
       }}}
@@ -808,7 +808,7 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma vertex٠precede𑁒spec t1 γ1 P1 R1 t2 γ2 P2 R2 task iter :
+    Lemma vertex٠precedeｰspec t1 γ1 P1 R1 t2 γ2 P2 R2 task iter :
       {{{
         vertex۰inv t1 γ1 P1 R1 ∗
         vertex۰inv t2 γ2 P2 R2 ∗
@@ -821,14 +821,14 @@ Module base.
         vertex۰predecessor γ1 iter
       }}}.
     Proof.
-      setoid_rewrite vertex۰inv𑁒unfold.
+      setoid_rewrite vertex۰invｰunfold.
       iIntros "%Φ ((:inv۰pre =1) & (:inv۰pre =2) & (:model which=2)) HΦ".
 
       wp۰rec.
-      iApply (wp𑁒frame𑁒wand with "[Ht2_task HΦ]"); first iAccu.
+      iApply (wpｰframeｰwand with "[Ht2_task HΦ]"); first iAccu.
       wp۰load.
 
-      awp۰apply+ (mpmc_stack_2٠is_closed𑁒spec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
+      awp۰apply+ (mpmc_stack_2٠is_closedｰspec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
       iInv "Hinv_1" as "(:inv۰inner which=1 =1)".
       case_decide as [-> | Hstate1].
 
@@ -839,13 +839,13 @@ Module base.
         iSplitL. { iFrameSteps. }
         iIntros "{%} _ (Hstate2₁ & Hiteration2₁)".
 
-        iApply fupd𑁒wp.
+        iApply fupdｰwp.
         iInv "Hinv_2" as "(:inv۰inner which=2 =1)".
-        iDestruct (state𑁒agree with "Hstate2₁ Hstate2₂") as %<-.
-        iDestruct (iteration𑁒agree with "Hiteration2₁ Hiteration2₂") as %<-.
+        iDestruct (stateｰagree with "Hstate2₁ Hstate2₂") as %<-.
+        iDestruct (iterationｰagree with "Hiteration2₁ Hiteration2₂") as %<-.
         iDestruct "Hinv_state2" as "(:inv۰state۰init which=2 =1 >)".
-        iMod (dependencies𑁒add γ1 with "Hdependencies2_auth") as "(Hdependencies2_auth & #Hdependencies2_elem)".
-        iDestruct (big_sepMS𑁒insert₂ γ1 with "HΔ Hstate1₁") as "HΔ".
+        iMod (dependenciesｰadd γ1 with "Hdependencies2_auth") as "(Hdependencies2_auth & #Hdependencies2_elem)".
+        iDestruct (big_sepMSｰinsert₂ γ1 with "HΔ Hstate1₁") as "HΔ".
         iSplitR "Hstate2₁ Hiteration2₁".
         { assert ({[+γ1+]} ⊎ (Δ ⊎ Π) = ({[+γ1+]} ⊎ Δ) ⊎ Π) as ->.
           { rewrite assoc //. }
@@ -865,11 +865,11 @@ Module base.
         wp۰bind (𝗳𝗮𝗮 _ _)%E.
         iInv "Hinv_2" as "(:inv۰inner which=2 =1)".
         wp۰faa.
-        iDestruct (state𑁒agree with "Hstate2₁ Hstate2₂") as %<-.
-        iDestruct (iteration𑁒agree with "Hiteration2₁ Hiteration2₂") as %<-.
+        iDestruct (stateｰagree with "Hstate2₁ Hstate2₂") as %<-.
+        iDestruct (iterationｰagree with "Hiteration2₁ Hiteration2₂") as %<-.
         iDestruct "Hinv_state2" as "(:inv۰state۰init which=2 =1)".
-        iMod (dependencies𑁒add γ1 with "Hdependencies2_auth") as "(Hdependencies2_auth & #Hdependencies2_elem)".
-        iMod (predecessors𑁒add γ1 with "Hpredecessors2_auth") as "(Hpredecessors2_auth & Hpredecessors2_elem )".
+        iMod (dependenciesｰadd γ1 with "Hdependencies2_auth") as "(Hdependencies2_auth & #Hdependencies2_elem)".
+        iMod (predecessorsｰadd γ1 with "Hpredecessors2_auth") as "(Hpredecessors2_auth & Hpredecessors2_elem )".
         iSplitR "Hstate2₁ Hiteration2₁ Hpredecessors2_elem".
         { assert ({[+γ1+]} ⊎ (Δ ⊎ Π) = Δ ⊎ ({[+γ1+]} ⊎ Π)) as ->.
           { rewrite assoc (comm _ _ Δ) -assoc //. }
@@ -880,7 +880,7 @@ Module base.
 
         wp۰pures. clear.
 
-        awp۰apply (mpmc_stack_2٠push𑁒spec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
+        awp۰apply (mpmc_stack_2٠pushｰspec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
         iInv "Hinv_1" as "(:inv۰inner which=1 =2)".
         case_decide as [-> | Hstate2].
 
@@ -896,18 +896,18 @@ Module base.
           wp۰bind (𝗳𝗮𝗮 _ _)%E.
           iInv "Hinv_2" as "(:inv۰inner which=2 =2)".
           wp۰faa.
-          iDestruct (state𑁒agree with "Hstate2₁ Hstate2₂") as %<-.
-          iDestruct (iteration𑁒agree with "Hiteration2₁ Hiteration2₂") as %<-.
+          iDestruct (stateｰagree with "Hstate2₁ Hstate2₂") as %<-.
+          iDestruct (iterationｰagree with "Hiteration2₁ Hiteration2₂") as %<-.
           iDestruct "Hinv_state2" as "(:inv۰state۰init which=2 =2)".
-          iDestruct (predecessors𑁒elem_of with "Hpredecessors2_auth Hpredecessors2_elem") as %Hγ1.
-          iMod (predecessors𑁒remove with "Hpredecessors2_auth Hpredecessors2_elem") as "Hpredecessors2_auth".
-          iDestruct (big_sepMS𑁒insert₂ γ1 with "HΔ Hstate1₁") as "HΔ".
+          iDestruct (predecessorsｰelem_of with "Hpredecessors2_auth Hpredecessors2_elem") as %Hγ1.
+          iMod (predecessorsｰremove with "Hpredecessors2_auth Hpredecessors2_elem") as "Hpredecessors2_auth".
+          iDestruct (big_sepMSｰinsert₂ γ1 with "HΔ Hstate1₁") as "HΔ".
           iSplitR "Hstate2₁ Hiteration2₁".
           { replace (Δ ⊎ Π) with ({[+γ1+]} ⊎ Δ ⊎ Π ∖ {[+γ1+]}) by multiset_solver.
             iFrameSteps. iPureIntro.
             rewrite gmultiset_size_difference; first multiset_solver.
             rewrite gmultiset_size_singleton.
-            apply gmultiset𑁒elem_of𑁒size𑁒non_empty in Hγ1.
+            apply gmultisetｰelem_ofｰsizeｰnon_empty in Hγ1.
             lia.
           }
           iSteps.
@@ -918,12 +918,12 @@ Module base.
           iSplitL.
           { iFrameSteps. rewrite bool_decide_eq_false_2 //. iSteps.
             iExists (t2 :: succs). iSteps.
-            iExists γ2, P2, R2. rewrite vertex۰inv𑁒unfold. iSteps.
+            iExists γ2, P2, R2. rewrite vertex۰invｰunfold. iSteps.
           }
           iSteps.
     Qed.
 
-    #[local] Lemma vertex٠release_run𑁒spec :
+    #[local] Lemma vertex٠release_runｰspec :
       ⊢ (
         ∀ pool ctx scope t γ P R task iter,
         {{{
@@ -971,25 +971,25 @@ Module base.
       repeat iSplit.
 
       { iClear "IHrelease IHrelease_successor".
-        setoid_rewrite vertex۰inv𑁒unfold.
+        setoid_rewrite vertex۰invｰunfold.
         iIntros "%pool %ctx %scope %t %γ %P %R %task %iter !> %Φ (Hctx & (:inv۰pre) & (:model) & Htask) HΦ".
 
         wp۰rec.
-        iApply (wp𑁒frame𑁒wand with "HΦ").
+        iApply (wpｰframeｰwand with "HΦ").
         wp۰pures.
 
         wp۰bind (𝗳𝗮𝗮 _ _)%E.
         iInv "Hinv" as "(:inv۰inner =1)".
         wp۰faa.
-        iDestruct (state𑁒agree with "Hstate₁ Hstate₂") as %<-.
-        iDestruct (iteration𑁒agree with "Hiteration₁ Hiteration₂") as %<-.
+        iDestruct (stateｰagree with "Hstate₁ Hstate₂") as %<-.
+        iDestruct (iterationｰagree with "Hiteration₁ Hiteration₂") as %<-.
         iDestruct "Hinv_state" as "(:inv۰state۰init =1)".
 
         destruct_decide (size Π = 0) as ->%gmultiset_size_empty_inv | HΠ.
 
         - rewrite gmultiset_size_empty right_id.
-          iMod (state𑁒update Ready with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
-          iMod (dependencies𑁒discard with "Hdependencies_auth") as "#Hdependencies_auth".
+          iMod (stateｰupdate Ready with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
+          iMod (dependenciesｰdiscard with "Hdependencies_auth") as "#Hdependencies_auth".
           iDestruct "HΔ" as "#HΔ".
           iSplitR "Hctx Ht_task Hstate₁ Hiteration₁ Htask". { iFrameSteps. }
           iIntros "{%} !>".
@@ -997,31 +997,31 @@ Module base.
           wp۰apply+ ("IHrun" with "[$]").
           iSteps.
 
-        - iMod (state𑁒update Released with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
-          iMod (dependencies𑁒discard with "Hdependencies_auth") as "#Hdependencies_auth".
+        - iMod (stateｰupdate Released with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
+          iMod (dependenciesｰdiscard with "Hdependencies_auth") as "#Hdependencies_auth".
           iSplitR "Hctx". { iFrameSteps. }
           iSteps.
       }
 
       { iClear "IHrelease IHrelease_successor".
-        setoid_rewrite vertex۰inv𑁒unfold.
+        setoid_rewrite vertex۰invｰunfold.
         iIntros "%pool %ctx %scope %t %γ %P %R %π !> %Φ (Hctx & (:inv۰pre) & Hpredecessors_elem & #Hπ) HΦ".
 
         wp۰rec.
-        iApply (wp𑁒frame𑁒wand with "HΦ").
+        iApply (wpｰframeｰwand with "HΦ").
         wp۰pures.
 
         wp۰bind (𝗳𝗮𝗮 _ _)%E.
         iInv "Hinv" as "(:inv۰inner)".
         wp۰faa.
-        iDestruct (predecessors𑁒elem_of with "Hpredecessors_auth Hpredecessors_elem") as %Hπ.
-        iMod (predecessors𑁒remove with "Hpredecessors_auth Hpredecessors_elem") as "Hpredecessors_auth".
+        iDestruct (predecessorsｰelem_of with "Hpredecessors_auth Hpredecessors_elem") as %Hπ.
+        iMod (predecessorsｰremove with "Hpredecessors_auth Hpredecessors_elem") as "Hpredecessors_auth".
 
         destruct state.
 
         - iDestruct "Hinv_state" as "(:inv۰state۰init)".
-          iDestruct (big_sepMS𑁒insert₂ with "HΔ Hπ") as "HΔ".
-          apply gmultiset𑁒elem_of𑁒size𑁒non_empty in Hπ as ?.
+          iDestruct (big_sepMSｰinsert₂ with "HΔ Hπ") as "HΔ".
+          apply gmultisetｰelem_ofｰsizeｰnon_empty in Hπ as ?.
           iSplitR "Hctx".
           { replace (Δ ⊎ Π) with (({[+π+]} ⊎ Δ) ⊎ (Π ∖ {[+π+]})) by multiset_solver.
             iFrameSteps. iPureIntro.
@@ -1032,25 +1032,25 @@ Module base.
           iSteps.
 
         - iDestruct "Hinv_state" as "(:inv۰state۰released)".
-          iDestruct (big_sepMS𑁒insert₂ with "HΔ Hπ") as "-##HΔ".
+          iDestruct (big_sepMSｰinsert₂ with "HΔ Hπ") as "-##HΔ".
           iEval (rewrite (comm (⊎))) in "HΔ".
           destruct_decide (size Π = 1) as HΠ.
 
           + rewrite HΠ.
             assert (Π = {[+π+]}) as ->.
-            { apply gmultiset𑁒size𑁒1𑁒elem_of in HΠ as (π_ & ->).
+            { apply gmultisetｰsizeｰ1ｰelem_of in HΠ as (π_ & ->).
               set_solver.
             }
             rewrite gmultiset_difference_diag.
 
-            iMod (state𑁒update Ready with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
+            iMod (stateｰupdate Ready with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
             iSplitR "Hctx Hdependencies_auth Ht_task Hstate₁ Hiteration₁ Htask". { iFrameSteps. }
             iIntros "{%} !>".
 
             wp۰apply+ ("IHrun" with "[$]").
             iSteps.
 
-          + apply gmultiset𑁒elem_of𑁒size𑁒non_empty in Hπ as ?.
+          + apply gmultisetｰelem_ofｰsizeｰnon_empty in Hπ as ?.
             iSplitR "Hctx".
             { replace (Δ ⊎ Π) with ((Δ ⊎ {[+π+]}) ⊎ (Π ∖ {[+π+]})) by multiset_solver.
               iFrameSteps. iPureIntro.
@@ -1075,21 +1075,21 @@ Module base.
       }
 
       { iClear "IHrun".
-        setoid_rewrite vertex۰inv𑁒unfold.
+        setoid_rewrite vertex۰invｰunfold.
         iIntros "%pool %ctx %scope %t %γ %iter %P %R %task !> %Φ (Hctx & (:inv۰pre) & #Hready & (:model') & Htask) HΦ".
 
         wp۰rec.
-        wp۰apply+ (pool٠async𑁒spec True True with "[-HΦ $Hctx]"); last iSteps. iIntros "{% ctx scope} %ctx %scope Hctx".
+        wp۰apply+ (pool٠asyncｰspec True True with "[-HΦ $Hctx]"); last iSteps. iIntros "{% ctx scope} %ctx %scope Hctx".
         wp۰pures.
 
         wp۰bind (_ <-{preds} _)%E.
         iInv "Hinv" as "(:inv۰inner =1)".
         wp۰store.
-        iDestruct (state𑁒agree with "Hstate₁ Hstate₂") as %<-.
-        iMod (state𑁒update Init with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
+        iDestruct (stateｰagree with "Hstate₁ Hstate₂") as %<-.
+        iMod (stateｰupdate Init with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
         iDestruct "Hinv_state" as "(:inv۰state۰ready =1)".
-        iMod dependencies𑁒alloc as "(%iter' & Hdependencies_auth)".
-        iMod (iteration𑁒update iter' with "Hiteration₁ Hiteration₂") as "(Hiteration₁ & Hiteration₂)".
+        iMod dependenciesｰalloc as "(%iter' & Hdependencies_auth)".
+        iMod (iterationｰupdate iter' with "Hiteration₁ Hiteration₂") as "(Hiteration₁ & Hiteration₂)".
         iSplitR "Hctx Ht_task Hstate₁ Hiteration₁ Htask".
         { iFrameSteps.
           iExists ∅. rewrite left_id big_sepMS_empty. iSteps.
@@ -1098,38 +1098,38 @@ Module base.
 
         wp۰load.
 
-        rewrite vertex۰wp𑁒unfold.
-        wp۰apply (wp𑁒wand with "(Htask Hctx [$] [$])") as (res) "{%} (%b & %task & -> & Hctx & (:model) & Hb)".
+        rewrite vertex۰wpｰunfold.
+        wp۰apply (wpｰwand with "(Htask Hctx [$] [$])") as (res) "{%} (%b & %task & -> & Hctx & (:model) & Hb)".
         destruct b.
 
         - iDestruct "Hb" as "(HP & #HR)".
 
           wp۰load.
 
-          awp۰apply (mpmc_stack_2٠close𑁒spec with "Hsuccessors_inv") without "Hctx".
+          awp۰apply (mpmc_stack_2٠closeｰspec with "Hsuccessors_inv") without "Hctx".
           iInv "Hinv" as "(:inv۰inner =2)".
-          iDestruct (state𑁒agree with "Hstate₁ Hstate₂") as %<-.
+          iDestruct (stateｰagree with "Hstate₁ Hstate₂") as %<-.
           iDestruct "Hinv_state" as "(:inv۰state۰init =2 >)".
           iDestruct "Hinv_successors" as "(:inv۰successors =2)".
           iAaccIntro with "Hsuccessors_model"; iIntros "Hsuccessors_model"; first iFrameSteps.
-          iMod (state𑁒update Finished with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
-          iMod (state₁𑁒discard with "Hstate₁") as "#Hstate₁".
-          iDestruct (output𑁒produce with "Houtput_auth HP") as "Houtput_auth".
+          iMod (stateｰupdate Finished with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
+          iMod (state₁ｰdiscard with "Hstate₁") as "#Hstate₁".
+          iDestruct (outputｰproduce with "Houtput_auth HP") as "Houtput_auth".
           iSplitR "Hsuccs". { iFrameSteps. }
           iIntros "!> H£ Hctx {%}".
 
           iMod (lc_fupd_elim_later with "H£ Hsuccs") as "Hsuccs".
-          wp۰apply+ (clist٠iter𑁒spec (λ _, pool۰context pool ctx scope) with "[$Hctx Hsuccs]"); [done | | iSteps].
+          wp۰apply+ (clist٠iterｰspec (λ _, pool۰context pool ctx scope) with "[$Hctx Hsuccs]"); [done | | iSteps].
           rewrite big_sepL_fmap.
           iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (:inv۰successor) Hctx".
           wp۰apply+ ("IHrelease_successor" with "[$Hctx $Hpredecessors_elem $Hstate₁]"); last iSteps.
-          iApply (vertex۰inv𑁒unfold with "Hinv_succ").
+          iApply (vertex۰invｰunfold with "Hinv_succ").
 
         - wp۰apply+ ("IHrelease" with "[$]").
           iSteps.
       }
     Qed.
-    Lemma vertex٠release𑁒spec pool ctx scope t γ P R task iter :
+    Lemma vertex٠releaseｰspec pool ctx scope t γ P R task iter :
       {{{
         pool۰context pool ctx scope ∗
         vertex۰inv t γ P R ∗
@@ -1142,11 +1142,11 @@ Module base.
         pool۰context pool ctx scope
       }}}.
     Proof.
-      iDestruct vertex٠release_run𑁒spec as "(H & _)".
+      iDestruct vertex٠release_runｰspec as "(H & _)".
       iApply "H".
     Qed.
 
-    Lemma vertex٠yield𑁒spec t γ task' iter task :
+    Lemma vertex٠yieldｰspec t γ task' iter task :
       {{{
         vertex۰model t γ task' iter
       }}}
@@ -1159,7 +1159,7 @@ Module base.
       iIntros "%Φ Hmodel HΦ".
 
       wp۰rec.
-      wp۰apply+ (vertex٠set_task𑁒spec with "[$]") as "Hmodel".
+      wp۰apply+ (vertex٠set_taskｰspec with "[$]") as "Hmodel".
       iSteps.
     Qed.
   End vertex۰G.
@@ -1193,7 +1193,7 @@ Section vertex۰G.
       )
     ".
 
-  #[global] Instance vertex۰inv𑁒ne t n :
+  #[global] Instance vertex۰invｰne t n :
     Proper (
       (≡{n}≡) ==>
       (≡{n}≡) ==>
@@ -1202,7 +1202,7 @@ Section vertex۰G.
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance vertex۰inv𑁒proper t :
+  #[global] Instance vertex۰invｰproper t :
     Proper (
       (≡) ==>
       (≡) ==>
@@ -1293,13 +1293,13 @@ Section vertex۰G.
     val -d> vertex۰iteration -d> iProp Σ
   :=
     vertex۰wp۰body.
-  #[local] Instance vertex۰wp۰pre𑁒contractive t P R :
+  #[local] Instance vertex۰wp۰preｰcontractive t P R :
     Contractive (vertex۰wp۰pre t P R).
   Proof.
     rewrite /vertex۰wp۰pre /vertex۰wp۰body.
     solve_contractive.
   Qed.
-  #[local] Instance vertex۰wp۰pre𑁒ne t P R :
+  #[local] Instance vertex۰wp۰preｰne t P R :
     NonExpansive (vertex۰wp۰pre t P R).
   Proof.
     apply _.
@@ -1307,13 +1307,13 @@ Section vertex۰G.
   Definition vertex۰wp t P R : val → vertex۰iteration → iProp Σ :=
     fixpoint (vertex۰wp۰pre t P R).
 
-  Lemma vertex۰wp𑁒unfold t P R task iter :
+  Lemma vertex۰wpｰunfold t P R task iter :
     vertex۰wp t P R task iter ⊣⊢
     vertex۰wp۰body t P R (vertex۰wp t P R) task iter.
   Proof.
     apply (fixpoint_unfold (vertex۰wp۰pre t P R)).
   Qed.
-  #[global] Instance vertex۰wp𑁒ne n :
+  #[global] Instance vertex۰wpｰne n :
     Proper (
       (=) ==>
       (≡{n}≡) ==>
@@ -1325,176 +1325,176 @@ Section vertex۰G.
   Proof.
     intros t t_ <-.
     induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR task task_ <- iter iter_ <-.
-    rewrite !vertex۰wp𑁒unfold /vertex۰wp۰body.
+    rewrite !vertex۰wpｰunfold /vertex۰wp۰body.
     do 21 f_equiv. 1: solve_proper.
     f_contractive.
     apply (dist_le _ m) in HP; last by apply SIdx.lt_le_incl.
     apply (dist_le _ m) in HR; last by apply SIdx.lt_le_incl.
     apply IH; done.
   Qed.
-  #[local] Lemma vertex۰wp𑁒to𑁒base 𝑡 γ P R task iter :
+  #[local] Lemma vertex۰wpｰtoｰbase 𝑡 γ P R task iter :
     𝑡 ↪ γ -∗
     vertex۰wp #𝑡 P R task iter -∗
     base.vertex۰wp 𝑡 γ P R task iter.
   Proof.
     iLöb as "HLöb" forall (task iter).
 
-    iEval (rewrite vertex۰wp𑁒unfold base.vertex۰wp𑁒unfold).
+    iEval (rewrite vertex۰wpｰunfold base.vertex۰wpｰunfold).
     iIntros "#Hmeta Hwp %pool %ctx %scope %iter' Hctx Hready Hmodel".
 
-    wp۰apply (wp𑁒wand with "(Hwp Hctx Hready [$Hmodel])") as (res) "{%} (%b & %task & -> & ($ & Hmodel & Hwp))"; first iSteps.
+    wp۰apply (wpｰwand with "(Hwp Hctx Hready [$Hmodel])") as (res) "{%} (%b & %task & -> & ($ & Hmodel & Hwp))"; first iSteps.
     iExists b, task. iStep.
     iDestruct "Hmodel" as "(:model =1)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
+    iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
     destruct b; iFrameSteps.
   Qed.
 
-  #[global] Instance vertex۰output𑁒contractive t :
+  #[global] Instance vertex۰outputｰcontractive t :
     Contractive (vertex۰output t).
   Proof.
     solve_contractive.
   Qed.
-  #[global] Instance vertex۰output𑁒proper t :
+  #[global] Instance vertex۰outputｰproper t :
     Proper ((≡) ==> (≡)) (vertex۰output t).
   Proof.
     solve_proper.
   Qed.
 
-  #[global] Instance vertex۰model𑁒timeless t task iter :
+  #[global] Instance vertex۰modelｰtimeless t task iter :
     Timeless (vertex۰model t task iter).
   Proof.
     apply _.
   Qed.
-  #[global] Instance vertex۰ready𑁒timeless iter :
+  #[global] Instance vertex۰readyｰtimeless iter :
     Timeless (vertex۰ready iter).
   Proof.
     apply _.
   Qed.
-  #[global] Instance vertex۰finished𑁒timeless t :
+  #[global] Instance vertex۰finishedｰtimeless t :
     Timeless (vertex۰finished t).
   Proof.
     apply _.
   Qed.
-  #[global] Instance vertex۰predecessor𑁒timeless t iter :
+  #[global] Instance vertex۰predecessorｰtimeless t iter :
     Timeless (vertex۰predecessor t iter).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance vertex۰inv𑁒persistent t P R :
+  #[global] Instance vertex۰invｰpersistent t P R :
     Persistent (vertex۰inv t P R).
   Proof.
     apply _.
   Qed.
-  #[global] Instance vertex۰ready𑁒persistent iter :
+  #[global] Instance vertex۰readyｰpersistent iter :
     Persistent (vertex۰ready iter).
   Proof.
     apply _.
   Qed.
-  #[global] Instance vertex۰finished𑁒persistent t :
+  #[global] Instance vertex۰finishedｰpersistent t :
     Persistent (vertex۰finished t).
   Proof.
     apply _.
   Qed.
-  #[global] Instance vertex۰predecessor𑁒persistent t iter :
+  #[global] Instance vertex۰predecessorｰpersistent t iter :
     Persistent (vertex۰predecessor t iter).
   Proof.
     apply _.
   Qed.
 
-  Lemma vertex۰model𑁒exclusive t task1 iter1 task2 iter2 :
+  Lemma vertex۰modelｰexclusive t task1 iter1 task2 iter2 :
     vertex۰model t task1 iter1 -∗
     vertex۰model t task2 iter2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %<-.
-    iApply (base.vertex۰model𑁒exclusive with "Hmodel_1 Hmodel_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
+    iApply (base.vertex۰modelｰexclusive with "Hmodel_1 Hmodel_2").
   Qed.
-  Lemma vertex۰model𑁒finished t task iter :
+  Lemma vertex۰modelｰfinished t task iter :
     vertex۰model t task iter -∗
     vertex۰finished t -∗
     False.
   Proof.
     iIntros "(:model =1) (:finished =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %<-.
-    iApply (base.vertex۰model𑁒finished with "Hmodel_1 Hfinished_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
+    iApply (base.vertex۰modelｰfinished with "Hmodel_1 Hfinished_2").
   Qed.
 
-  Lemma vertex۰output𑁒wand {t P R Q1} Q2 :
+  Lemma vertex۰outputｰwand {t P R Q1} Q2 :
     vertex۰inv t P R -∗
     vertex۰output t Q1 -∗
     (Q1 -∗ Q2) ={⊤}=∗
     vertex۰output t Q2.
   Proof.
     iIntros "(:inv =1) (:output =2) H". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %<-.
-    iMod (base.vertex۰output𑁒wand with "Hinv_1 Houtput_2 H") as "H".
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
+    iMod (base.vertex۰outputｰwand with "Hinv_1 Houtput_2 H") as "H".
     iFrameSteps.
   Qed.
-  Lemma vertex۰output𑁒divide {t P R} Qs :
+  Lemma vertex۰outputｰdivide {t P R} Qs :
     vertex۰inv t P R -∗
     vertex۰output t ([∗ list] Q ∈ Qs, Q) ={⊤}=∗
     [∗ list] Q ∈ Qs, vertex۰output t Q.
   Proof.
     iIntros "(:inv =1) (:output =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %<-.
-    iMod (base.vertex۰output𑁒divide with "Hinv_1 Houtput_2") as "H".
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
+    iMod (base.vertex۰outputｰdivide with "Hinv_1 Houtput_2") as "H".
     iApply (big_sepL_impl with "H").
     iSteps.
   Qed.
-  Lemma vertex۰output𑁒split {t P R} Q1 Q2 :
+  Lemma vertex۰outputｰsplit {t P R} Q1 Q2 :
     vertex۰inv t P R -∗
     vertex۰output t (Q1 ∗ Q2) ={⊤}=∗
       vertex۰output t Q1 ∗
       vertex۰output t Q2.
   Proof.
     iIntros "Hinv Houtput".
-    iMod (vertex۰output𑁒divide [Q1;Q2] with "Hinv [Houtput]") as "($ & $ & _)" => //.
+    iMod (vertex۰outputｰdivide [Q1;Q2] with "Hinv [Houtput]") as "($ & $ & _)" => //.
     { rewrite /= bi.sep_emp //. }
   Qed.
 
-  Lemma vertex𑁒predecessor𑁒finished t iter :
+  Lemma vertexｰpredecessorｰfinished t iter :
     vertex۰predecessor t iter -∗
     vertex۰ready iter -∗
     vertex۰finished t.
   Proof.
     iIntros "(:predecessor) Hready". simplify.
-    iDestruct (base.vertex𑁒predecessor𑁒finished with "Hpredecessor Hready") as "Hfinished".
+    iDestruct (base.vertexｰpredecessorｰfinished with "Hpredecessor Hready") as "Hfinished".
     iSteps.
   Qed.
 
-  Lemma vertex𑁒inv𑁒finished t P R :
+  Lemma vertexｰinvｰfinished t P R :
     vertex۰inv t P R -∗
     vertex۰finished t ={⊤}=∗
     ▷ □ R.
   Proof.
     iIntros "(:inv =1) (:finished =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %<-.
-    iApply (base.vertex𑁒inv𑁒finished with "Hinv_1 Hfinished_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
+    iApply (base.vertexｰinvｰfinished with "Hinv_1 Hfinished_2").
   Qed.
-  Lemma vertex𑁒inv𑁒finished' t P R :
+  Lemma vertexｰinvｰfinished' t P R :
     £ 1 -∗
     vertex۰inv t P R -∗
     vertex۰finished t ={⊤}=∗
     □ R.
   Proof.
     iIntros "H£ Hinv Hfinished".
-    iMod (vertex𑁒inv𑁒finished with "Hinv Hfinished") as "HR".
+    iMod (vertexｰinvｰfinished with "Hinv Hfinished") as "HR".
     iApply (lc_fupd_elim_later with "H£ HR").
   Qed.
-  Lemma vertex𑁒inv𑁒finished𑁒output t P R Q :
+  Lemma vertexｰinvｰfinishedｰoutput t P R Q :
     vertex۰inv t P R -∗
     vertex۰finished t -∗
     vertex۰output t Q ={⊤}=∗
     ▷^2 Q.
   Proof.
     iIntros "(:inv =1) (:finished =2) (:output =3)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %<-.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_3") as %<-.
-    iApply (base.vertex𑁒inv𑁒finished𑁒output with "Hinv_1 Hfinished_2 Houtput_3").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_3") as %<-.
+    iApply (base.vertexｰinvｰfinishedｰoutput with "Hinv_1 Hfinished_2 Houtput_3").
   Qed.
-  Lemma vertex𑁒inv𑁒finished𑁒output' t P R Q :
+  Lemma vertexｰinvｰfinishedｰoutput' t P R Q :
     £ 2 -∗
     vertex۰inv t P R -∗
     vertex۰finished t -∗
@@ -1502,12 +1502,12 @@ Section vertex۰G.
     Q.
   Proof.
     iIntros "(H£1 & H£2) Hinv Hfinished Houtput".
-    iMod (vertex𑁒inv𑁒finished𑁒output with "Hinv Hfinished Houtput") as "HP".
+    iMod (vertexｰinvｰfinishedｰoutput with "Hinv Hfinished Houtput") as "HP".
     iMod (lc_fupd_elim_later with "H£1 HP") as "HP".
     iApply (lc_fupd_elim_later with "H£2 HP").
   Qed.
 
-  Lemma vertex٠create𑁒spec P R (task : option val) :
+  Lemma vertex٠createｰspec P R (task : option val) :
     {{{
       True
     }}}
@@ -1522,13 +1522,13 @@ Section vertex۰G.
   Proof.
     iIntros "%Φ _ HΦ".
 
-    iApply wp𑁒fupd.
-    wp۰apply (base.vertex٠create𑁒spec with "[//]") as (𝑡 γ iter) "(Hmeta & #Hinv & Hmodel & Houtput)".
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iApply wpｰfupd.
+    wp۰apply (base.vertex٠createｰspec with "[//]") as (𝑡 γ iter) "(Hmeta & #Hinv & Hmodel & Houtput)".
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma vertex٠create'𑁒spec P R task :
+  Lemma vertex٠create'ｰspec P R task :
     {{{
       True
     }}}
@@ -1543,13 +1543,13 @@ Section vertex۰G.
   Proof.
     iIntros "%Φ _ HΦ".
 
-    iApply wp𑁒fupd.
-    wp۰apply (base.vertex٠create'𑁒spec with "[//]") as (𝑡 γ iter) "(Hmeta & #Hinv & Hmodel & Houtput)".
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iApply wpｰfupd.
+    wp۰apply (base.vertex٠create'ｰspec with "[//]") as (𝑡 γ iter) "(Hmeta & #Hinv & Hmodel & Houtput)".
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma vertex٠task𑁒spec t task iter :
+  Lemma vertex٠taskｰspec t task iter :
     {{{
       vertex۰model t task iter
     }}}
@@ -1561,11 +1561,11 @@ Section vertex۰G.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp۰apply (base.vertex٠task𑁒spec with "[$]").
+    wp۰apply (base.vertex٠taskｰspec with "[$]").
     iSteps.
   Qed.
 
-  Lemma vertex٠set_task𑁒spec t task1 iter task2 :
+  Lemma vertex٠set_taskｰspec t task1 iter task2 :
     {{{
       vertex۰model t task1 iter
     }}}
@@ -1577,11 +1577,11 @@ Section vertex۰G.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp۰apply (base.vertex٠set_task𑁒spec with "[$]").
+    wp۰apply (base.vertex٠set_taskｰspec with "[$]").
     iSteps.
   Qed.
 
-  Lemma vertex٠precede𑁒spec t1 P1 R1 t2 P2 R2 task iter :
+  Lemma vertex٠precedeｰspec t1 P1 R1 t2 P2 R2 task iter :
     {{{
       vertex۰inv t1 P1 R1 ∗
       vertex۰inv t2 P2 R2 ∗
@@ -1596,14 +1596,14 @@ Section vertex۰G.
   Proof.
     iIntros "%Φ ((:inv =1) & (:inv =2) & Hmodel_2) HΦ". simplify.
     iDestruct "Hmodel_2" as "(:model =2 !=)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_2 Hmeta_2_") as %<-. iClear "Hmeta_2_".
+    iDestruct (metaｰagree with "Hmeta_2 Hmeta_2_") as %<-. iClear "Hmeta_2_".
 
-    wp۰apply (base.vertex٠precede𑁒spec with "[$Hmodel_2]").
+    wp۰apply (base.vertex٠precedeｰspec with "[$Hmodel_2]").
     { iFrame "#". }
     iSteps.
   Qed.
 
-  Lemma vertex٠release𑁒spec pool ctx scope t P R task iter :
+  Lemma vertex٠releaseｰspec pool ctx scope t P R task iter :
     {{{
       pool۰context pool ctx scope ∗
       vertex۰inv t P R ∗
@@ -1617,12 +1617,12 @@ Section vertex۰G.
     }}}.
   Proof.
     iIntros "%Φ (Hctx & (:inv =1) & (:model =2) & Htask) HΦ". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
-    iDestruct (vertex۰wp𑁒to𑁒base with "Hmeta_1 Htask") as "Htask".
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
+    iDestruct (vertex۰wpｰtoｰbase with "Hmeta_1 Htask") as "Htask".
 
-    wp۰apply (base.vertex٠release𑁒spec with "[$] HΦ").
+    wp۰apply (base.vertex٠releaseｰspec with "[$] HΦ").
   Qed.
-  Lemma vertex٠release𑁒spec' pool ctx scope t P R task iter :
+  Lemma vertex٠releaseｰspec' pool ctx scope t P R task iter :
     {{{
       pool۰context pool ctx scope ∗
       vertex۰inv t P R ∗
@@ -1646,11 +1646,11 @@ Section vertex۰G.
   Proof.
     iIntros "%Φ (Hctx & #Hinv & Hmodel & Htask) HΦ".
 
-    wp۰apply (vertex٠release𑁒spec with "[- HΦ] HΦ").
-    rewrite vertex۰wp𑁒unfold. iFrame "#∗". iSteps.
+    wp۰apply (vertex٠releaseｰspec with "[- HΦ] HΦ").
+    rewrite vertex۰wpｰunfold. iFrame "#∗". iSteps.
   Qed.
 
-  Lemma vertex٠yield𑁒spec t task' iter task :
+  Lemma vertex٠yieldｰspec t task' iter task :
     {{{
       vertex۰model t task' iter
     }}}
@@ -1662,7 +1662,7 @@ Section vertex۰G.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp۰apply (base.vertex٠yield𑁒spec with "[$]").
+    wp۰apply (base.vertex٠yieldｰspec with "[$]").
     iSteps.
   Qed.
 End vertex۰G.

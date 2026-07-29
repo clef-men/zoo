@@ -15,7 +15,7 @@ Fixpoint fibonacci n :=
   end.
 #[global] Arguments fibonacci !_ /.
 
-Lemma fibonacci𑁒spec n :
+Lemma fibonacciｰspec n :
   fibonacci n =
     if decide (n ≤ 1) then
       n
@@ -25,7 +25,7 @@ Proof.
   destruct n as [| [| n]]; simpl; try done.
   rewrite right_id //.
 Qed.
-Lemma fibonacci𑁒spec𑁒Z n :
+Lemma fibonacciｰspecｰZ n :
   (0 ≤ n)%Z →
   fibonacci ₊n =
     if decide (n ≤ 1)%Z then
@@ -34,23 +34,23 @@ Lemma fibonacci𑁒spec𑁒Z n :
       fibonacci ₊(n - 1) + fibonacci ₊(n - 2).
 Proof.
   intros Hn.
-  rewrite fibonacci𑁒spec.
+  rewrite fibonacciｰspec.
   assert (₊(n - 1) = ₊n - 1) as -> by lia.
   assert (₊(n - 2) = ₊n - 2) as -> by lia.
   apply decide_ext. lia.
 Qed.
 
-Lemma fibonacci𑁒base n :
+Lemma fibonacciｰbase n :
   n ≤ 1 →
   fibonacci n = n.
 Proof.
   intros Hn.
-  rewrite fibonacci𑁒spec decide_True //.
+  rewrite fibonacciｰspec decide_True //.
 Qed.
-Lemma fibonacci𑁒recursive n :
+Lemma fibonacciｰrecursive n :
   1 < n →
   fibonacci n = fibonacci (n - 1) + fibonacci (n - 2).
 Proof.
   intros Hn.
-  rewrite fibonacci𑁒spec decide_False //. 1: lia.
+  rewrite fibonacciｰspec decide_False //. 1: lia.
 Qed.

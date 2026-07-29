@@ -11,7 +11,7 @@ Section cinv۰G.
   Context `{inv۰G : !invGS Σ}.
   Context `{cinv۰G : !cinvG Σ}.
 
-  Lemma cinv_own𑁒divide {γ q} n :
+  Lemma cinv_ownｰdivide {γ q} n :
     n ≠ 0 →
     cinv_own γ q ⊢
     [∗ list] _ ∈ seq 0 n, cinv_own γ (q / Qp۰of_nat n).
@@ -20,7 +20,7 @@ Section cinv۰G.
     iInduction n as [| n IH] forall (q).
     - lia.
     - clear Hn. destruct_decide (n = 0) as -> | Hn.
-      + iEval (rewrite Qp۰of_nat𑁒1 Qp.div_1).
+      + iEval (rewrite Qp۰of_natｰ1 Qp.div_1).
         iSteps.
       + assert (q = q / (1 + Qp۰of_nat n) + (q * Qp۰of_nat n / (1 + Qp۰of_nat n)))%Qp as Heq.
         { rewrite -Qp.div_add_distr -{2}(Qp.mul_1_r q) -Qp.mul_add_distr_l.
@@ -28,15 +28,15 @@ Section cinv۰G.
           rewrite Qp.div_mul_cancel_r Qp.div_1 //.
         }
         iEval (setoid_rewrite Heq) in "Hown". clear Heq.
-        iEval (rewrite Qp۰of_nat𑁒S //).
+        iEval (rewrite Qp۰of_natｰS //).
         iDestruct (fractional with "Hown") as "($ & Hown)".
         iEval (rewrite -/seq).
         iDestruct ("IH" with "[//] Hown") as "Howns".
         iEval (rewrite Qp.div_div Qp.div_mul_cancel_r) in "Howns".
-        iApply big_sepL𑁒seq𑁒shift𑁒1.
+        iApply big_sepLｰseqｰshiftｰ1.
         iFrame.
   Qed.
-  Lemma cinv_own𑁒gather γ q n :
+  Lemma cinv_ownｰgather γ q n :
     n ≠ 0 →
     ([∗ list] _ ∈ seq 0 n, cinv_own γ (q / Qp۰of_nat n)) ⊢
     cinv_own γ q.
@@ -55,9 +55,9 @@ Section cinv۰G.
           rewrite Qp.div_mul_cancel_r Qp.div_1 //.
         }
         iEval (setoid_rewrite Heq). clear Heq.
-        iEval (rewrite Qp۰of_nat𑁒S //) in "Hown Howns".
+        iEval (rewrite Qp۰of_natｰS //) in "Hown Howns".
         iSplitL "Hown". 1: iFrame.
-        iDestruct (big_sepL𑁒seq𑁒shift𑁒1₁ with "Howns") as "Howns".
+        iDestruct (big_sepLｰseqｰshiftｰ1₁ with "Howns") as "Howns".
         iEval (rewrite -(Qp.div_mul_cancel_r _ _ (Qp۰of_nat n)) -Qp.div_div) in "Howns".
         iApply ("IH" with "[//] Howns").
   Qed.

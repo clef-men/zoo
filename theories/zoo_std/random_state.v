@@ -7,7 +7,7 @@ Implicit Type t : val.
 
 Parameter random_state۰model : ∀ `{zoo۰G : !ZooG Σ}, val → iProp Σ.
 
-Axiom random_state٠create𑁒spec : ∀ `{zoo۰G : !ZooG Σ},
+Axiom random_state٠createｰspec : ∀ `{zoo۰G : !ZooG Σ},
   {{{
     True
   }}}
@@ -18,7 +18,7 @@ Axiom random_state٠create𑁒spec : ∀ `{zoo۰G : !ZooG Σ},
     random_state۰model t
   }}}.
 
-Axiom random_state٠bits𑁒spec : ∀ `{zoo۰G : !ZooG Σ} t,
+Axiom random_state٠bitsｰspec : ∀ `{zoo۰G : !ZooG Σ} t,
   {{{
     random_state۰model t
   }}}
@@ -29,7 +29,7 @@ Axiom random_state٠bits𑁒spec : ∀ `{zoo۰G : !ZooG Σ} t,
     random_state۰model t
   }}}.
 
-Axiom random_state٠int𑁒spec : ∀ `{zoo۰G : !ZooG Σ} t ub,
+Axiom random_state٠intｰspec : ∀ `{zoo۰G : !ZooG Σ} t ub,
   (0 < ub)%Z →
   {{{
     random_state۰model t
@@ -45,7 +45,7 @@ Axiom random_state٠int𑁒spec : ∀ `{zoo۰G : !ZooG Σ} t ub,
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Lemma random_state٠int𑁒spec𑁒nat t (ub : nat) :
+  Lemma random_state٠intｰspecｰnat t (ub : nat) :
     0 < ub →
     {{{
       random_state۰model t
@@ -59,11 +59,11 @@ Section zoo۰G.
     }}}.
   Proof.
     iIntros "%Hub %Φ Ht HΦ".
-    wp۰apply (random_state٠int𑁒spec with "Ht") as (n) "(%Hn & Ht)"; first lia.
+    wp۰apply (random_state٠intｰspec with "Ht") as (n) "(%Hn & Ht)"; first lia.
     Z_to_nat n. iSteps.
   Qed.
 
-  Lemma random_state٠int_in_range𑁒spec t lb ub :
+  Lemma random_state٠int_in_rangeｰspec t lb ub :
     (lb < ub)%Z →
     {{{
       random_state۰model t
@@ -78,10 +78,10 @@ Section zoo۰G.
   Proof.
     iIntros "%Hlt %Φ Ht HΦ".
     wp۰rec.
-    wp۰apply+ (random_state٠int𑁒spec with "Ht") as "%n (%Hn & Ht)"; first lia.
+    wp۰apply+ (random_state٠intｰspec with "Ht") as "%n (%Hn & Ht)"; first lia.
     iSteps.
   Qed.
-  Lemma random_state٠int_in_range𑁒spec𑁒nat t lb ub :
+  Lemma random_state٠int_in_rangeｰspecｰnat t lb ub :
     lb < ub →
     {{{
       random_state۰model t
@@ -96,7 +96,7 @@ Section zoo۰G.
   Proof.
     iIntros "%Hlt %Φ Ht HΦ".
     wp۰rec.
-    wp۰apply+ (random_state٠int𑁒spec with "Ht") as "%n (%Hn & Ht)"; first lia.
+    wp۰apply+ (random_state٠intｰspec with "Ht") as "%n (%Hn & Ht)"; first lia.
     wp۰pures.
     Z_to_nat n. rewrite -Nat2Z.inj_add. iSteps.
   Qed.

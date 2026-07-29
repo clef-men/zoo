@@ -12,7 +12,7 @@ Class GhostVarG Σ F :=
 Definition ghost_var۰Σ F `{!oFunctorContractive F} :=
   #[GFunctor (dfrac_agreeRF F)
   ].
-#[global] Instance subG𑁒ghost_var۰Σ Σ F `{!oFunctorContractive F} :
+#[global] Instance subGｰghost_var۰Σ Σ F `{!oFunctorContractive F} :
   subG (ghost_var۰Σ F) Σ →
   GhostVarG Σ F.
 Proof.
@@ -25,50 +25,50 @@ Section ghost_var۰G.
   Definition ghost_var γ dq a :=
     own γ (to_dfrac_agree dq a).
 
-  #[global] Instance ghost_var𑁒nonexpansive γ dq :
+  #[global] Instance ghost_varｰnonexpansive γ dq :
     NonExpansive (ghost_var γ dq).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance ghost_var𑁒proper γ dq :
+  #[global] Instance ghost_varｰproper γ dq :
     Proper ((≡) ==> (≡)) (ghost_var γ dq).
   Proof.
     solve_proper.
   Qed.
 
-  #[global] Instance ghost_var𑁒timeless γ dq a :
+  #[global] Instance ghost_varｰtimeless γ dq a :
     Discrete a →
     Timeless (ghost_var γ dq a).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance ghost_var𑁒persistent γ a :
+  #[global] Instance ghost_varｰpersistent γ a :
     Persistent (ghost_var γ DfracDiscarded a).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance ghost_var𑁒fractional γ a :
+  #[global] Instance ghost_varｰfractional γ a :
     Fractional (λ q, ghost_var γ (DfracOwn q) a).
   Proof.
     intros q1 q2.
     rewrite -own_op -frac_agree_op //.
   Qed.
-  #[global] Instance ghost_var𑁒as_fractional γ a q :
+  #[global] Instance ghost_varｰas_fractional γ a q :
     AsFractional (ghost_var γ (DfracOwn q) a) (λ q, ghost_var γ (DfracOwn q) a) q.
   Proof.
     split; [done | apply _].
   Qed.
 
-  Lemma ghost_var𑁒alloc a :
+  Lemma ghost_varｰalloc a :
     ⊢ |==>
       ∃ γ,
       ghost_var γ (DfracOwn 1) a.
   Proof.
     apply own_alloc. done.
   Qed.
-  Lemma ghost_var𑁒alloc𑁒cofinite (γs : gset gname) a :
+  Lemma ghost_varｰallocｰcofinite (γs : gset gname) a :
     ⊢ |==>
       ∃ γ,
       ⌜γ ∉ γs⌝ ∗
@@ -77,13 +77,13 @@ Section ghost_var۰G.
     apply own_alloc_cofinite. done.
   Qed.
 
-  Lemma ghost_var𑁒valid γ dq a :
+  Lemma ghost_varｰvalid γ dq a :
     ghost_var γ dq a ⊢
     ⌜✓ dq⌝.
   Proof.
     rewrite /ghost_var own_valid dfrac_agree_validI //.
   Qed.
-  Lemma ghost_var𑁒combine γ dq1 a1 dq2 a2 :
+  Lemma ghost_varｰcombine γ dq1 a1 dq2 a2 :
     ghost_var γ dq1 a1 -∗
     ghost_var γ dq2 a2 -∗
       a1 ≡ a2 ∗
@@ -96,49 +96,49 @@ Section ghost_var۰G.
     iRewrite -"Heq" in "H".
     rewrite -dfrac_agree_op. auto.
   Qed.
-  Lemma ghost_var𑁒valid𑁒2 γ dq1 a1 dq2 a2 :
+  Lemma ghost_varｰvalidｰ2 γ dq1 a1 dq2 a2 :
     ghost_var γ dq1 a1 -∗
     ghost_var γ dq2 a2 -∗
       ⌜✓ (dq1 ⋅ dq2)⌝ ∗
       a1 ≡ a2.
   Proof.
     iIntros "H1 H2".
-    iDestruct (ghost_var𑁒combine with "H1 H2") as "($ & H)".
-    iApply (ghost_var𑁒valid with "H").
+    iDestruct (ghost_varｰcombine with "H1 H2") as "($ & H)".
+    iApply (ghost_varｰvalid with "H").
   Qed.
-  Lemma ghost_var𑁒agree γ dq1 a1 dq2 a2 :
+  Lemma ghost_varｰagree γ dq1 a1 dq2 a2 :
     ghost_var γ dq1 a1 -∗
     ghost_var γ dq2 a2 -∗
     a1 ≡ a2.
   Proof.
     iIntros "H1 H2".
-    iDestruct (ghost_var𑁒valid𑁒2 with "H1 H2") as "(_ & $)".
+    iDestruct (ghost_varｰvalidｰ2 with "H1 H2") as "(_ & $)".
   Qed.
-  Lemma ghost_var𑁒dfrac𑁒ne γ1 dq1 a1 γ2 dq2 a2 :
+  Lemma ghost_varｰdfracｰne γ1 dq1 a1 γ2 dq2 a2 :
     ¬ ✓ (dq1 ⋅ dq2) →
     ghost_var γ1 dq1 a1 -∗
     ghost_var γ2 dq2 a2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
     iIntros "% H1 H2 ->".
-    iDestruct (ghost_var𑁒valid𑁒2 with "H1 H2") as "(% & _)". done.
+    iDestruct (ghost_varｰvalidｰ2 with "H1 H2") as "(% & _)". done.
   Qed.
-  Lemma ghost_var𑁒ne γ1 a1 γ2 dq2 a2 :
+  Lemma ghost_varｰne γ1 a1 γ2 dq2 a2 :
     ghost_var γ1 (DfracOwn 1) a1 -∗
     ghost_var γ2 dq2 a2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    iApply ghost_var𑁒dfrac𑁒ne; [done.. | intros []%(exclusive_l _)].
+    iApply ghost_varｰdfracｰne; [done.. | intros []%(exclusive_l _)].
   Qed.
-  Lemma ghost_var𑁒exclusive γ a1 dq2 a2 :
+  Lemma ghost_varｰexclusive γ a1 dq2 a2 :
     ghost_var γ (DfracOwn 1) a1 -∗
     ghost_var γ dq2 a2 -∗
     False.
   Proof.
     iIntros "H1 H2".
-    iDestruct (ghost_var𑁒ne with "H1 H2") as %?. done.
+    iDestruct (ghost_varｰne with "H1 H2") as %?. done.
   Qed.
-  Lemma ghost_var𑁒persist γ dq a :
+  Lemma ghost_varｰpersist γ dq a :
     ghost_var γ dq a ⊢ |==>
     ghost_var γ DfracDiscarded a.
   Proof.
@@ -146,71 +146,71 @@ Section ghost_var۰G.
   Qed.
   Section discrete.
     Context `{!OfeDiscrete $ oFunctor_apply F $ iPropO Σ}.
-    Lemma ghost_var𑁒combine𑁒discrete γ dq1 a1 dq2 a2 :
+    Lemma ghost_varｰcombineｰdiscrete γ dq1 a1 dq2 a2 :
       ghost_var γ dq1 a1 -∗
       ghost_var γ dq2 a2 -∗
         ⌜a1 ≡ a2⌝ ∗
         ghost_var γ (dq1 ⋅ dq2) a1.
     Proof.
       iIntros "H1 H2".
-      iDestruct (ghost_var𑁒combine with "H1 H2") as "(% & $)".
+      iDestruct (ghost_varｰcombine with "H1 H2") as "(% & $)".
       iSteps.
     Qed.
-    Lemma ghost_var𑁒valid𑁒2𑁒discrete γ dq1 a1 dq2 a2 :
+    Lemma ghost_varｰvalidｰ2ｰdiscrete γ dq1 a1 dq2 a2 :
       ghost_var γ dq1 a1 -∗
       ghost_var γ dq2 a2 -∗
         ⌜✓ (dq1 ⋅ dq2)⌝ ∗
         ⌜a1 ≡ a2⌝.
     Proof.
       iIntros "H1 H2".
-      iDestruct (ghost_var𑁒valid𑁒2 with "H1 H2") as "($ & %)".
+      iDestruct (ghost_varｰvalidｰ2 with "H1 H2") as "($ & %)".
       iSteps.
     Qed.
-    Lemma ghost_var𑁒agree𑁒discrete γ dq1 a1 dq2 a2 :
+    Lemma ghost_varｰagreeｰdiscrete γ dq1 a1 dq2 a2 :
       ghost_var γ dq1 a1 -∗
       ghost_var γ dq2 a2 -∗
       ⌜a1 ≡ a2⌝.
     Proof.
       iIntros "H1 H2".
-      iDestruct (ghost_var𑁒agree with "H1 H2") as %?.
+      iDestruct (ghost_varｰagree with "H1 H2") as %?.
       iSteps.
     Qed.
     Section leibniz_equiv.
       Context `{!LeibnizEquiv $ oFunctor_apply F $ iPropO Σ}.
-      Lemma ghost_var𑁒combine𑁒L γ dq1 a1 dq2 a2 :
+      Lemma ghost_varｰcombineｰL γ dq1 a1 dq2 a2 :
         ghost_var γ dq1 a1 -∗
         ghost_var γ dq2 a2 -∗
           ⌜a1 = a2⌝ ∗
           ghost_var γ (dq1 ⋅ dq2) a1.
       Proof.
         iIntros "H1 H2".
-        iDestruct (ghost_var𑁒combine𑁒discrete with "H1 H2") as "(%Heq & $)".
+        iDestruct (ghost_varｰcombineｰdiscrete with "H1 H2") as "(%Heq & $)".
         apply leibniz_equiv in Heq.
         iSteps.
       Qed.
-      Lemma ghost_var𑁒valid𑁒2𑁒L γ dq1 a1 dq2 a2 :
+      Lemma ghost_varｰvalidｰ2ｰL γ dq1 a1 dq2 a2 :
         ghost_var γ dq1 a1 -∗
         ghost_var γ dq2 a2 -∗
           ⌜✓ (dq1 ⋅ dq2)⌝ ∗
           ⌜a1 = a2⌝.
       Proof.
         iIntros "H1 H2".
-        iDestruct (ghost_var𑁒valid𑁒2𑁒discrete with "H1 H2") as %(? & ?%leibniz_equiv).
+        iDestruct (ghost_varｰvalidｰ2ｰdiscrete with "H1 H2") as %(? & ?%leibniz_equiv).
         iSteps.
       Qed.
-      Lemma ghost_var𑁒agree𑁒L γ dq1 a1 dq2 a2 :
+      Lemma ghost_varｰagreeｰL γ dq1 a1 dq2 a2 :
         ghost_var γ dq1 a1 -∗
         ghost_var γ dq2 a2 -∗
         ⌜a1 = a2⌝.
       Proof.
         iIntros "H1 H2".
-        iDestruct (ghost_var𑁒agree𑁒discrete with "H1 H2") as %?%leibniz_equiv.
+        iDestruct (ghost_varｰagreeｰdiscrete with "H1 H2") as %?%leibniz_equiv.
         iSteps.
       Qed.
     End leibniz_equiv.
   End discrete.
 
-  Lemma ghost_var𑁒update {γ a} a' :
+  Lemma ghost_varｰupdate {γ a} a' :
     ghost_var γ (DfracOwn 1) a ⊢ |==>
     ghost_var γ (DfracOwn 1) a'.
   Proof.

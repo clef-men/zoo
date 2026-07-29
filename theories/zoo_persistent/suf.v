@@ -19,7 +19,7 @@ Class SufG Σ `{zoo۰G : !ZooG Σ} :=
 Definition suf۰Σ :=
   #[sstore_2۰Σ
   ].
-#[global] Instance subG𑁒suf۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰsuf۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG suf۰Σ Σ →
   SufG Σ.
 Proof.
@@ -49,14 +49,14 @@ Section unify.
   #[local] Definition unify repr1 repr2 reprs :=
     unify_at repr1 repr2 <$> reprs.
 
-  #[local] Lemma unify𑁒lookup₁ reprs repr1 repr2 elt :
+  #[local] Lemma unifyｰlookup₁ reprs repr1 repr2 elt :
     reprs !! elt = Some repr1 →
     unify repr1 repr2 reprs !! elt = Some repr2.
   Proof.
     intros Hreprs_lookup_elt.
     rewrite lookup_fmap Hreprs_lookup_elt /= unify_at₁ //.
   Qed.
-  #[local] Lemma unify𑁒lookup₂ {reprs repr1 repr2 elt} repr :
+  #[local] Lemma unifyｰlookup₂ {reprs repr1 repr2 elt} repr :
     reprs !! elt = Some repr →
     repr ≠ repr1 →
     unify repr1 repr2 reprs !! elt = Some repr.
@@ -64,15 +64,15 @@ Section unify.
     intros Hreprs_lookup_elt ?.
     rewrite lookup_fmap Hreprs_lookup_elt /= unify_at₂ //.
   Qed.
-  #[local] Lemma unify𑁒lookup₂' reprs repr1 repr2 :
+  #[local] Lemma unifyｰlookup₂' reprs repr1 repr2 :
     reprs !! repr2 = Some repr2 →
     repr1 ≠ repr2 →
     unify repr1 repr2 reprs !! repr2 = Some repr2.
   Proof.
     intros.
-    apply unify𑁒lookup₂; done.
+    apply unifyｰlookup₂; done.
   Qed.
-  #[local] Lemma dom𑁒unify repr1 repr2 reprs :
+  #[local] Lemma domｰunify repr1 repr2 reprs :
     dom (unify repr1 repr2 reprs) = dom reprs.
   Proof.
     apply dom_fmap_L.
@@ -97,28 +97,28 @@ Section consistent.
   #[local] Definition consistent reprs descrs :=
     map_Forall2 (consistent_at reprs) reprs descrs.
 
-  #[local] Lemma consistent𑁒empty :
+  #[local] Lemma consistentｰempty :
     consistent ∅ ∅.
   Proof.
     apply map_Forall2_empty.
   Qed.
-  #[local] Lemma consistent𑁒lookup𑁒None {reprs descrs} elt :
+  #[local] Lemma consistentｰlookupｰNone {reprs descrs} elt :
     consistent reprs descrs →
     descrs !! elt = None →
     reprs !! elt = None.
   Proof.
-    apply: map_Forall2𑁒lookup𑁒None𑁒r.
+    apply: map_Forall2ｰlookupｰNoneｰr.
   Qed.
-  #[local] Lemma consistent𑁒lookup𑁒Some {reprs descrs} elt repr :
+  #[local] Lemma consistentｰlookupｰSome {reprs descrs} elt repr :
     consistent reprs descrs →
     reprs !! elt = Some repr →
       ∃ descr,
       descrs !! elt = Some descr ∧
       consistent_at reprs elt repr descr.
   Proof.
-    apply: map_Forall2𑁒lookup𑁒Some𑁒l.
+    apply: map_Forall2ｰlookupｰSomeｰl.
   Qed.
-  #[local] Lemma consistent𑁒insert {reprs descrs} elt :
+  #[local] Lemma consistentｰinsert {reprs descrs} elt :
     descrs !! elt = None →
     consistent reprs descrs →
     consistent
@@ -127,14 +127,14 @@ Section consistent.
   Proof.
     rewrite /consistent /consistent_at.
     intros Hdescrs_lookup Hconsistent.
-    eapply consistent𑁒lookup𑁒None in Hconsistent as Hresprs_lookup; last done.
+    eapply consistentｰlookupｰNone in Hconsistent as Hresprs_lookup; last done.
     apply map_Forall2_insert_2; first naive_solver.
     eapply map_Forall2_impl; first done.
     intros elt' repr' descr' [| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr)]; first auto.
     right. exists parent.
     rewrite !lookup_insert_ne //; congruence.
   Qed.
-  #[local] Lemma consistent𑁒link𑁒repr {reprs descrs} elt repr :
+  #[local] Lemma consistentｰlinkｰrepr {reprs descrs} elt repr :
     elt ≠ repr →
     reprs !! elt = Some repr →
     reprs !! repr = Some repr →
@@ -145,10 +145,10 @@ Section consistent.
   Proof.
     rewrite /consistent.
     intros ? Hreprs_lookup_elt Hreprs_lookup_repr Hconsistent.
-    eapply map_Forall2𑁒insert𑁒r; [done.. |].
+    eapply map_Forall2ｰinsertｰr; [done.. |].
     right. eauto.
   Qed.
-  #[local] Lemma consistent𑁒link𑁒union {reprs descrs} repr1 repr2 :
+  #[local] Lemma consistentｰlinkｰunion {reprs descrs} repr1 repr2 :
     repr1 ≠ repr2 →
     reprs !! repr1 = Some repr1 →
     reprs !! repr2 = Some repr2 →
@@ -159,29 +159,29 @@ Section consistent.
   Proof.
     rewrite /consistent.
     intros ? Hreprs_lookup_repr1 Hreprs_lookup_repr2 Hconsistent.
-    apply map_Forall2𑁒alt in Hconsistent as (Hdom & Hconsistent).
-    rewrite -map_Forall2𑁒fmap𑁒l map_Forall2𑁒alt.
+    apply map_Forall2ｰalt in Hconsistent as (Hdom & Hconsistent).
+    rewrite -map_Forall2ｰfmapｰl map_Forall2ｰalt.
     split.
     - apply elem_of_dom_2 in Hreprs_lookup_repr1.
       set_solver.
     - intros elt repr descr Hreprs_lookup_elt [(<- & <-) | (? & Hdescrs_lookup_elt)]%lookup_insert_Some. simplify.
       + right. exists repr2.
-        rewrite unify_at₁ unify𑁒lookup₂' //.
+        rewrite unify_at₁ unifyｰlookup₂' //.
       + destruct_decide (repr = repr1) as -> | ?.
         * rewrite unify_at₁.
           ospecialize* (Hconsistent elt); [done.. |].
           destruct Hconsistent as [| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr1_)]; first naive_solver. simplify.
           right. exists parent.
-          rewrite unify𑁒lookup₁ // unify𑁒lookup₂' //.
+          rewrite unifyｰlookup₁ // unifyｰlookup₂' //.
           naive_solver.
         * rewrite unify_at₂ //.
           ospecialize* (Hconsistent elt); [done.. |].
           destruct Hconsistent as [(rank & <- & ->)| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr1_)].
           -- left. naive_solver.
           -- right. exists parent.
-             rewrite !(unify𑁒lookup₂ repr) //.
+             rewrite !(unifyｰlookup₂ repr) //.
   Qed.
-  #[local] Lemma consistent𑁒update𑁒rank {reprs descrs} repr rank :
+  #[local] Lemma consistentｰupdateｰrank {reprs descrs} repr rank :
     reprs !! repr = Some repr →
     consistent reprs descrs →
     consistent
@@ -190,7 +190,7 @@ Section consistent.
   Proof.
     rewrite /consistent.
     intros Hreprs_lookup_repr Hconsistent.
-    eapply map_Forall2𑁒insert𑁒r; [done.. |].
+    eapply map_Forall2ｰinsertｰr; [done.. |].
     left. eauto.
   Qed.
 End consistent.
@@ -223,37 +223,37 @@ Section suf۰G.
       )
     ".
 
-  #[global] Instance suf۰model𑁒timeless t reprs :
+  #[global] Instance suf۰modelｰtimeless t reprs :
     Timeless (suf۰model t reprs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance suf۰snapshot𑁒persistent s t reprs :
+  #[global] Instance suf۰snapshotｰpersistent s t reprs :
     Persistent (suf۰snapshot s t reprs).
   Proof.
     apply _.
   Qed.
 
-  Lemma suf۰model𑁒valid {t reprs} elt repr :
+  Lemma suf۰modelｰvalid {t reprs} elt repr :
     reprs !! elt = Some repr →
     suf۰model t reprs ⊢
     ⌜reprs !! repr = Some repr⌝.
   Proof.
     iIntros "%Hreprs_lookup (:model)". iPureIntro.
-    eapply consistent𑁒lookup𑁒Some in Hconsistent as (descr & Hdescrs_lookup & []); last done.
+    eapply consistentｰlookupｰSome in Hconsistent as (descr & Hdescrs_lookup & []); last done.
     all: naive_solver.
   Qed.
-  Lemma suf۰model𑁒exclusive t reprs1 reprs2 :
+  Lemma suf۰modelｰexclusive t reprs1 reprs2 :
     suf۰model t reprs1 -∗
     suf۰model t reprs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)".
-    iApply (sstore_2۰model𑁒exclusive with "Hmodel1 Hmodel2").
+    iApply (sstore_2۰modelｰexclusive with "Hmodel1 Hmodel2").
   Qed.
 
-  Lemma suf٠create𑁒spec :
+  Lemma suf٠createｰspec :
     {{{
       True
     }}}
@@ -266,11 +266,11 @@ Section suf۰G.
   Proof.
     iIntros "%Φ _ HΦ".
 
-    wp۰apply (sstore_2٠create𑁒spec with "[//]").
-    iSteps. iPureIntro. apply consistent𑁒empty.
+    wp۰apply (sstore_2٠createｰspec with "[//]").
+    iSteps. iPureIntro. apply consistentｰempty.
   Qed.
 
-  Lemma suf٠make𑁒spec t reprs :
+  Lemma suf٠makeｰspec t reprs :
     {{{
       suf۰model t reprs
     }}}
@@ -284,13 +284,13 @@ Section suf۰G.
     iIntros "%Φ (:model) HΦ".
 
     wp۰rec.
-    wp۰apply+ (sstore_2٠ref𑁒spec with "Hmodel") as (elt) "(%Hdescrs_lookup & Hmodel)".
+    wp۰apply+ (sstore_2٠refｰspec with "Hmodel") as (elt) "(%Hdescrs_lookup & Hmodel)".
 
-    eapply consistent𑁒insert in Hconsistent; last done.
+    eapply consistentｰinsert in Hconsistent; last done.
     iSteps.
   Qed.
 
-  Lemma suf٠repr𑁒spec {t reprs elt} repr :
+  Lemma suf٠reprｰspec {t reprs elt} repr :
     reprs !! elt = Some repr →
     {{{
       suf۰model t reprs
@@ -304,25 +304,25 @@ Section suf۰G.
     iLöb as "HLöb" forall (elt repr).
 
     iIntros "%Hreprs_lookup_elt %Φ (:model) HΦ".
-    pose proof Hconsistent as (descr & Hdescrs_lookup & Hconsistent_at)%(consistent𑁒lookup𑁒Some elt repr); last done.
+    pose proof Hconsistent as (descr & Hdescrs_lookup & Hconsistent_at)%(consistentｰlookupｰSome elt repr); last done.
 
     wp۰rec.
-    wp۰apply+ (sstore_2٠get𑁒spec with "Hmodel") as "Hmodel"; first done.
+    wp۰apply+ (sstore_2٠getｰspec with "Hmodel") as "Hmodel"; first done.
 
     destruct Hconsistent_at as [(rank & -> & ->) | (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr)]; wp۰pures; first iSteps.
 
     wp۰apply ("HLöb" $! parent with "[//] [$Hmodel //]") as "(:model =')".
-    pose proof Hconsistent' as (descr' & Hdescrs'_lookup & _)%(consistent𑁒lookup𑁒Some elt repr); last done.
+    pose proof Hconsistent' as (descr' & Hdescrs'_lookup & _)%(consistentｰlookupｰSome elt repr); last done.
 
-    wp۰apply+ (sstore_2٠set𑁒spec with "Hmodel'") as "Hmodel".
+    wp۰apply+ (sstore_2٠setｰspec with "Hmodel'") as "Hmodel".
     { rewrite elem_of_dom //. }
     wp۰pures.
 
-    apply (consistent𑁒link𑁒repr elt repr) in Hconsistent'; [| done..].
+    apply (consistentｰlinkｰrepr elt repr) in Hconsistent'; [| done..].
     iSteps.
   Qed.
 
-  Lemma suf٠equiv𑁒spec {t reprs elt1} repr1 {elt2} repr2 :
+  Lemma suf٠equivｰspec {t reprs elt1} repr1 {elt2} repr2 :
     reprs !! elt1 = Some repr1 →
     reprs !! elt2 = Some repr2 →
     {{{
@@ -337,12 +337,12 @@ Section suf۰G.
     iIntros "%Hreprs_lookup_elt1 %Hreprs_lookup_elt2 %Φ Hmodel HΦ".
 
     wp۰rec.
-    wp۰apply+ (suf٠repr𑁒spec with "Hmodel") as "Hmodel"; first done.
-    wp۰apply+ (suf٠repr𑁒spec with "Hmodel") as "Hmodel"; first done.
+    wp۰apply+ (suf٠reprｰspec with "Hmodel") as "Hmodel"; first done.
+    wp۰apply+ (suf٠reprｰspec with "Hmodel") as "Hmodel"; first done.
     iSteps.
   Qed.
 
-  #[local] Lemma suf٠rank𑁒spec t reprs elt :
+  #[local] Lemma suf٠rankｰspec t reprs elt :
     reprs !! elt = Some elt →
     {{{
       suf۰model t reprs
@@ -355,10 +355,10 @@ Section suf۰G.
     }}}.
   Proof.
     iIntros "%Hreprs_lookup_elt %Φ (:model) HΦ".
-    pose proof Hconsistent as (descr & Hdescrs_lookup & Hconsistent_at)%(consistent𑁒lookup𑁒Some elt elt); last done.
+    pose proof Hconsistent as (descr & Hdescrs_lookup & Hconsistent_at)%(consistentｰlookupｰSome elt elt); last done.
 
     wp۰rec.
-    wp۰apply+ (sstore_2٠get𑁒spec with "Hmodel") as "Hmodel"; first done.
+    wp۰apply+ (sstore_2٠getｰspec with "Hmodel") as "Hmodel"; first done.
 
     destruct Hconsistent_at as [(rank & _ & ->) | (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr)]; last done.
     iSteps.
@@ -378,13 +378,13 @@ Section suf۰G.
         repr = repr1 ∨ repr = repr2 →
         reprs' !! elt = Some repr12
     ).
-  #[local] Lemma suf۰union_condition𑁒refl reprs repr :
+  #[local] Lemma suf۰union_conditionｰrefl reprs repr :
     suf۰union_condition reprs repr repr reprs.
   Proof.
     split_and!; [done.. |].
     naive_solver.
   Qed.
-  #[local] Lemma suf۰union_condition𑁒sym reprs repr1 repr2 reprs' :
+  #[local] Lemma suf۰union_conditionｰsym reprs repr1 repr2 reprs' :
     suf۰union_condition reprs repr1 repr2 reprs' →
     suf۰union_condition reprs repr2 repr1 reprs'.
   Proof.
@@ -393,29 +393,29 @@ Section suf۰G.
     split_and!; auto.
     exists repr12. naive_solver.
   Qed.
-  #[local] Lemma unify𑁒union_condition₁ reprs repr1 repr2 :
+  #[local] Lemma unifyｰunion_condition₁ reprs repr1 repr2 :
     repr1 ≠ repr2 →
     suf۰union_condition reprs repr1 repr2 (unify repr1 repr2 reprs).
   Proof.
     intros.
     split_and!.
-    - rewrite dom𑁒unify //.
+    - rewrite domｰunify //.
     - intros.
-      apply unify𑁒lookup₂; done.
+      apply unifyｰlookup₂; done.
     - exists repr2. split; first auto.
       intros elt repr Hreprs_lookup_elt [-> | ->].
-      + rewrite unify𑁒lookup₁ //.
-      + rewrite (unify𑁒lookup₂ repr2) //.
+      + rewrite unifyｰlookup₁ //.
+      + rewrite (unifyｰlookup₂ repr2) //.
   Qed.
-  #[local] Lemma unify𑁒union_condition₂ reprs repr1 repr2 :
+  #[local] Lemma unifyｰunion_condition₂ reprs repr1 repr2 :
     repr1 ≠ repr2 →
     suf۰union_condition reprs repr2 repr1 (unify repr1 repr2 reprs).
   Proof.
     intros.
-    apply suf۰union_condition𑁒sym, unify𑁒union_condition₁; done.
+    apply suf۰union_conditionｰsym, unifyｰunion_condition₁; done.
   Qed.
   #[local] Opaque suf۰union_condition.
-  Lemma suf٠union𑁒spec {t reprs elt1} repr1 {elt2} repr2 :
+  Lemma suf٠unionｰspec {t reprs elt1} repr1 {elt2} repr2 :
     reprs !! elt1 = Some repr1 →
     reprs !! elt2 = Some repr2 →
     {{{
@@ -430,53 +430,53 @@ Section suf۰G.
     }}}.
   Proof.
     iIntros "%Hreprs_lookup_elt1 %Hreprs_lookup_elt2 %Φ Hmodel HΦ".
-    iDestruct (suf۰model𑁒valid elt1 with "Hmodel") as %Hreprs_lookup_repr1; first done.
-    iDestruct (suf۰model𑁒valid elt2 with "Hmodel") as %Hreprs_lookup_repr2; first done.
+    iDestruct (suf۰modelｰvalid elt1 with "Hmodel") as %Hreprs_lookup_repr1; first done.
+    iDestruct (suf۰modelｰvalid elt2 with "Hmodel") as %Hreprs_lookup_repr2; first done.
 
     wp۰rec.
-    wp۰apply+ (suf٠repr𑁒spec with "Hmodel") as "Hmodel"; first done.
-    wp۰apply+ (suf٠rank𑁒spec with "Hmodel") as (rank1) "Hmodel"; first done.
-    wp۰apply+ (suf٠repr𑁒spec with "Hmodel") as "Hmodel"; first done.
-    wp۰apply+ (suf٠rank𑁒spec with "Hmodel") as (rank2) "(:model)"; first done.
+    wp۰apply+ (suf٠reprｰspec with "Hmodel") as "Hmodel"; first done.
+    wp۰apply+ (suf٠rankｰspec with "Hmodel") as (rank1) "Hmodel"; first done.
+    wp۰apply+ (suf٠reprｰspec with "Hmodel") as "Hmodel"; first done.
+    wp۰apply+ (suf٠rankｰspec with "Hmodel") as (rank2) "(:model)"; first done.
 
-    pose proof Hconsistent as (descr1 & Hdescrs_lookup_1 & Hconsistent_at_1)%(consistent𑁒lookup𑁒Some repr1 repr1); last done.
-    pose proof Hconsistent as (descr2 & Hdescrs_lookup_2 & Hconsistent_at_2)%(consistent𑁒lookup𑁒Some repr2 repr2); last done.
+    pose proof Hconsistent as (descr1 & Hdescrs_lookup_1 & Hconsistent_at_1)%(consistentｰlookupｰSome repr1 repr1); last done.
+    pose proof Hconsistent as (descr2 & Hdescrs_lookup_2 & Hconsistent_at_2)%(consistentｰlookupｰSome repr2 repr2); last done.
 
     wp۰pures.
     case_bool_decide; first subst repr2.
 
-    - iSteps. iPureIntro. apply suf۰union_condition𑁒refl.
+    - iSteps. iPureIntro. apply suf۰union_conditionｰrefl.
 
     - wp۰pures.
       case_bool_decide; wp۰pures.
 
-      + wp۰apply (sstore_2٠set𑁒spec with "Hmodel") as "Hmodel".
+      + wp۰apply (sstore_2٠setｰspec with "Hmodel") as "Hmodel".
         { rewrite elem_of_dom //. }
-        apply (consistent𑁒link𑁒union repr1 repr2) in Hconsistent; [| done..].
+        apply (consistentｰlinkｰunion repr1 repr2) in Hconsistent; [| done..].
 
         iApply ("HΦ" $! (unify repr1 repr2 reprs)).
-        iSteps. iPureIntro. apply unify𑁒union_condition₁. done.
+        iSteps. iPureIntro. apply unifyｰunion_condition₁. done.
 
-      + wp۰apply (sstore_2٠set𑁒spec with "Hmodel") as "Hmodel".
+      + wp۰apply (sstore_2٠setｰspec with "Hmodel") as "Hmodel".
         { rewrite elem_of_dom //. }
-        apply (consistent𑁒link𑁒union repr2 repr1) in Hconsistent; [| done..].
+        apply (consistentｰlinkｰunion repr2 repr1) in Hconsistent; [| done..].
 
         wp۰pures.
         case_bool_decide; wp۰pures.
 
-        * wp۰apply (sstore_2٠set𑁒spec with "Hmodel") as "Hmodel".
+        * wp۰apply (sstore_2٠setｰspec with "Hmodel") as "Hmodel".
           { apply dom_insert, elem_of_union_r, elem_of_dom. done. }
-          eapply (consistent𑁒update𑁒rank repr1) in Hconsistent; last first.
-          { rewrite unify𑁒lookup₂' //. }
+          eapply (consistentｰupdateｰrank repr1) in Hconsistent; last first.
+          { rewrite unifyｰlookup₂' //. }
 
           iApply ("HΦ" $! (unify repr2 repr1 reprs)).
-          iSteps. iPureIntro. apply unify𑁒union_condition₂. done.
+          iSteps. iPureIntro. apply unifyｰunion_condition₂. done.
 
         * iApply ("HΦ" $! (unify repr2 repr1 reprs)).
-          iSteps. iPureIntro. apply unify𑁒union_condition₂. done.
+          iSteps. iPureIntro. apply unifyｰunion_condition₂. done.
   Qed.
 
-  Lemma suf٠capture𑁒spec t reprs :
+  Lemma suf٠captureｰspec t reprs :
     {{{
       suf۰model t reprs
     }}}
@@ -490,11 +490,11 @@ Section suf۰G.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp۰apply (sstore_2٠capture𑁒spec with "Hmodel").
+    wp۰apply (sstore_2٠captureｰspec with "Hmodel").
     iSteps.
   Qed.
 
-  Lemma suf٠restore𑁒spec t reprs s reprs' :
+  Lemma suf٠restoreｰspec t reprs s reprs' :
     {{{
       suf۰model t reprs ∗
       suf۰snapshot s t reprs'
@@ -507,7 +507,7 @@ Section suf۰G.
   Proof.
     iIntros "%Φ ((:model) & (:snapshot =')) HΦ".
 
-    wp۰apply (sstore_2٠restore𑁒spec with "[$Hmodel $Hsnapshot']").
+    wp۰apply (sstore_2٠restoreｰspec with "[$Hmodel $Hsnapshot']").
     iSteps.
   Qed.
 End suf۰G.

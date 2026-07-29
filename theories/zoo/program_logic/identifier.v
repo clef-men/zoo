@@ -30,13 +30,13 @@ Section zoo۰G.
     ∃ prophs,
     prophet۰model id prophs.
 
-  #[global] Instance identifier۰model𑁒timeless id :
+  #[global] Instance identifier۰modelｰtimeless id :
     Timeless (identifier۰model id).
   Proof.
     apply _.
   Qed.
 
-  Lemma identifier۰model𑁒exclusive id :
+  Lemma identifier۰modelｰexclusive id :
     identifier۰model id -∗
     identifier۰model id -∗
     False.
@@ -44,7 +44,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma wp𑁒id E :
+  Lemma wpｰid E :
     {{{
       True
     }}}

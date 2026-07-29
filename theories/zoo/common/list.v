@@ -42,7 +42,7 @@ Section basic.
   Implicit Type x y z : A.
   Implicit Type l : list A.
 
-  Lemma list𑁒eq l1 l2 :
+  Lemma listｰeq l1 l2 :
     l1 = l2 ↔
       length l1 = length l2 ∧
         ∀ i x1 x2,
@@ -53,26 +53,26 @@ Section basic.
     rewrite list_eq_Forall2 Forall2_same_length_lookup //.
   Qed.
 
-  Lemma app𑁒not𑁒nil l1 l2 :
+  Lemma appｰnotｰnil l1 l2 :
     l1 ≠ [] ∨ l2 ≠ [] →
     l1 ++ l2 ≠ [].
   Proof.
     intros []; destruct l1; done.
   Qed.
-  Lemma app𑁒not𑁒nil𑁒l l1 l2 :
+  Lemma appｰnotｰnilｰl l1 l2 :
     l1 ≠ [] →
     l1 ++ l2 ≠ [].
   Proof.
-    intros. apply app𑁒not𑁒nil. auto.
+    intros. apply appｰnotｰnil. auto.
   Qed.
-  Lemma app𑁒not𑁒nil𑁒r l1 l2 :
+  Lemma appｰnotｰnilｰr l1 l2 :
     l2 ≠ [] →
     l1 ++ l2 ≠ [].
   Proof.
-    intros. apply app𑁒not𑁒nil. auto.
+    intros. apply appｰnotｰnil. auto.
   Qed.
 
-  Lemma lookup𑁒app𑁒r𑁒Some l1 l2 i y :
+  Lemma lookupｰappｰrｰSome l1 l2 i y :
     length l1 ≤ i →
     l2 !! (i - length l1) = Some y →
     (l1 ++ l2) !! i = Some y.
@@ -80,28 +80,28 @@ Section basic.
     intros.
     rewrite lookup_app_r //.
   Qed.
-  Lemma lookup𑁒cons𑁒r𑁒Some x l i y :
+  Lemma lookupｰconsｰrｰSome x l i y :
     0 < i →
     l !! (i - 1) = Some y →
     (x :: l) !! i = Some y.
   Proof.
-    apply (lookup𑁒app𑁒r𑁒Some [_]).
+    apply (lookupｰappｰrｰSome [_]).
   Qed.
 
-  Lemma elem_of𑁒app𑁒l l1 l2 x :
+  Lemma elem_ofｰappｰl l1 l2 x :
     x ∈ l1 →
     x ∈ l1 ++ l2.
   Proof.
     rewrite elem_of_app. auto.
   Qed.
-  Lemma elem_of𑁒app𑁒r l1 l2 x :
+  Lemma elem_ofｰappｰr l1 l2 x :
     x ∈ l2 →
     x ∈ l1 ++ l2.
   Proof.
     rewrite elem_of_app. auto.
   Qed.
 
-  Lemma reverse𑁒nil𑁒iff l :
+  Lemma reverseｰnilｰiff l :
     reverse l = [] ↔
     l = [].
   Proof.
@@ -109,7 +109,7 @@ Section basic.
     rewrite reverse_snoc app_nil. naive_solver.
   Qed.
 
-  Lemma foldr𑁒insert𑁒strong `(f : A → B → B) comp l i x y acc :
+  Lemma foldrｰinsertｰstrong `(f : A → B → B) comp l i x y acc :
     l !! i = Some x →
     ( ∀ x acc,
       f x (f y acc) = f y (f x acc)
@@ -124,7 +124,7 @@ Section basic.
     rewrite -{3}(take_drop_middle l i x) // !foldr_app /=.
     rewrite -(foldr_comm_acc_strong _ _ (f y)) // Hcomp //.
   Qed.
-  Lemma foldr𑁒insert𑁒strong' op `{!Assoc (=) op} `{!Comm (=) op} comp l i x y acc :
+  Lemma foldrｰinsertｰstrong' op `{!Assoc (=) op} `{!Comm (=) op} comp l i x y acc :
     l !! i = Some x →
     ( ∀ acc,
       op (comp y x) acc = op y (op x acc)
@@ -132,18 +132,18 @@ Section basic.
     foldr op acc (<[i := comp y x]> l) = op y (foldr op acc l).
   Proof.
     intros Hlookup Hcomp.
-    apply foldr𑁒insert𑁒strong; try done.
+    apply foldrｰinsertｰstrong; try done.
     intros. rewrite assoc (comm _ _ y) //.
   Qed.
-  Lemma foldr𑁒insert op `{!Assoc (=) op} `{!Comm (=) op} l i x y acc :
+  Lemma foldrｰinsert op `{!Assoc (=) op} `{!Comm (=) op} l i x y acc :
     l !! i = Some x →
     foldr op acc (<[i := op y x]> l) = op y (foldr op acc l).
   Proof.
     intros Hlookup.
-    apply: foldr𑁒insert𑁒strong'; done.
+    apply: foldrｰinsertｰstrong'; done.
   Qed.
 
-  Lemma length𑁒lookup𑁒last l i :
+  Lemma lengthｰlookupｰlast l i :
     is_Some (l !! i) →
     l !! ˖i = None →
     length l = ˖i.
@@ -151,31 +151,31 @@ Section basic.
     intros ?%lookup_lt_is_Some ?%lookup_ge_None. lia.
   Qed.
 
-  Lemma tail𑁒app l1 l2 :
+  Lemma tailｰapp l1 l2 :
     l1 ≠ [] →
     tail (l1 ++ l2) = tail l1 ++ l2.
   Proof.
     destruct l1; done.
   Qed.
-  Lemma length𑁒tail l :
+  Lemma lengthｰtail l :
     length (tail l) ≤ length l.
   Proof.
     destruct l => /=; lia.
   Qed.
 
-  Lemma head𑁒app l1 l2 :
+  Lemma headｰapp l1 l2 :
     0 < length l1 →
     head (l1 ++ l2) = head l1.
   Proof.
     destruct l1; naive_solver lia.
   Qed.
-  Lemma head𑁒app𑁒cons l1 x l2 :
+  Lemma headｰappｰcons l1 x l2 :
     head (l1 ++ x :: l2) = head (l1 ++ [x]).
   Proof.
-    rewrite (assoc _ _ [_]) head𑁒app //.
+    rewrite (assoc _ _ [_]) headｰapp //.
     { rewrite length_app /=. lia. }
   Qed.
-  Lemma head𑁒drop𑁒Some l i x :
+  Lemma headｰdropｰSome l i x :
     l !! i = Some x →
     head (drop i l) = Some x.
   Proof.
@@ -185,34 +185,34 @@ Section basic.
     apply take_drop_middle in Hlookup as <-.
     rewrite drop_app Hlength_take Nat.sub_diag skipn_all2 //; first lia.
   Qed.
-  Lemma head𑁒drop l i :
+  Lemma headｰdrop l i :
     head (drop i l) = l !! i.
   Proof.
     destruct (l !! i) as [x |] eqn:Hlookup.
-    - apply head𑁒drop𑁒Some. done.
+    - apply headｰdropｰSome. done.
     - rewrite skipn_all2 // -lookup_ge_None //.
   Qed.
 
-  Lemma hd𑁒correct default l x :
+  Lemma hdｰcorrect default l x :
     0 < length l →
     hd default l = x →
     head l = Some x.
   Proof.
     destruct l; naive_solver lia.
   Qed.
-  Lemma hd𑁒app default l1 l2 :
+  Lemma hdｰapp default l1 l2 :
     0 < length l1 →
     hd default (l1 ++ l2) = hd default l1.
   Proof.
     destruct l1; naive_solver lia.
   Qed.
-  Lemma hd𑁒app𑁒cons default l1 x l2 :
+  Lemma hdｰappｰcons default l1 x l2 :
     hd default (l1 ++ x :: l2) = hd default (l1 ++ [x]).
   Proof.
-    rewrite (assoc _ _ [_]) hd𑁒app //.
+    rewrite (assoc _ _ [_]) hdｰapp //.
     { rewrite length_app /=. lia. }
   Qed.
-  Lemma hd𑁒drop𑁒Some default l i x :
+  Lemma hdｰdropｰSome default l i x :
     l !! i = Some x →
     hd default (drop i l) = x.
   Proof.
@@ -223,12 +223,12 @@ Section basic.
     rewrite drop_app Hlength_take Nat.sub_diag skipn_all2 //; first lia.
   Qed.
 
-  Lemma last𑁒cons' x l :
+  Lemma lastｰcons' x l :
     last (x :: l) = Some $ default x (last l).
   Proof.
     rewrite last_cons. destruct (last l); done.
   Qed.
-  Lemma last𑁒take l i x :
+  Lemma lastｰtake l i x :
     l !! i = Some x →
     last (take ˖i l) = Some x.
   Proof.
@@ -238,7 +238,7 @@ Section basic.
     apply take_drop_middle in Hlookup as <-.
     rewrite take_app Hlength_take Nat.sub_succ_l // Nat.sub_diag last_snoc //.
   Qed.
-  Lemma last𑁒take' l i :
+  Lemma lastｰtake' l i :
     is_Some (l !! i) →
     last (take i l) = nat۰elim None (l !!.) i.
   Proof.
@@ -246,9 +246,9 @@ Section basic.
     destruct i as [| i]; first done.
     odestruct (lookup_lt_is_Some_2 l i) as (x & Hlookup').
     { apply lookup_lt_is_Some in Hlookup. lia. }
-    rewrite /= Hlookup'. apply last𑁒take. done.
+    rewrite /= Hlookup'. apply lastｰtake. done.
   Qed.
-  Lemma last𑁒removelast l x :
+  Lemma lastｰremovelast l x :
     last l = Some x →
     l = removelast l ++ [x].
   Proof.
@@ -256,34 +256,34 @@ Section basic.
     rewrite last_snoc removelast_last. naive_solver.
   Qed.
 
-  Lemma drop𑁒lookup𑁒None l i :
+  Lemma dropｰlookupｰNone l i :
     l !! i = None →
     drop i l = [].
   Proof.
     intros Hlookup.
     apply drop_ge, lookup_ge_None_1. done.
   Qed.
-  Lemma drop𑁒cons𑁒inv i l x l' :
+  Lemma dropｰconsｰinv i l x l' :
     drop i l = x :: l' →
       l !! i = Some x ∧
       l' = drop ˖i l.
   Proof.
     intros Heq.
     apply (f_equal head) in Heq as Hlookup.
-    rewrite head𑁒drop /= in Hlookup.
+    rewrite headｰdrop /= in Hlookup.
     split; first done.
     apply drop_S in Hlookup.
     congruence.
   Qed.
 
-  Lemma insert𑁒cons𑁒l i x y l :
+  Lemma insertｰconsｰl i x y l :
     i = 0 →
     <[i := x]> (y :: l) = x :: l.
   Proof.
     intros ->.
     rewrite (insert_app_l [_]) //=. lia.
   Qed.
-  Lemma insert𑁒cons𑁒r i x y l :
+  Lemma insertｰconsｰr i x y l :
     0 < i →
     <[i := x]> (y :: l) = y :: <[i - 1 := x]> l.
   Proof.
@@ -291,7 +291,7 @@ Section basic.
     rewrite (insert_app_r_alt [_]) //.
   Qed.
 
-  Lemma insert𑁒app𑁒r𑁒0 i x l1 l2 :
+  Lemma insertｰappｰrｰ0 i x l1 l2 :
     i = length l1 →
     <[i := x]> (l1 ++ l2) = l1 ++ <[0 := x]> l2.
   Proof.
@@ -299,7 +299,7 @@ Section basic.
     rewrite insert_app_r_alt // Nat.sub_diag //.
   Qed.
 
-  Lemma list𑁒delete𑁒insert𑁒eq l i x :
+  Lemma listｰdeleteｰinsertｰeq l i x :
     i < length l →
     delete i (<[i := x]> l) = delete i l.
   Proof.
@@ -316,7 +316,7 @@ Section suffix.
   Implicit Type x : A.
   Implicit Type l : list A.
 
-  Lemma suffix𑁒tail l1 l2 :
+  Lemma suffixｰtail l1 l2 :
     l1 `suffix_of` l2 →
     tail l1 `suffix_of` l2.
   Proof.
@@ -324,7 +324,7 @@ Section suffix.
     intros ?%suffix_cons_l. done.
   Qed.
 
-  Lemma suffix𑁒fmap `(f : A → B) `{!Inj (=) (=) f} l1 l2 :
+  Lemma suffixｰfmap `(f : A → B) `{!Inj (=) (=) f} l1 l2 :
     suffix (f <$> l1) (f <$> l2) →
     suffix l1 l2.
   Proof.
@@ -334,7 +334,7 @@ Section suffix.
 End suffix.
 
 Section seqZ.
-  Lemma seqZ𑁒prefix {i n1} n2 :
+  Lemma seqZｰprefix {i n1} n2 :
     (0 ≤ n2 ≤ n1)%Z →
     seqZ i n2 `prefix_of` seqZ i n1.
   Proof.
@@ -344,7 +344,7 @@ Section seqZ.
     eexists => //.
   Qed.
 
-  Lemma seqZ𑁒suffix {i1 n1} i2 n2 :
+  Lemma seqZｰsuffix {i1 n1} i2 n2 :
     (i1 ≤ i2 ≤ i1 + n1)%Z →
     (i2 - i1 = n1 - n2)%Z →
     seqZ i2 n2 `suffix_of` seqZ i1 n1.
@@ -360,7 +360,7 @@ End seqZ.
 Section zip.
   Context {A1 A2 : Type}.
 
-  Lemma prod_map𑁒zip {B1 B2} (f1 : A1 → B1) (f2 : A2 → B2) l1 l2 :
+  Lemma prod_mapｰzip {B1 B2} (f1 : A1 → B1) (f2 : A2 → B2) l1 l2 :
     prod_map f1 f2 <$> (zip l1 l2) = zip (f1 <$> l1) (f2 <$> l2).
   Proof.
     move: l2. induction l1 as [| x1 l1 IH]; intros [| x2 l2]; try done.
@@ -382,7 +382,7 @@ Section zip3_with.
     end.
   #[global] Arguments zip3_with _ !_ !_ !_ / : assert.
 
-  Lemma length𑁒zip3_with f l1 l2 l3 :
+  Lemma lengthｰzip3_with f l1 l2 l3 :
     length l1 = length l2 →
     length l1 = length l3 →
     length (zip3_with f l1 l2 l3) = length l1.
@@ -392,7 +392,7 @@ Section zip3_with.
     naive_solver.
   Qed.
 
-  Lemma lookup𑁒zip3_with𑁒Some f l1 l2 l3 i x :
+  Lemma lookupｰzip3_withｰSome f l1 l2 l3 i x :
     zip3_with f l1 l2 l3 !! i = Some x ↔
       ∃ x1 x2 x3,
       l1 !! i = Some x1 ∧
@@ -407,7 +407,7 @@ Section zip3_with.
 End zip3_with.
 
 #[global] Hint Rewrite
-  @length𑁒zip3_with
+  @lengthｰzip3_with
 : simpl_length.
 
 Section zip3.
@@ -417,21 +417,21 @@ Section zip3.
     zip3_with (B := A1 * A2 * A3) $ λ x1 x2 x3,
       (x1, x2, x3).
 
-  Lemma zip3𑁒cons x1 l1 x2 l2 x3 l3 :
+  Lemma zip3ｰcons x1 l1 x2 l2 x3 l3 :
     zip3 (x1 :: l1) (x2 :: l2) (x3 :: l3) = (x1, x2, x3) :: zip3 l1 l2 l3.
   Proof.
     done.
   Qed.
 
-  Lemma length𑁒zip3 l1 l2 l3 :
+  Lemma lengthｰzip3 l1 l2 l3 :
     length l1 = length l2 →
     length l1 = length l3 →
     length (zip3 l1 l2 l3) = length l1.
   Proof.
-    apply length𑁒zip3_with.
+    apply lengthｰzip3_with.
   Qed.
 
-  Lemma zip𑁒zip l1 l2 l3 :
+  Lemma zipｰzip l1 l2 l3 :
     zip (zip l1 l2) l3 = zip3 l1 l2 l3.
   Proof.
     move: l2 l3. induction l1 as [| x1 l1 IH] => l2 l3 //.
@@ -442,7 +442,7 @@ Section zip3.
 End zip3.
 
 #[global] Hint Rewrite
-  @length𑁒zip3
+  @lengthｰzip3
 : simpl_length.
 
 Section foldri.
@@ -459,7 +459,7 @@ Section foldri.
   Definition foldri `(f : nat → A → B → B) acc l :=
     foldri' f acc l 0.
 
-  #[local] Lemma foldri'𑁒app `(f : nat → A → B → B) acc l1 l2 i :
+  #[local] Lemma foldri'ｰapp `(f : nat → A → B → B) acc l1 l2 i :
     foldri' f acc (l1 ++ l2) i =
     foldri' f (foldri' f acc l2 (i + (length l1))) l1 i.
   Proof.
@@ -467,26 +467,26 @@ Section foldri.
     - rewrite right_id //.
     - rewrite /= -Nat.add_succ_comm IH //.
   Qed.
-  Lemma foldri𑁒app `(f : nat → A → B → B) acc l1 l2 :
+  Lemma foldriｰapp `(f : nat → A → B → B) acc l1 l2 :
     foldri f acc (l1 ++ l2) =
     foldri f (foldri' f acc l2 (length l1)) l1.
   Proof.
-    apply @foldri'𑁒app.
+    apply @foldri'ｰapp.
   Qed.
 
-  #[local] Lemma foldri'𑁒fmap `(f : nat → A → B → B) `(g : C → A) acc l i :
+  #[local] Lemma foldri'ｰfmap `(f : nat → A → B → B) `(g : C → A) acc l i :
     foldri' f acc (g <$> l) i = foldri' (λ i x, f i (g x)) acc l i.
   Proof.
     move: i. induction l as [| x l IH] => i /=; first done.
     rewrite IH //.
   Qed.
-  Lemma foldri𑁒fmap `(f : nat → A → B → B) `(g : C → A) acc l :
+  Lemma foldriｰfmap `(f : nat → A → B → B) `(g : C → A) acc l :
     foldri f acc (g <$> l) = foldri (λ i x, f i (g x)) acc l.
   Proof.
-    apply foldri'𑁒fmap.
+    apply foldri'ｰfmap.
   Qed.
 
-  #[local] Lemma foldri'𑁒comm `(f : nat → A → B → B) `(g : B → C) h acc l i :
+  #[local] Lemma foldri'ｰcomm `(f : nat → A → B → B) `(g : B → C) h acc l i :
     ( ∀ i x acc,
       h i x (g acc) = g (f i x acc)
     ) →
@@ -496,13 +496,13 @@ Section foldri.
     move: i. induction l as [| x l IH] => i /=; first done.
     rewrite IH //.
   Qed.
-  Lemma foldri𑁒comm `(f : nat → A → B → B) `(g : B → C) h acc l :
+  Lemma foldriｰcomm `(f : nat → A → B → B) `(g : B → C) h acc l :
     ( ∀ i x acc,
       h i x (g acc) = g (f i x acc)
     ) →
     foldri h (g acc) l = g (foldri f acc l).
   Proof.
-    apply foldri'𑁒comm.
+    apply foldri'ｰcomm.
   Qed.
 End foldri.
 
@@ -523,7 +523,7 @@ Section foldr2.
     end.
   #[global] Arguments foldr2 _ _ !_ !_ / : assert.
 
-  Lemma foldr2𑁒app f acc l11 l12 l21 l22 :
+  Lemma foldr2ｰapp f acc l11 l12 l21 l22 :
     length l11 = length l21 →
       foldr2 f acc (l11 ++ l12) (l21 ++ l22) =
       foldr2 f (foldr2 f acc l12 l22) l11 l21.
@@ -538,7 +538,7 @@ End foldr2.
 Section Forall.
   Context `(P : A → Prop).
 
-  Lemma Forall𑁒elem_of l x :
+  Lemma Forallｰelem_of l x :
     Forall P l →
     x ∈ l →
     P x.
@@ -559,7 +559,7 @@ Section Forall'.
     end.
   #[global] Arguments Forall' !_ / : assert.
 
-  Lemma Forall'𑁒Forall l :
+  Lemma Forall'ｰForall l :
     Forall' l ↔ Forall P l.
   Proof.
     induction l; first done.
@@ -581,7 +581,7 @@ Section Foralli.
   Definition Foralli l :=
     Foralli' l 0.
 
-  #[local] Lemma Foralli'𑁒lookup₁ l i j x :
+  #[local] Lemma Foralli'ｰlookup₁ l i j x :
     Foralli' l i →
     l !! j = Some x →
     P (i + j) x.
@@ -591,15 +591,15 @@ Section Foralli.
     - rewrite right_id. naive_solver.
     - rewrite -Nat.add_succ_comm. naive_solver.
   Qed.
-  Lemma Foralli𑁒lookup₁ {l} i x :
+  Lemma Foralliｰlookup₁ {l} i x :
     Foralli l →
     l !! i = Some x →
     P i x.
   Proof.
-    apply Foralli'𑁒lookup₁.
+    apply Foralli'ｰlookup₁.
   Qed.
 
-  Lemma Foralli'𑁒lookup₂ l i :
+  Lemma Foralli'ｰlookup₂ l i :
     (∀ j x, l !! j = Some x → P (i + j) x) →
     Foralli' l i.
   Proof.
@@ -609,27 +609,27 @@ Section Foralli.
     - apply IH => j y.
       rewrite Nat.add_succ_comm. naive_solver.
   Qed.
-  Lemma Foralli𑁒lookup₂ l :
+  Lemma Foralliｰlookup₂ l :
     (∀ i x, l !! i = Some x → P i x) →
     Foralli l.
   Proof.
-    apply (Foralli'𑁒lookup₂ l 0).
+    apply (Foralli'ｰlookup₂ l 0).
   Qed.
 
-  Lemma Foralli𑁒lookup l :
+  Lemma Foralliｰlookup l :
     Foralli l ↔
     ∀ i x, l !! i = Some x → P i x.
   Proof.
     split.
-    - eauto using Foralli𑁒lookup₁.
-    - apply Foralli𑁒lookup₂.
+    - eauto using Foralliｰlookup₁.
+    - apply Foralliｰlookup₂.
   Qed.
 End Foralli.
 
 Section Forall2.
   Context `(P : A1 → A1 → Prop).
 
-  Lemma Forall2𑁒insert𑁒l {l1 l2} i x1 x2 :
+  Lemma Forall2ｰinsertｰl {l1 l2} i x1 x2 :
     l2 !! i = Some x2 →
     Forall2 P l1 l2 →
     P x1 x2 →
@@ -639,7 +639,7 @@ Section Forall2.
     rewrite -(list_insert_id l2 i x2) //.
     apply Forall2_insert; done.
   Qed.
-  Lemma Forall2𑁒insert𑁒r {l1 l2} i x1 x2 :
+  Lemma Forall2ｰinsertｰr {l1 l2} i x1 x2 :
     l1 !! i = Some x1 →
     Forall2 P l1 l2 →
     P x1 x2 →
@@ -665,7 +665,7 @@ Section Forall2'.
     end.
   #[global] Arguments Forall2' !_ !_ / : assert.
 
-  Lemma Forall2'𑁒Forall2 l1 l2 :
+  Lemma Forall2'ｰForall2 l1 l2 :
     Forall2' l1 l2 ↔ Forall2 P l1 l2.
   Proof.
     move: l2. induction l1 => l2.
@@ -676,7 +676,7 @@ Section Forall2'.
     - rewrite Forall2_cons. naive_solver.
   Qed.
 
-  #[global] Instance Forall2'𑁒dec `{!RelDecision P} :
+  #[global] Instance Forall2'ｰdec `{!RelDecision P} :
     RelDecision Forall2'.
   Proof.
     refine (
@@ -696,53 +696,53 @@ Section Forall2'.
     all: abstract first [constructor; done | inv 1; done].
   Defined.
 
-  Lemma Forall2'𑁒length l1 l2 :
+  Lemma Forall2'ｰlength l1 l2 :
     Forall2' l1 l2 →
     length l1 = length l2.
   Proof.
-    rewrite Forall2'𑁒Forall2. apply Forall2_length.
+    rewrite Forall2'ｰForall2. apply Forall2_length.
   Qed.
 End Forall2'.
 
 Section Forall2'.
   Context `(P : A → A → Prop).
 
-  Lemma Forall2'𑁒refl :
+  Lemma Forall2'ｰrefl :
     (∀ x, P x x) →
     Reflexive (Forall2' P).
   Proof.
     intros ? l. induction l; done.
   Defined.
-  #[global] Instance Forall2'𑁒reflexive `{!Reflexive P} :
+  #[global] Instance Forall2'ｰreflexive `{!Reflexive P} :
     Reflexive (Forall2' P).
   Proof.
-    apply Forall2'𑁒refl. done.
+    apply Forall2'ｰrefl. done.
   Qed.
 
-  Lemma Forall2'𑁒sym :
+  Lemma Forall2'ｰsym :
     (∀ x1 x2, P x1 x2 → P x2 x1) →
     Symmetric (Forall2' P).
   Proof.
     intros ? l1. induction l1 => l2.
     all: destruct l2; naive_solver.
   Defined.
-  #[global] Instance Forall2'𑁒symmetric `{!Symmetric P} :
+  #[global] Instance Forall2'ｰsymmetric `{!Symmetric P} :
     Symmetric (Forall2' P).
   Proof.
-    apply Forall2'𑁒sym. done.
+    apply Forall2'ｰsym. done.
   Qed.
 
-  Lemma Forall2'𑁒trans :
+  Lemma Forall2'ｰtrans :
     (∀ x1 x2 x3, P x1 x2 → P x2 x3 → P x1 x3) →
     Transitive (Forall2' P).
   Proof.
     intros ? l1. induction l1 => l2 l3.
     all: destruct l2, l3; naive_solver.
   Defined.
-  #[global] Instance Forall2'𑁒transitive `{!Transitive P} :
+  #[global] Instance Forall2'ｰtransitive `{!Transitive P} :
     Transitive (Forall2' P).
   Proof.
-    apply Forall2'𑁒trans. done.
+    apply Forall2'ｰtrans. done.
   Defined.
 End Forall2'.
 
@@ -762,7 +762,7 @@ Section Forall2i.
   Definition Forall2i l1 l2 :=
     Forall2i' l1 l2 0.
 
-  #[local] Lemma Forall2i'𑁒length l1 l2 i :
+  #[local] Lemma Forall2i'ｰlength l1 l2 i :
     Forall2i' l1 l2 i →
     length l1 = length l2.
   Proof.
@@ -770,14 +770,14 @@ Section Forall2i.
     all: destruct l2; first done.
     all: naive_solver.
   Qed.
-  Lemma Forall2i𑁒length l1 l2 :
+  Lemma Forall2iｰlength l1 l2 :
     Forall2i l1 l2 →
     length l1 = length l2.
   Proof.
-    apply Forall2i'𑁒length.
+    apply Forall2i'ｰlength.
   Qed.
 
-  #[local] Lemma Forall2i'𑁒lookup𑁒lr l1 l2 i j x1 x2 :
+  #[local] Lemma Forall2i'ｰlookupｰlr l1 l2 i j x1 x2 :
     Forall2i' l1 l2 i →
     l1 !! j = Some x1 →
     l2 !! j = Some x2 →
@@ -789,16 +789,16 @@ Section Forall2i.
     - rewrite right_id. naive_solver.
     - rewrite -Nat.add_succ_comm. naive_solver.
   Qed.
-  Lemma Forall2i𑁒lookup𑁒lr {l1 l2} i x1 x2 :
+  Lemma Forall2iｰlookupｰlr {l1 l2} i x1 x2 :
     Forall2i l1 l2 →
     l1 !! i = Some x1 →
     l2 !! i = Some x2 →
     P i x1 x2.
   Proof.
-    apply Forall2i'𑁒lookup𑁒lr.
+    apply Forall2i'ｰlookupｰlr.
   Qed.
 
-  Lemma Forall2i𑁒lookup𑁒r l1 l2 i x1 :
+  Lemma Forall2iｰlookupｰr l1 l2 i x1 :
     Forall2i l1 l2 →
     l1 !! i = Some x1 →
       ∃ x2,
@@ -806,12 +806,12 @@ Section Forall2i.
       P i x1 x2.
   Proof.
     intros H Hlookup1.
-    opose proof* Forall2i𑁒length as Hlen; first done.
+    opose proof* Forall2iｰlength as Hlen; first done.
     destruct (lookup_lt_is_Some_2 l2 i) as (x2 & Hlookup2).
     { rewrite -Hlen. eapply lookup_lt_Some. done. }
-    eauto using Forall2i𑁒lookup𑁒lr.
+    eauto using Forall2iｰlookupｰlr.
   Qed.
-  Lemma Forall2i𑁒lookup𑁒l l1 l2 i x2 :
+  Lemma Forall2iｰlookupｰl l1 l2 i x2 :
     Forall2i l1 l2 →
     l2 !! i = Some x2 →
       ∃ x1,
@@ -819,13 +819,13 @@ Section Forall2i.
       P i x1 x2.
   Proof.
     intros H Hlookup2.
-    opose proof* Forall2i𑁒length as Hlen; first done.
+    opose proof* Forall2iｰlength as Hlen; first done.
     destruct (lookup_lt_is_Some_2 l1 i) as (x1 & Hlookup1).
     { rewrite Hlen. eapply lookup_lt_Some. done. }
-    eauto using Forall2i𑁒lookup𑁒lr.
+    eauto using Forall2iｰlookupｰlr.
   Qed.
 
-  #[local] Lemma Forall2i'𑁒same_length𑁒lookup₂ l1 l2 i :
+  #[local] Lemma Forall2i'ｰsame_lengthｰlookup₂ l1 l2 i :
     length l1 = length l2 →
     ( ∀ j x1 x2,
       l1 !! j = Some x1 →
@@ -841,7 +841,7 @@ Section Forall2i.
     - apply IH; first done. intros j.
       specialize (H ˖j). rewrite -Nat.add_succ_comm // in H.
   Qed.
-  Lemma Forall2i𑁒same_length𑁒lookup₂ l1 l2 :
+  Lemma Forall2iｰsame_lengthｰlookup₂ l1 l2 :
     length l1 = length l2 →
     ( ∀ i x1 x2,
       l1 !! i = Some x1 →
@@ -851,9 +851,9 @@ Section Forall2i.
     Forall2i l1 l2.
   Proof.
     intros.
-    apply Forall2i'𑁒same_length𑁒lookup₂; done.
+    apply Forall2i'ｰsame_lengthｰlookup₂; done.
   Qed.
-  Lemma Forall2i𑁒same_length𑁒lookup l1 l2 :
+  Lemma Forall2iｰsame_lengthｰlookup l1 l2 :
     Forall2i l1 l2 ↔
       length l1 = length l2 ∧
         ∀ i x1 x2,
@@ -863,10 +863,10 @@ Section Forall2i.
   Proof.
     split.
     - intros H.
-      opose proof* Forall2i𑁒length as Hlen; first done.
-      eauto using Forall2i𑁒lookup𑁒lr.
+      opose proof* Forall2iｰlength as Hlen; first done.
+      eauto using Forall2iｰlookupｰlr.
     - intros (? & ?).
-      auto using Forall2i𑁒same_length𑁒lookup₂.
+      auto using Forall2iｰsame_lengthｰlookup₂.
   Qed.
 End Forall2i.
 
@@ -879,7 +879,7 @@ Section fmap.
   Implicit Type 𝑙 : list B.
   Implicit Type f : A → B.
 
-  Lemma fmap𑁒app𑁒cons𑁒inv f l 𝑙1 𝑥 𝑙2 :
+  Lemma fmapｰappｰconsｰinv f l 𝑙1 𝑥 𝑙2 :
     f <$> l = 𝑙1 ++ 𝑥 :: 𝑙2 →
       ∃ l1 x l2,
       l = l1 ++ x :: l2 ∧
@@ -890,24 +890,24 @@ Section fmap.
     intros (l1 & ? & -> & (x & l2 & -> & -> & ->)%symmetry%fmap_cons_inv & ->)%fmap_app_inv.
     naive_solver.
   Qed.
-  Lemma fmap𑁒snoc𑁒inv f l 𝑙 𝑥 :
+  Lemma fmapｰsnocｰinv f l 𝑙 𝑥 :
     f <$> l = 𝑙 ++ [𝑥] →
       ∃ l' x,
       l = l' ++ [x] ∧
       𝑙 = f <$> l' ∧
       𝑥 = f x.
   Proof.
-    intros (l' & x & ? & -> & -> & -> & ->%symmetry%fmap_nil_inv)%fmap𑁒app𑁒cons𑁒inv.
+    intros (l' & x & ? & -> & -> & -> & ->%symmetry%fmap_nil_inv)%fmapｰappｰconsｰinv.
     eauto.
   Qed.
 
-  Lemma list𑁒fmap𑁒alt𑁒Forall2𑁒l f 𝑙 l :
+  Lemma listｰfmapｰaltｰForall2ｰl f 𝑙 l :
     Forall2 (λ b a, b = f a) 𝑙 l →
     𝑙 = f <$> l.
   Proof.
     rewrite list_eq_Forall2 Forall2_fmap_r //.
   Qed.
-  Lemma list𑁒fmap𑁒alt𑁒Forall2𑁒r f l 𝑙 :
+  Lemma listｰfmapｰaltｰForall2ｰr f l 𝑙 :
     Forall2 (λ a b, f a = b) l 𝑙 →
     𝑙 = f <$> l.
   Proof.
@@ -921,7 +921,7 @@ Section Permutation.
   Implicit Type x : A.
   Implicit Type l : list A.
 
-  #[global] Instance Permutation𑁒disjoint :
+  #[global] Instance Permutationｰdisjoint :
     Proper (Permutation ==> Permutation ==> iff) (disjoint (A := list A)).
   Proof.
     intros x1 x2 Hx l1 l2 Hl.
@@ -931,7 +931,7 @@ Section Permutation.
     done.
   Qed.
 
-  Lemma Permutation𑁒swap' l i1 x1 i2 x2 :
+  Lemma Permutationｰswap' l i1 x1 i2 x2 :
     l !! i1 = Some x1 →
     l !! i2 = Some x2 →
     <[i1 := x2]> (<[i2 := x1]> l) ≡ₚ l.
@@ -959,23 +959,23 @@ Section slice.
   Definition slice i n l :=
     take n (drop i l).
 
-  Lemma slice𑁒cons i n x l :
+  Lemma sliceｰcons i n x l :
     l !! i = Some x →
     x :: slice ˖i n l = slice i ˖n l.
   Proof.
     intros Hlookup.
     rewrite -firstn_cons -drop_S //.
   Qed.
-  Lemma slice𑁒cons' i n x l :
+  Lemma sliceｰcons' i n x l :
     l !! i = Some x →
     n ≠ 0 →
     x :: slice ˖i (n - 1) l = slice i n l.
   Proof.
     intros Hlookup (n' & ->)%Nat.neq_0_r.
     rewrite Nat.sub_succ right_id.
-    apply slice𑁒cons. done.
+    apply sliceｰcons. done.
   Qed.
-  Lemma slice𑁒snoc i n l x :
+  Lemma sliceｰsnoc i n l x :
     l !! (i + n) = Some x →
     slice i n l ++ [x] = slice i ˖n l.
   Proof.
@@ -983,26 +983,26 @@ Section slice.
     rewrite -take_S_r // lookup_drop //.
   Qed.
 
-  Lemma length𑁒slice i n l :
+  Lemma lengthｰslice i n l :
     length (slice i n l) = n `min` (length l - i).
   Proof.
     rewrite length_take length_drop //.
   Qed.
-  Lemma length𑁒slice' i n l :
+  Lemma lengthｰslice' i n l :
     i + n ≤ length l →
     length (slice i n l) = n.
   Proof.
-    rewrite length𑁒slice. lia.
+    rewrite lengthｰslice. lia.
   Qed.
 
-  Lemma slice𑁒lookup𑁒Some𑁒inv i n l k x :
+  Lemma sliceｰlookupｰSomeｰinv i n l k x :
     slice i n l !! k = Some x →
     k < n.
   Proof.
     intros (_ & ?)%lookup_take_Some. done.
   Qed.
 
-  Lemma slice𑁒0 n l :
+  Lemma sliceｰ0 n l :
     slice 0 n l = take n l.
   Proof.
     done.
@@ -1010,7 +1010,7 @@ Section slice.
 End slice.
 
 #[global] Hint Rewrite
-  @length𑁒slice
+  @lengthｰslice
 : simpl_length.
 
 Section with_slice.
@@ -1022,34 +1022,34 @@ Section with_slice.
   Definition with_slice i n l s :=
     take i l ++ s ++ drop (i + n) l.
 
-  Lemma length𑁒with_slice i n l s :
+  Lemma lengthｰwith_slice i n l s :
     length (with_slice i n l s) = i `min` length l + length s + (length l - i - n).
   Proof.
     rewrite !length_app length_take length_drop. lia.
   Qed.
-  Lemma length𑁒with_slice' i n l s :
+  Lemma lengthｰwith_slice' i n l s :
     i + n ≤ length l →
     length s = n →
     length (with_slice i n l s) = length l.
   Proof.
     intros.
-    rewrite length𑁒with_slice. lia.
+    rewrite lengthｰwith_slice. lia.
   Qed.
 
-  Lemma with_slice𑁒0 n l s :
+  Lemma with_sliceｰ0 n l s :
     with_slice 0 n l s = s ++ drop n l.
   Proof.
     rewrite /with_slice //.
   Qed.
-  Lemma with_slice𑁒all n l s :
+  Lemma with_sliceｰall n l s :
     length l ≤ n →
     with_slice 0 n l s = s.
   Proof.
     intros.
-    rewrite with_slice𑁒0 skipn_all2 // right_id //.
+    rewrite with_sliceｰ0 skipn_all2 // right_id //.
   Qed.
 
-  Lemma with_slice𑁒app𑁒l i n l1 l2 s :
+  Lemma with_sliceｰappｰl i n l1 l2 s :
     i + n ≤ length l1 →
     with_slice i n (l1 ++ l2) s = with_slice i n l1 s ++ l2.
   Proof.
@@ -1057,7 +1057,7 @@ Section with_slice.
     rewrite /with_slice take_app_le; first lia.
     rewrite drop_app_le // !assoc //.
   Qed.
-  Lemma with_slice𑁒app𑁒r i n l1 l2 s :
+  Lemma with_sliceｰappｰr i n l1 l2 s :
     length l1 ≤ i →
     with_slice i n (l1 ++ l2) s = l1 ++ with_slice (i - length l1) n l2 s.
   Proof.
@@ -1065,26 +1065,26 @@ Section with_slice.
     rewrite /with_slice take_app_ge // drop_app_ge; first lia.
     rewrite Nat.add_sub_swap // !assoc //.
   Qed.
-  Lemma with_slice𑁒app𑁒length n l1 l2 s :
+  Lemma with_sliceｰappｰlength n l1 l2 s :
     with_slice (length l1) n (l1 ++ l2) s = l1 ++ s ++ drop n l2.
   Proof.
-    rewrite with_slice𑁒app𑁒r // Nat.sub_diag with_slice𑁒0 //.
+    rewrite with_sliceｰappｰr // Nat.sub_diag with_sliceｰ0 //.
   Qed.
-  Lemma with_slice𑁒app𑁒length' i n l1 l2 s :
+  Lemma with_sliceｰappｰlength' i n l1 l2 s :
     i = length l1 →
     with_slice i n (l1 ++ l2) s = l1 ++ s ++ drop n l2.
   Proof.
     intros ->.
-    apply with_slice𑁒app𑁒length.
+    apply with_sliceｰappｰlength.
   Qed.
 
-  Lemma with_slice𑁒slice𑁒nil i l s :
+  Lemma with_sliceｰsliceｰnil i l s :
     with_slice i 0 l [] = l.
   Proof.
     rewrite /with_slice Nat.add_0_r left_id take_drop //.
   Qed.
 
-  Lemma with_slice𑁒slice𑁒snoc i n l s x :
+  Lemma with_sliceｰsliceｰsnoc i n l s x :
     i + n < length l →
     length s = n →
     with_slice i ˖n l (s ++ [x]) = <[i + n := x]> (with_slice i n l s).
@@ -1100,7 +1100,7 @@ Section with_slice.
     rewrite -assoc Nat.add_succ_r //.
   Qed.
 
-  Lemma with_slice𑁒lookup𑁒left {i n l s} k x :
+  Lemma with_sliceｰlookupｰleft {i n l s} k x :
     l !! k = Some x →
     k < i →
     with_slice i n l s !! k = Some x.
@@ -1111,7 +1111,7 @@ Section with_slice.
     { rewrite length_take. lia. }
     rewrite lookup_take_Some //.
   Qed.
-  Lemma with_slice𑁒lookup𑁒middle {i n l s} k x :
+  Lemma with_sliceｰlookupｰmiddle {i n l s} k x :
     s !! (k - i) = Some x →
     i ≤ length l →
     i ≤ k →
@@ -1123,7 +1123,7 @@ Section with_slice.
     rewrite Nat.min_l; first lia.
     rewrite lookup_app_l //.
   Qed.
-  Lemma with_slice𑁒lookup𑁒middle' {i n l s} k1 k2 x :
+  Lemma with_sliceｰlookupｰmiddle' {i n l s} k1 k2 x :
     s !! k2 = Some x →
     k2 = k1 - i →
     i ≤ length l →
@@ -1131,9 +1131,9 @@ Section with_slice.
     with_slice i n l s !! k1 = Some x.
   Proof.
     intros Hlookup ->.
-    apply with_slice𑁒lookup𑁒middle. done.
+    apply with_sliceｰlookupｰmiddle. done.
   Qed.
-  Lemma with_slice𑁒lookup𑁒right {i n l s} k x :
+  Lemma with_sliceｰlookupｰright {i n l s} k x :
     l !! k = Some x →
     length s = n →
     i + n ≤ k →
@@ -1148,7 +1148,7 @@ Section with_slice.
 End with_slice.
 
 #[global] Hint Rewrite
-  @length𑁒with_slice
+  @lengthｰwith_slice
 : simpl_length.
 
 Section rotation.
@@ -1160,12 +1160,12 @@ Section rotation.
   Definition rotation n l :=
     drop n l ++ take n l.
 
-  Lemma rotation𑁒0 l :
+  Lemma rotationｰ0 l :
     rotation 0 l = l.
   Proof.
     rewrite /rotation right_id //.
   Qed.
-  Lemma rotation𑁒S n x l :
+  Lemma rotationｰS n x l :
     n ≤ length l →
     rotation ˖n (x :: l) = rotation n (l ++ [x]).
   Proof.
@@ -1174,7 +1174,7 @@ Section rotation.
     rewrite skipn_cons firstn_cons.
     rewrite drop_app_le // take_app_le // -assoc //.
   Qed.
-  Lemma rotation𑁒add n1 n2 l :
+  Lemma rotationｰadd n1 n2 l :
     n1 + n2 = length l →
     rotation n1 (rotation n2 l) = rotation (n1 + n2) l.
   Proof.
@@ -1185,7 +1185,7 @@ Section rotation.
     replace (n1 - (length l - n2)) with 0 by lia.
     rewrite drop_0 app_nil_r -assoc take_take_drop Nat.add_comm //.
   Qed.
-  Lemma rotation𑁒length n l :
+  Lemma rotationｰlength n l :
     n = length l →
     rotation n l = l.
   Proof.
@@ -1193,27 +1193,27 @@ Section rotation.
     rewrite /rotation drop_all firstn_all //.
   Qed.
 
-  Lemma rotation𑁒Permutation n l :
+  Lemma rotationｰPermutation n l :
     rotation n l ≡ₚ l.
   Proof.
     rewrite /rotation comm take_drop //.
   Qed.
 
-  Lemma length𑁒rotation n l :
+  Lemma lengthｰrotation n l :
     length (rotation n l) = length l.
   Proof.
-    apply Permutation_length, rotation𑁒Permutation.
+    apply Permutation_length, rotationｰPermutation.
   Qed.
 
-  Lemma rotation𑁒replicate n k x :
+  Lemma rotationｰreplicate n k x :
     rotation n (replicate k x) = replicate k x.
   Proof.
-    pose proof (rotation𑁒Permutation n (replicate k x)) as <-%symmetry%replicate_Permutation. done.
+    pose proof (rotationｰPermutation n (replicate k x)) as <-%symmetry%replicate_Permutation. done.
   Qed.
 End rotation.
 
 #[global] Hint Rewrite
-  @length𑁒rotation
+  @lengthｰrotation
 : simpl_length.
 
 Section omap.
@@ -1227,7 +1227,7 @@ Section omap.
   Implicit Type 𝑙 : list B.
   Implicit Type f : A → option B.
 
-  Lemma length𑁒omap f l :
+  Lemma lengthｰomap f l :
     length (omap f l) ≤ length l.
   Proof.
     induction l as [| x l IH] => //=.
@@ -1236,7 +1236,7 @@ Section omap.
     - apply Nat.le_le_succ_r. done.
   Qed.
 
-  Lemma list𑁒omap𑁒insert𑁒None {f l} i x1 x2 o :
+  Lemma listｰomapｰinsertｰNone {f l} i x1 x2 o :
     l !! i = Some x1 →
     f x1 = None →
     f x2 = o →
@@ -1257,24 +1257,24 @@ Section omap.
     rewrite omap_app /= Hx1.
     destruct o; solve_Permutation.
   Qed.
-  Lemma list𑁒omap𑁒insert𑁒None𑁒Some {f l} i x1 x2 𝑥 :
+  Lemma listｰomapｰinsertｰNoneｰSome {f l} i x1 x2 𝑥 :
     l !! i = Some x1 →
     f x1 = None →
     f x2 = Some 𝑥 →
     omap f (<[i := x2]> l) ≡ₚ 𝑥 :: omap f l.
   Proof.
-    apply: list𑁒omap𑁒insert𑁒None.
+    apply: listｰomapｰinsertｰNone.
   Qed.
-  Lemma list𑁒omap𑁒insert𑁒None𑁒None {f l} i x1 x2 :
+  Lemma listｰomapｰinsertｰNoneｰNone {f l} i x1 x2 :
     l !! i = Some x1 →
     f x1 = None →
     f x2 = None →
     omap f (<[i := x2]> l) ≡ₚ omap f l.
   Proof.
-    apply: list𑁒omap𑁒insert𑁒None.
+    apply: listｰomapｰinsertｰNone.
   Qed.
 
-  Lemma list𑁒omap𑁒insert𑁒Some𑁒None {f l} i x1 𝑥 x2 :
+  Lemma listｰomapｰinsertｰSomeｰNone {f l} i x1 𝑥 x2 :
     l !! i = Some x1 →
     f x1 = Some 𝑥 →
     f x2 = None →
@@ -1291,7 +1291,7 @@ Section omap.
 End omap.
 
 #[global] Hint Rewrite
-  @length𑁒omap
+  @lengthｰomap
 : simpl_length.
 
 Section oflatten.
@@ -1304,67 +1304,67 @@ Section oflatten.
   Definition oflatten l :=
     omap id l.
 
-  Lemma length𑁒oflatten l :
+  Lemma lengthｰoflatten l :
     length (oflatten l) ≤ length l.
   Proof.
-    apply length𑁒omap.
+    apply lengthｰomap.
   Qed.
 
-  Lemma oflatten𑁒cons o l :
+  Lemma oflattenｰcons o l :
     oflatten (o :: l) = from_option (λ x, [x]) [] o ++ oflatten l.
   Proof.
     destruct o; done.
   Qed.
-  Lemma oflatten𑁒cons𑁒None l :
+  Lemma oflattenｰconsｰNone l :
     oflatten (None :: l) = oflatten l.
   Proof.
-    rewrite oflatten𑁒cons //.
+    rewrite oflattenｰcons //.
   Qed.
-  Lemma oflatten𑁒cons𑁒Some x l :
+  Lemma oflattenｰconsｰSome x l :
     oflatten (Some x :: l) = x :: oflatten l.
   Proof.
-    rewrite oflatten𑁒cons //.
+    rewrite oflattenｰcons //.
   Qed.
 
-  Lemma oflatten𑁒app l1 l2 :
+  Lemma oflattenｰapp l1 l2 :
     oflatten (l1 ++ l2) = oflatten l1 ++ oflatten l2.
   Proof.
     apply omap_app.
   Qed.
 
-  Lemma oflatten𑁒snoc l o :
+  Lemma oflattenｰsnoc l o :
     oflatten (l ++ [o]) = oflatten l ++ from_option (λ x, [x]) [] o.
   Proof.
-    rewrite oflatten𑁒app //.
+    rewrite oflattenｰapp //.
   Qed.
-  Lemma oflatten𑁒snoc𑁒None l :
+  Lemma oflattenｰsnocｰNone l :
     oflatten (l ++ [None]) = oflatten l.
   Proof.
-    rewrite oflatten𑁒snoc /= right_id //.
+    rewrite oflattenｰsnoc /= right_id //.
   Qed.
-  Lemma oflatten𑁒snoc𑁒Some l x :
+  Lemma oflattenｰsnocｰSome l x :
     oflatten (l ++ [Some x]) = oflatten l ++ [x].
   Proof.
-    rewrite oflatten𑁒snoc //.
+    rewrite oflattenｰsnoc //.
   Qed.
 
-  Lemma elem_of𑁒oflatten l x :
+  Lemma elem_ofｰoflatten l x :
     x ∈ oflatten l ↔
     Some x ∈ l.
   Proof.
     rewrite list_elem_of_omap. naive_solver.
   Qed.
 
-  Lemma oflatten𑁒lookup𑁒Some l i x :
+  Lemma oflattenｰlookupｰSome l i x :
     l !! i = Some $ Some x →
     oflatten l !! (length $ oflatten $ take i l) = Some x.
   Proof.
     intros Hlookup.
     rewrite -{2}(take_drop_middle l i (Some x)) //.
-    rewrite oflatten𑁒app list_lookup_middle //.
+    rewrite oflattenｰapp list_lookup_middle //.
   Qed.
 
-  Lemma oflatten𑁒insert𑁒None {l} i o :
+  Lemma oflattenｰinsertｰNone {l} i o :
     l !! i = Some None →
     oflatten (<[i := o]> l) ≡ₚ
       match o with
@@ -1376,34 +1376,34 @@ Section oflatten.
       oflatten l.
   Proof.
     intros Hlookup.
-    apply: list𑁒omap𑁒insert𑁒None; done.
+    apply: listｰomapｰinsertｰNone; done.
   Qed.
-  Lemma oflatten𑁒insert𑁒None𑁒Some {l} i x :
+  Lemma oflattenｰinsertｰNoneｰSome {l} i x :
     l !! i = Some None →
     oflatten (<[i := Some x]> l) ≡ₚ x :: oflatten l.
   Proof.
     intros Hlookup.
-    apply: oflatten𑁒insert𑁒None. done.
+    apply: oflattenｰinsertｰNone. done.
   Qed.
-  Lemma oflatten𑁒insert𑁒None𑁒None {l} i x :
+  Lemma oflattenｰinsertｰNoneｰNone {l} i x :
     l !! i = Some None →
     oflatten (<[i := None]> l) ≡ₚ oflatten l.
   Proof.
     intros Hlookup.
-    apply: oflatten𑁒insert𑁒None. done.
+    apply: oflattenｰinsertｰNone. done.
   Qed.
 
-  Lemma oflatten𑁒insert𑁒Some𑁒None {l} i x :
+  Lemma oflattenｰinsertｰSomeｰNone {l} i x :
     l !! i = Some $ Some x →
     oflatten (<[i := None]> l) = delete (length $ oflatten $ take i l) (oflatten l).
   Proof.
     intros Hlookup.
-    apply: list𑁒omap𑁒insert𑁒Some𑁒None; done.
+    apply: listｰomapｰinsertｰSomeｰNone; done.
   Qed.
 End oflatten.
 
 #[global] Hint Rewrite
-  @length𑁒oflatten
+  @lengthｰoflatten
 : simpl_length.
 
 Section Sorted.
@@ -1412,29 +1412,29 @@ Section Sorted.
   Implicit Type x : A.
   Implicit Type l : list A.
 
-  Lemma StronglySorted𑁒nil :
+  Lemma StronglySortedｰnil :
     StronglySorted R [].
   Proof.
     apply SSorted_nil.
   Qed.
-  Lemma StronglySorted𑁒singleton x :
+  Lemma StronglySortedｰsingleton x :
     StronglySorted R [x].
   Proof.
     apply StronglySorted_cons.
     split. 1: done.
-    apply StronglySorted𑁒nil.
+    apply StronglySortedｰnil.
   Qed.
-  Lemma StronglySorted𑁒trivial l :
+  Lemma StronglySortedｰtrivial l :
     length l ≤ 1 →
     StronglySorted R l.
   Proof.
     destruct l as [| x0 [| x1 l]] => /= Hl.
-    - apply StronglySorted𑁒nil.
-    - apply StronglySorted𑁒singleton.
+    - apply StronglySortedｰnil.
+    - apply StronglySortedｰsingleton.
     - lia.
   Qed.
 
-  Lemma StronglySorted𑁒app𑁒cons `{!Transitive R} l1 x l2 :
+  Lemma StronglySortedｰappｰcons `{!Transitive R} l1 x l2 :
     StronglySorted R l1 →
     Forall (flip R x) l1 →
     Forall (R x) l2 →
@@ -1445,9 +1445,9 @@ Section Sorted.
     rewrite StronglySorted_app StronglySorted_cons.
     split_and!. 2-4: done.
     intros x1 x2 Hx1 Hx2.
-    eapply Forall𑁒elem_of in H1. 2: done.
+    eapply Forallｰelem_of in H1. 2: done.
     apply elem_of_cons in Hx2 as [-> | Hx2] => //.
     trans x. 1: done.
-    eapply Forall𑁒elem_of; done.
+    eapply Forallｰelem_of; done.
   Qed.
 End Sorted.

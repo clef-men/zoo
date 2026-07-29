@@ -29,7 +29,7 @@ Class ProphetMultiG Σ `{zoo۰G : !ZooG Σ} prophet :=
 Definition prophet_multi۰Σ prophet :=
   #[prophet_wise۰Σ (prophetx prophet)
   ].
-#[global] Instance subG𑁒prophet_multi۰Σ Σ `{zoo۰G : !ZooG Σ} prophet :
+#[global] Instance subGｰprophet_multi۰Σ Σ `{zoo۰G : !ZooG Σ} prophet :
   subG (prophet_multi۰Σ prophet) Σ →
   ProphetMultiG Σ prophet.
 Proof.
@@ -55,9 +55,9 @@ Section prophet_multi۰G.
     prophet_wise۰name.
   Implicit Type γ : prophet_multi۰name.
 
-  #[global] Instance prophet_multi۰name𑁒eq_dec : EqDecision prophet_wise۰name :=
+  #[global] Instance prophet_multi۰nameｰeq_dec : EqDecision prophet_wise۰name :=
     ltac:(apply _).
-  #[global] Instance prophet_multi۰name𑁒countable :
+  #[global] Instance prophet_multi۰nameｰcountable :
     Countable prophet_wise۰name.
   Proof.
     apply _.
@@ -66,50 +66,50 @@ Section prophet_multi۰G.
   #[local] Definition untangle iprophs i :=
     (filter (λ iproph, iproph.1 = i) iprophs).*2.
 
-  #[local] Lemma untangle𑁒cons iproph iprophs i :
+  #[local] Lemma untangleｰcons iproph iprophs i :
     untangle (iproph :: iprophs) i = if decide (iproph.1 = i) then [iproph.2] ++ untangle iprophs i else untangle iprophs i.
   Proof.
     rewrite /untangle filter_cons //.
     case_decide; done.
   Qed.
-  #[local] Lemma untangle𑁒cons𑁒True iproph iprophs i :
+  #[local] Lemma untangleｰconsｰTrue iproph iprophs i :
     iproph.1 = i →
     untangle (iproph :: iprophs) i = [iproph.2] ++ untangle iprophs i.
   Proof.
     intros <-.
-    rewrite untangle𑁒cons decide_True //.
+    rewrite untangleｰcons decide_True //.
   Qed.
-  #[local] Lemma untangle𑁒cons𑁒False iproph iprophs i :
+  #[local] Lemma untangleｰconsｰFalse iproph iprophs i :
     iproph.1 ≠ i →
     untangle (iproph :: iprophs) i = untangle iprophs i.
   Proof.
     intros Hiproph.
-    rewrite untangle𑁒cons decide_False //.
+    rewrite untangleｰcons decide_False //.
   Qed.
-  #[local] Lemma untangle𑁒app iprophs1 iprophs2 i :
+  #[local] Lemma untangleｰapp iprophs1 iprophs2 i :
     untangle (iprophs1 ++ iprophs2) i = untangle iprophs1 i ++ untangle iprophs2 i.
   Proof.
     rewrite /untangle filter_app fmap_app //.
   Qed.
-  #[local] Lemma untangle𑁒snoc iprophs iproph i :
+  #[local] Lemma untangleｰsnoc iprophs iproph i :
     untangle (iprophs ++ [iproph]) i = if decide (iproph.1 = i) then untangle iprophs i ++ [iproph.2] else untangle iprophs i.
   Proof.
-    rewrite untangle𑁒app /untangle filter_cons filter_nil //.
+    rewrite untangleｰapp /untangle filter_cons filter_nil //.
     case_decide; rewrite ?right_id //.
   Qed.
-  #[local] Lemma untangle𑁒snoc𑁒True iprophs iproph i :
+  #[local] Lemma untangleｰsnocｰTrue iprophs iproph i :
     iproph.1 = i →
     untangle (iprophs ++ [iproph]) i = untangle iprophs i ++ [iproph.2].
   Proof.
     intros <-.
-    rewrite untangle𑁒snoc decide_True //.
+    rewrite untangleｰsnoc decide_True //.
   Qed.
-  #[local] Lemma untangle𑁒snoc𑁒False iprophs iproph i :
+  #[local] Lemma untangleｰsnocｰFalse iprophs iproph i :
     iproph.1 ≠ i →
     untangle (iprophs ++ [iproph]) i = untangle iprophs i.
   Proof.
     intros Hiproph.
-    rewrite untangle𑁒snoc decide_False //.
+    rewrite untangleｰsnoc decide_False //.
   Qed.
 
   Definition prophet_multi۰full γ i prophs : iProp Σ :=
@@ -160,95 +160,95 @@ Section prophet_multi۰G.
       )
     ".
 
-  #[global] Instance prophet_multi۰full𑁒timeless γ i prophs :
+  #[global] Instance prophet_multi۰fullｰtimeless γ i prophs :
     Timeless (prophet_multi۰full γ i prophs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance prophet_multi۰model𑁒timeless pid γ pasts prophss :
+  #[global] Instance prophet_multi۰modelｰtimeless pid γ pasts prophss :
     Timeless (prophet_multi۰model pid γ pasts prophss).
   Proof.
     apply _.
   Qed.
-  #[global] Instance prophet_multi۰snapshot𑁒timeless γ i past prophs :
+  #[global] Instance prophet_multi۰snapshotｰtimeless γ i past prophs :
     Timeless (prophet_multi۰snapshot γ i past prophs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance prophet_multi۰lb𑁒timeless γ i lb :
+  #[global] Instance prophet_multi۰lbｰtimeless γ i lb :
     Timeless (prophet_multi۰lb γ i lb).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance prophet_multi۰full𑁒persistent γ i prophs :
+  #[global] Instance prophet_multi۰fullｰpersistent γ i prophs :
     Persistent (prophet_multi۰full γ i prophs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance prophet_multi۰snapshot𑁒persistent γ i past prophs :
+  #[global] Instance prophet_multi۰snapshotｰpersistent γ i past prophs :
     Persistent (prophet_multi۰snapshot γ i past prophs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance prophet_multi۰lb𑁒persistent γ i lb :
+  #[global] Instance prophet_multi۰lbｰpersistent γ i lb :
     Persistent (prophet_multi۰lb γ i lb).
   Proof.
     apply _.
   Qed.
 
-  Lemma prophet_multi۰model𑁒exclusive pid γ1 pasts1 prophss1 γ2 pasts2 prophss2 :
+  Lemma prophet_multi۰modelｰexclusive pid γ1 pasts1 prophss1 γ2 pasts2 prophss2 :
     prophet_multi۰model pid γ1 pasts1 prophss1 -∗
     prophet_multi۰model pid γ2 pasts2 prophss2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)".
-    iApply (prophet_wise۰model𑁒exclusive with "Hmodel1 Hmodel2").
+    iApply (prophet_wise۰modelｰexclusive with "Hmodel1 Hmodel2").
   Qed.
 
-  Lemma prophet_multi۰full𑁒get {pid γ pasts prophss} i :
+  Lemma prophet_multi۰fullｰget {pid γ pasts prophss} i :
     prophet_multi۰model pid γ pasts prophss ⊢
     prophet_multi۰full γ i (pasts i ++ prophss i).
   Proof.
     iIntros "(:model)".
-    iDestruct (prophet_wise۰full𑁒get with "Hmodel") as "$".
-    rewrite Hpasts Hprophss untangle𑁒app //.
+    iDestruct (prophet_wise۰fullｰget with "Hmodel") as "$".
+    rewrite Hpasts Hprophss untangleｰapp //.
   Qed.
-  Lemma prophet_multi۰full𑁒get' {pid γ pasts prophss} i :
+  Lemma prophet_multi۰fullｰget' {pid γ pasts prophss} i :
     prophet_multi۰model pid γ pasts prophss ⊢
       ∃ prophs,
       prophet_multi۰full γ i prophs.
   Proof.
-    rewrite prophet_multi۰full𑁒get. iSteps.
+    rewrite prophet_multi۰fullｰget. iSteps.
   Qed.
-  Lemma prophet_multi۰full𑁒valid pid γ pasts prophss i prophs :
+  Lemma prophet_multi۰fullｰvalid pid γ pasts prophss i prophs :
     prophet_multi۰model pid γ pasts prophss -∗
     prophet_multi۰full γ i prophs -∗
     ⌜prophs = pasts i ++ prophss i⌝.
   Proof.
     iIntros "(:model =1) (:full =2)". simplify.
-    iDestruct (prophet_wise۰full𑁒valid with "Hmodel1 Hfull2") as %->.
-    rewrite Hpasts1 Hprophss1 untangle𑁒app //.
+    iDestruct (prophet_wise۰fullｰvalid with "Hmodel1 Hfull2") as %->.
+    rewrite Hpasts1 Hprophss1 untangleｰapp //.
   Qed.
-  Lemma prophet_multi۰full𑁒agree γ i prophs1 prophs2 :
+  Lemma prophet_multi۰fullｰagree γ i prophs1 prophs2 :
     prophet_multi۰full γ i prophs1 -∗
     prophet_multi۰full γ i prophs2 -∗
     ⌜prophs1 = prophs2⌝.
   Proof.
     iIntros "(:full =1) (:full =2)". simplify.
-    iDestruct (prophet_wise۰full𑁒agree with "Hfull1 Hfull2") as %->.
+    iDestruct (prophet_wise۰fullｰagree with "Hfull1 Hfull2") as %->.
     iSteps.
   Qed.
 
-  Lemma prophet_multi۰snapshot𑁒get {pid γ pasts prophss} i :
+  Lemma prophet_multi۰snapshotｰget {pid γ pasts prophss} i :
     prophet_multi۰model pid γ pasts prophss ⊢
     prophet_multi۰snapshot γ i (pasts i) (prophss i).
   Proof.
     iIntros "(:model)".
-    iDestruct (prophet_wise۰snapshot𑁒get with "Hmodel") as "$".
+    iDestruct (prophet_wise۰snapshotｰget with "Hmodel") as "$".
     iSteps.
   Qed.
-  Lemma prophet_multi۰snapshot𑁒valid pid γ pasts prophss i past prophs :
+  Lemma prophet_multi۰snapshotｰvalid pid γ pasts prophss i past prophs :
     prophet_multi۰model pid γ pasts prophss -∗
     prophet_multi۰snapshot γ i past prophs -∗
       ∃ past',
@@ -256,20 +256,20 @@ Section prophet_multi۰G.
       ⌜prophs = past' ++ prophss i⌝.
   Proof.
     iIntros "(:model) (:snapshot suff=)".
-    iDestruct (prophet_wise۰snapshot𑁒valid with "Hmodel Hsnapshot") as "(%ipast' & -> & ->)".
+    iDestruct (prophet_wise۰snapshotｰvalid with "Hmodel Hsnapshot") as "(%ipast' & -> & ->)".
     iExists (untangle ipast' i). iSplit; iPureIntro.
-    all: rewrite ?Hpasts ?Hprophss untangle𑁒app //.
+    all: rewrite ?Hpasts ?Hprophss untangleｰapp //.
   Qed.
 
-  Lemma prophet_multi۰lb𑁒get {pid γ pasts prophss} i :
+  Lemma prophet_multi۰lbｰget {pid γ pasts prophss} i :
     prophet_multi۰model pid γ pasts prophss ⊢
     prophet_multi۰lb γ i (prophss i).
   Proof.
-    rewrite (prophet_multi۰snapshot𑁒get i).
+    rewrite (prophet_multi۰snapshotｰget i).
     iIntros "Hsnapshot".
     iExists _. iFrame.
   Qed.
-  Lemma prophet_multi۰lb𑁒valid pid γ pasts prophss i lb :
+  Lemma prophet_multi۰lbｰvalid pid γ pasts prophss i lb :
     prophet_multi۰model pid γ pasts prophss -∗
     prophet_multi۰lb γ i lb -∗
       ∃ past1 past2,
@@ -278,10 +278,10 @@ Section prophet_multi۰G.
   Proof.
     iIntros "Hmodel (:lb)".
     iExists past.
-    iApply (prophet_multi۰snapshot𑁒valid with "Hmodel Hsnapshot").
+    iApply (prophet_multi۰snapshotｰvalid with "Hmodel Hsnapshot").
   Qed.
 
-  Lemma prophet_multi𑁒wp𑁒proph E :
+  Lemma prophet_multiｰwpｰproph E :
     {{{
       True
     }}}
@@ -293,12 +293,12 @@ Section prophet_multi۰G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp۰apply (prophet_wise𑁒wp𑁒proph prophetx with "[//]") as (pid γ iprophs) "Hmodel".
+    wp۰apply (prophet_wiseｰwpｰproph prophetx with "[//]") as (pid γ iprophs) "Hmodel".
     iApply "HΦ".
     iExists [], iprophs. rewrite /funeq. iSteps.
   Qed.
 
-  Lemma prophet_multi𑁒wp𑁒resolve e pid i v γ pasts prophss E Φ :
+  Lemma prophet_multiｰwpｰresolve e pid i v γ pasts prophss E Φ :
     Atomic e →
     to_val e = None →
     (0 ≤ i)%Z →
@@ -321,22 +321,22 @@ Section prophet_multi۰G.
   Proof.
     iIntros "% % %Hi (:model) HΦ".
     Z_to_nat i. rewrite Nat2Z.id.
-    wp۰apply (prophet_wise𑁒wp𑁒resolve with "Hmodel"); first done.
-    wp۰apply (wp𑁒wand with "HΦ") as (w) "(%oproph & %Hoproph & HΦ)".
+    wp۰apply (prophet_wiseｰwpｰresolve with "Hmodel"); first done.
+    wp۰apply (wpｰwand with "HΦ") as (w) "(%oproph & %Hoproph & HΦ)".
     iEval (rewrite /= Hoproph /=).
     destruct oproph as [proph |]. 2: iSteps.
     iExists (Some (i, proph)). iSplit.
     - iPureIntro. rewrite Nat2Z.id //.
     - iIntros "%iprophs' -> Hmodel".
       iApply ("HΦ" $! (untangle iprophs' i)).
-      + iPureIntro. rewrite Hprophss untangle𑁒cons𑁒True //.
+      + iPureIntro. rewrite Hprophss untangleｰconsｰTrue //.
       + iExists _, _. iFrame. iSplit; iPureIntro; intros j.
-        * rewrite fn𑁒lookup𑁒alter untangle𑁒snoc Hpasts /=.
+        * rewrite fnｰlookupｰalter untangleｰsnoc Hpasts /=.
           case_decide; subst; done.
-        * rewrite fn𑁒lookup𑁒insert Hprophss untangle𑁒cons /=.
+        * rewrite fnｰlookupｰinsert Hprophss untangleｰcons /=.
           case_decide; subst; done.
   Qed.
-  Lemma prophet_multi𑁒wp𑁒resolve' e pid i v γ pasts prophss E Φ :
+  Lemma prophet_multiｰwpｰresolve' e pid i v γ pasts prophss E Φ :
     Atomic e →
     to_val e = None →
     prophet_multi۰model pid γ pasts prophss -∗
@@ -357,7 +357,7 @@ Section prophet_multi۰G.
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
     iIntros "% % Hmodel HΦ".
-    iApply (prophet_multi𑁒wp𑁒resolve with "Hmodel"); [done | lia |].
+    iApply (prophet_multiｰwpｰresolve with "Hmodel"); [done | lia |].
     rewrite Nat2Z.id. iSteps.
   Qed.
 End prophet_multi۰G.

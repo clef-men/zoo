@@ -27,7 +27,7 @@ Definition ivar_3۰Σ waiter۰name `{Countable waiter۰name} :=
   ; subpreds۰Σ val
   ; mono_gmultiset۰Σ (val * waiter۰name)
   ].
-#[global] Instance subG𑁒ivar_3۰Σ Σ `{zoo۰G : !ZooG Σ} waiter۰name `{Countable waiter۰name} :
+#[global] Instance subGｰivar_3۰Σ Σ `{zoo۰G : !ZooG Σ} waiter۰name `{Countable waiter۰name} :
   subG (ivar_3۰Σ waiter۰name) Σ →
   Ivar3G Σ waiter۰name.
 Proof.
@@ -40,7 +40,7 @@ Module base.
     | Set_ v.
   Implicit Type state : state.
 
-  #[local] Instance state𑁒inhabited : Inhabited state :=
+  #[local] Instance stateｰinhabited : Inhabited state :=
     populate (Unset []).
 
   #[local] Definition state۰to_bool state :=
@@ -81,9 +81,9 @@ Module base.
       }.
     Implicit Type γ : ivar_3۰name.
 
-    #[global] Instance ivar_3۰name𑁒eq_dec : EqDecision ivar_3۰name :=
+    #[global] Instance ivar_3۰nameｰeq_dec : EqDecision ivar_3۰name :=
       ltac:(solve_decision).
-    #[global] Instance ivar_3۰name𑁒countable :
+    #[global] Instance ivar_3۰nameｰcountable :
       Countable ivar_3۰name.
     Proof.
       solve_countable.
@@ -197,7 +197,7 @@ Module base.
     Definition ivar_3۰waiter :=
       waiters۰elem.
 
-    #[global] Instance ivar_3۰inv𑁒contractive t γ n :
+    #[global] Instance ivar_3۰invｰcontractive t γ n :
       Proper (
         (pointwise_relation _ $ dist_later n) ==>
         (pointwise_relation _ $ dist_later n) ==>
@@ -209,7 +209,7 @@ Module base.
       intros Ψ1 Ψ2 HΨ Ξ1 Ξ2 HΞ Ω1 Ω2 HΩ.
       repeat (apply HΩ || f_contractive || f_equiv). done.
     Qed.
-    #[global] Instance ivar_3۰inv𑁒proper t γ :
+    #[global] Instance ivar_3۰invｰproper t γ :
       Proper (
         (pointwise_relation _ (≡)) ==>
         (pointwise_relation _ (≡)) ==>
@@ -219,7 +219,7 @@ Module base.
     Proof.
       intros Ψ1 Ψ2 HΨ Ξ1 Ξ2 HΞ Ω1 Ω2 HΩ.
       apply equiv_dist => n.
-      apply ivar_3۰inv𑁒contractive.
+      apply ivar_3۰invｰcontractive.
       - intros v.
         apply dist_dist_later, equiv_dist, HΨ.
       - intros v.
@@ -227,7 +227,7 @@ Module base.
       - clear t. intros t waiter ω.
         apply dist_dist_later, equiv_dist, HΩ.
     Qed.
-    #[global] Instance ivar_3۰consumer𑁒contractive γ n :
+    #[global] Instance ivar_3۰consumerｰcontractive γ n :
       Proper (
         (pointwise_relation _ $ dist_later n) ==>
         (≡{n}≡)
@@ -235,7 +235,7 @@ Module base.
     Proof.
       apply _.
     Qed.
-    #[global] Instance ivar_3۰consumer𑁒proper γ :
+    #[global] Instance ivar_3۰consumerｰproper γ :
       Proper (
         (pointwise_relation _ (≡)) ==>
         (≡)
@@ -244,94 +244,94 @@ Module base.
       apply _.
     Qed.
 
-    #[local] Instance waiters۰auth𑁒timeless γ own waiters ωs :
+    #[local] Instance waiters۰authｰtimeless γ own waiters ωs :
       Timeless (waiters۰auth γ own waiters ωs).
     Proof.
       apply _.
     Qed.
-    #[global] Instance ivar_3۰producer𑁒timeless γ :
+    #[global] Instance ivar_3۰producerｰtimeless γ :
       Timeless (ivar_3۰producer γ).
     Proof.
       apply _.
     Qed.
-    #[global] Instance ivar_3۰result𑁒timeless γ v :
+    #[global] Instance ivar_3۰resultｰtimeless γ v :
       Timeless (ivar_3۰result γ v).
     Proof.
       apply _.
     Qed.
-    #[global] Instance ivar_3۰waiters𑁒timeless γ waiters ωs :
+    #[global] Instance ivar_3۰waitersｰtimeless γ waiters ωs :
       Timeless (ivar_3۰waiters γ waiters ωs).
     Proof.
       apply _.
     Qed.
-    #[global] Instance ivar_3۰waiter𑁒timeless γ waiter ω :
+    #[global] Instance ivar_3۰waiterｰtimeless γ waiter ω :
       Timeless (ivar_3۰waiter γ waiter ω).
     Proof.
       apply _.
     Qed.
 
-    #[global] Instance ivar_3۰inv𑁒persistent t γ Ψ Ξ Ω :
+    #[global] Instance ivar_3۰invｰpersistent t γ Ψ Ξ Ω :
       Persistent (ivar_3۰inv t γ Ψ Ξ Ω).
     Proof.
       apply _.
     Qed.
-    #[global] Instance ivar_3۰result𑁒persistent γ v :
+    #[global] Instance ivar_3۰resultｰpersistent γ v :
       Persistent (ivar_3۰result γ v).
     Proof.
       apply _.
     Qed.
-    #[global] Instance ivar_3۰waiters𑁒persistent γ waiters ωs :
+    #[global] Instance ivar_3۰waitersｰpersistent γ waiters ωs :
       Persistent (ivar_3۰waiters γ waiters ωs).
     Proof.
       apply _.
     Qed.
-    #[global] Instance ivar_3۰waiter𑁒persistent γ waiter ω :
+    #[global] Instance ivar_3۰waiterｰpersistent γ waiter ω :
       Persistent (ivar_3۰waiter γ waiter ω).
     Proof.
       apply _.
     Qed.
 
-    #[local] Lemma lstate𑁒alloc :
+    #[local] Lemma lstateｰalloc :
       ⊢ |==>
         ∃ γ_lstate,
         lstate۰unset₁' γ_lstate ∗
         lstate۰unset₂' γ_lstate.
     Proof.
-      iMod oneshot𑁒alloc as "(%γ_lstate & Hpending)".
+      iMod oneshotｰalloc as "(%γ_lstate & Hpending)".
       assert (1 = 1/3 + 2/3)%Qp as -> by compute_done.
       iDestruct "Hpending" as "(Hpending₁ & Hpending₂)".
       iSteps.
     Qed.
-    #[local] Lemma lstate۰unset₂𑁒exclusive γ :
+    #[local] Lemma lstate۰unset₂ｰexclusive γ :
       lstate۰unset₂ γ -∗
       lstate۰unset₂ γ -∗
       False.
     Proof.
       iIntros "Hpending1 Hpending2".
-      iDestruct (oneshot۰pending𑁒valid𑁒2 with "Hpending1 Hpending2") as %(? & _). done.
+      iDestruct (oneshot۰pendingｰvalidｰ2 with "Hpending1 Hpending2") as %(? & _). done.
     Qed.
-    #[local] Lemma lstate۰set𑁒agree γ v1 v2 :
+    #[local] Lemma lstate۰setｰagree γ v1 v2 :
       lstate۰set γ v1 -∗
       lstate۰set γ v2 -∗
       ⌜v1 = v2⌝.
     Proof.
-      apply oneshot۰shot𑁒agree.
+      apply oneshot۰shotｰagree.
     Qed.
-    #[local] Lemma lstate𑁒unset₁𑁒set γ v :
+    #[local] Lemma lstateｰunset₁ｰset γ v :
       lstate۰unset₁ γ -∗
       lstate۰set γ v -∗
       False.
     Proof.
-      apply oneshot𑁒pending𑁒shot.
+      apply oneshotｰpendingｰshot.
     Qed.
-    #[local] Lemma lstate𑁒unset₂𑁒set γ v :
+    #[local] Lemma lstateｰunset₂ｰset γ v :
       lstate۰unset₂ γ -∗
       lstate۰set γ v -∗
       False.
     Proof.
-      apply oneshot𑁒pending𑁒shot.
+      apply oneshotｰpendingｰshot.
     Qed.
-    #[local] Lemma lstate𑁒update {γ} v :
+    #[local] Lemma lstateｰupdate {γ} v :
       lstate۰unset₁ γ -∗
       lstate۰unset₂ γ ==∗
       lstate۰set γ v.
@@ -339,59 +339,59 @@ Module base.
       iIntros "Hpending₁ Hpending₂".
       iCombine "Hpending₁ Hpending₂" as "Hpending".
       assert (1/3 + 2/3 = 1)%Qp as -> by compute_done.
-      iApply (oneshot𑁒update𑁒shot with "Hpending").
+      iApply (oneshotｰupdateｰshot with "Hpending").
     Qed.
 
-    #[local] Lemma consumer𑁒alloc Ψ :
+    #[local] Lemma consumerｰalloc Ψ :
       ⊢ |==>
         ∃ γ_consumer,
         consumer۰auth' γ_consumer Ψ None ∗
         consumer۰frag' γ_consumer Ψ.
     Proof.
-      apply subpreds𑁒alloc.
+      apply subpredsｰalloc.
     Qed.
-    #[local] Lemma consumer𑁒wand {γ Ψ} {state : option val} {Χ1} Χ2 E :
+    #[local] Lemma consumerｰwand {γ Ψ} {state : option val} {Χ1} Χ2 E :
       ▷ consumer۰auth γ Ψ state -∗
       consumer۰frag γ Χ1 -∗
       (∀ v, Χ1 v -∗ Χ2 v) ={E}=∗
         ▷ consumer۰auth γ Ψ state ∗
         consumer۰frag γ Χ2.
     Proof.
-      apply subpreds𑁒wand.
+      apply subpredsｰwand.
     Qed.
-    #[local] Lemma consumer𑁒divide {γ Ψ} {state : option val} Χs E :
+    #[local] Lemma consumerｰdivide {γ Ψ} {state : option val} Χs E :
       ▷ consumer۰auth γ Ψ state -∗
       consumer۰frag γ (λ v, [∗ list] Χ ∈ Χs, Χ v) ={E}=∗
         ▷ consumer۰auth γ Ψ state ∗
         [∗ list] Χ ∈ Χs, consumer۰frag γ Χ.
     Proof.
-      apply subpreds𑁒divide.
+      apply subpredsｰdivide.
     Qed.
-    #[local] Lemma consumer𑁒produce {γ Ψ} v :
+    #[local] Lemma consumerｰproduce {γ Ψ} v :
       consumer۰auth γ Ψ None -∗
       Ψ v -∗
       consumer۰auth γ Ψ (Some v).
     Proof.
-      apply subpreds𑁒produce.
+      apply subpredsｰproduce.
     Qed.
-    #[local] Lemma consumer𑁒consume γ Ψ v Χ E :
+    #[local] Lemma consumerｰconsume γ Ψ v Χ E :
       ▷ consumer۰auth γ Ψ (Some v) -∗
       consumer۰frag γ Χ ={E}=∗
         ▷ consumer۰auth γ Ψ (Some v) ∗
         ▷^2 Χ v.
     Proof.
-      apply subpreds𑁒consume.
+      apply subpredsｰconsume.
     Qed.
 
-    #[local] Lemma waiters𑁒alloc :
+    #[local] Lemma waitersｰalloc :
       ⊢ |==>
         ∃ γ_waiters,
         waiters۰auth' γ_waiters Own [] [].
     Proof.
-      iMod (mono_gmultiset𑁒alloc ∅) as "(%γ_waiters & $)".
+      iMod (mono_gmultisetｰalloc ∅) as "(%γ_waiters & $)".
       iSteps.
     Qed.
-    #[local] Lemma waiters۰elem𑁒valid γ own waiters ωs waiter ω :
+    #[local] Lemma waiters۰elemｰvalid γ own waiters ωs waiter ω :
       waiters۰auth γ own waiters ωs -∗
       waiters۰elem γ waiter ω -∗
         ∃ i,
@@ -399,37 +399,37 @@ Module base.
         ⌜ωs !! i = Some ω⌝.
     Proof.
       iIntros "(:waiters۰auth) Helem".
-      iDestruct (mono_gmultiset۰elem𑁒valid with "Hauth Helem") as %(i & (Hwaiters_lookup & Hωs_lookup)%lookup_zip_Some)%elem_of_list_to_set_disj%list_elem_of_lookup.
+      iDestruct (mono_gmultiset۰elemｰvalid with "Hauth Helem") as %(i & (Hwaiters_lookup & Hωs_lookup)%lookup_zip_Some)%elem_of_list_to_set_disj%list_elem_of_lookup.
       iSteps.
     Qed.
-    #[local] Lemma waiters𑁒insert {γ waiters ωs} waiter ω :
+    #[local] Lemma waitersｰinsert {γ waiters ωs} waiter ω :
       waiters۰auth γ Own waiters ωs ⊢ |==>
         waiters۰auth γ Own (waiter :: waiters) (ω :: ωs) ∗
         waiters۰elem γ waiter ω.
     Proof.
       iIntros "(:waiters۰auth)".
-      iMod (mono_gmultiset𑁒insert' (waiter, ω) with "Hauth") as "($ & $)".
+      iMod (mono_gmultisetｰinsert' (waiter, ω) with "Hauth") as "($ & $)".
       iSteps.
     Qed.
-    #[local] Lemma waiters۰auth𑁒discard γ waiters ωs :
+    #[local] Lemma waiters۰authｰdiscard γ waiters ωs :
       waiters۰auth γ Own waiters ωs ⊢ |==>
       waiters۰auth γ Discard waiters ωs.
     Proof.
       iIntros "(:waiters۰auth)".
-      iMod (mono_gmultiset۰auth𑁒persist with "Hauth") as "$".
+      iMod (mono_gmultiset۰authｰpersist with "Hauth") as "$".
       iSteps.
     Qed.
     Opaque waiters۰auth'.
 
-    Lemma ivar_3۰producer𑁒exclusive γ :
+    Lemma ivar_3۰producerｰexclusive γ :
       ivar_3۰producer γ -∗
       ivar_3۰producer γ -∗
       False.
     Proof.
-      apply lstate۰unset₂𑁒exclusive.
+      apply lstate۰unset₂ｰexclusive.
     Qed.
 
-    Lemma ivar_3۰consumer𑁒wand {t γ Ψ Ξ Ω Χ1} Χ2 :
+    Lemma ivar_3۰consumerｰwand {t γ Ψ Ξ Ω Χ1} Χ2 :
       ivar_3۰inv t γ Ψ Ξ Ω -∗
       ivar_3۰consumer γ Χ1 -∗
       (∀ v, Χ1 v -∗ Χ2 v) ={⊤}=∗
@@ -437,37 +437,37 @@ Module base.
     Proof.
       iIntros "(:inv) (:consumer) H".
       iInv "Hinv" as "(:inv۰inner)".
-      iMod (consumer𑁒wand with "Hconsumer_auth Hconsumer_frag H") as "($ & $)".
+      iMod (consumerｰwand with "Hconsumer_auth Hconsumer_frag H") as "($ & $)".
       iFrameSteps.
     Qed.
-    Lemma ivar_3۰consumer𑁒divide {t γ Ψ Ξ Ω} Χs :
+    Lemma ivar_3۰consumerｰdivide {t γ Ψ Ξ Ω} Χs :
       ivar_3۰inv t γ Ψ Ξ Ω -∗
       ivar_3۰consumer γ (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
       [∗ list] Χ ∈ Χs, ivar_3۰consumer γ Χ.
     Proof.
       iIntros "(:inv) (:consumer)".
       iInv "Hinv" as "(:inv۰inner)".
-      iMod (consumer𑁒divide with "Hconsumer_auth Hconsumer_frag") as "($ & $)".
+      iMod (consumerｰdivide with "Hconsumer_auth Hconsumer_frag") as "($ & $)".
       iFrameSteps.
     Qed.
 
-    Lemma ivar_3۰result𑁒agree γ v1 v2 :
+    Lemma ivar_3۰resultｰagree γ v1 v2 :
       ivar_3۰result γ v1 -∗
       ivar_3۰result γ v2 -∗
       ⌜v1 = v2⌝.
     Proof.
-      apply lstate۰set𑁒agree.
+      apply lstate۰setｰagree.
     Qed.
 
-    Lemma ivar_3𑁒producer𑁒result γ v :
+    Lemma ivar_3ｰproducerｰresult γ v :
       ivar_3۰producer γ -∗
       ivar_3۰result γ v -∗
       False.
     Proof.
-      apply lstate𑁒unset₂𑁒set.
+      apply lstateｰunset₂ｰset.
     Qed.
 
-    Lemma ivar_3𑁒inv𑁒result t γ Ψ Ξ Ω v :
+    Lemma ivar_3ｰinvｰresult t γ Ψ Ξ Ω v :
       ivar_3۰inv t γ Ψ Ξ Ω -∗
       ivar_3۰result γ v ={⊤}=∗
       ▷ □ Ξ v.
@@ -476,14 +476,14 @@ Module base.
       iInv "Hinv" as "(:inv۰inner)".
       destruct state as [waiters | v_].
       { iDestruct "Hstate" as "(:inv۰state۰unset >)".
-        iDestruct (lstate𑁒unset₁𑁒set with "Hlstate_unset₁ Hlstate_set") as %[].
+        iDestruct (lstateｰunset₁ｰset with "Hlstate_unset₁ Hlstate_set") as %[].
       }
       iDestruct "Hstate" as "(:inv۰state۰set =1 >)".
-      iDestruct (lstate۰set𑁒agree with "Hlstate_set Hlstate_set_1") as %<-.
+      iDestruct (lstate۰setｰagree with "Hlstate_set Hlstate_set_1") as %<-.
       iSplitL. { iFrameSteps. }
       iSteps.
     Qed.
-    Lemma ivar_3𑁒inv𑁒result𑁒consumer t γ Ψ Ξ Ω v Χ :
+    Lemma ivar_3ｰinvｰresultｰconsumer t γ Ψ Ξ Ω v Χ :
       ivar_3۰inv t γ Ψ Ξ Ω -∗
       ivar_3۰result γ v -∗
       ivar_3۰consumer γ Χ ={⊤}=∗
@@ -494,26 +494,26 @@ Module base.
       iInv "Hinv" as "(:inv۰inner)".
       destruct state as [v_ |].
       { iDestruct "Hstate" as "(:inv۰state۰unset >)".
-        iDestruct (lstate𑁒unset₁𑁒set with "Hlstate_unset₁ Hlstate_set") as %[].
+        iDestruct (lstateｰunset₁ｰset with "Hlstate_unset₁ Hlstate_set") as %[].
       }
       iDestruct "Hstate" as "(:inv۰state۰set =1 >)".
-      iDestruct (lstate۰set𑁒agree with "Hlstate_set Hlstate_set_1") as %<-.
-      iMod (consumer𑁒consume with "Hconsumer_auth Hconsumer_frag") as "(Hconsumer_auth & HΧ)".
+      iDestruct (lstate۰setｰagree with "Hlstate_set Hlstate_set_1") as %<-.
+      iMod (consumerｰconsume with "Hconsumer_auth Hconsumer_frag") as "(Hconsumer_auth & HΧ)".
       iSplitR "HΧ". { iFrameSteps. }
       iSteps.
     Qed.
 
-    Lemma ivar_3۰waiter𑁒valid γ waiters ωs waiter ω :
+    Lemma ivar_3۰waiterｰvalid γ waiters ωs waiter ω :
       ivar_3۰waiters γ waiters ωs -∗
       ivar_3۰waiter γ waiter ω -∗
         ∃ i,
         ⌜waiters !! i = Some waiter⌝ ∗
         ⌜ωs !! i = Some ω⌝.
     Proof.
-      apply waiters۰elem𑁒valid.
+      apply waiters۰elemｰvalid.
     Qed.
 
-    Lemma ivar_3٠create𑁒spec Ψ Ξ Ω :
+    Lemma ivar_3٠createｰspec Ψ Ξ Ω :
       {{{
         True
       }}}
@@ -532,9 +532,9 @@ Module base.
       wp۰rec.
       wp۰ref t as "Hmeta" "Ht".
 
-      iMod lstate𑁒alloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
-      iMod consumer𑁒alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
-      iMod waiters𑁒alloc as "(%γ_waiters & Hwaiters_auth)".
+      iMod lstateｰalloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
+      iMod consumerｰalloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
+      iMod waitersｰalloc as "(%γ_waiters & Hwaiters_auth)".
 
       pose γ :=
         {|ivar_3۰name۰lstate := γ_lstate
@@ -549,7 +549,7 @@ Module base.
       iApply (big_sepL2_nil with "[//]").
     Qed.
 
-    Lemma ivar_3٠make𑁒spec Ψ Ξ Ω v :
+    Lemma ivar_3٠makeｰspec Ψ Ξ Ω v :
       {{{
         ▷ Ψ v ∗
         ▷ □ Ξ v
@@ -570,9 +570,9 @@ Module base.
       wp۰rec.
       wp۰ref t as "Hmeta" "Ht".
 
-      iMod lstate𑁒alloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
-      iMod consumer𑁒alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
-      iMod waiters𑁒alloc as "(%γ_waiters & Hwaiters_auth)".
+      iMod lstateｰalloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
+      iMod consumerｰalloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
+      iMod waitersｰalloc as "(%γ_waiters & Hwaiters_auth)".
 
       pose γ :=
         {|ivar_3۰name۰lstate := γ_lstate
@@ -580,15 +580,15 @@ Module base.
         ; ivar_3۰name۰waiters := γ_waiters
         |}.
 
-      iMod (lstate𑁒update (γ := γ) v with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".
-      iDestruct (consumer𑁒produce (γ := γ) v with "Hconsumer_auth HΨ") as "Hconsumer_auth".
-      iMod (waiters۰auth𑁒discard γ with "Hwaiters_auth") as "#Hwaiters_auth".
+      iMod (lstateｰupdate (γ := γ) v with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".
+      iDestruct (consumerｰproduce (γ := γ) v with "Hconsumer_auth HΨ") as "Hconsumer_auth".
+      iMod (waiters۰authｰdiscard γ with "Hwaiters_auth") as "#Hwaiters_auth".
 
       iApply ("HΦ" $! t γ).
       iFrameSteps. iExists (Set_ v). iSteps.
     Qed.
 
-    Lemma ivar_3٠is_unset𑁒spec t γ Ψ Ξ Ω :
+    Lemma ivar_3٠is_unsetｰspec t γ Ψ Ξ Ω :
       {{{
         ivar_3۰inv t γ Ψ Ξ Ω
       }}}
@@ -621,7 +621,7 @@ Module base.
         iSplitR "H£ HΦ". { iFrameSteps. }
         iStep 5. iExists v. iSteps.
     Qed.
-    Lemma ivar_3٠is_unset𑁒spec𑁒result t γ Ψ Ξ Ω v :
+    Lemma ivar_3٠is_unsetｰspecｰresult t γ Ψ Ξ Ω v :
       {{{
         ivar_3۰inv t γ Ψ Ξ Ω ∗
         ivar_3۰result γ v
@@ -642,15 +642,15 @@ Module base.
       wp۰load.
       destruct state as [waiters | v_].
       { iDestruct "Hstate" as "(:inv۰state۰unset)".
-        iDestruct (lstate𑁒unset₁𑁒set with "Hlstate_unset₁ Hlstate_set") as %[].
+        iDestruct (lstateｰunset₁ｰset with "Hlstate_unset₁ Hlstate_set") as %[].
       }
       iDestruct "Hstate" as "(:inv۰state۰set =1)".
-      iDestruct (lstate۰set𑁒agree with "Hlstate_set Hlstate_set_1") as %<-. iClear "Hlstate_set_1".
+      iDestruct (lstate۰setｰagree with "Hlstate_set Hlstate_set_1") as %<-. iClear "Hlstate_set_1".
       iSplitR "H£ HΦ". { iFrameSteps. }
       iSteps.
     Qed.
 
-    Lemma ivar_3٠is_set𑁒spec t γ Ψ Ξ Ω :
+    Lemma ivar_3٠is_setｰspec t γ Ψ Ξ Ω :
       {{{
         ivar_3۰inv t γ Ψ Ξ Ω
       }}}
@@ -668,10 +668,10 @@ Module base.
       iIntros "%Φ #Hinv HΦ".
 
       wp۰rec.
-      wp۰apply (ivar_3٠is_unset𑁒spec with "[$]") as (b) "Hb".
+      wp۰apply (ivar_3٠is_unsetｰspec with "[$]") as (b) "Hb".
       destruct b; iSteps.
     Qed.
-    Lemma ivar_3٠is_set𑁒spec𑁒result t γ Ψ Ξ Ω v :
+    Lemma ivar_3٠is_setｰspecｰresult t γ Ψ Ξ Ω v :
       {{{
         ivar_3۰inv t γ Ψ Ξ Ω ∗
         ivar_3۰result γ v
@@ -685,11 +685,11 @@ Module base.
       iIntros "%Φ (#Hinv & #Hresult) HΦ".
 
       wp۰rec.
-      wp۰apply (ivar_3٠is_unset𑁒spec𑁒result with "[$]").
+      wp۰apply (ivar_3٠is_unsetｰspecｰresult with "[$]").
       iSteps.
     Qed.
 
-    Lemma ivar_3٠try_get𑁒spec t γ Ψ Ξ Ω :
+    Lemma ivar_3٠try_getｰspec t γ Ψ Ξ Ω :
       {{{
         ivar_3۰inv t γ Ψ Ξ Ω
       }}}
@@ -722,7 +722,7 @@ Module base.
         iSplitR "H£ HΦ". { iFrameSteps. }
         iSteps.
     Qed.
-    Lemma ivar_3٠try_get𑁒spec𑁒result t γ Ψ Ξ Ω v :
+    Lemma ivar_3٠try_getｰspecｰresult t γ Ψ Ξ Ω v :
       {{{
         ivar_3۰inv t γ Ψ Ξ Ω ∗
         ivar_3۰result γ v
@@ -743,15 +743,15 @@ Module base.
       wp۰load.
       destruct state as [waiters | v_].
       { iDestruct "Hstate" as "(:inv۰state۰unset)".
-        iDestruct (lstate𑁒unset₁𑁒set with "Hlstate_unset₁ Hlstate_set") as %[].
+        iDestruct (lstateｰunset₁ｰset with "Hlstate_unset₁ Hlstate_set") as %[].
       }
       iDestruct "Hstate" as "(:inv۰state۰set =1)".
-      iDestruct (lstate۰set𑁒agree with "Hlstate_set Hlstate_set_1") as %<-. iClear "Hlstate_set_1".
+      iDestruct (lstate۰setｰagree with "Hlstate_set Hlstate_set_1") as %<-. iClear "Hlstate_set_1".
       iSplitR "H£ HΦ". { iFrameSteps. }
       iSteps.
     Qed.
 
-    Lemma ivar_3٠get𑁒spec t γ Ψ Ξ Ω v :
+    Lemma ivar_3٠getｰspec t γ Ψ Ξ Ω v :
       {{{
         ivar_3۰inv t γ Ψ Ξ Ω ∗
         ivar_3۰result γ v
@@ -772,15 +772,15 @@ Module base.
       wp۰load.
       destruct state as [waiters | v_].
       { iDestruct "Hstate" as "(:inv۰state۰unset)".
-        iDestruct (lstate𑁒unset₁𑁒set with "Hlstate_unset₁ Hlstate_set") as %[].
+        iDestruct (lstateｰunset₁ｰset with "Hlstate_unset₁ Hlstate_set") as %[].
       }
       iDestruct "Hstate" as "(:inv۰state۰set =1)".
-      iDestruct (lstate۰set𑁒agree with "Hlstate_set Hlstate_set_1") as %<-. iClear "Hlstate_set_1".
+      iDestruct (lstate۰setｰagree with "Hlstate_set Hlstate_set_1") as %<-. iClear "Hlstate_set_1".
       iSplitR "H£ HΦ". { iFrameSteps. }
       iSteps.
     Qed.
 
-    Lemma ivar_3٠wait𑁒spec ω P t γ Ψ Ξ Ω waiter :
+    Lemma ivar_3٠waitｰspec ω P t γ Ψ Ξ Ω waiter :
       {{{
         ivar_3۰inv t γ Ψ Ξ Ω ∗
         P ∗
@@ -825,7 +825,7 @@ Module base.
 
         + destruct state as [waiters' | v]; zoo_simplify.
           iDestruct "Hstate" as "(:inv۰state۰unset)".
-          iMod (waiters𑁒insert waiter with "Hwaiters_auth") as "(Hwaiters_auth & #Hwaiters_elem)".
+          iMod (waitersｰinsert waiter with "Hwaiters_auth") as "(Hwaiters_auth & #Hwaiters_elem)".
           iDestruct (big_sepL2_cons₂' _ waiter ω with "[HP HΩ H£] Hwaiters") as "Hwaiters". 1: iSteps.
           iSplitR "HΦ". { iExists (Unset (waiter :: waiters)). iFrameSteps. }
           iSpecialize ("HΦ" $! None).
@@ -837,7 +837,7 @@ Module base.
         iSteps.
     Qed.
 
-    Lemma ivar_3٠set𑁒spec t γ Ψ Ξ Ω v :
+    Lemma ivar_3٠setｰspec t γ Ψ Ξ Ω v :
       {{{
         ivar_3۰inv t γ Ψ Ξ Ω ∗
         ivar_3۰producer γ ∗
@@ -862,12 +862,12 @@ Module base.
       wp۰xchg.
       destruct state; last first.
       { iDestruct "Hstate" as "(:inv۰state۰set =1)".
-        iDestruct (lstate𑁒unset₂𑁒set with "Hlstate_unset₂ Hlstate_set_1") as %[].
+        iDestruct (lstateｰunset₂ｰset with "Hlstate_unset₂ Hlstate_set_1") as %[].
       }
       iDestruct "Hstate" as "(:inv۰state۰unset)".
-      iMod (lstate𑁒update with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".
-      iDestruct (consumer𑁒produce with "Hconsumer_auth HΨ") as "Hconsumer_auth".
-      iMod (waiters۰auth𑁒discard with "Hwaiters_auth") as "#Hwaiters_auth".
+      iMod (lstateｰupdate with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".
+      iDestruct (consumerｰproduce with "Hconsumer_auth HΨ") as "Hconsumer_auth".
+      iMod (waiters۰authｰdiscard with "Hwaiters_auth") as "#Hwaiters_auth".
       iSplitR "Hwaiters HΦ". { iExists (Set_ v). iSteps. }
       iSteps.
     Qed.
@@ -978,7 +978,7 @@ Section ivar_3۰G.
       )
     ".
 
-  #[global] Instance ivar_3۰inv𑁒contractive t n :
+  #[global] Instance ivar_3۰invｰcontractive t n :
     Proper (
       (pointwise_relation _ $ dist_later n) ==>
       (pointwise_relation _ $ dist_later n) ==>
@@ -988,7 +988,7 @@ Section ivar_3۰G.
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance ivar_3۰inv𑁒proper t :
+  #[global] Instance ivar_3۰invｰproper t :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (pointwise_relation _ (≡)) ==>
@@ -998,7 +998,7 @@ Section ivar_3۰G.
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance ivar_3۰consumer𑁒contractive t n :
+  #[global] Instance ivar_3۰consumerｰcontractive t n :
     Proper (
       (pointwise_relation _ $ dist_later n) ==>
       (≡{n}≡)
@@ -1006,7 +1006,7 @@ Section ivar_3۰G.
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance ivar_3۰consumer𑁒proper t :
+  #[global] Instance ivar_3۰consumerｰproper t :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (≡)
@@ -1015,131 +1015,131 @@ Section ivar_3۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance ivar_3۰producer𑁒timeless t :
+  #[global] Instance ivar_3۰producerｰtimeless t :
     Timeless (ivar_3۰producer t).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_3۰result𑁒timeless t v :
+  #[global] Instance ivar_3۰resultｰtimeless t v :
     Timeless (ivar_3۰result t v).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_3۰waiters𑁒timeless t waiters ωs :
+  #[global] Instance ivar_3۰waitersｰtimeless t waiters ωs :
     Timeless (ivar_3۰waiters t waiters ωs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_3۰waiter𑁒timeless t waiter ω :
+  #[global] Instance ivar_3۰waiterｰtimeless t waiter ω :
     Timeless (ivar_3۰waiter t waiter ω).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance ivar_3۰inv𑁒persistent t Ψ Ξ Ω :
+  #[global] Instance ivar_3۰invｰpersistent t Ψ Ξ Ω :
     Persistent (ivar_3۰inv t Ψ Ξ Ω).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_3۰result𑁒persistent t v :
+  #[global] Instance ivar_3۰resultｰpersistent t v :
     Persistent (ivar_3۰result t v).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_3۰waiters𑁒persistent t waiters ωs :
+  #[global] Instance ivar_3۰waitersｰpersistent t waiters ωs :
     Persistent (ivar_3۰waiters t waiters ωs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_3۰waiter𑁒persistent t waiter ω :
+  #[global] Instance ivar_3۰waiterｰpersistent t waiter ω :
     Persistent (ivar_3۰waiter t waiter ω).
   Proof.
     apply _.
   Qed.
 
-  Lemma ivar_3۰producer𑁒exclusive t :
+  Lemma ivar_3۰producerｰexclusive t :
     ivar_3۰producer t -∗
     ivar_3۰producer t -∗
     False.
   Proof.
     iIntros "(:producer =1) (:producer =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.ivar_3۰producer𑁒exclusive with "Hproducer_1 Hproducer_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.ivar_3۰producerｰexclusive with "Hproducer_1 Hproducer_2").
   Qed.
 
-  Lemma ivar_3۰consumer𑁒wand {t Ψ Ξ Ω Χ1} Χ2 :
+  Lemma ivar_3۰consumerｰwand {t Ψ Ξ Ω Χ1} Χ2 :
     ivar_3۰inv t Ψ Ξ Ω -∗
     ivar_3۰consumer t Χ1 -∗
     (∀ v, Χ1 v -∗ Χ2 v) ={⊤}=∗
     ivar_3۰consumer t Χ2.
   Proof.
     iIntros "(:inv =1) (:consumer =2) H". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iDestruct (base.ivar_3۰consumer𑁒wand with "Hinv_1 Hconsumer_2 H") as "H".
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iDestruct (base.ivar_3۰consumerｰwand with "Hinv_1 Hconsumer_2 H") as "H".
     iSteps.
   Qed.
-  Lemma ivar_3۰consumer𑁒divide {t Ψ Ξ Ω} Χs :
+  Lemma ivar_3۰consumerｰdivide {t Ψ Ξ Ω} Χs :
     ivar_3۰inv t Ψ Ξ Ω -∗
     ivar_3۰consumer t (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
     [∗ list] Χ ∈ Χs, ivar_3۰consumer t Χ.
   Proof.
     iIntros "(:inv =1) (:consumer =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iDestruct (base.ivar_3۰consumer𑁒divide with "Hinv_1 Hconsumer_2") as "H".
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iDestruct (base.ivar_3۰consumerｰdivide with "Hinv_1 Hconsumer_2") as "H".
     iApply (big_sepL_impl with "H").
     iSteps.
   Qed.
-  Lemma ivar_3۰consumer𑁒split {t Ψ Ξ Ω} Χ1 Χ2 :
+  Lemma ivar_3۰consumerｰsplit {t Ψ Ξ Ω} Χ1 Χ2 :
     ivar_3۰inv t Ψ Ξ Ω -∗
     ivar_3۰consumer t (λ v, Χ1 v ∗ Χ2 v) ={⊤}=∗
       ivar_3۰consumer t Χ1 ∗
       ivar_3۰consumer t Χ2.
   Proof.
     iIntros "#Hinv Hconsumer".
-    iMod (ivar_3۰consumer𑁒divide [Χ1;Χ2] with "Hinv [Hconsumer]") as "($ & $ & _)" => //.
+    iMod (ivar_3۰consumerｰdivide [Χ1;Χ2] with "Hinv [Hconsumer]") as "($ & $ & _)" => //.
     { simpl. setoid_rewrite bi.sep_emp => //. }
   Qed.
 
-  Lemma ivar_3۰result𑁒agree t v1 v2 :
+  Lemma ivar_3۰resultｰagree t v1 v2 :
     ivar_3۰result t v1 -∗
     ivar_3۰result t v2 -∗
     ⌜v1 = v2⌝.
   Proof.
     iIntros "(:result =1) (:result =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.ivar_3۰result𑁒agree with "Hresult_1 Hresult_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.ivar_3۰resultｰagree with "Hresult_1 Hresult_2").
   Qed.
 
-  Lemma ivar_3𑁒producer𑁒result t v :
+  Lemma ivar_3ｰproducerｰresult t v :
     ivar_3۰producer t -∗
     ivar_3۰result t v -∗
     False.
   Proof.
     iIntros "(:producer =1) (:result =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.ivar_3𑁒producer𑁒result with "Hproducer_1 Hresult_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.ivar_3ｰproducerｰresult with "Hproducer_1 Hresult_2").
   Qed.
 
-  Lemma ivar_3𑁒inv𑁒result t Ψ Ξ Ω v :
+  Lemma ivar_3ｰinvｰresult t Ψ Ξ Ω v :
     ivar_3۰inv t Ψ Ξ Ω -∗
     ivar_3۰result t v ={⊤}=∗
     ▷ □ Ξ v.
   Proof.
     iIntros "(:inv =1) (:result =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %<-.
-    iApply (base.ivar_3𑁒inv𑁒result with "Hinv_1 Hresult_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
+    iApply (base.ivar_3ｰinvｰresult with "Hinv_1 Hresult_2").
   Qed.
-  Lemma ivar_3𑁒inv𑁒result' t Ψ Ξ Ω v :
+  Lemma ivar_3ｰinvｰresult' t Ψ Ξ Ω v :
     £ 1 -∗
     ivar_3۰inv t Ψ Ξ Ω -∗
     ivar_3۰result t v ={⊤}=∗
     □ Ξ v.
   Proof.
     iIntros "H£ Hinv Hresult".
-    iMod (ivar_3𑁒inv𑁒result with "Hinv Hresult") as "HΞ".
+    iMod (ivar_3ｰinvｰresult with "Hinv Hresult") as "HΞ".
     iApply (lc_fupd_elim_later with "H£ HΞ").
   Qed.
-  Lemma ivar_3𑁒inv𑁒result𑁒consumer t Ψ Ξ Ω v Χ :
+  Lemma ivar_3ｰinvｰresultｰconsumer t Ψ Ξ Ω v Χ :
     ivar_3۰inv t Ψ Ξ Ω -∗
     ivar_3۰result t v -∗
     ivar_3۰consumer t Χ ={⊤}=∗
@@ -1147,11 +1147,11 @@ Section ivar_3۰G.
       ▷ □ Ξ v.
   Proof.
     iIntros "(:inv =1) (:result =2) (:consumer =3)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iDestruct (meta𑁒agree with "Hmeta_2 Hmeta_3") as %<-.
-    iApply (base.ivar_3𑁒inv𑁒result𑁒consumer with "Hinv_1 Hresult_2 Hconsumer_3").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iDestruct (metaｰagree with "Hmeta_2 Hmeta_3") as %<-.
+    iApply (base.ivar_3ｰinvｰresultｰconsumer with "Hinv_1 Hresult_2 Hconsumer_3").
   Qed.
-  Lemma ivar_3𑁒inv𑁒result𑁒consumer' t Ψ Ξ Ω v Χ :
+  Lemma ivar_3ｰinvｰresultｰconsumer' t Ψ Ξ Ω v Χ :
     £ 2 -∗
     ivar_3۰inv t Ψ Ξ Ω -∗
     ivar_3۰result t v -∗
@@ -1160,13 +1160,13 @@ Section ivar_3۰G.
       □ Ξ v.
   Proof.
     iIntros "(H£1 & H£2) Hinv Hresult Hconsumer".
-    iMod (ivar_3𑁒inv𑁒result𑁒consumer with "Hinv Hresult Hconsumer") as "H".
+    iMod (ivar_3ｰinvｰresultｰconsumer with "Hinv Hresult Hconsumer") as "H".
     rewrite -bi.later_sep.
     iMod (lc_fupd_elim_later with "H£1 H") as "(HΧ & $)".
     iApply (lc_fupd_elim_later with "H£2 HΧ").
   Qed.
 
-  Lemma ivar_3۰waiter𑁒valid t waiters ωs waiter ω :
+  Lemma ivar_3۰waiterｰvalid t waiters ωs waiter ω :
     ivar_3۰waiters t waiters ωs -∗
     ivar_3۰waiter t waiter ω -∗
       ∃ i,
@@ -1174,11 +1174,11 @@ Section ivar_3۰G.
       ⌜ωs !! i = Some ω⌝.
   Proof.
     iIntros "(:waiters =1) (:waiter =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.ivar_3۰waiter𑁒valid with "Hwaiters_1 Hwaiter_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.ivar_3۰waiterｰvalid with "Hwaiters_1 Hwaiter_2").
   Qed.
 
-  Lemma ivar_3٠create𑁒spec Ψ Ξ Ω :
+  Lemma ivar_3٠createｰspec Ψ Ξ Ω :
     {{{
       True
     }}}
@@ -1193,13 +1193,13 @@ Section ivar_3۰G.
   Proof.
     iIntros "%Φ _ HΦ".
 
-    iApply wp𑁒fupd.
-    wp۰apply (base.ivar_3٠create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iApply wpｰfupd.
+    wp۰apply (base.ivar_3٠createｰspec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma ivar_3٠make𑁒spec Ψ Ξ Ω v :
+  Lemma ivar_3٠makeｰspec Ψ Ξ Ω v :
     {{{
       ▷ Ψ v ∗
       ▷ □ Ξ v
@@ -1216,13 +1216,13 @@ Section ivar_3۰G.
   Proof.
     iIntros "%Φ (HΨ & #HΞ) HΦ".
 
-    iApply wp𑁒fupd.
-    wp۰apply (base.ivar_3٠make𑁒spec Ψ with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iApply wpｰfupd.
+    wp۰apply (base.ivar_3٠makeｰspec Ψ with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma ivar_3٠is_unset𑁒spec t Ψ Ξ Ω :
+  Lemma ivar_3٠is_unsetｰspec t Ψ Ξ Ω :
     {{{
       ivar_3۰inv t Ψ Ξ Ω
     }}}
@@ -1239,10 +1239,10 @@ Section ivar_3۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp۰apply (base.ivar_3٠is_unset𑁒spec with "[$]") as (b) "Hb".
+    wp۰apply (base.ivar_3٠is_unsetｰspec with "[$]") as (b) "Hb".
     rewrite /ivar_3۰resolved. destruct b; iSteps.
   Qed.
-  Lemma ivar_3٠is_unset𑁒spec𑁒result t Ψ Ξ Ω v :
+  Lemma ivar_3٠is_unsetｰspecｰresult t Ψ Ξ Ω v :
     {{{
       ivar_3۰inv t Ψ Ξ Ω ∗
       ivar_3۰result t v
@@ -1254,12 +1254,12 @@ Section ivar_3۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp۰apply (base.ivar_3٠is_unset𑁒spec𑁒result with "[$] HΦ").
+    wp۰apply (base.ivar_3٠is_unsetｰspecｰresult with "[$] HΦ").
   Qed.
 
-  Lemma ivar_3٠is_set𑁒spec t Ψ Ξ Ω :
+  Lemma ivar_3٠is_setｰspec t Ψ Ξ Ω :
     {{{
       ivar_3۰inv t Ψ Ξ Ω
     }}}
@@ -1276,10 +1276,10 @@ Section ivar_3۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp۰apply (base.ivar_3٠is_set𑁒spec with "[$]") as (b) "Hb".
+    wp۰apply (base.ivar_3٠is_setｰspec with "[$]") as (b) "Hb".
     rewrite /ivar_3۰resolved. destruct b; iSteps.
   Qed.
-  Lemma ivar_3٠is_set𑁒spec𑁒result t Ψ Ξ Ω v :
+  Lemma ivar_3٠is_setｰspecｰresult t Ψ Ξ Ω v :
     {{{
       ivar_3۰inv t Ψ Ξ Ω ∗
       ivar_3۰result t v
@@ -1291,12 +1291,12 @@ Section ivar_3۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp۰apply (base.ivar_3٠is_set𑁒spec𑁒result with "[$] HΦ").
+    wp۰apply (base.ivar_3٠is_setｰspecｰresult with "[$] HΦ").
   Qed.
 
-  Lemma ivar_3٠try_get𑁒spec t Ψ Ξ Ω :
+  Lemma ivar_3٠try_getｰspec t Ψ Ξ Ω :
     {{{
       ivar_3۰inv t Ψ Ξ Ω
     }}}
@@ -1313,11 +1313,11 @@ Section ivar_3۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp۰apply (base.ivar_3٠try_get𑁒spec with "[$]") as (o) "Ho".
+    wp۰apply (base.ivar_3٠try_getｰspec with "[$]") as (o) "Ho".
     iSpecialize ("HΦ" $! o).
     destruct o; iSteps.
   Qed.
-  Lemma ivar_3٠try_get𑁒spec𑁒result t Ψ Ξ Ω v :
+  Lemma ivar_3٠try_getｰspecｰresult t Ψ Ξ Ω v :
     {{{
       ivar_3۰inv t Ψ Ξ Ω ∗
       ivar_3۰result t v
@@ -1329,12 +1329,12 @@ Section ivar_3۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp۰apply (base.ivar_3٠try_get𑁒spec𑁒result with "[$] HΦ").
+    wp۰apply (base.ivar_3٠try_getｰspecｰresult with "[$] HΦ").
   Qed.
 
-  Lemma ivar_3٠get𑁒spec t Ψ Ξ Ω v :
+  Lemma ivar_3٠getｰspec t Ψ Ξ Ω v :
     {{{
       ivar_3۰inv t Ψ Ξ Ω ∗
       ivar_3۰result t v
@@ -1346,12 +1346,12 @@ Section ivar_3۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp۰apply (base.ivar_3٠get𑁒spec with "[$] HΦ").
+    wp۰apply (base.ivar_3٠getｰspec with "[$] HΦ").
   Qed.
 
-  Lemma ivar_3٠wait𑁒spec ω P t Ψ Ξ Ω waiter :
+  Lemma ivar_3٠waitｰspec ω P t Ψ Ξ Ω waiter :
     {{{
       ivar_3۰inv t Ψ Ξ Ω ∗
       P ∗
@@ -1371,12 +1371,12 @@ Section ivar_3۰G.
   Proof.
     iIntros "%Φ ((:inv) & HP & HΩ) HΦ".
 
-    wp۰apply (base.ivar_3٠wait𑁒spec with "[$]") as (o) "Ho".
+    wp۰apply (base.ivar_3٠waitｰspec with "[$]") as (o) "Ho".
     iSpecialize ("HΦ" $! o).
     destruct o; iSteps.
   Qed.
 
-  Lemma ivar_3٠set𑁒spec t Ψ Ξ Ω v :
+  Lemma ivar_3٠setｰspec t Ψ Ξ Ω v :
     {{{
       ivar_3۰inv t Ψ Ξ Ω ∗
       ivar_3۰producer t ∗
@@ -1393,9 +1393,9 @@ Section ivar_3۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv =1) & (:producer =2) & HΨ & HΞ) HΦ". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp۰apply (base.ivar_3٠set𑁒spec _ _ Ψ with "[$]").
+    wp۰apply (base.ivar_3٠setｰspec _ _ Ψ with "[$]").
     iSteps.
   Qed.
 End ivar_3۰G.

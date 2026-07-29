@@ -17,7 +17,7 @@ Class MpmcTqueue2G Σ `{zoo۰G : !ZooG Σ} :=
 Definition mpmc_tqueue_2۰Σ :=
   #[
   ].
-#[global] Instance subG𑁒mpmc_tqueue_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰmpmc_tqueue_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG mpmc_tqueue_2۰Σ Σ →
   MpmcTqueue2G Σ.
 Proof.
@@ -35,9 +35,9 @@ Module base.
       }.
     Implicit Type γ : mpmc_tqueue_2۰name.
 
-    #[global] Instance mpmc_tqueue_2۰name𑁒eq_dec : EqDecision mpmc_tqueue_2۰name :=
+    #[global] Instance mpmc_tqueue_2۰nameｰeq_dec : EqDecision mpmc_tqueue_2۰name :=
       ltac:(solve_decision).
-    #[global] Instance mpmc_tqueue_2۰name𑁒countable :
+    #[global] Instance mpmc_tqueue_2۰nameｰcountable :
       Countable mpmc_tqueue_2۰name.
     Proof.
       solve_countable.
@@ -58,39 +58,39 @@ Module base.
     Definition mpmc_tqueue_2۰finished γ : iProp Σ.
     Admitted.
 
-    #[global] Instance mpmc_tqueue_2۰model𑁒timeless γ vs :
+    #[global] Instance mpmc_tqueue_2۰modelｰtimeless γ vs :
       Timeless (mpmc_tqueue_2۰model γ vs).
     Proof.
     Admitted.
 
-    #[global] Instance mpmc_tqueue_2۰inv𑁒persistent t γ ι :
+    #[global] Instance mpmc_tqueue_2۰invｰpersistent t γ ι :
       Persistent (mpmc_tqueue_2۰inv t γ ι).
     Proof.
     Admitted.
-    #[global] Instance mpmc_tqueue_2۰full𑁒persistent γ :
+    #[global] Instance mpmc_tqueue_2۰fullｰpersistent γ :
       Persistent (mpmc_tqueue_2۰full γ).
     Proof.
     Admitted.
-    #[global] Instance mpmc_tqueue_2۰finished𑁒persistent γ :
+    #[global] Instance mpmc_tqueue_2۰finishedｰpersistent γ :
       Persistent (mpmc_tqueue_2۰finished γ).
     Proof.
     Admitted.
 
-    Lemma mpmc_tqueue_2۰model𑁒exclusive γ vs1 vs2 :
+    Lemma mpmc_tqueue_2۰modelｰexclusive γ vs1 vs2 :
       mpmc_tqueue_2۰model γ vs1 -∗
       mpmc_tqueue_2۰model γ vs2 -∗
       False.
     Proof.
     Admitted.
 
-    Lemma mpmc_tqueue_2𑁒full𑁒nonfull γ :
+    Lemma mpmc_tqueue_2ｰfullｰnonfull γ :
       mpmc_tqueue_2۰full γ -∗
       mpmc_tqueue_2۰nonfull γ -∗
       False.
     Proof.
     Admitted.
 
-    Lemma mpmc_tqueue_2𑁒model𑁒finished t γ ι vs E :
+    Lemma mpmc_tqueue_2ｰmodelｰfinished t γ ι vs E :
       ↑ι ⊆ E →
       mpmc_tqueue_2۰inv t γ ι -∗
       mpmc_tqueue_2۰model γ vs -∗
@@ -100,7 +100,7 @@ Module base.
     Proof.
     Admitted.
 
-    Lemma mpmc_tqueue_2٠create𑁒spec ι cap :
+    Lemma mpmc_tqueue_2٠createｰspec ι cap :
       (0 ≤ cap)%Z →
       {{{
         True
@@ -116,7 +116,7 @@ Module base.
     Proof.
     Admitted.
 
-    Lemma mpmc_tqueue_2٠make𑁒spec ι cap v :
+    Lemma mpmc_tqueue_2٠makeｰspec ι cap v :
       (0 ≤ cap)%Z →
       {{{
         True
@@ -132,7 +132,7 @@ Module base.
     Proof.
     Admitted.
 
-    Lemma mpmc_tqueue_2٠is_empty𑁒spec t γ ι :
+    Lemma mpmc_tqueue_2٠is_emptyｰspec t γ ι :
       <<<
         mpmc_tqueue_2۰inv t γ ι
       | ∀∀ vs,
@@ -148,7 +148,7 @@ Module base.
     Proof.
     Admitted.
 
-    Lemma mpmc_tqueue_2٠push𑁒spec t γ ι v E Φ :
+    Lemma mpmc_tqueue_2٠pushｰspec t γ ι v E Φ :
       mpmc_tqueue_2۰inv t γ ι -∗
       ▷ (
         |={⊤ ∖ ↑ι, E}=>
@@ -174,7 +174,7 @@ Module base.
     Proof.
     Admitted.
 
-    Lemma mpmc_tqueue_2٠pop𑁒spec t γ ι :
+    Lemma mpmc_tqueue_2٠popｰspec t γ ι :
       <<<
         mpmc_tqueue_2۰inv t γ ι
       | ∀∀ vs,
@@ -289,49 +289,49 @@ Section mpmc_tqueue_2۰G.
       )
     ".
 
-  #[global] Instance mpmc_tqueue_2۰model𑁒timeless t vs :
+  #[global] Instance mpmc_tqueue_2۰modelｰtimeless t vs :
     Timeless (mpmc_tqueue_2۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpmc_tqueue_2۰inv𑁒persistent t ι :
+  #[global] Instance mpmc_tqueue_2۰invｰpersistent t ι :
     Persistent (mpmc_tqueue_2۰inv t ι).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpmc_tqueue_2۰full𑁒persistent t :
+  #[global] Instance mpmc_tqueue_2۰fullｰpersistent t :
     Persistent (mpmc_tqueue_2۰full t).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpmc_tqueue_2۰finished𑁒persistent t :
+  #[global] Instance mpmc_tqueue_2۰finishedｰpersistent t :
     Persistent (mpmc_tqueue_2۰finished t).
   Proof.
     apply _.
   Qed.
 
-  Lemma mpmc_tqueue_2۰model𑁒exclusive t vs1 vs2 :
+  Lemma mpmc_tqueue_2۰modelｰexclusive t vs1 vs2 :
     mpmc_tqueue_2۰model t vs1 -∗
     mpmc_tqueue_2۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.mpmc_tqueue_2۰model𑁒exclusive with "Hmodel_1 Hmodel_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.mpmc_tqueue_2۰modelｰexclusive with "Hmodel_1 Hmodel_2").
   Qed.
 
-  Lemma mpmc_tqueue_2𑁒full𑁒nonfull t :
+  Lemma mpmc_tqueue_2ｰfullｰnonfull t :
     mpmc_tqueue_2۰full t -∗
     mpmc_tqueue_2۰nonfull t -∗
     False.
   Proof.
     iIntros "(:full =1) (:nonfull =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.mpmc_tqueue_2𑁒full𑁒nonfull with "Hfull_1 Hnonfull_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.mpmc_tqueue_2ｰfullｰnonfull with "Hfull_1 Hnonfull_2").
   Qed.
 
-  Lemma mpmc_tqueue_2𑁒model𑁒finished t ι vs E :
+  Lemma mpmc_tqueue_2ｰmodelｰfinished t ι vs E :
     ↑ι ⊆ E →
     mpmc_tqueue_2۰inv t ι -∗
     mpmc_tqueue_2۰model t vs -∗
@@ -340,13 +340,13 @@ Section mpmc_tqueue_2۰G.
       mpmc_tqueue_2۰model t vs.
   Proof.
     iIntros "% (:inv =1) (:model =2) (:finished =3)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iDestruct (meta𑁒agree with "Hmeta_2 Hmeta_3") as %<-.
-    iMod (base.mpmc_tqueue_2𑁒model𑁒finished with "Hinv_1 Hmodel_2 Hfinished_3") as "($ & $)"; first done.
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iDestruct (metaｰagree with "Hmeta_2 Hmeta_3") as %<-.
+    iMod (base.mpmc_tqueue_2ｰmodelｰfinished with "Hinv_1 Hmodel_2 Hfinished_3") as "($ & $)"; first done.
     iFrameSteps.
   Qed.
 
-  Lemma mpmc_tqueue_2٠create𑁒spec ι cap :
+  Lemma mpmc_tqueue_2٠createｰspec ι cap :
     (0 ≤ cap)%Z →
     {{{
       True
@@ -361,13 +361,13 @@ Section mpmc_tqueue_2۰G.
   Proof.
     iIntros "%Hcap %Φ _ HΦ".
 
-    iApply wp𑁒fupd.
-    wp۰apply (base.mpmc_tqueue_2٠create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)"; first done.
-    iMod (meta𑁒set γ with "Hmeta"); first done.
+    iApply wpｰfupd.
+    wp۰apply (base.mpmc_tqueue_2٠createｰspec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)"; first done.
+    iMod (metaｰset γ with "Hmeta"); first done.
     iSteps.
   Qed.
 
-  Lemma mpmc_tqueue_2٠make𑁒spec ι cap v :
+  Lemma mpmc_tqueue_2٠makeｰspec ι cap v :
     (0 ≤ cap)%Z →
     {{{
       True
@@ -382,13 +382,13 @@ Section mpmc_tqueue_2۰G.
   Proof.
     iIntros "%Hcap %Φ _ HΦ".
 
-    iApply wp𑁒fupd.
-    wp۰apply (base.mpmc_tqueue_2٠make𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)"; first done.
-    iMod (meta𑁒set γ with "Hmeta"); first done.
+    iApply wpｰfupd.
+    wp۰apply (base.mpmc_tqueue_2٠makeｰspec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)"; first done.
+    iMod (metaｰset γ with "Hmeta"); first done.
     iSteps.
   Qed.
 
-  Lemma mpmc_tqueue_2٠is_empty𑁒spec t ι :
+  Lemma mpmc_tqueue_2٠is_emptyｰspec t ι :
     <<<
       mpmc_tqueue_2۰inv t ι
     | ∀∀ vs,
@@ -404,14 +404,14 @@ Section mpmc_tqueue_2۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.mpmc_tqueue_2٠is_empty𑁒spec with "[$]").
-    { iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
+    awp۰apply (base.mpmc_tqueue_2٠is_emptyｰspec with "[$]").
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+      iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma mpmc_tqueue_2٠push𑁒spec t ι v E Φ :
+  Lemma mpmc_tqueue_2٠pushｰspec t ι v E Φ :
     mpmc_tqueue_2۰inv t ι -∗
     ▷ (
       |={⊤ ∖ ↑ι, E}=>
@@ -437,20 +437,20 @@ Section mpmc_tqueue_2۰G.
   Proof.
     iIntros "(:inv) HΦ".
 
-    wp۰apply (base.mpmc_tqueue_2٠push𑁒spec _ _ _ _ E with "[$]").
+    wp۰apply (base.mpmc_tqueue_2٠pushｰspec _ _ _ _ E with "[$]").
     { iMod "HΦ" as (vs) "((:model =1) & HΦ)". simplify.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
+      iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iFrame. iIntros "!> %b Hb".
       iMod ("HΦ" $! b with "[Hb]") as "(Hb & $)".
       { destruct b; iSteps. }
       destruct b; last iSteps.
       iDestruct "Hb" as "(:nonfull =2)". simplify.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_2") as %<-. iClear "Hmeta_2".
+      iDestruct (metaｰagree with "Hmeta Hmeta_2") as %<-. iClear "Hmeta_2".
       iFrameSteps.
     }
   Qed.
 
-  Lemma mpmc_tqueue_2٠pop𑁒spec t ι :
+  Lemma mpmc_tqueue_2٠popｰspec t ι :
     <<<
       mpmc_tqueue_2۰inv t ι
     | ∀∀ vs,
@@ -479,9 +479,9 @@ Section mpmc_tqueue_2۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.mpmc_tqueue_2٠pop𑁒spec with "[$]").
-    { iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
+    awp۰apply (base.mpmc_tqueue_2٠popｰspec with "[$]").
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+      iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; first iSteps. iIntros "%o %vs' (Hmodel & $)".
       iFrameSteps. destruct o; iSteps.
     }

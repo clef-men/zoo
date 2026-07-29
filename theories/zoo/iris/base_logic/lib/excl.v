@@ -12,7 +12,7 @@ Class ExclG Σ F :=
 Definition excl۰Σ F `{!oFunctorContractive F} :=
   #[GFunctor (exclRF F)
   ].
-#[global] Instance subG𑁒excl۰Σ Σ F `{!oFunctorContractive F} :
+#[global] Instance subGｰexcl۰Σ Σ F `{!oFunctorContractive F} :
   subG (excl۰Σ F) Σ →
   ExclG Σ F.
 Proof.
@@ -25,20 +25,20 @@ Section excl۰G.
   Definition excl γ a :=
     own γ (Excl a).
 
-  #[global] Instance excl𑁒proper γ :
+  #[global] Instance exclｰproper γ :
     Proper ((≡) ==> (≡)) (excl γ).
   Proof.
     solve_proper.
   Qed.
 
-  #[global] Instance excl𑁒timeless γ a :
+  #[global] Instance exclｰtimeless γ a :
     Discrete a →
     Timeless (excl γ a).
   Proof.
     apply _.
   Qed.
 
-  Lemma excl𑁒alloc a :
+  Lemma exclｰalloc a :
     ⊢ |==>
       ∃ γ,
       excl γ a.
@@ -46,7 +46,7 @@ Section excl۰G.
     apply own_alloc. done.
   Qed.
 
-  Lemma excl𑁒exclusive γ a1 a2 :
+  Lemma exclｰexclusive γ a1 a2 :
     excl γ a1 -∗
     excl γ a2 -∗
     False.
@@ -56,7 +56,7 @@ Section excl۰G.
     iApply (excl_validI with "H").
   Qed.
 
-  Lemma excl𑁒update γ a b :
+  Lemma exclｰupdate γ a b :
     excl γ a ⊢ |==>
     excl γ b.
   Proof.

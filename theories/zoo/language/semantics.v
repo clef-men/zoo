@@ -29,9 +29,9 @@ Implicit Type tid : thread_id.
 
 Parameter encode_tag : nat → nat.
 
-Axiom encode_tag𑁒inj :
+Axiom encode_tagｰinj :
   Inj (=) (=) encode_tag.
-#[global] Existing Instance encode_tag𑁒inj.
+#[global] Existing Instance encode_tagｰinj.
 
 Definition val۰immediate v :=
   match v with
@@ -150,7 +150,7 @@ Definition observation : Set :=
   prophet_id * (val * val).
 
 Inductive base_step tid : expr → state → list observation → expr → state → list expr → Prop :=
-  | base_step𑁒rec f x e σ :
+  | base_stepｰrec f x e σ :
       base_step
         tid
         (Rec f x e)
@@ -159,7 +159,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValRec f x e)
         σ
         []
-  | base_step𑁒app i recs rec v σ :
+  | base_stepｰapp i recs rec v σ :
       recs !! i = Some rec →
       base_step
         tid
@@ -169,7 +169,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (eval_app recs rec.1.2 v rec.2)
         σ
         []
-  | base_step𑁒let x v1 e2 σ :
+  | base_stepｰlet x v1 e2 σ :
       base_step
         tid
         (Let x (Val v1) e2)
@@ -178,7 +178,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (subst' x v1 e2)
         σ
         []
-  | base_step𑁒unop op v v' σ :
+  | base_stepｰunop op v v' σ :
       eval_unop op v = Some v' →
       base_step
         tid
@@ -188,7 +188,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val v')
         σ
         []
-  | base_step𑁒binop op v1 v2 v' σ :
+  | base_stepｰbinop op v1 v2 v' σ :
       eval_binop op v1 v2 = Some v' →
       base_step
         tid
@@ -198,7 +198,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val v')
         σ
         []
-  | base_step𑁒equal𑁒fail v1 v2 σ :
+  | base_stepｰequalｰfail v1 v2 σ :
       v1 ≉ v2 →
       base_step
         tid
@@ -208,7 +208,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValBool false)
         σ
         []
-  | base_step𑁒equal𑁒success v1 v2 σ :
+  | base_stepｰequalｰsuccess v1 v2 σ :
       v1 ≈ v2 →
       base_step
         tid
@@ -218,7 +218,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValBool true)
         σ
         []
-  | base_step𑁒if b e1 e2 σ :
+  | base_stepｰif b e1 e2 σ :
       base_step
         tid
         (If (Val $ ValBool b) e1 e2)
@@ -227,7 +227,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (if b then e1 else e2)
         σ
         []
-  | base_step𑁒for n1 n2 e σ :
+  | base_stepｰfor n1 n2 e σ :
       base_step
         tid
         (For (Val $ ValInt n1) (Val $ ValInt n2) e)
@@ -236,7 +236,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (n1 + 1)) (Val $ ValInt n2) e))
         σ
         []
-  | base_step𑁒alloc tag n σ l :
+  | base_stepｰalloc tag n σ l :
       (0 ≤ n)%Z →
       state۰alloc_condition l ₊n σ →
       base_step
@@ -247,7 +247,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValLoc l)
         (state۰alloc l (Header tag ₊n) (replicate ₊n ValUnit) σ)
         []
-  | base_step𑁒block𑁒mutable tag es vs σ l :
+  | base_stepｰblockｰmutable tag es vs σ l :
       0 < length es →
       es = of_vals vs →
       state۰alloc_condition l (length es) σ →
@@ -259,7 +259,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValLoc l)
         (state۰alloc l (Header tag (length es)) vs σ)
         []
-  | base_step𑁒block𑁒immutable𑁒nongenerative tag es vs σ :
+  | base_stepｰblockｰimmutableｰnongenerative tag es vs σ :
       es = of_vals vs →
       base_step
         tid
@@ -269,7 +269,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValBlock Nongenerative tag vs)
         σ
         []
-  | base_step𑁒block𑁒immutable𑁒generative𑁒weak tag es vs σ :
+  | base_stepｰblockｰimmutableｰgenerativeｰweak tag es vs σ :
       es = of_vals vs →
       base_step
         tid
@@ -279,7 +279,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValBlock (Generative None) tag vs)
         σ
         []
-  | base_step𑁒block𑁒immutable𑁒generative𑁒strong tag es vs σ bid :
+  | base_stepｰblockｰimmutableｰgenerativeｰstrong tag es vs σ bid :
       es = of_vals vs →
       base_step
         tid
@@ -289,7 +289,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValBlock (Generative (Some bid)) tag vs)
         σ
         []
-  | base_step𑁒match𑁒mutable l hdr x e brs e' σ :
+  | base_stepｰmatchｰmutable l hdr x e brs e' σ :
       σ.(state۰headers) !! l = Some hdr →
       eval_match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x e brs = Some e' →
       base_step
@@ -300,7 +300,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         e'
         σ
         []
-  | base_step𑁒match𑁒immutable gen tag vs x e brs e' σ :
+  | base_stepｰmatchｰimmutable gen tag vs x e brs e' σ :
       eval_match tag (length vs) (SubjectBlock gen vs) x e brs = Some e' →
       base_step
         tid
@@ -310,7 +310,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         e'
         σ
         []
-  | base_step𑁒get_tag𑁒mutable l hdr σ :
+  | base_stepｰget_tagｰmutable l hdr σ :
       σ.(state۰headers) !! l = Some hdr →
       base_step
         tid
@@ -320,7 +320,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValNat (encode_tag hdr.(header۰tag)))
         σ
         []
-  | base_step𑁒get_tag𑁒immutable gen tag vs σ :
+  | base_stepｰget_tagｰimmutable gen tag vs σ :
       0 < length vs →
       base_step
         tid
@@ -330,7 +330,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValNat (encode_tag tag))
         σ
         []
-  | base_step𑁒get_size𑁒mutable l hdr σ :
+  | base_stepｰget_sizeｰmutable l hdr σ :
       σ.(state۰headers) !! l = Some hdr →
       base_step
         tid
@@ -340,7 +340,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValNat hdr.(header۰size))
         σ
         []
-  | base_step𑁒get_size𑁒immutable gen tag vs σ :
+  | base_stepｰget_sizeｰimmutable gen tag vs σ :
       0 < length vs →
       base_step
         tid
@@ -350,7 +350,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValNat (length vs))
         σ
         []
-  | base_step𑁒get_field𑁒mutable l fld v σ :
+  | base_stepｰget_fieldｰmutable l fld v σ :
       σ.(state۰heap) !! (l +ₗ fld) = Some v →
       base_step
         tid
@@ -360,7 +360,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val v)
         σ
         []
-  | base_step𑁒get_field𑁒immutable gen tag vs (fld : nat) v σ :
+  | base_stepｰget_fieldｰimmutable gen tag vs (fld : nat) v σ :
       vs !! fld = Some v →
       base_step
         tid
@@ -370,7 +370,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val v)
         σ
         []
-  | base_step𑁒set_field l fld v σ :
+  | base_stepｰset_field l fld v σ :
       is_Some (σ.(state۰heap) !! (l +ₗ fld)) →
       base_step
         tid
@@ -380,7 +380,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         Unit
         (state۰set_location (l +ₗ fld) v σ)
         []
-  | base_step𑁒xchg l fld v w σ :
+  | base_stepｰxchg l fld v w σ :
       σ.(state۰heap) !! (l +ₗ fld) = Some w →
       base_step
         tid
@@ -390,7 +390,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val w)
         (state۰set_location (l +ₗ fld) v σ)
         []
-  | base_step𑁒cas𑁒fail l fld v1 v2 v σ :
+  | base_stepｰcasｰfail l fld v1 v2 v σ :
       σ.(state۰heap) !! (l +ₗ fld) = Some v →
       v ≉ v1 →
       base_step
@@ -401,7 +401,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValBool false)
         σ
         []
-  | base_step𑁒cas𑁒success l fld v1 v2 v σ :
+  | base_stepｰcasｰsuccess l fld v1 v2 v σ :
       σ.(state۰heap) !! (l +ₗ fld) = Some v →
       v ≈ v1 →
       base_step
@@ -412,7 +412,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValBool true)
         (state۰set_location (l +ₗ fld) v2 σ)
         []
-  | base_step𑁒faa l fld n m σ :
+  | base_stepｰfaa l fld n m σ :
       σ.(state۰heap) !! (l +ₗ fld) = Some $ ValInt m →
       base_step
         tid
@@ -422,7 +422,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValInt m)
         (state۰set_location (l +ₗ fld) (ValInt (m + n)) σ)
         []
-  | base_step𑁒fork e σ v :
+  | base_stepｰfork e σ v :
       val۰immediate v →
       base_step
         tid
@@ -432,7 +432,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         Unit
         (state۰add_local v σ)
         [e]
-  | base_step𑁒get_local v σ :
+  | base_stepｰget_local v σ :
       σ.(state۰locals) !! tid = Some v →
       base_step
         tid
@@ -442,7 +442,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val v)
         σ
         []
-  | base_step𑁒set_local v σ :
+  | base_stepｰset_local v σ :
       is_Some (σ.(state۰locals) !! tid) →
       base_step
         tid
@@ -452,7 +452,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         Unit
         (state۰set_local tid v σ)
         []
-  | base_step𑁒proph σ pid :
+  | base_stepｰproph σ pid :
       pid ∉ σ.(state۰prophets) →
       base_step
         tid
@@ -462,7 +462,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValProph pid)
         (state۰add_prophet pid σ)
         []
-  | base_step𑁒resolve e pid v σ κ w σ' es :
+  | base_stepｰresolve e pid v σ κ w σ' es :
       base_step tid e σ κ (Val w) σ' es →
       base_step
         tid
@@ -473,7 +473,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ'
         es.
 
-Lemma base_step𑁒alloc' tid tag n σ :
+Lemma base_stepｰalloc' tid tag n σ :
   let l := state۰fresh σ in
   (0 ≤ n)%Z →
   base_step
@@ -486,10 +486,10 @@ Lemma base_step𑁒alloc' tid tag n σ :
     [].
 Proof.
   intros l Hn.
-  apply base_step𑁒alloc. 1: done.
-  apply state۰alloc_condition𑁒fresh.
+  apply base_stepｰalloc. 1: done.
+  apply state۰alloc_conditionｰfresh.
 Qed.
-Lemma base_step𑁒block𑁒mutable' tid tag es vs σ :
+Lemma base_stepｰblockｰmutable' tid tag es vs σ :
   let l := state۰fresh σ in
   0 < length es →
   es = of_vals vs →
@@ -503,10 +503,10 @@ Lemma base_step𑁒block𑁒mutable' tid tag es vs σ :
     [].
 Proof.
   intros l Hn ->.
-  apply base_step𑁒block𑁒mutable. 1,2: done.
-  apply state۰alloc_condition𑁒fresh.
+  apply base_stepｰblockｰmutable. 1,2: done.
+  apply state۰alloc_conditionｰfresh.
 Qed.
-Lemma base_step𑁒block𑁒immutable𑁒generative𑁒strong' tid tag es vs σ :
+Lemma base_stepｰblockｰimmutableｰgenerativeｰstrong' tid tag es vs σ :
   es = of_vals vs →
   base_step
     tid
@@ -517,9 +517,9 @@ Lemma base_step𑁒block𑁒immutable𑁒generative𑁒strong' tid tag es vs σ 
     σ
     [].
 Proof.
-  apply base_step𑁒block𑁒immutable𑁒generative𑁒strong.
+  apply base_stepｰblockｰimmutableｰgenerativeｰstrong.
 Qed.
-Lemma base_step𑁒fork' tid e σ :
+Lemma base_stepｰfork' tid e σ :
   base_step
     tid
     (Fork e)
@@ -529,9 +529,9 @@ Lemma base_step𑁒fork' tid e σ :
     (state۰add_local inhabitant σ)
     [e].
 Proof.
-  apply base_step𑁒fork. done.
+  apply base_stepｰfork. done.
 Qed.
-Lemma base_step𑁒proph' tid σ :
+Lemma base_stepｰproph' tid σ :
   let pid := fresh σ.(state۰prophets) in
   base_step
     tid

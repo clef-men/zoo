@@ -43,13 +43,13 @@ Section prophet_typed.
       )
     ".
 
-  #[global] Instance prophet_typed۰model𑁒timeless pid prophs :
+  #[global] Instance prophet_typed۰modelｰtimeless pid prophs :
     Timeless (prophet_typed۰model pid prophs).
   Proof.
     apply _.
   Qed.
 
-  Lemma prophet_typed۰model𑁒exclusive pid prophs1 prophs2 :
+  Lemma prophet_typed۰modelｰexclusive pid prophs1 prophs2 :
     prophet_typed۰model pid prophs1 -∗
     prophet_typed۰model pid prophs2 -∗
     False.
@@ -57,7 +57,7 @@ Section prophet_typed.
     iSteps.
   Qed.
 
-  Lemma prophet_typed𑁒wp𑁒proph E :
+  Lemma prophet_typedｰwpｰproph E :
     {{{
       True
     }}}
@@ -69,11 +69,11 @@ Section prophet_typed.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp۰apply (wp𑁒proph with "[//]").
+    wp۰apply (wpｰproph with "[//]").
     iSteps.
   Qed.
 
-  Lemma prophet_typed𑁒wp𑁒resolve e pid v prophs E Φ :
+  Lemma prophet_typedｰwpｰresolve e pid v prophs E Φ :
     Atomic e →
     to_val e = None →
     prophet_typed۰model pid prophs -∗
@@ -94,8 +94,8 @@ Section prophet_typed.
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
     iIntros "% % (:model) HΦ".
-    wp۰apply (wp𑁒resolve with "Hpid"); first done.
-    wp۰apply (wp𑁒wand with "HΦ") as "%w (%oproph & %Hoproph & HΦ) %prophs' -> Hpid".
+    wp۰apply (wpｰresolve with "Hpid"); first done.
+    wp۰apply (wpｰwand with "HΦ") as "%w (%oproph & %Hoproph & HΦ) %prophs' -> Hpid".
     rewrite /= Hoproph in Hprophs.
     destruct oproph; iSteps.
   Qed.
@@ -107,7 +107,7 @@ Record prophet_typed₁ :=
   { prophet_typed₁۰type : Type
   ; prophet_typed₁۰of_val : val → val → option $ option prophet_typed₁۰type
 
-  ; #[global] prophet_typed₁۰type𑁒inhabited ::
+  ; #[global] prophet_typed₁۰typeｰinhabited ::
       Inhabited prophet_typed₁۰type
   }.
 
@@ -137,22 +137,22 @@ Section prophet_typed₁.
       )
     ".
 
-  #[global] Instance prophet_typed₁۰model𑁒timeless pid proph :
+  #[global] Instance prophet_typed₁۰modelｰtimeless pid proph :
     Timeless (prophet_typed₁۰model pid proph).
   Proof.
     apply _.
   Qed.
 
-  Lemma prophet_typed₁۰model𑁒exclusive pid proph1 proph2 :
+  Lemma prophet_typed₁۰modelｰexclusive pid proph1 proph2 :
     prophet_typed₁۰model pid proph1 -∗
     prophet_typed₁۰model pid proph2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)".
-    iApply (prophet_typed۰model𑁒exclusive with "Hmodel1 Hmodel2").
+    iApply (prophet_typed۰modelｰexclusive with "Hmodel1 Hmodel2").
   Qed.
 
-  Lemma prophet_typed₁𑁒wp𑁒proph E :
+  Lemma prophet_typed₁ｰwpｰproph E :
     {{{
       True
     }}}
@@ -164,14 +164,14 @@ Section prophet_typed₁.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp۰apply (prophet_typed𑁒wp𑁒proph prophet_typed₁۰to_prophet with "[//]") as "%pid %prophs Hmodel".
+    wp۰apply (prophet_typedｰwpｰproph prophet_typed₁۰to_prophet with "[//]") as "%pid %prophs Hmodel".
     destruct prophs as [| proph prophs'] eqn:Heq.
     1: iApply ("HΦ" $! pid inhabitant).
     2: iApply ("HΦ" $! pid proph).
     all: iSteps.
   Qed.
 
-  Lemma prophet_typed₁𑁒wp𑁒resolve e pid v proph E Φ :
+  Lemma prophet_typed₁ｰwpｰresolve e pid v proph E Φ :
     Atomic e →
     to_val e = None →
     prophet_typed₁۰model pid proph -∗
@@ -189,8 +189,8 @@ Section prophet_typed₁.
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
     iIntros (? ?) "(:model) HΦ".
-    wp۰apply (prophet_typed𑁒wp𑁒resolve with "Hmodel"); first done.
-    wp۰apply (wp𑁒wand with "HΦ") as (w) "(%oproph & %Hoproph & HΦ)".
+    wp۰apply (prophet_typedｰwpｰresolve with "Hmodel"); first done.
+    wp۰apply (wpｰwand with "HΦ") as (w) "(%oproph & %Hoproph & HΦ)".
     destruct oproph; iSteps.
   Qed.
 End prophet_typed₁.

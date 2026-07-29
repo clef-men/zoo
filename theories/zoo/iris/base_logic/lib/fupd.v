@@ -5,7 +5,7 @@ Require Export zoo.iris.base_logic.lib.base.
 Require Import zoo.iris.diaframe.
 Require Import zoo.options.
 
-Lemma lc𑁒fupd𑁒elim𑁒laterN `{inv۰G : invGS Σ} n P E :
+Lemma lcｰfupdｰelimｰlaterN `{inv۰G : invGS Σ} n P E :
   £ n -∗
   ▷^n P ={E}=∗
   P.

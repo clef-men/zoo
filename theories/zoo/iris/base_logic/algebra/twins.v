@@ -23,64 +23,64 @@ Section upred.
 
     Implicit Type a b : A.
 
-    Lemma twins۰twin₁𑁒dfrac𑁒validI dq a :
+    Lemma twins۰twin₁ｰdfracｰvalidI dq a :
       ✓ (twins۰twin₁ dq a) ⊣⊢
       ⌜✓ dq⌝.
     Proof.
       sbi_unfold => n.
-      apply twins۰twin₁𑁒dfrac𑁒validN.
+      apply twins۰twin₁ｰdfracｰvalidN.
     Qed.
-    Lemma twins۰twin₁𑁒validI a :
+    Lemma twins۰twin₁ｰvalidI a :
       ⊢ ✓ (twins۰twin₁ (DfracOwn 1) a).
     Proof.
-      rewrite twins۰twin₁𑁒dfrac𑁒validI bi.pure_True //.
+      rewrite twins۰twin₁ｰdfracｰvalidI bi.pure_True //.
     Qed.
 
-    Lemma twins۰twin₁𑁒dfrac𑁒op𑁒validI dq1 a1 dq2 a2 :
+    Lemma twins۰twin₁ｰdfracｰopｰvalidI dq1 a1 dq2 a2 :
       ✓ (twins۰twin₁ dq1 a1 ⋅ twins۰twin₁ dq2 a2) ⊣⊢
         ⌜✓ (dq1 ⋅ dq2)⌝ ∧
         a1 ≡ a2.
     Proof.
       sbi_unfold => n.
-      apply twins۰twin₁𑁒dfrac𑁒op𑁒validN.
+      apply twins۰twin₁ｰdfracｰopｰvalidN.
     Qed.
-    Lemma twins۰twin₁𑁒op𑁒validI a b :
+    Lemma twins۰twin₁ｰopｰvalidI a b :
       ✓ (twins۰twin₁ (DfracOwn 1) a ⋅ twins۰twin₁ (DfracOwn 1) b) ⊣⊢
       False.
     Proof.
-      rewrite twins۰twin₁𑁒dfrac𑁒op𑁒validI bi.pure_False. 1: auto.
+      rewrite twins۰twin₁ｰdfracｰopｰvalidI bi.pure_False. 1: auto.
       rewrite left_absorb //.
     Qed.
 
-    Lemma twins۰twin₂𑁒validI a :
+    Lemma twins۰twin₂ｰvalidI a :
       ⊢ ✓ (twins۰twin₂ a).
     Proof.
       sbi_unfold => n _.
-      apply twins۰twin₂𑁒validN.
+      apply twins۰twin₂ｰvalidN.
     Qed.
 
-    Lemma twins۰twin₂𑁒op𑁒validI a b :
+    Lemma twins۰twin₂ｰopｰvalidI a b :
       ✓ (twins۰twin₂ a ⋅ twins۰twin₂ b) ⊣⊢
       False.
     Proof.
       sbi_unfold => n.
-      apply twins۰twin₂𑁒op𑁒validN.
+      apply twins۰twin₂ｰopｰvalidN.
     Qed.
 
-    Lemma twins𑁒both𑁒dfrac𑁒validI dq a b :
+    Lemma twinsｰbothｰdfracｰvalidI dq a b :
       ✓ (twins۰twin₁ dq a ⋅ twins۰twin₂ b) ⊣⊢
         ⌜✓ dq⌝ ∧
         a ≡ b.
     Proof.
       sbi_unfold => n.
-      apply twins𑁒both𑁒dfrac𑁒validN.
+      apply twinsｰbothｰdfracｰvalidN.
     Qed.
-    Lemma twins𑁒both𑁒validI a b :
+    Lemma twinsｰbothｰvalidI a b :
       ✓ (twins۰twin₁ (DfracOwn 1) a ⋅ twins۰twin₂ b) ⊣⊢
       a ≡ b.
     Proof.
       sbi_unfold => n.
-      apply twins𑁒both𑁒validN.
+      apply twinsｰbothｰvalidN.
     Qed.
   End ofe.
 End upred.

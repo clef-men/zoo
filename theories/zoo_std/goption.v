@@ -15,16 +15,16 @@ Coercion goption۰to_val o :=
   end%V.
 #[global] Arguments goption۰to_val !_ / : assert.
 
-#[global] Instance goption۰to_val𑁒inj𑁒similar :
+#[global] Instance goption۰to_valｰinjｰsimilar :
   Inj (=) (≈@{val}) goption۰to_val.
 Proof.
   intros [] [] ?; try done.
   zoo_simplify. done.
 Qed.
-#[global] Instance goption۰to_val𑁒inj :
+#[global] Instance goption۰to_valｰinj :
   Inj (=) (=) goption۰to_val.
 Proof.
-  intros ?* ->%val𑁒similar𑁒refl%(inj _). done.
+  intros ?* ->%valｰsimilarｰrefl%(inj _). done.
 Qed.
 
 Section zoo۰G.
@@ -36,13 +36,13 @@ Section zoo۰G.
     ∨ ∃ v,
       ⌜t = ‘Gsome[ v ]%V⌝ ∗
       τ v.
-  #[global] Instance itype۰goption𑁒itype :
+  #[global] Instance itype۰goptionｰitype :
     iType _ itype۰goption.
   Proof.
     split. apply _.
   Qed.
 
-  Lemma wp𑁒match𑁒goption t e1 x e2 Φ :
+  Lemma wpｰmatchｰgoption t e1 x e2 Φ :
     itype۰goption t -∗
     ( WP e1 {{ Φ }} ∧
       ∀ v, τ v -∗ WP subst' x v e2 {{ Φ }}

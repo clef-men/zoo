@@ -13,25 +13,25 @@ Section zoo۰G.
   Definition pstack۰model t vs : iProp Σ :=
     list۰model t vs.
 
-  #[global] Instance pstack۰model𑁒timeless t vs :
+  #[global] Instance pstack۰modelｰtimeless t vs :
     Timeless (pstack۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance pstack۰model𑁒persistent t vs :
+  #[global] Instance pstack۰modelｰpersistent t vs :
     Persistent (pstack۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  Lemma pstack۰model𑁒nil :
+  Lemma pstack۰modelｰnil :
     ⊢ pstack۰model pstack٠empty [].
   Proof.
     iSteps.
   Qed.
 
-  Lemma pstack٠is_empty𑁒spec t vs :
+  Lemma pstack٠is_emptyｰspec t vs :
     {{{
       pstack۰model t vs
     }}}
@@ -42,10 +42,10 @@ Section zoo۰G.
     }}}.
   Proof.
     iIntros "%Φ -> HΦ".
-    wp۰apply (list٠is_empty𑁒spec with "[//] HΦ"); first done.
+    wp۰apply (list٠is_emptyｰspec with "[//] HΦ"); first done.
   Qed.
 
-  Lemma pstack٠push𑁒spec t vs v :
+  Lemma pstack٠pushｰspec t vs v :
     {{{
       pstack۰model t vs
     }}}
@@ -60,7 +60,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma pstack٠pop𑁒spec t vs :
+  Lemma pstack٠popｰspec t vs :
     {{{
       pstack۰model t vs
     }}}

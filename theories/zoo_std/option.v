@@ -14,23 +14,23 @@ Coercion option۰to_val o :=
   end%V.
 #[global] Arguments option۰to_val !_ / : assert.
 
-#[global] Instance option۰to_val𑁒inj :
+#[global] Instance option۰to_valｰinj :
   Inj (=) (=) option۰to_val.
 Proof.
   intros [] []; naive_solver.
 Qed.
 
-Lemma option۰to_val𑁒similar𑁒None𑁒l o :
+Lemma option۰to_valｰsimilarｰNoneｰl o :
   §None%V ≈ o →
   o = None.
 Proof.
   destruct o; done.
 Qed.
-Lemma option۰to_val𑁒similar𑁒None𑁒r o :
+Lemma option۰to_valｰsimilarｰNoneｰr o :
   (o : val) ≈ §None%V →
   o = None.
 Proof.
-  intros ?%symmetry%option۰to_val𑁒similar𑁒None𑁒l. done.
+  intros ?%symmetry%option۰to_valｰsimilarｰNoneｰl. done.
 Qed.
 
 Section zoo۰G.
@@ -42,13 +42,13 @@ Section zoo۰G.
     ∨ ∃ v,
       ⌜t = ‘Some( v )%V⌝ ∗
       τ v.
-  #[global] Instance itype۰option𑁒itype :
+  #[global] Instance itype۰optionｰitype :
     iType _ itype۰option.
   Proof.
     split. apply _.
   Qed.
 
-  Lemma wp𑁒match𑁒option t e1 x e2 Φ :
+  Lemma wpｰmatchｰoption t e1 x e2 Φ :
     itype۰option t -∗
     ( WP e1 {{ Φ }} ∧
       ∀ v, τ v -∗ WP subst' x v e2 {{ Φ }}

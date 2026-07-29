@@ -27,33 +27,33 @@ Section zoo۰G.
     end.
   #[global] Arguments xdlchain _ !_ _ / : assert.
 
-  #[global] Instance xdlchain𑁒timeless src nodes dst :
+  #[global] Instance xdlchainｰtimeless src nodes dst :
     Timeless (xdlchain src nodes dst).
   Proof.
     move: src. induction nodes as [| ? []]; apply _.
   Qed.
 
-  Lemma xdlchain𑁒nil src dst :
+  Lemma xdlchainｰnil src dst :
     ⊢ xdlchain src [] dst.
   Proof.
     iSteps.
   Qed.
 
-  Lemma xdlchain𑁒singleton src node dst :
+  Lemma xdlchainｰsingleton src node dst :
     xdlchain src [node] dst ⊣⊢
       node.[xdlchain_prev] ↦ src ∗
       node.[xdlchain_next] ↦ dst.
   Proof.
     iSteps.
   Qed.
-  Lemma xdlchain𑁒singleton₁ src node dst :
+  Lemma xdlchainｰsingleton₁ src node dst :
     xdlchain src [node] dst ⊢
       node.[xdlchain_prev] ↦ src ∗
       node.[xdlchain_next] ↦ dst.
   Proof.
     iSteps.
   Qed.
-  Lemma xdlchain𑁒singleton₂ src node dst :
+  Lemma xdlchainｰsingleton₂ src node dst :
     node.[xdlchain_prev] ↦ src -∗
     node.[xdlchain_next] ↦ dst -∗
     xdlchain src [node] dst.
@@ -61,7 +61,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma xdlchain𑁒cons𑁒unfold {src} node nodes dst :
+  #[local] Lemma xdlchainｰconsｰunfold {src} node nodes dst :
     xdlchain src (node :: nodes) dst ⊣⊢
       node.[xdlchain_prev] ↦ src ∗
       match nodes with
@@ -75,7 +75,7 @@ Section zoo۰G.
     done.
   Qed.
 
-  Lemma xdlchain𑁒cons {src} nodes node nodes' dst :
+  Lemma xdlchainｰcons {src} nodes node nodes' dst :
     nodes = node :: nodes' →
     xdlchain src nodes dst ⊣⊢
       node.[xdlchain_prev] ↦ src ∗
@@ -84,25 +84,25 @@ Section zoo۰G.
   Proof.
     destruct nodes'; iSteps.
   Qed.
-  Lemma xdlchain𑁒cons₁ {src} nodes node nodes' dst :
+  Lemma xdlchainｰcons₁ {src} nodes node nodes' dst :
     nodes = node :: nodes' →
     xdlchain src nodes dst ⊢
       node.[xdlchain_prev] ↦ src ∗
       node.[xdlchain_next] ↦ from_option #@{location} dst (head nodes') ∗
       xdlchain #node nodes' dst.
   Proof.
-    intros. rewrite xdlchain𑁒cons //.
+    intros. rewrite xdlchainｰcons //.
   Qed.
-  Lemma xdlchain𑁒cons₂ src node nodes dst :
+  Lemma xdlchainｰcons₂ src node nodes dst :
     node.[xdlchain_prev] ↦ src -∗
     node.[xdlchain_next] ↦ from_option #@{location} dst (head nodes) -∗
     xdlchain #node nodes dst -∗
     xdlchain src (node :: nodes) dst.
   Proof.
-    rewrite (xdlchain𑁒cons (node :: nodes)) //. iSteps.
+    rewrite (xdlchainｰcons (node :: nodes)) //. iSteps.
   Qed.
 
-  Lemma xdlchain𑁒app {src} nodes nodes1 nodes2 dst :
+  Lemma xdlchainｰapp {src} nodes nodes1 nodes2 dst :
     nodes = nodes1 ++ nodes2 →
     xdlchain src nodes dst ⊣⊢
       xdlchain src nodes1 (from_option #@{location} dst (head nodes2)) ∗
@@ -113,57 +113,57 @@ Section zoo۰G.
     - iSteps.
     - destruct nodes2; iSteps.
     - iSplit.
-      + rewrite /= -!xdlchain𑁒cons𑁒unfold last𑁒cons'.
+      + rewrite /= -!xdlchainｰconsｰunfold lastｰcons'.
         iIntros "($ & $ & H)".
         iApply ("IH" with "H").
-      + rewrite /= -!xdlchain𑁒cons𑁒unfold last𑁒cons'.
+      + rewrite /= -!xdlchainｰconsｰunfold lastｰcons'.
         iIntros "(($ & $ & H1) & H2)".
         iApply ("IH" with "[$H1 $H2]").
   Qed.
-  Lemma xdlchain𑁒app₁ {src} nodes nodes1 nodes2 dst :
+  Lemma xdlchainｰapp₁ {src} nodes nodes1 nodes2 dst :
     nodes = nodes1 ++ nodes2 →
     xdlchain src nodes dst ⊢
       xdlchain src nodes1 (from_option #@{location} dst (head nodes2)) ∗
       xdlchain (from_option #@{location} src (last nodes1)) nodes2 dst.
   Proof.
-    intros. rewrite xdlchain𑁒app //.
+    intros. rewrite xdlchainｰapp //.
   Qed.
-  Lemma xdlchain𑁒app₂ src nodes1 nodes2 dst :
+  Lemma xdlchainｰapp₂ src nodes1 nodes2 dst :
     xdlchain src nodes1 (from_option #@{location} dst (head nodes2)) -∗
     xdlchain (from_option #@{location} src (last nodes1)) nodes2 dst -∗
     xdlchain src (nodes1 ++ nodes2) dst.
   Proof.
-    rewrite (xdlchain𑁒app (nodes1 ++ nodes2)) //. iSteps.
+    rewrite (xdlchainｰapp (nodes1 ++ nodes2)) //. iSteps.
   Qed.
 
-  Lemma xdlchain𑁒snoc {src} nodes nodes' node dst :
+  Lemma xdlchainｰsnoc {src} nodes nodes' node dst :
     nodes = nodes' ++ [node] →
     xdlchain src nodes dst ⊣⊢
       xdlchain src nodes' #node ∗
       node.[xdlchain_prev] ↦ from_option #@{location} src (last nodes') ∗
       node.[xdlchain_next] ↦ dst.
   Proof.
-    intros. rewrite xdlchain𑁒app //.
+    intros. rewrite xdlchainｰapp //.
   Qed.
-  Lemma xdlchain𑁒snoc₁ {src} nodes nodes' node dst :
+  Lemma xdlchainｰsnoc₁ {src} nodes nodes' node dst :
     nodes = nodes' ++ [node] →
     xdlchain src nodes dst ⊢
       xdlchain src nodes' #node ∗
       node.[xdlchain_prev] ↦ from_option #@{location} src (last nodes') ∗
       node.[xdlchain_next] ↦ dst.
   Proof.
-    intros. rewrite xdlchain𑁒snoc //.
+    intros. rewrite xdlchainｰsnoc //.
   Qed.
-  Lemma xdlchain𑁒snoc₂ src nodes node dst :
+  Lemma xdlchainｰsnoc₂ src nodes node dst :
     xdlchain src nodes #node -∗
     node.[xdlchain_prev] ↦ from_option #@{location} src (last nodes) -∗
     node.[xdlchain_next] ↦ dst -∗
     xdlchain src (nodes ++ [node]) dst.
   Proof.
-    rewrite (xdlchain𑁒snoc (nodes ++ [node])) //. iSteps.
+    rewrite (xdlchainｰsnoc (nodes ++ [node])) //. iSteps.
   Qed.
 
-  Lemma xdlchain𑁒last {src nodes} node dst :
+  Lemma xdlchainｰlast {src nodes} node dst :
     last nodes = Some node →
     xdlchain src nodes dst ⊢
       ∃ nodes',
@@ -174,10 +174,10 @@ Section zoo۰G.
   Proof.
     iIntros ((nodes' & ->)%last_Some) "H".
     iExists nodes'. iStep.
-    iApply (xdlchain𑁒snoc₁ with "H"); first done.
+    iApply (xdlchainｰsnoc₁ with "H"); first done.
   Qed.
 
-  Lemma xdlchain𑁒lookup {src nodes} i node dst :
+  Lemma xdlchainｰlookup {src nodes} i node dst :
     nodes !! i = Some node →
     xdlchain src nodes dst ⊣⊢
       xdlchain src (take i nodes) #node ∗
@@ -187,9 +187,9 @@ Section zoo۰G.
   Proof.
     intros Hlookup.
     pose proof Hlookup as Hnodes%take_drop_middle.
-    rewrite -{1}Hnodes xdlchain𑁒app // (xdlchain𑁒cons (node :: _)) //.
+    rewrite -{1}Hnodes xdlchainｰapp // (xdlchainｰcons (node :: _)) //.
   Qed.
-  Lemma xdlchain𑁒lookup₁ {src nodes} i node dst :
+  Lemma xdlchainｰlookup₁ {src nodes} i node dst :
     nodes !! i = Some node →
     xdlchain src nodes dst ⊢
       xdlchain src (take i nodes) #node ∗
@@ -197,9 +197,9 @@ Section zoo۰G.
       node.[xdlchain_next] ↦ from_option #@{location} dst (head $ drop ˖i nodes) ∗
       xdlchain #node (drop ˖i nodes) dst.
   Proof.
-    intros. rewrite xdlchain𑁒lookup //.
+    intros. rewrite xdlchainｰlookup //.
   Qed.
-  Lemma xdlchain𑁒lookup₂ {src nodes} i node prev next dst :
+  Lemma xdlchainｰlookup₂ {src nodes} i node prev next dst :
     nodes !! i = Some node →
     prev = from_option #@{location} src (last $ take i nodes) →
     next = from_option #@{location} dst (head $ drop ˖i nodes) →
@@ -209,10 +209,10 @@ Section zoo۰G.
     xdlchain #node (drop ˖i nodes) dst -∗
     xdlchain src nodes dst.
   Proof.
-    intros. rewrite (@xdlchain𑁒lookup _ nodes) //. iSteps.
+    intros. rewrite (@xdlchainｰlookup _ nodes) //. iSteps.
   Qed.
 
-  Lemma xdlchain𑁒lookup𑁒acc {src nodes} i node dst :
+  Lemma xdlchainｰlookupｰacc {src nodes} i node dst :
     nodes !! i = Some node →
     xdlchain src nodes dst ⊢
       node.[xdlchain_prev] ↦ from_option #@{location} src (last $ take i nodes) ∗
@@ -222,10 +222,10 @@ Section zoo۰G.
         xdlchain src nodes dst
       ).
   Proof.
-    intros. rewrite xdlchain𑁒lookup //. iSteps.
+    intros. rewrite xdlchainｰlookup //. iSteps.
   Qed.
 
-  Lemma xdlchain𑁒exclusive src1 src2 nodes dst1 dst2 :
+  Lemma xdlchainｰexclusive src1 src2 nodes dst1 dst2 :
     0 < length nodes →
     xdlchain src1 nodes dst1 -∗
     xdlchain src2 nodes dst2 -∗
@@ -237,10 +237,10 @@ Section zoo۰G.
     1: iDestruct "H2" as "(H2 & _)".
     2: iDestruct "H1" as "(_ & H1 & _)".
     2: iDestruct "H2" as "(_ & H2 & _)".
-    all: iApply (pointsto𑁒exclusive with "H1 H2").
+    all: iApply (pointstoｰexclusive with "H1 H2").
   Qed.
 
-  Lemma xdlchain𑁒NoDup src nodes dst :
+  Lemma xdlchainｰNoDup src nodes dst :
     xdlchain src nodes dst ⊢
     ⌜NoDup nodes⌝.
   Proof.
@@ -251,13 +251,13 @@ Section zoo۰G.
     { destruct (Nat.min_spec i1 i2) as [(_ & ->) | (_ & ->)]; done. }
     assert (nodes !! (i1 `max` i2) = Some node) as Hlookup_max.
     { destruct (Nat.max_spec i1 i2) as [(_ & ->) | (_ & ->)]; done. }
-    iDestruct (xdlchain𑁒lookup (i1 `min` i2) with "H") as "(_ & _ & Hnext_1 & H)"; first done.
-    iDestruct (xdlchain𑁒lookup (i1 `max` i2 - i1 `min` i2 - 1) node with "H") as "(_ & _ & Hnext_2 & _)".
+    iDestruct (xdlchainｰlookup (i1 `min` i2) with "H") as "(_ & _ & Hnext_1 & H)"; first done.
+    iDestruct (xdlchainｰlookup (i1 `max` i2 - i1 `min` i2 - 1) node with "H") as "(_ & _ & Hnext_2 & _)".
     { rewrite lookup_drop -Hlookup_max. f_equal. lia. }
-    iApply (pointsto𑁒exclusive with "Hnext_1 Hnext_2").
+    iApply (pointstoｰexclusive with "Hnext_1 Hnext_2").
   Qed.
 
-  Lemma xdlchain٠prev𑁒spec {src nodes node} nodes' dst E :
+  Lemma xdlchain٠prevｰspec {src nodes node} nodes' dst E :
     nodes = node :: nodes' →
     {{{
       xdlchain src nodes dst
@@ -270,7 +270,7 @@ Section zoo۰G.
   Proof.
     iSteps.
   Qed.
-  Lemma xdlchain٠prev𑁒spec𑁒lookup {src nodes} i node dst E :
+  Lemma xdlchain٠prevｰspecｰlookup {src nodes} i node dst E :
     nodes !! i = Some node →
     {{{
       xdlchain src nodes dst
@@ -282,10 +282,10 @@ Section zoo۰G.
     }}}.
   Proof.
     intros Hlookup.
-    setoid_rewrite xdlchain𑁒lookup𑁒acc at 1; last done.
+    setoid_rewrite xdlchainｰlookupｰacc at 1; last done.
     iSteps.
   Qed.
-  Lemma xdlchain٠prev𑁒spec𑁒head {src nodes} node dst E :
+  Lemma xdlchain٠prevｰspecｰhead {src nodes} node dst E :
     head nodes = Some node →
     {{{
       xdlchain src nodes dst
@@ -297,10 +297,10 @@ Section zoo۰G.
     }}}.
   Proof.
     intros (nodes' & ->)%head_Some.
-    eapply xdlchain٠prev𑁒spec. done.
+    eapply xdlchain٠prevｰspec. done.
   Qed.
 
-  Lemma xdlchain٠next𑁒spec {src nodes node} nodes' dst E :
+  Lemma xdlchain٠nextｰspec {src nodes node} nodes' dst E :
     nodes = node :: nodes' →
     {{{
       xdlchain src nodes dst
@@ -314,7 +314,7 @@ Section zoo۰G.
     iIntros (->) "%Φ H HΦ".
     destruct nodes'; iSteps.
   Qed.
-  Lemma xdlchain٠next𑁒spec𑁒lookup {src nodes} i node dst E :
+  Lemma xdlchain٠nextｰspecｰlookup {src nodes} i node dst E :
     nodes !! i = Some node →
     {{{
       xdlchain src nodes dst
@@ -326,10 +326,10 @@ Section zoo۰G.
     }}}.
   Proof.
     intros Hlookup.
-    setoid_rewrite xdlchain𑁒lookup𑁒acc at 1; last done.
+    setoid_rewrite xdlchainｰlookupｰacc at 1; last done.
     iSteps.
   Qed.
-  Lemma xdlchain٠next𑁒spec𑁒last {src nodes} node dst E :
+  Lemma xdlchain٠nextｰspecｰlast {src nodes} node dst E :
     last nodes = Some node →
     {{{
       xdlchain src nodes dst
@@ -341,13 +341,13 @@ Section zoo۰G.
     }}}.
   Proof.
     iIntros (Hnode) "%Φ H HΦ".
-    wp۰apply (xdlchain٠next𑁒spec𑁒lookup (pred (length nodes)) with "H").
+    wp۰apply (xdlchain٠nextｰspecｰlookup (pred (length nodes)) with "H").
     { rewrite -last_lookup //. }
     rewrite skipn_all2; first lia.
     iSteps.
   Qed.
 
-  Lemma xdlchain٠set_prev𑁒spec {src nodes node} nodes' dst v E :
+  Lemma xdlchain٠set_prevｰspec {src nodes node} nodes' dst v E :
     nodes = node :: nodes' →
     {{{
       xdlchain src nodes dst
@@ -360,7 +360,7 @@ Section zoo۰G.
   Proof.
     iSteps.
   Qed.
-  Lemma xdlchain٠set_prev𑁒spec𑁒lookup {src nodes} i node dst v E :
+  Lemma xdlchain٠set_prevｰspecｰlookup {src nodes} i node dst v E :
     nodes !! i = Some node →
     {{{
       xdlchain src nodes dst
@@ -373,13 +373,13 @@ Section zoo۰G.
     }}}.
   Proof.
     intros Hlookup.
-    setoid_rewrite xdlchain𑁒lookup at 1; last done.
+    setoid_rewrite xdlchainｰlookup at 1; last done.
     iIntros "%Φ (H1 & Hprev & Hnext & H2) HΦ".
     wp۰store.
-    iDestruct (xdlchain𑁒cons₂ with "Hprev Hnext H2") as "H2".
+    iDestruct (xdlchainｰcons₂ with "Hprev Hnext H2") as "H2".
     rewrite -drop_S //. iSteps.
   Qed.
-  Lemma xdlchain٠set_prev𑁒spec𑁒head {src nodes} node dst v E :
+  Lemma xdlchain٠set_prevｰspecｰhead {src nodes} node dst v E :
     head nodes = Some node →
     {{{
       xdlchain src nodes dst
@@ -391,10 +391,10 @@ Section zoo۰G.
     }}}.
   Proof.
     intros (nodes' & ->)%head_Some.
-    eapply xdlchain٠set_prev𑁒spec. done.
+    eapply xdlchain٠set_prevｰspec. done.
   Qed.
 
-  Lemma xdlchain٠set_next𑁒spec {src nodes node} nodes' dst v E :
+  Lemma xdlchain٠set_nextｰspec {src nodes node} nodes' dst v E :
     nodes = node :: nodes' →
     {{{
       xdlchain src nodes dst
@@ -409,7 +409,7 @@ Section zoo۰G.
     iIntros (->) "%Φ H HΦ".
     destruct nodes'; iSteps.
   Qed.
-  Lemma xdlchain٠set_next𑁒spec𑁒lookup {src nodes} i node dst v E :
+  Lemma xdlchain٠set_nextｰspecｰlookup {src nodes} i node dst v E :
     nodes !! i = Some node →
     {{{
       xdlchain src nodes dst
@@ -422,13 +422,13 @@ Section zoo۰G.
     }}}.
   Proof.
     intros Hlookup.
-    setoid_rewrite xdlchain𑁒lookup at 1; last done.
+    setoid_rewrite xdlchainｰlookup at 1; last done.
     iIntros "%Φ (H1 & Hprev & Hnext & H2) HΦ".
     wp۰store.
-    iDestruct (xdlchain𑁒snoc₂ with "H1 Hprev Hnext") as "H1".
+    iDestruct (xdlchainｰsnoc₂ with "H1 Hprev Hnext") as "H1".
     rewrite -take_S_r //. iSteps.
   Qed.
-  Lemma xdlchain٠set_next𑁒spec𑁒last {src nodes} node dst v E :
+  Lemma xdlchain٠set_nextｰspecｰlast {src nodes} node dst v E :
     last nodes = Some node →
     {{{
       xdlchain src nodes dst
@@ -440,7 +440,7 @@ Section zoo۰G.
     }}}.
   Proof.
     iIntros (Hnode) "%Φ H HΦ".
-    wp۰apply (xdlchain٠set_next𑁒spec𑁒lookup (pred (length nodes)) with "H").
+    wp۰apply (xdlchain٠set_nextｰspecｰlookup (pred (length nodes)) with "H").
     { rewrite -last_lookup //. }
     rewrite firstn_all2; first lia.
     iSteps.

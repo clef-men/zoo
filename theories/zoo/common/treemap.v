@@ -13,9 +13,9 @@ Section treemap۰rooted.
   Implicit Type tree : gmap N (N * E).
 
   Inductive treemap۰path tree dst : N → list E → Prop :=
-    | treemap۰path𑁒nil :
+    | treemap۰pathｰnil :
         treemap۰path tree dst dst []
-    | treemap۰path𑁒cons {node1} ϵ node2 edge path :
+    | treemap۰pathｰcons {node1} ϵ node2 edge path :
         tree !! node1 = Some ϵ →
         ϵ.1 = node2 →
         ϵ.2 = edge →
@@ -33,14 +33,14 @@ Section treemap۰rooted.
   Definition treemap۰reroot tree root root' edge :=
     <[root := (root', edge)]> (delete root' tree).
 
-  Lemma treemap۰path𑁒app tree dst1 node path1 dst2 path2 :
+  Lemma treemap۰pathｰapp tree dst1 node path1 dst2 path2 :
     treemap۰path tree dst1 node path1 →
     treemap۰path tree dst2 dst1 path2 →
     treemap۰path tree dst2 node (path1 ++ path2).
   Proof.
     induction 1; naive_solver.
   Qed.
-  Lemma treemap۰path𑁒snoc {tree dst1 node path} ϵ dst2 edge :
+  Lemma treemap۰pathｰsnoc {tree dst1 node path} ϵ dst2 edge :
     treemap۰path tree dst1 node path →
     tree !! dst1 = Some ϵ →
     ϵ.1 = dst2 →
@@ -48,16 +48,16 @@ Section treemap۰rooted.
     treemap۰path tree dst2 node (path ++ [edge]).
   Proof.
     intros Hpath Hlookup_dst1 ? ?.
-    eapply treemap۰path𑁒app; [done | eauto].
+    eapply treemap۰pathｰapp; [done | eauto].
   Qed.
 
-  Lemma treemap۰path𑁒nil𑁒inv tree dst node :
+  Lemma treemap۰pathｰnilｰinv tree dst node :
     treemap۰path tree dst node [] →
     node = dst.
   Proof.
     inversion 1 => //.
   Qed.
-  Lemma treemap۰path𑁒cons𑁒inv tree dst node edge path :
+  Lemma treemap۰pathｰconsｰinv tree dst node edge path :
     treemap۰path tree dst node (edge :: path) →
       ∃ node',
       tree !! node = Some (node', edge) ∧
@@ -65,7 +65,7 @@ Section treemap۰rooted.
   Proof.
     inversion 1 as [| ? []]. naive_solver.
   Qed.
-  Lemma treemap۰path𑁒app𑁒inv tree dst node path1 path2 :
+  Lemma treemap۰pathｰappｰinv tree dst node path1 path2 :
     treemap۰path tree dst node (path1 ++ path2) →
       ∃ node',
       treemap۰path tree node' node path1 ∧
@@ -74,7 +74,7 @@ Section treemap۰rooted.
     move: node. induction path1 => node Hpath; invert Hpath; naive_solver.
   Qed.
 
-  Lemma treemap۰path𑁒mono {tree dst node path} tree' :
+  Lemma treemap۰pathｰmono {tree dst node path} tree' :
     tree ##ₘ tree' →
     treemap۰path tree dst node path →
     treemap۰path (tree ∪ tree') dst node path.
@@ -86,21 +86,21 @@ Section treemap۰rooted.
     rewrite map_disjoint_spec in Htree'. naive_solver.
   Qed.
 
-  Lemma treemap۰rooted𑁒empty root :
+  Lemma treemap۰rootedｰempty root :
     treemap۰rooted ∅ root.
   Proof.
     split; first done.
     intros node []%(lookup_empty_is_Some (A := N * E)).
   Qed.
 
-  Lemma treemap۰rooted𑁒root tree root :
+  Lemma treemap۰rootedｰroot tree root :
     treemap۰rooted tree root →
     tree !! root = None.
   Proof.
     rewrite /treemap۰rooted. naive_solver.
   Qed.
 
-  Lemma treemap۰path𑁒is_nil tree root path :
+  Lemma treemap۰pathｰis_nil tree root path :
     treemap۰rooted tree root →
     treemap۰path tree root root path →
     path = [].
@@ -108,7 +108,7 @@ Section treemap۰rooted.
     intros (Hlookup_root & _) Hpath.
     invert Hpath. done.
   Qed.
-  Lemma treemap۰path𑁒is_cons tree root node path :
+  Lemma treemap۰pathｰis_cons tree root node path :
     treemap۰rooted tree root →
     treemap۰path tree root node path →
     node ≠ root →
@@ -121,7 +121,7 @@ Section treemap۰rooted.
     invert Hpath as [| ? []]. naive_solver.
   Qed.
 
-  #[local] Lemma treemap۰path𑁒acyclic {tree root path} node ϵ node' :
+  #[local] Lemma treemap۰pathｰacyclic {tree root path} node ϵ node' :
     treemap۰rooted tree root →
     treemap۰path tree root node path →
     tree !! node = Some ϵ →
@@ -130,7 +130,7 @@ Section treemap۰rooted.
   Proof.
     rewrite /treemap۰rooted. induction 2; naive_solver.
   Qed.
-  Lemma treemap۰rooted𑁒acyclic {tree root} node ϵ node' :
+  Lemma treemap۰rootedｰacyclic {tree root} node ϵ node' :
     treemap۰rooted tree root →
     tree !! node = Some ϵ →
     ϵ.1 = node' →
@@ -138,10 +138,10 @@ Section treemap۰rooted.
   Proof.
     intros (Hlookup_root & Hrooted) Hlookup.
     odestruct Hrooted as (path & Hpath); first done.
-    eapply treemap۰path𑁒acyclic; done.
+    eapply treemap۰pathｰacyclic; done.
   Qed.
 
-  Lemma treemap۰rooted𑁒path {tree root} node :
+  Lemma treemap۰rootedｰpath {tree root} node :
     treemap۰rooted tree root →
     is_Some (tree !! node) →
       ∃ path,
@@ -150,7 +150,7 @@ Section treemap۰rooted.
     rewrite /treemap۰rooted. naive_solver.
   Qed.
 
-  Lemma treemap۰rooted𑁒lift {tree root} root' edge :
+  Lemma treemap۰rootedｰlift {tree root} root' edge :
     treemap۰rooted tree root →
     tree !! root' = None →
     root ≠ root' →
@@ -168,13 +168,13 @@ Section treemap۰rooted.
       pose proof Htree'_lookup_node as Htree_lookup_node.
       rewrite lookup_insert_ne // in Htree_lookup_node.
       odestruct Hrooted as (path & Hpath); first done.
-      exists (path ++ [edge]). eapply treemap۰path𑁒app; last done.
+      exists (path ++ [edge]). eapply treemap۰pathｰapp; last done.
       rewrite /tree' insert_union_singleton_r //.
-      apply treemap۰path𑁒mono; last done.
+      apply treemap۰pathｰmono; last done.
       solve_map_disjoint.
   Qed.
 
-  Lemma treemap𑁒reroot𑁒path {tree root} root' ϵ edge dst node path :
+  Lemma treemapｰrerootｰpath {tree root} root' ϵ edge dst node path :
     treemap۰rooted tree root →
     tree !! root' = Some ϵ →
     ϵ.1 = root →
@@ -192,7 +192,7 @@ Section treemap۰rooted.
     econstructor; try done.
     rewrite lookup_insert_ne // lookup_delete_ne //.
   Qed.
-  Lemma treemap𑁒reroot𑁒path' {tree root} root' ϵ edge node path :
+  Lemma treemapｰrerootｰpath' {tree root} root' ϵ edge node path :
     treemap۰rooted tree root →
     tree !! root' = Some ϵ →
     ϵ.1 = root →
@@ -201,9 +201,9 @@ Section treemap۰rooted.
   Proof.
     intros (Htree_lookup_root & Hrooted) Htree_lookup_root' ? Hpath.
     assert (root ≠ root') as Hroot' by congruence.
-    eapply treemap𑁒reroot𑁒path; done.
+    eapply treemapｰrerootｰpath; done.
   Qed.
-  Lemma treemap𑁒reroot𑁒rooted {tree root} root' ϵ edge :
+  Lemma treemapｰrerootｰrooted {tree root} root' ϵ edge :
     treemap۰rooted tree root →
     tree !! root' = Some ϵ →
     ϵ.1 = root →

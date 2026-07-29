@@ -14,20 +14,20 @@ Section bi.
     Implicit Type P : PROP.
     Implicit Type Φ : K → A → PROP.
 
-    Lemma big_sepM𑁒singleton₁ Φ k v :
+    Lemma big_sepMｰsingleton₁ Φ k v :
       ([∗ map] k ↦ v ∈ {[k := v]}, Φ k v) ⊢
       Φ k v.
     Proof.
       rewrite big_sepM_singleton //.
     Qed.
-    Lemma big_sepM𑁒singleton₂ Φ k v :
+    Lemma big_sepMｰsingleton₂ Φ k v :
       Φ k v ⊢
       [∗ map] k ↦ v ∈ {[k := v]}, Φ k v.
     Proof.
       rewrite big_sepM_singleton //.
     Qed.
 
-    Lemma big_sepM𑁒impl𑁒thread {Φ1} P Φ2 m :
+    Lemma big_sepMｰimplｰthread {Φ1} P Φ2 m :
       ([∗ map] k ↦ x ∈ m, Φ1 k x) -∗
       P -∗
       □ (
@@ -55,7 +55,7 @@ Section bi.
         iApply big_sepM_insert; first done.
         iSteps.
     Qed.
-    Lemma big_sepM𑁒impl𑁒thread𑁒fupd `{!BiFUpd PROP} {Φ1} P Φ2 m E :
+    Lemma big_sepMｰimplｰthreadｰfupd `{!BiFUpd PROP} {Φ1} P Φ2 m E :
       ([∗ map] k ↦ x ∈ m, Φ1 k x) -∗
       P -∗
       □ (
@@ -86,7 +86,7 @@ Section bi.
         iSteps.
     Qed.
 
-    Lemma big_sepM𑁒delete₁ {Φ m} i x :
+    Lemma big_sepMｰdelete₁ {Φ m} i x :
       m !! i = Some x →
       ([∗ map] k ↦ y ∈ m, Φ k y) ⊢
         Φ i x ∗
@@ -95,7 +95,7 @@ Section bi.
       intros.
       rewrite big_sepM_delete //.
     Qed.
-    Lemma big_sepM𑁒delete₂ Φ m i x :
+    Lemma big_sepMｰdelete₂ Φ m i x :
       m !! i = Some x →
       ([∗ map] k ↦ y ∈ delete i m, Φ k y) -∗
       Φ i x -∗
@@ -105,7 +105,7 @@ Section bi.
       iApply (big_sepM_delete with "[$Hm $Hx]"); first done.
     Qed.
 
-    Lemma big_sepM𑁒insert𑁒delete₂ {Φ m i} x :
+    Lemma big_sepMｰinsertｰdelete₂ {Φ m i} x :
       ([∗ map] k ↦ y ∈ delete i m, Φ k y) -∗
       Φ i x -∗
       [∗ map] k ↦ y ∈ <[i := x]> m, Φ k y.
@@ -113,7 +113,7 @@ Section bi.
       rewrite big_sepM_insert_delete. iSteps.
     Qed.
 
-    Lemma big_sepM𑁒kmap Φ f `{!Inj (=) (=) f} m :
+    Lemma big_sepMｰkmap Φ f `{!Inj (=) (=) f} m :
       ([∗ map] k ↦ x ∈ (kmap f m), Φ k x) ⊣⊢
       [∗ map] k ↦ x ∈ m, Φ (f k) x.
     Proof.
@@ -126,7 +126,7 @@ Section bi.
 
     Implicit Type Φ : nat → A → PROP.
 
-    Lemma big_sepM𑁒map_seq start l Φ :
+    Lemma big_sepMｰmap_seq start l Φ :
       ([∗ map] k ↦ x ∈ map_seq start l, Φ k x) ⊣⊢
       [∗ list] k ↦ x ∈ l, Φ (start + k) x.
     Proof.
@@ -140,11 +140,11 @@ Section bi.
         all: iIntros "($ & Hl)".
         all: iApply ("IH" with "Hl").
     Qed.
-    Lemma big_sepM𑁒map_seq𑁒0 l Φ :
+    Lemma big_sepMｰmap_seqｰ0 l Φ :
       ([∗ map] k ↦ x ∈ map_seq 0 l, Φ k x) ⊣⊢
       [∗ list] k ↦ x ∈ l, Φ k x.
     Proof.
-      apply big_sepM𑁒map_seq.
+      apply big_sepMｰmap_seq.
     Qed.
   End big_sepM.
 End bi.

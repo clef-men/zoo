@@ -35,7 +35,7 @@ Definition ws_hub_fifo۰Σ :=
   ; excl۰Σ unitO
   ; ghost_list۰Σ emptiness
   ].
-#[global] Instance subG𑁒ws_hub_fifo۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰws_hub_fifo۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG ws_hub_fifo۰Σ Σ →
   WsHubFifoG Σ.
 Proof.
@@ -46,14 +46,14 @@ Section consistent.
   #[local] Definition consistent vs ws :=
     vs = list_to_set_disj ws.
 
-  #[local] Lemma consistent𑁒nil𑁒inv vs :
+  #[local] Lemma consistentｰnilｰinv vs :
     consistent vs [] →
     vs = ∅.
   Proof.
     done.
   Qed.
 
-  #[local] Lemma consistent𑁒push {vs ws} v :
+  #[local] Lemma consistentｰpush {vs ws} v :
     consistent vs ws →
     consistent ({[+v+]} ⊎ vs) (ws ++ [v]).
   Proof.
@@ -61,7 +61,7 @@ Section consistent.
     rewrite /consistent.
     rewrite list_to_set_disj_app list_to_set_disj_cons right_id (comm (⊎)) //.
   Qed.
-  #[local] Lemma consistent𑁒pop vs v ws :
+  #[local] Lemma consistentｰpop vs v ws :
     consistent vs (v :: ws) →
       ∃ vs',
       vs = {[+v+]} ⊎ vs' ∧
@@ -88,9 +88,9 @@ Section ws_hub_fifo۰G.
   Implicit Type γ : metadata.
   Implicit Type γ_owners : list gname.
 
-  #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
+  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance metadata𑁒countable :
+  #[local] Instance metadataｰcountable :
     Countable metadata.
   Proof.
     solve_countable.
@@ -202,19 +202,19 @@ Section ws_hub_fifo۰G.
       )
     ".
 
-  #[global] Instance ws_hub_fifo۰model𑁒timeless t vs :
+  #[global] Instance ws_hub_fifo۰modelｰtimeless t vs :
     Timeless (ws_hub_fifo۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance ws_hub_fifo۰inv𑁒persistent t ι sz :
+  #[global] Instance ws_hub_fifo۰invｰpersistent t ι sz :
     Persistent (ws_hub_fifo۰inv t ι sz).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma owner𑁒alloc sz :
+  #[local] Lemma ownerｰalloc sz :
     ⊢ |==>
       ∃ γ_owners,
       [∗ list] i ∈ seq 0 sz,
@@ -227,57 +227,57 @@ Section ws_hub_fifo۰G.
         excl (excl۰G := ws_hub_fifo۰G۰owner۰G) γ_owner ()
     )%I as "-#H".
     { iApply big_sepL_intro. iIntros "!> % % _".
-      iApply excl𑁒alloc.
+      iApply exclｰalloc.
     }
     iMod (big_sepL_bupd with "H") as "H".
-    iDestruct (big_sepL𑁒exists with "H") as "(%γ_owners & %Hlength & H)".
+    iDestruct (big_sepLｰexists with "H") as "(%γ_owners & %Hlength & H)".
     iDestruct (big_sepL2_intro (λ _ _ _, ⌜length γ_owners = sz⌝)%I (seq 0 sz) γ_owners with "[%]") as "Hlength". 1: done.
     { simpl_length in Hlength. naive_solver. }
     iDestruct (big_sepL2_sep_2 with "Hlength H") as "H".
-    iDestruct (big_sepL2𑁒retract𑁒r with "H") as "(_ & H)".
-    iDestruct (big_sepL𑁒seq𑁒index₂ with "H") as "H".
+    iDestruct (big_sepL2ｰretractｰr with "H") as "(_ & H)".
+    iDestruct (big_sepLｰseqｰindex₂ with "H") as "H".
     { simpl_length. }
     iSteps.
   Qed.
-  #[local] Lemma owner𑁒valid γ i :
+  #[local] Lemma ownerｰvalid γ i :
     owner γ i ⊢
     ⌜i < γ.(metadata۰size)⌝.
   Proof.
     iIntros "(:owner_)". iPureIntro.
     rewrite -Hlength. eapply lookup_lt_Some => //.
   Qed.
-  #[local] Lemma owner𑁒exclusive γ i :
+  #[local] Lemma ownerｰexclusive γ i :
     owner γ i -∗
     owner γ i -∗
     False.
   Proof.
     iIntros "(:owner_ =1) (:owner_ =2)". simplify.
-    iApply (excl𑁒exclusive with "Howner1 Howner2").
+    iApply (exclｰexclusive with "Howner1 Howner2").
   Qed.
 
   Opaque owner'.
 
-  #[local] Lemma emptiness𑁒alloc sz :
+  #[local] Lemma emptinessｰalloc sz :
     ⊢ |==>
       ∃ γ_emptiness,
       emptiness۰auth' γ_emptiness sz ∅ ∗
       [∗ list] i ∈ seq 0 sz,
         emptiness۰at' γ_emptiness i Empty.
   Proof.
-    iMod ghost_list𑁒alloc as "(%γ_emptiness & $ & Hats)".
-    iDestruct (big_sepL𑁒replicate₁ with "Hats") as "$".
+    iMod ghost_listｰalloc as "(%γ_emptiness & $ & Hats)".
+    iDestruct (big_sepLｰreplicate₁ with "Hats") as "$".
     iSteps. iPureIntro. simpl_length.
   Qed.
-  #[local] Lemma emptiness۰at𑁒valid γ vs i empty :
+  #[local] Lemma emptiness۰atｰvalid γ vs i empty :
     emptiness۰auth γ vs -∗
     emptiness۰at γ i empty -∗
     ⌜i < γ.(metadata۰size)⌝.
   Proof.
     iIntros "(:emptiness۰auth) Hat".
-    iDestruct (ghost_list𑁒lookup with "Hauth Hat") as %Hi%lookup_lt_Some.
+    iDestruct (ghost_listｰlookup with "Hauth Hat") as %Hi%lookup_lt_Some.
     iSteps.
   Qed.
-  #[local] Lemma emptiness𑁒empty γ vs :
+  #[local] Lemma emptinessｰempty γ vs :
     emptiness۰auth γ vs -∗
     ( [∗ list] i ∈ seq 0 γ.(metadata۰size),
       emptiness۰at γ i Empty
@@ -290,9 +290,9 @@ Section ws_hub_fifo۰G.
     { apply lookup_lt_Some in Hlookup.
       rewrite lookup_seq -Hemptys /=. eauto.
     }
-    iDestruct (ghost_list𑁒lookup with "Hauth Hat") as %?. congruence.
+    iDestruct (ghost_listｰlookup with "Hauth Hat") as %?. congruence.
   Qed.
-  #[local] Lemma emptiness𑁒update𑁒auth γ v vs :
+  #[local] Lemma emptinessｰupdateｰauth γ v vs :
     emptiness۰auth γ ({[+v+]} ⊎ vs) ⊢
     emptiness۰auth γ vs.
   Proof.
@@ -300,63 +300,63 @@ Section ws_hub_fifo۰G.
     destruct Hemptiness as [? | (i & Hlookup)]. 2: iSteps.
     exfalso. multiset_solver.
   Qed.
-  #[local] Lemma emptiness𑁒update𑁒Nonempty {γ vs i empty} vs' :
+  #[local] Lemma emptinessｰupdateｰNonempty {γ vs i empty} vs' :
     emptiness۰auth γ vs -∗
     emptiness۰at γ i empty ==∗
       emptiness۰auth γ vs' ∗
       emptiness۰at γ i Nonempty.
   Proof.
     iIntros "(:emptiness۰auth) Hat".
-    iDestruct (ghost_list𑁒lookup with "Hauth Hat") as %Hi%lookup_lt_Some.
-    iMod (ghost_list𑁒update𑁒at Nonempty with "Hauth Hat") as "($ & $)".
+    iDestruct (ghost_listｰlookup with "Hauth Hat") as %Hi%lookup_lt_Some.
+    iMod (ghost_listｰupdateｰat Nonempty with "Hauth Hat") as "($ & $)".
     iPureIntro. split.
     - simpl_length.
     - right. exists i. apply list_lookup_insert_eq => //.
   Qed.
-  #[local] Lemma emptiness𑁒update𑁒Empty γ i empty :
+  #[local] Lemma emptinessｰupdateｰEmpty γ i empty :
     emptiness۰auth γ ∅ -∗
     emptiness۰at γ i empty ==∗
       emptiness۰auth γ ∅ ∗
       emptiness۰at γ i Empty.
   Proof.
     iIntros "(:emptiness۰auth) Hat".
-    iMod (ghost_list𑁒update𑁒at Empty with "Hauth Hat") as "($ & $)".
+    iMod (ghost_listｰupdateｰat Empty with "Hauth Hat") as "($ & $)".
     iSteps. simpl_length.
   Qed.
 
   Opaque emptiness۰auth'.
 
-  Lemma ws_hub_fifo۰inv𑁒agree t ι sz1 sz2 :
+  Lemma ws_hub_fifo۰invｰagree t ι sz1 sz2 :
     ws_hub_fifo۰inv t ι sz1 -∗
     ws_hub_fifo۰inv t ι sz2 -∗
     ⌜sz1 = sz2⌝.
   Proof.
     iIntros "(:inv =1) (:inv =2)". simplify.
-    iDestruct (pointsto𑁒agree with "H𝑡1_size H𝑡2_size") as %[=].
+    iDestruct (pointstoｰagree with "H𝑡1_size H𝑡2_size") as %[=].
     iSteps.
   Qed.
 
-  Lemma ws_hub_fifo۰owner𑁒exclusive t i status1 empty1 status2 empty2 :
+  Lemma ws_hub_fifo۰ownerｰexclusive t i status1 empty1 status2 empty2 :
     ws_hub_fifo۰owner t i status1 empty1 -∗
     ws_hub_fifo۰owner t i status2 empty2 -∗
     False.
   Proof.
     iIntros "(:owner =1) (:owner =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (owner𑁒exclusive with "Howner_1 Howner_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (ownerｰexclusive with "Howner_1 Howner_2").
   Qed.
 
-  Lemma ws_hub_fifo𑁒inv𑁒owner t ι sz i status empty :
+  Lemma ws_hub_fifoｰinvｰowner t ι sz i status empty :
     ws_hub_fifo۰inv t ι sz -∗
     ws_hub_fifo۰owner t i status empty -∗
     ⌜i < sz⌝.
   Proof.
     iIntros "(:inv) (:owner)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-.
-    iApply (owner𑁒valid with "Howner").
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-.
+    iApply (ownerｰvalid with "Howner").
   Qed.
 
-  Lemma ws_hub_fifo۰model𑁒empty t ι sz vs :
+  Lemma ws_hub_fifo۰modelｰempty t ι sz vs :
     ws_hub_fifo۰inv t ι sz -∗
     ws_hub_fifo۰model t vs -∗
     ( [∗ list] i ∈ seq 0 sz,
@@ -366,14 +366,14 @@ Section ws_hub_fifo۰G.
     ⌜vs = ∅⌝.
   Proof.
     iIntros "(:inv) (:model) Howners". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iApply (emptiness𑁒empty with "Hemptiness_auth").
-    iApply (big_sepL𑁒seq𑁒impl with "Howners"). iIntros "!> %i %Hi (%status & (:owner)) /=". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iApply (emptinessｰempty with "Hemptiness_auth").
+    iApply (big_sepLｰseqｰimpl with "Howners"). iIntros "!> %i %Hi (%status & (:owner)) /=". injection Heq as <-.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iSteps.
   Qed.
 
-  Lemma ws_hub_fifo٠create𑁒spec ι sz :
+  Lemma ws_hub_fifo٠createｰspec ι sz :
     (0 ≤ sz)%Z →
     {{{
       True
@@ -391,15 +391,15 @@ Section ws_hub_fifo۰G.
     iIntros "%Hsz %Φ _ HΦ".
 
     wp۰rec.
-    wp۰apply+ (waiters٠create𑁒spec with "[//]") as (waiters) "#Hwaiters_inv". 1: done.
-    wp۰apply (mpmc_queue_1٠create𑁒spec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)".
+    wp۰apply+ (waiters٠createｰspec with "[//]") as (waiters) "#Hwaiters_inv". 1: done.
+    wp۰apply (mpmc_queue_1٠createｰspec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)".
     wp۰block 𝑡 as "Hmeta" "(H𝑡_size & H𝑡_queue & H𝑡_waiters & H𝑡_num_active & _)".
-    iMod (pointsto𑁒persist with "H𝑡_size") as "#H𝑡_size".
-    iMod (pointsto𑁒persist with "H𝑡_queue") as "#H𝑡_queue".
-    iMod (pointsto𑁒persist with "H𝑡_waiters") as "#H𝑡_waiters".
+    iMod (pointstoｰpersist with "H𝑡_size") as "#H𝑡_size".
+    iMod (pointstoｰpersist with "H𝑡_queue") as "#H𝑡_queue".
+    iMod (pointstoｰpersist with "H𝑡_waiters") as "#H𝑡_waiters".
 
-    iMod owner𑁒alloc as "(%γ_owners & Howners)".
-    iMod (emptiness𑁒alloc ₊sz) as "(%γ_emptiness & Hemptiness_auth & Hemptiness_ats)".
+    iMod ownerｰalloc as "(%γ_owners & Howners)".
+    iMod (emptinessｰalloc ₊sz) as "(%γ_emptiness & Hemptiness_auth & Hemptiness_ats)".
 
     pose γ :=
       {|metadata۰size := ₊sz
@@ -409,7 +409,7 @@ Section ws_hub_fifo۰G.
       ; metadata۰emptiness := γ_emptiness
       |}.
 
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta". 1: done.
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta". 1: done.
 
     iApply "HΦ".
     iSplitL "H𝑡_num_active".
@@ -417,11 +417,11 @@ Section ws_hub_fifo۰G.
     iSplitL "Hqueue_model Hemptiness_auth".
     { iSteps. }
     iDestruct (big_sepL_sep_2 with "Howners Hemptiness_ats") as "Howners".
-    iApply (big_sepL𑁒seq𑁒impl with "Howners").
+    iApply (big_sepLｰseqｰimpl with "Howners").
     iSteps.
   Qed.
 
-  Lemma ws_hub_fifo٠size𑁒spec t ι sz :
+  Lemma ws_hub_fifo٠sizeｰspec t ι sz :
     {{{
       ws_hub_fifo۰inv t ι sz
     }}}
@@ -434,7 +434,7 @@ Section ws_hub_fifo۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_fifo٠begin_inactive𑁒spec t ι sz :
+  #[local] Lemma ws_hub_fifo٠begin_inactiveｰspec t ι sz :
     {{{
       ws_hub_fifo۰inv t ι sz
     }}}
@@ -447,7 +447,7 @@ Section ws_hub_fifo۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_fifo٠end_inactive𑁒spec t ι sz :
+  #[local] Lemma ws_hub_fifo٠end_inactiveｰspec t ι sz :
     {{{
       ws_hub_fifo۰inv t ι sz
     }}}
@@ -460,7 +460,7 @@ Section ws_hub_fifo۰G.
     iSteps.
   Qed.
 
-  Lemma ws_hub_fifo٠block𑁒spec t ι sz i i_ empty :
+  Lemma ws_hub_fifo٠blockｰspec t ι sz i i_ empty :
     i = ⁺i_ →
     {{{
       ws_hub_fifo۰inv t ι sz ∗
@@ -475,11 +475,11 @@ Section ws_hub_fifo۰G.
     iIntros (->) "%Φ (#Hinv & Howner) HΦ".
 
     wp۰rec.
-    wp۰apply+ (ws_hub_fifo٠begin_inactive𑁒spec with "Hinv") as "_".
+    wp۰apply+ (ws_hub_fifo٠begin_inactiveｰspec with "Hinv") as "_".
     iApply ("HΦ" with "Howner").
   Qed.
 
-  Lemma ws_hub_fifo٠unblock𑁒spec t ι sz i i_ empty :
+  Lemma ws_hub_fifo٠unblockｰspec t ι sz i i_ empty :
     i = ⁺i_ →
     {{{
       ws_hub_fifo۰inv t ι sz ∗
@@ -494,11 +494,11 @@ Section ws_hub_fifo۰G.
     iIntros (->) "%Φ (#Hinv & Howner) HΦ".
 
     wp۰rec.
-    wp۰apply+ (ws_hub_fifo٠end_inactive𑁒spec with "Hinv") as "_".
+    wp۰apply+ (ws_hub_fifo٠end_inactiveｰspec with "Hinv") as "_".
     iApply ("HΦ" with "Howner").
   Qed.
 
-  Lemma ws_hub_fifo٠closed𑁒spec t ι sz :
+  Lemma ws_hub_fifo٠closedｰspec t ι sz :
     {{{
       ws_hub_fifo۰inv t ι sz
     }}}
@@ -512,7 +512,7 @@ Section ws_hub_fifo۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_fifo٠notify𑁒spec t ι sz :
+  #[local] Lemma ws_hub_fifo٠notifyｰspec t ι sz :
     {{{
       ws_hub_fifo۰inv t ι sz
     }}}
@@ -525,10 +525,10 @@ Section ws_hub_fifo۰G.
     iIntros "%Φ (:inv) HΦ".
 
     wp۰rec. wp۰load.
-    wp۰apply (waiters٠notify_one𑁒spec with "Hwaiters_inv HΦ").
+    wp۰apply (waiters٠notify_oneｰspec with "Hwaiters_inv HΦ").
   Qed.
 
-  #[local] Lemma ws_hub_fifo٠notify_all𑁒spec t ι sz :
+  #[local] Lemma ws_hub_fifo٠notify_allｰspec t ι sz :
     {{{
       ws_hub_fifo۰inv t ι sz
     }}}
@@ -541,10 +541,10 @@ Section ws_hub_fifo۰G.
     iIntros "%Φ (:inv) HΦ".
 
     wp۰rec. wp۰load.
-    wp۰apply (waiters٠notify_all𑁒spec with "Hwaiters_inv HΦ").
+    wp۰apply (waiters٠notify_allｰspec with "Hwaiters_inv HΦ").
   Qed.
 
-  Lemma ws_hub_fifo٠push𑁒spec t ι sz i i_ empty v :
+  Lemma ws_hub_fifo٠pushｰspec t ι sz i i_ empty v :
     i = ⁺i_ →
     <<<
       ws_hub_fifo۰inv t ι sz ∗
@@ -560,26 +560,26 @@ Section ws_hub_fifo۰G.
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
-    iApply (wp𑁒frame𑁒wand with "Howner").
+    iApply (wpｰframeｰwand with "Howner").
 
     wp۰rec. wp۰load.
 
-    awp۰apply (mpmc_queue_1٠push𑁒spec with "Hqueue_inv").
-    iApply (aacc𑁒aupd𑁒commit with "HΦ"). 1: solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    awp۰apply (mpmc_queue_1٠pushｰspec with "Hqueue_inv").
+    iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model".
-    iMod (emptiness𑁒update𑁒Nonempty ({[+v+]} ⊎ vs) with "Hemptiness_auth Hemptiness_at") as "(Hemptiness_auth & Hemptiness_at)".
+    iMod (emptinessｰupdateｰNonempty ({[+v+]} ⊎ vs) with "Hemptiness_auth Hemptiness_at") as "(Hemptiness_auth & Hemptiness_at)".
     iSplitR "Hemptiness_at".
-    { iFrameSteps. iPureIntro. apply consistent𑁒push => //. }
+    { iFrameSteps. iPureIntro. apply consistentｰpush => //. }
     iIntros "!> HΦ !> _ {%}".
 
-    wp۰apply+ ws_hub_fifo٠notify𑁒spec as "_". 1: iSteps.
+    wp۰apply+ ws_hub_fifo٠notifyｰspec as "_". 1: iSteps.
     iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_fifo٠pop'𑁒spec𑁒aux (owner : option (nat * emptiness)) t ι sz :
+  #[local] Lemma ws_hub_fifo٠pop'ｰspecｰaux (owner : option (nat * emptiness)) t ι sz :
     <<<
       ws_hub_fifo۰inv t ι sz ∗
       match owner with
@@ -615,14 +615,14 @@ Section ws_hub_fifo۰G.
 
     wp۰rec. wp۰load.
 
-    awp۰apply+ (mpmc_queue_1٠pop𑁒spec with "Hqueue_inv").
-    iApply (aacc𑁒aupd𑁒commit with "HΦ"). 1: solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    awp۰apply+ (mpmc_queue_1٠popｰspec with "Hqueue_inv").
+    iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model".
     iExists (head ws).
     destruct ws as [| v ws] => /=.
 
-    - apply consistent𑁒nil𑁒inv in Hconsistent as ->.
+    - apply consistentｰnilｰinv in Hconsistent as ->.
 
       iAssert (
         emptiness۰auth γ ∅ ∗
@@ -635,18 +635,18 @@ Section ws_hub_fifo۰G.
       )%I with "[> Hemptiness_auth Howner]" as "(Hemptiness_auth & Howner)".
       { destruct owner as [(i, empty) |]. 2: iSteps.
         iDestruct "Howner" as "(:owner)". injection Heq as <-.
-        iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-.
-        iMod (emptiness𑁒update𑁒Empty with "Hemptiness_auth Hemptiness_at") as "($ & $)".
+        iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-.
+        iMod (emptinessｰupdateｰEmpty with "Hemptiness_auth Hemptiness_at") as "($ & $)".
         iFrameSteps.
       }
 
       iSteps.
 
-    - apply consistent𑁒pop in Hconsistent as (vs' & -> & Hconsistent).
-      iDestruct (emptiness𑁒update𑁒auth with "Hemptiness_auth") as "Hemptiness_auth".
+    - apply consistentｰpop in Hconsistent as (vs' & -> & Hconsistent).
+      iDestruct (emptinessｰupdateｰauth with "Hemptiness_auth") as "Hemptiness_auth".
       iSteps.
   Qed.
-  #[local] Lemma ws_hub_fifo٠pop'𑁒spec t ι sz :
+  #[local] Lemma ws_hub_fifo٠pop'ｰspec t ι sz :
     <<<
       ws_hub_fifo۰inv t ι sz
     | ∀∀ vs,
@@ -669,9 +669,9 @@ Section ws_hub_fifo۰G.
   Proof.
     iIntros "%Φ Hinv HΦ".
 
-    wp۰apply (ws_hub_fifo٠pop'𑁒spec𑁒aux None with "[$Hinv] HΦ").
+    wp۰apply (ws_hub_fifo٠pop'ｰspecｰaux None with "[$Hinv] HΦ").
   Qed.
-  #[local] Lemma ws_hub_fifo٠pop'𑁒spec𑁒owner t ι sz i empty :
+  #[local] Lemma ws_hub_fifo٠pop'ｰspecｰowner t ι sz i empty :
     <<<
       ws_hub_fifo۰inv t ι sz ∗
       ws_hub_fifo۰owner t i Nonblocked empty
@@ -695,10 +695,10 @@ Section ws_hub_fifo۰G.
   Proof.
     iIntros "%Φ (#Hinv & Howner) HΦ".
 
-    wp۰apply (ws_hub_fifo٠pop'𑁒spec𑁒aux (Some (i, empty)) with "[$Hinv $Howner] HΦ").
+    wp۰apply (ws_hub_fifo٠pop'ｰspecｰaux (Some (i, empty)) with "[$Hinv $Howner] HΦ").
   Qed.
 
-  Lemma ws_hub_fifo٠pop𑁒spec t ι sz i i_ empty :
+  Lemma ws_hub_fifo٠popｰspec t ι sz i i_ empty :
     i = ⁺i_ →
     <<<
       ws_hub_fifo۰inv t ι sz ∗
@@ -724,10 +724,10 @@ Section ws_hub_fifo۰G.
     iIntros (->) "%Φ (#Hinv & Howner) HΦ".
 
     wp۰rec.
-    wp۰apply+ (ws_hub_fifo٠pop'𑁒spec𑁒owner with "[$Hinv $Howner] HΦ").
+    wp۰apply+ (ws_hub_fifo٠pop'ｰspecｰowner with "[$Hinv $Howner] HΦ").
   Qed.
 
-  #[local] Lemma ws_hub_fifo٠steal_aux𑁒spec P_notification P_pred Q_pred t ι (sz : nat) i notification pred :
+  #[local] Lemma ws_hub_fifo٠steal_auxｰspec P_notification P_pred Q_pred t ι (sz : nat) i notification pred :
     (0 ≤ i < sz)%Z →
     <<<
       ws_hub_fifo۰inv t ι sz ∗
@@ -773,45 +773,45 @@ Section ws_hub_fifo۰G.
     iLöb as "HLöb" forall (notification).
 
     wp۰rec. wp۰load.
-    wp۰apply (waiters٠prepare_wait𑁒spec with "Hwaiters_inv") as "_". 1: done.
-    wp۰apply+ (wp𑁒wand with "(Hnotification HP_notification [])") as (res) "(-> & HP_notification)".
+    wp۰apply (waiters٠prepare_waitｰspec with "Hwaiters_inv") as "_". 1: done.
+    wp۰apply+ (wpｰwand with "(Hnotification HP_notification [])") as (res) "(-> & HP_notification)".
     { wp۰load.
-      wp۰apply (waiters٠notify𑁒spec with "Hwaiters_inv") => //.
+      wp۰apply (waiters٠notifyｰspec with "Hwaiters_inv") => //.
     }
-    wp۰apply+ (wp𑁒wand with "(Hpred HP_pred)") as (res) "(%b & -> & Hb)".
+    wp۰apply+ (wpｰwand with "(Hpred HP_pred)") as (res) "(%b & -> & Hb)".
     destruct b; wp۰pures.
 
     - wp۰load.
-      wp۰apply (waiters٠cancel_wait𑁒spec with "Hwaiters_inv") as (b) "_". 1: done.
+      wp۰apply (waiters٠cancel_waitｰspec with "Hwaiters_inv") as (b) "_". 1: done.
 
       wp۰bind (𝗶𝗳 _ 𝘁𝗵𝗲𝗻 _ 𝗲𝗹𝘀𝗲 _)%E.
-      wp۰apply (wp𑁒wand itype۰unit) as (res) "->".
+      wp۰apply (wpｰwand itype۰unit) as (res) "->".
       { destruct b; wp۰pures. 1: iSteps.
         wp۰load.
-        wp۰apply (waiters٠notify_one𑁒spec with "Hwaiters_inv") => //.
+        wp۰apply (waiters٠notify_oneｰspec with "Hwaiters_inv") => //.
       }
 
-      iApply fupd𑁒wp.
+      iApply fupdｰwp.
       iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
       iMod ("HΦ" $! None with "Hmodel") as "HΦ".
       iSteps.
 
-    - awp۰apply+ ws_hub_fifo٠pop'𑁒spec. 1: iSteps.
-      iApply (aacc𑁒aupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
+    - awp۰apply+ ws_hub_fifo٠pop'ｰspec. 1: iSteps.
+      iApply (aaccｰaupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel". 1: iSteps. iIntros ([v |]) "Hmodel".
 
       + iRight. iExists (Some v). iFrame. iIntros "!> HΦ !> _".
         wp۰load.
-        wp۰apply (waiters٠cancel_wait𑁒spec with "Hwaiters_inv"). 1: done.
+        wp۰apply (waiters٠cancel_waitｰspec with "Hwaiters_inv"). 1: done.
         iSteps.
 
       + iLeft. iFrame. iIntros "!> HΦ !> _".
         wp۰load.
-        wp۰apply (waiters٠commit_wait𑁒spec with "Hwaiters_inv") as "_". 1: done.
+        wp۰apply (waiters٠commit_waitｰspec with "Hwaiters_inv") as "_". 1: done.
         wp۰apply+ ("HLöb" with "HP_notification [] Hb HΦ"). 1: iSteps.
   Qed.
 
-  Lemma ws_hub_fifo٠steal_until𑁒spec P_notification P_pred Q_pred t ι sz i i_ empty max_round_noyield max_round_yield notification pred :
+  Lemma ws_hub_fifo٠steal_untilｰspec P_notification P_pred Q_pred t ι sz i i_ empty max_round_noyield max_round_yield notification pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
@@ -857,17 +857,17 @@ Section ws_hub_fifo۰G.
     >>>.
   Proof.
     iIntros (-> _ _) "%Φ (#Hinv & Howner & HP_notification & Hnotification & HP_pred & #Hpred) HΦ".
-    iDestruct (ws_hub_fifo𑁒inv𑁒owner with "Hinv Howner") as %Hi.
+    iDestruct (ws_hub_fifoｰinvｰowner with "Hinv Howner") as %Hi.
 
     wp۰rec.
 
-    wp۰apply+ (ws_hub_fifo٠steal_aux𑁒spec P_notification P_pred Q_pred with "[$Hinv $HP_notification $Hnotification $HP_pred $Hpred]"). 1: lia.
-    iApply (atomic_update𑁒wand with "HΦ"). iIntros "%vs %o HΦ H".
+    wp۰apply+ (ws_hub_fifo٠steal_auxｰspec P_notification P_pred Q_pred with "[$Hinv $HP_notification $Hnotification $HP_pred $Hpred]"). 1: lia.
+    iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs %o HΦ H".
 
     iApply ("HΦ" with "[$Howner $H]").
   Qed.
 
-  Lemma ws_hub_fifo٠steal𑁒spec t ι sz i i_ empty max_round_noyield max_round_yield :
+  Lemma ws_hub_fifo٠stealｰspec t ι sz i i_ empty max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
@@ -893,25 +893,25 @@ Section ws_hub_fifo۰G.
     >>>.
   Proof.
     iIntros (-> _ _) "%Φ (#Hinv & Howner) HΦ".
-    iDestruct (ws_hub_fifo𑁒inv𑁒owner with "Hinv Howner") as %Hi.
+    iDestruct (ws_hub_fifoｰinvｰowner with "Hinv Howner") as %Hi.
 
     wp۰rec.
-    wp۰apply+ (ws_hub_fifo٠begin_inactive𑁒spec with "Hinv") as "_".
+    wp۰apply+ (ws_hub_fifo٠begin_inactiveｰspec with "Hinv") as "_".
 
-    wp۰apply+ (ws_hub_fifo٠steal_aux𑁒spec True True True with "[$Hinv]"). 1: lia.
+    wp۰apply+ (ws_hub_fifo٠steal_auxｰspec True True True with "[$Hinv]"). 1: lia.
     { iStep. iSplit. 1: iSteps. iStep 3.
-      wp۰apply+ (ws_hub_fifo٠closed𑁒spec with "Hinv") as ([]) "_".
+      wp۰apply+ (ws_hub_fifo٠closedｰspec with "Hinv") as ([]) "_".
       all: iSteps.
     }
-    iApply (atomic_update𑁒wand with "HΦ"). iIntros "%vs %o HΦ _".
+    iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs %o HΦ _".
 
     wp۰pures.
 
     wp۰bind (Match _ _ _ _).
-    wp۰apply (wp𑁒wand itype۰unit) as (res) "->".
+    wp۰apply (wpｰwand itype۰unit) as (res) "->".
     { destruct o as [v |]; wp۰pures.
-      - wp۰apply (ws_hub_fifo٠end_inactive𑁒spec with "Hinv") => //.
-      - wp۰apply (ws_hub_fifo٠notify_all𑁒spec with "Hinv") => //.
+      - wp۰apply (ws_hub_fifo٠end_inactiveｰspec with "Hinv") => //.
+      - wp۰apply (ws_hub_fifo٠notify_allｰspec with "Hinv") => //.
     }
 
     wp۰pures.
@@ -919,7 +919,7 @@ Section ws_hub_fifo۰G.
     iApply ("HΦ" with "Howner").
   Qed.
 
-  Lemma ws_hub_fifo٠close𑁒spec t ι sz :
+  Lemma ws_hub_fifo٠closeｰspec t ι sz :
     {{{
       ws_hub_fifo۰inv t ι sz
     }}}
@@ -929,7 +929,7 @@ Section ws_hub_fifo۰G.
       True
     }}}.
   Proof.
-    apply ws_hub_fifo٠begin_inactive𑁒spec.
+    apply ws_hub_fifo٠begin_inactiveｰspec.
   Qed.
 End ws_hub_fifo۰G.
 
@@ -942,7 +942,7 @@ Section ws_hub_fifo۰G.
 
   Implicit Type P P_notification P_pred Q Q_pred : iProp Σ.
 
-  Lemma ws_hub_fifo٠pop_steal_until𑁒spec P_notification P_pred Q_pred t ι sz i i_ empty max_round_noyield max_round_yield notification pred :
+  Lemma ws_hub_fifo٠pop_steal_untilｰspec P_notification P_pred Q_pred t ι sz i i_ empty max_round_noyield max_round_yield notification pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
@@ -991,27 +991,27 @@ Section ws_hub_fifo۰G.
     iIntros (-> Hmax_round_noyield Hmax_round_yield) "%Φ (#Hinv & Howner & HP_notification & Hnotification & HP_pred & #Hpred) HΦ".
 
     wp۰rec.
-    wp۰apply+ (wp𑁒wand with "(Hpred HP_pred)") as (res) "(%b & -> & Hb)".
+    wp۰apply+ (wpｰwand with "(Hpred HP_pred)") as (res) "(%b & -> & Hb)".
     destruct b; wp۰pures.
 
     - iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
       iMod ("HΦ" $! None with "Hmodel") as "HΦ".
       iSteps.
 
-    - awp۰apply+ (ws_hub_fifo٠pop𑁒spec with "[$Hinv $Howner]"). 1: done.
-      iApply (aacc𑁒aupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
+    - awp۰apply+ (ws_hub_fifo٠popｰspec with "[$Hinv $Howner]"). 1: done.
+      iApply (aaccｰaupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel". 1: iFrameSteps. iIntros ([v |]) "Hmodel !>".
 
       + iRight. iExists (Some v). iFrameSteps.
 
       + iLeft. iFrame. iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
 
-        wp۰apply+ (ws_hub_fifo٠steal_until𑁒spec P_notification P_pred Q_pred with "[$Hinv $Howner $HP_notification $Hnotification $Hb $Hpred]"). 1-3: done.
-        iApply (atomic_update𑁒wand with "HΦ").
+        wp۰apply+ (ws_hub_fifo٠steal_untilｰspec P_notification P_pred Q_pred with "[$Hinv $Howner $HP_notification $Hnotification $Hb $Hpred]"). 1-3: done.
+        iApply (atomic_updateｰwand with "HΦ").
         iSteps.
   Qed.
 
-  Lemma ws_hub_fifo٠pop_steal𑁒spec t ι sz i i_ empty max_round_noyield max_round_yield :
+  Lemma ws_hub_fifo٠pop_stealｰspec t ι sz i i_ empty max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
@@ -1045,8 +1045,8 @@ Section ws_hub_fifo۰G.
 
     wp۰rec.
 
-    awp۰apply+ (ws_hub_fifo٠pop𑁒spec with "[$Hinv $Howner]"). 1: done.
-    iApply (aacc𑁒aupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
+    awp۰apply+ (ws_hub_fifo٠popｰspec with "[$Hinv $Howner]"). 1: done.
+    iApply (aaccｰaupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel". 1: iSteps. iIntros ([v |]) "Hmodel !>".
 
     - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
@@ -1054,8 +1054,8 @@ Section ws_hub_fifo۰G.
 
     - iLeft. iFrame. iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
 
-      wp۰apply+ (ws_hub_fifo٠steal𑁒spec with "[$Hinv $Howner]"). 1-3: done.
-      iApply (atomic_update𑁒wand with "HΦ"). iIntros "%vs %o HΦ Howner".
+      wp۰apply+ (ws_hub_fifo٠stealｰspec with "[$Hinv $Howner]"). 1-3: done.
+      iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs %o HΦ Howner".
       iApply ("HΦ" with "[$Howner]").
       destruct o; iFrameSteps.
   Qed.

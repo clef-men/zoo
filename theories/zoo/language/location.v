@@ -16,24 +16,24 @@ Add Printing Constructor location.
 Canonical location۰O {SI : sidx} :=
   leibnizO location.
 
-Lemma location𑁒eq𑁒spec l1 l2 :
+Lemma locationｰeqｰspec l1 l2 :
   l1 = l2 ↔
   location۰car l1 = location۰car l2.
 Proof.
   destruct l1, l2; naive_solver.
 Qed.
 
-#[global] Instance location𑁒inhabited : Inhabited location :=
+#[global] Instance locationｰinhabited : Inhabited location :=
   populate {| location۰car := 0 |}.
-#[global] Instance location𑁒eq_dec : EqDecision location :=
+#[global] Instance locationｰeq_dec : EqDecision location :=
   ltac:(solve_decision).
-#[global] Instance location𑁒countable :
+#[global] Instance locationｰcountable :
   Countable location.
 Proof.
   solve_countable.
 Qed.
 
-#[global] Program Instance location𑁒infinite : Infinite location :=
+#[global] Program Instance locationｰinfinite : Infinite location :=
   inj_infinite (λ p, {| location۰car := p |}) (λ l, Some (location۰car l)) _.
 Next Obligation.
   done.
@@ -48,31 +48,31 @@ Notation "l +ₗ i" := (
   left associativity
 ) : stdpp_scope.
 
-#[global] Instance location۰add𑁒inj₁ l :
+#[global] Instance location۰addｰinj₁ l :
   Inj (=) (=) (location۰add l).
 Proof.
-  intros ?*. rewrite location𑁒eq𑁒spec /=. lia.
+  intros ?*. rewrite locationｰeqｰspec /=. lia.
 Qed.
-#[global] Instance location۰add𑁒inj₂ i :
+#[global] Instance location۰addｰinj₂ i :
   Inj (=) (=) (λ l, location۰add l i).
 Proof.
-  intros ?*. rewrite location𑁒eq𑁒spec Z.add_cancel_r location𑁒eq𑁒spec //.
+  intros ?*. rewrite locationｰeqｰspec Z.add_cancel_r locationｰeqｰspec //.
 Qed.
-Lemma location۰add𑁒assoc l i j :
+Lemma location۰addｰassoc l i j :
   l +ₗ i +ₗ j = l +ₗ (i + j).
 Proof.
-  rewrite location𑁒eq𑁒spec /=. lia.
+  rewrite locationｰeqｰspec /=. lia.
 Qed.
-Lemma location۰add𑁒0 l :
+Lemma location۰addｰ0 l :
   l +ₗ 0 = l.
 Proof.
-  rewrite location𑁒eq𑁒spec /=; lia.
+  rewrite locationｰeqｰspec /=; lia.
 Qed.
 
 Definition location۰fresh (ls : gset location) :=
   {| location۰car := set_fold (λ k r, (1 + location۰car k) `max` r) 1 ls |}.
 
-Lemma location۰fresh𑁒fresh ls i :
+Lemma location۰freshｰfresh ls i :
   0 ≤ i →
   location۰fresh ls +ₗ i ∉ ls.
 Proof.

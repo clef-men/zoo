@@ -31,7 +31,7 @@ Section definition.
     |={Eo, Ei}=> ∃.. x, α x ∗
           ((α x ={Ei, Eo}=∗ P) ∧ (∀.. y, β x y ={Ei, Eo}=∗ Φ x y)).
 
-  Lemma atomic_acc𑁒wand Eo Ei α P1 P2 β Φ1 Φ2 :
+  Lemma atomic_accｰwand Eo Ei α P1 P2 β Φ1 Φ2 :
     ((P1 -∗ P2) ∧ (∀.. x y, Φ1 x y -∗ Φ2 x y)) -∗
     (atomic_acc Eo Ei α P1 β Φ1 -∗ atomic_acc Eo Ei α P2 β Φ2).
   Proof.
@@ -43,7 +43,7 @@ Section definition.
       iApply "HP12". iApply "Hclose". done.
   Qed.
 
-  Lemma atomic_acc𑁒mask Eo Ed α P β Φ :
+  Lemma atomic_accｰmask Eo Ed α P β Φ :
     atomic_acc Eo (Eo∖Ed) α P β Φ ⊣⊢ ∀ E, ⌜Eo ⊆ E⌝ → atomic_acc E (E∖Ed) α P β Φ.
   Proof.
     iSplit; last first.
@@ -57,7 +57,7 @@ Section definition.
     - iIntros (y) "Hβ". iApply "Hclose'". iApply "Hclose". done.
   Qed.
 
-  Lemma atomic_acc𑁒mask𑁒weaken Eo1 Eo2 Ei α P β Φ :
+  Lemma atomic_accｰmaskｰweaken Eo1 Eo2 Ei α P β Φ :
     Eo1 ⊆ Eo2 →
     atomic_acc Eo1 Ei α P β Φ -∗ atomic_acc Eo2 Ei α P β Φ.
   Proof.
@@ -77,11 +77,11 @@ Section definition.
   Definition atomic_update۰pre (Ψ : () → PROP) (_ : ()) : PROP :=
     atomic_acc Eo Ei α (Ψ ()) β Φ.
 
-  Local Instance atomic_update۰pre𑁒mono : BiMonoPred atomic_update۰pre.
+  Local Instance atomic_update۰preｰmono : BiMonoPred atomic_update۰pre.
   Proof.
     constructor.
     - iIntros (P1 P2 ??) "#HP12". iIntros ([]) "AU".
-      iApply (atomic_acc𑁒wand with "[HP12] AU").
+      iApply (atomic_accｰwand with "[HP12] AU").
       iSplit; last by eauto. iApply "HP12".
     - intros ??. solve_proper.
   Qed.
@@ -96,7 +96,7 @@ Local Definition atomic_update۰aux : seal (@atomic_update۰def).
 Proof. by eexists. Qed.
 Definition atomic_update := atomic_update۰aux.(unseal).
 Global Arguments atomic_update {PROP _ TA TB}.
-Local Definition atomic_update𑁒unseal :
+Local Definition atomic_updateｰunseal :
   @atomic_update = _ := atomic_update۰aux.(seal_eq).
 
 Global Arguments atomic_acc {PROP _ TA TB} Eo Ei _ _ _ _ : simpl never.
@@ -212,10 +212,10 @@ Section lemmas.
   Context `{BiFUpd PROP} {TA TB : tele}.
   Implicit Type (α : TA → PROP) (β Φ : TA → TB → PROP) (P : PROP).
 
-  Local Existing Instance atomic_update۰pre𑁒mono.
+  Local Existing Instance atomic_update۰preｰmono.
 
   (* Can't be in the section above as that fixes the parameters *)
-  Global Instance atomic_acc𑁒ne Eo Ei n :
+  Global Instance atomic_accｰne Eo Ei n :
     Proper (
         pointwise_relation TA (dist n) ==>
         dist n ==>
@@ -225,7 +225,7 @@ Section lemmas.
     ) (atomic_acc (PROP:=PROP) Eo Ei).
   Proof. solve_proper. Qed.
 
-  Global Instance atomic_update𑁒ne Eo Ei n :
+  Global Instance atomic_updateｰne Eo Ei n :
     Proper (
         pointwise_relation TA (dist n) ==>
         pointwise_relation TA (pointwise_relation TB (dist n)) ==>
@@ -233,35 +233,35 @@ Section lemmas.
         dist n
     ) (atomic_update (PROP:=PROP) Eo Ei).
   Proof.
-    rewrite atomic_update𑁒unseal /atomic_update۰def /atomic_update۰pre. solve_proper.
+    rewrite atomic_updateｰunseal /atomic_update۰def /atomic_update۰pre. solve_proper.
   Qed.
 
-  Lemma atomic_update𑁒mask𑁒weaken Eo1 Eo2 Ei α β Φ :
+  Lemma atomic_updateｰmaskｰweaken Eo1 Eo2 Ei α β Φ :
     Eo1 ⊆ Eo2 →
     atomic_update Eo1 Ei α β Φ -∗ atomic_update Eo2 Ei α β Φ.
   Proof.
-    rewrite atomic_update𑁒unseal {2}/atomic_update۰def /=.
+    rewrite atomic_updateｰunseal {2}/atomic_update۰def /=.
     iIntros (Heo) "HAU".
     iApply (greatest_fixpoint_coiter _ (λ _, atomic_update۰def Eo1 Ei α β Φ)); last done.
     iIntros "!> *". rewrite {1}/atomic_update۰def /= greatest_fixpoint_unfold.
-    iApply atomic_acc𑁒mask𑁒weaken. done.
+    iApply atomic_accｰmaskｰweaken. done.
   Qed.
 
-  Local Lemma aupd𑁒unfold Eo Ei α β Φ :
+  Local Lemma aupdｰunfold Eo Ei α β Φ :
     atomic_update Eo Ei α β Φ ⊣⊢
     atomic_acc Eo Ei α (atomic_update Eo Ei α β Φ) β Φ.
   Proof.
-    rewrite atomic_update𑁒unseal /atomic_update۰def /=. apply: greatest_fixpoint_unfold.
+    rewrite atomic_updateｰunseal /atomic_update۰def /=. apply: greatest_fixpoint_unfold.
   Qed.
 
   (** The elimination form: an atomic accessor *)
-  Lemma aupd𑁒aacc Eo Ei α β Φ :
+  Lemma aupdｰaacc Eo Ei α β Φ :
     atomic_update Eo Ei α β Φ ⊢
     atomic_acc Eo Ei α (atomic_update Eo Ei α β Φ) β Φ.
-  Proof using Type*. by rewrite {1}aupd𑁒unfold. Qed.
+  Proof using Type*. by rewrite {1}aupdｰunfold. Qed.
 
   (* This lets you eliminate atomic updates with iMod. *)
-  Global Instance elim_mod𑁒aupd φ Eo Ei E α β Φ Q Q' :
+  Global Instance elim_modｰaupd φ Eo Ei E α β Φ Q Q' :
     (∀ R, ElimModal φ false false (|={E,Ei}=> R) R Q Q') →
     ElimModal (φ ∧ Eo ⊆ E) false false
               (atomic_update Eo Ei α β Φ)
@@ -271,25 +271,25 @@ Section lemmas.
               Q Q'.
   Proof.
     intros ?. rewrite /ElimModal /= =>-[??]. iIntros "[AU Hcont]".
-    iPoseProof (aupd𑁒aacc with "AU") as "AC".
-    iMod (atomic_acc𑁒mask𑁒weaken with "AC"); first done.
+    iPoseProof (aupdｰaacc with "AU") as "AC".
+    iMod (atomic_accｰmaskｰweaken with "AC"); first done.
     iApply "Hcont". done.
   Qed.
 
   (** The introduction lemma for atomic_update. This should usually not be used
   directly; use the [iAuIntro] tactic instead. *)
-  Local Lemma aupd𑁒intro P Q α β Eo Ei Φ :
+  Local Lemma aupdｰintro P Q α β Eo Ei Φ :
     Absorbing P → Persistent P →
     (P ∧ Q ⊢ atomic_acc Eo Ei α Q β Φ) →
     P ∧ Q ⊢ atomic_update Eo Ei α β Φ.
   Proof.
-    rewrite atomic_update𑁒unseal {1}/atomic_update۰def /=.
+    rewrite atomic_updateｰunseal {1}/atomic_update۰def /=.
     iIntros (?? HAU) "[#HP HQ]".
     iApply (greatest_fixpoint_coiter _ (λ _, Q)); last done. iIntros "!>" ([]) "HQ".
     iApply HAU. iSplit; by iFrame.
   Qed.
 
-  Lemma aacc𑁒intro Eo Ei α P β Φ x :
+  Lemma aaccｰintro Eo Ei α P β Φ x :
     Ei ⊆ Eo →
     α x -∗
     ( α x ={Eo}=∗ P)
@@ -305,7 +305,7 @@ Section lemmas.
   Qed.
 
   (* This lets you open invariants etc. when the goal is an atomic accessor. *)
-  Global Instance elim_acc𑁒aacc {X} E1 E2 Ei (α' β' : X → PROP) γ' α β Pas Φ :
+  Global Instance elim_accｰaacc {X} E1 E2 Ei (α' β' : X → PROP) γ' α β Pas Φ :
     ElimAcc (X:=X) True (fupd E1 E2) (fupd E2 E1) α' β' γ'
             (atomic_acc E1 Ei α Pas β Φ)
             (λ x', atomic_acc E2 Ei α (β' x' ∗ (γ' x' -∗? Pas))%I β
@@ -334,7 +334,7 @@ Section lemmas.
   (* Everything that fancy updates can eliminate without changing, atomic
   accessors can eliminate as well.  This is a forwarding instance needed because
   atomic_acc is becoming opaque. *)
-  Global Instance elim_modal𑁒acc p q φ P P' Eo Ei α Pas β Φ :
+  Global Instance elim_modalｰacc p q φ P P' Eo Ei α Pas β Φ :
     (∀ Q, ElimModal φ p q P P' (|={Eo,Ei}=> Q) (|={Eo,Ei}=> Q)) →
     ElimModal φ p q P P'
               (atomic_acc Eo Ei α Pas β Φ)
@@ -345,7 +345,7 @@ Section lemmas.
       atomic update).  These are only really useful when the atomic accessor you
       are trying to prove exactly corresponds to an atomic update/accessor you
       have as an assumption -- which is not very common. *)
-  Lemma aacc𑁒aacc {TA' TB' : tele} E1 E1' E2 E3
+  Lemma aaccｰaacc {TA' TB' : tele} E1 E1' E2 E3
         α P β Φ
         (α' : TA' → PROP) P' (β' Φ' : TA' → TB' → PROP) :
     E1' ⊆ E1 →
@@ -356,7 +356,7 @@ Section lemmas.
     atomic_acc E1 E3 α' P' β' Φ'.
   Proof.
     iIntros (?) "Hupd Hstep".
-    iMod (atomic_acc𑁒mask𑁒weaken with "Hupd") as (x) "[Hα Hclose]"; first done.
+    iMod (atomic_accｰmaskｰweaken with "Hupd") as (x) "[Hα Hclose]"; first done.
     iMod ("Hstep" with "Hα") as (x') "[Hα' Hclose']".
     iModIntro. iExists x'. iFrame "Hα'". iSplit.
     - iIntros "Hα'". iDestruct "Hclose'" as "[Hclose' _]".
@@ -378,7 +378,7 @@ Section lemmas.
         iApply "HΦ'". done.
   Qed.
 
-  Lemma aacc𑁒aupd {TA' TB' : tele} E1 E1' E2 E3
+  Lemma aaccｰaupd {TA' TB' : tele} E1 E1' E2 E3
         α β Φ
         (α' : TA' → PROP) P' (β' Φ' : TA' → TB' → PROP) :
     E1' ⊆ E1 →
@@ -388,11 +388,11 @@ Section lemmas.
                     ∨ ∃.. y, β x y ∗ (Φ x y ={E1}=∗ Φ' x' y'))) -∗
     atomic_acc E1 E3 α' P' β' Φ'.
   Proof.
-    iIntros (?) "Hupd Hstep". iApply (aacc𑁒aacc with "[Hupd] Hstep"); first done.
-    iApply aupd𑁒aacc; done.
+    iIntros (?) "Hupd Hstep". iApply (aaccｰaacc with "[Hupd] Hstep"); first done.
+    iApply aupdｰaacc; done.
   Qed.
 
-  Lemma aacc𑁒aupd𑁒commit {TA' TB' : tele} E1 E1' E2 E3
+  Lemma aaccｰaupdｰcommit {TA' TB' : tele} E1 E1' E2 E3
         α β Φ
         (α' : TA' → PROP) P' (β' Φ' : TA' → TB' → PROP) :
     E1' ⊆ E1 →
@@ -401,14 +401,14 @@ Section lemmas.
             (λ.. x' y', ∃.. y, β x y ∗ (Φ x y ={E1}=∗ Φ' x' y'))) -∗
     atomic_acc E1 E3 α' P' β' Φ'.
   Proof.
-    iIntros (?) "Hupd Hstep". iApply (aacc𑁒aupd with "Hupd"); first done.
-    iIntros (x) "Hα". iApply atomic_acc𑁒wand; last first.
+    iIntros (?) "Hupd Hstep". iApply (aaccｰaupd with "Hupd"); first done.
+    iIntros (x) "Hα". iApply atomic_accｰwand; last first.
     { iApply "Hstep". done. }
     (* FIXME: Using ssreflect rewrite does not work, see Rocq bug #7773. *)
     iSplit; first by eauto. iIntros (??) "?". rewrite ->!tele_app_bind. by iRight.
   Qed.
 
-  Lemma aacc𑁒aupd𑁒abort {TA' TB' : tele} E1 E1' E2 E3
+  Lemma aaccｰaupdｰabort {TA' TB' : tele} E1 E1' E2 E3
         α β Φ
         (α' : TA' → PROP) P' (β' Φ' : TA' → TB' → PROP) :
     E1' ⊆ E1 →
@@ -417,8 +417,8 @@ Section lemmas.
             (λ.. x' y', α x ∗ (atomic_update E1' E2 α β Φ ={E1}=∗ Φ' x' y'))) -∗
     atomic_acc E1 E3 α' P' β' Φ'.
   Proof.
-    iIntros (?) "Hupd Hstep". iApply (aacc𑁒aupd with "Hupd"); first done.
-    iIntros (x) "Hα". iApply atomic_acc𑁒wand; last first.
+    iIntros (?) "Hupd Hstep". iApply (aaccｰaupd with "Hupd"); first done.
+    iIntros (x) "Hα". iApply atomic_accｰwand; last first.
     { iApply "Hstep". done. }
     (* FIXME: Using ssreflect rewrite does not work, see Rocq bug #7773. *)
     iSplit; first by eauto. iIntros (??) "?". rewrite ->!tele_app_bind. by iLeft.
@@ -431,14 +431,14 @@ Section proof_mode.
   Context `{BiFUpd PROP} {TA TB : tele}.
   Implicit Type (α : TA → PROP) (β Φ : TA → TB → PROP) (P : PROP).
 
-  Lemma tac𑁒aupd𑁒intro Γp Γs n α β Eo Ei Φ P :
+  Lemma tacｰaupdｰintro Γp Γs n α β Eo Ei Φ P :
     P = env_to_prop Γs →
     envs_entails (Envs Γp Γs n) (atomic_acc Eo Ei α P β Φ) →
     envs_entails (Envs Γp Γs n) (atomic_update Eo Ei α β Φ).
   Proof.
     intros ->. rewrite envs_entails_unseal of_envs_eq /atomic_acc /=.
     setoid_rewrite env_to_prop_sound =>HAU.
-    rewrite assoc. apply: aupd𑁒intro. by rewrite -assoc.
+    rewrite assoc. apply: aupdｰintro. by rewrite -assoc.
   Qed.
 End proof_mode.
 
@@ -447,7 +447,7 @@ End proof_mode.
 Tactic Notation "iAuIntro" :=
   match goal with
   | |- envs_entails (Envs ?Γp ?Γs _) (atomic_update _ _ _ _ ?Φ) =>
-      notypeclasses refine (tac𑁒aupd𑁒intro Γp Γs _ _ _ _ _ Φ _ _ _); [
+      notypeclasses refine (tacｰaupdｰintro Γp Γs _ _ _ _ _ Φ _ _ _); [
         (* P = ...: make the P pretty *) pm_reflexivity
       | (* the new proof mode goal *) ]
   end.
@@ -535,7 +535,7 @@ Tactic Notation "iAaccIntro" uconstr_list_sep(xs, ",") "with" constr(H) :=
         Ltac1.of_constr xs
       ) in
       let xs := go tele xs in
-      iApply (aacc𑁒intro Eo Ei α P β Φ xs with H);
+      iApply (aaccｰintro Eo Ei α P β Φ xs with H);
         first try solve_ndisj;
         last iSplit
   | _ =>

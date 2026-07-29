@@ -21,7 +21,7 @@ Class MpscQueue2G Σ `{zoo۰G : !ZooG Σ} :=
 Definition mpsc_queue_2۰Σ :=
   #[twins۰Σ (leibnizO (list val))
   ].
-#[global] Instance subG𑁒mpsc_queue_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰmpsc_queue_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG mpsc_queue_2۰Σ Σ →
   MpscQueue2G Σ.
 Proof.
@@ -37,9 +37,9 @@ Section mpsc_queue_2۰G.
     }.
   Implicit Type γ : metadata.
 
-  #[local] Instance metadata𑁒eq_dec : EqDecision metadata :=
+  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance metadata𑁒countable :
+  #[local] Instance metadataｰcountable :
     Countable metadata.
   Proof.
     solve_countable.
@@ -121,89 +121,89 @@ Section mpsc_queue_2۰G.
       )
     ".
 
-  #[global] Instance mpsc_queue_2۰model𑁒timeless t vs :
+  #[global] Instance mpsc_queue_2۰modelｰtimeless t vs :
     Timeless (mpsc_queue_2۰model t vs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpsc_queue_2۰consumer𑁒timeless t :
+  #[global] Instance mpsc_queue_2۰consumerｰtimeless t :
     Timeless (mpsc_queue_2۰consumer t ).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpsc_queue_2۰inv𑁒persistent t ι :
+  #[global] Instance mpsc_queue_2۰invｰpersistent t ι :
     Persistent (mpsc_queue_2۰inv t ι).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma model𑁒alloc :
+  #[local] Lemma modelｰalloc :
     ⊢ |==>
       ∃ γ_model,
       model₁' γ_model [] ∗
       model₂' γ_model [].
   Proof.
-    apply twins𑁒alloc'.
+    apply twinsｰalloc'.
   Qed.
-  #[local] Lemma model₁𑁒exclusive γ vs1 vs2 :
+  #[local] Lemma model₁ｰexclusive γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₁ γ vs2 -∗
     False.
   Proof.
-    apply twins۰twin₁𑁒exclusive.
+    apply twins۰twin₁ｰexclusive.
   Qed.
-  #[local] Lemma model𑁒agree γ vs1 vs2 :
+  #[local] Lemma modelｰagree γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₂ γ vs2 -∗
     ⌜vs1 = vs2⌝.
   Proof.
-    apply: twins𑁒agree𑁒L.
+    apply: twinsｰagreeｰL.
   Qed.
-  #[local] Lemma model𑁒update {γ vs1 vs2} vs :
+  #[local] Lemma modelｰupdate {γ vs1 vs2} vs :
     model₁ γ vs1 -∗
     model₂ γ vs2 ==∗
       model₁ γ vs ∗
       model₂ γ vs.
   Proof.
-    apply twins𑁒update.
+    apply twinsｰupdate.
   Qed.
 
-  #[local] Lemma front𑁒alloc :
+  #[local] Lemma frontｰalloc :
     ⊢ |==>
       ∃ γ_front,
       front₁' γ_front [] ∗
       front₂' γ_front [].
   Proof.
-    apply twins𑁒alloc'.
+    apply twinsｰalloc'.
   Qed.
-  #[local] Lemma front𑁒agree γ front1 front2 :
+  #[local] Lemma frontｰagree γ front1 front2 :
     front₁ γ front1 -∗
     front₂ γ front2 -∗
     ⌜front1 = front2⌝.
   Proof.
-    apply: twins𑁒agree𑁒L.
+    apply: twinsｰagreeｰL.
   Qed.
-  #[local] Lemma front𑁒update {γ front1 front2} front :
+  #[local] Lemma frontｰupdate {γ front1 front2} front :
     front₁ γ front1 -∗
     front₂ γ front2 ==∗
       front₁ γ front ∗
       front₂ γ front.
   Proof.
-    apply twins𑁒update.
+    apply twinsｰupdate.
   Qed.
 
-  Lemma mpsc_queue_2۰model𑁒exclusive t vs1 vs2 :
+  Lemma mpsc_queue_2۰modelｰexclusive t vs1 vs2 :
     mpsc_queue_2۰model t vs1 -∗
     mpsc_queue_2۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (model₁𑁒exclusive with "Hmodel₁_1 Hmodel₁_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma mpsc_queue_2۰consumer𑁒exclusive t :
+  Lemma mpsc_queue_2۰consumerｰexclusive t :
     mpsc_queue_2۰consumer t -∗
     mpsc_queue_2۰consumer t -∗
     False.
@@ -211,7 +211,7 @@ Section mpsc_queue_2۰G.
     iSteps.
   Qed.
 
-  Lemma mpsc_queue_2٠create𑁒spec ι :
+  Lemma mpsc_queue_2٠createｰspec ι :
     {{{
       True
     }}}
@@ -230,14 +230,14 @@ Section mpsc_queue_2۰G.
 
     wp۰block l as "Hmeta" "(Hfront & Hback & _)".
 
-    iMod model𑁒alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
-    iMod front𑁒alloc as "(%γ_front & Hfront₁ & Hfront₂)".
+    iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod frontｰalloc as "(%γ_front & Hfront₁ & Hfront₂)".
 
     pose γ :=
       {|metadata۰model := γ_model
       ; metadata۰front := γ_front
       |}.
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
     iSplitR "Hmodel₁ Hfront Hfront₁".
@@ -245,7 +245,7 @@ Section mpsc_queue_2۰G.
     - iSplitL "Hmodel₁"; first iSteps. iExists l, γ, []. iSteps.
   Qed.
 
-  Lemma mpsc_queue_2٠is_empty𑁒spec t ι :
+  Lemma mpsc_queue_2٠is_emptyｰspec t ι :
     <<<
       mpsc_queue_2۰inv t ι ∗
       mpsc_queue_2۰consumer t
@@ -260,7 +260,7 @@ Section mpsc_queue_2۰G.
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp۰rec. wp۰load.
 
@@ -269,10 +269,10 @@ Section mpsc_queue_2۰G.
     - wp۰bind (_.{back})%E.
       iInv "Hinv" as "(:inv۰inner)".
       wp۰load.
-      iDestruct (front𑁒agree with "Hfront₁ Hfront₂") as %<-.
+      iDestruct (frontｰagree with "Hfront₁ Hfront₂") as %<-.
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
       destruct back as [| v back].
 
       + iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
@@ -285,15 +285,15 @@ Section mpsc_queue_2۰G.
         iSteps. iExists []. iSteps.
 
     - iInv "Hinv" as "(:inv۰inner =1)".
-      iDestruct (front𑁒agree with "Hfront₁ Hfront₂") as %<-.
+      iDestruct (frontｰagree with "Hfront₁ Hfront₂") as %<-.
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSteps. iExists (v :: front). iSteps.
   Qed.
 
-  Lemma mpsc_queue_2٠push_front𑁒spec t ι v :
+  Lemma mpsc_queue_2٠push_frontｰspec t ι v :
     <<<
       mpsc_queue_2۰inv t ι ∗
       mpsc_queue_2۰consumer t
@@ -308,24 +308,24 @@ Section mpsc_queue_2۰G.
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp۰rec. wp۰load. wp۰store.
 
     iInv "Hinv" as "(:inv۰inner =1)".
-    iDestruct (front𑁒agree with "Hfront₁ Hfront₂") as %<-.
+    iDestruct (frontｰagree with "Hfront₁ Hfront₂") as %<-.
     set front' := v :: front.
-    iMod (front𑁒update front' with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
+    iMod (frontｰupdate front' with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
     iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
     set vs' := front' ++ reverse back1.
-    iMod (model𑁒update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iMod (modelｰupdate vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
     iSteps. iExists (v :: front). iSteps.
   Qed.
 
-  Lemma mpsc_queue_2٠push_back𑁒spec t ι v :
+  Lemma mpsc_queue_2٠push_backｰspec t ι v :
     <<<
       mpsc_queue_2۰inv t ι
     | ∀∀ vs,
@@ -356,9 +356,9 @@ Section mpsc_queue_2۰G.
     iInv "Hinv" as "(:inv۰inner =2)".
     wp۰cas as _ | ->%(inj _); first iSteps.
     iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %Hvs.
-    iMod (model𑁒update (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %Hvs.
+    iMod (modelｰupdate (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
     iSplitR "HΦ".
     { iExists _, (v :: back1). iSteps.
@@ -367,7 +367,7 @@ Section mpsc_queue_2۰G.
     iSteps.
   Qed.
 
-  Lemma mpsc_queue_2٠pop𑁒spec t ι :
+  Lemma mpsc_queue_2٠popｰspec t ι :
     <<<
       mpsc_queue_2۰inv t ι ∗
       mpsc_queue_2۰consumer t
@@ -382,7 +382,7 @@ Section mpsc_queue_2۰G.
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp۰rec. wp۰load.
     destruct front as [| v front]; wp۰pures.
@@ -390,45 +390,45 @@ Section mpsc_queue_2۰G.
     - wp۰bind (𝘅𝗰𝗵𝗴 _ _)%E.
       iInv "Hinv" as "(:inv۰inner)".
       wp۰xchg.
-      iDestruct (front𑁒agree with "Hfront₁ Hfront₂") as %<-.
+      iDestruct (frontｰagree with "Hfront₁ Hfront₂") as %<-.
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
       destruct back as [| v back _] using rev_ind.
 
       + iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
         iSplitR "Hl_front Hfront₁ HΦ". { iFrameSteps. }
         iModIntro. clear.
 
-        wp۰apply (glist٠rev𑁒spec with "[//]") as "_"; first done.
+        wp۰apply (glist٠revｰspec with "[//]") as "_"; first done.
         wp۰pures.
 
         iApply "HΦ".
         iExists l, γ, []. iSteps.
 
       + set front := reverse back.
-        iMod (front𑁒update front with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
-        iMod (model𑁒update front with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+        iMod (frontｰupdate front with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
+        iMod (modelｰupdate front with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
         iMod ("HΦ" with "[Hmodel₁]") as "HΦ".
         { rewrite reverse_snoc. iSteps. }
         iSplitR "Hl_front Hfront₁ HΦ".
         { iExists front, []. iSteps. rewrite right_id //. }
         iModIntro. clear.
 
-        wp۰apply (glist٠rev𑁒spec with "[//]") as "_"; first done.
+        wp۰apply (glist٠revｰspec with "[//]") as "_"; first done.
         rewrite reverse_snoc. iSteps.
 
     - wp۰store.
 
-      iApply fupd𑁒wp.
+      iApply fupdｰwp.
       iInv "Hinv" as "(:inv۰inner =1)".
-      iDestruct (front𑁒agree with "Hfront₁ Hfront₂") as %<-.
-      iMod (front𑁒update with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
+      iDestruct (frontｰagree with "Hfront₁ Hfront₂") as %<-.
+      iMod (frontｰupdate with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %Hvs.
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %Hvs.
       set vs' := front ++ reverse back1.
-      iMod (model𑁒update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (modelｰupdate vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       rewrite Hvs.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSteps.

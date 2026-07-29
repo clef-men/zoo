@@ -8,16 +8,16 @@ Parameter unix٠close : val.
 
 Parameter unix۰fd_model : ∀ `{zoo۰G : !ZooG Σ}, val → dfrac → list ascii → iProp Σ.
 
-Axiom unix۰fd_model𑁒fractional : ∀ `{zoo۰G : !ZooG Σ} fd chars,
+Axiom unix۰fd_modelｰfractional : ∀ `{zoo۰G : !ZooG Σ} fd chars,
   Fractional (λ q, unix۰fd_model fd (DfracOwn q) chars).
-#[global] Existing Instance unix۰fd_model𑁒fractional.
-#[global] Instance unix۰fd_model𑁒as_fractional : ∀ `{zoo۰G : !ZooG Σ} fd q chars,
+#[global] Existing Instance unix۰fd_modelｰfractional.
+#[global] Instance unix۰fd_modelｰas_fractional : ∀ `{zoo۰G : !ZooG Σ} fd q chars,
   AsFractional (unix۰fd_model fd (DfracOwn q) chars) (λ q, unix۰fd_model fd (DfracOwn q) chars) q.
 Proof.
   split; [done | apply _].
 Qed.
 
-Axiom unix٠close𑁒spec : ∀ `{zoo۰G : !ZooG Σ} fd chars,
+Axiom unix٠closeｰspec : ∀ `{zoo۰G : !ZooG Σ} fd chars,
   {{{
     unix۰fd_model fd (DfracOwn 1) chars
   }}}
@@ -26,7 +26,7 @@ Axiom unix٠close𑁒spec : ∀ `{zoo۰G : !ZooG Σ} fd chars,
     RET ();
     True
   }}}.
-#[global] Instance unix٠close𑁒diaspec `{zoo۰G : !ZooG Σ} fd chars :
+#[global] Instance unix٠closeｰdiaspec `{zoo۰G : !ZooG Σ} fd chars :
   DIASPEC
   {{
     unix۰fd_model fd (DfracOwn 1) chars
@@ -38,5 +38,5 @@ Axiom unix٠close𑁒spec : ∀ `{zoo۰G : !ZooG Σ} fd chars,
   }}.
 Proof.
   iSteps as (Φ) "Hfd HΦ".
-  wp۰apply (unix٠close𑁒spec with "Hfd HΦ").
+  wp۰apply (unix٠closeｰspec with "Hfd HΦ").
 Qed.

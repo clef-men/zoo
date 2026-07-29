@@ -48,13 +48,13 @@ Section zoo۰G.
       )
     ".
 
-  #[global] Instance dynarray_2۰model𑁒timeless t vs :
+  #[global] Instance dynarray_2۰modelｰtimeless t vs :
     Timeless (dynarray_2۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma dynarray_2٠element𑁒spec v :
+  #[local] Lemma dynarray_2٠elementｰspec v :
     {{{
       True
     }}}
@@ -68,7 +68,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠create𑁒spec' :
+  Lemma dynarray_2٠createｰspec' :
     {{{
       True
     }}}
@@ -82,12 +82,12 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ _ HΦ".
     wp۰rec.
-    wp۰apply (array٠create𑁒spec with "[//]") as "%data Hmodel".
+    wp۰apply (array٠createｰspec with "[//]") as "%data Hmodel".
     wp۰block l as "Hl_meta" "(Hl_size & Hl_data & _)".
-    iDestruct (meta_token𑁒difference (↑nroot.@"user") with "Hl_meta") as "(Hl_meta & _)"; first done.
+    iDestruct (meta_tokenｰdifference (↑nroot.@"user") with "Hl_meta") as "(Hl_meta & _)"; first done.
     iSteps. iExists [], 0. iSteps.
   Qed.
-  Lemma dynarray_2٠create𑁒spec :
+  Lemma dynarray_2٠createｰspec :
     {{{
       True
     }}}
@@ -99,11 +99,11 @@ Section zoo۰G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp۰apply (dynarray_2٠create𑁒spec' with "[//]").
+    wp۰apply (dynarray_2٠createｰspec' with "[//]").
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠make𑁒spec sz v :
+  Lemma dynarray_2٠makeｰspec sz v :
     {{{
       True
     }}}
@@ -123,11 +123,11 @@ Section zoo۰G.
       ⌜slots = #*@{location} elems⌝ ∗
       [∗ list] elem ∈ elems, element۰model elem v
     )%I).
-    wp۰apply+ (array٠init𑁒spec Ψ) as "%data %slots (%Hsz & %Helems & Hmodel & (%elems & -> & Helems))".
+    wp۰apply+ (array٠initｰspec Ψ) as "%data %slots (%Hsz & %Helems & Hmodel & (%elems & -> & Helems))".
     { iSplit.
       - iSteps. iExists []. iSteps.
       - iIntros "!> %data %i %slots %Hi1 %Hi2 (%elems & -> & Helems)".
-        wp۰apply+ (dynarray_2٠element𑁒spec with "[//]") as (elem) "Helem".
+        wp۰apply+ (dynarray_2٠elementｰspec with "[//]") as (elem) "Helem".
         iExists (elems ++ [elem]).
         rewrite -fmap_snoc big_sepL_snoc. iSteps.
     }
@@ -135,11 +135,11 @@ Section zoo۰G.
     iSteps.
     - simpl_length. iSteps.
     - iExists elems, 0. rewrite right_id. iSteps.
-      iApply (big_sepL2𑁒replicate𑁒r₂ (λ _, element۰model) with "Helems").
+      iApply (big_sepL2ｰreplicateｰr₂ (λ _, element۰model) with "Helems").
       { simpl_length in Helems. }
   Qed.
 
-  Lemma dynarray_2٠initi𑁒spec Ψ sz fn :
+  Lemma dynarray_2٠initiｰspec Ψ sz fn :
     {{{
       ▷ Ψ 0 [] ∗
       □ (
@@ -168,14 +168,14 @@ Section zoo۰G.
       Ψ i vs ∗
       [∗ list] elem; v ∈ elems; vs, element۰model elem v
     )%I).
-    wp۰apply+ (array٠initi𑁒spec Ψ' with "[HΨ]") as "%data %elems (%Hsz & %Helems & Hmodel & (%slots & %vs & -> & HΨ & Helems))".
+    wp۰apply+ (array٠initiｰspec Ψ' with "[HΨ]") as "%data %elems (%Hsz & %Helems & Hmodel & (%slots & %vs & -> & HΨ & Helems))".
     { iSplit.
       - iSteps. iExists []. iSteps.
       - iIntros "!> %t %i %slots %Hi1 %Hi2 (%elems & %vs & -> & HΨ & Helems)".
         simpl_length in Hi2.
         iDestruct (big_sepL2_length with "Helems") as %Helems.
-        wp۰apply+ (wp𑁒wand with "(Hfn [%] HΨ)") as "%v HΨ"; first lia.
-        wp۰apply (dynarray_2٠element𑁒spec with "[//]") as (elem) "Helem".
+        wp۰apply+ (wpｰwand with "(Hfn [%] HΨ)") as "%v HΨ"; first lia.
+        wp۰apply (dynarray_2٠elementｰspec with "[//]") as (elem) "Helem".
         iExists (elems ++ [elem]), (vs ++ [v]).
         rewrite -fmap_snoc big_sepL2_snoc. iSteps.
     }
@@ -187,7 +187,7 @@ Section zoo۰G.
     simpl_length in Helems.
     iFrameStep. iExists 0. rewrite right_id. iSteps.
   Qed.
-  Lemma dynarray_2٠initi𑁒spec' Ψ sz fn :
+  Lemma dynarray_2٠initiｰspec' Ψ sz fn :
     {{{
       ▷ Ψ 0 [] ∗
       ( [∗ list] i ∈ seq 0 ₊sz,
@@ -214,14 +214,14 @@ Section zoo۰G.
       Ψ i vs ∗
       [∗ list] j ∈ seq i (₊sz - i), Ξ j
     )%I).
-    wp۰apply (dynarray_2٠initi𑁒spec Ψ' with "[$HΨ Hfn]"); last iSteps.
+    wp۰apply (dynarray_2٠initiｰspec Ψ' with "[$HΨ Hfn]"); last iSteps.
     rewrite Nat.sub_0_r. iFrame. iIntros "!> %i %vs (%Hi1 & %Hi2) (HΨ & HΞ)".
     destruct (Nat.lt_exists_pred 0 (₊sz - i)) as (k & Hk & _); first lia. rewrite Hk.
     rewrite -cons_seq. iDestruct "HΞ" as "(Hfn & HΞ)".
-    wp۰apply (wp𑁒wand with "(Hfn [//] HΨ)"). iSteps.
+    wp۰apply (wpｰwand with "(Hfn [//] HΨ)"). iSteps.
     rewrite Nat.sub_succ_r Hk //.
   Qed.
-  Lemma dynarray_2٠initi𑁒spec𑁒disentangled Ψ sz fn :
+  Lemma dynarray_2٠initiｰspecｰdisentangled Ψ sz fn :
     {{{
       □ (
         ∀ i,
@@ -246,11 +246,11 @@ Section zoo۰G.
     pose (Ψ' i vs := (
       [∗ list] j ↦ v ∈ vs, Ψ j v
     )%I).
-    wp۰apply (dynarray_2٠initi𑁒spec Ψ'); last iSteps.
+    wp۰apply (dynarray_2٠initiｰspec Ψ'); last iSteps.
     rewrite /Ψ'. iSteps.
     rewrite big_sepL_snoc. iSteps.
   Qed.
-  Lemma dynarray_2٠initi𑁒spec𑁒disentangled' Ψ sz fn :
+  Lemma dynarray_2٠initiｰspecｰdisentangled' Ψ sz fn :
     {{{
       ( [∗ list] i ∈ seq 0 ₊sz,
         WP fn #i {{ v,
@@ -273,13 +273,13 @@ Section zoo۰G.
     pose (Ψ' i vs := (
       [∗ list] j ↦ v ∈ vs, Ψ j v
     )%I).
-    wp۰apply (dynarray_2٠initi𑁒spec' Ψ' with "[Hfn]"); last iSteps.
+    wp۰apply (dynarray_2٠initiｰspec' Ψ' with "[Hfn]"); last iSteps.
     rewrite /Ψ'. iSteps.
     iApply (big_sepL_impl with "Hfn"). iSteps.
     rewrite big_sepL_snoc. iSteps.
   Qed.
 
-  Lemma dynarray_2٠size𑁒spec t vs :
+  Lemma dynarray_2٠sizeｰspec t vs :
     {{{
       dynarray_2۰model t vs
     }}}
@@ -292,7 +292,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠capacity𑁒spec t vs :
+  Lemma dynarray_2٠capacityｰspec t vs :
     {{{
       dynarray_2۰model t vs
     }}}
@@ -306,13 +306,13 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (:model) HΦ".
     wp۰rec. rewrite /dynarray_2٠data. wp۰load.
-    wp۰apply (array٠size𑁒spec with "Hmodel") as "Hmodel".
+    wp۰apply (array٠sizeｰspec with "Hmodel") as "Hmodel".
     simpl_length.
     iDestruct (big_sepL2_length with "Helems") as %->.
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠is_empty𑁒spec t vs :
+  Lemma dynarray_2٠is_emptyｰspec t vs :
     {{{
       dynarray_2۰model t vs
     }}}
@@ -324,12 +324,12 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠size𑁒spec with "Hmodel") as "Hmodel".
+    wp۰apply+ (dynarray_2٠sizeｰspec with "Hmodel") as "Hmodel".
     wp۰pures.
     destruct vs; iApply ("HΦ" with "Hmodel").
   Qed.
 
-  Lemma dynarray_2٠get𑁒spec t vs (i : Z) v :
+  Lemma dynarray_2٠getｰspec t vs (i : Z) v :
     (0 ≤ i)%Z →
     vs !! ₊i = Some v →
     {{{
@@ -346,9 +346,9 @@ Section zoo۰G.
     Z_to_nat i. rewrite Nat2Z.id in Hvs_lookup.
     clear Hi. pose proof Hvs_lookup as Hi%lookup_lt_Some.
     iDestruct (big_sepL2_length with "Helems") as "%Helems".
-    iDestruct (big_sepL2𑁒lookup𑁒acc𑁒r with "Helems") as "(%elem & %Helems_lookup & (:element۰model) & Helems)"; first done.
+    iDestruct (big_sepL2ｰlookupｰaccｰr with "Helems") as "(%elem & %Helems_lookup & (:element۰model) & Helems)"; first done.
     wp۰rec. rewrite /dynarray_2٠data. wp۰load.
-    wp۰apply+ (array٠get𑁒spec with "[$Hmodel]") as "(% & Hmodel)".
+    wp۰apply+ (array٠getｰspec with "[$Hmodel]") as "(% & Hmodel)".
     { rewrite Nat2Z.id lookup_app_l.
       { simpl_length. lia. }
       rewrite list_lookup_fmap_Some. naive_solver.
@@ -356,7 +356,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠set𑁒spec t vs (i : Z) v :
+  Lemma dynarray_2٠setｰspec t vs (i : Z) v :
     (0 ≤ i < length vs)%Z →
     {{{
       dynarray_2۰model t vs
@@ -373,9 +373,9 @@ Section zoo۰G.
     iDestruct (big_sepL2_length with "Helems") as "%Helems".
     opose proof* (lookup_lookup_total vs i) as Hvs_lookup.
     { apply lookup_lt_is_Some_2. lia. }
-    iDestruct (big_sepL2𑁒insert𑁒acc𑁒r with "Helems") as "(%elem & %Helems_lookup & (:element۰model) & Helems)"; first done.
+    iDestruct (big_sepL2ｰinsertｰaccｰr with "Helems") as "(%elem & %Helems_lookup & (:element۰model) & Helems)"; first done.
     wp۰rec. rewrite /dynarray_2٠data. wp۰load.
-    wp۰apply+ (array٠get𑁒spec with "[$Hmodel]") as "Hmodel".
+    wp۰apply+ (array٠getｰspec with "[$Hmodel]") as "Hmodel".
     { rewrite Nat2Z.id lookup_app_l.
       { simpl_length. lia. }
       rewrite list_lookup_fmap_Some. naive_solver.
@@ -386,7 +386,7 @@ Section zoo۰G.
     iSteps. simpl_length.
   Qed.
 
-  #[local] Lemma dynarray_2٠next_capacity𑁒spec n :
+  #[local] Lemma dynarray_2٠next_capacityｰspec n :
     (0 ≤ n)%Z →
     {{{
       True
@@ -400,7 +400,7 @@ Section zoo۰G.
   Proof.
     iSteps.
   Qed.
-  Lemma dynarray_2٠reserve𑁒spec t vs (n : Z) :
+  Lemma dynarray_2٠reserveｰspec t vs (n : Z) :
     {{{
       dynarray_2۰model t vs
     }}}
@@ -413,19 +413,19 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (:model) HΦ".
     wp۰rec. rewrite /dynarray_2٠data.
-    wp۰apply+ assume𑁒spec' as "%Hn".
+    wp۰apply+ assumeｰspec' as "%Hn".
     wp۰load.
-    wp۰apply+ (array٠size𑁒spec with "Hmodel") as "Hmodel".
+    wp۰apply+ (array٠sizeｰspec with "Hmodel") as "Hmodel".
     wp۰pures.
     case_bool_decide; wp۰pures; last iSteps.
-    wp۰apply+ (dynarray_2٠next_capacity𑁒spec with "[//]") as "%n' %Hn'"; first lia.
-    wp۰apply int٠max𑁒spec.
-    wp۰apply+ (array٠unsafe_grow𑁒spec with "Hmodel") as (data') "(Hmodel & Hmodel')"; first lia.
+    wp۰apply+ (dynarray_2٠next_capacityｰspec with "[//]") as "%n' %Hn'"; first lia.
+    wp۰apply int٠maxｰspec.
+    wp۰apply+ (array٠unsafe_growｰspec with "Hmodel") as (data') "(Hmodel & Hmodel')"; first lia.
     rewrite /dynarray_2٠set_data. wp۰store.
     rewrite -assoc -replicate_add. iSteps.
   Qed.
 
-  Lemma dynarray_2٠reserve_extra𑁒spec t vs (n : Z) :
+  Lemma dynarray_2٠reserve_extraｰspec t vs (n : Z) :
     {{{
       dynarray_2۰model t vs
     }}}
@@ -438,13 +438,13 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp۰rec.
-    wp۰apply+ assume𑁒spec' as "%Hn".
-    wp۰apply+ (dynarray_2٠size𑁒spec with "Hmodel") as "Hmodel".
-    wp۰apply+ (dynarray_2٠reserve𑁒spec with "Hmodel").
+    wp۰apply+ assumeｰspec' as "%Hn".
+    wp۰apply+ (dynarray_2٠sizeｰspec with "Hmodel") as "Hmodel".
+    wp۰apply+ (dynarray_2٠reserveｰspec with "Hmodel").
     iSteps.
   Qed.
 
-  #[local] Lemma dynarray_2٠try_grow𑁒spec t vs sz v :
+  #[local] Lemma dynarray_2٠try_growｰspec t vs sz v :
     {{{
       dynarray_2۰model t vs
     }}}
@@ -468,29 +468,29 @@ Section zoo۰G.
       rewrite /= right_id. iSteps.
 
     - wp۰load.
-      wp۰apply+ (array٠size𑁒spec with "Hmodel") as "Hmodel".
+      wp۰apply+ (array٠sizeｰspec with "Hmodel") as "Hmodel".
       wp۰pures. iEval simpl_length.
       case_bool_decide; wp۰pures; first iSteps.
       wp۰store.
 
-      wp۰apply+ (array٠unsafe_apply_slice𑁒spec𑁒disentangled (λ _ 𝑒𝑙𝑒𝑚,
+      wp۰apply+ (array٠unsafe_apply_sliceｰspecｰdisentangled (λ _ 𝑒𝑙𝑒𝑚,
         ∃ elem,
         ⌜𝑒𝑙𝑒𝑚 = #elem⌝ ∗
         element۰model elem v
       )%I with "[$Hmodel]") as (𝑒𝑙𝑒𝑚𝑠) "(%H𝑒𝑙𝑒𝑚𝑠 & Hmodel & Helems')"; simpl_length; [lia.. | iSteps |].
 
-      iDestruct (big_sepL𑁒exists with "Helems'") as "(%elems' & _ & Helems')".
+      iDestruct (big_sepLｰexists with "Helems'") as "(%elems' & _ & Helems')".
       iDestruct (big_sepL2_sep with "Helems'") as "(Heq & Helems')".
-      iDestruct (big_sepL2𑁒Forall2 with "Heq") as %->%list𑁒fmap𑁒alt𑁒Forall2𑁒l. iClear "Heq".
+      iDestruct (big_sepL2ｰForall2 with "Heq") as %->%listｰfmapｰaltｰForall2ｰl. iClear "Heq".
       iDestruct (big_sepL2_const_sepL_r with "Helems'") as "(_ & Helems')".
-      iDestruct (big_sepL2𑁒replicate𑁒r₂ (const element۰model) _ _ (₊sz - length vs) with "Helems'") as "Helems'".
+      iDestruct (big_sepL2ｰreplicateｰr₂ (const element۰model) _ _ (₊sz - length vs) with "Helems'") as "Helems'".
       { simpl_length in H𝑒𝑙𝑒𝑚𝑠. lia. }
       iDestruct (big_sepL2_app with "Helems Helems'") as "Helems".
-      rewrite Nat2Z.id with_slice𑁒app𑁒length'; first simpl_length.
+      rewrite Nat2Z.id with_sliceｰappｰlength'; first simpl_length.
       rewrite assoc -fmap_app drop_replicate.
       iSteps. simpl_length. iSteps.
   Qed.
-  #[local] Lemma dynarray_2٠grow₀𑁒spec t vs sz v :
+  #[local] Lemma dynarray_2٠grow₀ｰspec t vs sz v :
     {{{
       dynarray_2۰model t vs
     }}}
@@ -505,15 +505,15 @@ Section zoo۰G.
     iLöb as "HLöb".
 
     wp۰rec.
-    wp۰apply+ (dynarray_2٠reserve𑁒spec with "Hmodel") as "(_ & Hmodel)".
-    wp۰apply+ (dynarray_2٠try_grow𑁒spec with "Hmodel") as ([]) "Hmodel".
+    wp۰apply+ (dynarray_2٠reserveｰspec with "Hmodel") as "(_ & Hmodel)".
+    wp۰apply+ (dynarray_2٠try_growｰspec with "Hmodel") as ([]) "Hmodel".
 
     - wp۰pures.
       iApply ("HΦ" with "Hmodel").
 
     - wp۰apply+ ("HLöb" with "Hmodel HΦ").
   Qed.
-  Lemma dynarray_2٠grow𑁒spec t vs sz v :
+  Lemma dynarray_2٠growｰspec t vs sz v :
     {{{
       dynarray_2۰model t vs
     }}}
@@ -526,15 +526,15 @@ Section zoo۰G.
     iIntros "%Φ Hmodel HΦ".
 
     wp۰rec.
-    wp۰apply+ (dynarray_2٠try_grow𑁒spec with "Hmodel") as ([]) "Hmodel".
+    wp۰apply+ (dynarray_2٠try_growｰspec with "Hmodel") as ([]) "Hmodel".
 
     - wp۰pures.
       iApply ("HΦ" with "Hmodel").
 
-    - wp۰apply+ (dynarray_2٠grow₀𑁒spec with "Hmodel HΦ").
+    - wp۰apply+ (dynarray_2٠grow₀ｰspec with "Hmodel HΦ").
   Qed.
 
-  #[local] Lemma dynarray_2٠try_push𑁒spec t vs elem v :
+  #[local] Lemma dynarray_2٠try_pushｰspec t vs elem v :
     {{{
       dynarray_2۰model t vs ∗
       element۰model elem v
@@ -553,12 +553,12 @@ Section zoo۰G.
     iIntros "%Φ ((:model) & Helem) HΦ".
     iDestruct (big_sepL2_length with "Helems") as "%Helems".
     wp۰rec. rewrite /dynarray_2٠size /dynarray_2٠data /dynarray_2٠set_size. do 2 wp۰load.
-    wp۰apply+ (array٠size𑁒spec with "Hmodel") as "Hmodel".
+    wp۰apply+ (array٠sizeｰspec with "Hmodel") as "Hmodel".
     wp۰pures.
     case_bool_decide as Htest; wp۰pures.
     { iApply "HΦ". iFrameSteps. }
     wp۰store.
-    wp۰apply+ (array٠unsafe_set𑁒spec with "Hmodel") as "Hmodel"; first lia.
+    wp۰apply+ (array٠unsafe_setｰspec with "Hmodel") as "Hmodel"; first lia.
     wp۰pures.
     iApply "HΦ".
     iExists l, data, (elems ++ [elem]), (extra - 1). iStep.
@@ -571,7 +571,7 @@ Section zoo۰G.
       rewrite fmap_snoc -assoc /= Nat.sub_0_r.
       iSteps.
   Qed.
-  #[local] Lemma dynarray_2٠push₀𑁒spec t vs elem v :
+  #[local] Lemma dynarray_2٠push₀ｰspec t vs elem v :
     {{{
       dynarray_2۰model t vs ∗
       element۰model elem v
@@ -585,11 +585,11 @@ Section zoo۰G.
     iIntros "%Φ (Hmodel & Helem) HΦ".
     iLöb as "HLöb".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠reserve_extra𑁒spec with "Hmodel") as "(_ & Hmodel)".
-    wp۰apply+ (dynarray_2٠try_push𑁒spec with "[$Hmodel $Helem]") as ([]) ""; first iSteps. iIntros "(Hmodel & Helem)".
+    wp۰apply+ (dynarray_2٠reserve_extraｰspec with "Hmodel") as "(_ & Hmodel)".
+    wp۰apply+ (dynarray_2٠try_pushｰspec with "[$Hmodel $Helem]") as ([]) ""; first iSteps. iIntros "(Hmodel & Helem)".
     wp۰apply+ ("HLöb" with "Hmodel Helem HΦ").
   Qed.
-  Lemma dynarray_2٠push𑁒spec t vs v :
+  Lemma dynarray_2٠pushｰspec t vs v :
     {{{
       dynarray_2۰model t vs
     }}}
@@ -601,13 +601,13 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠element𑁒spec with "[//]") as (elem) "Helem".
-    wp۰apply+ (dynarray_2٠try_push𑁒spec with "[$Hmodel $Helem]") as ([]) ""; first iSteps. iIntros "(Hmodel & Helem)".
-    wp۰apply+ (dynarray_2٠push₀𑁒spec with "[$Hmodel $Helem]").
+    wp۰apply+ (dynarray_2٠elementｰspec with "[//]") as (elem) "Helem".
+    wp۰apply+ (dynarray_2٠try_pushｰspec with "[$Hmodel $Helem]") as ([]) ""; first iSteps. iIntros "(Hmodel & Helem)".
+    wp۰apply+ (dynarray_2٠push₀ｰspec with "[$Hmodel $Helem]").
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠pop𑁒spec {t vs} vs' v :
+  Lemma dynarray_2٠popｰspec {t vs} vs' v :
     vs = vs' ++ [v] →
     {{{
       dynarray_2۰model t vs
@@ -620,21 +620,21 @@ Section zoo۰G.
   Proof.
     iIntros (->) "%Φ (:model) HΦ".
     wp۰rec. rewrite /dynarray_2٠size /dynarray_2٠data /dynarray_2٠set_size. do 2 wp۰load.
-    wp۰apply+ (array٠size𑁒spec with "Hmodel") as "Hmodel".
-    do 2 (wp۰apply+ assume𑁒spec' as "_").
+    wp۰apply+ (array٠sizeｰspec with "Hmodel") as "Hmodel".
+    do 2 (wp۰apply+ assumeｰspec' as "_").
     wp۰pures.
     rewrite length_app Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
     iDestruct (big_sepL2_length with "Helems") as %Helems. simpl_length/= in Helems.
     destruct elems as [| elem elems _] using rev_ind; first (simpl in Helems; lia).
     rewrite length_app Nat.add_cancel_r in Helems. iEval (rewrite -Helems).
     iDestruct (big_sepL2_snoc with "Helems") as "(Helems & (:element۰model))".
-    wp۰apply (array٠unsafe_get𑁒spec with "Hmodel") as "Hmodel"; [lia | | done |].
+    wp۰apply (array٠unsafe_getｰspec with "Hmodel") as "Hmodel"; [lia | | done |].
     { rewrite Nat2Z.id lookup_app_l.
       { simpl_length/=. lia. }
       rewrite list_lookup_fmap lookup_app_r // Nat.sub_diag //.
     }
     wp۰match.
-    wp۰apply (array٠unsafe_set𑁒spec with "Hmodel") as "Hmodel".
+    wp۰apply (array٠unsafe_setｰspec with "Hmodel") as "Hmodel".
     { simpl_length/=. lia. }
 
     rewrite fmap_snoc -assoc Nat2Z.id insert_app_r_alt.
@@ -645,7 +645,7 @@ Section zoo۰G.
     iExists l, data, elems, ˖extra. iSteps.
   Qed.
 
-  Lemma dynarray_2٠fit_capacity𑁒spec t vs :
+  Lemma dynarray_2٠fit_capacityｰspec t vs :
     {{{
       dynarray_2۰model t vs
     }}}
@@ -657,11 +657,11 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (:model) HΦ".
     wp۰rec. rewrite /dynarray_2٠size /dynarray_2٠data /dynarray_2٠set_data. do 2 wp۰load.
-    wp۰apply+ (array٠size𑁒spec with "Hmodel") as "Hmodel".
+    wp۰apply+ (array٠sizeｰspec with "Hmodel") as "Hmodel".
     iDestruct (big_sepL2_length with "Helems") as %Helems.
     wp۰pures.
     case_bool_decide; wp۰pures; first iSteps.
-    wp۰apply (array٠shrink𑁒spec with "Hmodel") as "%data' (_ & _ & Hmodel')".
+    wp۰apply (array٠shrinkｰspec with "Hmodel") as "%data' (_ & _ & Hmodel')".
     wp۰store.
     iApply "HΦ".
     iExists l, data', elems, 0.
@@ -670,7 +670,7 @@ Section zoo۰G.
     rewrite right_id. iSteps.
   Qed.
 
-  Lemma dynarray_2٠reset𑁒spec t vs :
+  Lemma dynarray_2٠resetｰspec t vs :
     {{{
       dynarray_2۰model t vs
     }}}
@@ -682,12 +682,12 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (:model) HΦ".
     wp۰rec. rewrite /dynarray_2٠set_size /dynarray_2٠set_data. wp۰store.
-    wp۰apply+ (array٠create𑁒spec with "[//]") as "%data' Hmodel'".
+    wp۰apply+ (array٠createｰspec with "[//]") as "%data' Hmodel'".
     wp۰store.
     iSteps. iExists [], 0. iSteps.
   Qed.
 
-  Lemma dynarray_2٠iteri𑁒spec Ψ fn t vs :
+  Lemma dynarray_2٠iteriｰspec Ψ fn t vs :
     {{{
       ▷ Ψ 0 [] ∗
       dynarray_2۰model t vs ∗
@@ -710,30 +710,30 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
     wp۰rec. rewrite /dynarray_2٠data.
-    wp۰apply+ (dynarray_2٠size𑁒spec with "Hmodel") as "(:model)".
+    wp۰apply+ (dynarray_2٠sizeｰspec with "Hmodel") as "(:model)".
     wp۰load.
-    wp۰apply+ (array٠size𑁒spec with "Hmodel") as "Hmodel".
-    wp۰apply+ assume𑁒spec' as "%".
+    wp۰apply+ (array٠sizeｰspec with "Hmodel") as "Hmodel".
+    wp۰apply+ assumeｰspec' as "%".
     pose Ψ' i slots := (
       Ψ i (take i vs) ∗
       [∗ list] elem; v ∈ elems; vs, element۰model elem v
     )%I.
-    wp۰apply+ (array٠unsafe_iteri_slice𑁒spec Ψ' with "[$HΨ $Helems $Hmodel]"); [lia.. | |].
+    wp۰apply+ (array٠unsafe_iteri_sliceｰspec Ψ' with "[$HΨ $Helems $Hmodel]"); [lia.. | |].
     { iIntros "!> %i %slots%Hi %Hlookup (HΨ & Helems)".
       iDestruct (big_sepL2_length with "Helems") as "%Helems".
       rewrite lookup_app_l in Hlookup.
       { simpl_length. lia. }
       apply list_lookup_fmap_Some in Hlookup as (elem & -> & Hlookup).
-      iDestruct (big_sepL2𑁒lookup𑁒acc𑁒l with "Helems") as "(%v & % & (:element۰model) & Helems)"; first done.
+      iDestruct (big_sepL2ｰlookupｰaccｰl with "Helems") as "(%v & % & (:element۰model) & Helems)"; first done.
       wp۰match. wp۰load.
-      rewrite slice𑁒0 take_app_le.
+      rewrite sliceｰ0 take_app_le.
       { simpl_length. lia. }
-      wp۰apply (wp𑁒wand with "(Hfn [//] HΨ)").
+      wp۰apply (wpｰwand with "(Hfn [//] HΨ)").
       rewrite -take_S_r //. iSteps.
     }
     iSteps. rewrite Nat2Z.id firstn_all //.
   Qed.
-  Lemma dynarray_2٠iteri𑁒spec' Ψ fn t vs :
+  Lemma dynarray_2٠iteriｰspec' Ψ fn t vs :
     {{{
       ▷ Ψ 0 [] ∗
       dynarray_2۰model t vs ∗
@@ -758,13 +758,13 @@ Section zoo۰G.
       Ψ i vs_left ∗
       [∗ list] j ↦ v ∈ drop i vs, Ξ (i + j) v
     )%I).
-    wp۰apply (dynarray_2٠iteri𑁒spec Ψ' with "[$HΨ $Hmodel $Hfn]"); last iSteps.
+    wp۰apply (dynarray_2٠iteriｰspec Ψ' with "[$HΨ $Hmodel $Hfn]"); last iSteps.
     iIntros "!> %i %v %Hlookup (HΨ & HΞ)".
     erewrite drop_S => //.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.
-  Lemma dynarray_2٠iteri𑁒spec𑁒disentangled Ψ fn t vs :
+  Lemma dynarray_2٠iteriｰspecｰdisentangled Ψ fn t vs :
     {{{
       dynarray_2۰model t vs ∗
       □ (
@@ -789,12 +789,12 @@ Section zoo۰G.
     pose (Ψ' i vs := (
       [∗ list] j ↦ v ∈ vs, Ψ j v
     )%I).
-    wp۰apply (dynarray_2٠iteri𑁒spec Ψ' with "[$Hmodel]"); last iSteps.
+    wp۰apply (dynarray_2٠iteriｰspec Ψ' with "[$Hmodel]"); last iSteps.
     rewrite /Ψ'. iSteps.
     rewrite big_sepL_snoc length_take Nat.min_l; last iSteps.
     eapply Nat.lt_le_incl, lookup_lt_Some. done.
   Qed.
-  Lemma dynarray_2٠iteri𑁒spec𑁒disentangled' Ψ fn t vs :
+  Lemma dynarray_2٠iteriｰspecｰdisentangled' Ψ fn t vs :
     {{{
       dynarray_2۰model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -817,14 +817,14 @@ Section zoo۰G.
     pose (Ψ' i vs := (
       [∗ list] j ↦ v ∈ vs, Ψ j v
     )%I).
-    wp۰apply (dynarray_2٠iteri𑁒spec' Ψ' with "[$Hmodel Hfn]"); last iSteps.
+    wp۰apply (dynarray_2٠iteriｰspec' Ψ' with "[$Hmodel Hfn]"); last iSteps.
     rewrite /Ψ'. iSteps.
     iApply (big_sepL_impl with "Hfn"). iSteps.
     rewrite big_sepL_snoc length_take Nat.min_l; last iSteps.
     eapply Nat.lt_le_incl, lookup_lt_Some. done.
   Qed.
 
-  Lemma dynarray_2٠iter𑁒spec Ψ fn t vs :
+  Lemma dynarray_2٠iterｰspec Ψ fn t vs :
     {{{
       ▷ Ψ 0 [] ∗
       dynarray_2۰model t vs ∗
@@ -847,10 +847,10 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠iteri𑁒spec Ψ with "[$HΨ $Hmodel] HΦ").
+    wp۰apply+ (dynarray_2٠iteriｰspec Ψ with "[$HΨ $Hmodel] HΦ").
     iSteps.
   Qed.
-  Lemma dynarray_2٠iter𑁒spec' Ψ fn t vs :
+  Lemma dynarray_2٠iterｰspec' Ψ fn t vs :
     {{{
       ▷ Ψ 0 [] ∗
       dynarray_2۰model t vs ∗
@@ -871,11 +871,11 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠iteri𑁒spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ").
+    wp۰apply+ (dynarray_2٠iteriｰspec' Ψ with "[$HΨ $Hmodel Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
-  Lemma dynarray_2٠iter𑁒spec𑁒disentangled Ψ fn t vs :
+  Lemma dynarray_2٠iterｰspecｰdisentangled Ψ fn t vs :
     {{{
       dynarray_2۰model t vs ∗
       □ (
@@ -898,10 +898,10 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (Hmodel & #Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠iteri𑁒spec𑁒disentangled Ψ with "[$Hmodel] HΦ").
+    wp۰apply+ (dynarray_2٠iteriｰspecｰdisentangled Ψ with "[$Hmodel] HΦ").
     iSteps.
   Qed.
-  Lemma dynarray_2٠iter𑁒spec𑁒disentangled' Ψ fn t vs :
+  Lemma dynarray_2٠iterｰspecｰdisentangled' Ψ fn t vs :
     {{{
       dynarray_2۰model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -922,7 +922,7 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (Hmodel & Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠iteri𑁒spec𑁒disentangled' Ψ with "[$Hmodel Hfn] HΦ").
+    wp۰apply+ (dynarray_2٠iteriｰspecｰdisentangled' Ψ with "[$Hmodel Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -937,7 +937,7 @@ Section zoo۰G.
       τ v
     ).
 
-  Lemma element_get𑁒type elem :
+  Lemma element_getｰtype elem :
     {{{
       itype۰element elem
     }}}
@@ -951,7 +951,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma element_set𑁒type elem v :
+  Lemma element_setｰtype elem v :
     {{{
       itype۰element elem ∗
       τ v
@@ -970,13 +970,13 @@ Section zoo۰G.
     ∨ ∃ elem,
       ⌜slot = #elem⌝ ∗
       itype۰element elem.
-  #[local] Instance itype۰slot𑁒itype :
+  #[local] Instance itype۰slotｰitype :
     iType _ itype۰slot.
   Proof.
     split. apply _.
   Qed.
 
-  #[local] Lemma wp𑁒match𑁒slot slot e1 x e2 Φ :
+  #[local] Lemma wpｰmatchｰslot slot e1 x e2 Φ :
     itype۰slot slot -∗
     ( WP e1 {{ Φ }} ∧
       ∀ elem, itype۰element elem -∗ WP subst' x #elem e2 {{ Φ }}
@@ -997,13 +997,13 @@ Section zoo۰G.
       l.[size] ↦ #sz ∗
       l.[data] ↦ data ∗ itype۰array itype۰slot cap data
     ).
-  #[global] Instance itype۰dynarray_2𑁒itype :
+  #[global] Instance itype۰dynarray_2ｰitype :
     iType _ itype۰dynarray_2.
   Proof.
     split. apply _.
   Qed.
 
-  #[local] Lemma dynarray_2٠element𑁒type v :
+  #[local] Lemma dynarray_2٠elementｰtype v :
     {{{
       τ v
     }}}
@@ -1017,7 +1017,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠create𑁒type :
+  Lemma dynarray_2٠createｰtype :
     {{{
       True
     }}}
@@ -1030,11 +1030,11 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ _ HΦ".
     wp۰rec.
-    wp۰apply (array٠create𑁒type itype۰slot with "[//]") as "%data Hdata_type".
+    wp۰apply (array٠createｰtype itype۰slot with "[//]") as "%data Hdata_type".
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠make𑁒type (sz : Z) v :
+  Lemma dynarray_2٠makeｰtype (sz : Z) v :
     {{{
       τ v
     }}}
@@ -1048,11 +1048,11 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ #Hv HΦ".
     wp۰rec.
-    wp۰apply+ (array٠init𑁒type itype۰slot) as "%data (%Hsz & Hdata_type)"; first iSteps.
+    wp۰apply+ (array٠initｰtype itype۰slot) as "%data (%Hsz & Hdata_type)"; first iSteps.
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠initi𑁒type sz fn :
+  Lemma dynarray_2٠initiｰtype sz fn :
     {{{
       (itype۰nat_upto ₊sz --> τ)%T fn
     }}}
@@ -1065,13 +1065,13 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ #Hfn HΦ".
     wp۰rec.
-    wp۰apply+ array٠initi𑁒type; last iSteps. iIntros "!> % (% & -> & %Hi)".
-    wp۰apply+ (wp𑁒wand with "(Hfn [])") as (v) "#Hv"; first iSteps.
-    wp۰apply (dynarray_2٠element𑁒type with "[//]").
+    wp۰apply+ array٠initiｰtype; last iSteps. iIntros "!> % (% & -> & %Hi)".
+    wp۰apply+ (wpｰwand with "(Hfn [])") as (v) "#Hv"; first iSteps.
+    wp۰apply (dynarray_2٠elementｰtype with "[//]").
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠size𑁒type t :
+  Lemma dynarray_2٠sizeｰtype t :
     {{{
       itype۰dynarray_2 t
     }}}
@@ -1085,7 +1085,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠capacity𑁒type t :
+  Lemma dynarray_2٠capacityｰtype t :
     {{{
       itype۰dynarray_2 t
     }}}
@@ -1099,7 +1099,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma dynarray_2٠data𑁒type t :
+  #[local] Lemma dynarray_2٠dataｰtype t :
     {{{
       itype۰dynarray_2 t
     }}}
@@ -1113,7 +1113,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma dynarray_2٠set_size𑁒type t sz :
+  #[local] Lemma dynarray_2٠set_sizeｰtype t sz :
     (0 ≤ sz)%Z →
     {{{
       itype۰dynarray_2 t
@@ -1127,7 +1127,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma dynarray_2٠set_data𑁒type t cap data :
+  #[local] Lemma dynarray_2٠set_dataｰtype t cap data :
     {{{
       itype۰dynarray_2 t ∗
       itype۰array itype۰slot cap data
@@ -1141,7 +1141,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠is_empty𑁒type t :
+  Lemma dynarray_2٠is_emptyｰtype t :
     {{{
       itype۰dynarray_2 t
     }}}
@@ -1155,7 +1155,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠get𑁒type t (i : Z) :
+  Lemma dynarray_2٠getｰtype t (i : Z) :
     {{{
       itype۰dynarray_2 t
     }}}
@@ -1169,13 +1169,13 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ #Htype HΦ".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠data𑁒type with "Htype") as "%cap %data #Hdata_type".
-    wp۰apply (array٠get𑁒type with "Hdata_type") as "%slot (%Hi & #Hslot)".
-    wp۰apply (wp𑁒match𑁒slot with "Hslot").
+    wp۰apply+ (dynarray_2٠dataｰtype with "Htype") as "%cap %data #Hdata_type".
+    wp۰apply (array٠getｰtype with "Hdata_type") as "%slot (%Hi & #Hslot)".
+    wp۰apply (wpｰmatchｰslot with "Hslot").
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠set𑁒type t (i : Z) v :
+  Lemma dynarray_2٠setｰtype t (i : Z) v :
     {{{
       itype۰dynarray_2 t ∗
       τ v
@@ -1188,13 +1188,13 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠data𑁒type with "Htype") as "%cap %data #Hdata_type".
-    wp۰apply (array٠get𑁒type with "Hdata_type") as "%slot (%Hi & #Hslot)".
-    wp۰apply (wp𑁒match𑁒slot with "Hslot").
+    wp۰apply+ (dynarray_2٠dataｰtype with "Htype") as "%cap %data #Hdata_type".
+    wp۰apply (array٠getｰtype with "Hdata_type") as "%slot (%Hi & #Hslot)".
+    wp۰apply (wpｰmatchｰslot with "Hslot").
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠reserve𑁒type t n :
+  Lemma dynarray_2٠reserveｰtype t n :
     {{{
       itype۰dynarray_2 t
     }}}
@@ -1206,18 +1206,18 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ #Htype HΦ".
     wp۰rec.
-    wp۰apply+ assume𑁒spec' as "%Hn".
-    wp۰apply+ (dynarray_2٠data𑁒type with "Htype") as "%cap %data #Hdata_type".
-    wp۰apply+ (array٠size𑁒type with "Hdata_type") as "_".
+    wp۰apply+ assumeｰspec' as "%Hn".
+    wp۰apply+ (dynarray_2٠dataｰtype with "Htype") as "%cap %data #Hdata_type".
+    wp۰apply+ (array٠sizeｰtype with "Hdata_type") as "_".
     wp۰pures.
     case_bool_decide; wp۰pures; last iSteps.
-    wp۰apply+ (dynarray_2٠next_capacity𑁒spec with "[//]") as "%n' %Hn'"; first lia.
-    wp۰apply int٠max𑁒spec.
-    wp۰apply+ (array٠unsafe_grow𑁒type itype۰slot with "[$Hdata_type]") as (data') "#Hdata_type'"; [lia | iSteps |].
-    wp۰apply+ (dynarray_2٠set_data𑁒type with "[$Htype $Hdata_type']") as "_".
+    wp۰apply+ (dynarray_2٠next_capacityｰspec with "[//]") as "%n' %Hn'"; first lia.
+    wp۰apply int٠maxｰspec.
+    wp۰apply+ (array٠unsafe_growｰtype itype۰slot with "[$Hdata_type]") as (data') "#Hdata_type'"; [lia | iSteps |].
+    wp۰apply+ (dynarray_2٠set_dataｰtype with "[$Htype $Hdata_type']") as "_".
     iSteps.
   Qed.
-  Lemma dynarray_2٠reserve_extra𑁒type t n :
+  Lemma dynarray_2٠reserve_extraｰtype t n :
     {{{
       itype۰dynarray_2 t
     }}}
@@ -1229,13 +1229,13 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ #Htype HΦ".
     wp۰rec.
-    wp۰apply+ assume𑁒spec' as "%Hn".
-    wp۰apply+ (dynarray_2٠size𑁒type with "Htype") as "%sz _".
-    wp۰apply+ (dynarray_2٠reserve𑁒type with "Htype").
+    wp۰apply+ assumeｰspec' as "%Hn".
+    wp۰apply+ (dynarray_2٠sizeｰtype with "Htype") as "%sz _".
+    wp۰apply+ (dynarray_2٠reserveｰtype with "Htype").
     iSteps.
   Qed.
 
-  #[local] Lemma dynarray_2٠try_grow𑁒type t (sz' : Z) v :
+  #[local] Lemma dynarray_2٠try_growｰtype t (sz' : Z) v :
     {{{
       itype۰dynarray_2 t ∗
       τ v
@@ -1250,18 +1250,18 @@ Section zoo۰G.
     iIntros "%Φ (#Htype & #Hv) HΦ".
 
     wp۰rec.
-    wp۰apply+ (dynarray_2٠size𑁒type with "Htype") as (sz) "_".
+    wp۰apply+ (dynarray_2٠sizeｰtype with "Htype") as (sz) "_".
     wp۰pures.
     case_bool_decide; first iSteps.
-    wp۰apply+ (dynarray_2٠data𑁒type with "Htype") as (cap data) "#Hdata_type".
-    wp۰apply+ (array٠size𑁒type with "Hdata_type") as "_".
+    wp۰apply+ (dynarray_2٠dataｰtype with "Htype") as (cap data) "#Hdata_type".
+    wp۰apply+ (array٠sizeｰtype with "Hdata_type") as "_".
     wp۰pures.
     case_bool_decide; first iSteps.
-    wp۰apply+ (dynarray_2٠set_size𑁒type with "Htype") as "_"; first lia.
-    wp۰apply+ (array٠unsafe_apply_slice𑁒type with "[$Hdata_type]"); [lia.. | iSteps |].
+    wp۰apply+ (dynarray_2٠set_sizeｰtype with "Htype") as "_"; first lia.
+    wp۰apply+ (array٠unsafe_apply_sliceｰtype with "[$Hdata_type]"); [lia.. | iSteps |].
     iSteps.
   Qed.
-  #[local] Lemma dynarray_2٠grow₀𑁒type t (sz' : Z) v :
+  #[local] Lemma dynarray_2٠grow₀ｰtype t (sz' : Z) v :
     {{{
       itype۰dynarray_2 t ∗
       τ v
@@ -1277,11 +1277,11 @@ Section zoo۰G.
     iLöb as "HLöb".
 
     wp۰rec.
-    wp۰apply+ (dynarray_2٠reserve𑁒type with "Htype") as "_".
-    wp۰apply+ (dynarray_2٠try_grow𑁒type with "[$Htype $Hv]") as ([]) "_"; first iSteps.
+    wp۰apply+ (dynarray_2٠reserveｰtype with "Htype") as "_".
+    wp۰apply+ (dynarray_2٠try_growｰtype with "[$Htype $Hv]") as ([]) "_"; first iSteps.
     wp۰apply+ ("HLöb" with "HΦ").
   Qed.
-  #[local] Lemma dynarray_2٠grow𑁒type t (sz' : Z) v :
+  #[local] Lemma dynarray_2٠growｰtype t (sz' : Z) v :
     {{{
       itype۰dynarray_2 t ∗
       τ v
@@ -1295,11 +1295,11 @@ Section zoo۰G.
     iIntros "%Φ (#Htype & #Hv) HΦ".
 
     wp۰rec.
-    wp۰apply+ (dynarray_2٠try_grow𑁒type with "[$Htype $Hv]") as ([]) "_"; first iSteps.
-    wp۰apply+ (dynarray_2٠grow₀𑁒type with "[$Htype $Hv] HΦ").
+    wp۰apply+ (dynarray_2٠try_growｰtype with "[$Htype $Hv]") as ([]) "_"; first iSteps.
+    wp۰apply+ (dynarray_2٠grow₀ｰtype with "[$Htype $Hv] HΦ").
   Qed.
 
-  #[local] Lemma dynarray_2٠try_push𑁒type t slot :
+  #[local] Lemma dynarray_2٠try_pushｰtype t slot :
     {{{
       itype۰dynarray_2 t ∗
       itype۰slot slot
@@ -1313,16 +1313,16 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (#Htype & #Hslot) HΦ".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠size𑁒type with "Htype") as "%sz _".
-    wp۰apply+ (dynarray_2٠data𑁒type with "Htype") as "%cap %data #Hdata_type".
-    wp۰apply+ (array٠size𑁒type with "Hdata_type") as "_".
+    wp۰apply+ (dynarray_2٠sizeｰtype with "Htype") as "%sz _".
+    wp۰apply+ (dynarray_2٠dataｰtype with "Htype") as "%cap %data #Hdata_type".
+    wp۰apply+ (array٠sizeｰtype with "Hdata_type") as "_".
     wp۰pures.
     case_bool_decide; wp۰pures; first iSteps.
-    wp۰apply (dynarray_2٠set_size𑁒type with "Htype") as "_"; first lia.
-    wp۰apply+ (array٠unsafe_set𑁒type with "[$Hdata_type $Hslot]") as "_"; first lia.
+    wp۰apply (dynarray_2٠set_sizeｰtype with "Htype") as "_"; first lia.
+    wp۰apply+ (array٠unsafe_setｰtype with "[$Hdata_type $Hslot]") as "_"; first lia.
     iSteps.
   Qed.
-  #[local] Lemma dynarray_2٠push₀𑁒type t slot :
+  #[local] Lemma dynarray_2٠push₀ｰtype t slot :
     {{{
       itype۰dynarray_2 t ∗
       itype۰slot slot
@@ -1336,11 +1336,11 @@ Section zoo۰G.
     iIntros "%Φ (#Htype & #Hslot) HΦ".
     iLöb as "HLöb".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠reserve_extra𑁒type with "Htype") as "_".
-    wp۰apply+ (dynarray_2٠try_push𑁒type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
+    wp۰apply+ (dynarray_2٠reserve_extraｰtype with "Htype") as "_".
+    wp۰apply+ (dynarray_2٠try_pushｰtype with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
     wp۰apply+ ("HLöb" with "HΦ").
   Qed.
-  Lemma dynarray_2٠push𑁒type t v :
+  Lemma dynarray_2٠pushｰtype t v :
     {{{
       itype۰dynarray_2 t ∗
       τ v
@@ -1353,13 +1353,13 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠element𑁒type with "[//]") as (slot) "#Hslot".
-    wp۰apply+ (dynarray_2٠try_push𑁒type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
-    wp۰apply+ (dynarray_2٠push₀𑁒type with "[$Htype $Hslot]").
+    wp۰apply+ (dynarray_2٠elementｰtype with "[//]") as (slot) "#Hslot".
+    wp۰apply+ (dynarray_2٠try_pushｰtype with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
+    wp۰apply+ (dynarray_2٠push₀ｰtype with "[$Htype $Hslot]").
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠pop𑁒type t :
+  Lemma dynarray_2٠popｰtype t :
     {{{
       itype۰dynarray_2 t
     }}}
@@ -1372,21 +1372,21 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ #Htype HΦ".
     wp۰rec.
-    wp۰apply (dynarray_2٠size𑁒type with "Htype") as "%sz _".
-    wp۰apply+ (dynarray_2٠data𑁒type with "Htype") as "%cap %data #Hdata_type".
-    wp۰apply+ (array٠size𑁒type with "Hdata_type") as "_".
-    wp۰apply+ assume𑁒spec' as "%Hcap".
-    wp۰apply+ assume𑁒spec' as "%Hsz".
-    wp۰apply+ (array٠unsafe_get𑁒type with "Hdata_type") as "%slot #Hslot"; first lia.
-    wp۰apply (wp𑁒match𑁒slot with "Hslot").
+    wp۰apply (dynarray_2٠sizeｰtype with "Htype") as "%sz _".
+    wp۰apply+ (dynarray_2٠dataｰtype with "Htype") as "%cap %data #Hdata_type".
+    wp۰apply+ (array٠sizeｰtype with "Hdata_type") as "_".
+    wp۰apply+ assumeｰspec' as "%Hcap".
+    wp۰apply+ assumeｰspec' as "%Hsz".
+    wp۰apply+ (array٠unsafe_getｰtype with "Hdata_type") as "%slot #Hslot"; first lia.
+    wp۰apply (wpｰmatchｰslot with "Hslot").
     iSplit; first iSteps. iIntros "%elem #Helem /=".
-    wp۰apply+ (array٠unsafe_set𑁒type with "[$Hdata_type]") as "_"; [lia | iSteps |].
-    wp۰apply+ (dynarray_2٠set_size𑁒type with "Htype") as "_"; first lia.
-    wp۰apply+ (element_get𑁒type with "Helem").
+    wp۰apply+ (array٠unsafe_setｰtype with "[$Hdata_type]") as "_"; [lia | iSteps |].
+    wp۰apply+ (dynarray_2٠set_sizeｰtype with "Htype") as "_"; first lia.
+    wp۰apply+ (element_getｰtype with "Helem").
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠fit_capacity𑁒type t v :
+  Lemma dynarray_2٠fit_capacityｰtype t v :
     {{{
       itype۰dynarray_2 t
     }}}
@@ -1398,17 +1398,17 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ #Htype HΦ".
     wp۰rec.
-    wp۰apply (dynarray_2٠size𑁒type with "Htype") as "%sz _".
-    wp۰apply+ (dynarray_2٠data𑁒type with "Htype") as "%cap %data #Hdata_type".
-    wp۰apply+ (array٠size𑁒type with "Hdata_type") as "_".
+    wp۰apply (dynarray_2٠sizeｰtype with "Htype") as "%sz _".
+    wp۰apply+ (dynarray_2٠dataｰtype with "Htype") as "%cap %data #Hdata_type".
+    wp۰apply+ (array٠sizeｰtype with "Hdata_type") as "_".
     wp۰pures.
     case_decide; wp۰pures; first iSteps.
-    wp۰apply (array٠shrink𑁒type with "Hdata_type") as "%t' (_ & #Hdata_type')".
-    wp۰apply (dynarray_2٠set_data𑁒type with "[$Htype $Hdata_type']").
+    wp۰apply (array٠shrinkｰtype with "Hdata_type") as "%t' (_ & #Hdata_type')".
+    wp۰apply (dynarray_2٠set_dataｰtype with "[$Htype $Hdata_type']").
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠reset𑁒type t v :
+  Lemma dynarray_2٠resetｰtype t v :
     {{{
       itype۰dynarray_2 t
     }}}
@@ -1420,13 +1420,13 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ #Htype HΦ".
     wp۰rec.
-    wp۰apply (dynarray_2٠set_size𑁒type with "Htype") as "_"; first done.
-    wp۰apply+ (array٠create𑁒type with "[//]") as "%data' #Hdata_type'".
-    wp۰apply (dynarray_2٠set_data𑁒type with "[$Htype $Hdata_type']").
+    wp۰apply (dynarray_2٠set_sizeｰtype with "Htype") as "_"; first done.
+    wp۰apply+ (array٠createｰtype with "[//]") as "%data' #Hdata_type'".
+    wp۰apply (dynarray_2٠set_dataｰtype with "[$Htype $Hdata_type']").
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠iteri𑁒type fn t :
+  Lemma dynarray_2٠iteriｰtype fn t :
     {{{
       itype۰dynarray_2 t ∗
       (itype۰nat --> τ --> itype۰unit)%T fn
@@ -1439,15 +1439,15 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠size𑁒type with "Htype") as "%sz _".
-    wp۰apply+ (dynarray_2٠data𑁒type with "Htype") as "%cap %data #Hdata_type".
-    wp۰apply+ (array٠size𑁒type with "Hdata_type") as "_".
-    wp۰apply+ assume𑁒spec' as "%".
-    wp۰apply+ (array٠unsafe_iteri_slice𑁒type with "[$Hdata_type]"); [lia.. | iSteps |].
+    wp۰apply+ (dynarray_2٠sizeｰtype with "Htype") as "%sz _".
+    wp۰apply+ (dynarray_2٠dataｰtype with "Htype") as "%cap %data #Hdata_type".
+    wp۰apply+ (array٠sizeｰtype with "Hdata_type") as "_".
+    wp۰apply+ assumeｰspec' as "%".
+    wp۰apply+ (array٠unsafe_iteri_sliceｰtype with "[$Hdata_type]"); [lia.. | iSteps |].
     iSteps.
   Qed.
 
-  Lemma dynarray_2٠iter𑁒type fn t :
+  Lemma dynarray_2٠iterｰtype fn t :
     {{{
       itype۰dynarray_2 t ∗
       (τ --> itype۰unit)%T fn
@@ -1460,7 +1460,7 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (dynarray_2٠iteri𑁒type with "[$Htype] HΦ").
+    wp۰apply+ (dynarray_2٠iteriｰtype with "[$Htype] HΦ").
     iSteps.
   Qed.
 End zoo۰G.

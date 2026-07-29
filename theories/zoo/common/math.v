@@ -7,7 +7,7 @@ Require Import zoo.common.relations.
 Require Import zoo.options.
 
 Section nat.
-  #[global] Instance b2n𑁒inj :
+  #[global] Instance b2nｰinj :
     Inj (=) (=) Nat.b2n.
   Proof.
     intros [] []; done.
@@ -22,7 +22,7 @@ Section nat.
     end.
   #[global] Arguments nat۰elim _ _ _ !_ / : assert.
 
-  #[global] Instance ge𑁒partialorder :
+  #[global] Instance geｰpartialorder :
     PartialOrder ge.
   Proof.
     split; first split.
@@ -31,12 +31,12 @@ Section nat.
     - intros ?**. lia.
   Qed.
 
-  #[global] Instance le𑁒initial : Initial (≤) :=
+  #[global] Instance leｰinitial : Initial (≤) :=
     {|initial := 0
-    ; initial𑁒lb := Nat.le_0_l
+    ; initialｰlb := Nat.le_0_l
     |}.
 
-  Lemma minus𑁒mod₁ a b n :
+  Lemma minusｰmod₁ a b n :
     b ≤ a →
     b `mod` n ≤ a `mod` n →
     (a `mod` n - b `mod` n) `mod` n = (a - b) `mod` n.
@@ -46,7 +46,7 @@ Section nat.
     rewrite Nat2Z.inj_mod Nat2Z.inj_sub // !Nat2Z.inj_mod -Zminus_mod.
     rewrite -Nat2Z.inj_sub // -Nat2Z.inj_mod Nat2Z.id //.
   Qed.
-  Lemma minus𑁒mod₁' a b n :
+  Lemma minusｰmod₁' a b n :
     n ≠ 0 →
     b ≤ a →
     b `mod` n ≤ a `mod` n →
@@ -54,18 +54,18 @@ Section nat.
   Proof.
     intros.
     rewrite -(Nat.mod_small (a `mod` n - b `mod` n) n); first lia.
-    rewrite minus𑁒mod₁ //.
+    rewrite minusｰmod₁ //.
   Qed.
-  Lemma minus𑁒mod₁'' a b n :
+  Lemma minusｰmod₁'' a b n :
     n ≠ 0 →
     a `mod` n ≤ (a + b) `mod` n →
     (a + b) `mod` n - a `mod` n = b `mod` n.
   Proof.
     intros.
-    rewrite minus𑁒mod₁' //; first lia.
+    rewrite minusｰmod₁' //; first lia.
     rewrite Nat.add_sub' //.
   Qed.
-  Lemma minus𑁒mod₂ a b n :
+  Lemma minusｰmod₂ a b n :
     n ≠ 0 →
     a ≤ b →
     b `mod` n ≤ a `mod` n →
@@ -95,7 +95,7 @@ Notation "(≥)" :=
 Section Z.
   #[local] Open Scope Z_scope.
 
-  Lemma Z𑁒rem𑁒mod x y :
+  Lemma Zｰremｰmod x y :
     0 ≤ x →
     0 ≤ y →
     x `rem` y = x `mod` y.
@@ -113,12 +113,12 @@ Section Qp۰of_nat.
   Definition Qp۰of_nat :=
     pos_to_Qp ∘ Pos.of_nat.
 
-  Lemma Qp۰of_nat𑁒1 :
+  Lemma Qp۰of_natｰ1 :
     Qp۰of_nat 1 = 1%Qp.
   Proof.
     done.
   Qed.
-  Lemma Qp۰of_nat𑁒S n :
+  Lemma Qp۰of_natｰS n :
     n ≠ 0 →
     Qp۰of_nat ˖n = (1 + Qp۰of_nat n)%Qp.
   Proof.

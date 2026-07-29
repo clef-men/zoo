@@ -12,7 +12,7 @@ Class MonoGmapG Σ K V `{Countable K} :=
 Definition mono_gmap۰Σ K V `{Countable K} :=
   #[auth_mono۰Σ (A := leibnizO (gmap K V)) (subseteq (A := gmap K V))
   ].
-#[global] Instance subG𑁒mono_gmap۰Σ Σ K V `{Countable K} :
+#[global] Instance subGｰmono_gmap۰Σ Σ K V `{Countable K} :
   subG (mono_gmap۰Σ K V) Σ →
   MonoGmapG Σ K V.
 Proof.
@@ -25,7 +25,7 @@ Section mono_gmap۰G.
   Implicit Type v : V.
   Implicit Type m : gmap K V.
 
-  #[local] Instance map𑁒subseteq𑁒partialorder :
+  #[local] Instance mapｰsubseteqｰpartialorder :
     PartialOrder (A := gmap K V) subseteq.
   Proof.
     apply _.
@@ -41,64 +41,64 @@ Section mono_gmap۰G.
     ∃ v,
     mono_gmap۰at γ i v.
 
-  #[global] Instance mono_gmap۰auth𑁒timeless γ dq m :
+  #[global] Instance mono_gmap۰authｰtimeless γ dq m :
     Timeless (mono_gmap۰auth γ dq m).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_gmap۰lb𑁒timeless γ m :
+  #[global] Instance mono_gmap۰lbｰtimeless γ m :
     Timeless (mono_gmap۰lb γ m).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_gmap۰elem𑁒timeless γ i :
+  #[global] Instance mono_gmap۰elemｰtimeless γ i :
     Timeless (mono_gmap۰elem γ i).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mono_gmap۰auth𑁒persistent γ m :
+  #[global] Instance mono_gmap۰authｰpersistent γ m :
     Persistent (mono_gmap۰auth γ DfracDiscarded m).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_gmap۰lb𑁒persistent γ m :
+  #[global] Instance mono_gmap۰lbｰpersistent γ m :
     Persistent (mono_gmap۰lb γ m).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_gmap۰elem𑁒persistent γ i :
+  #[global] Instance mono_gmap۰elemｰpersistent γ i :
     Persistent (mono_gmap۰elem γ i).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mono_gmap۰auth𑁒fractional γ m :
+  #[global] Instance mono_gmap۰authｰfractional γ m :
     Fractional (λ q, mono_gmap۰auth γ (DfracOwn q) m).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_gmap۰auth𑁒as_fractional γ q m :
+  #[global] Instance mono_gmap۰authｰas_fractional γ q m :
     AsFractional (mono_gmap۰auth γ (DfracOwn q) m) (λ q, mono_gmap۰auth γ (DfracOwn q) m) q.
   Proof.
     apply _.
   Qed.
 
-  Lemma mono_gmap𑁒alloc m :
+  Lemma mono_gmapｰalloc m :
     ⊢ |==>
       ∃ γ,
       mono_gmap۰auth γ (DfracOwn 1) m.
   Proof.
-    apply auth_mono𑁒alloc.
+    apply auth_monoｰalloc.
   Qed.
 
-  Lemma mono_gmap۰at𑁒to𑁒elem γ i v :
+  Lemma mono_gmap۰atｰtoｰelem γ i v :
     mono_gmap۰at γ i v ⊢
     mono_gmap۰elem γ i.
   Proof.
     rewrite /mono_gmap۰elem. iSteps.
   Qed.
-  Lemma mono_gmap۰elem𑁒to𑁒at γ i :
+  Lemma mono_gmap۰elemｰtoｰat γ i :
     mono_gmap۰elem γ i ⊢
       ∃ v,
       mono_gmap۰at γ i v.
@@ -106,140 +106,140 @@ Section mono_gmap۰G.
     done.
   Qed.
 
-  Lemma mono_gmap۰auth𑁒valid γ dq m :
+  Lemma mono_gmap۰authｰvalid γ dq m :
     mono_gmap۰auth γ dq m ⊢
     ⌜✓ dq⌝.
   Proof.
-    apply auth_mono۰auth𑁒valid.
+    apply auth_mono۰authｰvalid.
   Qed.
-  Lemma mono_gmap۰auth𑁒combine γ dq1 m1 dq2 m2 :
+  Lemma mono_gmap۰authｰcombine γ dq1 m1 dq2 m2 :
     mono_gmap۰auth γ dq1 m1 -∗
     mono_gmap۰auth γ dq2 m2 -∗
       ⌜m1 = m2⌝ ∗
       mono_gmap۰auth γ (dq1 ⋅ dq2) m1.
   Proof.
-    apply: auth_mono۰auth𑁒combine.
+    apply: auth_mono۰authｰcombine.
   Qed.
-  Lemma mono_gmap۰auth𑁒valid𑁒2 γ dq1 m1 dq2 m2 :
+  Lemma mono_gmap۰authｰvalidｰ2 γ dq1 m1 dq2 m2 :
     mono_gmap۰auth γ dq1 m1 -∗
     mono_gmap۰auth γ dq2 m2 -∗
       ⌜✓ (dq1 ⋅ dq2)⌝ ∗
       ⌜m1 = m2⌝.
   Proof.
-    apply: auth_mono۰auth𑁒valid𑁒2.
+    apply: auth_mono۰authｰvalidｰ2.
   Qed.
-  Lemma mono_gmap۰auth𑁒agree γ dq1 m1 dq2 m2 :
+  Lemma mono_gmap۰authｰagree γ dq1 m1 dq2 m2 :
     mono_gmap۰auth γ dq1 m1 -∗
     mono_gmap۰auth γ dq2 m2 -∗
     ⌜m1 = m2⌝.
   Proof.
-    apply: auth_mono۰auth𑁒agree.
+    apply: auth_mono۰authｰagree.
   Qed.
-  Lemma mono_gmap۰auth𑁒dfrac𑁒ne γ1 dq1 m1 γ2 dq2 m2 :
+  Lemma mono_gmap۰authｰdfracｰne γ1 dq1 m1 γ2 dq2 m2 :
     ¬ ✓ (dq1 ⋅ dq2) →
     mono_gmap۰auth γ1 dq1 m1 -∗
     mono_gmap۰auth γ2 dq2 m2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    apply: auth_mono۰auth𑁒dfrac𑁒ne.
+    apply: auth_mono۰authｰdfracｰne.
   Qed.
-  Lemma mono_gmap۰auth𑁒ne γ1 m1 γ2 dq2 m2 :
+  Lemma mono_gmap۰authｰne γ1 m1 γ2 dq2 m2 :
     mono_gmap۰auth γ1 (DfracOwn 1) m1 -∗
     mono_gmap۰auth γ2 dq2 m2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    apply: auth_mono۰auth𑁒ne.
+    apply: auth_mono۰authｰne.
   Qed.
-  Lemma mono_gmap۰auth𑁒exclusive γ m1 dq2 m2 :
+  Lemma mono_gmap۰authｰexclusive γ m1 dq2 m2 :
     mono_gmap۰auth γ (DfracOwn 1) m1 -∗
     mono_gmap۰auth γ dq2 m2 -∗
     False.
   Proof.
-    apply: auth_mono۰auth𑁒exclusive.
+    apply: auth_mono۰authｰexclusive.
   Qed.
-  Lemma mono_gmap۰auth𑁒persist γ dq m :
+  Lemma mono_gmap۰authｰpersist γ dq m :
     mono_gmap۰auth γ dq m ⊢ |==>
     mono_gmap۰auth γ DfracDiscarded m.
   Proof.
-    apply auth_mono۰auth𑁒persist.
+    apply auth_mono۰authｰpersist.
   Qed.
 
-  Lemma mono_gmap۰lb𑁒get γ dq m :
+  Lemma mono_gmap۰lbｰget γ dq m :
     mono_gmap۰auth γ dq m ⊢
     mono_gmap۰lb γ m.
   Proof.
-    apply auth_mono۰lb𑁒get.
+    apply auth_mono۰lbｰget.
   Qed.
-  Lemma mono_gmap۰lb𑁒mono {γ m} m' :
+  Lemma mono_gmap۰lbｰmono {γ m} m' :
     m' ⊆ m →
     mono_gmap۰lb γ m ⊢
     mono_gmap۰lb γ m'.
   Proof.
-    apply auth_mono۰lb𑁒mono'.
+    apply auth_mono۰lbｰmono'.
   Qed.
-  Lemma mono_gmap۰at𑁒get {γ dq m} i v :
+  Lemma mono_gmap۰atｰget {γ dq m} i v :
     m !! i = Some v →
     mono_gmap۰auth γ dq m ⊢
     mono_gmap۰at γ i v.
   Proof.
     iIntros "%Hlookup Hauth".
-    iDestruct (mono_gmap۰lb𑁒get with "Hauth") as "Hlb".
-    iApply (mono_gmap۰lb𑁒mono with "Hlb").
+    iDestruct (mono_gmap۰lbｰget with "Hauth") as "Hlb".
+    iApply (mono_gmap۰lbｰmono with "Hlb").
     rewrite map_singleton_subseteq_l //.
   Qed.
 
-  Lemma mono_gmap۰lb𑁒valid γ dq m1 m2 :
+  Lemma mono_gmap۰lbｰvalid γ dq m1 m2 :
     mono_gmap۰auth γ dq m1 -∗
     mono_gmap۰lb γ m2 -∗
     ⌜m2 ⊆ m1⌝.
   Proof.
     iIntros "Hauth Hlb".
-    iDestruct (auth_mono۰lb𑁒valid with "Hauth Hlb") as %Hm2.
-    rewrite preorder𑁒rtc in Hm2. iSteps.
+    iDestruct (auth_mono۰lbｰvalid with "Hauth Hlb") as %Hm2.
+    rewrite preorderｰrtc in Hm2. iSteps.
   Qed.
-  Lemma mono_gmap۰at𑁒valid γ dq m i v :
+  Lemma mono_gmap۰atｰvalid γ dq m i v :
     mono_gmap۰auth γ dq m -∗
     mono_gmap۰at γ i v -∗
     ⌜m !! i = Some v⌝.
   Proof.
     iIntros "Hauth Hat".
-    iDestruct (mono_gmap۰lb𑁒valid with "Hauth Hat") as %?%map_singleton_subseteq_l.
+    iDestruct (mono_gmap۰lbｰvalid with "Hauth Hat") as %?%map_singleton_subseteq_l.
     iSteps.
   Qed.
-  Lemma mono_gmap۰elem𑁒valid γ dq m i :
+  Lemma mono_gmap۰elemｰvalid γ dq m i :
     mono_gmap۰auth γ dq m -∗
     mono_gmap۰elem γ i -∗
       ∃ v,
       ⌜m !! i = Some v⌝.
   Proof.
     iIntros "Hauth (%v & Hat)".
-    iDestruct (mono_gmap۰at𑁒valid with "Hauth Hat") as "$".
+    iDestruct (mono_gmap۰atｰvalid with "Hauth Hat") as "$".
   Qed.
 
-  Lemma mono_gmap𑁒update {γ m} m' :
+  Lemma mono_gmapｰupdate {γ m} m' :
     m ⊆ m' →
     mono_gmap۰auth γ (DfracOwn 1) m ⊢ |==>
     mono_gmap۰auth γ (DfracOwn 1) m'.
   Proof.
-    apply auth_mono𑁒update'.
+    apply auth_monoｰupdate'.
   Qed.
-  Lemma mono_gmap𑁒insert {γ m} i v :
+  Lemma mono_gmapｰinsert {γ m} i v :
     m !! i = None →
     mono_gmap۰auth γ (DfracOwn 1) m ⊢ |==>
     mono_gmap۰auth γ (DfracOwn 1) (<[i := v]> m).
   Proof.
     intros Hlookup.
-    apply mono_gmap𑁒update, insert_subseteq. done.
+    apply mono_gmapｰupdate, insert_subseteq. done.
   Qed.
-  Lemma mono_gmap𑁒insert' {γ m} i v :
+  Lemma mono_gmapｰinsert' {γ m} i v :
     m !! i = None →
     mono_gmap۰auth γ (DfracOwn 1) m ⊢ |==>
       mono_gmap۰auth γ (DfracOwn 1) (<[i := v]> m) ∗
       mono_gmap۰at γ i v.
   Proof.
     iIntros "%Hlookup Hauth".
-    iMod (mono_gmap𑁒insert i v with "Hauth") as "Hauth"; first done.
-    iDestruct (mono_gmap۰at𑁒get i v with "Hauth") as "#Hat"; first rewrite lookup_insert_eq //.
+    iMod (mono_gmapｰinsert i v with "Hauth") as "Hauth"; first done.
+    iDestruct (mono_gmap۰atｰget i v with "Hauth") as "#Hat"; first rewrite lookup_insert_eq //.
     iSteps.
   Qed.
 End mono_gmap۰G.

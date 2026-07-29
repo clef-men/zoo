@@ -52,7 +52,7 @@ Definition mpmc_bqueue۰Σ :=
   ; ghost_mapΣ gname nat
   ; saved_pred۰Σ bool
   ].
-#[global] Instance subG𑁒mpmc_bqueue۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰmpmc_bqueue۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG mpmc_bqueue۰Σ Σ →
   MpmcBqueueG Σ.
 Proof.
@@ -75,9 +75,9 @@ Module base.
       }.
     Implicit Type γ : mpmc_bqueue۰name.
 
-    #[global] Instance mpmc_bqueue۰name𑁒eq_dec : EqDecision mpmc_bqueue۰name :=
+    #[global] Instance mpmc_bqueue۰nameｰeq_dec : EqDecision mpmc_bqueue۰name :=
       ltac:(solve_decision).
-    #[global] Instance mpmc_bqueue۰name𑁒countable :
+    #[global] Instance mpmc_bqueue۰nameｰcountable :
       Countable mpmc_bqueue۰name.
     Proof.
       solve_countable.
@@ -215,127 +215,127 @@ Module base.
         )
       ".
 
-    #[global] Instance mpmc_bqueue۰model𑁒timeless γ vs :
+    #[global] Instance mpmc_bqueue۰modelｰtimeless γ vs :
       Timeless (mpmc_bqueue۰model γ vs).
     Proof.
       apply _.
     Qed.
 
-    #[global] Instance mpmc_bqueue۰inv𑁒persistent t γ ι cap :
+    #[global] Instance mpmc_bqueue۰invｰpersistent t γ ι cap :
       Persistent (mpmc_bqueue۰inv t γ ι cap).
     Proof.
       apply _.
     Qed.
 
-    #[local] Lemma history𑁒alloc front :
+    #[local] Lemma historyｰalloc front :
       ⊢ |==>
         ∃ γ_history,
         history۰auth' γ_history [front].
     Proof.
-      apply mono_list𑁒alloc.
+      apply mono_listｰalloc.
     Qed.
-    #[local] Lemma history۰at𑁒get {γ hist} i node :
+    #[local] Lemma history۰atｰget {γ hist} i node :
       hist !! i = Some node →
       history۰auth γ hist ⊢
       history۰at γ i node.
     Proof.
-      apply mono_list۰at𑁒get.
+      apply mono_list۰atｰget.
     Qed.
-    #[local] Lemma history۰at𑁒agree γ i node1 node2 :
+    #[local] Lemma history۰atｰagree γ i node1 node2 :
       history۰at γ i node1 -∗
       history۰at γ i node2 -∗
       ⌜node1 = node2⌝.
     Proof.
-      apply mono_list۰at𑁒agree.
+      apply mono_list۰atｰagree.
     Qed.
-    #[local] Lemma history۰at𑁒lookup γ hist i node :
+    #[local] Lemma history۰atｰlookup γ hist i node :
       history۰auth γ hist -∗
       history۰at γ i node -∗
       ⌜hist !! i = Some node⌝.
     Proof.
-      apply mono_list۰at𑁒valid.
+      apply mono_list۰atｰvalid.
     Qed.
-    #[local] Lemma history۰at𑁒elem_of γ hist i node :
+    #[local] Lemma history۰atｰelem_of γ hist i node :
       history۰auth γ hist -∗
       history۰at γ i node -∗
       ⌜node ∈ hist⌝.
     Proof.
       iIntros "Hauth Hat".
-      iDestruct (history۰at𑁒lookup with "Hauth Hat") as %?%list_elem_of_lookup_2.
+      iDestruct (history۰atｰlookup with "Hauth Hat") as %?%list_elem_of_lookup_2.
       iSteps.
     Qed.
-    #[local] Lemma history𑁒update {γ hist} node :
+    #[local] Lemma historyｰupdate {γ hist} node :
       history۰auth γ hist ⊢ |==>
         history۰auth γ (hist ++ [node]) ∗
         history۰at γ (length hist) node.
     Proof.
       iIntros "Hauth".
-      iMod (mono_list𑁒update𑁒snoc with "Hauth") as "Hauth".
-      iDestruct (history۰at𑁒get with "Hauth") as "#Hat".
+      iMod (mono_listｰupdateｰsnoc with "Hauth") as "Hauth".
+      iDestruct (history۰atｰget with "Hauth") as "#Hat".
       { rewrite lookup_snoc_Some. naive_solver. }
       iSteps.
     Qed.
 
-    #[local] Lemma front𑁒alloc :
+    #[local] Lemma frontｰalloc :
       ⊢ |==>
         ∃ γ_front,
         front۰auth' γ_front 0.
     Proof.
-      apply auth_nat_max𑁒alloc.
+      apply auth_nat_maxｰalloc.
     Qed.
-    #[local] Lemma front۰lb𑁒get γ i :
+    #[local] Lemma front۰lbｰget γ i :
       front۰auth γ i ⊢
       front۰lb γ i.
     Proof.
-      apply auth_nat_max۰lb𑁒get.
+      apply auth_nat_max۰lbｰget.
     Qed.
-    #[local] Lemma front۰lb𑁒valid γ i1 i2 :
+    #[local] Lemma front۰lbｰvalid γ i1 i2 :
       front۰auth γ i1 -∗
       front۰lb γ i2 -∗
       ⌜i2 ≤ i1⌝.
     Proof.
-      apply auth_nat_max۰lb𑁒valid.
+      apply auth_nat_max۰lbｰvalid.
     Qed.
-    #[local] Lemma front𑁒update {γ i} i' :
+    #[local] Lemma frontｰupdate {γ i} i' :
       i ≤ i' →
       front۰auth γ i ⊢ |==>
       front۰auth γ i'.
     Proof.
-      apply auth_nat_max𑁒update.
+      apply auth_nat_maxｰupdate.
     Qed.
 
-    #[local] Lemma model𑁒alloc :
+    #[local] Lemma modelｰalloc :
       ⊢ |==>
         ∃ γ_model,
         model₁' γ_model [] ∗
         model₂' γ_model [].
     Proof.
-      apply twins𑁒alloc'.
+      apply twinsｰalloc'.
     Qed.
-    #[local] Lemma model₁𑁒exclusive γ vs1 vs2 :
+    #[local] Lemma model₁ｰexclusive γ vs1 vs2 :
       model₁ γ vs1 -∗
       model₁ γ vs2 -∗
       False.
     Proof.
-      apply twins۰twin₁𑁒exclusive.
+      apply twins۰twin₁ｰexclusive.
     Qed.
-    #[local] Lemma model𑁒agree γ vs1 vs2 :
+    #[local] Lemma modelｰagree γ vs1 vs2 :
       model₁ γ vs1 -∗
       model₂ γ vs2 -∗
       ⌜vs1 = vs2⌝.
     Proof.
-      apply: twins𑁒agree𑁒L.
+      apply: twinsｰagreeｰL.
     Qed.
-    #[local] Lemma model𑁒update {γ vs1 vs2} vs :
+    #[local] Lemma modelｰupdate {γ vs1 vs2} vs :
       model₁ γ vs1 -∗
       model₂ γ vs2 ==∗
         model₁ γ vs ∗
         model₂ γ vs.
     Proof.
-      apply twins𑁒update.
+      apply twinsｰupdate.
     Qed.
 
-    #[local] Lemma waiters𑁒alloc :
+    #[local] Lemma waitersｰalloc :
       ⊢ |==>
         ∃ γ_waiters,
         waiters۰auth' γ_waiters ∅.
@@ -343,7 +343,7 @@ Module base.
       iMod ghost_map_alloc as "(%γ_waiters & Hwaiters_auth & _)".
       iSteps.
     Qed.
-    #[local] Lemma waiters𑁒insert {γ waiters} i Ψ :
+    #[local] Lemma waitersｰinsert {γ waiters} i Ψ :
       waiters۰auth γ waiters ⊢ |==>
         ∃ waiter,
         waiters۰auth γ (<[waiter := i]> waiters) ∗
@@ -351,11 +351,11 @@ Module base.
         waiters۰at γ waiter i.
     Proof.
       iIntros "Hwaiters_auth".
-      iMod (saved_pred𑁒alloc𑁒cofinite (dom waiters) Ψ) as "(%waiter & %Hwaiter & $)".
+      iMod (saved_predｰallocｰcofinite (dom waiters) Ψ) as "(%waiter & %Hwaiter & $)".
       rewrite not_elem_of_dom in Hwaiter.
       iApply (ghost_map_insert with "Hwaiters_auth"); first done.
     Qed.
-    #[local] Lemma waiters𑁒delete γ waiters waiter i :
+    #[local] Lemma waitersｰdelete γ waiters waiter i :
       waiters۰auth γ waiters -∗
       waiters۰at γ waiter i ==∗
         ⌜waiters !! waiter = Some i⌝ ∗
@@ -367,23 +367,23 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma mpmc_bqueue۰model𑁒valid t γ ι cap vs :
+    Lemma mpmc_bqueue۰modelｰvalid t γ ι cap vs :
       mpmc_bqueue۰inv t γ ι cap -∗
       mpmc_bqueue۰model γ vs -∗
       ⌜length vs ≤ cap⌝.
     Proof.
       iSteps.
     Qed.
-    Lemma mpmc_bqueue۰model𑁒exclusive γ vs1 vs2 :
+    Lemma mpmc_bqueue۰modelｰexclusive γ vs1 vs2 :
       mpmc_bqueue۰model γ vs1 -∗
       mpmc_bqueue۰model γ vs2 -∗
       False.
     Proof.
       iIntros "(:model =1) (:model =2)".
-      iApply (model₁𑁒exclusive with "Hmodel₁_1 Hmodel₁_2").
+      iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
     Qed.
 
-    Lemma mpmc_bqueue٠create𑁒spec ι cap :
+    Lemma mpmc_bqueue٠createｰspec ι cap :
       (0 ≤ cap)%Z →
       {{{
         True
@@ -401,14 +401,14 @@ Module base.
 
       wp۰rec.
       wp۰block front as "Hfront_header" "_" "(Hfront_next & Hfront_data & Hfront_index & Hfront_capacity & _)".
-      iMod (pointsto𑁒persist with "Hfront_index") as "#Hfront_index".
+      iMod (pointstoｰpersist with "Hfront_index") as "#Hfront_index".
       wp۰block t as "Hmeta" "(Ht_capacity & Ht_front & Ht_back & _)".
-      iMod (pointsto𑁒persist with "Ht_capacity") as "#Hcapacity".
+      iMod (pointstoｰpersist with "Ht_capacity") as "#Hcapacity".
 
-      iMod history𑁒alloc as "(%γ_history & Hhistory_auth)".
-      iMod front𑁒alloc as "(%γ_front & Hfront_auth)".
-      iMod model𑁒alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
-      iMod waiters𑁒alloc as "(%γ_waiters & Hwaiters_auth)".
+      iMod historyｰalloc as "(%γ_history & Hhistory_auth)".
+      iMod frontｰalloc as "(%γ_front & Hfront_auth)".
+      iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+      iMod waitersｰalloc as "(%γ_waiters & Hwaiters_auth)".
 
       pose γ :=
         {|mpmc_bqueue۰name۰inv := ι
@@ -425,10 +425,10 @@ Module base.
       iApply inv_alloc.
       iExists [front], [], front, [], front, [], ∅. iFrameSteps.
       - rewrite list_elem_of_singleton //.
-      - rewrite xtchain𑁒singleton big_sepM_empty. iSteps.
+      - rewrite xtchainｰsingleton big_sepM_empty. iSteps.
     Qed.
 
-    Lemma mpmc_bqueue٠capacity𑁒spec t γ ι cap :
+    Lemma mpmc_bqueue٠capacityｰspec t γ ι cap :
       {{{
         mpmc_bqueue۰inv t γ ι cap
       }}}
@@ -441,7 +441,7 @@ Module base.
       iSteps.
     Qed.
 
-    #[local] Lemma front𑁒spec𑁒strong Ψ t γ :
+    #[local] Lemma frontｰspecｰstrong Ψ t γ :
       {{{
         inv' t γ ∗
         if Ψ is Some Ψ then
@@ -468,18 +468,18 @@ Module base.
       wp۰load.
       assert (hist !! (length past) = Some front) as Hlookup.
       { rewrite Hhist list_lookup_middle //. }
-      iDestruct (xtchain𑁒lookup𑁒header with "Hhist") as "#Hfront_header"; first done.
+      iDestruct (xtchainｰlookupｰheader with "Hhist") as "#Hfront_header"; first done.
       iDestruct (big_sepL_lookup with "Hindices") as "#Hfront_index"; first done.
-      iDestruct (history۰at𑁒get _ front with "Hhistory_auth") as "#Hhistory_at_front"; first done.
-      iDestruct (front۰lb𑁒get with "Hfront_auth") as "#Hfront_lb_front".
+      iDestruct (history۰atｰget _ front with "Hhistory_auth") as "#Hhistory_at_front"; first done.
+      iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb_front".
       destruct Ψ as [Ψ |]; last iSteps.
-      iMod (waiters𑁒insert (length past) Ψ with "Hwaiters_auth") as "(%waiter & Hwaiter_auth & #Hwaiter & Hwaiters_at)".
+      iMod (waitersｰinsert (length past) Ψ with "Hwaiters_auth") as "(%waiter & Hwaiter_auth & #Hwaiter & Hwaiters_at)".
       iDestruct (big_sepM_insert_2 _ _ waiter (length past) with "[HΨ] Hwaiters") as "Hwaiters".
       { iExists Ψ. rewrite decide_False; first lia. iSteps. }
       iSplitR "Hwaiters_at HΦ". { iFrameSteps. }
       iSteps.
     Qed.
-    #[local] Lemma front𑁒spec t γ :
+    #[local] Lemma frontｰspec t γ :
       {{{
         inv' t γ
       }}}
@@ -491,11 +491,11 @@ Module base.
       }}}.
     Proof.
       iIntros "%Φ #Hinv HΦ".
-      wp۰apply (front𑁒spec𑁒strong None with "[$Hinv]").
+      wp۰apply (frontｰspecｰstrong None with "[$Hinv]").
       iSteps.
     Qed.
 
-    #[local] Lemma back𑁒spec t γ :
+    #[local] Lemma backｰspec t γ :
       {{{
         inv' t γ
       }}}
@@ -511,9 +511,9 @@ Module base.
       iInv "Hinv" as "(:inv۰inner)".
       wp۰load.
       pose proof Hback as (i & Hlookup)%list_elem_of_lookup.
-      iDestruct (xtchain𑁒lookup𑁒header with "Hhist") as "#Hback_header"; first done.
+      iDestruct (xtchainｰlookupｰheader with "Hhist") as "#Hback_header"; first done.
       iDestruct (big_sepL_lookup with "Hindices") as "#Hback_index"; first done.
-      iDestruct (history۰at𑁒get with "Hhistory_auth") as "#Hhistory_at_back"; first done.
+      iDestruct (history۰atｰget with "Hhistory_auth") as "#Hhistory_at_back"; first done.
       iSplitR "HΦ". { iFrameSteps. }
       iSteps.
     Qed.
@@ -529,7 +529,7 @@ Module base.
       | IsEmpty'
       | Pop'
       | Other'.
-    #[local] Instance operation'𑁒eq_dec : EqDecision operation' :=
+    #[local] Instance operation'ｰeq_dec : EqDecision operation' :=
       ltac:(solve_decision).
     #[local] Coercion operation۰to_operation' op :=
       match op with
@@ -560,7 +560,7 @@ Module base.
       , COMM
         True -∗ Ψ (head vs)
       }>.
-    #[local] Lemma next𑁒spec𑁒aux (next : option location) op t γ i node :
+    #[local] Lemma nextｰspecｰaux (next : option location) op t γ i node :
       {{{
         inv' t γ ∗
         history۰at γ i node ∗
@@ -620,33 +620,33 @@ Module base.
       iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hhistory_at_next & Hop) HΦ".
 
       iInv "Hinv" as "(:inv۰inner)".
-      iDestruct (history۰at𑁒lookup with "Hhistory_auth Hhistory_at_node") as %Hlookup.
-      iDestruct (xtchain𑁒lookup𑁒acc with "Hhist") as "(_ & Hnode & Hhist)"; first done.
+      iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_node") as %Hlookup.
+      iDestruct (xtchainｰlookupｰacc with "Hhist") as "(_ & Hnode & Hhist)"; first done.
       wp۰load.
       iDestruct ("Hhist" with "Hnode") as "Hhist".
       destruct (hist !! ˖i) as [node' |] eqn:Hlookup'; simpl.
 
-      - iDestruct (xtchain𑁒lookup𑁒header with "Hhist") as "#Hnode'_header"; first done.
+      - iDestruct (xtchainｰlookupｰheader with "Hhist") as "#Hnode'_header"; first done.
         iDestruct (big_sepL_lookup with "Hindices") as "#Hnode'_index"; first done.
-        iDestruct (history۰at𑁒get ˖i with "Hhistory_auth") as "#Hhistory_at_node'"; first done.
+        iDestruct (history۰atｰget ˖i with "Hhistory_auth") as "#Hhistory_at_node'"; first done.
 
         iAssert ⌜from_option (node' =.) True next⌝%I as %?.
         { destruct next as [next |]; last done.
-          iApply (history۰at𑁒agree with "Hhistory_at_node' Hhistory_at_next").
+          iApply (history۰atｰagree with "Hhistory_at_node' Hhistory_at_next").
         }
 
         destruct op. 1,3,4: iSteps.
         iDestruct "Hop" as "(#Hfront_lb_node & #Hwaiter & Hwaiters_at & H£)".
-        iMod (waiters𑁒delete with "Hwaiters_auth Hwaiters_at") as "(%Hwaiters_lookup & Hwaiters_auth)".
+        iMod (waitersｰdelete with "Hwaiters_auth Hwaiters_at") as "(%Hwaiters_lookup & Hwaiters_auth)".
         iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ_ & Hwaiter_ & HΨ) & Hwaiters)"; first done.
-        iDestruct (saved_pred𑁒agree false with "Hwaiter Hwaiter_") as "Heq".
+        iDestruct (saved_predｰagree false with "Hwaiter Hwaiter_") as "Heq".
         iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
         destruct_decide (i = length past) as -> | Hi.
 
         + rewrite decide_False; first lia.
 
           iMod "HΨ" as "(%vs_ & Hmodel₁ & _ & HΨ)".
-          iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
           iMod ("HΨ" with "Hmodel₁") as "HΨ".
           assert (nodes ≠ []) as Hnodes.
           { apply lookup_lt_Some in Hlookup'.
@@ -663,13 +663,13 @@ Module base.
           iSplitR "Heq HΨ HΦ". { iFrameSteps. }
           iSteps. iRewrite "Heq". iSteps.
 
-        + iDestruct (front۰lb𑁒valid with "Hfront_auth Hfront_lb_node") as %Hi_.
+        + iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_node") as %Hi_.
           rewrite decide_True; first lia.
           iSplitR "Heq HΨ HΦ". { iFrameSteps. }
           iSteps. iRewrite "Heq". iSteps.
 
       - destruct next as [next |].
-        { iDestruct (history۰at𑁒lookup with "Hhistory_auth Hhistory_at_next") as %?. congruence. }
+        { iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_next") as %?. congruence. }
 
         destruct op as [i_front | | |].
 
@@ -677,10 +677,10 @@ Module base.
           destruct_decide (length past = i_front).
 
           * iMod "HΨ" as "(%vs_ & (:model) & _ & HΨ)".
-            iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+            iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
             iMod ("HΨ" with "[$Hmodel₁ //] [//]") as "HΨ".
             assert ((i - i_front)%Z = length nodes) as ->.
-            { opose proof* length𑁒lookup𑁒last as Hlength; [done.. |].
+            { opose proof* lengthｰlookupｰlast as Hlength; [done.. |].
               rewrite Hhist length_app /= in Hlength.
               lia.
             }
@@ -689,26 +689,26 @@ Module base.
             iSplitR "HΨ HΦ". { iFrameSteps. }
             iSteps.
 
-          * iDestruct (front۰lb𑁒valid with "Hfront_auth Hfront_lb_front") as %?. iClear "Hfront_lb_front".
-            iDestruct (front۰lb𑁒get with "Hfront_auth") as "#Hfront_lb_front".
+          * iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_front") as %?. iClear "Hfront_lb_front".
+            iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb_front".
             iSplitR "HΨ HΦ". { iFrameSteps. }
             iSteps.
 
         + iDestruct "Hop" as "(#Hfront_lb_node & #Hwaiter & Hwaiters_at & H£)".
-          iDestruct (front۰lb𑁒valid with "Hfront_auth Hfront_lb_node") as %Hi.
-          opose proof* length𑁒lookup𑁒last as Hlength; [done.. |].
+          iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_node") as %Hi.
+          opose proof* lengthｰlookupｰlast as Hlength; [done.. |].
           rewrite Hhist length_app /= in Hlength.
           assert (i = length past) as -> by lia.
           assert (length nodes = 0) as ->%nil_length_inv by lia.
           iDestruct (big_sepL2_length with "Hnodes") as %->%symmetry%nil_length_inv.
-          iMod (waiters𑁒delete with "Hwaiters_auth Hwaiters_at") as "(%Hwaiters_lookup & Hwaiters_auth)".
+          iMod (waitersｰdelete with "Hwaiters_auth Hwaiters_at") as "(%Hwaiters_lookup & Hwaiters_auth)".
           iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ_ & Hwaiter_ & HΨ) & Hwaiters)"; first done.
-          iDestruct (saved_pred𑁒agree true with "Hwaiter Hwaiter_") as "Heq".
+          iDestruct (saved_predｰagree true with "Hwaiter Hwaiter_") as "Heq".
           iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
           rewrite decide_False; first lia.
 
           iMod "HΨ" as "(%vs & Hmodel₁ & _ & HΨ)".
-          iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
           iMod ("HΨ" with "Hmodel₁") as "HΨ".
 
           iSplitR "Heq HΨ HΦ". { iFrameSteps. }
@@ -718,15 +718,15 @@ Module base.
           iLeft. iRewrite "Heq". iSteps.
 
         + iDestruct "Hop" as "(#Hfront_lb_node & HΨ)".
-          iDestruct (front۰lb𑁒valid with "Hfront_auth Hfront_lb_node") as %Hi.
-          opose proof* length𑁒lookup𑁒last as Hlength; [done.. |].
+          iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_node") as %Hi.
+          opose proof* lengthｰlookupｰlast as Hlength; [done.. |].
           rewrite Hhist length_app /= in Hlength.
           assert (i = length past) as -> by lia.
           assert (length nodes = 0) as ->%nil_length_inv by lia.
           iDestruct (big_sepL2_length with "Hnodes") as %->%symmetry%nil_length_inv.
 
           iMod "HΨ" as "(%vs & Hmodel₁ & _ & HΨ)".
-          iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
           iMod ("HΨ" with "Hmodel₁") as "HΨ".
 
           iSplitR "HΨ HΦ". { iFrameSteps. }
@@ -734,7 +734,7 @@ Module base.
 
         + iSteps.
     Qed.
-    #[local] Lemma next𑁒spec {t γ i} node :
+    #[local] Lemma nextｰspec {t γ i} node :
       {{{
         inv' t γ ∗
         history۰at γ i node
@@ -750,9 +750,9 @@ Module base.
       }}}.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node) HΦ".
-      wp۰apply (next𑁒spec𑁒aux None Other); iSteps.
+      wp۰apply (nextｰspecｰaux None Other); iSteps.
     Qed.
-    #[local] Lemma next𑁒spec' {t γ i} node next :
+    #[local] Lemma nextｰspec' {t γ i} node next :
       {{{
         inv' t γ ∗
         history۰at γ i node ∗
@@ -765,9 +765,9 @@ Module base.
       }}}.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hhistory_at_next) HΦ".
-      wp۰apply (next𑁒spec𑁒aux (Some next) Other); iSteps.
+      wp۰apply (nextｰspecｰaux (Some next) Other); iSteps.
     Qed.
-    #[local] Lemma next𑁒spec𑁒size {t γ i node} i_front Ψ :
+    #[local] Lemma nextｰspecｰsize {t γ i node} i_front Ψ :
       {{{
         inv' t γ ∗
         history۰at γ i node ∗
@@ -792,10 +792,10 @@ Module base.
       }}}.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_front & HΨ) HΦ".
-      wp۰apply (next𑁒spec𑁒aux None (Size _ _) with "[$]").
+      wp۰apply (nextｰspecｰaux None (Size _ _) with "[$]").
       iSteps.
     Qed.
-    #[local] Lemma next𑁒spec𑁒is_empty {t γ i node} waiter Ψ :
+    #[local] Lemma nextｰspecｰis_empty {t γ i node} waiter Ψ :
       {{{
         inv' t γ ∗
         history۰at γ i node ∗
@@ -817,10 +817,10 @@ Module base.
       }}}.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & #Hwaiter & Hwaiters_at & H£) HΦ".
-      wp۰apply (next𑁒spec𑁒aux None (IsEmpty _ _) with "[$]").
+      wp۰apply (nextｰspecｰaux None (IsEmpty _ _) with "[$]").
       iSteps.
     Qed.
-    #[local] Lemma next𑁒spec𑁒pop {t γ i node} Ψ :
+    #[local] Lemma nextｰspecｰpop {t γ i node} Ψ :
       {{{
         inv' t γ ∗
         history۰at γ i node ∗
@@ -840,11 +840,11 @@ Module base.
       }}}.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & HΨ) HΦ".
-      wp۰apply (next𑁒spec𑁒aux None (Pop _) with "[$]").
+      wp۰apply (nextｰspecｰaux None (Pop _) with "[$]").
       iSteps.
     Qed.
 
-    Lemma mpmc_bqueue٠size𑁒spec t γ ι cap :
+    Lemma mpmc_bqueue٠sizeｰspec t γ ι cap :
       <<<
         mpmc_bqueue۰inv t γ ι cap
       | ∀∀ vs,
@@ -862,28 +862,28 @@ Module base.
       iLöb as "HLöb".
 
       wp۰rec.
-      wp۰apply (front𑁒spec with "Hinv") as (front1 i_front1) "(:node۰model =front1 front=)".
+      wp۰apply (frontｰspec with "Hinv") as (front1 i_front1) "(:node۰model =front1 front=)".
       wp۰match.
-      wp۰apply+ (prophet_typed₁𑁒wp𑁒proph prophet with "[//]") as (pid proph) "Hproph".
-      wp۰apply+ (back𑁒spec with "Hinv") as (back2 i_back2) "(:node۰model =back2)".
+      wp۰apply+ (prophet_typed₁ｰwpｰproph prophet with "[//]") as (pid proph) "Hproph".
+      wp۰apply+ (backｰspec with "Hinv") as (back2 i_back2) "(:node۰model =back2)".
       wp۰match. wp۰pures.
       destruct_decide (proph = front1) as -> | Hproph.
 
-      - wp۰apply (next𑁒spec𑁒size with "[$]") as (res) "[(-> & HΦ) | (%node & -> & (:node۰model =node) & HΦ)]".
+      - wp۰apply (nextｰspecｰsize with "[$]") as (res) "[(-> & HΦ) | (%node & -> & (:node۰model =node) & HΦ)]".
 
         + wp۰pures.
 
           wp۰bind (𝗿𝗲𝘀𝗼𝗹𝘃𝗲 _ _ _)%E.
           iInv "Hinv" as "(:inv۰inner =3)".
-          wp۰apply (prophet_typed₁𑁒wp𑁒resolve with "Hproph"); first done.
+          wp۰apply (prophet_typed₁ｰwpｰresolve with "Hproph"); first done.
           wp۰load.
           iStep. iIntros "!> <-".
           iDestruct "HΦ" as "[HΦ | (%i_front2 & #Hfront_lb_front2 & % & HΦ)]"; last first.
           { assert (hist3 !! (length past3) = Some front1) as Hlookup.
             { rewrite Hhist3 list_lookup_middle //. }
             iDestruct (big_sepL_lookup with "Hindices") as "#Hfront1_index_"; first done.
-            iDestruct (pointsto𑁒agree with "Hfront1_index Hfront1_index_") as %[= ?%(inj _)].
-            iDestruct (front۰lb𑁒valid with "Hfront_auth Hfront_lb_front2") as %?.
+            iDestruct (pointstoｰagree with "Hfront1_index Hfront1_index_") as %[= ?%(inj _)].
+            iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_front2") as %?.
             lia.
           }
           iSteps.
@@ -892,35 +892,35 @@ Module base.
 
           wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
           iInv "Hinv" as "(:inv۰inner =3)".
-          wp۰apply (wp𑁒cas𑁒nobranch' with "Ht_back") as (b) "% Ht_back".
+          wp۰apply (wpｰcasｰnobranch' with "Ht_back") as (b) "% Ht_back".
           iSplitR "HΦ".
-          { iDestruct (history۰at𑁒elem_of with "Hhistory_auth Hhistory_at_node") as %Hnode.
+          { iDestruct (history۰atｰelem_of with "Hhistory_auth Hhistory_at_node") as %Hnode.
             destruct b; iFrameSteps.
           }
           iSteps.
 
-      - wp۰apply (next𑁒spec with "[$]") as (res) "[-> | (%node & -> & (:node۰model =node))]".
+      - wp۰apply (nextｰspec with "[$]") as (res) "[-> | (%node & -> & (:node۰model =node))]".
 
         + wp۰pures.
 
           wp۰bind (𝗿𝗲𝘀𝗼𝗹𝘃𝗲 _ _ _)%E.
           iInv "Hinv" as "(:inv۰inner =3)".
-          wp۰apply (prophet_typed₁𑁒wp𑁒resolve with "Hproph"); first done.
+          wp۰apply (prophet_typed₁ｰwpｰresolve with "Hproph"); first done.
           iSteps.
 
         + wp۰match. wp۰pures.
 
           wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
           iInv "Hinv" as "(:inv۰inner =3)".
-          wp۰apply (wp𑁒cas𑁒nobranch' with "Ht_back") as (b) "% Ht_back".
+          wp۰apply (wpｰcasｰnobranch' with "Ht_back") as (b) "% Ht_back".
           iSplitR "HΦ".
-          { iDestruct (history۰at𑁒elem_of with "Hhistory_auth Hhistory_at_node") as %Hnode.
+          { iDestruct (history۰atｰelem_of with "Hhistory_auth Hhistory_at_node") as %Hnode.
             destruct b; iFrameSteps.
           }
           iSteps.
     Qed.
 
-    Lemma mpmc_bqueue٠is_empty𑁒spec t γ ι cap :
+    Lemma mpmc_bqueue٠is_emptyｰspec t γ ι cap :
       <<<
         mpmc_bqueue۰inv t γ ι cap
       | ∀∀ vs,
@@ -936,16 +936,16 @@ Module base.
       iIntros "%Φ (:inv) HΦ".
 
       wp۰rec credit:"H£".
-      wp۰apply+ (front𑁒spec𑁒strong (Some $ λ b, Φ #b) with "[$Hinv HΦ]") as (node i) "((:node۰model =node front=) & %waiter & #Hwaiter & Hwaiters_at)".
+      wp۰apply+ (frontｰspecｰstrong (Some $ λ b, Φ #b) with "[$Hinv HΦ]") as (node i) "((:node۰model =node front=) & %waiter & #Hwaiter & Hwaiters_at)".
       { rewrite /= /waiter۰au. iAuIntro.
-        iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vs (:model)".
+        iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)".
         iAaccIntro with "Hmodel₁"; iSteps.
       }
       wp۰match.
-      wp۰apply+ (next𑁒spec𑁒is_empty with "[$]"); iSteps.
+      wp۰apply+ (nextｰspecｰis_empty with "[$]"); iSteps.
     Qed.
 
-    #[local] Lemma mpmc_bqueue٠fix_back𑁒spec {t γ} i {back} j new_back :
+    #[local] Lemma mpmc_bqueue٠fix_backｰspec {t γ} i {back} j new_back :
       {{{
         inv' t γ ∗
         history۰at γ i back ∗
@@ -964,24 +964,24 @@ Module base.
       wp۰rec. wp۰match.
 
       wp۰bind (_ 𝗮𝗻𝗱 _)%E.
-      wp۰apply (wp𑁒wand itype۰bool) as (res) "(%b & ->)".
-      { wp۰apply+ (next𑁒spec new_back with "[$]") as (res) "[-> | (%new_back' & -> & (:node۰model =new_back'))]"; last iSteps.
+      wp۰apply (wpｰwand itype۰bool) as (res) "(%b & ->)".
+      { wp۰apply+ (nextｰspec new_back with "[$]") as (res) "[-> | (%new_back' & -> & (:node۰model =new_back'))]"; last iSteps.
         wp۰pures.
 
         wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
         iInv "Hinv" as "(:inv۰inner =1)".
         wp۰cas as _ | [= ->]; first iSteps.
-        iDestruct (history۰at𑁒lookup with "Hhistory_auth Hhistory_at_new_back") as %Hnew_back%list_elem_of_lookup_2.
+        iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_new_back") as %Hnew_back%list_elem_of_lookup_2.
         iSteps.
       }
 
       destruct b; last iSteps.
-      wp۰apply+ domain٠yield𑁒spec.
-      wp۰apply+ (back𑁒spec with "Hinv") as (back' i') "(:node۰model =back')".
+      wp۰apply+ domain٠yieldｰspec.
+      wp۰apply+ (backｰspec with "Hinv") as (back' i') "(:node۰model =back')".
       iApply ("HLöb" with "HΦ Hhistory_at_back'").
     Qed.
 
-    #[local] Lemma mpmc_bqueue٠push_1_push_2𑁒spec t γ new_back v :
+    #[local] Lemma mpmc_bqueue٠push_1_push_2ｰspec t γ new_back v :
       ⊢ (
         ∀ back i_back i_front (cap : Z),
         <<<
@@ -1047,12 +1047,12 @@ Module base.
           wp۰load.
           assert (hist1 !! (length past1) = Some front1) as Hlookup.
           { rewrite Hhist1 list_lookup_middle //. }
-          iDestruct (xtchain𑁒lookup𑁒header with "Hhist") as "#Hfront1_header"; first done.
+          iDestruct (xtchainｰlookupｰheader with "Hhist") as "#Hfront1_header"; first done.
           iDestruct (big_sepL_lookup with "Hindices") as "#Hfront1_index"; first done.
 
           destruct_decide (i_back < length past1 + γ.(mpmc_bqueue۰name۰capacity)) as Hnotfull | Hfull.
 
-          + iDestruct (front۰lb𑁒get with "Hfront_auth") as "#Hfront_lb_front1".
+          + iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb_front1".
             iSplitR "Hnew_back_next Hnew_back_data Hnew_back_index Hnew_back_estimated_capacity HΦ". { iFrameSteps. }
             remember (length past1) as i_front1.
             iIntros "!> {%- Hnotfull}".
@@ -1063,22 +1063,22 @@ Module base.
 
             wp۰bind (_ <-{estimated_capacity} _)%E.
             iInv "Hinv" as "(:inv۰inner =2)".
-            iDestruct (history۰at𑁒lookup with "Hhistory_auth Hhistory_at_back") as %Hlookup.
+            iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_back") as %Hlookup.
             iDestruct (big_sepL_lookup_acc with "Hcapacities") as "((%cap2 & Hback_estimated_capacity & _) & Hcapacities)"; first done.
             wp۰store.
-            iDestruct (front۰lb𑁒valid with "Hfront_auth Hfront_lb_front1") as %?.
+            iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_front1") as %?.
             iDestruct ("Hcapacities" with "[Hback_estimated_capacity]") as "Hcapacities"; first iSteps.
             iSplitR "Hnew_back_next Hnew_back_data Hnew_back_index Hnew_back_estimated_capacity HΦ". { iFrameSteps. }
             iSteps.
 
           + iMod "HΦ" as "(%vs & (%Hvs & Hmodel₁) & _ & HΦ)".
-            iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %<-.
+            iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %<-.
             iAssert ⌜
               length vs = γ.(mpmc_bqueue۰name۰capacity) ∧
               (⁺γ.(mpmc_bqueue۰name۰capacity) - (⁺i_back - ⁺(length past1)) = 0)%Z
             ⌝%I as "(-> & %Hif)".
             { iDestruct (big_sepL2_length with "Hnodes") as %?.
-              iDestruct (history۰at𑁒lookup with "Hhistory_auth Hhistory_at_back") as %?%lookup_lt_Some.
+              iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_back") as %?%lookup_lt_Some.
               iPureIntro.
               apply (f_equal length) in Hhist1. simpl_length/= in Hhist1.
               lia.
@@ -1097,42 +1097,42 @@ Module base.
 
           wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
           iInv "Hinv" as "(:inv۰inner =1)".
-          iDestruct (history۰at𑁒lookup with "Hhistory_auth Hhistory_at_back") as %Hlookup_back.
-          iDestruct (xtchain𑁒lookup with "Hhist") as "(Hhist1 & _ & Hback & Hhist2)"; first done.
+          iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_back") as %Hlookup_back.
+          iDestruct (xtchainｰlookup with "Hhist") as "(Hhist1 & _ & Hback & Hhist2)"; first done.
           destruct (hist1 !! ˖i_back) as [next |] eqn:Hlookup_next; simpl.
 
           + wp۰cas as _ | [=].
-            iDestruct (history۰at𑁒get ˖i_back with "Hhistory_auth") as "#Hhistory_at_next"; first done.
-            iDestruct (xtchain𑁒lookup₂ with "Hhist1 Hback_header Hback Hhist2") as "Hhist"; [done | rewrite Hlookup_next // |].
+            iDestruct (history۰atｰget ˖i_back with "Hhistory_auth") as "#Hhistory_at_next"; first done.
+            iDestruct (xtchainｰlookup₂ with "Hhist1 Hback_header Hback Hhist2") as "Hhist"; [done | rewrite Hlookup_next // |].
             iSplitR "Hnew_back_next Hnew_back_data Hnew_back_index Hnew_back_estimated_capacity HΦ". { iFrameSteps. }
             iIntros "!> {%}".
 
             iDestruct "Hhistory_at_next" as "-#Hhistory_at_next".
-            wp۰apply+ (next𑁒spec' back next with "[$]") as "(:node۰model =next)".
+            wp۰apply+ (nextｰspec' back next with "[$]") as "(:node۰model =next)".
             iSteps.
 
           + wp۰cas as ? | _; first done.
-            opose proof* length𑁒lookup𑁒last as Hlength; [done.. |].
-            iDestruct (front۰lb𑁒valid with "Hfront_auth Hfront_lb_front") as %?.
+            opose proof* lengthｰlookupｰlast as Hlength; [done.. |].
+            iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_front") as %?.
 
             iMod "HΦ" as "(%vs & (_ & Hmodel₁) & _ & HΦ)".
-            iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %<-.
-            iMod (model𑁒update (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+            iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %<-.
+            iMod (modelｰupdate (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
             iDestruct (big_sepL2_length with "Hnodes") as %<-.
             assert (length nodes1 < γ.(mpmc_bqueue۰name۰capacity)).
             { rewrite Hhist1 length_app /= in Hlength. lia. }
             iEval (rewrite bool_decide_eq_true_2 //) in "HΦ".
             iMod ("HΦ" $! true with "[$Hmodel₁ //] [//]") as "HΦ".
 
-            iDestruct (xtchain𑁒lookup₂ with "Hhist1 Hback_header Hback []") as "Hhist"; [done | rewrite Hlookup_next // | ..].
-            { rewrite -Hlength // drop_all -xtchain𑁒nil //. }
-            iDestruct (xtchain𑁒snoc₂ with "Hhist Hnew_back_header Hnew_back_next") as "Hhist".
-            iDestruct (big_sepL2𑁒snoc₂ with "Hnodes Hnew_back_data") as "Hnodes".
-            iMod (pointsto𑁒persist with "Hnew_back_index") as "#Hnew_back_index".
-            iDestruct (big_sepL𑁒snoc₂ new_back with "Hindices []") as "Hindices".
+            iDestruct (xtchainｰlookup₂ with "Hhist1 Hback_header Hback []") as "Hhist"; [done | rewrite Hlookup_next // | ..].
+            { rewrite -Hlength // drop_all -xtchainｰnil //. }
+            iDestruct (xtchainｰsnoc₂ with "Hhist Hnew_back_header Hnew_back_next") as "Hhist".
+            iDestruct (big_sepL2ｰsnoc₂ with "Hnodes Hnew_back_data") as "Hnodes".
+            iMod (pointstoｰpersist with "Hnew_back_index") as "#Hnew_back_index".
+            iDestruct (big_sepLｰsnoc₂ new_back with "Hindices []") as "Hindices".
             { rewrite Hlength Nat2Z.inj_succ //. }
-            iDestruct (big_sepL𑁒snoc₂ new_back with "Hcapacities [Hnew_back_estimated_capacity]") as "Hcapacities"; first iSteps.
-            iMod (history𑁒update new_back with "Hhistory_auth") as "(Hhistory_auth & #Hhistory_at_new_back)". rewrite Hlength.
+            iDestruct (big_sepLｰsnoc₂ new_back with "Hcapacities [Hnew_back_estimated_capacity]") as "Hcapacities"; first iSteps.
+            iMod (historyｰupdate new_back with "Hhistory_auth") as "(Hhistory_auth & #Hhistory_at_new_back)". rewrite Hlength.
             iSplitR "HΦ".
             { iFrameSteps; iPureIntro.
               - rewrite Hhist1 -assoc //.
@@ -1140,7 +1140,7 @@ Module base.
             }
             iIntros "!> {%}".
 
-            wp۰apply+ mpmc_bqueue٠fix_back𑁒spec.
+            wp۰apply+ mpmc_bqueue٠fix_backｰspec.
             { iFrame "#". iSteps. }
             iSteps.
       }
@@ -1152,17 +1152,17 @@ Module base.
         wp۰rec. wp۰match. wp۰pures.
 
         wp۰bind (_.{estimated_capacity})%E.
-        wp۰apply (wp𑁒frame𑁒wand with "[- HΦ]"); first iAccu.
+        wp۰apply (wpｰframeｰwand with "[- HΦ]"); first iAccu.
         iInv "Hinv" as "(:inv۰inner =1)".
-        iDestruct (history۰at𑁒lookup with "Hhistory_auth Hhistory_at_back") as %Hhist1_lookup.
+        iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_back") as %Hhist1_lookup.
         iDestruct (big_sepL_lookup_acc with "Hcapacities") as "((%cap & Hback_estimated_capacity & %Hcap) & Hcapacities)"; first done.
         wp۰load.
-        iDestruct (front۰lb𑁒get with "Hfront_auth") as "#Hfront_lb".
+        iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
         iSplitR "HΦ". { iFrameSteps. }
         iSteps.
       }
     Qed.
-    #[local] Lemma mpmc_bqueue٠push_2𑁒spec t γ back i_back new_back v :
+    #[local] Lemma mpmc_bqueue٠push_2ｰspec t γ back i_back new_back v :
       <<<
         t.[capacity] ↦□ #γ.(mpmc_bqueue۰name۰capacity) ∗
         inv' t γ ∗
@@ -1185,10 +1185,10 @@ Module base.
         True
       >>>.
     Proof.
-      iDestruct mpmc_bqueue٠push_1_push_2𑁒spec as "(_ & H)".
+      iDestruct mpmc_bqueue٠push_1_push_2ｰspec as "(_ & H)".
       iApply "H".
     Qed.
-    Lemma mpmc_bqueue٠push𑁒spec t γ ι cap v :
+    Lemma mpmc_bqueue٠pushｰspec t γ ι cap v :
       <<<
         mpmc_bqueue۰inv t γ ι cap
       | ∀∀ vs,
@@ -1207,16 +1207,16 @@ Module base.
 
       wp۰rec.
       wp۰block new_back as "#Hnew_back_header" "_" "(Hnew_back_next & Hnew_back_data & Hnew_back_index & Hnew_back_estimated_capacity & _)".
-      wp۰apply+ (back𑁒spec with "Hinv") as (back i_back) "(:node۰model =back)".
+      wp۰apply+ (backｰspec with "Hinv") as (back i_back) "(:node۰model =back)".
 
-      awp۰apply (mpmc_bqueue٠push_2𑁒spec with "[$]").
-      iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vs (:model)".
+      awp۰apply (mpmc_bqueue٠push_2ｰspec with "[$]").
+      iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)".
       iAaccIntro with "[$Hmodel₁]". 1,2: iSteps. iIntros "%b (-> & $) !>".
       iSteps. iPureIntro.
       case_bool_decide; simpl_length/=; lia.
     Qed.
 
-    #[local] Lemma mpmc_bqueue٠pop𑁒spec𑁒aux t γ :
+    #[local] Lemma mpmc_bqueue٠popｰspecｰaux t γ :
       <<<
         inv' t γ
       | ∀∀ vs,
@@ -1234,20 +1234,20 @@ Module base.
       iLöb as "HLöb".
 
       wp۰rec.
-      wp۰apply+ (front𑁒spec with "Hinv") as (front i) "(:node۰model =front front=)".
+      wp۰apply+ (frontｰspec with "Hinv") as (front i) "(:node۰model =front front=)".
       wp۰match.
-      wp۰apply+ (next𑁒spec𑁒pop Φ with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node۰model =new_front) & HΦ)]"; first iSteps.
+      wp۰apply+ (nextｰspecｰpop Φ with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node۰model =new_front) & HΦ)]"; first iSteps.
       wp۰match. wp۰pures.
 
       wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner =1)".
-      iDestruct (history۰at𑁒lookup with "Hhistory_auth Hhistory_at_new_front") as %Hlookup.
-      iDestruct (xtchain𑁒lookup𑁒acc with "Hhist") as "(_ & Hnode & Hhist)"; first done.
+      iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_new_front") as %Hlookup.
+      iDestruct (xtchainｰlookupｰacc with "Hhist") as "(_ & Hnode & Hhist)"; first done.
       wp۰cas as _ | [= <-]; first iSteps.
       iDestruct ("Hhist" with "Hnode") as "Hhist".
-      iDestruct (history۰at𑁒lookup with "Hhistory_auth Hhistory_at_front") as %Hlookup_old.
+      iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_front") as %Hlookup_old.
       iAssert ⌜length past1 = i⌝%I as %Hpast_length.
-      { iDestruct (xtchain𑁒NoDup with "Hhist") as %Hnodup.
+      { iDestruct (xtchainｰNoDup with "Hhist") as %Hnodup.
         iPureIntro. eapply NoDup_lookup; try done.
         rewrite Hhist1 list_lookup_middle //.
       }
@@ -1257,9 +1257,9 @@ Module base.
       rewrite (assoc _ _ [_]) in Hhist1.
       iDestruct (big_sepL2_cons_inv_l with "Hnodes") as "(%v & %vs' & -> & Hfront_data & Hnodes)".
       set past := past1 ++ [front].
-      iMod (front𑁒update (length past) with "Hfront_auth") as "Hfront_auth".
+      iMod (frontｰupdate (length past) with "Hfront_auth") as "Hfront_auth".
       { rewrite /past. simpl_length. lia. }
-      iDestruct (big_sepM𑁒impl𑁒thread𑁒fupd _ (waiter۰model γ past)%I with "Hwaiters Hmodel₂ [#]") as ">(Hwaiters & Hmodel₂)".
+      iDestruct (big_sepMｰimplｰthreadｰfupd _ (waiter۰model γ past)%I with "Hwaiters Hmodel₂ [#]") as ">(Hwaiters & Hmodel₂)".
       { iIntros "!> %waiter %j %Hlookup (%P & #Hwaiter & HP) Hmodel₂".
         destruct (Nat.lt_trichotomy j (length past1)) as [Hj | [-> | Hj]].
         - rewrite decide_True //.
@@ -1270,7 +1270,7 @@ Module base.
           rewrite /waiter۰model. setoid_rewrite decide_True; last first.
           { rewrite /past. simpl_length/=. lia. }
           iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
-          iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
+          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
           iSteps.
         - rewrite decide_False; first lia.
           rewrite /waiter۰model. setoid_rewrite decide_False; last first.
@@ -1279,8 +1279,8 @@ Module base.
       }
 
       iMod "HΦ" as "(%vs & Hmodel₁ & _ & HΦ)".
-      iDestruct (model𑁒agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (model𑁒update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (modelｰupdate vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "Hmodel₁") as "HΦ".
 
       iSplitR "Hfront_data HΦ".
@@ -1290,7 +1290,7 @@ Module base.
       }
       iSteps.
     Qed.
-    Lemma mpmc_bqueue٠pop𑁒spec t γ ι cap :
+    Lemma mpmc_bqueue٠popｰspec t γ ι cap :
       <<<
         mpmc_bqueue۰inv t γ ι cap
       | ∀∀ vs,
@@ -1305,12 +1305,12 @@ Module base.
     Proof.
       iIntros "%Φ (:inv) HΦ".
 
-      wp۰apply (mpmc_bqueue٠pop𑁒spec𑁒aux with "[$]").
+      wp۰apply (mpmc_bqueue٠popｰspecｰaux with "[$]").
       iAuIntro.
-      iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vs (:model)".
+      iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)".
       iAaccIntro with "Hmodel₁"; first iSteps.
       iStepFrameSteps. iPureIntro.
-      etrans; last done. apply length𑁒tail.
+      etrans; last done. apply lengthｰtail.
     Qed.
   End mpmc_bqueue۰G.
 
@@ -1354,38 +1354,38 @@ Section mpmc_bqueue۰G.
       )
     ".
 
-  #[global] Instance mpmc_bqueue۰model𑁒timeless t vs :
+  #[global] Instance mpmc_bqueue۰modelｰtimeless t vs :
     Timeless (mpmc_bqueue۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpmc_bqueue۰inv𑁒persistent t ι cap :
+  #[global] Instance mpmc_bqueue۰invｰpersistent t ι cap :
     Persistent (mpmc_bqueue۰inv t ι cap).
   Proof.
     apply _.
   Qed.
 
-  Lemma mpmc_bqueue۰model𑁒valid t ι cap vs :
+  Lemma mpmc_bqueue۰modelｰvalid t ι cap vs :
     mpmc_bqueue۰inv t ι cap -∗
     mpmc_bqueue۰model t vs -∗
     ⌜length vs ≤ cap⌝.
   Proof.
     iIntros "(:inv =1) (:model =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.mpmc_bqueue۰model𑁒valid with "Hinv_1 Hmodel_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.mpmc_bqueue۰modelｰvalid with "Hinv_1 Hmodel_2").
   Qed.
-  Lemma mpmc_bqueue۰model𑁒exclusive t vs1 vs2 :
+  Lemma mpmc_bqueue۰modelｰexclusive t vs1 vs2 :
     mpmc_bqueue۰model t vs1 -∗
     mpmc_bqueue۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.mpmc_bqueue۰model𑁒exclusive with "Hmodel_1 Hmodel_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.mpmc_bqueue۰modelｰexclusive with "Hmodel_1 Hmodel_2").
   Qed.
 
-  Lemma mpmc_bqueue٠create𑁒spec ι cap :
+  Lemma mpmc_bqueue٠createｰspec ι cap :
     (0 ≤ cap)%Z →
     {{{
       True
@@ -1400,13 +1400,13 @@ Section mpmc_bqueue۰G.
   Proof.
     iIntros "%Hcap %Φ _ HΦ".
 
-    iApply wp𑁒fupd.
-    wp۰apply (base.mpmc_bqueue٠create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)"; first done.
-    iMod (meta𑁒set γ with "Hmeta"); first done.
+    iApply wpｰfupd.
+    wp۰apply (base.mpmc_bqueue٠createｰspec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)"; first done.
+    iMod (metaｰset γ with "Hmeta"); first done.
     iSteps.
   Qed.
 
-  Lemma mpmc_bqueue٠capacity𑁒spec t ι cap :
+  Lemma mpmc_bqueue٠capacityｰspec t ι cap :
     {{{
       mpmc_bqueue۰inv t ι cap
     }}}
@@ -1418,10 +1418,10 @@ Section mpmc_bqueue۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp۰apply (base.mpmc_bqueue٠capacity𑁒spec with "[$] HΦ").
+    wp۰apply (base.mpmc_bqueue٠capacityｰspec with "[$] HΦ").
   Qed.
 
-  Lemma mpmc_bqueue٠size𑁒spec t ι cap :
+  Lemma mpmc_bqueue٠sizeｰspec t ι cap :
     <<<
       mpmc_bqueue۰inv t ι cap
     | ∀∀ vs,
@@ -1436,14 +1436,14 @@ Section mpmc_bqueue۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.mpmc_bqueue٠size𑁒spec with "[$]").
-    { iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
+    awp۰apply (base.mpmc_bqueue٠sizeｰspec with "[$]").
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+      iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma mpmc_bqueue٠is_empty𑁒spec t ι cap :
+  Lemma mpmc_bqueue٠is_emptyｰspec t ι cap :
     <<<
       mpmc_bqueue۰inv t ι cap
     | ∀∀ vs,
@@ -1458,14 +1458,14 @@ Section mpmc_bqueue۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.mpmc_bqueue٠is_empty𑁒spec with "[$]").
-    { iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
+    awp۰apply (base.mpmc_bqueue٠is_emptyｰspec with "[$]").
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+      iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma mpmc_bqueue٠push𑁒spec t ι cap v :
+  Lemma mpmc_bqueue٠pushｰspec t ι cap v :
     <<<
       mpmc_bqueue۰inv t ι cap
     | ∀∀ vs,
@@ -1482,14 +1482,14 @@ Section mpmc_bqueue۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.mpmc_bqueue٠push𑁒spec with "[$]").
-    { iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
+    awp۰apply (base.mpmc_bqueue٠pushｰspec with "[$]").
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+      iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma mpmc_bqueue٠pop𑁒spec t ι cap :
+  Lemma mpmc_bqueue٠popｰspec t ι cap :
     <<<
       mpmc_bqueue۰inv t ι cap
     | ∀∀ vs,
@@ -1504,9 +1504,9 @@ Section mpmc_bqueue۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.mpmc_bqueue٠pop𑁒spec with "[$]").
-    { iApply (aacc𑁒aupd𑁒commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
-      iDestruct (meta𑁒agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
+    awp۰apply (base.mpmc_bqueue٠popｰspec with "[$]").
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+      iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.

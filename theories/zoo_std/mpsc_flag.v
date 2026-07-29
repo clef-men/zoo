@@ -17,7 +17,7 @@ Definition mpsc_flag۰Σ :=
   #[oneshot۰Σ () ()
   ; excl۰Σ unitO
   ].
-#[global] Instance subG𑁒mpsc_flag۰Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰmpsc_flag۰Σ `{zoo۰G : !ZooG Σ} :
   subG mpsc_flag۰Σ Σ →
   MpscFlagG Σ.
 Proof.
@@ -37,9 +37,9 @@ Module base.
       }.
     Implicit Type γ : mpsc_flag۰name.
 
-    #[global] Instance mpsc_flag۰name𑁒eq_dec : EqDecision mpsc_flag۰name :=
+    #[global] Instance mpsc_flag۰nameｰeq_dec : EqDecision mpsc_flag۰name :=
       ltac:(solve_decision).
-    #[global] Instance mpsc_flag۰name𑁒countable :
+    #[global] Instance mpsc_flag۰nameｰcountable :
       Countable mpsc_flag۰name.
     Proof.
       solve_countable.
@@ -105,90 +105,90 @@ Module base.
       " #Hstate_set
       ".
 
-    #[global] Instance mpsc_flag۰inv𑁒contractive t γ :
+    #[global] Instance mpsc_flag۰invｰcontractive t γ :
       Contractive (mpsc_flag۰inv t γ).
     Proof.
       rewrite /mpsc_flag۰inv /inv۰inner /inv۰set  /inv۰consumer.
       solve_contractive.
     Qed.
-    #[global] Instance mpsc_flag۰inv𑁒ne t γ :
+    #[global] Instance mpsc_flag۰invｰne t γ :
       NonExpansive (mpsc_flag۰inv t γ).
     Proof.
       apply _.
     Qed.
-    #[global] Instance mpsc_flag۰inv𑁒proper t γ :
+    #[global] Instance mpsc_flag۰invｰproper t γ :
       Proper ((≡) ==> (≡)) (mpsc_flag۰inv t γ).
     Proof.
       apply _.
     Qed.
 
-    #[global] Instance mpsc_flag۰consumer𑁒timeless γ :
+    #[global] Instance mpsc_flag۰consumerｰtimeless γ :
       Timeless (mpsc_flag۰consumer γ).
     Proof.
       apply _.
     Qed.
-    #[global] Instance mpsc_flag۰resolved𑁒timeless γ :
+    #[global] Instance mpsc_flag۰resolvedｰtimeless γ :
       Timeless (mpsc_flag۰resolved γ).
     Proof.
       apply _.
     Qed.
 
-    #[global] Instance mpsc_flag۰inv𑁒persistent t γ P :
+    #[global] Instance mpsc_flag۰invｰpersistent t γ P :
       Persistent (mpsc_flag۰inv t γ P).
     Proof.
       apply _.
     Qed.
-    #[global] Instance mpsc_flag۰resolved𑁒persistent γ :
+    #[global] Instance mpsc_flag۰resolvedｰpersistent γ :
       Persistent (mpsc_flag۰resolved γ).
     Proof.
       apply _.
     Qed.
 
-    #[local] Lemma state𑁒alloc :
+    #[local] Lemma stateｰalloc :
       ⊢ |==>
         ∃ γ_state,
         state۰unset' γ_state.
     Proof.
-      apply: oneshot𑁒alloc.
+      apply: oneshotｰalloc.
     Qed.
-    #[local] Lemma state𑁒unset𑁒set γ :
+    #[local] Lemma stateｰunsetｰset γ :
       state۰unset γ -∗
       state۰set γ -∗
       False.
     Proof.
-      apply oneshot𑁒pending𑁒shot.
+      apply oneshotｰpendingｰshot.
     Qed.
-    #[local] Lemma state𑁒update γ :
+    #[local] Lemma stateｰupdate γ :
       state۰unset γ ⊢ |==>
       state۰set γ.
     Proof.
-      apply oneshot𑁒update𑁒shot.
+      apply oneshotｰupdateｰshot.
     Qed.
 
-    #[local] Lemma consumer𑁒alloc :
+    #[local] Lemma consumerｰalloc :
       ⊢ |==>
         ∃ γ_consumer,
         consumer' γ_consumer.
     Proof.
-      apply excl𑁒alloc.
+      apply exclｰalloc.
     Qed.
-    #[local] Lemma consumer𑁒exclusive γ :
+    #[local] Lemma consumerｰexclusive γ :
       consumer γ -∗
       consumer γ -∗
       False.
     Proof.
-      apply excl𑁒exclusive.
+      apply exclｰexclusive.
     Qed.
 
-    Lemma mpsc_flag۰consumer𑁒exclusive γ :
+    Lemma mpsc_flag۰consumerｰexclusive γ :
       mpsc_flag۰consumer γ -∗
       mpsc_flag۰consumer γ -∗
       False.
     Proof.
-      apply consumer𑁒exclusive.
+      apply consumerｰexclusive.
     Qed.
 
-    Lemma mpsc_flag٠create𑁒spec P :
+    Lemma mpsc_flag٠createｰspec P :
       {{{
         True
       }}}
@@ -206,8 +206,8 @@ Module base.
       wp۰rec.
       wp۰ref t as "Ht" "Hmeta".
 
-      iMod state𑁒alloc as "(%γ_state & Hstate_unset)".
-      iMod consumer𑁒alloc as "(%γ_consumer & Hconsumer)".
+      iMod stateｰalloc as "(%γ_state & Hstate_unset)".
+      iMod consumerｰalloc as "(%γ_consumer & Hconsumer)".
 
       pose γ :=
         {|mpsc_flag۰name۰state := γ_state
@@ -218,7 +218,7 @@ Module base.
       iFrameSteps.
     Qed.
 
-    Lemma mpsc_flag٠get𑁒spec t γ P :
+    Lemma mpsc_flag٠getｰspec t γ P :
       {{{
         mpsc_flag۰inv t γ P ∗
         mpsc_flag۰consumer γ
@@ -244,12 +244,12 @@ Module base.
       - iDestruct "Hb" as "(:inv۰set)".
         iDestruct "Hinv_consumer" as "(:inv۰consumer !=)".
         + iFrameSteps.
-        + iDestruct (consumer𑁒exclusive with "Hconsumer Hconsumer_") as %[].
+        + iDestruct (consumerｰexclusive with "Hconsumer Hconsumer_") as %[].
 
       - iFrameSteps.
     Qed.
 
-    Lemma mpsc_flag٠set𑁒spec t γ P :
+    Lemma mpsc_flag٠setｰspec t γ P :
       {{{
         mpsc_flag۰inv t γ P ∗
         ▷ P
@@ -267,7 +267,7 @@ Module base.
       iInv "Hinv" as "(:inv۰inner)".
       wp۰store.
       destruct b. 1: iFrameSteps.
-      iMod (state𑁒update with "Hb") as "#Hstate_set".
+      iMod (stateｰupdate with "Hb") as "#Hstate_set".
       iFrameSteps.
     Qed.
   End mpsc_flag۰G.
@@ -328,55 +328,55 @@ Section mpsc_flag۰G.
       )
     ".
 
-  #[global] Instance mpsc_flag۰inv𑁒contractive t :
+  #[global] Instance mpsc_flag۰invｰcontractive t :
     Contractive (mpsc_flag۰inv t).
   Proof.
     solve_contractive.
   Qed.
-  #[global] Instance mpsc_flag۰inv𑁒ne t :
+  #[global] Instance mpsc_flag۰invｰne t :
     NonExpansive (mpsc_flag۰inv t).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpsc_flag۰inv𑁒proper t :
+  #[global] Instance mpsc_flag۰invｰproper t :
     Proper ((≡) ==> (≡)) (mpsc_flag۰inv t).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpsc_flag۰consumer𑁒timeless t :
+  #[global] Instance mpsc_flag۰consumerｰtimeless t :
     Timeless (mpsc_flag۰consumer t).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpsc_flag۰resolved𑁒timeless t :
+  #[global] Instance mpsc_flag۰resolvedｰtimeless t :
     Timeless (mpsc_flag۰resolved t).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpsc_flag۰inv𑁒persistent t P :
+  #[global] Instance mpsc_flag۰invｰpersistent t P :
     Persistent (mpsc_flag۰inv t P).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpsc_flag۰resolved𑁒persistent t :
+  #[global] Instance mpsc_flag۰resolvedｰpersistent t :
     Persistent (mpsc_flag۰resolved t).
   Proof.
     apply _.
   Qed.
 
-  Lemma mpsc_flag۰consumer𑁒exclusive t :
+  Lemma mpsc_flag۰consumerｰexclusive t :
     mpsc_flag۰consumer t -∗
     mpsc_flag۰consumer t -∗
     False.
   Proof.
     iIntros "(:consumer =1) (:consumer =2)". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.mpsc_flag۰consumer𑁒exclusive with "Hconsumer_1 Hconsumer_2").
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.mpsc_flag۰consumerｰexclusive with "Hconsumer_1 Hconsumer_2").
   Qed.
 
-  Lemma mpsc_flag٠create𑁒spec P :
+  Lemma mpsc_flag٠createｰspec P :
     {{{
       True
     }}}
@@ -390,13 +390,13 @@ Section mpsc_flag۰G.
   Proof.
     iIntros "%Φ _ HΦ".
 
-    iApply wp𑁒fupd.
-    wp۰apply (base.mpsc_flag٠create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hconsumer)".
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    iApply wpｰfupd.
+    wp۰apply (base.mpsc_flag٠createｰspec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hconsumer)".
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma mpsc_flag٠get𑁒spec t P :
+  Lemma mpsc_flag٠getｰspec t P :
     {{{
       mpsc_flag۰inv t P ∗
       mpsc_flag۰consumer t
@@ -412,13 +412,13 @@ Section mpsc_flag۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv =1) & (:consumer =2)) HΦ". simplify.
-    iDestruct (meta𑁒agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp۰apply (base.mpsc_flag٠get𑁒spec with "[$]") as (b) "Hb".
+    wp۰apply (base.mpsc_flag٠getｰspec with "[$]") as (b) "Hb".
     destruct b; iSteps.
   Qed.
 
-  Lemma mpsc_flag٠set𑁒spec t P :
+  Lemma mpsc_flag٠setｰspec t P :
     {{{
       mpsc_flag۰inv t P ∗
       ▷ P
@@ -431,7 +431,7 @@ Section mpsc_flag۰G.
   Proof.
     iIntros "%Φ ((:inv) & HP) HΦ".
 
-    wp۰apply (base.mpsc_flag٠set𑁒spec _ _ P with "[$]").
+    wp۰apply (base.mpsc_flag٠setｰspec _ _ P with "[$]").
     iSteps.
   Qed.
 End mpsc_flag۰G.

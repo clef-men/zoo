@@ -11,16 +11,16 @@ Section ucmra.
 
   Implicit Type a b : A.
 
-  Lemma auth𑁒auth𑁒frag𑁒dfrac𑁒op dq1 a1 b1 dq2 a2 b2 :
+  Lemma authｰauthｰfragｰdfracｰop dq1 a1 b1 dq2 a2 b2 :
     ●{dq1} a1 ⋅ ◯ b1 ≡ ●{dq2} a2 ⋅ ◯ b2 ↔
     dq1 = dq2 ∧ a1 ≡ a2 ∧ b1 ≡ b2.
   Proof.
-    apply view𑁒auth𑁒frag𑁒dfrac𑁒op.
+    apply viewｰauthｰfragｰdfracｰop.
   Qed.
-  Lemma auth𑁒auth𑁒frag𑁒op a1 b1 a2 b2 :
+  Lemma authｰauthｰfragｰop a1 b1 a2 b2 :
     ● a1 ⋅ ◯ b1 ≡ ● a2 ⋅ ◯ b2 ↔
     a1 ≡ a2 ∧ b1 ≡ b2.
   Proof.
-    rewrite auth𑁒auth𑁒frag𑁒dfrac𑁒op. naive_solver.
+    rewrite authｰauthｰfragｰdfracｰop. naive_solver.
   Qed.
 End ucmra.

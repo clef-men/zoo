@@ -11,7 +11,7 @@ Class OneshotG Σ A B :=
 Definition oneshot۰Σ A B :=
   #[ghost_var۰Σ (leibnizO (A + B))
   ].
-#[global] Instance subG𑁒oneshot۰Σ Σ A B :
+#[global] Instance subGｰoneshot۰Σ Σ A B :
   subG (oneshot۰Σ A B) Σ →
   OneshotG Σ A B.
 Proof.
@@ -29,138 +29,138 @@ Section oneshot۰G.
   Definition oneshot۰shot γ b :=
     ghost_var γ DfracDiscarded (inr b).
 
-  #[global] Instance oneshot۰pending𑁒timeless γ dq a :
+  #[global] Instance oneshot۰pendingｰtimeless γ dq a :
     Timeless (oneshot۰pending γ dq a).
   Proof.
     apply _.
   Qed.
-  #[global] Instance oneshot۰shot𑁒timeless γ b :
+  #[global] Instance oneshot۰shotｰtimeless γ b :
     Timeless (oneshot۰shot γ b).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance oneshot۰shot𑁒persistent γ b :
+  #[global] Instance oneshot۰shotｰpersistent γ b :
     Persistent (oneshot۰shot γ b).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance oneshot۰pending𑁒fractional γ a :
+  #[global] Instance oneshot۰pendingｰfractional γ a :
     Fractional (λ q, oneshot۰pending γ (DfracOwn q) a).
   Proof.
     apply _.
   Qed.
-  #[global] Instance oneshot۰pending𑁒as_fractional γ q a :
+  #[global] Instance oneshot۰pendingｰas_fractional γ q a :
     AsFractional (oneshot۰pending γ (DfracOwn q) a) (λ q, oneshot۰pending γ (DfracOwn q) a) q.
   Proof.
     apply _.
   Qed.
 
-  Lemma oneshot𑁒alloc a :
+  Lemma oneshotｰalloc a :
     ⊢ |==>
       ∃ γ,
       oneshot۰pending γ (DfracOwn 1) a.
   Proof.
-    apply ghost_var𑁒alloc.
+    apply ghost_varｰalloc.
   Qed.
 
-  Lemma oneshot۰pending𑁒valid γ dq a :
+  Lemma oneshot۰pendingｰvalid γ dq a :
     oneshot۰pending γ dq a ⊢
     ⌜✓ dq⌝.
   Proof.
-    apply ghost_var𑁒valid.
+    apply ghost_varｰvalid.
   Qed.
-  Lemma oneshot۰pending𑁒combine γ dq1 a1 dq2 a2 :
+  Lemma oneshot۰pendingｰcombine γ dq1 a1 dq2 a2 :
     oneshot۰pending γ dq1 a1 -∗
     oneshot۰pending γ dq2 a2 -∗
       ⌜a1 = a2⌝ ∗
       oneshot۰pending γ (dq1 ⋅ dq2) a1.
   Proof.
     iIntros "H1 H2".
-    iDestruct (ghost_var𑁒combine𑁒L with "H1 H2") as "(%Heq & $)". injection Heq as ->.
+    iDestruct (ghost_varｰcombineｰL with "H1 H2") as "(%Heq & $)". injection Heq as ->.
     iSteps.
   Qed.
-  Lemma oneshot۰pending𑁒valid𑁒2 γ dq1 a1 dq2 a2 :
+  Lemma oneshot۰pendingｰvalidｰ2 γ dq1 a1 dq2 a2 :
     oneshot۰pending γ dq1 a1 -∗
     oneshot۰pending γ dq2 a2 -∗
       ⌜✓ (dq1 ⋅ dq2)⌝ ∗
       ⌜a1 = a2⌝.
   Proof.
     iIntros "H1 H2".
-    iDestruct (oneshot۰pending𑁒combine with "H1 H2") as "(-> & H)".
-    iDestruct (oneshot۰pending𑁒valid with "H") as "$".
+    iDestruct (oneshot۰pendingｰcombine with "H1 H2") as "(-> & H)".
+    iDestruct (oneshot۰pendingｰvalid with "H") as "$".
     iSteps.
   Qed.
-  Lemma oneshot۰pending𑁒agree γ dq1 a1 dq2 a2 :
+  Lemma oneshot۰pendingｰagree γ dq1 a1 dq2 a2 :
     oneshot۰pending γ dq1 a1 -∗
     oneshot۰pending γ dq2 a2 -∗
     ⌜a1 = a2⌝.
   Proof.
     iIntros "H1 H2".
-    iDestruct (oneshot۰pending𑁒valid𑁒2 with "H1 H2") as "(_ & $)".
+    iDestruct (oneshot۰pendingｰvalidｰ2 with "H1 H2") as "(_ & $)".
   Qed.
-  Lemma oneshot۰pending𑁒dfrac𑁒ne γ1 dq1 a1 γ2 dq2 a2 :
+  Lemma oneshot۰pendingｰdfracｰne γ1 dq1 a1 γ2 dq2 a2 :
     ¬ ✓ (dq1 ⋅ dq2) →
     oneshot۰pending γ1 dq1 a1 -∗
     oneshot۰pending γ2 dq2 a2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    apply ghost_var𑁒dfrac𑁒ne.
+    apply ghost_varｰdfracｰne.
   Qed.
-  Lemma oneshot۰pending𑁒ne γ1 a1 γ2 dq2 a2 :
+  Lemma oneshot۰pendingｰne γ1 a1 γ2 dq2 a2 :
     oneshot۰pending γ1 (DfracOwn 1) a1 -∗
     oneshot۰pending γ2 dq2 a2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    apply ghost_var𑁒ne.
+    apply ghost_varｰne.
   Qed.
-  Lemma oneshot۰pending𑁒exclusive γ a1 dq2 a2 :
+  Lemma oneshot۰pendingｰexclusive γ a1 dq2 a2 :
     oneshot۰pending γ (DfracOwn 1) a1 -∗
     oneshot۰pending γ dq2 a2 -∗
     False.
   Proof.
-    apply ghost_var𑁒exclusive.
+    apply ghost_varｰexclusive.
   Qed.
-  Lemma oneshot۰pending𑁒persist γ dq a :
+  Lemma oneshot۰pendingｰpersist γ dq a :
     oneshot۰pending γ dq a ⊢ |==>
     oneshot۰pending γ DfracDiscarded a.
   Proof.
-    apply ghost_var𑁒persist.
+    apply ghost_varｰpersist.
   Qed.
 
-  Lemma oneshot۰shot𑁒agree γ b1 b2 :
+  Lemma oneshot۰shotｰagree γ b1 b2 :
     oneshot۰shot γ b1 -∗
     oneshot۰shot γ b2 -∗
     ⌜b1 = b2⌝.
   Proof.
     iIntros "Hshot1 Hshot2".
-    iDestruct (ghost_var𑁒agree𑁒L with "Hshot1 Hshot2") as %[= <-].
+    iDestruct (ghost_varｰagreeｰL with "Hshot1 Hshot2") as %[= <-].
     iSteps.
   Qed.
 
-  Lemma oneshot𑁒pending𑁒shot γ dq a b :
+  Lemma oneshotｰpendingｰshot γ dq a b :
     oneshot۰pending γ dq a -∗
     oneshot۰shot γ b -∗
     False.
   Proof.
     iIntros "Hpending Hshot".
-    iDestruct (ghost_var𑁒valid𑁒2𑁒L with "Hpending Hshot") as %(_ & [=]).
+    iDestruct (ghost_varｰvalidｰ2ｰL with "Hpending Hshot") as %(_ & [=]).
   Qed.
 
-  Lemma oneshot𑁒update𑁒pending γ a a' :
+  Lemma oneshotｰupdateｰpending γ a a' :
     oneshot۰pending γ (DfracOwn 1) a ⊢ |==>
     oneshot۰pending γ (DfracOwn 1) a'.
   Proof.
-    apply ghost_var𑁒update.
+    apply ghost_varｰupdate.
   Qed.
-  Lemma oneshot𑁒update𑁒shot {γ a} b :
+  Lemma oneshotｰupdateｰshot {γ a} b :
     oneshot۰pending γ (DfracOwn 1) a ⊢ |==>
     oneshot۰shot γ b.
   Proof.
     iIntros "Hpending".
-    iMod (ghost_var𑁒update with "Hpending") as "Hshot".
-    iApply (ghost_var𑁒persist with "Hshot").
+    iMod (ghost_varｰupdate with "Hpending") as "Hshot".
+    iApply (ghost_varｰpersist with "Hshot").
   Qed.
 End oneshot۰G.
 

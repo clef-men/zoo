@@ -15,13 +15,13 @@ Section zoo۰G.
 
   Implicit Type Φ : val → iProp Σ.
 
-  Lemma diverge𑁒spec E Φ :
+  Lemma divergeｰspec E Φ :
     ⊢ WP 𝗱𝗶𝘃𝗲𝗿𝗴𝗲 () @ E {{ Φ }}.
   Proof.
     iLöb as "IH". wp۰rec. iSteps.
   Qed.
 
-  #[global] Instance diverge𑁒diaspec E :
+  #[global] Instance divergeｰdiaspec E :
     DIASPEC
     {{
       True
@@ -33,7 +33,7 @@ Section zoo۰G.
     }}.
   Proof.
     iSteps.
-    wp۰apply diverge𑁒spec.
+    wp۰apply divergeｰspec.
   Qed.
 End zoo۰G.
 

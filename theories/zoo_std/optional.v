@@ -12,9 +12,9 @@ Variant optional {A} :=
 #[global] Arguments optional : clear implicits.
 Implicit Type o : optional val.
 
-#[global] Instance optional𑁒inhabited A : Inhabited (optional A) :=
+#[global] Instance optionalｰinhabited A : Inhabited (optional A) :=
   populate Nothing.
-#[global] Instance Something𑁒inj A :
+#[global] Instance Somethingｰinj A :
   Inj (=) (=) (@Something A).
 Proof.
   rewrite /Inj. naive_solver.
@@ -40,36 +40,36 @@ Coercion optional۰to_val o :=
   end%V.
 #[global] Arguments optional۰to_val !_ / : assert.
 
-#[global] Instance optional۰to_val𑁒inj :
+#[global] Instance optional۰to_valｰinj :
   Inj (=) (=) optional۰to_val.
 Proof.
   intros [] []; naive_solver.
 Qed.
 
-Lemma optional۰to_val𑁒similar𑁒Nothing_l o :
+Lemma optional۰to_valｰsimilarｰNothing_l o :
   §Nothing%V ≈ o →
   o = Nothing.
 Proof.
   destruct o; done.
 Qed.
-Lemma optional۰to_val𑁒similar𑁒Nothing𑁒r o :
+Lemma optional۰to_valｰsimilarｰNothingｰr o :
   (o : val) ≈ §Nothing%V →
   o = Nothing.
 Proof.
-  intros ?%symmetry%optional۰to_val𑁒similar𑁒Nothing_l. done.
+  intros ?%symmetry%optional۰to_valｰsimilarｰNothing_l. done.
 Qed.
 
-Lemma optional۰to_val𑁒similar𑁒Anything𑁒l o :
+Lemma optional۰to_valｰsimilarｰAnythingｰl o :
   §Anything%V ≈ o →
   o = Anything.
 Proof.
   destruct o; done.
 Qed.
-Lemma optional۰to_val𑁒similar𑁒Anything𑁒r o :
+Lemma optional۰to_valｰsimilarｰAnythingｰr o :
   (o : val) ≈ §Anything%V →
   o = Anything.
 Proof.
-  intros ?%symmetry%optional۰to_val𑁒similar𑁒Anything𑁒l. done.
+  intros ?%symmetry%optional۰to_valｰsimilarｰAnythingｰl. done.
 Qed.
 
 Section zoo۰G.
@@ -82,13 +82,13 @@ Section zoo۰G.
     ∨ ∃ v,
       ⌜t = ‘Something( v )%V⌝ ∗
       τ v.
-  #[global] Instance itype۰optional𑁒itype :
+  #[global] Instance itype۰optionalｰitype :
     iType _ itype۰optional.
   Proof.
     split. apply _.
   Qed.
 
-  Lemma wp𑁒match𑁒optional t e1 e2 x e3 Φ :
+  Lemma wpｰmatchｰoptional t e1 e2 x e3 Φ :
     itype۰optional t -∗
     ( WP e1 {{ Φ }} ∧
       WP e2 {{ Φ }} ∧

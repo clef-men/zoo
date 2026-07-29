@@ -10,7 +10,7 @@ Require Export zoo_boxroot.gc.
 Require Import zoo.options.
 
 Section list_to_set.
-  Lemma list_to_set𑁒delete `{Countable A} {l i} x :
+  Lemma list_to_setｰdelete `{Countable A} {l i} x :
     NoDup l →
     l !! i = Some x →
     list_to_set (C := gset A) (delete i l) ≡ list_to_set l ∖ {[x]}.
@@ -19,7 +19,7 @@ Section list_to_set.
 End list_to_set.
 
 Section list_to_map.
-  Lemma list_to_map𑁒zip𑁒list_to_set `{Countable K} `{!Inhabited A} (m : gmap K A) (l : list K) :
+  Lemma list_to_mapｰzipｰlist_to_set `{Countable K} `{!Inhabited A} (m : gmap K A) (l : list K) :
     NoDup l →
     dom m ≡ list_to_set l →
     list_to_map (zip l ((λ x, m !!! x) <$> l)) = m.
@@ -68,7 +68,7 @@ Class BoxrootG Σ `{zoo۰G : !ZooG Σ} :=
 Definition boxroot۰Σ :=
   #[ghost_mapΣ location gc۰location
   ].
-#[global] Instance subG𑁒boxroot۰Σ Σ `{zoo۰G : !ZooG Σ} :
+#[global] Instance subGｰboxroot۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG boxroot۰Σ Σ →
   BoxrootG Σ.
 Proof.
@@ -104,21 +104,21 @@ Section boxroot۰G.
     l_global ↪ γ ∗
     roots۰elem γ root ω.
 
-  #[local] Lemma roots𑁒alloc :
+  #[local] Lemma rootsｰalloc :
     ⊢ |==>
       ∃ γ,
       roots۰auth γ ∅.
   Proof.
     apply ghost_map_alloc_empty.
   Qed.
-  #[local] Lemma roots𑁒lookup γ map root ω :
+  #[local] Lemma rootsｰlookup γ map root ω :
     roots۰auth γ map -∗
     roots۰elem γ root ω -∗
     ⌜map !! root = Some ω⌝.
   Proof.
     apply ghost_map_lookup.
   Qed.
-  #[local] Lemma roots𑁒insert {γ map} root ω :
+  #[local] Lemma rootsｰinsert {γ map} root ω :
     map !! root = None →
     roots۰auth γ map ⊢ |==>
       roots۰auth γ (<[root := ω]> map) ∗
@@ -127,14 +127,14 @@ Section boxroot۰G.
     iIntros "%Hlookup Hroots_auth".
     iApply (ghost_map_insert with "Hroots_auth"); first done.
   Qed.
-  #[local] Lemma roots𑁒delete γ map root ω :
+  #[local] Lemma rootsｰdelete γ map root ω :
     roots۰auth γ map -∗
     roots۰elem γ root ω ==∗
       roots۰auth γ (delete root map).
   Proof.
     apply ghost_map_delete.
   Qed.
-  #[local] Lemma roots𑁒update {γ map root ω} ω' :
+  #[local] Lemma rootsｰupdate {γ map root ω} ω' :
     roots۰auth γ map -∗
     roots۰elem γ root ω ==∗
       roots۰auth γ (<[root := ω']> map) ∗
@@ -143,7 +143,7 @@ Section boxroot۰G.
     apply ghost_map_update.
   Qed.
 
-  Lemma boxroot٠init𑁒spec gc Χ :
+  Lemma boxroot٠initｰspec gc Χ :
     {{{
       gc۰model gc ∗
       gc۰roots Χ
@@ -159,39 +159,39 @@ Section boxroot۰G.
   Proof.
     iIntros "%Φ (Hgc & Hgc_roots) HΦ".
     wp۰rec.
-    wp۰apply (xdeque٠create𑁒spec with "[//]") as (?) "((%l_global & -> & Hmeta) & Hroots)".
-    iMod roots𑁒alloc as "(%γ & Hroots_auth)".
-    iMod (meta𑁒set γ with "Hmeta") as "#Hmeta"; first done.
+    wp۰apply (xdeque٠createｰspec with "[//]") as (?) "((%l_global & -> & Hmeta) & Hroots)".
+    iMod rootsｰalloc as "(%γ & Hroots_auth)".
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
     pose Χ' :=
       boxroot۰global #l_global.
     pose (Ξ' roots ωs := (
       roots۰auth γ (list_to_map $ zip roots ωs) ∗
       xdeque۰model #l_global roots
     )%I).
-    wp۰apply+ (gc٠set_roots𑁒spec Χ' Ξ' with "[$Hgc $Hgc_roots]") as "(Hgc & Hgc_roots)".
+    wp۰apply+ (gc٠set_rootsｰspec Χ' Ξ' with "[$Hgc $Hgc_roots]") as "(Hgc & Hgc_roots)".
     { clear gc Φ. iSplit; iModIntro.
       - iIntros "%gc". iSplit.
         + iIntros "(%_l_global & %_γ & %roots & %map & %Heq & #_Hmeta & %Hmap_dom & Hroots_auth & Hroots & Hmap)". injection Heq as <-.
-          iDestruct (meta𑁒agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-          iDestruct (xdeque۰model𑁒NoDup with "Hroots") as %Hnodup.
+          iDestruct (metaｰagree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+          iDestruct (xdeque۰modelｰNoDup with "Hroots") as %Hnodup.
           iExists roots, ((λ root, map !!! root) <$> roots). iSplitR "Hmap".
-          * iFrame. rewrite list_to_map𑁒zip𑁒list_to_set //.
+          * iFrame. rewrite list_to_mapｰzipｰlist_to_set //.
           * admit.
         + iIntros "(%roots & %ωs & (Hroots_auth & Hroots) & Hωs)".
-          iDestruct (xdeque۰model𑁒NoDup with "Hroots") as %Hnodup.
+          iDestruct (xdeque۰modelｰNoDup with "Hroots") as %Hnodup.
           iDestruct (big_sepL2_alt with "Hωs") as "(%Hlength & Hωs)".
           iExists l_global, γ, roots, (list_to_map $ zip roots ωs). iSteps.
           * rewrite dom_list_to_map_L fst_zip //. lia.
           * rewrite big_sepM_list_to_map // fst_zip //. lia.
       - iIntros "%Ψ %roots %ωs %fn !> %Φ (HΨ & (Hroots_auth & Hroots) & #Hfn) HΦ".
-        wp۰apply+ (xdeque٠iter𑁒spec Ψ with "[$HΨ $Hroots]"); iSteps.
+        wp۰apply+ (xdeque٠iterｰspec Ψ with "[$HΨ $Hroots]"); iSteps.
     }
     wp۰pures.
     iApply "HΦ".
     iFrame. iExists l_global. rewrite big_sepM_empty. iSteps.
   Admitted.
 
-  Lemma boxroot٠create𑁒spec {gc global l} ω :
+  Lemma boxroot٠createｰspec {gc global l} ω :
     ω ↦gc[gc] l →
     {{{
       boxroot۰global global gc
@@ -207,14 +207,14 @@ Section boxroot۰G.
     iIntros "%Hω %Φ (%l_global & %γ & %roots & %map & -> & #Hmeta & %Hmap_dom & Hroots_auth & Hroots & Hmap) HΦ".
     wp۰rec.
     wp۰block root as "(Hroot_prev & Hroot_next & Hroot & _)".
-    (* iApply wp𑁒fupd. *)
-    wp۰apply+ (xdeque٠push_back𑁒spec with "[$Hroots $Hroot_prev $Hroot_next]") as "Hroots".
+    (* iApply wpｰfupd. *)
+    wp۰apply+ (xdeque٠push_backｰspec with "[$Hroots $Hroot_prev $Hroot_next]") as "Hroots".
     iAssert ⌜map !! root = None⌝%I as %Hroot.
     { rewrite -eq_None_ne_Some. iIntros "%ω' %Hmap_lookup".
       iDestruct (big_sepM_lookup with "Hmap") as "(% & Hroot_ & _)"; first done.
-      iApply (pointsto𑁒exclusive with "Hroot Hroot_").
+      iApply (pointstoｰexclusive with "Hroot Hroot_").
     }
-    iMod (roots𑁒insert root ω with "Hroots_auth") as "(Hroots_auth & Hroots_elem)"; first done.
+    iMod (rootsｰinsert root ω with "Hroots_auth") as "(Hroots_auth & Hroots_elem)"; first done.
     wp۰pures.
     iApply "HΦ".
     iFrameSteps.
@@ -222,7 +222,7 @@ Section boxroot۰G.
     - rewrite big_sepM_insert //. iSteps.
   Qed.
 
-  Lemma boxroot٠remove𑁒spec gc global t ω :
+  Lemma boxroot٠removeｰspec gc global t ω :
     {{{
       boxroot۰global global gc ∗
       boxroot۰model t global ω
@@ -234,22 +234,22 @@ Section boxroot۰G.
     }}}.
   Proof.
     iIntros "%Φ ((%l_global & %γ & %roots & %map & -> & #Hmeta & %Hmap_dom & Hroots_auth & Hroots & Hmap) & (%root & %_l_global & %_γ & -> & %Heq & _Hmeta & Hroots_elem)) HΦ". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iDestruct (metaｰagree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     wp۰rec.
-    iApply wp𑁒fupd.
-    iDestruct (roots𑁒lookup with "Hroots_auth Hroots_elem") as "%Hmap_lookup".
+    iApply wpｰfupd.
+    iDestruct (rootsｰlookup with "Hroots_auth Hroots_elem") as "%Hmap_lookup".
     assert (∃ i, roots !! i = Some root) as (i & Hroots_lookup).
     { rewrite -list_elem_of_lookup -(elem_of_list_to_set (C := gset location)) -Hmap_dom elem_of_dom //. }
-    iDestruct (xdeque۰model𑁒NoDup with "Hroots") as %Hnodup.
-    wp۰apply+ (xdeque٠remove𑁒spec with "Hroots") as "Hroots"; first done.
-    iMod (roots𑁒delete with "Hroots_auth Hroots_elem") as "Hroots_auth".
+    iDestruct (xdeque۰modelｰNoDup with "Hroots") as %Hnodup.
+    wp۰apply+ (xdeque٠removeｰspec with "Hroots") as "Hroots"; first done.
+    iMod (rootsｰdelete with "Hroots_auth Hroots_elem") as "Hroots_auth".
     iDestruct (big_sepM_delete with "Hmap") as "(Hroot & Hmap)"; first done.
     iApply "HΦ".
     iExists l_global, γ, (delete i roots), (delete root map). iSteps.
-    iPureIntro. rewrite dom_delete_L list_to_set𑁒delete //. set_solver.
+    iPureIntro. rewrite dom_delete_L list_to_setｰdelete //. set_solver.
   Qed.
 
-  Lemma boxroot٠get𑁒spec gc global t ω :
+  Lemma boxroot٠getｰspec gc global t ω :
     {{{
       boxroot۰global global gc ∗
       boxroot۰model t global ω
@@ -264,15 +264,15 @@ Section boxroot۰G.
     }}}.
   Proof.
     iIntros "%Φ ((%l_global & %γ & %roots & %map & -> & #Hmeta & %Hmap_dom & Hroots_auth & Hroots & Hmap) & (%root & %_l_global & %_γ & -> & %Heq & _Hmeta & Hroots_elem)) HΦ". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iDestruct (metaｰagree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     wp۰rec.
-    iDestruct (roots𑁒lookup with "Hroots_auth Hroots_elem") as %Hmap_lookup.
+    iDestruct (rootsｰlookup with "Hroots_auth Hroots_elem") as %Hmap_lookup.
     iDestruct (big_sepM_lookup_acc with "Hmap") as "(Hroot & Hmap)"; first done.
-    wp۰apply (gc𑁒wp𑁒load𑁒root with "Hroot"); first done.
+    wp۰apply (gcｰwpｰloadｰroot with "Hroot"); first done.
     iSteps.
   Qed.
 
-  Lemma boxroot٠set𑁒spec {gc global t ω'} ω l :
+  Lemma boxroot٠setｰspec {gc global t ω'} ω l :
     ω ↦gc[gc] l →
     {{{
       boxroot۰global global gc ∗
@@ -286,13 +286,13 @@ Section boxroot۰G.
     }}}.
   Proof.
     iIntros "%Hω %Φ ((%l_global & %γ & %roots & %map & -> & #Hmeta & %Hmap_dom & Hroots_auth & Hroots & Hmap) & (%root & %_l_global & %_γ & -> & %Heq & _Hmeta & Hroots_elem)) HΦ". injection Heq as <-.
-    iDestruct (meta𑁒agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iDestruct (metaｰagree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     wp۰rec.
-    iDestruct (roots𑁒lookup with "Hroots_auth Hroots_elem") as %Hmap_lookup.
+    iDestruct (rootsｰlookup with "Hroots_auth Hroots_elem") as %Hmap_lookup.
     iDestruct (big_sepM_insert_acc with "Hmap") as "(Hroot & Hmap)"; first done.
-    iApply wp𑁒fupd.
-    wp۰apply+ (gc𑁒wp𑁒store𑁒root with "Hroot") as "Hroot"; [done.. |].
-    iMod (roots𑁒update ω with "Hroots_auth Hroots_elem") as "(Hroots_auth & Hroots_elem)".
+    iApply wpｰfupd.
+    wp۰apply+ (gcｰwpｰstoreｰroot with "Hroot") as "Hroot"; [done.. |].
+    iMod (rootsｰupdate ω with "Hroots_auth Hroots_elem") as "(Hroots_auth & Hroots_elem)".
     iApply "HΦ".
     iSplitR "Hroots_elem"; last iSteps.
     iExists l_global, γ, roots, (<[root := ω]> map). iSteps.

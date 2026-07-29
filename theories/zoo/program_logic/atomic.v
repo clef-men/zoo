@@ -11,7 +11,7 @@ Section atomic_acc.
   Implicit Type P : PROP.
   Implicit Type β Ψ : TA → TB → PROP.
 
-  #[global] Instance atomic_acc𑁒proper Eo Ei :
+  #[global] Instance atomic_accｰproper Eo Ei :
     Proper (
       pointwise_relation TA (≡) ==>
       (≡) ==>
@@ -23,38 +23,38 @@ Section atomic_acc.
     solve_proper.
   Qed.
 
-  Lemma atomic_acc𑁒frame𑁒l R Eo Ei α P β Ψ :
+  Lemma atomic_accｰframeｰl R Eo Ei α P β Ψ :
     R ∗ atomic_acc Eo Ei α P β Ψ ⊢
     atomic_acc Eo Ei α (R ∗ P) β (λ.. x y, R ∗ Ψ x y).
   Proof.
     iIntros "(HR & H)".
-    iApply (atomic_acc𑁒wand with "[HR] H").
+    iApply (atomic_accｰwand with "[HR] H").
     iSplit; first iSteps. iIntros "%x %y HΨ". rewrite !tele_app_bind.
     iSteps.
   Qed.
-  Lemma atomic_acc𑁒frame𑁒r R Eo Ei α P β Ψ :
+  Lemma atomic_accｰframeｰr R Eo Ei α P β Ψ :
     atomic_acc Eo Ei α P β Ψ ∗ R ⊢
     atomic_acc Eo Ei α (P ∗ R) β (λ.. x y, Ψ x y ∗ R).
   Proof.
     iIntros "(H & HR)".
-    iApply (atomic_acc𑁒wand with "[HR] H").
+    iApply (atomic_accｰwand with "[HR] H").
     iSplit; first iSteps. iIntros "%x %y HΨ". rewrite !tele_app_bind.
     iSteps.
   Qed.
 
-  #[global] Instance frame𑁒atomic_acc p R Eo Ei α P1 P2 β Ψ1 Ψ2 :
+  #[global] Instance frameｰatomic_acc p R Eo Ei α P1 P2 β Ψ1 Ψ2 :
     Frame p R P1 P2 →
     (∀ x y, Frame p R (Ψ1 x y) (Ψ2 x y)) →
     Frame p R (atomic_acc Eo Ei α P1 β (λ.. x y, Ψ1 x y)) (atomic_acc Eo Ei α P2 β (λ.. x y, Ψ2 x y)).
   Proof.
-    rewrite /Frame atomic_acc𑁒frame𑁒l => HR HΨ.
-    iApply atomic_acc𑁒wand. iSplit.
+    rewrite /Frame atomic_accｰframeｰl => HR HΨ.
+    iApply atomic_accｰwand. iSplit.
     - iApply HR.
     - iIntros "%x %y". rewrite !tele_app_bind.
       iApply HΨ.
   Qed.
 
-  #[global] Instance is_except_0𑁒atomic_acc Eo Ei α P β Ψ :
+  #[global] Instance is_except_0ｰatomic_acc Eo Ei α P β Ψ :
     IsExcept0 (atomic_acc Eo Ei α P β Ψ).
   Proof.
     rewrite /atomic_acc. apply _.
@@ -67,7 +67,7 @@ Section atomic_update.
   Implicit Type α : TA → PROP.
   Implicit Type β Ψ : TA → TB → PROP.
 
-  #[global] Instance atomic_update𑁒proper Eo Ei :
+  #[global] Instance atomic_updateｰproper Eo Ei :
     Proper (
       pointwise_relation TA (≡) ==>
       pointwise_relation TA (pointwise_relation TB (≡)) ==>
@@ -75,20 +75,20 @@ Section atomic_update.
       (≡)
     ) (atomic_update (PROP := PROP) Eo Ei).
   Proof.
-    rewrite atomic.atomic_update𑁒unseal /atomic.atomic_update۰def /atomic_update۰pre.
+    rewrite atomic.atomic_updateｰunseal /atomic.atomic_update۰def /atomic_update۰pre.
     solve_proper.
   Qed.
 
-  Lemma atomic_update𑁒mono Eo Ei α β Ψ1 Ψ2 :
+  Lemma atomic_updateｰmono Eo Ei α β Ψ1 Ψ2 :
     (∀.. x y, Ψ1 x y -∗ Ψ2 x y) -∗
     atomic_update Eo Ei α β Ψ1 -∗
     atomic_update Eo Ei α β Ψ2.
   Proof.
     iIntros "HΨ H".
-    iEval (rewrite atomic.atomic_update𑁒unseal /atomic.atomic_update۰def /atomic_update۰pre).
+    iEval (rewrite atomic.atomic_updateｰunseal /atomic.atomic_update۰def /atomic_update۰pre).
     set Φ := (λ (_ : ()), (∀.. x y, Ψ1 x y -∗ Ψ2 x y) ∗ atomic_update Eo Ei α β Ψ1)%I.
     iApply (fixpoint_mono.greatest_fixpoint_coiter _ Φ); last iFrame.
-    iIntros "!>" ([]) "(HΨ & H)". rewrite atomic.aupd𑁒unfold /atomic_acc.
+    iIntros "!>" ([]) "(HΨ & H)". rewrite atomic.aupdｰunfold /atomic_acc.
     iMod "H" as "(%x & Hα & H)".
     iModIntro. iExists x. iFrame. iSplit.
     - iIntros "Hα". iFrame.
@@ -98,45 +98,45 @@ Section atomic_update.
       iApply "HΨ".
       iSteps.
   Qed.
-  Lemma atomic_update𑁒wand Eo Ei α β Ψ1 Ψ2 :
+  Lemma atomic_updateｰwand Eo Ei α β Ψ1 Ψ2 :
     atomic_update Eo Ei α β Ψ1 -∗
     (∀.. x y, Ψ1 x y -∗ Ψ2 x y) -∗
     atomic_update Eo Ei α β Ψ2.
   Proof.
     iIntros "H HΨ".
-    iApply (atomic_update𑁒mono with "HΨ H").
+    iApply (atomic_updateｰmono with "HΨ H").
   Qed.
 
-  Lemma atomic_update𑁒frame𑁒l R Eo Ei α β Ψ :
+  Lemma atomic_updateｰframeｰl R Eo Ei α β Ψ :
     R ∗ atomic_update Eo Ei α β Ψ ⊢
     atomic_update Eo Ei α β (λ.. x y, R ∗ Ψ x y).
   Proof.
     iIntros "(HR & H)".
-    iApply (atomic_update𑁒wand with "H"). iIntros "%x %y HΨ". rewrite !tele_app_bind.
+    iApply (atomic_updateｰwand with "H"). iIntros "%x %y HΨ". rewrite !tele_app_bind.
     iSteps.
   Qed.
-  Lemma atomic_update𑁒frame𑁒r R Eo Ei α β Ψ :
+  Lemma atomic_updateｰframeｰr R Eo Ei α β Ψ :
     atomic_update Eo Ei α β Ψ ∗ R ⊢
     atomic_update Eo Ei α β (λ.. x y, Ψ x y ∗ R).
   Proof.
     iIntros "(H & HR)".
-    iApply (atomic_update𑁒wand with "H"). iIntros "%x %y HΨ". rewrite !tele_app_bind.
+    iApply (atomic_updateｰwand with "H"). iIntros "%x %y HΨ". rewrite !tele_app_bind.
     iSteps.
   Qed.
 
-  #[global] Instance frame𑁒atomic_update p R Eo Ei α β Ψ1 Ψ2 :
+  #[global] Instance frameｰatomic_update p R Eo Ei α β Ψ1 Ψ2 :
     (∀ x y, Frame p R (Ψ1 x y) (Ψ2 x y)) →
     Frame p R (atomic_update Eo Ei α β (λ.. x y, Ψ1 x y)) (atomic_update Eo Ei α β (λ.. x y, Ψ2 x y)).
   Proof.
-    rewrite /Frame atomic_update𑁒frame𑁒l => HΨ.
-    iApply atomic_update𑁒mono. iIntros "%x %y". rewrite !tele_app_bind.
+    rewrite /Frame atomic_updateｰframeｰl => HΨ.
+    iApply atomic_updateｰmono. iIntros "%x %y". rewrite !tele_app_bind.
     iApply HΨ.
   Qed.
 
-  #[global] Instance is_except_0𑁒atomic_update Eo Ei α β Ψ :
+  #[global] Instance is_except_0ｰatomic_update Eo Ei α β Ψ :
     IsExcept0 (atomic_update Eo Ei α β Ψ).
   Proof.
-    rewrite /IsExcept0 atomic.aupd𑁒unfold is_except_0 //.
+    rewrite /IsExcept0 atomic.aupdｰunfold is_except_0 //.
   Qed.
 End atomic_update.
 
@@ -156,7 +156,7 @@ Section atomic_triple.
     WP e ∷ tid {{ Φ }}.
   #[global] Arguments atomic_triple e%_E tid E (P α β Ψ f)%_I : assert.
 
-  #[global] Instance atomic_triple𑁒ne e tid E n :
+  #[global] Instance atomic_tripleｰne e tid E n :
     Proper (
       (≡{n}≡) ==>
       pointwise_relation TA (≡{n}≡) ==>
@@ -173,7 +173,7 @@ Section atomic_triple.
     do 3 f_equiv; first apply HΨ.
     f_equiv. apply Hf.
   Qed.
-  #[global] Instance atomic_triple𑁒proper e tid E :
+  #[global] Instance atomic_tripleｰproper e tid E :
     Proper (
       (≡) ==>
       pointwise_relation TA (≡) ==>
@@ -191,33 +191,33 @@ Section atomic_triple.
     f_equiv. apply Hf.
   Qed.
 
-  Lemma atomic_triple𑁒mono e tid E P α β Ψ1 Ψ2 f :
+  Lemma atomic_tripleｰmono e tid E P α β Ψ1 Ψ2 f :
     (∀.. x y z, Ψ1 x y z -∗ Ψ2 x y z) -∗
     atomic_triple e tid E P α β Ψ1 f -∗
     atomic_triple e tid E P α β Ψ2 f.
   Proof.
     iIntros "HΨ H %Φ HP HΦ".
     iApply ("H" with "HP").
-    iApply (atomic_update𑁒wand with "HΦ"). iIntros "%x %y HΨ2". rewrite !tele_app_bind. iIntros "%z HΨ1".
+    iApply (atomic_updateｰwand with "HΦ"). iIntros "%x %y HΨ2". rewrite !tele_app_bind. iIntros "%z HΨ1".
     iApply "HΨ2".
     iApply "HΨ".
     iSteps.
   Qed.
-  Lemma atomic_triple𑁒wand e tid E P α β Ψ1 Ψ2 f :
+  Lemma atomic_tripleｰwand e tid E P α β Ψ1 Ψ2 f :
     atomic_triple e tid E P α β Ψ1 f -∗
     (∀.. x y z, Ψ1 x y z -∗ Ψ2 x y z) -∗
     atomic_triple e tid E P α β Ψ2 f.
   Proof.
     iIntros "H HΨ".
-    iApply (atomic_triple𑁒mono with "HΨ H").
+    iApply (atomic_tripleｰmono with "HΨ H").
   Qed.
 
-  #[global] Instance frame𑁒atomic_triple p R e tid E P α β Ψ1 Ψ2 f :
+  #[global] Instance frameｰatomic_triple p R e tid E P α β Ψ1 Ψ2 f :
     (∀ x y z, Frame p R (Ψ1 x y z) (Ψ2 x y z)) →
     Frame p R (atomic_triple e tid E P α β (λ.. x y, Ψ1 x y) f) (atomic_triple e tid E P α β (λ.. x y, Ψ2 x y) f).
   Proof.
     iIntros "/= %HΨ (HR & H)".
-    iApply (atomic_triple𑁒wand with "H"). iIntros "%x %y %z HΨ2". rewrite !tele_app_bind.
+    iApply (atomic_tripleｰwand with "H"). iIntros "%x %y %z HΨ2". rewrite !tele_app_bind.
     iApply HΨ.
     iSteps.
   Qed.

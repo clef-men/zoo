@@ -16,57 +16,57 @@ Qed.
 
 Section atomic.
   #[local] Ltac solve_atomic :=
-    apply base_atomic𑁒atomic;
+    apply base_atomicｰatomic;
     [ inversion 1; naive_solver
-    | apply sub_redexes_are_values𑁒alt; intros [] **; naive_solver
+    | apply sub_redexes_are_valuesｰalt; intros [] **; naive_solver
     ].
 
-  #[global] Instance pure𑁒atomic e v :
+  #[global] Instance pureｰatomic e v :
     PureExec True 1 e (Val v) →
     Atomic e.
   Proof.
     intros Hpure%nsteps_once_inv tid σ κ e' σ' es Hstep; last done.
-    eapply pure_step𑁒det in Hstep; last done.
+    eapply pure_stepｰdet in Hstep; last done.
     naive_solver.
   Qed.
 
-  #[global] Instance get_size𑁒atomic v :
+  #[global] Instance get_sizeｰatomic v :
     Atomic (GetSize (Val v)).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance load𑁒atomic v1 v2 :
+  #[global] Instance loadｰatomic v1 v2 :
     Atomic (Load (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance store𑁒atomic v1 v2 v3 :
+  #[global] Instance storeｰatomic v1 v2 v3 :
     Atomic (Store (Val v1) (Val v2) (Val v3)).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance xchg𑁒atomic v1 v2 :
+  #[global] Instance xchgｰatomic v1 v2 :
     Atomic (Xchg (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance cas𑁒atomic v0 v1 v2 :
+  #[global] Instance casｰatomic v0 v1 v2 :
     Atomic (CAS (Val v0) (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance faa𑁒atomic v1 v2 :
+  #[global] Instance faaｰatomic v1 v2 :
     Atomic (FAA (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance resolve𑁒atomic e v1 v2 :
+  #[global] Instance resolveｰatomic e v1 v2 :
     Atomic e →
     Atomic (Resolve e (Val v1) (Val v2)).
   Proof.
@@ -74,12 +74,12 @@ Section atomic.
     intros H tid σ1 e2 κ σ2 es [K e1' e2' Hfill -> Hstep].
     simpl in *. induction K as [| k K _] using rev_ind; simpl in Hfill.
     - subst. inversion_clear Hstep.
-      eapply (H tid σ1 (Val _) _ σ2 es), base_step𑁒prim_step. done.
-    - rewrite fill𑁒app. rewrite fill𑁒app in Hfill.
+      eapply (H tid σ1 (Val _) _ σ2 es), base_stepｰprim_step. done.
+    - rewrite fillｰapp. rewrite fillｰapp in Hfill.
       assert (∀ v, Val v = fill K e1' → False) as Hfill_absurd.
       { intros v Hv.
         assert (to_val (fill K e1') = Some v) as Htv by by rewrite -Hv.
-        apply to_val𑁒fill𑁒Some in Htv. destruct Htv as [-> ->]. inversion Hstep.
+        apply to_valｰfillｰSome in Htv. destruct Htv as [-> ->]. inversion Hstep.
       }
       destruct k; (
         inversion Hfill; clear Hfill; subst;
@@ -89,8 +89,8 @@ Section atomic.
       ).
       refine (_ (H tid σ1 (fill (K ++ [_]) e2') _ σ2 es _)).
       + intro Hs. simpl in *.
-        destruct Hs as [v Hs]. apply to_val𑁒fill𑁒Some in Hs. destruct Hs, K; done.
-      + econstructor; try done. simpl. by rewrite fill𑁒app.
+        destruct Hs as [v Hs]. apply to_valｰfillｰSome in Hs. destruct Hs, K; done.
+      + econstructor; try done. simpl. by rewrite fillｰapp.
   Qed.
 End atomic.
 
@@ -98,7 +98,7 @@ Class AsValRec v f x e :=
   as_ValRec : v = ValRec f x e.
 #[global] Hint Mode AsValRec ! - - - : typeclass_instances.
 
-Lemma ValRec𑁒as_ValRec f x e :
+Lemma ValRecｰas_ValRec f x e :
   AsValRec (ValRec f x e) f x e.
 Proof.
   done.
@@ -106,7 +106,7 @@ Qed.
 #[global] Hint Extern 0 (
   AsValRec (ValRec _ _ _) _ _ _
 ) =>
-  apply ValRec𑁒as_ValRec
+  apply ValRecｰas_ValRec
 : typeclass_instances.
 
 Class AsValRecs v i recs vs :=
@@ -116,7 +116,7 @@ Class AsValRecs v i recs vs :=
     length recs = length vs.
 #[global] Hint Mode AsValRecs ! - - - : typeclass_instances.
 
-#[global] Instance as_ValRec𑁒as_ValRecs v f x e :
+#[global] Instance as_ValRecｰas_ValRecs v f x e :
   AsValRec v f x e →
   AsValRecs v 0 [(f, x, e)] [v].
 Proof.
@@ -126,7 +126,7 @@ Qed.
 Class AsValRecs' v i recs vs :=
   as_ValRecs' : AsValRecs v i recs vs.
 
-Lemma as_ValRecs'𑁒as_ValRecs v i recs vs :
+Lemma as_ValRecs'ｰas_ValRecs v i recs vs :
   AsValRecs' v i recs vs →
   AsValRecs v i recs vs.
 Proof.
@@ -143,11 +143,11 @@ Section pure_exec.
     try naive_solver.
   #[local] Ltac solve_pure_exec :=
     intros ?; destruct_and?;
-    apply nsteps_once, pure_base_step𑁒pure_step;
+    apply nsteps_once, pure_base_stepｰpure_step;
     try (case_bool_decide; first subst);
     (split; [solve_exec_safe | solve_exec_puredet]).
 
-  #[global] Instance pure𑁒rec f x e :
+  #[global] Instance pureｰrec f x e :
     PureExec
       True
       1
@@ -157,7 +157,7 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure𑁒app v1 i recs rec vs v2 `{HAsValRecs : !AsValRecs v1 i recs vs} :
+  #[global] Instance pureｰapp v1 i recs rec vs v2 `{HAsValRecs : !AsValRecs v1 i recs vs} :
     PureExec
       (recs !! i = Some rec)
       1
@@ -165,7 +165,7 @@ Section pure_exec.
       (foldr2 (λ rec v, subst' rec.1.1 v) (subst' rec.1.2 v2 rec.2) recs vs).
   Proof.
     destruct HAsValRecs as (Hvs & -> & Hlength) => Hlookup.
-    apply nsteps_once, pure_base_step𑁒pure_step.
+    apply nsteps_once, pure_base_stepｰpure_step.
     split; first solve_exec_safe.
     intros tid σ1 κ e σ2 es Hstep.
     invert_base_step.
@@ -186,9 +186,9 @@ Section pure_exec.
     destruct vs1 as [| v vs1 _] using rev_ind.
     all: simpl_length/= in Hlength1.
     1: lia.
-    rewrite foldri𑁒app foldr2𑁒app /=; first lia.
+    rewrite foldriｰapp foldr2ｰapp /=; first lia.
     assert (ValRecs (length recs1) recs = v) as ->.
-    { eapply Foralli𑁒lookup₁ in Hvs; first done.
+    { eapply Foralliｰlookup₁ in Hvs; first done.
       rewrite Hvs_eq lookup_app_l.
       { simpl_length/=. lia. }
       rewrite lookup_snoc_Some. naive_solver lia.
@@ -198,15 +198,15 @@ Section pure_exec.
     { rewrite Hvs_eq -assoc //. }
     { lia. }
   Qed.
-  #[global] Instance pure𑁒app𑁒rec f x v1 v2 :
+  #[global] Instance pureｰappｰrec f x v1 v2 :
     PureExec True 1 (App (Val $ ValRec f x (Val v1)) (Val v2)) (Val v1).
   Proof.
-    pose proof (pure𑁒app (ValRec f x (Val v1)) 0 [(f, x, Val v1)] (f, x, Val v1) [ValRec f x (Val v1)] v2) as H.
-    rewrite /= !subst'𑁒val in H.
+    pose proof (pureｰapp (ValRec f x (Val v1)) 0 [(f, x, Val v1)] (f, x, Val v1) [ValRec f x (Val v1)] v2) as H.
+    rewrite /= !subst'ｰval in H.
     intros _. naive_solver.
   Qed.
 
-  #[global] Instance pure𑁒let x v1 e2 :
+  #[global] Instance pureｰlet x v1 e2 :
     PureExec
       True
       1
@@ -216,7 +216,7 @@ Section pure_exec.
       solve_pure_exec.
     Qed.
 
-  #[global] Instance pure𑁒unop op v v' :
+  #[global] Instance pureｰunop op v v' :
     PureExec
       (eval_unop op v = Some v')
       1
@@ -226,7 +226,7 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure𑁒binop op v1 v2 v' :
+  #[global] Instance pureｰbinop op v1 v2 v' :
     PureExec
       (eval_binop op v1 v2 = Some v')
       1
@@ -236,7 +236,7 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure𑁒equal𑁒bool b1 b2 :
+  #[global] Instance pureｰequalｰbool b1 b2 :
     PureExec
       True
       1
@@ -245,7 +245,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure𑁒equal𑁒int i1 i2 :
+  #[global] Instance pureｰequalｰint i1 i2 :
     PureExec
       True
       1
@@ -254,7 +254,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure𑁒equal𑁒location l1 l2 :
+  #[global] Instance pureｰequalｰlocation l1 l2 :
     PureExec
       True
       1
@@ -263,7 +263,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure𑁒equal𑁒location𑁒block l gen tag vs :
+  #[global] Instance pureｰequalｰlocationｰblock l gen tag vs :
     PureExec
       True
       1
@@ -272,7 +272,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure𑁒equal𑁒block𑁒location gen tag vs l :
+  #[global] Instance pureｰequalｰblockｰlocation gen tag vs l :
     PureExec
       True
       1
@@ -281,7 +281,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure𑁒equal𑁒block𑁒generative bid tag vs :
+  #[global] Instance pureｰequalｰblockｰgenerative bid tag vs :
     PureExec
       True
       1
@@ -290,7 +290,7 @@ Section pure_exec.
   Proof.
     destruct vs; solve_pure_exec.
   Qed.
-  #[global] Instance pure𑁒equal𑁒block𑁒generative𑁒nongenerative bid1 tag1 vs1 tag2 vs2 :
+  #[global] Instance pureｰequalｰblockｰgenerativeｰnongenerative bid1 tag1 vs1 tag2 vs2 :
     PureExec
       (length vs1 ≠ 0 ∨ length vs2 ≠ 0)
       1
@@ -299,7 +299,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure𑁒equal𑁒block𑁒nongenerative𑁒generative tag1 vs1 bid2 tag2 vs2 :
+  #[global] Instance pureｰequalｰblockｰnongenerativeｰgenerative tag1 vs1 bid2 tag2 vs2 :
     PureExec
       (length vs1 ≠ 0 ∨ length vs2 ≠ 0)
       1
@@ -308,7 +308,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure𑁒equal𑁒block𑁒empty tag1 tag2 :
+  #[global] Instance pureｰequalｰblockｰempty tag1 tag2 :
     PureExec
       True
       1
@@ -317,7 +317,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure𑁒equal𑁒block𑁒empty₁ gen1 tag1 gen2 tag2 v2 vs2 :
+  #[global] Instance pureｰequalｰblockｰempty₁ gen1 tag1 gen2 tag2 v2 vs2 :
     PureExec
       True
       1
@@ -326,7 +326,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure𑁒equal𑁒block𑁒empty₂ gen1 tag1 v1 vs1 gen2 tag2 :
+  #[global] Instance pureｰequalｰblockｰempty₂ gen1 tag1 v1 vs1 gen2 tag2 :
     PureExec
       True
       1
@@ -336,7 +336,7 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure𑁒if𑁒true e1 e2 :
+  #[global] Instance pureｰifｰtrue e1 e2 :
     PureExec
       True
       1
@@ -345,7 +345,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure𑁒if𑁒false e1 e2 :
+  #[global] Instance pureｰifｰfalse e1 e2 :
     PureExec
       True
       1
@@ -355,7 +355,7 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  Lemma pure𑁒for n1 n2 e :
+  Lemma pureｰfor n1 n2 e :
     PureExec
       True
       1
@@ -365,30 +365,30 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure𑁒block𑁒immutable𑁒nongenerative tag es vs :
+  #[global] Instance pureｰblockｰimmutableｰnongenerative tag es vs :
     PureExec
       (to_vals es = Some vs)
       1
       (Block ImmutableNongenerative tag es)
       (Val $ ValBlock Nongenerative tag vs).
   Proof.
-    intros <-%of_vals𑁒to_vals.
-    apply nsteps_once, pure_base_step𑁒pure_step.
+    intros <-%of_valsｰto_vals.
+    apply nsteps_once, pure_base_stepｰpure_step.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.
-  #[global] Instance pure𑁒block𑁒immutable𑁒generative tag es vs :
+  #[global] Instance pureｰblockｰimmutableｰgenerative tag es vs :
     PureExec
       (to_vals es = Some vs)
       1
       (Block ImmutableGenerativeWeak tag es)
       (Val $ ValBlock (Generative None) tag vs).
   Proof.
-    intros <-%of_vals𑁒to_vals.
-    apply nsteps_once, pure_base_step𑁒pure_step.
+    intros <-%of_valsｰto_vals.
+    apply nsteps_once, pure_base_stepｰpure_step.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.
 
-  #[global] Instance pure𑁒match gen tag vs x_fb e_fb brs e :
+  #[global] Instance pureｰmatch gen tag vs x_fb e_fb brs e :
     PureExec
       (eval_match tag (length vs) (SubjectBlock gen vs) x_fb e_fb brs = Some e)
       1
@@ -398,7 +398,7 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure𑁒get_tag gen tag vs :
+  #[global] Instance pureｰget_tag gen tag vs :
     PureExec
       (0 < length vs)
       1
@@ -408,7 +408,7 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure𑁒get_size gen tag vs :
+  #[global] Instance pureｰget_size gen tag vs :
     PureExec
       (0 < length vs)
       1
@@ -418,7 +418,7 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure𑁒load gen tag vs (fld : nat) v :
+  #[global] Instance pureｰload gen tag vs (fld : nat) v :
     PureExec
       (vs !! fld = Some v)
       1

@@ -49,30 +49,30 @@ Section bi.
 
     Implicit Type Φ : nat → A1 → A2 → A3 → PROP.
 
-    Lemma big_sepL3𑁒cons Φ y1 l1 y2 l2 y3 l3 :
+    Lemma big_sepL3ｰcons Φ y1 l1 y2 l2 y3 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ y1 :: l1; y2 :: l2; y3 :: l3, Φ k x1 x2 x3) ⊣⊢
         Φ 0 y1 y2 y3 ∗
         [∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ ˖k x1 x2 x3.
     Proof.
       done.
     Qed.
-    Lemma big_sepL3𑁒cons₁ Φ y1 l1 y2 l2 y3 l3 :
+    Lemma big_sepL3ｰcons₁ Φ y1 l1 y2 l2 y3 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ y1 :: l1; y2 :: l2; y3 :: l3, Φ k x1 x2 x3) ⊢
         Φ 0 y1 y2 y3 ∗
         [∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ ˖k x1 x2 x3.
     Proof.
-      rewrite big_sepL3𑁒cons //.
+      rewrite big_sepL3ｰcons //.
     Qed.
-    Lemma big_sepL3𑁒cons₂ Φ y1 l1 y2 l2 y3 l3 :
+    Lemma big_sepL3ｰcons₂ Φ y1 l1 y2 l2 y3 l3 :
       Φ 0 y1 y2 y3 -∗
       ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ ˖k x1 x2 x3) -∗
       [∗ list] k ↦ x1; x2; x3 ∈ y1 :: l1; y2 :: l2; y3 :: l3, Φ k x1 x2 x3.
     Proof.
-      rewrite big_sepL3𑁒cons.
+      rewrite big_sepL3ｰcons.
       iSteps.
     Qed.
 
-    Lemma big_sepL3𑁒alt `{!BiAffine PROP} Φ l1 l2 l3 :
+    Lemma big_sepL3ｰalt `{!BiAffine PROP} Φ l1 l2 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ k x1 x2 x3) ⊣⊢
         ⌜length l1 = length l2⌝ ∗
         ⌜length l2 = length l3⌝ ∗
@@ -82,17 +82,17 @@ Section bi.
       all: destruct l2 as [| x2 l2].
       all: destruct l3 as [| x3 l3].
       all: try iSmash.
-      iEval (rewrite zip3𑁒cons /=).
+      iEval (rewrite zip3ｰcons /=).
       iSplit; iIntros "H".
-      - iDestruct (big_sepL3𑁒cons₁ with "H") as "($ & H)".
+      - iDestruct (big_sepL3ｰcons₁ with "H") as "($ & H)".
         iDestruct ("IH" with "H") as "(% & % & $)".
         iFrameSteps.
-      - iApply big_sepL3𑁒cons.
+      - iApply big_sepL3ｰcons.
         iDestruct "H" as "(% & % & $ & H)".
         iApply ("IH" with "[$H]"). 1: auto.
     Qed.
 
-    Lemma big_sepL3𑁒flip₁ `{!BiAffine PROP} Φ l1 l2 l3 :
+    Lemma big_sepL3ｰflip₁ `{!BiAffine PROP} Φ l1 l2 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ k x1 x2 x3) ⊣⊢
       [∗ list] k ↦ x1; x3; x2 ∈ l1; l3; l2, Φ k x1 x2 x3.
     Proof.
@@ -102,7 +102,7 @@ Section bi.
       all: iSteps.
       all: iApply "IH" => //.
     Qed.
-    Lemma big_sepL3𑁒flip₂ `{!BiAffine PROP} Φ l1 l2 l3 :
+    Lemma big_sepL3ｰflip₂ `{!BiAffine PROP} Φ l1 l2 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ k x1 x2 x3) ⊣⊢
       [∗ list] k ↦ x3; x2; x1 ∈ l3; l2; l1, Φ k x1 x2 x3.
     Proof.
@@ -112,7 +112,7 @@ Section bi.
       all: iSteps.
       all: iApply "IH" => //.
     Qed.
-    Lemma big_sepL3𑁒flip₃ `{!BiAffine PROP} Φ l1 l2 l3 :
+    Lemma big_sepL3ｰflip₃ `{!BiAffine PROP} Φ l1 l2 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ k x1 x2 x3) ⊣⊢
       [∗ list] k ↦ x2; x1; x3 ∈ l2; l1; l3, Φ k x1 x2 x3.
     Proof.
@@ -123,12 +123,12 @@ Section bi.
       all: iApply "IH" => //.
     Qed.
 
-    Lemma big_sepL3𑁒sepL2₃ `{!BiAffine PROP} Φ l1 l2 l3 :
+    Lemma big_sepL3ｰsepL2₃ `{!BiAffine PROP} Φ l1 l2 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ k x1 x2 x3) ⊣⊢
         ⌜length l1 = length l2⌝ ∗
         [∗ list] k ↦ x; x3 ∈ zip l1 l2; l3, Φ k x.1 x.2 x3.
     Proof.
-      rewrite big_sepL3𑁒alt big_sepL2_alt zip𑁒zip.
+      rewrite big_sepL3ｰalt big_sepL2_alt zipｰzip.
       simpl_length. iSteps.
     Qed.
   End big_sepL3.
@@ -138,24 +138,24 @@ Section bi.
 
     Implicit Type Φ : nat → A1 → A2 → A3 → PROP.
 
-    Lemma big_sepL3𑁒sepL2₁ `{!BiAffine PROP} Φ l1 l2 l3 :
+    Lemma big_sepL3ｰsepL2₁ `{!BiAffine PROP} Φ l1 l2 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ k x1 x2 x3) ⊣⊢
         ⌜length l2 = length l3⌝ ∗
         [∗ list] k ↦ x1; x ∈ l1; zip l2 l3, Φ k x1 x.1 x.2.
     Proof.
-      rewrite big_sepL3𑁒flip₂ big_sepL3𑁒flip₃ big_sepL2_flip.
-      apply: big_sepL3𑁒sepL2₃.
+      rewrite big_sepL3ｰflip₂ big_sepL3ｰflip₃ big_sepL2_flip.
+      apply: big_sepL3ｰsepL2₃.
     Qed.
-    Lemma big_sepL3𑁒sepL2₂ `{!BiAffine PROP} Φ l1 l2 l3 :
+    Lemma big_sepL3ｰsepL2₂ `{!BiAffine PROP} Φ l1 l2 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ k x1 x2 x3) ⊣⊢
         ⌜length l1 = length l3⌝ ∗
         [∗ list] k ↦ x2; x ∈ l2; zip l1 l3, Φ k x.1 x2 x.2.
     Proof.
-      rewrite big_sepL3𑁒flip₁ big_sepL2_flip.
-      apply: big_sepL3𑁒sepL2₃.
+      rewrite big_sepL3ｰflip₁ big_sepL2_flip.
+      apply: big_sepL3ｰsepL2₃.
     Qed.
 
-    Lemma big_sepL2𑁒exists `{!BiAffine PROP} Φ l1 l2 :
+    Lemma big_sepL2ｰexists `{!BiAffine PROP} Φ l1 l2 :
       ( [∗ list] k ↦ x1; x2 ∈ l1; l2,
         ∃ x3,
         Φ k x1 x2 x3
@@ -167,48 +167,48 @@ Section bi.
           Φ k x1 x2 x3.
     Proof.
       rewrite big_sepL2_alt.
-      rewrite big_sepL𑁒exists.
+      rewrite big_sepLｰexists.
       setoid_rewrite big_sepL2_alt.
-      setoid_rewrite zip𑁒zip.
-      setoid_rewrite big_sepL3𑁒alt.
+      setoid_rewrite zipｰzip.
+      setoid_rewrite big_sepL3ｰalt.
       simpl_length.
       iIntros "(% & %l3 & % & % & $)". iSteps.
     Qed.
 
-    Lemma big_sepL3𑁒const𑁒sepL2₁ `{!BiAffine PROP} (Φ : nat → A2 → A3 → PROP) (l1 : list A1) l2 l3 :
+    Lemma big_sepL3ｰconstｰsepL2₁ `{!BiAffine PROP} (Φ : nat → A2 → A3 → PROP) (l1 : list A1) l2 l3 :
       ([∗ list] k ↦ _; x2; x3 ∈ l1; l2; l3, Φ k x2 x3) ⊣⊢
         ⌜length l1 = length l2⌝ ∗
         ⌜length l1 = length l3⌝ ∗
         [∗ list] k ↦ x2; x3 ∈ l2; l3, Φ k x2 x3.
     Proof.
-      rewrite big_sepL3𑁒sepL2₁ big_sepL2_const_sepL_r big_sepL2_alt.
+      rewrite big_sepL3ｰsepL2₁ big_sepL2_const_sepL_r big_sepL2_alt.
       simpl_length. iSteps.
     Qed.
-    Lemma big_sepL3𑁒const𑁒sepL2₂ `{!BiAffine PROP} (Φ : nat → A1 → A3 → PROP) l1 (l2 : list A2) l3 :
+    Lemma big_sepL3ｰconstｰsepL2₂ `{!BiAffine PROP} (Φ : nat → A1 → A3 → PROP) l1 (l2 : list A2) l3 :
       ([∗ list] k ↦ x1; _; x3 ∈ l1; l2; l3, Φ k x1 x3) ⊣⊢
         ⌜length l2 = length l1⌝ ∗
         ⌜length l2 = length l3⌝ ∗
         [∗ list] k ↦ x1; x3 ∈ l1; l3, Φ k x1 x3.
     Proof.
-      rewrite big_sepL3𑁒sepL2₂ big_sepL2_const_sepL_r big_sepL2_alt.
+      rewrite big_sepL3ｰsepL2₂ big_sepL2_const_sepL_r big_sepL2_alt.
       simpl_length. iSteps.
     Qed.
-    Lemma big_sepL3𑁒const𑁒sepL2₃ `{!BiAffine PROP} (Φ : nat → A1 → A2 → PROP) l1 l2 (l3 : list A3) :
+    Lemma big_sepL3ｰconstｰsepL2₃ `{!BiAffine PROP} (Φ : nat → A1 → A2 → PROP) l1 l2 (l3 : list A3) :
       ([∗ list] k ↦ x1; x2; _ ∈ l1; l2; l3, Φ k x1 x2) ⊣⊢
         ⌜length l3 = length l1⌝ ∗
         ⌜length l3 = length l2⌝ ∗
         [∗ list] k ↦ x1; x2 ∈ l1; l2, Φ k x1 x2.
     Proof.
-      rewrite big_sepL3𑁒sepL2₃ big_sepL2_const_sepL_l big_sepL2_alt.
+      rewrite big_sepL3ｰsepL2₃ big_sepL2_const_sepL_l big_sepL2_alt.
       simpl_length. iSteps.
     Qed.
 
-    Lemma big_sepL3𑁒sep `{!BiAffine PROP} Φ1 Φ2 l1 l2 l3 :
+    Lemma big_sepL3ｰsep `{!BiAffine PROP} Φ1 Φ2 l1 l2 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ1 k x1 x2 x3 ∗ Φ2 k x1 x2 x3) ⊣⊢
         ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ1 k x1 x2 x3) ∗
         ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ2 k x1 x2 x3).
     Proof.
-      rewrite !big_sepL3𑁒alt big_sepL_sep.
+      rewrite !big_sepL3ｰalt big_sepL_sep.
       iSteps.
     Qed.
   End big_sepL3.

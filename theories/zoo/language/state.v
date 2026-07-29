@@ -28,7 +28,7 @@ Implicit Type σ : state.
 Canonical state۰O {SI : sidx} :=
   leibnizO state.
 
-#[global] Instance state𑁒inhabited : Inhabited state :=
+#[global] Instance stateｰinhabited : Inhabited state :=
   populate
     {|state۰headers := inhabitant
     ; state۰heap := inhabitant
@@ -88,12 +88,12 @@ Section chunk.
     end.
   #[global] Arguments chunk _ !_ / : assert.
 
-  Lemma chunk𑁒singleton l x :
+  Lemma chunkｰsingleton l x :
     chunk l [x] = {[l := x]}.
   Proof.
     rewrite /chunk insert_empty //.
   Qed.
-  Lemma chunk𑁒lookup l xs 𝑙 y :
+  Lemma chunkｰlookup l xs 𝑙 y :
     chunk l xs !! 𝑙 = Some y ↔
       ∃ i,
       (0 ≤ i)%Z ∧
@@ -106,25 +106,25 @@ Section chunk.
       split.
       + intros [(<- & <-) | (Hl & i & Hi & -> & Hlookup)].
         * exists 0.
-          rewrite location۰add𑁒0.
+          rewrite location۰addｰ0.
           naive_solver.
         * exists (1 + i)%Z.
-          rewrite location۰add𑁒assoc Z.add_1_l Z2Nat.inj_succ //.
+          rewrite location۰addｰassoc Z.add_1_l Z2Nat.inj_succ //.
           auto with lia.
       + intros (i & ? & -> & Hlookup).
         destruct_decide (i = 0); simplify.
-        { rewrite location۰add𑁒0. auto. }
+        { rewrite location۰addｰ0. auto. }
         right. split.
-        * rewrite -{1}(location۰add𑁒0 l).
+        * rewrite -{1}(location۰addｰ0 l).
           naive_solver.
         * assert (₊i = ˖₊(i - 1)) as Hi.
           { rewrite -Z2Nat.inj_succ; lia. }
           rewrite Hi /= in Hlookup.
           exists (i - 1)%Z.
-          rewrite location۰add𑁒assoc Z.add_sub_assoc Z.add_simpl_l.
+          rewrite location۰addｰassoc Z.add_sub_assoc Z.add_simpl_l.
           auto with lia.
   Qed.
-  Lemma chunk𑁒map𑁒disjoint m l xs :
+  Lemma chunkｰmapｰdisjoint m l xs :
     ( ∀ i,
       i < length xs →
       m !! (l +ₗ i) = None
@@ -132,7 +132,7 @@ Section chunk.
     chunk l xs ##ₘ m.
   Proof.
     intros Hm.
-    apply map_disjoint_spec. intros 𝑙 x1 x2 (i & ? & -> & ?%lookup_lt_Some%inj_lt)%chunk𑁒lookup Hlookup.
+    apply map_disjoint_spec. intros 𝑙 x1 x2 (i & ? & -> & ?%lookup_lt_Some%inj_lt)%chunkｰlookup Hlookup.
     ospecialize* (Hm ₊i). 1: lia.
     rewrite Z2Nat.id // in Hm.
     naive_solver.
@@ -160,15 +160,15 @@ Definition state۰fresh۰dom σ :=
 Definition state۰fresh σ :=
   location۰fresh $ state۰fresh۰dom σ.
 
-Lemma state۰alloc_condition𑁒fresh sz σ :
+Lemma state۰alloc_conditionｰfresh sz σ :
   state۰alloc_condition (state۰fresh σ) sz σ.
 Proof.
-  pose proof (location۰fresh𑁒fresh $ state۰fresh۰dom σ) as Hfresh.
+  pose proof (location۰freshｰfresh $ state۰fresh۰dom σ) as Hfresh.
   repeat setoid_rewrite not_elem_of_union in Hfresh.
   split_and!.
-  - rewrite /state۰fresh -(location۰add𑁒0 (location۰fresh _)) //.
+  - rewrite /state۰fresh -(location۰addｰ0 (location۰fresh _)) //.
     apply not_elem_of_dom, Hfresh => //.
-  - rewrite /state۰fresh -(location۰add𑁒0 (location۰fresh _)) //.
+  - rewrite /state۰fresh -(location۰addｰ0 (location۰fresh _)) //.
     apply not_elem_of_dom, Hfresh => //.
   - intros i Hi.
     split_and!.

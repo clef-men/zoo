@@ -15,20 +15,20 @@ Notation "'𝗮𝘀𝘀𝘂𝗺𝗲'" :=
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Lemma assume𑁒spec (b : bool) Φ :
+  Lemma assumeｰspec (b : bool) Φ :
     ▷ (⌜b = true⌝ → Φ ()%V) -∗
     WP 𝗮𝘀𝘀𝘂𝗺𝗲 #b {{ Φ }}.
   Proof.
     iIntros "HΦ".
     wp۰rec. destruct b; first iSteps.
-    wp۰apply+ diverge𑁒spec.
+    wp۰apply+ divergeｰspec.
   Qed.
-  Lemma assume𑁒spec' ϕ `{!Decision ϕ} Φ :
+  Lemma assumeｰspec' ϕ `{!Decision ϕ} Φ :
     ▷ (⌜ϕ⌝ → Φ ()%V) -∗
     WP 𝗮𝘀𝘀𝘂𝗺𝗲 #(bool_decide ϕ) {{ Φ }}.
   Proof.
     iIntros "HΦ".
-    wp۰apply assume𑁒spec as (Hϕ%bool_decide_eq_true_1) "".
+    wp۰apply assumeｰspec as (Hϕ%bool_decide_eq_true_1) "".
     iSteps.
   Qed.
 End zoo۰G.
