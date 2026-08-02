@@ -1,13 +1,13 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_parabs.waiters.
-Require Import zoo_parabs.ws_deques_public.
-Require Import zoo_std.array.
-Require Import zoo_std.domain.
-Require Import zoo_std.int.
-Require Import zoo_std.optional.
-Require Import zoo_std.random_round.
+Require Export zoo_parabs.waiters.
+Require Export zoo_parabs.ws_deques_public.
+Require Export zoo_std.array.
+Require Export zoo_std.domain.
+Require Export zoo_std.int.
+Require Export zoo_std.optional.
+Require Export zoo_std.random_round.
 Require Import zoo.options.
 
 Notation "'deques'" := (

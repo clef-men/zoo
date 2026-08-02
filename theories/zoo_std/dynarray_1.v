@@ -1,9 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
 Require Export zoo_std.dynarray_1__code.
-Require Import zoo_std.array.
 Require Import zoo_std.dynarray_1__types.
-Require Import zoo_std.int.
 Require Import zoo.options.
 
 Implicit Type b : bool.

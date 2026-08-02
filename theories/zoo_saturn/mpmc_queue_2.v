@@ -6,7 +6,6 @@ Require Import zoo.iris.base_logic.lib.auth_mono.
 Require Import zoo.iris.base_logic.lib.auth_nat_max.
 Require Import zoo.base.
 Require Import zoo.program_logic.prophet_bool.
-Require Import zoo_std.domain.
 Require Import zoo_std.option.
 Require Export zoo_saturn.mpmc_queue_2__code.
 Require Import zoo_saturn.mpmc_queue_2__types.

@@ -2,10 +2,8 @@ Require Import zoo.prelude.
 Require Import zoo.iris.base_logic.lib.fupd.
 Require Import zoo.iris.base_logic.lib.saved_prop.
 Require Import zoo.base.
-Require Import zoo_std.ivar_4.
-Require Import zoo_parabs.pool.
-Require Import zoo_parabs.vertex.
 Require Export examples.vertex_simple__code.
+Require Import examples.vertex_simple__types.
 Require Import zoo.options.
 
 Implicit Type v ctx a b c d : val.

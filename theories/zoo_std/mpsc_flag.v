@@ -4,6 +4,7 @@ Require Import zoo.iris.base_logic.lib.excl.
 Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.base.
 Require Export zoo_std.mpsc_flag__code.
+Require Import zoo_std.mpsc_flag__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.

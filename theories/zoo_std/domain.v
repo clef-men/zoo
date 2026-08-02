@@ -6,10 +6,11 @@ Require Import zoo.common.fin_maps.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Import zoo.program_logic.counter.
-Require Export zoo_std.domain__code.
-Require Import zoo_std.option.
-Require Import zoo_std.ivar_2.
 Require Import zoo_std.dynarray_1.
+Require Import zoo_std.ivar_2.
+Require Import zoo_std.option.
+Require Export zoo_std.domain__code.
+Require Import zoo_std.domain__types.
 Require Import zoo.options.
 
 Implicit Type id : nat.

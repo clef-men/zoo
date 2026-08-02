@@ -1,7 +1,6 @@
 Require Import zoo.prelude.
 Require Import zoo.common.countable.
 Require Import zoo.base.
-Require Import zoo_std.optional.
 Require Export zoo_saturn.mpmc_tqueue_2__code.
 Require Import zoo_saturn.mpmc_tqueue_2__types.
 Require Import zoo.options.

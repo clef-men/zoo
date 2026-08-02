@@ -8,11 +8,8 @@ Require Import zoo.iris.base_logic.lib.excl.
 Require Import zoo.iris.base_logic.lib.mono_list.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.base.
-Require Import zoo.program_logic.identifier.
 Require Import zoo.program_logic.prophet_identifier.
 Require Import zoo.program_logic.prophet_multi.
-Require Import zoo_std.array.
-Require Import zoo_std.domain.
 Require Import zoo_std.option.
 Require Export zoo_saturn.ws_bdeque_1__code.
 Require Import zoo_saturn.ws_bdeque_1__types.

@@ -2,22 +2,39 @@ Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_std.array.
-Require Import zoo_persistent.parray__types.
 Require Import zoo.options.
+
+Notation "'parray٠Root'" := (
+  in_type "zoo_persistent.parray.descr" 0
+)(in custom zoo_tag
+).
+Notation "'parray٠Diff'" := (
+  in_type "zoo_persistent.parray.descr" 1
+)(in custom zoo_tag
+).
+
+Notation "'parray٠equal'" := (
+  in_type "zoo_persistent.parray.descr.Root" 0
+)(in custom zoo_proj
+).
+Notation "'parray٠data'" := (
+  in_type "zoo_persistent.parray.descr.Root" 1
+)(in custom zoo_proj
+).
 
 Definition parray٠make : val :=
   𝗳𝘂𝗻 "equal" "sz" "v" ->
     𝗹𝗲𝘁 "data" = array٠unsafe_make "sz" "v" 𝗶𝗻
-    𝗿𝗲𝗳 ‘Root( "equal", "data" ).
+    𝗿𝗲𝗳 ‘parray٠Root( "equal", "data" ).
 
 Definition parray٠reroot₁ : val :=
   𝗿𝗲𝗰 "reroot" "t" ->
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
-    | Root ⎽ ⎽ 𝗮𝘀 "root_r" ->
-        ("root_r".<equal>, "root_r".<data>)
-    | Diff "i" "v" "t'" ->
+    | parray٠Root ⎽ ⎽ 𝗮𝘀 "root_r" ->
+        ("root_r".<parray٠equal>, "root_r".<parray٠data>)
+    | parray٠Diff "i" "v" "t'" ->
         𝗹𝗲𝘁 "equal", "data" = "reroot" "t'" 𝗶𝗻
-        "t'" <- ‘Diff( "i", array٠unsafe_get "data" "i", "t" ) ⍮
+        "t'" <- ‘parray٠Diff( "i", array٠unsafe_get "data" "i", "t" ) ⍮
         array٠unsafe_set "data" "i" "v" ⍮
         ("equal", "data")
     𝗲𝗻𝗱.
@@ -25,11 +42,11 @@ Definition parray٠reroot₁ : val :=
 Definition parray٠reroot : val :=
   𝗳𝘂𝗻 "t" ->
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
-    | Root ⎽ ⎽ 𝗮𝘀 "root_r" ->
-        ("root_r".<equal>, "root_r".<data>)
-    | Diff ⎽ ⎽ ⎽ ->
+    | parray٠Root ⎽ ⎽ 𝗮𝘀 "root_r" ->
+        ("root_r".<parray٠equal>, "root_r".<parray٠data>)
+    | parray٠Diff ⎽ ⎽ ⎽ ->
         𝗹𝗲𝘁 "equal", "data" = parray٠reroot₁ "t" 𝗶𝗻
-        "t" <- ‘Root( "equal", "data" ) ⍮
+        "t" <- ‘parray٠Root( "equal", "data" ) ⍮
         ("equal", "data")
     𝗲𝗻𝗱.
 
@@ -47,6 +64,6 @@ Definition parray٠set : val :=
     ) 𝗲𝗹𝘀𝗲 (
       array٠unsafe_set "data" "i" "v" ⍮
       𝗹𝗲𝘁 "t'" = 𝗿𝗲𝗳 !"t" 𝗶𝗻
-      "t" <- ‘Diff( "i", "v'", "t'" ) ⍮
+      "t" <- ‘parray٠Diff( "i", "v'", "t'" ) ⍮
       "t'"
     ).

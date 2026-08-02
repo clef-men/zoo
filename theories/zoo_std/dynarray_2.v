@@ -3,11 +3,7 @@ Require Import zoo.common.list.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Export zoo_std.dynarray_2__code.
-Require Import zoo_std.array.
-Require Import zoo_std.assume.
-Require Import zoo_std.diverge.
 Require Import zoo_std.dynarray_2__types.
-Require Import zoo_std.int.
 Require Import zoo.options.
 
 Implicit Type b : bool.

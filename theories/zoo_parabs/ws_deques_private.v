@@ -8,11 +8,6 @@ Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Import zoo_std.array.
-Require Import zoo_std.atomic_array.
-Require Import zoo_std.queue_3.
-Require Import zoo_std.domain.
-Require Import zoo_std.random_round.
 Require Export zoo_parabs.base.
 Require Export zoo_parabs.ws_deques_private__code.
 Require Import zoo_parabs.ws_deques_private__types.

@@ -2,11 +2,9 @@ Require Import zoo.prelude.
 Require Import zoo.iris.base_logic.lib.fupd.
 Require Import zoo.iris.base_logic.lib.saved_prop.
 Require Import zoo.base.
-Require Import zoo_std.ivar_4.
-Require Import zoo_parabs.pool.
-Require Import zoo_parabs.vertex.
 Require Export examples.fibonacci.
 Require Export examples.vertex_fibonacci__code.
+Require Import examples.vertex_fibonacci__types.
 Require Import zoo.options.
 
 Implicit Type r : location.

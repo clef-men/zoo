@@ -8,35 +8,35 @@ type 'a t =
   }
 
 let create () =
-  { front= Gnil; back= Gnil }
+  { front= Nil; back= Nil }
 
 let is_empty t =
   match t.front with
-  | Gcons _ ->
+  | Cons _ ->
       false
-  | Gnil ->
-      t.back == Gnil
+  | Nil ->
+      t.back == Nil
 
 let push_front t v =
-  t.front <- Gcons (v, t.front)
+  t.front <- Cons (v, t.front)
 
 let rec push_back t v =
   let back = t.back in
-  if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back (Gcons (v, back)) then (
+  if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back (Cons (v, back)) then (
     Domain.yield () ;
     push_back t v
   )
 
 let pop t =
   match t.front with
-  | Gnil ->
-      begin match Glist.rev @@ Atomic.Loc.exchange [%atomic.loc t.back] Gnil with
-      | Gnil ->
+  | Nil ->
+      begin match Glist.rev @@ Atomic.Loc.exchange [%atomic.loc t.back] Nil with
+      | Nil ->
           None
-      | Gcons (v, front) ->
+      | Cons (v, front) ->
           t.front <- front ;
           Some v
       end
-  | Gcons (v, front) ->
+  | Cons (v, front) ->
       t.front <- front ;
       Some v

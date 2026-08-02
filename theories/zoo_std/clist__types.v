@@ -3,15 +3,15 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo.options.
 
-Notation "'ClistClosed'" := (
+Notation "'Closed'" := (
   in_type "zoo_std.clist.t" 0
 )(in custom zoo_tag
 ).
-Notation "'ClistOpen'" := (
+Notation "'Open'" := (
   in_type "zoo_std.clist.t" 1
 )(in custom zoo_tag
 ).
-Notation "'ClistCons'" := (
+Notation "'Cons'" := (
   in_type "zoo_std.clist.t" 2
 )(in custom zoo_tag
 ).

@@ -1,7 +1,7 @@
 type 'a t =
-  | ClistClosed
-  | ClistOpen
-  | ClistCons of 'a * 'a t [@generative]
+  | Closed
+  | Open
+  | Cons of 'a * 'a t [@generative]
 
 val app :
   'a t -> 'a t -> 'a t

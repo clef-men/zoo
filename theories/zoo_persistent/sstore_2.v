@@ -6,7 +6,6 @@ Require Import zoo.common.list.
 Require Import zoo.common.treemap.
 Require Import zoo.iris.base_logic.lib.mono_gmap.
 Require Import zoo.base.
-Require Import zoo_std.assert.
 Require Import zoo_std.list.
 Require Export zoo_persistent.sstore_2__code.
 Require Import zoo_persistent.sstore_2__types.

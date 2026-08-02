@@ -3,7 +3,6 @@ Require Import zoo.common.fin_maps.
 Require Import zoo.base.
 Require Export zoo_persistent.suf__code.
 Require Import zoo_persistent.suf__types.
-Require Import zoo_persistent.sstore_2.
 Require Import zoo.options.
 
 Implicit Type rank : Z.

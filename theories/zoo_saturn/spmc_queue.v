@@ -11,7 +11,6 @@ Require Import zoo.iris.base_logic.lib.saved_pred.
 Require Import zoo.base.
 Require Import zoo_std.option.
 Require Import zoo_std.xtchain.
-Require Import zoo_std.domain.
 Require Export zoo_saturn.spmc_queue__code.
 Require Import zoo_saturn.spmc_queue__types.
 Require Import zoo.options.

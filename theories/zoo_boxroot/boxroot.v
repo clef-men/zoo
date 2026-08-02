@@ -55,11 +55,11 @@ Definition boxroot٠remove : val :=
 
 Definition boxroot٠get : val :=
   𝗳𝘂𝗻 "t" ->
-    "t".{xdeque_data}.
+    "t".{xdeque٠data}.
 
 Definition boxroot٠set : val :=
   𝗳𝘂𝗻 "t" "v" ->
-    "t" <-{xdeque_data} "v".
+    "t" <-{xdeque٠data} "v".
 
 Class BoxrootG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] boxroot۰G۰roots۰G :: ghost_mapG Σ location gc۰location
@@ -95,7 +95,7 @@ Section boxroot۰G.
     roots۰auth γ map ∗
     xdeque۰model global roots ∗
     [∗ map] root ↦ ω ∈ map,
-      root.[xdeque_data] ↦root[gc] ω.
+      root.[xdeque٠data] ↦root[gc] ω.
 
   Definition boxroot۰model t global ω : iProp Σ :=
     ∃ root l_global γ,

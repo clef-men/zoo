@@ -5,10 +5,10 @@ Require Import zoo.common.list.
 Require Import zoo.common.math.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
-Require Export zoo_std.array__code.
 Require Import zoo_std.for_.
-Require Import zoo_std.assume.
 Require Import zoo_std.chunk.
+Require Export zoo_std.array__code.
+Require Import zoo_std.array__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.

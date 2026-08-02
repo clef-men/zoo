@@ -3,7 +3,6 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_std.ivar_3.
 Require Import zoo_std.list.
-Require Import zoo_std.ivar_4__types.
 Require Import zoo.options.
 
 Definition ivar_4٠create : val :=

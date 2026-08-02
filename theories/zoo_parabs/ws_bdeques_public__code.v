@@ -4,7 +4,6 @@ Require Import zoo.language.notations.
 Require Import zoo_saturn.ws_bdeque_2.
 Require Import zoo_std.array.
 Require Import zoo_std.random_round.
-Require Import zoo_parabs.ws_bdeques_public__types.
 Require Import zoo.options.
 
 Definition ws_bdeques_public٠capacity : val :=

@@ -1,6 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
 Require Export zoo_std.random_state__code.
+Require Import zoo_std.random_state__types.
 Require Import zoo.options.
 
 Implicit Type t : val.

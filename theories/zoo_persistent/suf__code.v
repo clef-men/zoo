@@ -2,24 +2,32 @@ Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_persistent.sstore_2.
-Require Import zoo_persistent.suf__types.
 Require Import zoo.options.
+
+Notation "'suf٠Root'" := (
+  in_type "zoo_persistent.suf.descr" 0
+)(in custom zoo_tag
+).
+Notation "'suf٠Link'" := (
+  in_type "zoo_persistent.suf.descr" 1
+)(in custom zoo_tag
+).
 
 Definition suf٠create : val :=
   sstore_2٠create.
 
 Definition suf٠make : val :=
   𝗳𝘂𝗻 "t" ->
-    sstore_2٠ref "t" ‘Root( 0 ).
+    sstore_2٠ref "t" ‘suf٠Root( 0 ).
 
 Definition suf٠repr : val :=
   𝗿𝗲𝗰 "repr" "t" "elt" ->
     𝗺𝗮𝘁𝗰𝗵 sstore_2٠get "t" "elt" 𝘄𝗶𝘁𝗵
-    | Root ⎽ ->
+    | suf٠Root ⎽ ->
         "elt"
-    | Link "parent" ->
+    | suf٠Link "parent" ->
         𝗹𝗲𝘁 "repr" = "repr" "t" "parent" 𝗶𝗻
-        sstore_2٠set "t" "elt" ‘Link( "repr" ) ⍮
+        sstore_2٠set "t" "elt" ‘suf٠Link( "repr" ) ⍮
         "repr"
     𝗲𝗻𝗱.
 
@@ -30,9 +38,9 @@ Definition suf٠equiv : val :=
 Definition suf٠rank : val :=
   𝗳𝘂𝗻 "t" "elt" ->
     𝗺𝗮𝘁𝗰𝗵 sstore_2٠get "t" "elt" 𝘄𝗶𝘁𝗵
-    | Root "rank" ->
+    | suf٠Root "rank" ->
         "rank"
-    | Link ⎽ ->
+    | suf٠Link ⎽ ->
         𝗳𝗮𝗶𝗹
     𝗲𝗻𝗱.
 
@@ -44,11 +52,11 @@ Definition suf٠union : val :=
     𝗹𝗲𝘁 "rank2" = suf٠rank "t" "repr2" 𝗶𝗻
     𝗶𝗳 "repr1" != "repr2" 𝘁𝗵𝗲𝗻 (
       𝗶𝗳 "rank1" < "rank2" 𝘁𝗵𝗲𝗻 (
-        sstore_2٠set "t" "repr1" ‘Link( "repr2" )
+        sstore_2٠set "t" "repr1" ‘suf٠Link( "repr2" )
       ) 𝗲𝗹𝘀𝗲 (
-        sstore_2٠set "t" "repr2" ‘Link( "repr1" ) ⍮
+        sstore_2٠set "t" "repr2" ‘suf٠Link( "repr1" ) ⍮
         𝗶𝗳 "rank1" == "rank2" 𝘁𝗵𝗲𝗻 (
-          sstore_2٠set "t" "repr1" ‘Root( "rank1" + 1 )
+          sstore_2٠set "t" "repr1" ‘suf٠Root( "rank1" + 1 )
         )
       )
     ).

@@ -2,14 +2,14 @@ type 'a t =
   'a Clist.t Atomic.t
 
 let create () =
-  Atomic.make Clist.ClistOpen
+  Atomic.make Clist.Open
 
 let rec push t v =
   match Atomic.get t with
-  | Clist.ClistClosed ->
+  | Clist.Closed ->
       true
   | _ as old ->
-      let new_ = Clist.ClistCons (v, old) in
+      let new_ = Clist.Cons (v, old) in
       if Atomic.compare_and_set t old new_ then (
         false
       ) else (
@@ -19,11 +19,11 @@ let rec push t v =
 
 let rec pop t =
   match Atomic.get t with
-  | Clist.ClistClosed ->
+  | Clist.Closed ->
       Optional.Anything
-  | ClistOpen ->
+  | Open ->
       Nothing
-  | ClistCons (v, new_) as old ->
+  | Cons (v, new_) as old ->
       if Atomic.compare_and_set t old new_ then (
         Something v
       ) else (
@@ -32,7 +32,7 @@ let rec pop t =
       )
 
 let is_closed t =
-  Atomic.get t == Clist.ClistClosed
+  Atomic.get t == Clist.Closed
 
 let close t =
-  Atomic.exchange t Clist.ClistClosed
+  Atomic.exchange t Clist.Closed

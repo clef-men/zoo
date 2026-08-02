@@ -2,7 +2,6 @@ Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_std.array.
-Require Import zoo_std.atomic_array__types.
 Require Import zoo.options.
 
 Definition atomic_array٠make : val :=

@@ -4,7 +4,6 @@ Require Import zoo.language.notations.
 Require Import zoo_saturn.ws_deque_2.
 Require Import zoo_std.array.
 Require Import zoo_std.random_round.
-Require Import zoo_parabs.ws_deques_public__types.
 Require Import zoo.options.
 
 Definition ws_deques_public٠create : val :=

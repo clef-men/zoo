@@ -4,7 +4,6 @@ Require Import zoo.language.notations.
 Require Import zoo_parabs.pool.
 Require Import zoo_parabs.vertex.
 Require Import zoo_std.ivar_4.
-Require Import examples.vertex_fibonacci__types.
 Require Import zoo.options.
 
 Definition vertex_fibonacci٠main₁ : val :=

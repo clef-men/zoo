@@ -5,11 +5,9 @@ Require Import zoo.iris.base_logic.lib.excl.
 Require Import zoo.iris.base_logic.lib.ghost_list.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Import zoo_saturn.mpmc_queue_1.
 Require Export zoo_parabs.base.
 Require Export zoo_parabs.ws_hub_fifo__code.
 Require Import zoo_parabs.ws_hub_fifo__types.
-Require Import zoo_parabs.waiters.
 Require Import zoo.options.
 
 Implicit Type b closed : bool.

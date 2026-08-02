@@ -3,8 +3,20 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_std.condition.
 Require Import zoo_std.mutex.
-Require Import zoo_std.ivar_2__types.
 Require Import zoo.options.
+
+Notation "'ivar_2٠mutex'" := (
+  in_type "zoo_std.ivar_2.t" 0
+)(in custom zoo_field
+).
+Notation "'ivar_2٠condition'" := (
+  in_type "zoo_std.ivar_2.t" 1
+)(in custom zoo_field
+).
+Notation "'ivar_2٠result'" := (
+  in_type "zoo_std.ivar_2.t" 2
+)(in custom zoo_field
+).
 
 Definition ivar_2٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
@@ -16,7 +28,7 @@ Definition ivar_2٠make : val :=
 
 Definition ivar_2٠try_get : val :=
   𝗳𝘂𝗻 "t" ->
-    "t".{result}.
+    "t".{ivar_2٠result}.
 
 Definition ivar_2٠is_unset : val :=
   𝗳𝘂𝗻 "t" ->
@@ -30,19 +42,19 @@ Definition ivar_2٠get : val :=
   𝗳𝘂𝗻 "t" ->
     𝗺𝗮𝘁𝗰𝗵 ivar_2٠try_get "t" 𝘄𝗶𝘁𝗵
     | Some "v" ->
-        mutex٠synchronize "t".{mutex} ⍮
+        mutex٠synchronize "t".{ivar_2٠mutex} ⍮
         "v"
     | None ->
-        𝗹𝗲𝘁 "mtx" = "t".{mutex} 𝗶𝗻
-        𝗹𝗲𝘁 "cond" = "t".{condition} 𝗶𝗻
+        𝗹𝗲𝘁 "mtx" = "t".{ivar_2٠mutex} 𝗶𝗻
+        𝗹𝗲𝘁 "cond" = "t".{ivar_2٠condition} 𝗶𝗻
         mutex٠protect
           "mtx"
           (𝗳𝘂𝗻 ⎽ ->
              condition٠wait_while
                "cond"
                "mtx"
-               (𝗳𝘂𝗻 ⎽ -> "t".{result} == §None)) ⍮
-        𝗺𝗮𝘁𝗰𝗵 "t".{result} 𝘄𝗶𝘁𝗵
+               (𝗳𝘂𝗻 ⎽ -> "t".{ivar_2٠result} == §None)) ⍮
+        𝗺𝗮𝘁𝗰𝗵 "t".{ivar_2٠result} 𝘄𝗶𝘁𝗵
         | Some "v" ->
             "v"
         | None ->
@@ -53,6 +65,6 @@ Definition ivar_2٠get : val :=
 Definition ivar_2٠set : val :=
   𝗳𝘂𝗻 "t" "v" ->
     mutex٠protect
-      "t".{mutex}
-      (𝗳𝘂𝗻 ⎽ -> "t" <-{result} ‘Some( "v" )) ⍮
-    condition٠notify_all "t".{condition}.
+      "t".{ivar_2٠mutex}
+      (𝗳𝘂𝗻 ⎽ -> "t" <-{ivar_2٠result} ‘Some( "v" )) ⍮
+    condition٠notify_all "t".{ivar_2٠condition}.

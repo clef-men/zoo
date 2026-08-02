@@ -6,8 +6,6 @@ Require Import zoo.iris.base_logic.lib.auth_gmultiset.
 Require Import zoo.iris.base_logic.lib.auth_mono.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Import zoo_std.spsc_waiter.
-Require Import unix.unix.
 Require Export zoo_eio.rcfd__code.
 Require Import zoo_eio.rcfd__types.
 Require Import zoo.options.

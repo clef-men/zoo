@@ -2,6 +2,7 @@ Require Import zoo.prelude.
 Require Import zoo.iris.base_logic.lib.excl.
 Require Import zoo.base.
 Require Export zoo_std.mutex__code.
+Require Import zoo_std.mutex__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.

@@ -1,20 +1,21 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
-Require Export zoo_std.goptional__types.
+Require Export zoo_std.goptional__code.
+Require Import zoo_std.goptional__types.
 Require Import zoo.options.
 
 Implicit Type v : val.
 
 Variant goptional {A} :=
-  | Gnothing
-  | Ganything
-  | Gsomething (a : A).
+  | Nothing
+  | Anything
+  | Something (a : A).
 #[global] Arguments goptional : clear implicits.
 
 #[global] Instance goptionalｰinhabited A : Inhabited (goptional A) :=
-  populate Gnothing.
-#[global] Instance Gsomethingｰinj A :
-  Inj (=) (=) (@Gsomething A).
+  populate Nothing.
+#[global] Instance Somethingｰinj A :
+  Inj (=) (=) (@Something A).
 Proof.
   rewrite /Inj. naive_solver.
 Qed.
@@ -22,20 +23,20 @@ Qed.
 Definition option۰to_goptional {A} (o : option A) :=
   match o with
   | None =>
-      Gnothing
+      Nothing
   | Some a =>
-      Gsomething a
+      Something a
   end.
 #[global] Arguments option۰to_goptional _ !_ / : assert.
 
 Coercion goptional۰to_val o :=
   match o with
-  | Gnothing =>
-      §Gnothing
-  | Ganything =>
-      §Ganything
-  | Gsomething v =>
-      ‘Gsomething[ v ]
+  | Nothing =>
+      §Nothing
+  | Anything =>
+      §Anything
+  | Something v =>
+      ‘Something[ v ]
   end%V.
 #[global] Arguments goptional۰to_val !_ / : assert.
 
@@ -56,10 +57,10 @@ Section zoo۰G.
   Context τ `{!iType (iPropI Σ) τ}.
 
   Definition itype۰goptional t : iProp Σ :=
-      ⌜t = §Gnothing%V⌝
-    ∨ ⌜t = §Ganything%V⌝
+      ⌜t = §Nothing%V⌝
+    ∨ ⌜t = §Anything%V⌝
     ∨ ∃ v,
-      ⌜t = ‘Gsomething( v )%V⌝ ∗
+      ⌜t = ‘Something( v )%V⌝ ∗
       τ v.
   #[global] Instance itype۰goptionalｰitype :
     iType _ itype۰goptional.
@@ -73,7 +74,7 @@ Section zoo۰G.
       WP e2 {{ Φ }} ∧
       ∀ v, τ v -∗ WP subst' x v e3 {{ Φ }}
     ) -∗
-    WP 𝗺𝗮𝘁𝗰𝗵 t 𝘄𝗶𝘁𝗵 Gnothing -> e1 | Ganything -> e2 | Gsomething x -> e3 𝗲𝗻𝗱 {{ Φ }}.
+    WP 𝗺𝗮𝘁𝗰𝗵 t 𝘄𝗶𝘁𝗵 Nothing -> e1 | Anything -> e2 | Something x -> e3 𝗲𝗻𝗱 {{ Φ }}.
   Proof.
     iIntros "[-> | [-> | (%v & -> & #Hv)]] H".
     1: rewrite bi.and_elim_l.

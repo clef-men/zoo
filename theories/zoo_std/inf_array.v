@@ -6,10 +6,7 @@ Require Import zoo.common.function.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.base.
 Require Export zoo_std.inf_array__code.
-Require Import zoo_std.array.
 Require Import zoo_std.inf_array__types.
-Require Import zoo_std.int.
-Require Import zoo_std.mutex.
 Require Import zoo.options.
 
 Implicit Type b : bool.

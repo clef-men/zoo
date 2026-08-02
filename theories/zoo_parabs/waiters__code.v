@@ -4,8 +4,16 @@ Require Import zoo.language.notations.
 Require Import zoo_parabs.waiter.
 Require Import zoo_saturn.mpmc_queue_1.
 Require Import zoo_std.array.
-Require Import zoo_parabs.waiters__types.
 Require Import zoo.options.
+
+Notation "'waiters٠waiters'" := (
+  in_type "zoo_parabs.waiters.t" 0
+)(in custom zoo_proj
+).
+Notation "'waiters٠queue'" := (
+  in_type "zoo_parabs.waiters.t" 1
+)(in custom zoo_proj
+).
 
 Definition waiters٠create : val :=
   𝗳𝘂𝗻 "sz" ->
@@ -13,13 +21,17 @@ Definition waiters٠create : val :=
 
 Definition waiters٠notify : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    𝗹𝗲𝘁 "waiter" = array٠unsafe_get "t".<waiters> "i" 𝗶𝗻
+    𝗹𝗲𝘁 "waiter" =
+      array٠unsafe_get "t".<waiters٠waiters> "i"
+    𝗶𝗻
     waiter٠notify "waiter" ⍮
     ().
 
 Definition waiters٠notify_one : val :=
   𝗿𝗲𝗰 "notify_one" "t" ->
-    𝗺𝗮𝘁𝗰𝗵 mpmc_queue_1٠pop "t".<queue> 𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵
+      mpmc_queue_1٠pop "t".<waiters٠queue>
+    𝘄𝗶𝘁𝗵
     | None ->
         ()
     | Some "waiter" ->
@@ -30,7 +42,9 @@ Definition waiters٠notify_one : val :=
 
 Definition waiters٠notify_all : val :=
   𝗿𝗲𝗰 "notify_all" "t" ->
-    𝗺𝗮𝘁𝗰𝗵 mpmc_queue_1٠pop "t".<queue> 𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵
+      mpmc_queue_1٠pop "t".<waiters٠queue>
+    𝘄𝗶𝘁𝗵
     | None ->
         ()
     | Some "waiter" ->
@@ -40,16 +54,22 @@ Definition waiters٠notify_all : val :=
 
 Definition waiters٠prepare_wait : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    𝗹𝗲𝘁 "waiter" = array٠unsafe_get "t".<waiters> "i" 𝗶𝗻
+    𝗹𝗲𝘁 "waiter" =
+      array٠unsafe_get "t".<waiters٠waiters> "i"
+    𝗶𝗻
     waiter٠prepare_wait "waiter" ⍮
-    mpmc_queue_1٠push "t".<queue> "waiter".
+    mpmc_queue_1٠push "t".<waiters٠queue> "waiter".
 
 Definition waiters٠cancel_wait : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    𝗹𝗲𝘁 "waiter" = array٠unsafe_get "t".<waiters> "i" 𝗶𝗻
+    𝗹𝗲𝘁 "waiter" =
+      array٠unsafe_get "t".<waiters٠waiters> "i"
+    𝗶𝗻
     waiter٠cancel_wait "waiter".
 
 Definition waiters٠commit_wait : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    𝗹𝗲𝘁 "waiter" = array٠unsafe_get "t".<waiters> "i" 𝗶𝗻
+    𝗹𝗲𝘁 "waiter" =
+      array٠unsafe_get "t".<waiters٠waiters> "i"
+    𝗶𝗻
     waiter٠commit_wait "waiter".

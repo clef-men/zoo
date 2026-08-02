@@ -7,13 +7,10 @@ Require Import zoo.iris.base_logic.lib.mono_gmultiset.
 Require Import zoo.iris.base_logic.lib.subprops.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.base.
-Require Import zoo_std.clist.
 Require Import zoo_std.option.
-Require Import zoo_saturn.mpmc_stack_2.
 Require Export zoo_parabs.base.
 Require Export zoo_parabs.vertex__code.
 Require Import zoo_parabs.vertex__types.
-Require Import zoo_parabs.pool.
 Require Import zoo.options.
 
 Implicit Type b finished : bool.

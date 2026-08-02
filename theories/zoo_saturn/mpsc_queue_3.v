@@ -5,7 +5,6 @@ Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Import zoo_std.clist.
 Require Export zoo_saturn.mpsc_queue_3__code.
 Require Import zoo_saturn.mpsc_queue_3__types.
 Require Import zoo.options.
@@ -89,7 +88,7 @@ Section mpsc_queue_3۰G.
           model₂ γ (front ++ reverse back)
       ) ∨ (
         lstate۰closed γ ∗
-        ⌜v_back = §ClistClosed%V⌝
+        ⌜v_back = §clist٠Closed%V⌝
       )
     ).
   #[local] Instance : CustomIpat "inv۰inner" :=
@@ -537,7 +536,7 @@ Section mpsc_queue_3۰G.
         iSplitR "HΦ". { iSteps. iExists back. iSteps. }
         iSteps.
 
-      + wp۰cas as _ | []%(inj clist۰to_val ClistClosed)%list۰to_clist_openｰnotｰclosed'.
+      + wp۰cas as _ | []%(inj clist۰to_val Closed)%list۰to_clist_openｰnotｰclosed'.
         iSteps.
 
     - iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
@@ -615,8 +614,8 @@ Section mpsc_queue_3۰G.
 
         remember (back ++ [v]) as back' eqn:Hback.
         destruct back' as [| v' back']; first by eelim app_cons_not_nil.
-        wp۰apply+ (clist٠rev_appｰspec (v' :: back') ClistOpen with "[//]") as "_"; [done.. |].
-        rewrite clist۰appｰClistOpen {}Hback reverse_snoc.
+        wp۰apply+ (clist٠rev_appｰspec (v' :: back') Open with "[//]") as "_"; [done.. |].
+        rewrite clist۰appｰOpen {}Hback reverse_snoc.
         iSteps.
 
     - wp۰store. wp۰pures.
@@ -710,12 +709,12 @@ Section mpsc_queue_3۰G.
     iModIntro. clear.
 
     iApply wpｰmatchｰclistｰopen. simpl.
-    wp۰apply (clist٠rev_appｰspec _ ClistClosed with "[//]") as "_"; [done.. |].
+    wp۰apply (clist٠rev_appｰspec _ Closed with "[//]") as "_"; [done.. |].
     wp۰load.
     wp۰apply (clist٠appｰspec with "[//]") as "_"; [done.. |].
     wp۰store.
 
-    iSteps. rewrite clist۰appｰClistClosed. erewrite clist۰appｰclosed => //.
+    iSteps. rewrite clist۰appｰClosed. erewrite clist۰appｰclosed => //.
   Qed.
   Lemma mpsc_queue_3٠closeｰspecｰclosed t ι vs :
     {{{

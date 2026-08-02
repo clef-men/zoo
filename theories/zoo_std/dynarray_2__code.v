@@ -5,12 +5,34 @@ Require Import zoo_std.array.
 Require Import zoo_std.assume.
 Require Import zoo_std.diverge.
 Require Import zoo_std.int.
-Require Import zoo_std.dynarray_2__types.
 Require Import zoo.options.
+
+Notation "'dynarray_2٠Empty'" := (
+  in_type "zoo_std.dynarray_2.slot" 0
+)(in custom zoo_tag
+).
+Notation "'dynarray_2٠Element'" := (
+  in_type "zoo_std.dynarray_2.slot" 1
+)(in custom zoo_tag
+).
+
+Notation "'dynarray_2٠value'" := (
+  in_type "zoo_std.dynarray_2.slot.Element" 0
+)(in custom zoo_field
+).
+
+Notation "'dynarray_2٠size'" := (
+  in_type "zoo_std.dynarray_2.t" 0
+)(in custom zoo_field
+).
+Notation "'dynarray_2٠data'" := (
+  in_type "zoo_std.dynarray_2.t" 1
+)(in custom zoo_field
+).
 
 Definition dynarray_2٠element : val :=
   𝗳𝘂𝗻 "v" ->
-    ‘Element{ "v" }.
+    ‘dynarray_2٠Element{ "v" }.
 
 Definition dynarray_2٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
@@ -28,11 +50,11 @@ Definition dynarray_2٠initi : val :=
 
 Definition dynarray_2٠size : val :=
   𝗳𝘂𝗻 "t" ->
-    "t".{size}.
+    "t".{dynarray_2٠size}.
 
 Definition dynarray_2٠data : val :=
   𝗳𝘂𝗻 "t" ->
-    "t".{data}.
+    "t".{dynarray_2٠data}.
 
 Definition dynarray_2٠capacity : val :=
   𝗳𝘂𝗻 "t" ->
@@ -40,11 +62,11 @@ Definition dynarray_2٠capacity : val :=
 
 Definition dynarray_2٠set_size : val :=
   𝗳𝘂𝗻 "t" "sz" ->
-    "t" <-{size} "sz".
+    "t" <-{dynarray_2٠size} "sz".
 
 Definition dynarray_2٠set_data : val :=
   𝗳𝘂𝗻 "t" "data" ->
-    "t" <-{data} "data".
+    "t" <-{dynarray_2٠data} "data".
 
 Definition dynarray_2٠is_empty : val :=
   𝗳𝘂𝗻 "t" ->
@@ -55,10 +77,10 @@ Definition dynarray_2٠get : val :=
     𝗺𝗮𝘁𝗰𝗵
       array٠get (dynarray_2٠data "t") "i"
     𝘄𝗶𝘁𝗵
-    | Empty ->
+    | dynarray_2٠Empty ->
         𝗱𝗶𝘃𝗲𝗿𝗴𝗲 ()
-    | Element ⎽ 𝗮𝘀 "slot_r" ->
-        "slot_r".{value}
+    | dynarray_2٠Element ⎽ 𝗮𝘀 "slot_r" ->
+        "slot_r".{dynarray_2٠value}
     𝗲𝗻𝗱.
 
 Definition dynarray_2٠set : val :=
@@ -66,10 +88,10 @@ Definition dynarray_2٠set : val :=
     𝗺𝗮𝘁𝗰𝗵
       array٠get (dynarray_2٠data "t") "i"
     𝘄𝗶𝘁𝗵
-    | Empty ->
+    | dynarray_2٠Empty ->
         𝗱𝗶𝘃𝗲𝗿𝗴𝗲 ()
-    | Element ⎽ 𝗮𝘀 "slot_r" ->
-        "slot_r" <-{value} "v"
+    | dynarray_2٠Element ⎽ 𝗮𝘀 "slot_r" ->
+        "slot_r" <-{dynarray_2٠value} "v"
     𝗲𝗻𝗱.
 
 Definition dynarray_2٠next_capacity : val :=
@@ -91,7 +113,9 @@ Definition dynarray_2٠reserve : val :=
       𝗹𝗲𝘁 "cap" =
         int٠max "n" (dynarray_2٠next_capacity "cap")
       𝗶𝗻
-      𝗹𝗲𝘁 "data" = array٠unsafe_grow "data" "cap" §Empty 𝗶𝗻
+      𝗹𝗲𝘁 "data" =
+        array٠unsafe_grow "data" "cap" §dynarray_2٠Empty
+      𝗶𝗻
       dynarray_2٠set_data "t" "data"
     ).
 
@@ -167,12 +191,12 @@ Definition dynarray_2٠pop : val :=
     𝗮𝘀𝘀𝘂𝗺𝗲 (0 < "sz") ⍮
     𝗹𝗲𝘁 "sz" = "sz" - 1 𝗶𝗻
     𝗺𝗮𝘁𝗰𝗵 array٠unsafe_get "data" "sz" 𝘄𝗶𝘁𝗵
-    | Empty ->
+    | dynarray_2٠Empty ->
         𝗱𝗶𝘃𝗲𝗿𝗴𝗲 ()
-    | Element ⎽ 𝗮𝘀 "slot_r" ->
-        array٠unsafe_set "data" "sz" §Empty ⍮
+    | dynarray_2٠Element ⎽ 𝗮𝘀 "slot_r" ->
+        array٠unsafe_set "data" "sz" §dynarray_2٠Empty ⍮
         dynarray_2٠set_size "t" "sz" ⍮
-        "slot_r".{value}
+        "slot_r".{dynarray_2٠value}
     𝗲𝗻𝗱.
 
 Definition dynarray_2٠fit_capacity : val :=
@@ -196,10 +220,10 @@ Definition dynarray_2٠iteri : val :=
     array٠unsafe_iteri_slice
       (𝗳𝘂𝗻 "i" "slot" ->
          𝗺𝗮𝘁𝗰𝗵 "slot" 𝘄𝗶𝘁𝗵
-         | Empty ->
+         | dynarray_2٠Empty ->
              𝗱𝗶𝘃𝗲𝗿𝗴𝗲 ()
-         | Element ⎽ 𝗮𝘀 "slot_r" ->
-             "fn" "i" "slot_r".{value}
+         | dynarray_2٠Element ⎽ 𝗮𝘀 "slot_r" ->
+             "fn" "i" "slot_r".{dynarray_2٠value}
          𝗲𝗻𝗱)
       "data"
       0

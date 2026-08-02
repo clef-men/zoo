@@ -1,6 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
-Require Export zoo_std.optional__types.
+Require Export zoo_std.optional__code.
+Require Import zoo_std.optional__types.
 Require Import zoo.options.
 
 Implicit Type v : val.

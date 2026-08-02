@@ -2,11 +2,9 @@ Require Import zoo.prelude.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.saved_prop.
 Require Import zoo.base.
-Require Export zoo_std.ivar_4__code.
-Require Import zoo_std.ivar_3.
-Require Import zoo_std.ivar_4__types.
-Require Import zoo_std.list.
 Require Import zoo_std.option.
+Require Export zoo_std.ivar_4__code.
+Require Import zoo_std.ivar_4__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.

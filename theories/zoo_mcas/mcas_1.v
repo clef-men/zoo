@@ -13,9 +13,8 @@ Require Import zoo.iris.base_logic.lib.mono_list.
 Require Import zoo.base.
 Require Import zoo.program_logic.prophet_bool.
 Require Import zoo.program_logic.identifier.
-Require Import zoo_std.list.
-Require Import zoo_mcas.mcas_1__types.
 Require Export zoo_mcas.mcas_1__code.
+Require Import zoo_mcas.mcas_1__types.
 Require Import zoo.options.
 
 Implicit Type b full : bool.

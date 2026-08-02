@@ -2,6 +2,7 @@ Require Import zoo.prelude.
 Require Import zoo.base.
 Require Export zoo_std.mutex.
 Require Export zoo_std.condition__code.
+Require Import zoo_std.condition__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.

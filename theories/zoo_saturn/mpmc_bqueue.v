@@ -10,7 +10,6 @@ Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.iris.base_logic.lib.saved_pred.
 Require Import zoo.base.
 Require Import zoo.program_logic.prophet_typed.
-Require Import zoo_std.domain.
 Require Import zoo_std.option.
 Require Import zoo_std.xtchain.
 Require Export zoo_saturn.mpmc_bqueue__code.

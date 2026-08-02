@@ -1,7 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.mutex.
+Require Export zoo_std.mutex.
 Require Import zoo.options.
 
 Notation "'Unset'" := (

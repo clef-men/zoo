@@ -1,6 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
-Require Export zoo_std.goption__types.
+Require Export zoo_std.goption__code.
+Require Import zoo_std.goption__types.
 Require Import zoo.options.
 
 Implicit Type o : option val.
@@ -9,9 +10,9 @@ Implicit Type v : val.
 Coercion goption۰to_val o :=
   match o with
   | None =>
-      §Gnone
+      §None
   | Some v =>
-      ‘Gsome[ v ]
+      ‘Some[ v ]
   end%V.
 #[global] Arguments goption۰to_val !_ / : assert.
 
@@ -32,9 +33,9 @@ Section zoo۰G.
   Context τ `{!iType (iPropI Σ) τ}.
 
   Definition itype۰goption t : iProp Σ :=
-      ⌜t = §Gnone%V⌝
+      ⌜t = §None%V⌝
     ∨ ∃ v,
-      ⌜t = ‘Gsome[ v ]%V⌝ ∗
+      ⌜t = ‘Some[ v ]%V⌝ ∗
       τ v.
   #[global] Instance itype۰goptionｰitype :
     iType _ itype۰goption.

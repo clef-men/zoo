@@ -9,27 +9,27 @@ type 'a t =
   }
 
 let create sz =
-  { data= Array.unsafe_init sz (fun () -> Atomic.make Goption.Gnone)
+  { data= Array.unsafe_init sz (fun () -> Atomic.make Goption.None)
   ; front= 0
   ; back= 0
   }
 
 let rec push slot o =
-  if not @@ Atomic.compare_and_set slot Goption.Gnone o then (
+  if not @@ Atomic.compare_and_set slot Goption.None o then (
     Domain.yield () ;
     push slot o
   )
 let push t v =
   let data = t.data in
   let i = (Atomic.Loc.fetch_and_add [%atomic.loc t.back] 1) mod Array.size data in
-  push (Array.unsafe_get data i) (Gsome v)
+  push (Array.unsafe_get data i) (Some v)
 
 let rec pop slot =
   match Atomic.get slot with
-  | Goption.Gnone ->
+  | Goption.None ->
       pop slot
-  | Gsome v as o ->
-      if Atomic.compare_and_set slot o Gnone then (
+  | Some v as o ->
+      if Atomic.compare_and_set slot o None then (
         v
       ) else (
         Domain.yield () ;

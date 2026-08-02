@@ -3,11 +3,11 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo.options.
 
-Notation "'xtchain_next'" := (
+Notation "'next'" := (
   in_type "zoo_std.xtchain.t" 0
 )(in custom zoo_field
 ).
-Notation "'xtchain_data'" := (
+Notation "'data'" := (
   in_type "zoo_std.xtchain.t" 1
 )(in custom zoo_field
 ).

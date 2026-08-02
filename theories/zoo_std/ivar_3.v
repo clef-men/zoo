@@ -5,10 +5,10 @@ Require Import zoo.iris.base_logic.lib.mono_gmultiset.
 Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.iris.base_logic.lib.subpreds.
 Require Import zoo.base.
-Require Export zoo_std.ivar_3__code.
-Require Import zoo_std.ivar_3__types.
 Require Import zoo_std.list.
 Require Import zoo_std.option.
+Require Export zoo_std.ivar_3__code.
+Require Import zoo_std.ivar_3__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.

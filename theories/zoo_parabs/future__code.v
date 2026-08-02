@@ -3,7 +3,6 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_parabs.pool.
 Require Import zoo_std.ivar_4.
-Require Import zoo_parabs.future__types.
 Require Import zoo.options.
 
 Definition future٠return : val :=

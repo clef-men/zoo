@@ -2,21 +2,33 @@ Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_std.mutex.
-Require Import zoo_std.lazy__types.
 Require Import zoo.options.
+
+Notation "'lazy٠Unset'" := (
+  in_type "zoo_std.lazy.state" 0
+)(in custom zoo_tag
+).
+Notation "'lazy٠Setting'" := (
+  in_type "zoo_std.lazy.state" 1
+)(in custom zoo_tag
+).
+Notation "'lazy٠Set'" := (
+  in_type "zoo_std.lazy.state" 2
+)(in custom zoo_tag
+).
 
 Definition lazy٠make : val :=
   𝗳𝘂𝗻 "fn" ->
-    𝗿𝗲𝗳 ‘Unset( "fn" ).
+    𝗿𝗲𝗳 ‘lazy٠Unset( "fn" ).
 
 Definition lazy٠return : val :=
   𝗳𝘂𝗻 "res" ->
-    𝗿𝗲𝗳 ‘Set( "res" ).
+    𝗿𝗲𝗳 ‘lazy٠Set( "res" ).
 
 Definition lazy٠is_set : val :=
   𝗳𝘂𝗻 "t" ->
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
-    | Set ⎽ ->
+    | lazy٠Set ⎽ ->
         true
     | ⎽ ->
         false
@@ -29,18 +41,18 @@ Definition lazy٠is_unset : val :=
 Definition lazy٠get : val :=
   𝗿𝗲𝗰 "get" "t" ->
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
-    | Set "res" ->
+    | lazy٠Set "res" ->
         "res"
-    | Setting "mtx" ->
+    | lazy٠Setting "mtx" ->
         mutex٠synchronize "mtx" ⍮
         "get" "t"
-    | Unset "fn" 𝗮𝘀 "state" ->
+    | lazy٠Unset "fn" 𝗮𝘀 "state" ->
         𝗹𝗲𝘁 "mtx" = mutex٠create_lock () 𝗶𝗻
         𝗶𝗳
-          𝗰𝗮𝘀 "t".[contents] "state" ‘Setting( "mtx" )
+          𝗰𝗮𝘀 "t".[contents] "state" ‘lazy٠Setting( "mtx" )
         𝘁𝗵𝗲𝗻 (
           𝗹𝗲𝘁 "res" = "fn" () 𝗶𝗻
-          "t" <- ‘Set( "res" ) ⍮
+          "t" <- ‘lazy٠Set( "res" ) ⍮
           mutex٠unlock "mtx" ⍮
           "res"
         ) 𝗲𝗹𝘀𝗲 (

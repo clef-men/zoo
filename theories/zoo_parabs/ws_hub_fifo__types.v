@@ -1,8 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_parabs.waiters.
-Require Import zoo_saturn.mpmc_queue_1.
+Require Export zoo_parabs.waiters.
+Require Export zoo_saturn.mpmc_queue_1.
 Require Import zoo.options.
 
 Notation "'size'" := (

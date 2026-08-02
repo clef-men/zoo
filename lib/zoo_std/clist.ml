@@ -1,31 +1,31 @@
 type 'a t =
-  | ClistClosed
-  | ClistOpen
-  | ClistCons of 'a * 'a t [@generative]
+  | Closed
+  | Open
+  | Cons of 'a * 'a t [@generative]
 
 let[@tail_mod_cons] rec app t1 t2 =
   match t1 with
-  | ClistClosed ->
+  | Closed ->
       assert false
-  | ClistOpen ->
+  | Open ->
       t2
-  | ClistCons (v, t1) ->
-      ClistCons (v, app t1 t2)
+  | Cons (v, t1) ->
+      Cons (v, app t1 t2)
 
 let rec rev_app t1 t2 =
   match t1 with
-  | ClistClosed ->
+  | Closed ->
       assert false
-  | ClistOpen ->
+  | Open ->
       t2
-  | ClistCons (v, t1) ->
-      rev_app t1 (ClistCons (v, t2))
+  | Cons (v, t1) ->
+      rev_app t1 (Cons (v, t2))
 
 let rec iter fn = function
-  | ClistClosed ->
+  | Closed ->
       assert false
-  | ClistOpen ->
+  | Open ->
       ()
-  | ClistCons (v, t) ->
+  | Cons (v, t) ->
       fn v ;
       iter fn t

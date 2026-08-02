@@ -1,6 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
 Require Export zoo_std.random__code.
+Require Import zoo_std.random__types.
 Require Import zoo.options.
 
 Axiom random٠initｰspec : ∀ `{zoo۰G : !ZooG Σ} Φ,

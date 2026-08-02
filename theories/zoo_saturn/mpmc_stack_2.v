@@ -2,9 +2,8 @@ Require Import zoo.prelude.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Import zoo_std.optional.
-Require Import zoo_std.clist.
 Require Export zoo_saturn.mpmc_stack_2__code.
+Require Import zoo_saturn.mpmc_stack_2__types.
 Require Import zoo.options.
 
 Implicit Type l : location.
@@ -39,7 +38,7 @@ Section zoo۰G.
 
   #[local] Definition inv۰inner l γ : iProp Σ :=
     ∃ vs,
-    l ↦ᵣ from_option (clist۰to_val ∘ list۰to_clist_open) §ClistClosed vs ∗
+    l ↦ᵣ from_option (clist۰to_val ∘ list۰to_clist_open) §clist٠Closed vs ∗
     model₂ γ vs.
   #[local] Instance : CustomIpat "inv۰inner" :=
     " ( %vs
@@ -222,7 +221,7 @@ Section zoo۰G.
           iSplitR "HΦ". { iFrameSteps. }
           iSteps.
 
-      + wp۰cas as _ | []%(inj clist۰to_val ClistClosed)%list۰to_clist_openｰnotｰclosed'.
+      + wp۰cas as _ | []%(inj clist۰to_val Closed)%list۰to_clist_openｰnotｰclosed'.
         iSplitR "HΦ". { iFrameSteps. }
         iSteps.
 
@@ -293,7 +292,7 @@ Section zoo۰G.
       iInv "Hinv" as "(:inv۰inner)".
       destruct vs as [vs |].
 
-      + wp۰cas as _ | ->%(inj clist۰to_val _ (ClistCons _ _))%(inj list۰to_clist_open _ (_ :: _)).
+      + wp۰cas as _ | ->%(inj clist۰to_val _ (Cons _ _))%(inj list۰to_clist_open _ (_ :: _)).
 
         * iSplitR "HΦ". { iFrameSteps. }
           iSteps.
@@ -324,7 +323,7 @@ Section zoo۰G.
     }}}
       mpmc_stack_2٠pop t
     {{{
-      RET §Anything;
+      RET §optional٠Anything;
       True
     }}}.
   Proof.
@@ -366,7 +365,7 @@ Section zoo۰G.
       iSplitR "HΦ". { iFrameSteps. }
       iIntros "!> {%}".
 
-      wp۰equal as _ | []%(inj clist۰to_val _ ClistClosed)%list۰to_clist_openｰnotｰclosed.
+      wp۰equal as _ | []%(inj clist۰to_val _ Closed)%list۰to_clist_openｰnotｰclosed.
       iSteps.
 
     - iMod ("HΦ" with "[$Hmodel₁] H£") as "HΦ"; first iSteps.
@@ -402,7 +401,7 @@ Section zoo۰G.
       mpmc_stack_2٠close t @ ↑ι
     <<<
       mpmc_stack_2۰model t None
-    | RET from_option list۰to_clist_open ClistClosed vs;
+    | RET from_option list۰to_clist_open Closed vs;
       £ 1
     >>>.
   Proof.
@@ -433,7 +432,7 @@ Section zoo۰G.
     }}}
       mpmc_stack_2٠close t
     {{{
-      RET §ClistClosed;
+      RET §clist٠Closed;
       True
     }}}.
   Proof.

@@ -4,8 +4,20 @@ Require Import zoo.language.notations.
 Require Import zoo_parabs.pool.
 Require Import zoo_saturn.mpmc_stack_2.
 Require Import zoo_std.clist.
-Require Import zoo_parabs.vertex__types.
 Require Import zoo.options.
+
+Notation "'vertex٠task'" := (
+  in_type "zoo_parabs.vertex.t" 0
+)(in custom zoo_field
+).
+Notation "'vertex٠preds'" := (
+  in_type "zoo_parabs.vertex.t" 1
+)(in custom zoo_field
+).
+Notation "'vertex٠succs'" := (
+  in_type "zoo_parabs.vertex.t" 2
+)(in custom zoo_field
+).
 
 Definition vertex٠create : val :=
   𝗳𝘂𝗻 "task" ->
@@ -26,34 +38,36 @@ Definition vertex٠create' : val :=
 
 Definition vertex٠task : val :=
   𝗳𝘂𝗻 "t" ->
-    "t".{task}.
+    "t".{vertex٠task}.
 
 Definition vertex٠set_task : val :=
   𝗳𝘂𝗻 "t" "task" ->
-    "t" <-{task} "task".
+    "t" <-{vertex٠task} "task".
 
 Definition vertex٠precede : val :=
   𝗳𝘂𝗻 "t1" "t2" ->
-    𝗹𝗲𝘁 "succs1" = "t1".{succs} 𝗶𝗻
+    𝗹𝗲𝘁 "succs1" = "t1".{vertex٠succs} 𝗶𝗻
     𝗶𝗳 ~ mpmc_stack_2٠is_closed "succs1" 𝘁𝗵𝗲𝗻 (
-      𝗳𝗮𝗮 "t2".[preds] 1 ⍮
+      𝗳𝗮𝗮 "t2".[vertex٠preds] 1 ⍮
       𝗶𝗳 mpmc_stack_2٠push "succs1" "t2" 𝘁𝗵𝗲𝗻 (
-        𝗳𝗮𝗮 "t2".[preds] (-1) ⍮
+        𝗳𝗮𝗮 "t2".[vertex٠preds] (-1) ⍮
         ()
       )
     ).
 
 #[local] Definition __zoo_recs_0 :=
   ( 𝗿𝗲𝗰𝘀 "release" "ctx" "t" ->
-      𝗶𝗳 𝗳𝗮𝗮 "t".[preds] (-1) == 1 𝘁𝗵𝗲𝗻 (
+      𝗶𝗳 𝗳𝗮𝗮 "t".[vertex٠preds] (-1) == 1 𝘁𝗵𝗲𝗻 (
         "run" "ctx" "t"
       )
     𝘄𝗶𝘁𝗵 "run" "ctx" "t" ->
       pool٠async "ctx"
         (𝗳𝘂𝗻 "ctx" ->
-           "t" <-{preds} 1 ⍮
-           𝗶𝗳 "t".{task} "ctx" 𝘁𝗵𝗲𝗻 (
-             𝗹𝗲𝘁 "succs" = mpmc_stack_2٠close "t".{succs} 𝗶𝗻
+           "t" <-{vertex٠preds} 1 ⍮
+           𝗶𝗳 "t".{vertex٠task} "ctx" 𝘁𝗵𝗲𝗻 (
+             𝗹𝗲𝘁 "succs" =
+               mpmc_stack_2٠close "t".{vertex٠succs}
+             𝗶𝗻
              clist٠iter
                (𝗳𝘂𝗻 "succ" -> "release" "ctx" "succ")
                "succs"

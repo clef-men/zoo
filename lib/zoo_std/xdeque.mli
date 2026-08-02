@@ -1,7 +1,7 @@
 type 'a node =
-  { mutable xdeque_prev: 'a t
-  ; mutable xdeque_next: 'a t
-  ; mutable xdeque_data: 'a
+  { mutable prev: 'a t
+  ; mutable next: 'a t
+  ; mutable data: 'a
   }
 
 and 'a t

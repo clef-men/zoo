@@ -5,7 +5,6 @@ Require Import zoo.iris.base_logic.lib.subpreds.
 Require Import zoo.base.
 Require Export zoo_std.lazy__code.
 Require Import zoo_std.lazy__types.
-Require Import zoo_std.mutex.
 Require Import zoo.options.
 
 Implicit Type b : bool.

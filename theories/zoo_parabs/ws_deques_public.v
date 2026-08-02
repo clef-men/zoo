@@ -2,11 +2,9 @@ Require Import zoo.prelude.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Import zoo_std.array.
-Require Import zoo_std.random_round.
-Require Import zoo_saturn.ws_deque_2.
 Require Export zoo_parabs.base.
 Require Export zoo_parabs.ws_deques_public__code.
+Require Import zoo_parabs.ws_deques_public__types.
 Require Import zoo.options.
 
 Implicit Type v t queue round : val.

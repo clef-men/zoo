@@ -2,7 +2,6 @@ Require Import zoo.prelude.
 Require Import zoo.common.list.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Import zoo_std.list.
 Require Export zoo_persistent.pqueue__code.
 Require Import zoo_persistent.pqueue__types.
 Require Import zoo.options.

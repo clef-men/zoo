@@ -1,6 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
-Require Export zoo_std.chain__types.
+Require Export zoo_std.chain__code.
+Require Import zoo_std.chain__types.
 Require Import zoo.options.
 
 Implicit Type l : location.
@@ -17,8 +18,8 @@ Section zoo۰G.
         ∃ l t',
         ⌜t = #l⌝ ∗
         from_option (λ tag, l ↦ₕ Header tag 2) True tag ∗
-        l.[chain_next] ↦ t' ∗
-        l.[chain_data] ↦ v ∗
+        l.[next] ↦ t' ∗
+        l.[data] ↦ v ∗
         chain۰model tag t' vs dst
     end.
   #[global] Arguments chain۰model _ _ !_ _ / : assert.
@@ -200,7 +201,7 @@ Section zoo۰G.
     {{{
       chain۰model tag t (v :: vs) dst
     }}}
-      t.{chain_data}
+      t.{data}
     {{{
       RET v;
       chain۰model tag t (v :: vs) dst
@@ -213,7 +214,7 @@ Section zoo۰G.
     {{{
       chain۰model tag t (v :: vs) dst
     }}}
-      t.{chain_next}
+      t.{next}
     {{{
       t'
     , RET t';
@@ -227,7 +228,7 @@ Section zoo۰G.
     {{{
       chain۰model tag t [v] dst
     }}}
-      t.{chain_next}
+      t.{next}
     {{{
       RET dst;
       chain۰model tag t [v] dst
@@ -240,7 +241,7 @@ Section zoo۰G.
     {{{
       chain۰model tag t (v :: vs) dst
     }}}
-      t <-{chain_data} w
+      t <-{data} w
     {{{
       RET ();
       chain۰model tag t (w :: vs) dst
@@ -253,7 +254,7 @@ Section zoo۰G.
     {{{
       chain۰model tag t (v :: vs) dst
     }}}
-      t <-{chain_next} v'
+      t <-{next} v'
     {{{
       t'
     , RET ();
@@ -267,7 +268,7 @@ Section zoo۰G.
     {{{
       chain۰model tag t [v] dst
     }}}
-      t <-{chain_next} dst'
+      t <-{next} dst'
     {{{
       RET ();
       chain۰model tag t [v] dst'

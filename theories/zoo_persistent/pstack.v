@@ -1,8 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Import zoo_std.list.
 Require Export zoo_persistent.pstack__code.
+Require Import zoo_persistent.pstack__types.
 Require Import zoo.options.
 
 Implicit Type v t : val.

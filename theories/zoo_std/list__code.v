@@ -1,7 +1,6 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.list__types.
 Require Import zoo.options.
 
 Definition list٠singleton : val :=

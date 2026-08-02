@@ -1,8 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
-Require Export zoo_std.queue_2__code.
 Require Import zoo_std.option.
 Require Import zoo_std.chain.
+Require Export zoo_std.queue_2__code.
 Require Import zoo_std.queue_2__types.
 Require Import zoo.options.
 

@@ -1,6 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
 Require Export zoo_std.int__code.
+Require Import zoo_std.int__types.
 Require Import zoo.options.
 
 Notation "e1 `min` e2" := (

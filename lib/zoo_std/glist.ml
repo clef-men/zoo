@@ -1,13 +1,13 @@
 type 'a t =
-  | Gnil
-  | Gcons of 'a * 'a t [@generative]
+  | Nil
+  | Cons of 'a * 'a t [@generative]
 
 let rec rev_app t1 t2 =
   match t1 with
-  | Gnil ->
+  | Nil ->
       t2
-  | Gcons (v, t1) ->
-      rev_app t1 (Gcons (v, t2))
+  | Cons (v, t1) ->
+      rev_app t1 (Cons (v, t2))
 
 let rev t =
-  rev_app t Gnil
+  rev_app t Nil

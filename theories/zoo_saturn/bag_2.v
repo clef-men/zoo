@@ -9,7 +9,6 @@ Require Import zoo_std.option.
 Require Import zoo_std.xtchain.
 Require Export zoo_saturn.bag_2__code.
 Require Import zoo_saturn.bag_2__types.
-Require Import zoo_saturn.spmc_queue.
 Require Import zoo.options.
 
 Implicit Type l node 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 : location.

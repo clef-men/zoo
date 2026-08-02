@@ -3,10 +3,9 @@ Require Import zoo.common.countable.
 Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.iris.base_logic.lib.subpreds.
 Require Import zoo.base.
+Require Import zoo_std.option.
 Require Export zoo_std.ivar_2__code.
 Require Import zoo_std.ivar_2__types.
-Require Import zoo_std.option.
-Require Import zoo_std.condition.
 Require Import zoo.options.
 
 Implicit Type b : bool.

@@ -3,8 +3,20 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_std.condition.
 Require Import zoo_std.mutex.
-Require Import zoo_std.semaphore__types.
 Require Import zoo.options.
+
+Notation "'semaphore٠mutex'" := (
+  in_type "zoo_std.semaphore.t" 0
+)(in custom zoo_field
+).
+Notation "'semaphore٠condition'" := (
+  in_type "zoo_std.semaphore.t" 1
+)(in custom zoo_field
+).
+Notation "'semaphore٠count'" := (
+  in_type "zoo_std.semaphore.t" 2
+)(in custom zoo_field
+).
 
 Definition semaphore٠create : val :=
   𝗳𝘂𝗻 "cap" ->
@@ -12,11 +24,11 @@ Definition semaphore٠create : val :=
 
 Definition semaphore٠try_lock : val :=
   𝗳𝘂𝗻 "t" ->
-    mutex٠protect "t".{mutex}
+    mutex٠protect "t".{semaphore٠mutex}
       (𝗳𝘂𝗻 ⎽ ->
-         𝗹𝗲𝘁 "cnt" = "t".{count} 𝗶𝗻
+         𝗹𝗲𝘁 "cnt" = "t".{semaphore٠count} 𝗶𝗻
          𝗶𝗳 0 < "cnt" 𝘁𝗵𝗲𝗻 (
-           "t" <-{count} "cnt" - 1 ⍮
+           "t" <-{semaphore٠count} "cnt" - 1 ⍮
            true
          ) 𝗲𝗹𝘀𝗲 (
            false
@@ -24,17 +36,18 @@ Definition semaphore٠try_lock : val :=
 
 Definition semaphore٠lock : val :=
   𝗳𝘂𝗻 "t" ->
-    mutex٠protect "t".{mutex}
+    mutex٠protect "t".{semaphore٠mutex}
       (𝗳𝘂𝗻 ⎽ ->
          condition٠wait_until
-           "t".{condition}
-           "t".{mutex}
-           (𝗳𝘂𝗻 ⎽ -> 0 < "t".{count}) ⍮
-         "t" <-{count} "t".{count} - 1).
+           "t".{semaphore٠condition}
+           "t".{semaphore٠mutex}
+           (𝗳𝘂𝗻 ⎽ -> 0 < "t".{semaphore٠count}) ⍮
+         "t" <-{semaphore٠count} "t".{semaphore٠count} - 1).
 
 Definition semaphore٠unlock : val :=
   𝗳𝘂𝗻 "t" ->
     mutex٠protect
-      "t".{mutex}
-      (𝗳𝘂𝗻 ⎽ -> "t" <-{count} "t".{count} + 1) ⍮
-    condition٠notify "t".{condition}.
+      "t".{semaphore٠mutex}
+      (𝗳𝘂𝗻 ⎽ ->
+         "t" <-{semaphore٠count} "t".{semaphore٠count} + 1) ⍮
+    condition٠notify "t".{semaphore٠condition}.

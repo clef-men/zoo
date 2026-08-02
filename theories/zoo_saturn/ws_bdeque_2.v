@@ -6,7 +6,7 @@ Require Import zoo.iris.base_logic.lib.auth_twins.
 Require Import zoo.base.
 Require Import zoo_std.option.
 Require Export zoo_saturn.ws_bdeque_2__code.
-Require Import zoo_saturn.ws_bdeque_1.
+Require Import zoo_saturn.ws_bdeque_2__types.
 Require Import zoo.options.
 
 Import ws_bdeque_1.base.

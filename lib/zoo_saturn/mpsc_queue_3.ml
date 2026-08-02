@@ -8,35 +8,35 @@ type 'a t =
   }
 
 let create () =
-  { front= ClistOpen; back= ClistOpen }
+  { front= Open; back= Open }
 
 let is_empty t =
   match t.front with
-  | ClistClosed ->
+  | Closed ->
       true
-  | ClistCons _ ->
+  | Cons _ ->
       false
-  | ClistOpen ->
+  | Open ->
       match t.back with
-      | ClistCons _ ->
+      | Cons _ ->
           false
       | _ ->
           true
 
 let push_front t v =
   match t.front with
-  | ClistClosed ->
+  | Closed ->
       true
   | _ as front ->
-      t.front <- ClistCons (v, front) ;
+      t.front <- Cons (v, front) ;
       false
 
 let rec push_back t v =
   match t.back with
-  | ClistClosed ->
+  | Closed ->
       true
   | _ as back ->
-      if Atomic.Loc.compare_and_set [%atomic.loc t.back] back (ClistCons (v, back)) then (
+      if Atomic.Loc.compare_and_set [%atomic.loc t.back] back (Cons (v, back)) then (
         false
       ) else (
         Domain.yield () ;
@@ -45,27 +45,27 @@ let rec push_back t v =
 
 let pop t =
   match t.front with
-  | ClistClosed ->
+  | Closed ->
       None
-  | ClistCons (v, front) ->
+  | Cons (v, front) ->
       t.front <- front ;
       Some v
-  | ClistOpen ->
-      match Atomic.Loc.exchange [%atomic.loc t.back] ClistOpen with
-      | ClistOpen ->
+  | Open ->
+      match Atomic.Loc.exchange [%atomic.loc t.back] Open with
+      | Open ->
           None
       | _ as back ->
-          match Clist.rev_app back ClistOpen with
-          | ClistCons (v, front) ->
+          match Clist.rev_app back Open with
+          | Cons (v, front) ->
               t.front <- front ;
               Some v
           | _ ->
               assert false
 
 let close t =
-  match Atomic.Loc.exchange [%atomic.loc t.back] ClistClosed with
-  | ClistClosed ->
+  match Atomic.Loc.exchange [%atomic.loc t.back] Closed with
+  | Closed ->
       true
   | _ as back ->
-      t.front <- Clist.app t.front (Clist.rev_app back ClistClosed) ;
+      t.front <- Clist.app t.front (Clist.rev_app back Closed) ;
       false

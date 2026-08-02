@@ -4,8 +4,6 @@ Require Import zoo.common.gmultiset.
 Require Import zoo.common.list.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.base.
-Require Import zoo_std.goption.
-Require Import zoo_std.array.
 Require Export zoo_saturn.bag_1__code.
 Require Import zoo_saturn.bag_1__types.
 Require Import zoo.options.

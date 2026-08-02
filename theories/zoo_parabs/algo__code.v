@@ -5,7 +5,6 @@ Require Import zoo_parabs.future.
 Require Import zoo_parabs.pool.
 Require Import zoo_std.int.
 Require Import zoo_std.mvar.
-Require Import zoo_parabs.algo__types.
 Require Import zoo.options.
 
 Definition algo٠adjust_chunk : val :=

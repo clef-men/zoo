@@ -5,8 +5,37 @@ Require Import zoo_parabs.ws_hub_std.
 Require Import zoo_std.array.
 Require Import zoo_std.domain.
 Require Import zoo_std.ivar_4.
-Require Import zoo_parabs.pool__types.
 Require Import zoo.options.
+
+Notation "'pool٠context_size'" := (
+  in_type "zoo_parabs.pool.context" 0
+)(in custom zoo_proj
+).
+Notation "'pool٠context_hub'" := (
+  in_type "zoo_parabs.pool.context" 1
+)(in custom zoo_proj
+).
+Notation "'pool٠context_id'" := (
+  in_type "zoo_parabs.pool.context" 2
+)(in custom zoo_proj
+).
+
+Notation "'pool٠size'" := (
+  in_type "zoo_parabs.pool.t" 0
+)(in custom zoo_field
+).
+Notation "'pool٠hub'" := (
+  in_type "zoo_parabs.pool.t" 1
+)(in custom zoo_field
+).
+Notation "'pool٠domains'" := (
+  in_type "zoo_parabs.pool.t" 2
+)(in custom zoo_field
+).
+Notation "'pool٠force_mutable'" := (
+  in_type "zoo_parabs.pool.t" 3
+)(in custom zoo_field
+).
 
 Definition pool٠max_round_noyield : val :=
   1024.
@@ -20,7 +49,7 @@ Definition pool٠context : val :=
 
 Definition pool٠context_main : val :=
   𝗳𝘂𝗻 "t" ->
-    pool٠context "t".{size} "t".{hub} 0.
+    pool٠context "t".{pool٠size} "t".{pool٠hub} 0.
 
 Definition pool٠execute : val :=
   𝗳𝘂𝗻 "ctx" "job" ->
@@ -30,8 +59,8 @@ Definition pool٠worker : val :=
   𝗿𝗲𝗰 "worker" "ctx" ->
     𝗺𝗮𝘁𝗰𝗵
       ws_hub_std٠pop_steal
-        "ctx".<context_hub>
-        "ctx".<context_id>
+        "ctx".<pool٠context_hub>
+        "ctx".<pool٠context_id>
         pool٠max_round_noyield
         pool٠max_round_yield
     𝘄𝗶𝘁𝗵
@@ -58,19 +87,19 @@ Definition pool٠create : val :=
 
 Definition pool٠run_on : val :=
   𝗳𝘂𝗻 "t" "task" ->
-    ws_hub_std٠unblock "t".{hub} 0 ⍮
+    ws_hub_std٠unblock "t".{pool٠hub} 0 ⍮
     𝗹𝗲𝘁 "res" =
       pool٠execute (pool٠context_main "t") "task"
     𝗶𝗻
-    ws_hub_std٠block "t".{hub} 0 ⍮
+    ws_hub_std٠block "t".{pool٠hub} 0 ⍮
     "res".
 
 Definition pool٠close : val :=
   𝗳𝘂𝗻 "t" ->
-    ws_hub_std٠close "t".{hub} ⍮
-    ws_hub_std٠unblock "t".{hub} 0 ⍮
+    ws_hub_std٠close "t".{pool٠hub} ⍮
+    ws_hub_std٠unblock "t".{pool٠hub} 0 ⍮
     pool٠worker (pool٠context_main "t") ⍮
-    array٠iter domain٠join "t".{domains}.
+    array٠iter domain٠join "t".{pool٠domains}.
 
 Definition pool٠run : val :=
   𝗳𝘂𝗻 "num_worker" "task" ->
@@ -81,18 +110,21 @@ Definition pool٠run : val :=
 
 Definition pool٠size : val :=
   𝗳𝘂𝗻 "ctx" ->
-    "ctx".<context_size>.
+    "ctx".<pool٠context_size>.
 
 Definition pool٠async : val :=
   𝗳𝘂𝗻 "ctx" "task" ->
-    ws_hub_std٠push "ctx".<context_hub> "ctx".<context_id> "task".
+    ws_hub_std٠push
+      "ctx".<pool٠context_hub>
+      "ctx".<pool٠context_id>
+      "task".
 
 Definition pool٠wait₁ : val :=
   𝗿𝗲𝗰 "wait" "ctx" "notification" "pred" ->
     𝗺𝗮𝘁𝗰𝗵
       ws_hub_std٠pop_steal_until
-        "ctx".<context_hub>
-        "ctx".<context_id>
+        "ctx".<pool٠context_hub>
+        "ctx".<pool٠context_id>
         pool٠max_round_noyield
         pool٠max_round_yield
         "notification"

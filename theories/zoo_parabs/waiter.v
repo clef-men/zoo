@@ -1,11 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
-Require Import zoo_std.condition.
-Require Import zoo_std.mutex.
-Require Import zoo_saturn.mpmc_queue_1.
 Require Export zoo_parabs.base.
 Require Export zoo_parabs.waiter__code.
-Require Import zoo_parabs.base.
 Require Import zoo_parabs.waiter__types.
 Require Import zoo.options.
 

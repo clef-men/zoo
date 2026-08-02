@@ -1,25 +1,25 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
-Require Export zoo_std.clist__types.
 Require Export zoo_std.clist__code.
+Require Import zoo_std.clist__types.
 Require Import zoo.options.
 
 Implicit Type v t fn : val.
 
 Inductive clist :=
-  | ClistClosed
-  | ClistOpen
-  | ClistCons v (cvs : clist).
+  | Closed
+  | Open
+  | Cons v (cvs : clist).
 Implicit Type cvs : clist.
 
 Fixpoint clist۰to_val cvs :=
   match cvs with
-  | ClistClosed =>
-      §ClistClosed
-  | ClistOpen =>
-      §ClistOpen
-  | ClistCons v cvs =>
-      ‘ClistCons[ v, clist۰to_val cvs ]
+  | Closed =>
+      §Closed
+  | Open =>
+      §Open
+  | Cons v cvs =>
+      ‘Cons[ v, clist۰to_val cvs ]
   end%V.
 Coercion clist۰to_val : clist >-> val.
 
@@ -38,16 +38,16 @@ Qed.
 Fixpoint list۰to_clist_open vs :=
   match vs with
   | [] =>
-      ClistOpen
+      Open
   | v :: vs =>
-      ClistCons v (list۰to_clist_open vs)
+      Cons v (list۰to_clist_open vs)
   end.
 Fixpoint list۰to_clist_closed vs :=
   match vs with
   | [] =>
-      ClistClosed
+      Closed
   | v :: vs =>
-      ClistCons v (list۰to_clist_closed vs)
+      Cons v (list۰to_clist_closed vs)
   end.
 
 #[global] Instance list۰to_clist_openｰinj :
@@ -66,12 +66,12 @@ Proof.
   move: vs2. induction vs1; destruct vs2; naive_solver.
 Qed.
 Lemma list۰to_clist_openｰnotｰclosed vs :
-  list۰to_clist_open vs ≠ ClistClosed.
+  list۰to_clist_open vs ≠ Closed.
 Proof.
   apply (list۰to_clistｰopenｰclosed vs []).
 Qed.
 Lemma list۰to_clist_openｰnotｰclosed' vs :
-  ClistClosed ≠ list۰to_clist_open vs.
+  Closed ≠ list۰to_clist_open vs.
 Proof.
   symmetry. apply list۰to_clist_openｰnotｰclosed.
 Qed.
@@ -81,7 +81,7 @@ Fixpoint clist۰app vs1 cvs2 :=
   | [] =>
       cvs2
   | v :: vs1 =>
-      ClistCons v (clist۰app vs1 cvs2)
+      Cons v (clist۰app vs1 cvs2)
   end.
 
 Lemma clist۰appｰopen {vs1 cvs2} vs2 :
@@ -91,8 +91,8 @@ Proof.
   move: cvs2 vs2. induction vs1; first done.
   intros * ->. f_equal/=. naive_solver.
 Qed.
-Lemma clist۰appｰClistOpen vs :
-  clist۰app vs ClistOpen = list۰to_clist_open vs.
+Lemma clist۰appｰOpen vs :
+  clist۰app vs Open = list۰to_clist_open vs.
 Proof.
   rewrite (clist۰appｰopen []) // right_id //.
 Qed.
@@ -103,8 +103,8 @@ Proof.
   move: cvs2 vs2. induction vs1; first done.
   intros * ->. f_equal/=. naive_solver.
 Qed.
-Lemma clist۰appｰClistClosed vs :
-  clist۰app vs ClistClosed = list۰to_clist_closed vs.
+Lemma clist۰appｰClosed vs :
+  clist۰app vs Closed = list۰to_clist_closed vs.
 Proof.
   rewrite (clist۰appｰclosed []) // right_id //.
 Qed.
@@ -119,7 +119,7 @@ Section zoo۰G.
 
   Lemma wpｰmatchｰclistｰopen vs e1 x2 e2 Φ :
     WP subst' x2 (list۰to_clist_open vs) e2 {{ Φ }} ⊢
-    WP 𝗺𝗮𝘁𝗰𝗵 list۰to_clist_open vs 𝘄𝗶𝘁𝗵 ClistClosed -> e1 | ⎽ 𝗮𝘀: x2 -> e2 𝗲𝗻𝗱 {{ Φ }}.
+    WP 𝗺𝗮𝘁𝗰𝗵 list۰to_clist_open vs 𝘄𝗶𝘁𝗵 Closed -> e1 | ⎽ 𝗮𝘀: x2 -> e2 𝗲𝗻𝗱 {{ Φ }}.
   Proof.
     destruct vs; iSteps.
   Qed.
@@ -160,7 +160,7 @@ Section zoo۰G.
     all: wp۰rec.
     - iSteps.
     - wp۰pures.
-      wp۰apply+ ("IH" $! _ _ (ClistCons v1 cvs2) with "[//]"); iSteps.
+      wp۰apply+ ("IH" $! _ _ (Cons v1 cvs2) with "[//]"); iSteps.
       rewrite reverse_cons clist۰appｰassoc. iSteps.
   Qed.
 

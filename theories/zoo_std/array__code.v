@@ -2,7 +2,6 @@ Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_std.assume.
-Require Import zoo_std.array__types.
 Require Import zoo.options.
 
 Definition array٠unsafe_alloc : val :=

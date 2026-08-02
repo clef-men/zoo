@@ -1,10 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
+Require Import zoo_std.option.
 Require Export zoo_std.queue_3__code.
 Require Import zoo_std.queue_3__types.
-Require Import zoo_std.option.
-Require Import zoo_std.int.
-Require Import zoo_std.array.
 Require Import zoo.options.
 
 Implicit Type b : bool.

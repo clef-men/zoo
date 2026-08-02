@@ -2,7 +2,6 @@ Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_std.xdeque.
-Require Import zoo_std.deque__types.
 Require Import zoo.options.
 
 Definition deque٠create : val :=
@@ -25,7 +24,7 @@ Definition deque٠pop_front : val :=
     | None ->
         §None
     | Some "node" ->
-        ‘Some( "node".{xdeque_data} )
+        ‘Some( "node".{xdeque٠data} )
     𝗲𝗻𝗱.
 
 Definition deque٠pop_back : val :=
@@ -34,9 +33,9 @@ Definition deque٠pop_back : val :=
     | None ->
         §None
     | Some "node" ->
-        ‘Some( "node".{xdeque_data} )
+        ‘Some( "node".{xdeque٠data} )
     𝗲𝗻𝗱.
 
 Definition deque٠iter : val :=
   𝗳𝘂𝗻 "fn" ->
-    xdeque٠iter (𝗳𝘂𝗻 "node" -> "fn" "node".{xdeque_data}).
+    xdeque٠iter (𝗳𝘂𝗻 "node" -> "fn" "node".{xdeque٠data}).

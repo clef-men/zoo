@@ -3,7 +3,6 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_parabs.future.
 Require Import zoo_parabs.pool.
-Require Import examples.future_fibonacci__types.
 Require Import zoo.options.
 
 Definition future_fibonacci٠main₁ : val :=

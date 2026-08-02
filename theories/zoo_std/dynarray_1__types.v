@@ -1,8 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.array.
-Require Import zoo_std.int.
+Require Export zoo_std.array.
+Require Export zoo_std.int.
 Require Import zoo.options.
 
 Notation "'size'" := (

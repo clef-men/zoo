@@ -4,7 +4,6 @@ Require Import zoo.prelude.
 Require Import zoo.common.countable.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
-Require Import zoo_std.array.
 Require Export zoo_persistent.sarray__code.
 Require Import zoo_persistent.sarray__types.
 Require Import zoo.options.

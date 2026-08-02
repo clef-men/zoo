@@ -1,6 +1,13 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.goption__types.
 Require Import zoo.options.
 
+Notation "'goption٠None'" := (
+  in_type "zoo_std.goption.t" 0
+)(in custom zoo_tag
+).
+Notation "'goption٠Some'" := (
+  in_type "zoo_std.goption.t" 1
+)(in custom zoo_tag
+).

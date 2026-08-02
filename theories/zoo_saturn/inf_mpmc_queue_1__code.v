@@ -5,20 +5,32 @@ Require Import zoo_std.domain.
 Require Import zoo_std.inf_array.
 Require Import zoo_std.int.
 Require Import zoo_std.optional.
-Require Import zoo_saturn.inf_mpmc_queue_1__types.
 Require Import zoo.options.
+
+Notation "'inf_mpmc_queue_1٠data'" := (
+  in_type "zoo_saturn.inf_mpmc_queue_1.t" 0
+)(in custom zoo_field
+).
+Notation "'inf_mpmc_queue_1٠front'" := (
+  in_type "zoo_saturn.inf_mpmc_queue_1.t" 1
+)(in custom zoo_field
+).
+Notation "'inf_mpmc_queue_1٠back'" := (
+  in_type "zoo_saturn.inf_mpmc_queue_1.t" 2
+)(in custom zoo_field
+).
 
 Definition inf_mpmc_queue_1٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
-    { inf_array٠create §Nothing, 0, 0 }.
+    { inf_array٠create §optional٠Nothing, 0, 0 }.
 
 Definition inf_mpmc_queue_1٠size : val :=
   𝗿𝗲𝗰 "size" "t" ->
-    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
+    𝗹𝗲𝘁 "front" = "t".{inf_mpmc_queue_1٠front} 𝗶𝗻
     𝗹𝗲𝘁 "proph" = 𝗽𝗿𝗼𝗽𝗵 𝗶𝗻
-    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{inf_mpmc_queue_1٠back} 𝗶𝗻
     𝗶𝗳
-      (𝗹𝗲𝘁 "@tmp" = "t".{front} 𝗶𝗻
+      (𝗹𝗲𝘁 "@tmp" = "t".{inf_mpmc_queue_1٠front} 𝗶𝗻
        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "@tmp" ⍮
        "@tmp")
       ==
@@ -35,31 +47,36 @@ Definition inf_mpmc_queue_1٠is_empty : val :=
 
 Definition inf_mpmc_queue_1٠is_empty_weak : val :=
   𝗳𝘂𝗻 "t" ->
-    𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
-    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
+    𝗹𝗲𝘁 "front" = "t".{inf_mpmc_queue_1٠front} 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{inf_mpmc_queue_1٠back} 𝗶𝗻
     "back" ≤ "front".
 
 Definition inf_mpmc_queue_1٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
-    𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[back] 1 𝗶𝗻
-    inf_array٠set "t".{data} "i" ‘Something( "v" ).
+    𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[inf_mpmc_queue_1٠back] 1 𝗶𝗻
+    inf_array٠set
+      "t".{inf_mpmc_queue_1٠data}
+      "i"
+      ‘optional٠Something( "v" ).
 
 Definition inf_mpmc_queue_1٠pop₁ : val :=
   𝗿𝗲𝗰 "pop" "t" "i" ->
-    𝗺𝗮𝘁𝗰𝗵 inf_array٠get "t".{data} "i" 𝘄𝗶𝘁𝗵
-    | Nothing ->
+    𝗺𝗮𝘁𝗰𝗵
+      inf_array٠get "t".{inf_mpmc_queue_1٠data} "i"
+    𝘄𝗶𝘁𝗵
+    | optional٠Nothing ->
         domain٠yield () ⍮
         "pop" "t" "i"
-    | Anything ->
+    | optional٠Anything ->
         𝗳𝗮𝗶𝗹
-    | Something "v" ->
-        inf_array٠set "t".{data} "i" §Anything ⍮
+    | optional٠Something "v" ->
+        inf_array٠set "t".{inf_mpmc_queue_1٠data} "i" §optional٠Anything ⍮
         "v"
     𝗲𝗻𝗱.
 
 Definition inf_mpmc_queue_1٠pop : val :=
   𝗳𝘂𝗻 "t" ->
-    𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[front] 1 𝗶𝗻
+    𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[inf_mpmc_queue_1٠front] 1 𝗶𝗻
     inf_mpmc_queue_1٠pop₁ "t" "i".
 
 Definition inf_mpmc_queue_1٠try_pop : val :=

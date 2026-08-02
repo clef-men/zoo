@@ -4,7 +4,6 @@ Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.iris.base_logic.lib.excl.
 Require Import zoo.base.
 Require Export zoo_std.mpsc_waiter__code.
-Require Import zoo_std.condition.
 Require Import zoo_std.mpsc_waiter__types.
 Require Import zoo.options.
 

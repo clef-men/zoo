@@ -1,9 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
-Require Import zoo_parabs.future.
-Require Import zoo_parabs.pool.
 Require Export examples.fibonacci.
 Require Export examples.future_fibonacci__code.
+Require Import examples.future_fibonacci__types.
 Require Import zoo.options.
 
 Section future۰G.

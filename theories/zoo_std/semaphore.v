@@ -7,7 +7,6 @@ Require Import zoo.iris.base_logic.lib.excl.
 Require Import zoo.base.
 Require Export zoo_std.semaphore__code.
 Require Import zoo_std.semaphore__types.
-Require Import zoo_std.condition.
 Require Import zoo.options.
 
 Implicit Type b : bool.

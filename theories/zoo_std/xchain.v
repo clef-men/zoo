@@ -1,7 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.common.list.
 Require Import zoo.base.
-Require Export zoo_std.xchain__types.
+Require Export zoo_std.xchain__code.
+Require Import zoo_std.xchain__types.
 Require Import zoo.options.
 
 Implicit Type node : location.
@@ -18,9 +19,9 @@ Section zoo۰G.
     | node :: nodes =>
         match nodes with
         | [] =>
-            node.[xchain_next] ↦{dq} dst
+            node.[next] ↦{dq} dst
         | node' :: _ =>
-            node.[xchain_next] ↦{dq} #node' ∗
+            node.[next] ↦{dq} #node' ∗
             xchain dq nodes dst
         end
     end.
@@ -46,18 +47,18 @@ Section zoo۰G.
 
   Lemma xchainｰsingleton dq node dst :
     xchain dq [node] dst ⊣⊢
-    node.[xchain_next] ↦{dq} dst.
+    node.[next] ↦{dq} dst.
   Proof.
     iSteps.
   Qed.
   Lemma xchainｰsingleton₁ dq node dst :
     xchain dq [node] dst ⊢
-    node.[xchain_next] ↦{dq} dst.
+    node.[next] ↦{dq} dst.
   Proof.
     iSteps.
   Qed.
   Lemma xchainｰsingleton₂ dq node dst :
-    node.[xchain_next] ↦{dq} dst ⊢
+    node.[next] ↦{dq} dst ⊢
     xchain dq [node] dst.
   Proof.
     iSteps.
@@ -66,14 +67,14 @@ Section zoo۰G.
   Lemma xchainｰcons {dq} nodes node nodes' dst :
     nodes = node :: nodes' →
     xchain dq nodes dst ⊣⊢
-      node.[xchain_next] ↦{dq} from_option #@{location} dst (head nodes') ∗
+      node.[next] ↦{dq} from_option #@{location} dst (head nodes') ∗
       xchain dq nodes' dst.
   Proof.
     destruct nodes'; iSteps.
   Qed.
   Lemma xchainｰcons' {dq} node nodes dst :
     xchain dq (node :: nodes) dst ⊣⊢
-      node.[xchain_next] ↦{dq} from_option #@{location} dst (head nodes) ∗
+      node.[next] ↦{dq} from_option #@{location} dst (head nodes) ∗
       xchain dq nodes dst.
   Proof.
     rewrite xchainｰcons //.
@@ -81,7 +82,7 @@ Section zoo۰G.
   Lemma xchainｰcons₁ {dq} nodes node nodes' dst :
     nodes = node :: nodes' →
     xchain dq nodes dst ⊢
-      node.[xchain_next] ↦{dq} from_option #@{location} dst (head nodes') ∗
+      node.[next] ↦{dq} from_option #@{location} dst (head nodes') ∗
       xchain dq nodes' dst.
   Proof.
     intros.
@@ -89,13 +90,13 @@ Section zoo۰G.
   Qed.
   Lemma xchainｰcons₁' {dq} node nodes dst :
     xchain dq (node :: nodes) dst ⊢
-      node.[xchain_next] ↦{dq} from_option #@{location} dst (head nodes) ∗
+      node.[next] ↦{dq} from_option #@{location} dst (head nodes) ∗
       xchain dq nodes dst.
   Proof.
     rewrite xchainｰcons //.
   Qed.
   Lemma xchainｰcons₂ dq node nodes dst :
-    node.[xchain_next] ↦{dq} from_option #@{location} dst (head nodes) -∗
+    node.[next] ↦{dq} from_option #@{location} dst (head nodes) -∗
     xchain dq nodes dst -∗
     xchain dq (node :: nodes) dst.
   Proof.
@@ -153,7 +154,7 @@ Section zoo۰G.
     nodes = nodes' ++ [node] →
     xchain dq nodes dst ⊣⊢
       xchain dq nodes' #node ∗
-      node.[xchain_next] ↦{dq} dst.
+      node.[next] ↦{dq} dst.
   Proof.
     intros.
     rewrite xchainｰapp //.
@@ -161,7 +162,7 @@ Section zoo۰G.
   Lemma xchainｰsnoc' {dq} nodes node dst :
     xchain dq (nodes ++ [node]) dst ⊣⊢
       xchain dq nodes #node ∗
-      node.[xchain_next] ↦{dq} dst.
+      node.[next] ↦{dq} dst.
   Proof.
     rewrite xchainｰsnoc //.
   Qed.
@@ -169,7 +170,7 @@ Section zoo۰G.
     nodes = nodes' ++ [node] →
     xchain dq nodes dst ⊢
       xchain dq nodes' #node ∗
-      node.[xchain_next] ↦{dq} dst.
+      node.[next] ↦{dq} dst.
   Proof.
     intros.
     rewrite xchainｰsnoc //.
@@ -177,13 +178,13 @@ Section zoo۰G.
   Lemma xchainｰsnoc₁' {dq} nodes node dst :
     xchain dq (nodes ++ [node]) dst ⊢
       xchain dq nodes #node ∗
-      node.[xchain_next] ↦{dq} dst.
+      node.[next] ↦{dq} dst.
   Proof.
     rewrite xchainｰsnoc₁ //.
   Qed.
   Lemma xchainｰsnoc₂ dq nodes node dst :
     xchain dq nodes #node -∗
-    node.[xchain_next] ↦{dq} dst -∗
+    node.[next] ↦{dq} dst -∗
     xchain dq (nodes ++ [node]) dst.
   Proof.
     rewrite (xchainｰsnoc (nodes ++ [node])) //. iSteps.
@@ -193,7 +194,7 @@ Section zoo۰G.
     nodes !! i = Some node →
     xchain dq nodes dst ⊣⊢
       xchain dq (take i nodes) #node ∗
-      node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
+      node.[next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
       xchain dq (drop ˖i nodes) dst.
   Proof.
     intros Hlookup.
@@ -204,7 +205,7 @@ Section zoo۰G.
     nodes !! i = Some node →
     xchain dq nodes dst ⊢
       xchain dq (take i nodes) #node ∗
-      node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
+      node.[next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
       xchain dq (drop ˖i nodes) dst.
   Proof.
     intros.
@@ -214,7 +215,7 @@ Section zoo۰G.
     nodes !! i = Some node →
     next = from_option #@{location} dst (nodes !! ˖i) →
     xchain dq (take i nodes) #node -∗
-    node.[xchain_next] ↦{dq} next -∗
+    node.[next] ↦{dq} next -∗
     xchain dq (drop ˖i nodes) dst -∗
     xchain dq nodes dst.
   Proof.
@@ -224,8 +225,8 @@ Section zoo۰G.
   Lemma xchainｰlookupｰacc {dq nodes} i node dst :
     nodes !! i = Some node →
     xchain dq nodes dst ⊢
-      node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
-      ( node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) -∗
+      node.[next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
+      ( node.[next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) -∗
         xchain dq nodes dst
       ).
   Proof.
@@ -236,7 +237,7 @@ Section zoo۰G.
     last nodes = Some node →
     xchain dq nodes dst ⊣⊢
       xchain dq (removelast nodes) #node ∗
-      node.[xchain_next] ↦{dq} dst.
+      node.[next] ↦{dq} dst.
   Proof.
     intros.
     rewrite {1}(lastｰremovelast nodes node) // xchainｰsnoc' //.
@@ -244,9 +245,9 @@ Section zoo۰G.
   Lemma xchainｰlastｰacc {dq nodes dst} node :
     last nodes = Some node →
     xchain dq nodes dst ⊢
-      node.[xchain_next] ↦{dq} dst ∗
+      node.[next] ↦{dq} dst ∗
       ( ∀ dst,
-        node.[xchain_next] ↦{dq} dst -∗
+        node.[next] ↦{dq} dst -∗
         xchain dq nodes dst
       ).
   Proof.
@@ -368,7 +369,7 @@ Section zoo۰G.
     {{{
       xchain dq nodes dst
     }}}
-      (#node).{xchain_next} @ E
+      (#node).{next} @ E
     {{{
       RET from_option #@{location} dst (head nodes');
       xchain dq nodes dst
@@ -382,7 +383,7 @@ Section zoo۰G.
     {{{
       xchain dq nodes dst
     }}}
-      (#node).{xchain_next} @ E
+      (#node).{next} @ E
     {{{
       RET from_option #@{location} dst (nodes !! ˖i);
       xchain dq nodes dst
@@ -397,7 +398,7 @@ Section zoo۰G.
     {{{
       xchain dq nodes dst
     }}}
-      (#node).{xchain_next} @ E
+      (#node).{next} @ E
     {{{
       RET dst;
       xchain dq nodes dst
@@ -413,7 +414,7 @@ Section zoo۰G.
     {{{
       xchain (DfracOwn 1) nodes dst
     }}}
-      (#node) <-{xchain_next} v @ E
+      (#node) <-{next} v @ E
     {{{
       RET ();
       xchain (DfracOwn 1) [node] v ∗
@@ -428,7 +429,7 @@ Section zoo۰G.
     {{{
       xchain (DfracOwn 1) nodes dst
     }}}
-      #node <-{xchain_next} v @ E
+      #node <-{next} v @ E
     {{{
       RET ();
       xchain (DfracOwn 1) (take ˖i nodes) v ∗
@@ -447,7 +448,7 @@ Section zoo۰G.
     {{{
       xchain (DfracOwn 1) nodes dst
     }}}
-      #node <-{xchain_next} v @ E
+      #node <-{next} v @ E
     {{{
       RET ();
       xchain (DfracOwn 1) nodes v
@@ -461,9 +462,9 @@ Section zoo۰G.
     last nodes = Some node →
     {{{
       xchain (DfracOwn 1) nodes dst ∗
-      node'.[xchain_next] ↦ dst'
+      node'.[next] ↦ dst'
     }}}
-      #node <-{xchain_next} #node' @ E
+      #node <-{next} #node' @ E
     {{{
       RET ();
       xchain (DfracOwn 1) (nodes ++ [node']) dst'

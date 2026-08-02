@@ -1,11 +1,11 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo.program_logic.identifier.
-Require Import zoo_std.domain.
-Require Import zoo_std.inf_array.
-Require Import zoo_std.int.
-Require Import zoo_std.optional.
+Require Export zoo.program_logic.identifier.
+Require Export zoo_std.domain.
+Require Export zoo_std.inf_array.
+Require Export zoo_std.int.
+Require Export zoo_std.optional.
 Require Import zoo.options.
 
 Notation "'data'" := (

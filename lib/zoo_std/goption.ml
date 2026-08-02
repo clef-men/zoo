@@ -1,3 +1,3 @@
 type 'a t =
-  | Gnone
-  | Gsome of 'a [@generative]
+  | None
+  | Some of 'a [@generative]

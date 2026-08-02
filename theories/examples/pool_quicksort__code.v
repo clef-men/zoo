@@ -3,7 +3,6 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_parabs.pool.
 Require Import zoo_std.array.
-Require Import examples.pool_quicksort__types.
 Require Import zoo.options.
 
 Definition pool_quicksort٠partition : val :=

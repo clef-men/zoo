@@ -1,6 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
 Require Export zoo_std.list__code.
+Require Import zoo_std.list__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.

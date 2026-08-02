@@ -4,10 +4,9 @@ Require Import zoo.common.gset.
 Require Import zoo.iris.algebra.big_op.
 Require Import zoo.iris.base_logic.lib.mono_gset.
 Require Import zoo.base.
-Require Import zoo_std.list.
 Require Import zoo_std.xdlchain.
-Require Import zoo_partition.partition__types.
 Require Export zoo_partition.partition__code.
+Require Import zoo_partition.partition__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.

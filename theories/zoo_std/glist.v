@@ -1,7 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
-Require Export zoo_std.glist__types.
 Require Export zoo_std.glist__code.
+Require Import zoo_std.glist__types.
 Require Import zoo.options.
 
 Implicit Type v : val.
@@ -10,9 +10,9 @@ Implicit Type vs : list val.
 Fixpoint glist۰to_val vs :=
   match vs with
   | [] =>
-      §Gnil%V
+      §Nil%V
   | v :: vs =>
-      ‘Gcons[ v, glist۰to_val vs ]%V
+      ‘Cons[ v, glist۰to_val vs ]%V
   end.
 #[global] Arguments glist۰to_val !_ / : assert.
 
@@ -29,17 +29,17 @@ Proof.
 Qed.
 
 Lemma glist۰to_valｰnil :
-  glist۰to_val [] = §Gnil%V.
+  glist۰to_val [] = §Nil%V.
 Proof.
   done.
 Qed.
 Lemma glist۰to_valｰcons v vs :
-  glist۰to_val (v :: vs) = ‘Gcons[ v, glist۰to_val vs ]%V.
+  glist۰to_val (v :: vs) = ‘Cons[ v, glist۰to_val vs ]%V.
 Proof.
   done.
 Qed.
 Lemma glist۰to_valｰsingleton v :
-  glist۰to_val [v] = ‘Gcons[ v, §Gnil ]%V.
+  glist۰to_val [v] = ‘Cons[ v, §Nil ]%V.
 Proof.
   done.
 Qed.

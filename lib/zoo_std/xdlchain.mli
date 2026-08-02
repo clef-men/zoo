@@ -1,5 +1,5 @@
 type 'a t =
-  { mutable xdlchain_prev: 'a t
-  ; mutable xdlchain_next: 'a t
-  ; mutable xdlchain_data: 'a
+  { mutable prev: 'a t
+  ; mutable next: 'a t
+  ; mutable data: 'a
   }

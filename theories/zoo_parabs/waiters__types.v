@@ -1,9 +1,9 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_parabs.waiter.
-Require Import zoo_saturn.mpmc_queue_1.
-Require Import zoo_std.array.
+Require Export zoo_parabs.waiter.
+Require Export zoo_saturn.mpmc_queue_1.
+Require Export zoo_std.array.
 Require Import zoo.options.
 
 Notation "'waiters'" := (

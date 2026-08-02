@@ -2,8 +2,16 @@ Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_std.chain.
-Require Import zoo_std.queue_1__types.
 Require Import zoo.options.
+
+Notation "'queue_1٠front'" := (
+  in_type "zoo_std.queue_1.t" 0
+)(in custom zoo_field
+).
+Notation "'queue_1٠back'" := (
+  in_type "zoo_std.queue_1.t" 1
+)(in custom zoo_field
+).
 
 Definition queue_1٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
@@ -12,23 +20,23 @@ Definition queue_1٠create : val :=
 
 Definition queue_1٠is_empty : val :=
   𝗳𝘂𝗻 "t" ->
-    "t".{front} == "t".{back}.
+    "t".{queue_1٠front} == "t".{queue_1٠back}.
 
 Definition queue_1٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
-    𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{queue_1٠back} 𝗶𝗻
     𝗹𝗲𝘁 "new_back" = { (), () } 𝗶𝗻
-    "back" <-{chain_next} "new_back" ⍮
-    "back" <-{chain_data} "v" ⍮
-    "t" <-{back} "new_back".
+    "back" <-{chain٠next} "new_back" ⍮
+    "back" <-{chain٠data} "v" ⍮
+    "t" <-{queue_1٠back} "new_back".
 
 Definition queue_1٠pop : val :=
   𝗳𝘂𝗻 "t" ->
     𝗶𝗳 queue_1٠is_empty "t" 𝘁𝗵𝗲𝗻 (
       §None
     ) 𝗲𝗹𝘀𝗲 (
-      𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
-      "t" <-{front} "front".{chain_next} ⍮
-      𝗹𝗲𝘁 "v" = "front".{chain_data} 𝗶𝗻
+      𝗹𝗲𝘁 "front" = "t".{queue_1٠front} 𝗶𝗻
+      "t" <-{queue_1٠front} "front".{chain٠next} ⍮
+      𝗹𝗲𝘁 "v" = "front".{chain٠data} 𝗶𝗻
       ‘Some( "v" )
     ).

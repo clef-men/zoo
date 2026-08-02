@@ -1,10 +1,10 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_parabs.ws_hub_std.
-Require Import zoo_std.array.
-Require Import zoo_std.domain.
-Require Import zoo_std.ivar_4.
+Require Export zoo_parabs.ws_hub_std.
+Require Export zoo_std.array.
+Require Export zoo_std.domain.
+Require Export zoo_std.ivar_4.
 Require Import zoo.options.
 
 Notation "'context_size'" := (

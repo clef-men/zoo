@@ -1,7 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
 Require Export zoo_std.stack__code.
-Require Import zoo_std.dynarray_1.
+Require Import zoo_std.stack__types.
 Require Import zoo.options.
 
 Implicit Type v t : val.

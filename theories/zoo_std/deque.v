@@ -1,9 +1,9 @@
 Require Import zoo.prelude.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
-Require Export zoo_std.deque__code.
 Require Import zoo_std.option.
-Require Import zoo_std.xdeque.
+Require Export zoo_std.deque__code.
+Require Import zoo_std.deque__types.
 Require Import zoo.options.
 
 Implicit Type fn : val.
@@ -14,7 +14,7 @@ Section zoo۰G.
   Definition deque۰model t vs : iProp Σ :=
     ∃ nodes,
     xdeque۰model t nodes ∗
-    [∗ list] node; v ∈ nodes; vs, node.[xdeque_data] ↦ v.
+    [∗ list] node; v ∈ nodes; vs, node.[xdeque٠data] ↦ v.
 
   #[global] Instance deque۰modelｰtimeless t vs :
     Timeless (deque۰model t vs).
@@ -178,7 +178,7 @@ Section zoo۰G.
     wp۰rec.
     pose (Χ (nodes_done : list location) := (
       Ψ (take (length nodes_done) vs) ∗
-      [∗ list] node; v ∈ nodes; vs, node.[xdeque_data] ↦ v
+      [∗ list] node; v ∈ nodes; vs, node.[xdeque٠data] ↦ v
     )%I).
     wp۰apply+ (xdeque٠iterｰspec Χ with "[$HΨ $Hnodes $Hmodel]").
     { iIntros "!> %nodes_done %node %nodes_todo -> (HΨ & Hnodes)".

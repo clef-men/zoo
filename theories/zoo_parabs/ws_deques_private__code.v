@@ -6,71 +6,150 @@ Require Import zoo_std.atomic_array.
 Require Import zoo_std.domain.
 Require Import zoo_std.queue_3.
 Require Import zoo_std.random_round.
-Require Import zoo_parabs.ws_deques_private__types.
 Require Import zoo.options.
+
+Notation "'ws_deques_private٠Blocked'" := (
+  in_type "zoo_parabs.ws_deques_private.status" 0
+)(in custom zoo_tag
+).
+Notation "'ws_deques_private٠Nonblocked'" := (
+  in_type "zoo_parabs.ws_deques_private.status" 1
+)(in custom zoo_tag
+).
+
+Notation "'ws_deques_private٠RequestBlocked'" := (
+  in_type "zoo_parabs.ws_deques_private.request" 0
+)(in custom zoo_tag
+).
+Notation "'ws_deques_private٠RequestNone'" := (
+  in_type "zoo_parabs.ws_deques_private.request" 1
+)(in custom zoo_tag
+).
+Notation "'ws_deques_private٠RequestSome'" := (
+  in_type "zoo_parabs.ws_deques_private.request" 2
+)(in custom zoo_tag
+).
+
+Notation "'ws_deques_private٠ResponseWaiting'" := (
+  in_type "zoo_parabs.ws_deques_private.response" 0
+)(in custom zoo_tag
+).
+Notation "'ws_deques_private٠ResponseNone'" := (
+  in_type "zoo_parabs.ws_deques_private.response" 1
+)(in custom zoo_tag
+).
+Notation "'ws_deques_private٠ResponseSome'" := (
+  in_type "zoo_parabs.ws_deques_private.response" 2
+)(in custom zoo_tag
+).
+
+Notation "'ws_deques_private٠size'" := (
+  in_type "zoo_parabs.ws_deques_private.t" 0
+)(in custom zoo_field
+).
+Notation "'ws_deques_private٠queues'" := (
+  in_type "zoo_parabs.ws_deques_private.t" 1
+)(in custom zoo_field
+).
+Notation "'ws_deques_private٠statuses'" := (
+  in_type "zoo_parabs.ws_deques_private.t" 2
+)(in custom zoo_field
+).
+Notation "'ws_deques_private٠requests'" := (
+  in_type "zoo_parabs.ws_deques_private.t" 3
+)(in custom zoo_field
+).
+Notation "'ws_deques_private٠responses'" := (
+  in_type "zoo_parabs.ws_deques_private.t" 4
+)(in custom zoo_field
+).
+Notation "'ws_deques_private٠force_mutable'" := (
+  in_type "zoo_parabs.ws_deques_private.t" 5
+)(in custom zoo_field
+).
 
 Definition ws_deques_private٠create : val :=
   𝗳𝘂𝗻 "sz" ->
     { "sz",
       array٠unsafe_init "sz" queue_3٠create,
-      array٠unsafe_make "sz" §Nonblocked,
-      atomic_array٠make "sz" §RequestNone,
-      array٠unsafe_make "sz" §ResponseWaiting,
+      array٠unsafe_make "sz" §ws_deques_private٠Nonblocked,
+      atomic_array٠make "sz" §ws_deques_private٠RequestNone,
+      array٠unsafe_make "sz" §ws_deques_private٠ResponseWaiting,
       ()
     }.
 
 Definition ws_deques_private٠size : val :=
   𝗳𝘂𝗻 "t" ->
-    "t".{size}.
+    "t".{ws_deques_private٠size}.
 
 Definition ws_deques_private٠block : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    array٠unsafe_set "t".{statuses} "i" §Blocked ⍮
+    array٠unsafe_set
+      "t".{ws_deques_private٠statuses}
+      "i"
+      §ws_deques_private٠Blocked ⍮
     𝗺𝗮𝘁𝗰𝗵
-      atomic_array٠unsafe_xchg "t".{requests} "i" §RequestBlocked
+      atomic_array٠unsafe_xchg
+        "t".{ws_deques_private٠requests}
+        "i"
+        §ws_deques_private٠RequestBlocked
     𝘄𝗶𝘁𝗵
-    | RequestSome "j" ->
-        array٠unsafe_set "t".{responses} "j" §ResponseNone
+    | ws_deques_private٠RequestSome "j" ->
+        array٠unsafe_set
+          "t".{ws_deques_private٠responses}
+          "j"
+          §ws_deques_private٠ResponseNone
     | ⎽ ->
         ()
     𝗲𝗻𝗱.
 
 Definition ws_deques_private٠unblock : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    atomic_array٠unsafe_set "t".{requests} "i" §RequestNone ⍮
-    array٠unsafe_set "t".{statuses} "i" §Nonblocked.
+    atomic_array٠unsafe_set
+      "t".{ws_deques_private٠requests}
+      "i"
+      §ws_deques_private٠RequestNone ⍮
+    array٠unsafe_set
+      "t".{ws_deques_private٠statuses}
+      "i"
+      §ws_deques_private٠Nonblocked.
 
 Definition ws_deques_private٠respond : val :=
   𝗳𝘂𝗻 "t" "i" ->
     𝗺𝗮𝘁𝗰𝗵
-      atomic_array٠unsafe_get "t".{requests} "i"
+      atomic_array٠unsafe_get "t".{ws_deques_private٠requests} "i"
     𝘄𝗶𝘁𝗵
-    | RequestSome "j" ->
+    | ws_deques_private٠RequestSome "j" ->
         𝗹𝗲𝘁 "response" =
           𝗺𝗮𝘁𝗰𝗵
-            queue_3٠pop_front (array٠unsafe_get "t".{queues} "i")
+            queue_3٠pop_front
+              (array٠unsafe_get "t".{ws_deques_private٠queues} "i")
           𝘄𝗶𝘁𝗵
           | Some "v" ->
-              ‘ResponseSome( "v" )
+              ‘ws_deques_private٠ResponseSome( "v" )
           | ⎽ ->
-              §ResponseNone
+              §ws_deques_private٠ResponseNone
           𝗲𝗻𝗱
         𝗶𝗻
-        array٠unsafe_set "t".{responses} "j" "response" ⍮
-        atomic_array٠unsafe_set "t".{requests} "i" §RequestNone
+        array٠unsafe_set "t".{ws_deques_private٠responses} "j" "response" ⍮
+        atomic_array٠unsafe_set
+          "t".{ws_deques_private٠requests}
+          "i"
+          §ws_deques_private٠RequestNone
     | ⎽ ->
         ()
     𝗲𝗻𝗱.
 
 Definition ws_deques_private٠push : val :=
   𝗳𝘂𝗻 "t" "i" "v" ->
-    queue_3٠push (array٠unsafe_get "t".{queues} "i") "v" ⍮
+    queue_3٠push (array٠unsafe_get "t".{ws_deques_private٠queues} "i") "v" ⍮
     ws_deques_private٠respond "t" "i".
 
 Definition ws_deques_private٠pop : val :=
   𝗳𝘂𝗻 "t" "i" ->
     𝗹𝗲𝘁 "res" =
-      queue_3٠pop_back (array٠unsafe_get "t".{queues} "i")
+      queue_3٠pop_back
+        (array٠unsafe_get "t".{ws_deques_private٠queues} "i")
     𝗶𝗻
     ws_deques_private٠respond "t" "i" ⍮
     "res".
@@ -78,29 +157,37 @@ Definition ws_deques_private٠pop : val :=
 Definition ws_deques_private٠steal_to₁ : val :=
   𝗿𝗲𝗰 "steal_to" "t" "i" ->
     𝗺𝗮𝘁𝗰𝗵
-      array٠unsafe_get "t".{responses} "i"
+      array٠unsafe_get "t".{ws_deques_private٠responses} "i"
     𝘄𝗶𝘁𝗵
-    | ResponseWaiting ->
+    | ws_deques_private٠ResponseWaiting ->
         domain٠yield () ⍮
         "steal_to" "t" "i"
-    | ResponseNone ->
-        array٠unsafe_set "t".{responses} "i" §ResponseWaiting ⍮
+    | ws_deques_private٠ResponseNone ->
+        array٠unsafe_set
+          "t".{ws_deques_private٠responses}
+          "i"
+          §ws_deques_private٠ResponseWaiting ⍮
         §None
-    | ResponseSome "v" ->
-        array٠unsafe_set "t".{responses} "i" §ResponseWaiting ⍮
+    | ws_deques_private٠ResponseSome "v" ->
+        array٠unsafe_set
+          "t".{ws_deques_private٠responses}
+          "i"
+          §ws_deques_private٠ResponseWaiting ⍮
         ‘Some( "v" )
     𝗲𝗻𝗱.
 
 Definition ws_deques_private٠steal_to : val :=
   𝗳𝘂𝗻 "t" "i" "j" ->
     𝗶𝗳
-      array٠unsafe_get "t".{statuses} "j" == §Nonblocked
+      array٠unsafe_get "t".{ws_deques_private٠statuses} "j"
+      ==
+      §ws_deques_private٠Nonblocked
       𝗮𝗻𝗱
       atomic_array٠unsafe_cas
-        "t".{requests}
+        "t".{ws_deques_private٠requests}
         "j"
-        §RequestNone
-        ‘RequestSome( "i" )
+        §ws_deques_private٠RequestNone
+        ‘ws_deques_private٠RequestSome( "i" )
     𝘁𝗵𝗲𝗻 (
       ws_deques_private٠steal_to₁ "t" "i"
     ) 𝗲𝗹𝘀𝗲 (

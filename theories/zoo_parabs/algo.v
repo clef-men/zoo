@@ -4,12 +4,10 @@ Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.ghost_var.
 Require Import zoo.base.
 Require Import zoo_std.for_.
-Require Import zoo_std.mvar.
 Require Import zoo_std.option.
 Require Export zoo_parabs.base.
 Require Export zoo_parabs.algo__code.
-Require Import zoo_parabs.future.
-Require Import zoo_parabs.pool.
+Require Import zoo_parabs.algo__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.

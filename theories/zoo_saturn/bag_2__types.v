@@ -1,8 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_saturn.spmc_queue.
-Require Import zoo_std.domain.
+Require Export zoo_saturn.spmc_queue.
+Require Export zoo_std.domain.
 Require Import zoo.options.
 
 Notation "'Null'" := (

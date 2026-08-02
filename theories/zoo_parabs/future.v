@@ -2,11 +2,9 @@ Require Import zoo.prelude.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Export zoo.program_logic.biglater.
-Require Import zoo_std.ivar_4.
-Require Import zoo_std.list.
 Require Export zoo_parabs.base.
 Require Export zoo_parabs.future__code.
-Require Import zoo_parabs.pool.
+Require Import zoo_parabs.future__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.

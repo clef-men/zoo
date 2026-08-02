@@ -2,51 +2,73 @@ Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_std.array.
-Require Import zoo_persistent.sarray__types.
 Require Import zoo.options.
+
+Notation "'sarray٠Root'" := (
+  in_type "zoo_persistent.sarray.descr" 0
+)(in custom zoo_tag
+).
+Notation "'sarray٠Diff'" := (
+  in_type "zoo_persistent.sarray.descr" 1
+)(in custom zoo_tag
+).
+
+Notation "'sarray٠equal'" := (
+  in_type "zoo_persistent.sarray.t" 0
+)(in custom zoo_field
+).
+Notation "'sarray٠data'" := (
+  in_type "zoo_persistent.sarray.t" 1
+)(in custom zoo_field
+).
+Notation "'sarray٠root'" := (
+  in_type "zoo_persistent.sarray.t" 2
+)(in custom zoo_field
+).
 
 Definition sarray٠make : val :=
   𝗳𝘂𝗻 "equal" "sz" "v" ->
     𝗹𝗲𝘁 "data" = array٠unsafe_make "sz" "v" 𝗶𝗻
-    𝗹𝗲𝘁 "root" = 𝗿𝗲𝗳 §Root 𝗶𝗻
+    𝗹𝗲𝘁 "root" = 𝗿𝗲𝗳 §sarray٠Root 𝗶𝗻
     { "equal", "data", "root" }.
 
 Definition sarray٠get : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    array٠unsafe_get "t".{data} "i".
+    array٠unsafe_get "t".{sarray٠data} "i".
 
 Definition sarray٠set : val :=
   𝗳𝘂𝗻 "t" "i" "v" ->
-    𝗹𝗲𝘁 "v'" = array٠unsafe_get "t".{data} "i" 𝗶𝗻
-    𝗶𝗳 ~ "t".{equal} "v" "v'" 𝘁𝗵𝗲𝗻 (
-      𝗹𝗲𝘁 "root" = 𝗿𝗲𝗳 §Root 𝗶𝗻
-      "t".{root} <- ‘Diff( "i", "v'", "root" ) ⍮
-      "t" <-{root} "root" ⍮
-      array٠unsafe_set "t".{data} "i" "v"
+    𝗹𝗲𝘁 "v'" = array٠unsafe_get "t".{sarray٠data} "i" 𝗶𝗻
+    𝗶𝗳 ~ "t".{sarray٠equal} "v" "v'" 𝘁𝗵𝗲𝗻 (
+      𝗹𝗲𝘁 "root" = 𝗿𝗲𝗳 §sarray٠Root 𝗶𝗻
+      "t".{sarray٠root} <- ‘sarray٠Diff( "i", "v'", "root" ) ⍮
+      "t" <-{sarray٠root} "root" ⍮
+      array٠unsafe_set "t".{sarray٠data} "i" "v"
     ).
 
 Definition sarray٠capture : val :=
   𝗳𝘂𝗻 "t" ->
-    "t".{root}.
+    "t".{sarray٠root}.
 
 Definition sarray٠restore₁ : val :=
   𝗿𝗲𝗰 "restore" "data" "node" ->
     𝗺𝗮𝘁𝗰𝗵 !"node" 𝘄𝗶𝘁𝗵
-    | Root ->
+    | sarray٠Root ->
         ()
-    | Diff "i" "v" "node'" ->
+    | sarray٠Diff "i" "v" "node'" ->
         "restore" "data" "node'" ⍮
-        "node'" <- ‘Diff( "i", array٠unsafe_get "data" "i", "node" ) ⍮
+        "node'" <-
+          ‘sarray٠Diff( "i", array٠unsafe_get "data" "i", "node" ) ⍮
         array٠unsafe_set "data" "i" "v"
     𝗲𝗻𝗱.
 
 Definition sarray٠restore : val :=
   𝗳𝘂𝗻 "t" "s" ->
     𝗺𝗮𝘁𝗰𝗵 !"s" 𝘄𝗶𝘁𝗵
-    | Root ->
+    | sarray٠Root ->
         ()
-    | Diff ⎽ ⎽ ⎽ ->
-        sarray٠restore₁ "t".{data} "s" ⍮
-        "s" <- §Root ⍮
-        "t" <-{root} "s"
+    | sarray٠Diff ⎽ ⎽ ⎽ ->
+        sarray٠restore₁ "t".{sarray٠data} "s" ⍮
+        "s" <- §sarray٠Root ⍮
+        "t" <-{sarray٠root} "s"
     𝗲𝗻𝗱.

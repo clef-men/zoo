@@ -3,8 +3,16 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_std.array.
 Require Import zoo_std.int.
-Require Import zoo_std.dynarray_1__types.
 Require Import zoo.options.
+
+Notation "'dynarray_1٠size'" := (
+  in_type "zoo_std.dynarray_1.t" 0
+)(in custom zoo_field
+).
+Notation "'dynarray_1٠data'" := (
+  in_type "zoo_std.dynarray_1.t" 1
+)(in custom zoo_field
+).
 
 Definition dynarray_1٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
@@ -20,11 +28,11 @@ Definition dynarray_1٠initi : val :=
 
 Definition dynarray_1٠size : val :=
   𝗳𝘂𝗻 "t" ->
-    "t".{size}.
+    "t".{dynarray_1٠size}.
 
 Definition dynarray_1٠capacity : val :=
   𝗳𝘂𝗻 "t" ->
-    array٠size "t".{data}.
+    array٠size "t".{dynarray_1٠data}.
 
 Definition dynarray_1٠is_empty : val :=
   𝗳𝘂𝗻 "t" ->
@@ -32,11 +40,11 @@ Definition dynarray_1٠is_empty : val :=
 
 Definition dynarray_1٠get : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    array٠unsafe_get "t".{data} "i".
+    array٠unsafe_get "t".{dynarray_1٠data} "i".
 
 Definition dynarray_1٠set : val :=
   𝗳𝘂𝗻 "t" "i" "v" ->
-    array٠unsafe_set "t".{data} "i" "v".
+    array٠unsafe_set "t".{dynarray_1٠data} "i" "v".
 
 Definition dynarray_1٠next_capacity : val :=
   𝗳𝘂𝗻 "n" ->
@@ -50,62 +58,70 @@ Definition dynarray_1٠next_capacity : val :=
 
 Definition dynarray_1٠reserve : val :=
   𝗳𝘂𝗻 "t" "n" ->
-    𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+    𝗹𝗲𝘁 "data" = "t".{dynarray_1٠data} 𝗶𝗻
     𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
     𝗶𝗳 "cap" < "n" 𝘁𝗵𝗲𝗻 (
       𝗹𝗲𝘁 "new_cap" =
         int٠max "n" (dynarray_1٠next_capacity "cap")
       𝗶𝗻
       𝗹𝗲𝘁 "new_data" = array٠unsafe_alloc "new_cap" 𝗶𝗻
-      array٠unsafe_copy_slice "data" 0 "new_data" 0 "t".{size} ⍮
-      "t" <-{data} "new_data"
+      array٠unsafe_copy_slice "data" 0 "new_data" 0 "t".{dynarray_1٠size} ⍮
+      "t" <-{dynarray_1٠data} "new_data"
     ).
 
 Definition dynarray_1٠reserve_extra : val :=
   𝗳𝘂𝗻 "t" "n" ->
-    dynarray_1٠reserve "t" ("t".{size} + "n").
+    dynarray_1٠reserve "t" ("t".{dynarray_1٠size} + "n").
 
 Definition dynarray_1٠grow : val :=
   𝗳𝘂𝗻 "t" "sz" "v" ->
-    𝗹𝗲𝘁 "old_sz" = "t".{size} 𝗶𝗻
+    𝗹𝗲𝘁 "old_sz" = "t".{dynarray_1٠size} 𝗶𝗻
     𝗶𝗳 "old_sz" < "sz" 𝘁𝗵𝗲𝗻 (
       dynarray_1٠reserve "t" "sz" ⍮
-      array٠unsafe_fill_slice "t".{data} "old_sz" ("sz" - "old_sz") "v" ⍮
-      "t" <-{size} "sz"
+      array٠unsafe_fill_slice
+        "t".{dynarray_1٠data}
+        "old_sz"
+        ("sz" - "old_sz")
+        "v" ⍮
+      "t" <-{dynarray_1٠size} "sz"
     ).
 
 Definition dynarray_1٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
     dynarray_1٠reserve_extra "t" 1 ⍮
-    𝗹𝗲𝘁 "sz" = "t".{size} 𝗶𝗻
-    "t" <-{size} "sz" + 1 ⍮
-    array٠unsafe_set "t".{data} "sz" "v".
+    𝗹𝗲𝘁 "sz" = "t".{dynarray_1٠size} 𝗶𝗻
+    "t" <-{dynarray_1٠size} "sz" + 1 ⍮
+    array٠unsafe_set "t".{dynarray_1٠data} "sz" "v".
 
 Definition dynarray_1٠pop : val :=
   𝗳𝘂𝗻 "t" ->
-    𝗹𝗲𝘁 "sz" = "t".{size} - 1 𝗶𝗻
-    "t" <-{size} "sz" ⍮
-    𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+    𝗹𝗲𝘁 "sz" = "t".{dynarray_1٠size} - 1 𝗶𝗻
+    "t" <-{dynarray_1٠size} "sz" ⍮
+    𝗹𝗲𝘁 "data" = "t".{dynarray_1٠data} 𝗶𝗻
     𝗹𝗲𝘁 "v" = array٠unsafe_get "data" "sz" 𝗶𝗻
     array٠unsafe_set "data" "sz" () ⍮
     "v".
 
 Definition dynarray_1٠fit_capacity : val :=
   𝗳𝘂𝗻 "t" ->
-    𝗹𝗲𝘁 "sz" = "t".{size} 𝗶𝗻
-    𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
+    𝗹𝗲𝘁 "sz" = "t".{dynarray_1٠size} 𝗶𝗻
+    𝗹𝗲𝘁 "data" = "t".{dynarray_1٠data} 𝗶𝗻
     𝗶𝗳 "sz" != array٠size "data" 𝘁𝗵𝗲𝗻 (
-      "t" <-{data} array٠unsafe_shrink "data" "sz"
+      "t" <-{dynarray_1٠data} array٠unsafe_shrink "data" "sz"
     ).
 
 Definition dynarray_1٠reset : val :=
   𝗳𝘂𝗻 "t" ->
-    "t" <-{size} 0 ⍮
-    "t" <-{data} array٠create ().
+    "t" <-{dynarray_1٠size} 0 ⍮
+    "t" <-{dynarray_1٠data} array٠create ().
 
 Definition dynarray_1٠iteri : val :=
   𝗳𝘂𝗻 "fn" "t" ->
-    array٠unsafe_iteri_slice "fn" "t".{data} 0 "t".{size}.
+    array٠unsafe_iteri_slice
+      "fn"
+      "t".{dynarray_1٠data}
+      0
+      "t".{dynarray_1٠size}.
 
 Definition dynarray_1٠iter : val :=
   𝗳𝘂𝗻 "fn" ->
