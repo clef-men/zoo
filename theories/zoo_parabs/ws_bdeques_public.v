@@ -410,7 +410,7 @@ End ws_bdeques_public۰G.
 Section ws_bdeques_public۰G.
   Context `{ws_bdeques_public۰G : WsBdequesPublicG Σ}.
 
-  #[local] Lemma ws_bdeques_public٠steal_as₀ｰspec t ι (sz : nat) i i_ ws round (n : nat) :
+  #[local] Lemma ws_bdeques_public٠steal_as₁ｰspec t ι (sz : nat) i i_ ws round (n : nat) :
     i = ⁺i_ →
     <<<
       ws_bdeques_public۰inv t ι sz ∗
@@ -419,7 +419,7 @@ Section ws_bdeques_public۰G.
     | ∀∀ vss,
       ws_bdeques_public۰model t vss
     >>>
-      ws_bdeques_public٠steal_as₀ t #sz #i round #n @ ↑ι
+      ws_bdeques_public٠steal_as₁ t #sz #i round #n @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -505,7 +505,7 @@ Section ws_bdeques_public۰G.
     wp۰apply+ (ws_bdeques_public٠sizeｰspec with "Hinv") as "_".
     wp۰pures.
     assert (sz - 1 = (sz - 1)%nat)%Z as -> by lia.
-    wp۰apply (ws_bdeques_public٠steal_as₀ｰspec with "[$Hinv $Hround] HΦ"); first done.
+    wp۰apply (ws_bdeques_public٠steal_as₁ｰspec with "[$Hinv $Hround] HΦ"); first done.
   Qed.
 End ws_bdeques_public۰G.
 

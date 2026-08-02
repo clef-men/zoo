@@ -1192,7 +1192,7 @@ Section ws_deques_private۰G.
       iApply ("HΦ" with "Howner").
   Qed.
 
-  #[local] Lemma ws_deques_private٠steal_to₀ｰspec l γ i i_ Ψ :
+  #[local] Lemma ws_deques_private٠steal_to₁ｰspec l γ i i_ Ψ :
     i = ⁺i_ →
     i_ < γ.(metadata۰size) →
     {{{
@@ -1202,7 +1202,7 @@ Section ws_deques_private۰G.
       inv γ.(metadata۰inv) (inv۰inner γ) ∗
       channels۰receiver γ i_ Ψ None
     }}}
-      ws_deques_private٠steal_to₀ #l #i
+      ws_deques_private٠steal_to₁ #l #i
     {{{
       o Ψ_sender Ψ_receiver
     , RET o;
@@ -1358,7 +1358,7 @@ Section ws_deques_private۰G.
         iSplitR "Hchannels_receiver". { iFrameSteps. }
         iIntros "!> _".
 
-        wp۰apply+ (ws_deques_private٠steal_to₀ｰspec with "[$Hmeta $Hl_responses $Hresponses_inv $Hinv $Hchannels_receiver]"); [lia.. |].
+        wp۰apply+ (ws_deques_private٠steal_to₁ｰspec with "[$Hmeta $Hl_responses $Hresponses_inv $Hinv $Hchannels_receiver]"); [lia.. |].
         iSteps.
 
       + iSplitR "Hchannels_sender Hchannels_receiver HΦ". { iFrameSteps. }
@@ -1379,7 +1379,7 @@ End ws_deques_private۰G.
 Section ws_deques_private۰G.
   Context `{ws_deques_private۰G : WsDequesPrivateG Σ}.
 
-  #[local] Lemma ws_deques_private٠steal_as₀ｰspec t ι (sz : nat) i i_ ws round (n : nat) :
+  #[local] Lemma ws_deques_private٠steal_as₁ｰspec t ι (sz : nat) i i_ ws round (n : nat) :
     i = ⁺i_ →
     <<<
       ws_deques_private۰inv t ι sz ∗
@@ -1388,7 +1388,7 @@ Section ws_deques_private۰G.
     | ∀∀ vss,
       ws_deques_private۰model t vss
     >>>
-      ws_deques_private٠steal_as₀ t #sz #i round #n @ ↑ι
+      ws_deques_private٠steal_as₁ t #sz #i round #n @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -1474,7 +1474,7 @@ Section ws_deques_private۰G.
     wp۰apply+ (ws_deques_private٠sizeｰspec with "Hinv") as "_".
     wp۰pures.
     assert (sz - 1 = (sz - 1)%nat)%Z as -> by lia.
-    wp۰apply (ws_deques_private٠steal_as₀ｰspec with "[$Hinv $Hround] HΦ"); first done.
+    wp۰apply (ws_deques_private٠steal_as₁ｰspec with "[$Hinv $Hround] HΦ"); first done.
   Qed.
 End ws_deques_private۰G.
 

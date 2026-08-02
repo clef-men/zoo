@@ -23,7 +23,7 @@ Definition mpmc_tqueue_2٠is_empty : val :=
     𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
     "back" ≤ "front".
 
-Definition mpmc_tqueue_2٠push₀ : val :=
+Definition mpmc_tqueue_2٠push₁ : val :=
   𝗿𝗲𝗰 "push" "t" "v" ->
     𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[back] 1 𝗶𝗻
     𝗶𝗳 "t".{capacity} ≤ "i" 𝘁𝗵𝗲𝗻 (
@@ -41,7 +41,7 @@ Definition mpmc_tqueue_2٠push : val :=
     𝗶𝗳 "t".{capacity} ≤ "t".{back} 𝘁𝗵𝗲𝗻 (
       false
     ) 𝗲𝗹𝘀𝗲 (
-      mpmc_tqueue_2٠push₀ "t" "v"
+      mpmc_tqueue_2٠push₁ "t" "v"
     ).
 
 Definition mpmc_tqueue_2٠pop : val :=

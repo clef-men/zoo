@@ -494,7 +494,7 @@ Section bag_2۰G.
     rewrite big_sepM_empty. iSteps.
   Qed.
 
-  #[local] Lemma bag_2٠add_producer₀ｰspec l γ (queue : val) :
+  #[local] Lemma bag_2٠add_producer₁ｰspec l γ (queue : val) :
     <<<
       l ↪ γ ∗
       inv' l γ ∗
@@ -503,7 +503,7 @@ Section bag_2۰G.
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2٠add_producer₀ #l (Some queue) @ ↑γ.(metadata۰inv)
+      bag_2٠add_producer₁ #l (Some queue) @ ↑γ.(metadata۰inv)
     <<<
       ∃∃ node,
       let 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :=
@@ -589,7 +589,7 @@ Section bag_2۰G.
     iIntros "%Φ H HΦ".
 
     wp۰rec.
-    wp۰apply+ (bag_2٠add_producer₀ｰspec with "H HΦ").
+    wp۰apply+ (bag_2٠add_producer₁ｰspec with "H HΦ").
   Qed.
   Lemma bag_2٠create_producerｰspec t ι :
     <<<
@@ -706,7 +706,7 @@ Section bag_2۰G.
     rewrite Hdescr_queue. iSteps.
   Qed.
 
-  #[local] Lemma bag_2٠pop₀ｰspec l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val) nodes :
+  #[local] Lemma bag_2٠pop₂ｰspec l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val) nodes :
     <<<
       l ↪ γ ∗
       inv' l γ ∗
@@ -719,7 +719,7 @@ Section bag_2۰G.
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2٠pop₀ #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (from_option #@{location} §Null%V $ head nodes) @ ↑γ.(metadata۰inv)
+      bag_2٠pop₂ #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (from_option #@{location} §Null%V $ head nodes) @ ↑γ.(metadata۰inv)
     <<<
       ∃∃ o,
       match o with
@@ -849,7 +849,7 @@ Section bag_2۰G.
     iSplitR "Hconsumer_queue HΦ". { iFrameSteps. }
     iIntros "{%} !>".
 
-    awp۰apply+ (bag_2٠pop₀ｰspec with "[- HΦ]"); first iFrameSteps.
+    awp۰apply+ (bag_2٠pop₂ｰspec with "[- HΦ]"); first iFrameSteps.
     iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hmodel₁"; first iSteps. iIntros "%o Hmodel₁ !>".

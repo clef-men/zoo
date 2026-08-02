@@ -44,7 +44,7 @@ Definition inf_mpmc_queue_1٠push : val :=
     𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[back] 1 𝗶𝗻
     inf_array٠set "t".{data} "i" ‘Something( "v" ).
 
-Definition inf_mpmc_queue_1٠pop₀ : val :=
+Definition inf_mpmc_queue_1٠pop₁ : val :=
   𝗿𝗲𝗰 "pop" "t" "i" ->
     𝗺𝗮𝘁𝗰𝗵 inf_array٠get "t".{data} "i" 𝘄𝗶𝘁𝗵
     | Nothing ->
@@ -60,7 +60,7 @@ Definition inf_mpmc_queue_1٠pop₀ : val :=
 Definition inf_mpmc_queue_1٠pop : val :=
   𝗳𝘂𝗻 "t" ->
     𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[front] 1 𝗶𝗻
-    inf_mpmc_queue_1٠pop₀ "t" "i".
+    inf_mpmc_queue_1٠pop₁ "t" "i".
 
 Definition inf_mpmc_queue_1٠try_pop : val :=
   𝗳𝘂𝗻 "t" ->

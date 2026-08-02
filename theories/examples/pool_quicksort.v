@@ -174,7 +174,7 @@ Section pool۰G.
       { rewrite Permutation_cons_append //. }
   Qed.
 
-  #[local] Lemma pool_quicksort٠main₀ｰspec pool ctx scope arr i i_ xs sz :
+  #[local] Lemma pool_quicksort٠main₂ｰspec pool ctx scope arr i i_ xs sz :
     (0 ≤ i)%Z →
     i_ = ₊i →
     length xs = ₊sz →
@@ -182,7 +182,7 @@ Section pool۰G.
       pool۰context pool ctx scope ∗
       array۰slice arr i_ (DfracOwn 1) (#*@{Z} xs)
     }}}
-      pool_quicksort٠main₀ ctx arr #i #sz
+      pool_quicksort٠main₂ ctx arr #i #sz
     {{{
       RET ();
       pool۰context pool ctx scope ∗
@@ -284,7 +284,7 @@ Section pool۰G.
     iEval (simpl_length).
 
     iDestruct (array۰modelｰtoｰslice' with "Harr_model") as "(Harr_slice & #Harr_model)".
-    wp۰apply+ (pool_quicksort٠main₀ｰspec with "[$]") as "(Hctx & Hpool_consumer)". 1-3: lia.
+    wp۰apply+ (pool_quicksort٠main₂ｰspec with "[$]") as "(Hctx & Hpool_consumer)". 1-3: lia.
 
     iSteps.
     iMod "Hpool_consumer" as "(%xs' & %Hxs' & %Hxs'_sorted & Harr_slice)".

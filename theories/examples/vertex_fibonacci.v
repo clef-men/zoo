@@ -35,14 +35,14 @@ Qed.
 Section vertex_fibonacci۰G.
   Context `{vertex_fibonacci۰G : VertexFibonacciG Σ}.
 
-  #[local] Lemma vertex_fibonacci٠main₀ｰspec vtx iter r n :
+  #[local] Lemma vertex_fibonacci٠main₁ｰspec vtx iter r n :
     vertex۰inv vtx (r ↦ᵣ #(fibonacci n)) True -∗
     r ↦ᵣ 0 -∗
     vertex۰wp
       vtx
       (r ↦ᵣ #(fibonacci n))
       True
-      (𝗳𝘂𝗻 "ctx" -> vertex_fibonacci٠main₀ "ctx" vtx #r #n)
+      (𝗳𝘂𝗻 "ctx" -> vertex_fibonacci٠main₁ "ctx" vtx #r #n)
       iter.
   Proof.
     iLöb as "HLöb" forall (vtx iter r n).
@@ -134,7 +134,7 @@ Section vertex_fibonacci۰G.
       with "[//]") as (vtx1 iter) "(#Hvtx1_inv & Hvtx1_model & Hvtx1_output)".
       wp۰apply+ (vertex٠set_taskｰspec with "Hvtx1_model") as "Hvtx1_model".
       wp۰apply+ (vertex٠releaseｰspec with "[$Hctx $Hvtx1_inv $Hvtx1_model Hr]") as "Hctx".
-      { iApply (vertex_fibonacci٠main₀ｰspec with "Hvtx1_inv Hr"). }
+      { iApply (vertex_fibonacci٠main₁ｰspec with "Hvtx1_inv Hr"). }
 
       wp۰apply+ (ivar_4٠createｰspec
         (λ _, r ↦ᵣ #(fibonacci n))%I

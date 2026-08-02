@@ -87,7 +87,7 @@ Definition pool٠async : val :=
   𝗳𝘂𝗻 "ctx" "task" ->
     ws_hub_std٠push "ctx".<context_hub> "ctx".<context_id> "task".
 
-Definition pool٠wait₀ : val :=
+Definition pool٠wait₁ : val :=
   𝗿𝗲𝗰 "wait" "ctx" "notification" "pred" ->
     𝗺𝗮𝘁𝗰𝗵
       ws_hub_std٠pop_steal_until
@@ -114,7 +114,7 @@ Definition pool٠wait : val :=
         "notification" "notify"
       )
     𝗶𝗻
-    pool٠wait₀ "ctx" "notification" "pred".
+    pool٠wait₁ "ctx" "notification" "pred".
 
 Definition pool٠wait_ivar : val :=
   𝗳𝘂𝗻 "ctx" "ivar" ->

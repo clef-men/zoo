@@ -652,7 +652,7 @@ Section ws_hub_std۰G.
     - iExists None. iFrameSteps.
   Qed.
 
-  #[local] Lemma ws_hub_std۰try_steal₀ｰspec P Q t ι sz i i_ empty yield max_round pred :
+  #[local] Lemma ws_hub_std٠try_steal₁ｰspec P Q t ι sz i i_ empty yield max_round pred :
     i = ⁺i_ →
     (0 ≤ max_round)%Z →
     <<<
@@ -670,7 +670,7 @@ Section ws_hub_std۰G.
     | ∀∀ vs,
       ws_hub_std۰model t vs
     >>>
-      ws_hub_std٠try_steal₀ t #i #yield #max_round pred @ ↑ι
+      ws_hub_std٠try_steal₁ t #i #yield #max_round pred @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -759,13 +759,13 @@ Section ws_hub_std۰G.
 
     wp۰rec.
 
-    awp۰apply+ (ws_hub_std۰try_steal₀ｰspec P Q with "[$Hinv $Howner $HP $Hpred]"). 1-2: done.
+    awp۰apply+ (ws_hub_std٠try_steal₁ｰspec P Q with "[$Hinv $Howner $HP $Hpred]"). 1-2: done.
     iApply (aaccｰaupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel". 1: iSteps. iIntros ([| | v]) "Hmodel !>".
 
     - iLeft. iFrame. iIntros "HΦ !> (Howner & HP) {%- Hmax_round_yield}".
 
-      wp۰apply+ (ws_hub_std۰try_steal₀ｰspec P Q with "[$Hinv $Howner $HP $Hpred] HΦ"). 1-2: done.
+      wp۰apply+ (ws_hub_std٠try_steal₁ｰspec P Q with "[$Hinv $Howner $HP $Hpred] HΦ"). 1-2: done.
 
     - iRight. iExists Anything. iFrameSteps.
 

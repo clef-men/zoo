@@ -6,7 +6,7 @@ Require Import zoo_parabs.pool.
 Require Import examples.future_fibonacci__types.
 Require Import zoo.options.
 
-Definition future_fibonacci٠main₀ : val :=
+Definition future_fibonacci٠main₁ : val :=
   𝗿𝗲𝗰 "main" "ctx" "n" ->
     𝗶𝗳 "n" ≤ 1 𝘁𝗵𝗲𝗻 (
       "n"
@@ -24,4 +24,4 @@ Definition future_fibonacci٠main : val :=
   𝗳𝘂𝗻 "num_worker" "n" ->
     pool٠run
       "num_worker"
-      (𝗳𝘂𝗻 "ctx" -> future_fibonacci٠main₀ "ctx" "n").
+      (𝗳𝘂𝗻 "ctx" -> future_fibonacci٠main₁ "ctx" "n").

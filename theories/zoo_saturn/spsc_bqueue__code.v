@@ -23,7 +23,7 @@ Definition spsc_bqueue٠is_empty : val :=
   𝗳𝘂𝗻 "t" ->
     spsc_bqueue٠size "t" == 0.
 
-Definition spsc_bqueue٠push₀ : val :=
+Definition spsc_bqueue٠push₁ : val :=
   𝗳𝘂𝗻 "t" "data" "back" ->
     𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
     𝗶𝗳 "back" < "t".{front_cache} + "cap" 𝘁𝗵𝗲𝗻 (
@@ -38,7 +38,7 @@ Definition spsc_bqueue٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
     𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
     𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
-    𝗶𝗳 spsc_bqueue٠push₀ "t" "data" "back" 𝘁𝗵𝗲𝗻 (
+    𝗶𝗳 spsc_bqueue٠push₁ "t" "data" "back" 𝘁𝗵𝗲𝗻 (
       array٠unsafe_cset "data" "back" ‘Some( "v" ) ⍮
       "t" <-{back} "back" + 1 ⍮
       false
@@ -46,7 +46,7 @@ Definition spsc_bqueue٠push : val :=
       true
     ).
 
-Definition spsc_bqueue٠pop₀ : val :=
+Definition spsc_bqueue٠pop₁ : val :=
   𝗳𝘂𝗻 "t" "front" ->
     𝗶𝗳 "front" < "t".{back_cache} 𝘁𝗵𝗲𝗻 (
       true
@@ -59,7 +59,7 @@ Definition spsc_bqueue٠pop₀ : val :=
 Definition spsc_bqueue٠pop : val :=
   𝗳𝘂𝗻 "t" ->
     𝗹𝗲𝘁 "front" = "t".{front} 𝗶𝗻
-    𝗶𝗳 spsc_bqueue٠pop₀ "t" "front" 𝘁𝗵𝗲𝗻 (
+    𝗶𝗳 spsc_bqueue٠pop₁ "t" "front" 𝘁𝗵𝗲𝗻 (
       𝗹𝗲𝘁 "data" = "t".{data} 𝗶𝗻
       𝗹𝗲𝘁 "res" = array٠unsafe_cget "data" "front" 𝗶𝗻
       array٠unsafe_cset "data" "front" §None ⍮

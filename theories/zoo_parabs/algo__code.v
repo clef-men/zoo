@@ -23,7 +23,7 @@ Definition algo٠adjust_chunk : val :=
         )
     𝗲𝗻𝗱.
 
-Definition algo٠for_₀ : val :=
+Definition algo٠for_₁ : val :=
   𝗿𝗲𝗰 "for_" "ctx" "beg" "end_" "chunk" "task" ->
     𝗹𝗲𝘁 "num_task" = "end_" - "beg" 𝗶𝗻
     𝗶𝗳 "num_task" ≤ "chunk" 𝘁𝗵𝗲𝗻 (
@@ -43,7 +43,7 @@ Definition algo٠for_ : val :=
     𝗹𝗲𝘁 "chunk" =
       algo٠adjust_chunk "ctx" "beg" "end_" "chunk"
     𝗶𝗻
-    algo٠for_₀ "ctx" "beg" "end_" "chunk" "task".
+    algo٠for_₁ "ctx" "beg" "end_" "chunk" "task".
 
 Definition algo٠for_each : val :=
   𝗳𝘂𝗻 "ctx" "beg" "end_" "chunk" "task" ->
@@ -64,7 +64,7 @@ Definition algo٠fold_seq : val :=
       "fold_seq" "ctx" "beg" "end_" "body" "op" "acc"
     ).
 
-Definition algo٠fold₀ : val :=
+Definition algo٠fold₁ : val :=
   𝗿𝗲𝗰 "fold" "ctx" "beg" "end_" "chunk" "body" "op" "zero" ->
     𝗹𝗲𝘁 "num_task" = "end_" - "beg" 𝗶𝗻
     𝗶𝗳 "num_task" ≤ "chunk" 𝘁𝗵𝗲𝗻 (
@@ -88,7 +88,7 @@ Definition algo٠fold : val :=
     𝗹𝗲𝘁 "chunk" =
       algo٠adjust_chunk "ctx" "beg" "end_" "chunk"
     𝗶𝗻
-    algo٠fold₀ "ctx" "beg" "end_" "chunk" "body" "op" "zero".
+    algo٠fold₁ "ctx" "beg" "end_" "chunk" "body" "op" "zero".
 
 Definition algo٠find_seq : val :=
   𝗿𝗲𝗰 "find_seq" "ctx" "beg" "end_" "pred" "found" ->
@@ -103,7 +103,7 @@ Definition algo٠find_seq : val :=
       )
     ).
 
-Definition algo٠find₀ : val :=
+Definition algo٠find₁ : val :=
   𝗿𝗲𝗰 "find" "ctx" "beg" "end_" "chunk" "pred" "found" ->
     𝗹𝗲𝘁 "num_task" = "end_" - "beg" 𝗶𝗻
     𝗶𝗳 "num_task" ≤ "chunk" 𝘁𝗵𝗲𝗻 (
@@ -125,5 +125,5 @@ Definition algo٠find : val :=
       algo٠adjust_chunk "ctx" "beg" "end_" "chunk"
     𝗶𝗻
     𝗹𝗲𝘁 "found" = mvar٠create () 𝗶𝗻
-    algo٠find₀ "ctx" "beg" "end_" "chunk" "pred" "found" ⍮
+    algo٠find₁ "ctx" "beg" "end_" "chunk" "pred" "found" ⍮
     mvar٠try_get "found".

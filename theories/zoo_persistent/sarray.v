@@ -357,12 +357,12 @@ Section sarray۰G.
       & Hnodes
       )
     ".
-  #[local] Lemma sarray٠restore₀ｰspec {γ nodes root vs_root node} vs :
+  #[local] Lemma sarray٠restore₁ｰspec {γ nodes root vs_root node} vs :
     {{{
       model' γ nodes root vs_root ∗
       nodes۰elem γ node vs
     }}}
-      sarray٠restore₀ γ.(metadata۰data) #node
+      sarray٠restore₁ γ.(metadata۰data) #node
     {{{
       RET ();
       restore۰inv γ nodes node vs
@@ -434,7 +434,7 @@ Section sarray۰G.
       wp۰load.
 
       wp۰load.
-      wp۰apply+ (sarray٠restore₀ｰspec vs' with "[- Hl_root HΦ]") as "(:restore۰inv root=node)"; first iFrameSteps.
+      wp۰apply+ (sarray٠restore₁ｰspec vs' with "[- Hl_root HΦ]") as "(:restore۰inv root=node)"; first iFrameSteps.
       do 2 wp۰store.
 
       iApply "HΦ".

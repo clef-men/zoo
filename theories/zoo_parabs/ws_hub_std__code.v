@@ -81,7 +81,7 @@ Definition ws_hub_std٠try_steal_once : val :=
     random_round٠reset "round" ⍮
     ws_deques_public٠steal_as "t".{deques} "i" "round".
 
-Definition ws_hub_std٠try_steal₀ : val :=
+Definition ws_hub_std٠try_steal₁ : val :=
   𝗿𝗲𝗰 "try_steal" "t" "i" "yield" "max_round" "pred" ->
     𝗶𝗳 "max_round" ≤ 0 𝘁𝗵𝗲𝗻 (
       §Nothing
@@ -108,14 +108,14 @@ Definition ws_hub_std٠try_steal₀ : val :=
 Definition ws_hub_std٠try_steal : val :=
   𝗳𝘂𝗻 "t" "i" "max_round_noyield" "max_round_yield" "pred" ->
     𝗺𝗮𝘁𝗰𝗵
-      ws_hub_std٠try_steal₀ "t" "i" false "max_round_noyield" "pred"
+      ws_hub_std٠try_steal₁ "t" "i" false "max_round_noyield" "pred"
     𝘄𝗶𝘁𝗵
     | Something ⎽ 𝗮𝘀 "res" ->
         "res"
     | Anything ->
         §Anything
     | Nothing ->
-        ws_hub_std٠try_steal₀ "t" "i" true "max_round_yield" "pred"
+        ws_hub_std٠try_steal₁ "t" "i" true "max_round_yield" "pred"
     𝗲𝗻𝗱.
 
 Definition ws_hub_std٠steal_aux : val :=

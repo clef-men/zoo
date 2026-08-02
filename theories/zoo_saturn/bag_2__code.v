@@ -10,7 +10,7 @@ Definition bag_2٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
     { §Null }.
 
-Definition bag_2٠add_producer₀ : val :=
+Definition bag_2٠add_producer₁ : val :=
   𝗿𝗲𝗰 "add_producer" "t" "queue" ->
     𝗹𝗲𝘁 "producers" = "t".{producers} 𝗶𝗻
     𝗺𝗮𝘁𝗰𝗵 ‘Node{ "producers", "queue" } 𝘄𝗶𝘁𝗵
@@ -27,7 +27,7 @@ Definition bag_2٠add_producer₀ : val :=
 
 Definition bag_2٠add_producer : val :=
   𝗳𝘂𝗻 "t" "queue" ->
-    bag_2٠add_producer₀ "t" ‘Some( "queue" ).
+    bag_2٠add_producer₁ "t" ‘Some( "queue" ).
 
 Definition bag_2٠create_producer : val :=
   𝗳𝘂𝗻 "t" ->
@@ -50,7 +50,7 @@ Definition bag_2٠push : val :=
   𝗳𝘂𝗻 "producer" "v" ->
     spmc_queue٠push "producer".<producer_queue> "v".
 
-Definition bag_2٠pop₀ : val :=
+Definition bag_2٠pop₂ : val :=
   𝗿𝗲𝗰 "pop" "consumer" "param" ->
     𝗺𝗮𝘁𝗰𝗵 "param" 𝘄𝗶𝘁𝗵
     | Null ->
@@ -72,7 +72,7 @@ Definition bag_2٠pop₀ : val :=
 
 Definition bag_2٠pop₁ : val :=
   𝗳𝘂𝗻 "t" "consumer" ->
-    bag_2٠pop₀ "consumer" "t".{producers}.
+    bag_2٠pop₂ "consumer" "t".{producers}.
 
 Definition bag_2٠pop : val :=
   𝗳𝘂𝗻 "t" "consumer" ->

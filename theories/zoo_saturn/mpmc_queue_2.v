@@ -851,12 +851,12 @@ Section mpmc_queue_2۰G.
     all: iSteps.
   Qed.
 
-  #[local] Lemma mpmc_queue_2٠rev₀ｰspec i vs1 vs2 back :
+  #[local] Lemma mpmc_queue_2٠rev₁ｰspec i vs1 vs2 back :
     0 < length vs1 →
     {{{
       back ↦ₕ Header §Back 2
     }}}
-      mpmc_queue_2٠rev₀ (suffix۰to_val (i + ˖(length vs2)) vs1) (prefix۰to_val i back vs2)
+      mpmc_queue_2٠rev₁ (suffix۰to_val (i + ˖(length vs2)) vs1) (prefix۰to_val i back vs2)
     {{{
       RET suffix۰to_val ˖i (reverse vs2 ++ vs1);
       True
@@ -893,7 +893,7 @@ Section mpmc_queue_2۰G.
     destruct vs as [| v vs]; first naive_solver lia.
     wp۰pures.
     rewrite Z.add_1_r -Nat2Z.inj_succ.
-    wp۰apply (mpmc_queue_2٠rev₀ｰspec i [v] with "Hback_header"); first auto.
+    wp۰apply (mpmc_queue_2٠rev₁ｰspec i [v] with "Hback_header"); first auto.
     rewrite reverse_cons //.
   Qed.
 

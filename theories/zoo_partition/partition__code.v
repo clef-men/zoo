@@ -120,7 +120,7 @@ Definition partition٠cardinal : val :=
   𝗳𝘂𝗻 "elt" ->
     "elt".{class_}.{len}.
 
-Definition partition٠record₀ : val :=
+Definition partition٠record₁ : val :=
   𝗳𝘂𝗻 "split_list" "elt" ->
     𝗹𝗲𝘁 "class_" = "elt".{class_} 𝗶𝗻
     𝗶𝗳
@@ -149,9 +149,9 @@ Definition partition٠record₀ : val :=
 
 Definition partition٠record : val :=
   𝗳𝘂𝗻 "elts" ->
-    list٠foldl partition٠record₀ [] "elts".
+    list٠foldl partition٠record₁ [] "elts".
 
-Definition partition٠split₀ : val :=
+Definition partition٠split₁ : val :=
   𝗳𝘂𝗻 "class_" ->
     𝗹𝗲𝘁 "first" = "class_".{first} 𝗶𝗻
     𝗹𝗲𝘁 "split" = "class_".{split} 𝗶𝗻
@@ -179,7 +179,7 @@ Definition partition٠split₀ : val :=
 
 Definition partition٠split : val :=
   𝗳𝘂𝗻 "split_list" ->
-    list٠iter partition٠split₀ "split_list".
+    list٠iter partition٠split₁ "split_list".
 
 Definition partition٠refine : val :=
   𝗳𝘂𝗻 "elts" ->

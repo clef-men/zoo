@@ -589,7 +589,7 @@ Module base.
       iSteps.
     Qed.
 
-    #[local] Lemma mpsc_queue_1٠push₀ｰspec t γ i node new_back v :
+    #[local] Lemma mpsc_queue_1٠push₁ｰspec t γ i node new_back v :
       <<<
         inv' t γ ∗
         node۰model γ node i ∗
@@ -599,7 +599,7 @@ Module base.
       | ∀∀ vs,
         mpsc_queue_1۰model γ vs
       >>>
-        mpsc_queue_1٠push₀ #node #new_back @ ↑γ.(mpsc_queue_1۰name۰inv)
+        mpsc_queue_1٠push₁ #node #new_back @ ↑γ.(mpsc_queue_1۰name۰inv)
       <<<
         mpsc_queue_1۰model γ (vs ++ [v])
       | RET ();
@@ -704,7 +704,7 @@ Module base.
       wp۰block new_back as "#Hnew_back_header" "_" "(Hnew_back_next & Hnew_back_data & _)".
       wp۰match.
       wp۰apply+ (backｰspec with "Hinv") as (back i) "(:node۰model =back)".
-      wp۰apply+ (mpsc_queue_1٠push₀ｰspec with "[$]").
+      wp۰apply+ (mpsc_queue_1٠push₁ｰspec with "[$]").
       iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_at_new_back)".
       wp۰apply+ (mpsc_queue_1٠fix_backｰspec with "[] HΦ"); first iSteps.
     Qed.

@@ -1062,7 +1062,7 @@ Module base.
       }
     Qed.
 
-    #[local] Lemma pool٠wait₀ｰspec P_notification P_pred Q_pred γ ctx scope notification pred :
+    #[local] Lemma pool٠wait₁ｰspec P_notification P_pred Q_pred γ ctx scope notification pred :
       {{{
         pool۰context γ ctx scope ∗
         P_notification ∗
@@ -1085,7 +1085,7 @@ Module base.
           }}
         )
       }}}
-        pool٠wait₀ ctx notification pred
+        pool٠wait₁ ctx notification pred
       {{{
         RET ();
         pool۰context γ ctx scope ∗
@@ -1159,7 +1159,7 @@ Module base.
       wp۰rec.
       wp۰ref notification_registered as "Hnotification_registered".
 
-      wp۰apply+ (pool٠wait₀ｰspec
+      wp۰apply+ (pool٠wait₁ｰspec
         ( ∃ b,
           notification_registered ↦ᵣ #b ∗
           P_notification ∗

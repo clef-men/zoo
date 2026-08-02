@@ -17,7 +17,7 @@ Definition mpmc_queue_1٠is_empty : val :=
         "front_r".{next} == §Null
     𝗲𝗻𝗱.
 
-Definition mpmc_queue_1٠push₀ : val :=
+Definition mpmc_queue_1٠push₁ : val :=
   𝗿𝗲𝗰 "push" "node" "new_back" ->
     𝗺𝗮𝘁𝗰𝗵 "node" 𝘄𝗶𝘁𝗵
     | Node ⎽ ⎽ 𝗮𝘀 "node_r" ->
@@ -53,7 +53,7 @@ Definition mpmc_queue_1٠push : val :=
     𝗺𝗮𝘁𝗰𝗵 ‘Node{ §Null, "v" } 𝘄𝗶𝘁𝗵
     | Node ⎽ ⎽ 𝗮𝘀 "new_back" ->
         𝗹𝗲𝘁 "back" = "t".{back} 𝗶𝗻
-        mpmc_queue_1٠push₀ "back" "new_back" ⍮
+        mpmc_queue_1٠push₁ "back" "new_back" ⍮
         mpmc_queue_1٠fix_back "t" "back" "new_back"
     𝗲𝗻𝗱.
 

@@ -14,7 +14,7 @@ Definition bag_1٠create : val :=
       0
     }.
 
-Definition bag_1٠push₀ : val :=
+Definition bag_1٠push₁ : val :=
   𝗿𝗲𝗰 "push" "slot" "o" ->
     𝗶𝗳 ~ 𝗰𝗮𝘀 "slot".[contents] §Gnone "o" 𝘁𝗵𝗲𝗻 (
       domain٠yield () ⍮
@@ -27,9 +27,9 @@ Definition bag_1٠push : val :=
     𝗹𝗲𝘁 "i" =
       𝗳𝗮𝗮 "t".[back] 1 𝗿𝗲𝗺 array٠size "data"
     𝗶𝗻
-    bag_1٠push₀ (array٠unsafe_get "data" "i") ‘Gsome[ "v" ].
+    bag_1٠push₁ (array٠unsafe_get "data" "i") ‘Gsome[ "v" ].
 
-Definition bag_1٠pop₀ : val :=
+Definition bag_1٠pop₁ : val :=
   𝗿𝗲𝗰 "pop" "slot" ->
     𝗺𝗮𝘁𝗰𝗵 !"slot" 𝘄𝗶𝘁𝗵
     | Gnone ->
@@ -51,4 +51,4 @@ Definition bag_1٠pop : val :=
     𝗹𝗲𝘁 "i" =
       𝗳𝗮𝗮 "t".[front] 1 𝗿𝗲𝗺 array٠size "data"
     𝗶𝗻
-    bag_1٠pop₀ (array٠unsafe_get "data" "i").
+    bag_1٠pop₁ (array٠unsafe_get "data" "i").

@@ -120,7 +120,7 @@ Definition dynarray_2٠try_grow : val :=
       )
     ).
 
-Definition dynarray_2٠grow₀ : val :=
+Definition dynarray_2٠grow₁ : val :=
   𝗿𝗲𝗰 "grow" "t" "sz" "v" ->
     dynarray_2٠reserve "t" "sz" ⍮
     𝗶𝗳 ~ dynarray_2٠try_grow "t" "sz" "v" 𝘁𝗵𝗲𝗻 (
@@ -130,7 +130,7 @@ Definition dynarray_2٠grow₀ : val :=
 Definition dynarray_2٠grow : val :=
   𝗳𝘂𝗻 "t" "sz" "v" ->
     𝗶𝗳 ~ dynarray_2٠try_grow "t" "sz" "v" 𝘁𝗵𝗲𝗻 (
-      dynarray_2٠grow₀ "t" "sz" "v"
+      dynarray_2٠grow₁ "t" "sz" "v"
     ).
 
 Definition dynarray_2٠try_push : val :=
@@ -145,7 +145,7 @@ Definition dynarray_2٠try_push : val :=
       true
     ).
 
-Definition dynarray_2٠push₀ : val :=
+Definition dynarray_2٠push₁ : val :=
   𝗿𝗲𝗰 "push" "t" "slot" ->
     dynarray_2٠reserve_extra "t" 1 ⍮
     𝗶𝗳 ~ dynarray_2٠try_push "t" "slot" 𝘁𝗵𝗲𝗻 (
@@ -156,7 +156,7 @@ Definition dynarray_2٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
     𝗹𝗲𝘁 "slot" = dynarray_2٠element "v" 𝗶𝗻
     𝗶𝗳 ~ dynarray_2٠try_push "t" "slot" 𝘁𝗵𝗲𝗻 (
-      dynarray_2٠push₀ "t" "slot"
+      dynarray_2٠push₁ "t" "slot"
     ).
 
 Definition dynarray_2٠pop : val :=

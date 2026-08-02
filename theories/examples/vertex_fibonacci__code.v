@@ -7,7 +7,7 @@ Require Import zoo_std.ivar_4.
 Require Import examples.vertex_fibonacci__types.
 Require Import zoo.options.
 
-Definition vertex_fibonacci٠main₀ : val :=
+Definition vertex_fibonacci٠main₁ : val :=
   𝗿𝗲𝗰 "main" "ctx" "vtx" "r" "n" ->
     𝗶𝗳 "n" ≤ 1 𝘁𝗵𝗲𝗻 (
       "r" <- "n" ⍮
@@ -44,7 +44,7 @@ Definition vertex_fibonacci٠main : val :=
          vertex٠set_task
            "vtx1"
            (𝗳𝘂𝗻 "ctx" ->
-              vertex_fibonacci٠main₀ "ctx" "vtx1" "r" "n") ⍮
+              vertex_fibonacci٠main₁ "ctx" "vtx1" "r" "n") ⍮
          vertex٠release "ctx" "vtx1" ⍮
          𝗹𝗲𝘁 "ivar" = ivar_4٠create () 𝗶𝗻
          𝗹𝗲𝘁 "vtx2" =

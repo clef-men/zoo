@@ -29,7 +29,7 @@ Definition sarray٠capture : val :=
   𝗳𝘂𝗻 "t" ->
     "t".{root}.
 
-Definition sarray٠restore₀ : val :=
+Definition sarray٠restore₁ : val :=
   𝗿𝗲𝗰 "restore" "data" "node" ->
     𝗺𝗮𝘁𝗰𝗵 !"node" 𝘄𝗶𝘁𝗵
     | Root ->
@@ -46,7 +46,7 @@ Definition sarray٠restore : val :=
     | Root ->
         ()
     | Diff ⎽ ⎽ ⎽ ->
-        sarray٠restore₀ "t".{data} "s" ⍮
+        sarray٠restore₁ "t".{data} "s" ⍮
         "s" <- §Root ⍮
         "t" <-{root} "s"
     𝗲𝗻𝗱.

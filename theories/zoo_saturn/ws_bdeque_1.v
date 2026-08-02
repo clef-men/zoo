@@ -1855,7 +1855,7 @@ Module base.
       | PopEmptyishWinner v
       | PopEmptyishLoser
       | PopSuperempty.
-    #[local] Lemma ws_bdeque_1٠pop₀ｰspec {t γ} (state : pop_state) {stable} back ws front_cache us id (back_ : Z) :
+    #[local] Lemma ws_bdeque_1٠pop₁ｰspec {t γ} (state : pop_state) {stable} back ws front_cache us id (back_ : Z) :
       back_ = back →
       {{{
         inv' t γ ∗
@@ -1880,7 +1880,7 @@ Module base.
             ⌜front = ˖back⌝
         end
       }}}
-        ws_bdeque_1٠pop₀ #t #id #back_
+        ws_bdeque_1٠pop₁ #t #id #back_
       {{{
         o back front_cache i us
       , RET o;
@@ -2033,7 +2033,7 @@ Module base.
         { iExists Superempty. iFrameSteps. }
         iIntros "!> {%- Hcapacity Hfront_cache Hus Hback}".
 
-        wp۰apply+ (ws_bdeque_1٠pop₀ｰspec PopSuperempty (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
+        wp۰apply+ (ws_bdeque_1٠pop₁ｰspec PopSuperempty (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
         iSteps.
       }
 
@@ -2073,7 +2073,7 @@ Module base.
           { iExists Emptyish. iFrameSteps. }
           iIntros "!> {%- Hcapacity Hfront_cache Hus Hback Hus_lookup}".
 
-          wp۰apply+ (ws_bdeque_1٠pop₀ｰspec (PopEmptyishWinner v) front1 with "[- HΦ]"); [lia | iFrameSteps |].
+          wp۰apply+ (ws_bdeque_1٠pop₁ｰspec (PopEmptyishWinner v) front1 with "[- HΦ]"); [lia | iFrameSteps |].
           iSteps.
 
         + iDestruct "Hwinner" as "[(:winner) | Hwinner]".
@@ -2089,7 +2089,7 @@ Module base.
             { iExists Emptyish. iFrameSteps. }
             iIntros "!> {%- Hcapacity Hfront_cache Hus Hus_lookup}".
 
-            wp۰apply+ (ws_bdeque_1٠pop₀ｰspec (PopEmptyishWinner v) front1 with "[- HΦ]"); [lia | iFrameSteps |].
+            wp۰apply+ (ws_bdeque_1٠pop₁ｰspec (PopEmptyishWinner v) front1 with "[- HΦ]"); [lia | iFrameSteps |].
             iSteps.
           }
 
@@ -2112,7 +2112,7 @@ Module base.
           { iExists Emptyish. iFrameStep 7. iExists P. iSteps. }
           iIntros "!> {%- Hcapacity Hfront_cache Hus Hbranch2}".
 
-          wp۰apply+ (ws_bdeque_1٠pop₀ｰspec PopEmptyishLoser front1 with "[- HΦ]"); [lia | iFrameSteps |].
+          wp۰apply+ (ws_bdeque_1٠pop₁ｰspec PopEmptyishLoser front1 with "[- HΦ]"); [lia | iFrameSteps |].
           iSteps.
 
       - iMod (ownerｰupdate Stable (back - 1) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
@@ -2136,7 +2136,7 @@ Module base.
         }
         iIntros "!> {%- Hcapacity Hfront_cache Hus Hback Hus_lookup}".
 
-        wp۰apply+ (ws_bdeque_1٠pop₀ｰspec (PopNonempty v) (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
+        wp۰apply+ (ws_bdeque_1٠pop₁ｰspec (PopNonempty v) (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
         iSteps.
     Qed.
   End ws_bdeque_1۰G.

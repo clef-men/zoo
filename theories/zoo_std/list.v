@@ -192,7 +192,7 @@ Section zoo۰G.
       wp۰apply ("IH" with "[%] [//] [//] [//] HΦ"); first lia.
   Qed.
 
-  #[local] Lemma list٠initi₀ｰspec vs_left Ψ sz fn i :
+  #[local] Lemma list٠initi₁ｰspec vs_left Ψ sz fn i :
     i ≤ ₊sz →
     i = length vs_left →
     {{{
@@ -206,7 +206,7 @@ Section zoo۰G.
         }}
       )
     }}}
-      list٠initi₀ #sz fn #i
+      list٠initi₁ #sz fn #i
     {{{
       t vs_right
     , RET t;
@@ -255,7 +255,7 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠initi₀ｰspec [] Ψ with "[$HΨ $Hfn] HΦ"); simpl; lia.
+    wp۰apply+ (list٠initi₁ｰspec [] Ψ with "[$HΨ $Hfn] HΦ"); simpl; lia.
   Qed.
   Lemma list٠initiｰspec' Ψ sz fn :
     {{{
@@ -452,7 +452,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma list٠foldli₀ｰspec vs_left Ψ vs fn i acc t vs_right :
+  #[local] Lemma list٠foldli₁ｰspec vs_left Ψ vs fn i acc t vs_right :
     vs = vs_left ++ vs_right →
     i = length vs_left →
     list۰model' t vs_right →
@@ -467,7 +467,7 @@ Section zoo۰G.
         }}
       )
     }}}
-      list٠foldli₀ fn #i acc t
+      list٠foldli₁ fn #i acc t
     {{{
       acc
     , RET acc;
@@ -512,7 +512,7 @@ Section zoo۰G.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp۰rec.
     rewrite -Nat2Z.inj_0.
-    wp۰apply+ (list٠foldli₀ｰspec [] Ψ with "[$HΨ $Hfn //] HΦ"); done.
+    wp۰apply+ (list٠foldli₁ｰspec [] Ψ with "[$HΨ $Hfn //] HΦ"); done.
   Qed.
   Lemma list٠foldliｰspec' Ψ fn acc t vs :
     list۰model' t vs →
@@ -597,7 +597,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma list٠foldri₀ｰspec vs_left Ψ vs fn i t vs_right acc :
+  #[local] Lemma list٠foldri₁ｰspec vs_left Ψ vs fn i t vs_right acc :
     vs = vs_left ++ vs_right →
     i = length vs_left →
     list۰model' t vs_right →
@@ -612,7 +612,7 @@ Section zoo۰G.
         }}
       )
     }}}
-      list٠foldri₀ fn #i t acc
+      list٠foldri₁ fn #i t acc
     {{{
       acc
     , RET acc;
@@ -657,7 +657,7 @@ Section zoo۰G.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp۰rec.
     rewrite -Nat2Z.inj_0.
-    wp۰apply+ (list٠foldri₀ｰspec [] Ψ with "[$HΨ $Hfn] HΦ"); done.
+    wp۰apply+ (list٠foldri₁ｰspec [] Ψ with "[$HΨ $Hfn] HΦ"); done.
   Qed.
   Lemma list٠foldriｰspec' Ψ fn t vs acc :
     list۰model' t vs →
@@ -1057,7 +1057,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma list٠mapi₀ｰspec vs_left ws_left Ψ vs fn i t vs_right :
+  #[local] Lemma list٠mapi₁ｰspec vs_left ws_left Ψ vs fn i t vs_right :
     vs = vs_left ++ vs_right →
     i = length vs_left →
     i = length ws_left →
@@ -1073,7 +1073,7 @@ Section zoo۰G.
         }}
       )
     }}}
-      list٠mapi₀ fn #i t
+      list٠mapi₁ fn #i t
     {{{
       t' ws_right
     , RET t';
@@ -1125,7 +1125,7 @@ Section zoo۰G.
   Proof.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp۰rec.
-    wp۰apply+ (list٠mapi₀ｰspec [] [] Ψ with "[$HΨ $Hfn]"); [done.. |].
+    wp۰apply+ (list٠mapi₁ｰspec [] [] Ψ with "[$HΨ $Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma list٠mapiｰspec' Ψ fn t vs :

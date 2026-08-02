@@ -42,7 +42,7 @@ Definition ws_bdeques_public٠steal_to : val :=
     𝗹𝗲𝘁 "queue" = array٠unsafe_get "t" "j" 𝗶𝗻
     ws_bdeque_2٠steal "queue".
 
-Definition ws_bdeques_public٠steal_as₀ : val :=
+Definition ws_bdeques_public٠steal_as₁ : val :=
   𝗿𝗲𝗰 "steal_as" "t" "sz" "i" "round" "n" ->
     𝗶𝗳 "n" ≤ 0 𝘁𝗵𝗲𝗻 (
       §None
@@ -63,4 +63,4 @@ Definition ws_bdeques_public٠steal_as₀ : val :=
 Definition ws_bdeques_public٠steal_as : val :=
   𝗳𝘂𝗻 "t" "i" "round" ->
     𝗹𝗲𝘁 "sz" = ws_bdeques_public٠size "t" 𝗶𝗻
-    ws_bdeques_public٠steal_as₀ "t" "sz" "i" "round" ("sz" - 1).
+    ws_bdeques_public٠steal_as₁ "t" "sz" "i" "round" ("sz" - 1).

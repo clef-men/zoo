@@ -10,7 +10,7 @@ Definition parray٠make : val :=
     𝗹𝗲𝘁 "data" = array٠unsafe_make "sz" "v" 𝗶𝗻
     𝗿𝗲𝗳 ‘Root( "equal", "data" ).
 
-Definition parray٠reroot₀ : val :=
+Definition parray٠reroot₁ : val :=
   𝗿𝗲𝗰 "reroot" "t" ->
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
     | Root ⎽ ⎽ 𝗮𝘀 "root_r" ->
@@ -28,7 +28,7 @@ Definition parray٠reroot : val :=
     | Root ⎽ ⎽ 𝗮𝘀 "root_r" ->
         ("root_r".<equal>, "root_r".<data>)
     | Diff ⎽ ⎽ ⎽ ->
-        𝗹𝗲𝘁 "equal", "data" = parray٠reroot₀ "t" 𝗶𝗻
+        𝗹𝗲𝘁 "equal", "data" = parray٠reroot₁ "t" 𝗶𝗻
         "t" <- ‘Root( "equal", "data" ) ⍮
         ("equal", "data")
     𝗲𝗻𝗱.

@@ -43,7 +43,7 @@ Definition list٠get : val :=
       "get" (list٠tail "t") ("i" - 1)
     ).
 
-Definition list٠initi₀ : val :=
+Definition list٠initi₁ : val :=
   𝗿𝗲𝗰 "initi" "sz" "fn" "i" ->
     𝗶𝗳 "sz" ≤ "i" 𝘁𝗵𝗲𝗻 (
       []
@@ -54,13 +54,13 @@ Definition list٠initi₀ : val :=
 
 Definition list٠initi : val :=
   𝗳𝘂𝗻 "sz" "fn" ->
-    list٠initi₀ "sz" "fn" 0.
+    list٠initi₁ "sz" "fn" 0.
 
 Definition list٠init : val :=
   𝗳𝘂𝗻 "sz" "fn" ->
     list٠initi "sz" (𝗳𝘂𝗻 "_i" -> "fn" ()).
 
-Definition list٠foldli₀ : val :=
+Definition list٠foldli₁ : val :=
   𝗿𝗲𝗰 "foldli" "fn" "i" "acc" "t" ->
     𝗺𝗮𝘁𝗰𝗵 "t" 𝘄𝗶𝘁𝗵
     | [] ->
@@ -71,13 +71,13 @@ Definition list٠foldli₀ : val :=
 
 Definition list٠foldli : val :=
   𝗳𝘂𝗻 "fn" ->
-    list٠foldli₀ "fn" 0.
+    list٠foldli₁ "fn" 0.
 
 Definition list٠foldl : val :=
   𝗳𝘂𝗻 "fn" ->
     list٠foldli (𝗳𝘂𝗻 "_i" -> "fn").
 
-Definition list٠foldri₀ : val :=
+Definition list٠foldri₁ : val :=
   𝗿𝗲𝗰 "foldri" "fn" "i" "t" "acc" ->
     𝗺𝗮𝘁𝗰𝗵 "t" 𝘄𝗶𝘁𝗵
     | [] ->
@@ -88,7 +88,7 @@ Definition list٠foldri₀ : val :=
 
 Definition list٠foldri : val :=
   𝗳𝘂𝗻 "fn" ->
-    list٠foldri₀ "fn" 0.
+    list٠foldri₁ "fn" 0.
 
 Definition list٠foldr : val :=
   𝗳𝘂𝗻 "fn" ->
@@ -122,7 +122,7 @@ Definition list٠iter : val :=
   𝗳𝘂𝗻 "fn" ->
     list٠iteri (𝗳𝘂𝗻 "_i" -> "fn").
 
-Definition list٠mapi₀ : val :=
+Definition list٠mapi₁ : val :=
   𝗿𝗲𝗰 "mapi" "fn" "i" "t" ->
     𝗺𝗮𝘁𝗰𝗵 "t" 𝘄𝗶𝘁𝗵
     | [] ->
@@ -134,7 +134,7 @@ Definition list٠mapi₀ : val :=
 
 Definition list٠mapi : val :=
   𝗳𝘂𝗻 "fn" ->
-    list٠mapi₀ "fn" 0.
+    list٠mapi₁ "fn" 0.
 
 Definition list٠map : val :=
   𝗳𝘂𝗻 "fn" ->

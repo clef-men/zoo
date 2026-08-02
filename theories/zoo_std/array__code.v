@@ -310,7 +310,7 @@ Definition array٠cset : val :=
     𝗮𝘀𝘀𝘂𝗺𝗲 (0 < array٠size "t") ⍮
     array٠unsafe_cset "t" "i" "v".
 
-Definition array٠unsafe_ccopy_slice₀ : val :=
+Definition array٠unsafe_ccopy_slice₁ : val :=
   𝗳𝘂𝗻 "t1" "i1" "t2" "i2" "n" ->
     𝗹𝗲𝘁 "sz2" = array٠size "t2" 𝗶𝗻
     𝗹𝗲𝘁 "i2" = "i2" 𝗿𝗲𝗺 "sz2" 𝗶𝗻
@@ -328,12 +328,12 @@ Definition array٠unsafe_ccopy_slice : val :=
     𝗹𝗲𝘁 "sz1" = array٠size "t1" 𝗶𝗻
     𝗹𝗲𝘁 "i1" = "i1" 𝗿𝗲𝗺 "sz1" 𝗶𝗻
     𝗶𝗳 "i1" + "n" ≤ "sz1" 𝘁𝗵𝗲𝗻 (
-      array٠unsafe_ccopy_slice₀ "t1" "i1" "t2" "i2" "n"
+      array٠unsafe_ccopy_slice₁ "t1" "i1" "t2" "i2" "n"
     ) 𝗲𝗹𝘀𝗲 (
       𝗹𝗲𝘁 "n1" = "sz1" - "i1" 𝗶𝗻
       𝗹𝗲𝘁 "n2" = "n" - "n1" 𝗶𝗻
-      array٠unsafe_ccopy_slice₀ "t1" "i1" "t2" "i2" "n1" ⍮
-      array٠unsafe_ccopy_slice₀ "t1" 0 "t2" ("i2" + "n1") "n2"
+      array٠unsafe_ccopy_slice₁ "t1" "i1" "t2" "i2" "n1" ⍮
+      array٠unsafe_ccopy_slice₁ "t1" 0 "t2" ("i2" + "n1") "n2"
     ).
 
 Definition array٠ccopy_slice : val :=

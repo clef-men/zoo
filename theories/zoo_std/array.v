@@ -7281,7 +7281,7 @@ Section zoo۰G.
     wp۰apply+ (array٠unsafe_csetｰspecｰmodel with "Hmodel HΦ"); lia.
   Qed.
 
-  #[local] Lemma array٠unsafe_ccopy_slice₀ｰspec t1 (i1 : Z) i1_ dq1 vs1 t2 sz2 (i2 : Z) i2_ vs2 (n : Z) :
+  #[local] Lemma array٠unsafe_ccopy_slice₁ｰspec t1 (i1 : Z) i1_ dq1 vs1 t2 sz2 (i2 : Z) i2_ vs2 (n : Z) :
     0 < sz2 →
     i1 = ⁺i1_ →
     i2 = ⁺i2_ →
@@ -7291,7 +7291,7 @@ Section zoo۰G.
       array۰slice t1 i1_ dq1 vs1 ∗
       array۰cslice t2 sz2 i2_ (DfracOwn 1) vs2
     }}}
-      array٠unsafe_ccopy_slice₀ t1 #i1 t2 #i2 #n
+      array٠unsafe_ccopy_slice₁ t1 #i1 t2 #i2 #n
     {{{
       RET ();
       array۰slice t1 i1_ dq1 vs1 ∗
@@ -7353,14 +7353,14 @@ Section zoo۰G.
     iDestruct "Hcslice1" as "(#Hinv2 & Hslice11 & Hslice12)".
     case_bool_decide as Hif; wp۰pures.
 
-    - wp۰apply (array٠unsafe_ccopy_slice₀ｰspec with "[$Hslice11 $Hcslice2]") as "(Hslice11 & Hcslice2)"; [simpl_length; lia.. |].
+    - wp۰apply (array٠unsafe_ccopy_slice₁ｰspec with "[$Hslice11 $Hcslice2]") as "(Hslice11 & Hcslice2)"; [simpl_length; lia.. |].
       rewrite firstn_all2; first lia.
       iSteps.
 
     - rewrite -(take_drop (sz1 - i1_ `mod` sz1) vs2).
       iDestruct (array۰csliceｰapp₂ with "Hcslice2") as "(Hcslice21 & Hcslice22)"; first done.
-      wp۰apply (array٠unsafe_ccopy_slice₀ｰspec with "[$Hslice11 $Hcslice21]") as "(Hslice11 & Hcslice21)"; [simpl_length; lia.. |].
-      wp۰apply+ (array٠unsafe_ccopy_slice₀ｰspec with "[$Hslice12 $Hcslice22]") as "(Hslice12 & Hcslice22)"; [simpl_length; lia.. |].
+      wp۰apply (array٠unsafe_ccopy_slice₁ｰspec with "[$Hslice11 $Hcslice21]") as "(Hslice11 & Hcslice21)"; [simpl_length; lia.. |].
+      wp۰apply+ (array٠unsafe_ccopy_slice₁ｰspec with "[$Hslice12 $Hcslice22]") as "(Hslice12 & Hcslice22)"; [simpl_length; lia.. |].
       iDestruct (array۰csliceｰapp₁ with "Hcslice21 Hcslice22") as "Hcslice2".
       { simpl_length. lia. }
       iEval (rewrite take_drop) in "Hcslice2".
@@ -8984,7 +8984,7 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma array٠unsafe_ccopy_slice₀ｰtype τ `{!iType _ τ} t1 sz1 (i1 : Z) t2 sz2 (i2 n : Z) :
+  #[local] Lemma array٠unsafe_ccopy_slice₁ｰtype τ `{!iType _ τ} t1 sz1 (i1 : Z) t2 sz2 (i2 n : Z) :
     0 < sz1 →
     0 < sz2 →
     (0 ≤ i1)%Z →
@@ -8996,7 +8996,7 @@ Section zoo۰G.
       itype۰array τ sz1 t1 ∗
       itype۰array τ sz2 t2
     }}}
-      array٠unsafe_ccopy_slice₀ t1 #i1 t2 #i2 #n
+      array٠unsafe_ccopy_slice₁ t1 #i1 t2 #i2 #n
     {{{
       RET ();
       True
@@ -9043,14 +9043,14 @@ Section zoo۰G.
     rewrite Z.rem_mod_nonneg; [lia.. |].
     case_bool_decide; wp۰pures.
 
-    - wp۰apply (array٠unsafe_ccopy_slice₀ｰtype τ t1 with "[$]") as "_"; [lia.. |].
+    - wp۰apply (array٠unsafe_ccopy_slice₁ｰtype τ t1 with "[$]") as "_"; [lia.. |].
       iSteps.
 
-    - wp۰apply (array٠unsafe_ccopy_slice₀ｰtype τ t1 with "[$]") as "_"; [lia.. |].
-      wp۰apply+ (array٠unsafe_ccopy_slice₀ｰtype τ t1 with "[$]") as "_"; [lia.. |].
+    - wp۰apply (array٠unsafe_ccopy_slice₁ｰtype τ t1 with "[$]") as "_"; [lia.. |].
+      wp۰apply+ (array٠unsafe_ccopy_slice₁ｰtype τ t1 with "[$]") as "_"; [lia.. |].
       iSteps.
   Qed.
-  #[local] Lemma array٠unsafe_ccopy_slice₀۰type' τ `{!iType _ τ} t1 sz1 (i1 : Z) t2 sz2 (i2 : Z) i2_ vs (n : Z) :
+  #[local] Lemma array٠unsafe_ccopy_slice₁۰type' τ `{!iType _ τ} t1 sz1 (i1 : Z) t2 sz2 (i2 : Z) i2_ vs (n : Z) :
     0 < sz1 →
     0 < sz2 →
     length vs ≤ sz2 →
@@ -9062,7 +9062,7 @@ Section zoo۰G.
       itype۰array τ sz1 t1 ∗
       array۰cslice t2 sz2 i2_ (DfracOwn 1) vs
     }}}
-      array٠unsafe_ccopy_slice₀ t1 #i1 t2 #i2 #n
+      array٠unsafe_ccopy_slice₁ t1 #i1 t2 #i2 #n
     {{{
       ws
     , RET ();
@@ -9130,15 +9130,15 @@ Section zoo۰G.
     rewrite Z.rem_mod_nonneg; [lia.. |].
     case_bool_decide as Hif; wp۰pures.
 
-    - wp۰apply (array٠unsafe_ccopy_slice₀۰type' with "[$Htype1 $Hcslice2]") as (ws) "(%Hws & Hcslice2 & Hws)"; [simpl_length; lia.. |].
+    - wp۰apply (array٠unsafe_ccopy_slice₁۰type' with "[$Htype1 $Hcslice2]") as (ws) "(%Hws & Hcslice2 & Hws)"; [simpl_length; lia.. |].
       iSteps.
 
     - rewrite -(take_drop (sz1 - ₊i1 `mod` sz1) vs).
       iDestruct (array۰csliceｰapp₂ with "Hcslice2") as "(Hcslice21 & Hcslice22)"; first done.
       assert (i1 `mod` sz1 = ⁺(₊i1 `mod` sz1))%Z.
       { rewrite Nat2Z.inj_mod Z2Nat.id //. }
-      wp۰apply (array٠unsafe_ccopy_slice₀۰type' with "[$Htype1 $Hcslice21]") as (ws1) "(%Hws1 & Hcslice21 & Hws1)"; [simpl_length; lia.. |].
-      wp۰apply+ (array٠unsafe_ccopy_slice₀۰type' with "[$Htype1 $Hcslice22]") as (ws2) "(%Hws2 & Hcslice22 & Hws2)"; [simpl_length; lia.. |].
+      wp۰apply (array٠unsafe_ccopy_slice₁۰type' with "[$Htype1 $Hcslice21]") as (ws1) "(%Hws1 & Hcslice21 & Hws1)"; [simpl_length; lia.. |].
+      wp۰apply+ (array٠unsafe_ccopy_slice₁۰type' with "[$Htype1 $Hcslice22]") as (ws2) "(%Hws2 & Hcslice22 & Hws2)"; [simpl_length; lia.. |].
       iDestruct (big_sepLｰapp₂ with "Hws1 Hws2") as "Hws".
       iApply ("HΦ" with "[- $Hws]").
       simpl_length in *. iSteps.
