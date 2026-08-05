@@ -296,11 +296,11 @@ Section partition۰G.
     iApply (pointstoｰagree with "Helt_data_1 Helt_data_2").
   Qed.
 
-  #[local] Lemma partition٠dllist_createｰspec v v_class :
+  #[local] Lemma partition٠dllist٠createｰspec v v_class :
     {{{
       True
     }}}
-      partition٠dllist_create v v_class
+      partition٠dllist٠create v v_class
     {{{
       elt
     , RET #elt;
@@ -362,7 +362,7 @@ Section partition۰G.
     iDestruct "Hmodel" as "(:model')".
 
     wp۰rec.
-    wp۰apply (partition٠dllist_createｰspec with "[//]") as (elt) "(Helt_prev & Helt_next & #Helt_data & Helt_class & Helt_seen)".
+    wp۰apply (partition٠dllist٠createｰspec with "[//]") as (elt) "(Helt_prev & Helt_next & #Helt_data & Helt_class & Helt_seen)".
     wp۰block class as "(Hclass_first & Hclass_last & Hclass_len & Hclass_split & Hclass_split_len & _)".
     wp۰store. wp۰pures.
 
@@ -419,7 +419,7 @@ Section partition۰G.
 
     wp۰rec.
     wp۰apply+ (partition٠get_classｰspec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
-    wp۰apply+ (partition٠dllist_createｰspec with "[//]") as (elt') "(Helt'_prev & Helt'_next & #Helt'_data & Helt'_class & Helt'_seen)".
+    wp۰apply+ (partition٠dllist٠createｰspec with "[//]") as (elt') "(Helt'_prev & Helt'_next & #Helt'_data & Helt'_class & Helt'_seen)".
   Admitted.
 
   Lemma partition٠getｰspec γ elt v :

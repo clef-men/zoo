@@ -18,56 +18,62 @@ and 'a class_ =
   ; mutable split_len: int
   }
 
-let dllist_create v class_ =
-  let elt =
-    { prev= Obj.magic ()
-    ; next= Obj.magic ()
-    ; data= v
-    ; class_
-    ; seen= false
-    }
-  in
-  elt.prev <- elt ;
-  elt.next <- elt ;
-  elt
-let dllist_link elt1 elt2 =
-  elt1.next <- elt2 ;
-  elt2.prev <- elt1
-let dllist_insert_right dst elt =
-  dllist_link elt dst.next ;
-  dllist_link dst elt
-let dllist_swap elt1 elt2 =
-  if elt1 != elt2 then (
-    let prev1 = elt1.prev in
-    let next1 = elt1.next in
-    let prev2 = elt2.prev in
-    let next2 = elt2.next in
-    if next1 == elt2 then (
-      if next2 != elt1 then (
-        dllist_link elt1 next2 ;
-        dllist_link elt2 elt1 ;
-        dllist_link prev1 elt2
+module Dllist = struct
+  let create v class_ =
+    let elt =
+      { prev= Obj.magic ()
+      ; next= Obj.magic ()
+      ; data= v
+      ; class_
+      ; seen= false
+      }
+    in
+    elt.prev <- elt ;
+    elt.next <- elt ;
+    elt
+
+  let link elt1 elt2 =
+    elt1.next <- elt2 ;
+    elt2.prev <- elt1
+
+  let insert_right dst elt =
+    link elt dst.next ;
+    link dst elt
+
+  let swap elt1 elt2 =
+    if elt1 != elt2 then (
+      let prev1 = elt1.prev in
+      let next1 = elt1.next in
+      let prev2 = elt2.prev in
+      let next2 = elt2.next in
+      if next1 == elt2 then (
+        if next2 != elt1 then (
+          link elt1 next2 ;
+          link elt2 elt1 ;
+          link prev1 elt2
+        )
+      ) else if prev1 == elt2 then (
+        link prev2 elt1 ;
+        link elt1 elt2 ;
+        link elt2 next1
+      ) else (
+        link prev2 elt1 ;
+        link elt1 next2 ;
+        link elt2 next1 ;
+        link prev1 elt2
       )
-    ) else if prev1 == elt2 then (
-      dllist_link prev2 elt1 ;
-      dllist_link elt1 elt2 ;
-      dllist_link elt2 next1
-    ) else (
-      dllist_link prev2 elt1 ;
-      dllist_link elt1 next2 ;
-      dllist_link elt2 next1 ;
-      dllist_link prev1 elt2
     )
-  )
-let rec dllist_iter fn from to_ =
-  fn from ;
-  if from != to_ then
-    dllist_iter fn from.next to_
+
+  let rec iter fn from to_ =
+    fn from ;
+    if from != to_ then
+      iter fn from.next to_
+end
 
 let class_is_singleton class_ =
   class_.len == 1
 let class_add class_ elt =
-  dllist_insert_right class_.last elt ;
+  Dllist.insert_right class_.last elt ;
   class_.last <- elt ;
   class_.len <- class_.len + 1
 let class_swap class_ elt1 elt2 =
@@ -82,13 +88,13 @@ let class_swap class_ elt1 elt2 =
       class_.last <- elt1
     else if last == elt1 then
       class_.last <- elt2 ;
-    dllist_swap elt1 elt2
+    Dllist.swap elt1 elt2
   )
 let class_iter fn class_ =
-  dllist_iter fn class_.first class_.last
+  Dllist.iter fn class_.first class_.last
 
 let make v =
-  let elt = dllist_create v (Obj.magic ()) in
+  let elt = Dllist.create v (Obj.magic ()) in
   let class_ =
     { first= elt
     ; last= elt
@@ -102,7 +108,7 @@ let make v =
 
 let make_same_class elt v =
   let class_ = elt.class_ in
-  let elt = dllist_create v class_ in
+  let elt = Dllist.create v class_ in
   class_add class_ elt ;
   elt
 
@@ -165,7 +171,7 @@ let split class_ =
       ; split_len= 0
       }
     in
-    dllist_iter (fun elt ->
+    Dllist.iter (fun elt ->
       elt.class_ <- class' ;
       elt.seen <- false
     ) first prev
