@@ -8,6 +8,7 @@ Require Import zoo_std.dynarray_1__code.
 #[global] Opaque dynarray_1٠is_empty.
 #[global] Opaque dynarray_1٠get.
 #[global] Opaque dynarray_1٠set.
+#[global] Opaque dynarray_1٠next_capacity.
 #[global] Opaque dynarray_1٠reserve.
 #[global] Opaque dynarray_1٠reserve_extra.
 #[global] Opaque dynarray_1٠grow.

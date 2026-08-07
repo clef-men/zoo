@@ -1,5 +1,14 @@
 Require Import zoo_partition.partition__code.
 
+#[global] Opaque partition٠dllist٠create.
+#[global] Opaque partition٠dllist٠link.
+#[global] Opaque partition٠dllist٠insert_right.
+#[global] Opaque partition٠dllist٠swap.
+#[global] Opaque partition٠dllist٠iter.
+#[global] Opaque partition٠class_is_singleton.
+#[global] Opaque partition٠class_add.
+#[global] Opaque partition٠class_swap.
+#[global] Opaque partition٠class_iter.
 #[global] Opaque partition٠make.
 #[global] Opaque partition٠make_same_class.
 #[global] Opaque partition٠get.
@@ -7,4 +16,8 @@ Require Import zoo_partition.partition__code.
 #[global] Opaque partition٠equiv.
 #[global] Opaque partition٠repr.
 #[global] Opaque partition٠cardinal.
+#[global] Opaque partition٠record₁.
+#[global] Opaque partition٠record.
+#[global] Opaque partition٠split₁.
+#[global] Opaque partition٠split.
 #[global] Opaque partition٠refine.

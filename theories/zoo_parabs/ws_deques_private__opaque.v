@@ -1,2 +1,13 @@
 Require Import zoo_parabs.ws_deques_private__code.
 
+#[global] Opaque ws_deques_private٠create.
+#[global] Opaque ws_deques_private٠size.
+#[global] Opaque ws_deques_private٠block.
+#[global] Opaque ws_deques_private٠unblock.
+#[global] Opaque ws_deques_private٠respond.
+#[global] Opaque ws_deques_private٠push.
+#[global] Opaque ws_deques_private٠pop.
+#[global] Opaque ws_deques_private٠steal_to₁.
+#[global] Opaque ws_deques_private٠steal_to.
+#[global] Opaque ws_deques_private٠steal_as₁.
+#[global] Opaque ws_deques_private٠steal_as.

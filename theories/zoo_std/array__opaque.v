@@ -14,11 +14,13 @@ Require Import zoo_std.array__code.
 #[global] Opaque array٠fill.
 #[global] Opaque array٠unsafe_make.
 #[global] Opaque array٠make.
+#[global] Opaque array٠foldli_aux.
 #[global] Opaque array٠foldli.
 #[global] Opaque array٠foldl.
-#[global] Opaque array٠sum.
+#[global] Opaque array٠foldri_aux.
 #[global] Opaque array٠foldri.
 #[global] Opaque array٠foldr.
+#[global] Opaque array٠sum.
 #[global] Opaque array٠unsafe_iteri_slice.
 #[global] Opaque array٠iteri_slice.
 #[global] Opaque array٠unsafe_iter_slice.
@@ -52,6 +54,7 @@ Require Import zoo_std.array__code.
 #[global] Opaque array٠cget.
 #[global] Opaque array٠unsafe_cset.
 #[global] Opaque array٠cset.
+#[global] Opaque array٠unsafe_ccopy_slice₁.
 #[global] Opaque array٠unsafe_ccopy_slice.
 #[global] Opaque array٠ccopy_slice.
 #[global] Opaque array٠unsafe_ccopy.

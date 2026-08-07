@@ -1,3 +1,5 @@
+[@@@zoo.transparent]
+
 type 'a t =
   'a Stdlib.Atomic_array.t
 

@@ -1,3 +1,6 @@
 Require Import examples.pool_quicksort__code.
 
+#[global] Opaque pool_quicksort٠partition.
+#[global] Opaque pool_quicksort٠main₂.
+#[global] Opaque pool_quicksort٠main₁.
 #[global] Opaque pool_quicksort٠main.

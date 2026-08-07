@@ -1,10 +1,17 @@
 Require Import zoo_parabs.pool__code.
 
+#[global] Opaque pool٠max_round_noyield.
+#[global] Opaque pool٠max_round_yield.
+#[global] Opaque pool٠context.
+#[global] Opaque pool٠context_main.
+#[global] Opaque pool٠execute.
+#[global] Opaque pool٠worker.
 #[global] Opaque pool٠create.
 #[global] Opaque pool٠run_on.
 #[global] Opaque pool٠close.
 #[global] Opaque pool٠run.
 #[global] Opaque pool٠size.
 #[global] Opaque pool٠async.
+#[global] Opaque pool٠wait₁.
 #[global] Opaque pool٠wait.
 #[global] Opaque pool٠wait_ivar.

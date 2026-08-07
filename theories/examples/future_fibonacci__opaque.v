@@ -1,3 +1,4 @@
 Require Import examples.future_fibonacci__code.
 
+#[global] Opaque future_fibonacci٠main₁.
 #[global] Opaque future_fibonacci٠main.

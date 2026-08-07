@@ -1,2 +1,24 @@
 Require Import zoo_parabs.ws_hub_hybrid__code.
 
+#[global] Opaque ws_hub_hybrid٠create.
+#[global] Opaque ws_hub_hybrid٠size.
+#[global] Opaque ws_hub_hybrid٠begin_inactive.
+#[global] Opaque ws_hub_hybrid٠end_inactive.
+#[global] Opaque ws_hub_hybrid٠block_active.
+#[global] Opaque ws_hub_hybrid٠unblock_active.
+#[global] Opaque ws_hub_hybrid٠block.
+#[global] Opaque ws_hub_hybrid٠unblock.
+#[global] Opaque ws_hub_hybrid٠closed.
+#[global] Opaque ws_hub_hybrid٠notify.
+#[global] Opaque ws_hub_hybrid٠notify_all.
+#[global] Opaque ws_hub_hybrid٠push.
+#[global] Opaque ws_hub_hybrid٠pop.
+#[global] Opaque ws_hub_hybrid٠try_steal_once.
+#[global] Opaque ws_hub_hybrid٠try_steal₁.
+#[global] Opaque ws_hub_hybrid٠try_steal.
+#[global] Opaque ws_hub_hybrid٠steal_aux.
+#[global] Opaque ws_hub_hybrid٠steal_until.
+#[global] Opaque ws_hub_hybrid٠steal.
+#[global] Opaque ws_hub_hybrid٠close.
+#[global] Opaque ws_hub_hybrid٠pop_steal_until.
+#[global] Opaque ws_hub_hybrid٠pop_steal.

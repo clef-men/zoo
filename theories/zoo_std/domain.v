@@ -881,14 +881,12 @@ Section zoo۰G.
   Qed.
 End zoo۰G.
 
+Require zoo_std.domain__opaque.
 #[global] Opaque domain٠spawn.
 #[global] Opaque domain٠join.
 #[global] Opaque domain٠local_new.
 #[global] Opaque domain٠local_get.
 #[global] Opaque domain٠local_set.
-#[global] Opaque domain٠yield.
-#[global] Opaque domain٠self_index.
-#[global] Opaque domain٠recommended_domain_count.
 
 #[global] Opaque domain۰model.
 #[global] Opaque domain۰key.

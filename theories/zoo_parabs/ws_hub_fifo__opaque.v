@@ -1,2 +1,20 @@
 Require Import zoo_parabs.ws_hub_fifo__code.
 
+#[global] Opaque ws_hub_fifo٠create.
+#[global] Opaque ws_hub_fifo٠size.
+#[global] Opaque ws_hub_fifo٠begin_inactive.
+#[global] Opaque ws_hub_fifo٠end_inactive.
+#[global] Opaque ws_hub_fifo٠block.
+#[global] Opaque ws_hub_fifo٠unblock.
+#[global] Opaque ws_hub_fifo٠closed.
+#[global] Opaque ws_hub_fifo٠notify.
+#[global] Opaque ws_hub_fifo٠notify_all.
+#[global] Opaque ws_hub_fifo٠push.
+#[global] Opaque ws_hub_fifo٠pop'.
+#[global] Opaque ws_hub_fifo٠pop.
+#[global] Opaque ws_hub_fifo٠steal_aux.
+#[global] Opaque ws_hub_fifo٠steal_until.
+#[global] Opaque ws_hub_fifo٠steal.
+#[global] Opaque ws_hub_fifo٠close.
+#[global] Opaque ws_hub_fifo٠pop_steal_until.
+#[global] Opaque ws_hub_fifo٠pop_steal.

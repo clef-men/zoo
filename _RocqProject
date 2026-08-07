@@ -263,6 +263,7 @@ theories/zoo_std/deque__opaque.v
 theories/zoo_std/deque.v
 theories/zoo_std/domain__types.v
 theories/zoo_std/domain__code.v
+theories/zoo_std/domain__opaque.v
 theories/zoo_std/domain.v
 theories/zoo_std/mutex__types.v
 theories/zoo_std/mutex__code.v

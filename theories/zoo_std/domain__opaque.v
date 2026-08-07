@@ -1,0 +1,5 @@
+Require Import zoo_std.domain__code.
+
+#[global] Opaque domain٠yield.
+#[global] Opaque domain٠self_index.
+#[global] Opaque domain٠recommended_domain_count.

@@ -1,5 +1,3 @@
-[@@@zoo.ignore]
-
 type ('k, 'v) t
 
 val create :
