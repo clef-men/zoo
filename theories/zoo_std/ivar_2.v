@@ -890,7 +890,7 @@ Section ivar_2۰G.
     ivar_2۰producer t -∗
     False.
   Proof.
-    iIntros "(:producer =1) (:producer =2)". simplify.
+    iIntros "(:producer =1) (:producer =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.ivar_2۰producerｰexclusive with "Hproducer_1 Hproducer_2").
   Qed.
@@ -901,7 +901,7 @@ Section ivar_2۰G.
     (∀ v, Χ1 v -∗ Χ2 v) ={⊤}=∗
     ivar_2۰consumer t Χ2.
   Proof.
-    iIntros "(:inv =1) (:consumer =2) H". simplify.
+    iIntros "(:inv =1) (:consumer =2) H". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iDestruct (base.ivar_2۰consumerｰwand with "Hinv_1 Hconsumer_2 H") as "H".
     iSteps.
@@ -911,7 +911,7 @@ Section ivar_2۰G.
     ivar_2۰consumer t (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
     [∗ list] Χ ∈ Χs, ivar_2۰consumer t Χ.
   Proof.
-    iIntros "(:inv =1) (:consumer =2)". simplify.
+    iIntros "(:inv =1) (:consumer =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iDestruct (base.ivar_2۰consumerｰdivide with "Hinv_1 Hconsumer_2") as "H".
     iApply (big_sepL_impl with "H").
@@ -933,7 +933,7 @@ Section ivar_2۰G.
     ivar_2۰result t v2 -∗
     ⌜v1 = v2⌝.
   Proof.
-    iIntros "(:result =1) (:result =2)". simplify.
+    iIntros "(:result =1) (:result =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.ivar_2۰resultｰagree with "Hresult_1 Hresult_2").
   Qed.
@@ -943,7 +943,7 @@ Section ivar_2۰G.
     ivar_2۰result t v -∗
     False.
   Proof.
-    iIntros "(:producer =1) (:result =2)". simplify.
+    iIntros "(:producer =1) (:result =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.ivar_2ｰproducerｰresult with "Hproducer_1 Hresult_2").
   Qed.
@@ -954,7 +954,7 @@ Section ivar_2۰G.
     ivar_2۰synchronized t ={⊤}=∗
     ▷ □ Ξ v.
   Proof.
-    iIntros "(:inv =1) (:result =2) (:synchronized =3)". simplify.
+    iIntros "(:inv =1) (:result =2) (:synchronized =3)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iDestruct (metaｰagree with "Hmeta_2 Hmeta_3") as %<-.
     iApply (base.ivar_2ｰinvｰresult with "Hinv_1 Hresult_2 Hsynchronized_3").
@@ -978,7 +978,7 @@ Section ivar_2۰G.
       ▷^2 Χ v ∗
       ▷ □ Ξ v.
   Proof.
-    iIntros "(:inv =1) (:result =2) (:synchronized =3) (:consumer =4)". simplify.
+    iIntros "(:inv =1) (:result =2) (:synchronized =3) (:consumer =4)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iDestruct (metaｰagree with "Hmeta_2 Hmeta_3") as %<-.
     iDestruct (metaｰagree with "Hmeta_2 Hmeta_4") as %<-.
@@ -1077,7 +1077,7 @@ Section ivar_2۰G.
       ivar_2۰synchronized t
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.ivar_2٠try_getｰspecｰresult with "[$]").
@@ -1115,7 +1115,7 @@ Section ivar_2۰G.
       £ 2
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.ivar_2٠is_unsetｰspecｰresult with "[$] HΦ").
@@ -1152,7 +1152,7 @@ Section ivar_2۰G.
       £ 2
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.ivar_2٠is_setｰspecｰresult with "[$] HΦ").
@@ -1190,7 +1190,7 @@ Section ivar_2۰G.
       ivar_2۰result t v
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:producer =2) & HΨ & HΞ) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:producer =2) & HΨ & HΞ) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.ivar_2٠setｰspec _ _ Ψ with "[$]").

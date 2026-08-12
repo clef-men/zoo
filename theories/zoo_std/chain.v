@@ -179,7 +179,7 @@ Section zoo۰G.
   Proof.
     intros.
     destruct vs1, vs2; [naive_solver lia.. |].
-    iIntros "(:model =1 eq=1) (:model =2 eq=2)". simplify.
+    iIntros "(:model =1 eq=1) (:model =2 eq=2)". simp.
     iCombine "Hl1_next Hl2_next" gives %(? & _). done.
   Qed.
 

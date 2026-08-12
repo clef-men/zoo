@@ -197,7 +197,7 @@ Section mpsc_queue_2۰G.
     mpsc_queue_2۰model t vs2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)". simplify.
+    iIntros "(:model =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.

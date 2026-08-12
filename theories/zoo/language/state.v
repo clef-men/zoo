@@ -112,7 +112,7 @@ Section chunk.
           rewrite location۰addｰassoc Z.add_1_l Z2Nat.inj_succ //.
           auto with lia.
       + intros (i & ? & -> & Hlookup).
-        destruct_decide (i = 0); simplify.
+        destruct_decide (i = 0); simp.
         { rewrite location۰addｰ0. auto. }
         right. split.
         * rewrite -{1}(location۰addｰ0 l).

@@ -800,7 +800,7 @@ Module base.
       False.
     Proof.
       iIntros "(:winner =1) (:winner =2)".
-      iDestruct (prophet_multi۰fullｰagree with "Hprophet_full_1 Hprophet_full_2") as %->. simplify.
+      iDestruct (prophet_multi۰fullｰagree with "Hprophet_full_1 Hprophet_full_2") as %->. simp.
       iApply (identifier۰modelｰexclusive with "Hid1 Hid2").
     Qed.
 
@@ -1516,7 +1516,7 @@ Section inf_mpmc_queue_2۰G.
     inf_mpmc_queue_2۰model t vs2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)". simplify.
+    iIntros "(:model =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.inf_mpmc_queue_2۰modelｰexclusive with "Hmodel_1 Hmodel_2").
   Qed.
@@ -1558,7 +1558,7 @@ Section inf_mpmc_queue_2۰G.
     iIntros "%Φ (:inv) HΦ".
 
     awp۰apply (base.inf_mpmc_queue_2٠sizeｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
@@ -1581,7 +1581,7 @@ Section inf_mpmc_queue_2۰G.
     iIntros "%Φ (:inv) HΦ".
 
     awp۰apply (base.inf_mpmc_queue_2٠is_emptyｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
@@ -1603,7 +1603,7 @@ Section inf_mpmc_queue_2۰G.
     iIntros "%Φ (:inv) HΦ".
 
     awp۰apply (base.inf_mpmc_queue_2٠pushｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
@@ -1627,7 +1627,7 @@ Section inf_mpmc_queue_2۰G.
     iIntros "%Φ (:inv) HΦ".
 
     awp۰apply (base.inf_mpmc_queue_2٠popｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }

@@ -501,7 +501,7 @@ Section ws_deques_private۰G.
     owner₂ γ i status2 -∗
     ⌜status1 = status2⌝.
   Proof.
-    iIntros "(:owner₁ =1) (:owner₂ =2)". simplify.
+    iIntros "(:owner₁ =1) (:owner₂ =2)". simp.
     iApply (twinsｰagreeｰL with "Htwin₁ Htwin₂").
   Qed.
   #[local] Lemma ownerｰupdate {γ i status1 status2} status :
@@ -510,7 +510,7 @@ Section ws_deques_private۰G.
       owner₁ γ i status ∗
       owner₂ γ i status.
   Proof.
-    iIntros "(:owner₁ =1) (:owner₂ =2)". simplify.
+    iIntros "(:owner₁ =1) (:owner₂ =2)". simp.
     iMod (twinsｰupdate with "Htwin₁ Htwin₂") as "(Htwin₁ & Htwin₂)".
     iSteps.
   Qed.
@@ -569,7 +569,7 @@ Section ws_deques_private۰G.
     channels۰sender γ i Ψ2 state2 -∗
     False.
   Proof.
-    iIntros "(:channels۰sender =1) (:channels۰sender =2)". simplify_eq.
+    iIntros "(:channels۰sender =1) (:channels۰sender =2)". simp.
     iDestruct (ghost_predｰdfracｰne with "Hpred_1 Hpred_2") as %?; naive_solver.
   Qed.
   #[local] Lemma channelsｰwaitingｰreceiver γ i Ψ o :
@@ -577,7 +577,7 @@ Section ws_deques_private۰G.
     channels۰receiver γ i Ψ (Some o) -∗
     ◇ False.
   Proof.
-    iIntros ">(:channels۰waiting =1) (:channels۰receiver =2 done=)". simplify_eq.
+    iIntros ">(:channels۰waiting =1) (:channels۰receiver =2 done=)". simp.
     iDestruct (ghost_varｰagreeｰL with "Hgeneration_1 Hgeneration_2") as %<-.
     iApply (oneshotｰpendingｰshot with "Hpending_1 Hshot_2").
   Qed.
@@ -589,7 +589,7 @@ Section ws_deques_private۰G.
       ▷ channels۰sender γ i Ψ1 (Some o1) ∗
       channels۰receiver γ i Ψ2 (Some o1).
   Proof.
-    iIntros "(:channels۰sender =1 > done=) (:channels۰receiver =2 done=)". simplify_eq.
+    iIntros "(:channels۰sender =1 > done=) (:channels۰receiver =2 done=)". simp.
     iDestruct "Hgeneration_1" as ">Hgeneration_1".
     iDestruct "Hshot_1" as ">Hshot_1".
     iDestruct (ghost_predｰagree o1 with "Hpred_1 [$Hpred_2]") as "#Heq".
@@ -603,7 +603,7 @@ Section ws_deques_private۰G.
       channels۰sender γ i Ψ None ∗
       channels۰receiver γ i Ψ None.
   Proof.
-    iIntros "(:channels۰sender =1) (:channels۰receiver =2)". simplify_eq.
+    iIntros "(:channels۰sender =1) (:channels۰receiver =2)". simp.
     iDestruct (ghost_predｰcombine inhabitant with "Hpred_1 Hpred_2") as "(_ & Hpred)". rewrite dfrac_op_own Qp.three_quarter_quarter.
     iMod (ghost_predｰupdate Ψ with "Hpred") as "Hpred".
     iEval (rewrite -Qp.three_quarter_quarter) in "Hpred". iDestruct "Hpred" as "(Hpred_1 & Hpred_2)".
@@ -614,7 +614,7 @@ Section ws_deques_private۰G.
     channels۰sender γ i Ψ None ==∗
     channels۰sender γ i Ψ (Some o).
   Proof.
-    iIntros "(:channels۰waiting =1) (:channels۰sender =2)". simplify_eq.
+    iIntros "(:channels۰waiting =1) (:channels۰sender =2)". simp.
     iMod (oneshotｰupdateｰshot o with "Hpending_1") as "#Hshot".
     iSteps.
   Qed.
@@ -626,7 +626,7 @@ Section ws_deques_private۰G.
       channels۰receiver γ i Ψ2 (Some o)
     ).
   Proof.
-    iIntros "(:channels۰sender =1 > done=) (:channels۰receiver =2)". simplify_eq.
+    iIntros "(:channels۰sender =1 > done=) (:channels۰receiver =2)". simp.
     iDestruct "Hgeneration_1" as ">Hgeneration_1".
     iDestruct "Hshot_1" as ">Hshot_1".
     iDestruct (ghost_varｰagreeｰL with "Hgeneration_1 Hgeneration_2") as %<-.
@@ -639,7 +639,7 @@ Section ws_deques_private۰G.
       ▷ channels۰sender γ i Ψ1 None ∗
       channels۰receiver γ i Ψ2 None.
   Proof.
-    iIntros "(:channels۰sender =1 > done=) (:channels۰receiver =2)". simplify_eq.
+    iIntros "(:channels۰sender =1 > done=) (:channels۰receiver =2)". simp.
     iDestruct "Hgeneration_1" as ">Hgeneration_1".
     iMod (oneshotｰalloc ()) as "(%gen & Hpending)".
     iDestruct (ghost_varｰcombine with "Hgeneration_1 Hgeneration_2") as "(_ & Hgeneration)". rewrite dfrac_op_own Qp.half_half.
@@ -750,7 +750,7 @@ Section ws_deques_private۰G.
     ws_deques_private۰inv t ι2 sz2 -∗
     ⌜sz1 = sz2⌝.
   Proof.
-    iIntros "(:inv =1) (:inv =2)". simplify.
+    iIntros "(:inv =1) (:inv =2)". simp.
     iDestruct (pointstoｰagree with "Hl1_size Hl2_size") as %?. naive_solver.
   Qed.
 
@@ -759,8 +759,8 @@ Section ws_deques_private۰G.
     ws_deques_private۰owner t i status2 ws2 -∗
     False.
   Proof.
-    iIntros "(:owner =1) (:owner =2)". simplify.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. simplify.
+    iIntros "(:owner =1) (:owner =2)". simp.
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. simp.
     iApply (queue_3۰modelｰexclusive with "Hqueue_model_1 Hqueue_model_2").
   Qed.
 
@@ -791,8 +791,8 @@ Section ws_deques_private۰G.
       ⌜vss !! i = Some vs⌝ ∗
       ⌜vs `suffix_of` ws⌝.
   Proof.
-    iIntros "(:model =1) (:owner =2)". simplify.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. simplify.
+    iIntros "(:model =1) (:owner =2)". simp.
+    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. simp.
     iDestruct (modelsｰlookup with "Hmodels_auth_1 Hmodels_at_2") as %Hlookup.
     iSteps.
   Qed.
@@ -1338,7 +1338,7 @@ Section ws_deques_private۰G.
       apply list_lookup_fmap_Some in Hrequests2_lookup as (request & -> & Hrequests2_lookup).
       destruct b.
 
-      + destruct request; zoo_simplify in Hcas; first done.
+      + destruct request; zoo_simp in Hcas; first done.
         iMod (channelsｰprepare (λ o, ws_deques_private۰owner #l i_ Blocked ws -∗ Φ o)%I with "Hchannels_sender Hchannels_receiver") as "(Hchannels_sender & Hchannels_receiver)".
         iDestruct (big_sepL_insert_acc with "Hrequests") as "(Hrequest & Hrequests)"; first done.
         iDestruct ("Hrequests" $! (RequestSome i_) with "[Hrequest Hchannels_sender HΦ]") as "Hrequests".

@@ -152,7 +152,7 @@ Qed.
   suffix۰to_val i1 vs1 = suffix۰to_val i2 vs2.
 Proof.
   destruct vs1 as [| v1 vs1], vs2 as [| v2 vs2] => Hsimilar.
-  all: zoo_simplify.
+  all: zoo_simp.
   all: congruence.
 Qed.
 
@@ -182,7 +182,7 @@ Qed.
   prefix۰to_val i1 back1 vs1 = prefix۰to_val i2 back2 vs2.
 Proof.
   destruct vs1 as [| v1 vs1], vs2 as [| v2 vs2] => Hsimilar.
-  all: zoo_simplify.
+  all: zoo_simp.
   all: congruence.
 Qed.
 
@@ -193,7 +193,7 @@ Qed.
     vs1 = vs2.
 Proof.
   move: i1 i2 vs2. induction vs1 as [| v1 vs1 IH] => i1 i2 [| v2 vs2] /= Hsimilar.
-  all: zoo_simplify; try done.
+  all: zoo_simp; try done.
   edestruct IH as (_ & -> & Hvs); first done.
   rewrite {}Hvs in Hsimilar |- *.
   auto with lia.
@@ -812,7 +812,7 @@ Section mpmc_queue_2۰G.
     mpmc_queue_2۰model t vs2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)". simplify.
+    iIntros "(:model =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
@@ -1340,7 +1340,7 @@ Section mpmc_queue_2۰G.
       - iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty1 & -> & (:inv۰status۰stable =1))"; first auto.
 
         iAssert ⌜i1 = i⌝%I as %->.
-        { iDestruct (state۰atｰvalid with "Hstate_auth Hstate_at_1") as %(Hbacks1_lookup & _). simplify.
+        { iDestruct (state۰atｰvalid with "Hstate_auth Hstate_at_1") as %(Hbacks1_lookup & _). simp.
           iSteps.
         }
 

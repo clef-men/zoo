@@ -376,7 +376,7 @@ Proof.
   destruct v1 as [[b1 | n1 | l1 | |] | | gen1 tag1 []]; try done.
   all: destruct v2 as [[b2 | n2 | l2 | |] | | gen2 tag2 []]; try done.
   all: destruct path; last done.
-  all: simplify.
+  all: simp.
   all: cbn.
   all: rewrite bool_decide_eq_true_2 //.
 Qed.
@@ -656,7 +656,7 @@ Section zoo۰G.
 
       - iSteps. iPureIntro.
         intros [| j path] dst1 dst2 Hreachable1 Hreachable2.
-        all: simplify.
+        all: simp.
 
         + rewrite andb_true_iff !beqｰspec.
           erewrite !lookup_total_correct; done.
@@ -694,7 +694,7 @@ Section zoo۰G.
 
       - iSteps. iPureIntro.
         intros [| j path] dst1 dst2 Hreachable1 Hreachable2.
-        all: simplify.
+        all: simp.
 
         + destruct vs2 as [| v2 vs2]; first naive_solver lia.
           rewrite andb_true_iff !beqｰspec.
@@ -738,7 +738,7 @@ Section zoo۰G.
 
       - iSteps. iPureIntro.
         intros [| j path] dst1 dst2 Hreachable1 Hreachable2.
-        all: simplify.
+        all: simp.
 
         + destruct vs1 as [| v1 vs1]; first naive_solver lia.
           rewrite andb_true_iff !beqｰspec.
@@ -782,7 +782,7 @@ Section zoo۰G.
 
       - iSteps. iPureIntro.
         intros [| j path] dst1 dst2 Hreachable1 Hreachable2.
-        all: simplify.
+        all: simp.
 
         + destruct vs1 as [| v1 vs1]; first naive_solver lia.
           destruct vs2 as [| v2 vs2]; first naive_solver lia.
@@ -872,7 +872,7 @@ Proof.
   all: destruct v2 as [[] | | [] tag2 [| v2 vs2]] => //.
   all: try rewrite bool_decide_eq_true //.
   intros Habstract1 Habstract2 Hsimilar.
-  zoo_simplify in Hsimilar.
+  zoo_simp in Hsimilar.
   rewrite andb_true_iff.
   split; apply beqｰtrue; naive_solver.
 Qed.
@@ -950,7 +950,7 @@ Proof.
   move: v2. induction v1 as [[] | | [] tag1 [| v1 vs1'] IH] => //.
   all: intros [[] | | [] tag2 [| v2 vs2']] => //.
   all: intros Habstract1 Habstract2 (path & v1 & v2 & Hreachable1 & Hreachable2 & Hcompatible).
-  all: destruct path; last done; simplify.
+  all: destruct path; last done; simp.
   all: rewrite bool_decide_eq_false in Hcompatible.
   all: cbn; naive_solver.
 Qed.

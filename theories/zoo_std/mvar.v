@@ -605,7 +605,7 @@ Section mvar۰G.
     mvar۰consumer t -∗
     False.
   Proof.
-    iIntros "(:consumer =1) (:consumer =2)". simplify.
+    iIntros "(:consumer =1) (:consumer =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.mvar۰consumerｰexclusive with "Hconsumer_1 Hconsumer_2").
   Qed.
@@ -683,7 +683,7 @@ Section mvar۰G.
       True
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:resolved =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:resolved =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.mvar٠try_getｰspecｰresolved with "[$] HΦ").
@@ -704,7 +704,7 @@ Section mvar۰G.
         True
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:consumer =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:consumer =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.mvar٠try_getｰspecｰconsumer with "[$]") as (o) "Ho".
@@ -724,7 +724,7 @@ Section mvar۰G.
       Ψ v
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:resolved =2) & (:consumer =3)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:resolved =2) & (:consumer =3)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
     iDestruct (metaｰagree with "Hmeta_2 Hmeta_3") as %<-. iClear "Hmeta_3".
 
@@ -761,7 +761,7 @@ Section mvar۰G.
       True
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:resolved =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:resolved =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.mvar٠is_unsetｰspecｰresolved with "[$] HΦ").
@@ -797,7 +797,7 @@ Section mvar۰G.
       True
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:resolved =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:resolved =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.mvar٠is_setｰspecｰresolved with "[$] HΦ").
@@ -815,7 +815,7 @@ Section mvar۰G.
       True
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:resolved =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:resolved =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.mvar٠getｰspec with "[$] HΦ").

@@ -543,7 +543,7 @@ Section rcfd۰G.
     rcfd۰owner t -∗
     False.
   Proof.
-    iIntros "(:owner =1) (:owner =2)". simplify.
+    iIntros "(:owner =1) (:owner =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (ownerｰexclusive with "Howner_1 Howner_2").
   Qed.
@@ -552,7 +552,7 @@ Section rcfd۰G.
     rcfd۰closing t -∗
     False.
   Proof.
-    iIntros "(:owner =1) (:closing =2)". simplify.
+    iIntros "(:owner =1) (:closing =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (ownerｰlstate۰lb with "Howner_1 Hlstate_lb_2").
   Qed.
@@ -701,7 +701,7 @@ Section rcfd۰G.
       wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner =2)".
       wp۰cas as _ | Hcas; first iSteps.
-      destruct state2; first zoo_simplify.
+      destruct state2; first zoo_simp.
       destruct Hcas as (_ & _ & [= <-]).
       iDestruct (lstateｰvalidｰclosingｰno_users with "Hlstate_auth Hlstate_lb") as %->.
       iDestruct "Hlstate" as "(:inv۰lstate۰closing۰no_users =2 eq)". injection Heq as <-.
@@ -1154,7 +1154,7 @@ Section rcfd۰G.
       wp۰cas as Hcas.
 
       + iDestruct (inv۰lstateｰClosing with "Hlstate Hlstate_auth") as "(%fn2 & -> & %Hlstate2 & #Hlstate_lb)".
-        { intros ->. zoo_simplify in Hcas. naive_solver. }
+        { intros ->. zoo_simp in Hcas. naive_solver. }
 
         destruct γ.(metadata۰owned).
         { iDestruct (ownerｰlstate۰auth with "Howner Hlstate_auth") as %->. congruence. }
@@ -1162,7 +1162,7 @@ Section rcfd۰G.
         iSplitR "HΦ". { iFrameSteps 2. }
         iSteps.
 
-      + destruct state2; last zoo_simplify.
+      + destruct state2; last zoo_simp.
         iDestruct (inv۰lstateｰOpen with "Hlstate") as %->.
         iDestruct "Hlstate" as "(:inv۰lstate۰open =2 eq)".
 
@@ -1306,7 +1306,7 @@ Section rcfd۰G.
       wp۰cas as Hcas.
 
       + iDestruct (inv۰lstateｰClosing with "Hlstate Hlstate_auth") as "(%fn2 & -> & %Hlstate2 & #Hlstate_lb)".
-        { intros ->. zoo_simplify in Hcas. naive_solver. }
+        { intros ->. zoo_simp in Hcas. naive_solver. }
 
         destruct γ.(metadata۰owned).
         { iDestruct (ownerｰlstate۰auth with "Howner Hlstate_auth") as %->. congruence. }
@@ -1318,7 +1318,7 @@ Section rcfd۰G.
         iApply ("HΦ" $! None).
         iSteps.
 
-      + destruct state2; last zoo_simplify.
+      + destruct state2; last zoo_simp.
         iDestruct (inv۰lstateｰOpen with "Hlstate") as %->.
         iDestruct "Hlstate" as "(:inv۰lstate۰open =2 eq)".
 

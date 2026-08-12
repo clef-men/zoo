@@ -337,7 +337,7 @@ Section bag_2۰G.
       + rewrite lookup_insert_eq //.
       + eapply map_Forallｰimpl'; first done. move=> /= node' descr' Hdescrs_lookup' Hwss_lookup.
         destruct_decide (node' = node) as -> | ?.
-        * simplify.
+        * simp.
         * rewrite lookup_insert_ne //.
           intros ?%(inj _)%descriptor۰to_producerｰinj. done.
   Qed.
@@ -412,7 +412,7 @@ Section bag_2۰G.
     bag_2۰model t vss2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)". simplify.
+    iIntros "(:model =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
@@ -426,7 +426,7 @@ Section bag_2۰G.
       ⌜vss !! producer = Some vs⌝ ∗
       ⌜vs `suffix_of` ws⌝.
   Proof.
-    iIntros "% (:inv) (:model =1) (:producer =2)". simplify.
+    iIntros "% (:inv) (:model =1) (:producer =2)". simp.
     iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
     iDestruct (metaｰagree with "Hmeta Hmeta_2") as %<-. iClear "Hmeta_2".
 
@@ -446,7 +446,7 @@ Section bag_2۰G.
     bag_2۰producer t2 producer ws2 -∗
     False.
   Proof.
-    iIntros "(:producer =1) (:producer =2)". simplify.
+    iIntros "(:producer =1) (:producer =2)". simp.
     iApply (spmc_queue۰producerｰexclusive with "Hqueue_producer_1 Hqueue_producer_2").
   Qed.
 
@@ -455,7 +455,7 @@ Section bag_2۰G.
     bag_2۰consumer t2 consumer -∗
     False.
   Proof.
-    iIntros "(:consumer =1) (:consumer =2)". simplify.
+    iIntros "(:consumer =1) (:consumer =2)". simp.
     iApply (pointstoｰexclusive with "Hconsumer_queue_1 Hconsumer_queue_2").
   Qed.
 
@@ -535,7 +535,7 @@ Section bag_2۰G.
     iInv "Hinv" as "(:inv۰inner =2)".
     wp۰cas as Hcas; first iSteps.
     assert (head nodes1 = head nodes2) as ->.
-    { destruct nodes1, nodes2; zoo_simplify; done. }
+    { destruct nodes1, nodes2; zoo_simp; done. }
     iDestruct (xtchainｰcons₂ with "Hnode_header [] Hnodes2") as "Hnodes"; first iSteps.
 
     iAssert ⌜descrs2 !! node = None⌝%I as %Hdescr2_lookup.

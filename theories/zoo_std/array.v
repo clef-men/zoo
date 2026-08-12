@@ -4047,10 +4047,10 @@ Section zoo۰G.
       iIntros "!> %k %vs_left %o %ws % % % (-> & Hmodel & HΨ)".
       destruct (lookup_lt_is_Some_2 vs (₊i + k)) as (v & Hlookup); first lia.
       destruct o as [[v_ | (v_ & w)] |].
-      - iDestruct "HΨ" as "(% & HΨ)". simplify.
+      - iDestruct "HΨ" as "(% & HΨ)". simp.
         wp۰apply (wpｰwand with "(Hfn [%] [//] [//] HΨ)"); first lia.
         iSteps.
-      - iDestruct "HΨ" as "(% & HΨ)". simplify.
+      - iDestruct "HΨ" as "(% & HΨ)". simp.
         iDestruct (array۰modelｰupdate (₊i + k) with "Hmodel") as "(_ & H↦ & Hmodel)".
         { apply with_sliceｰlookupｰright; done || lia. }
         iAuIntro. iAaccIntro with "H↦"; first iSteps. iIntros "H↦ !>". iFrame.

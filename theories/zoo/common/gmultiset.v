@@ -60,7 +60,7 @@ Section size.
     x = y.
   Proof.
     rewrite /size /gmultiset_size /= -!gmultiset_elem_of_elements.
-    generalize (elements X). intros [| ? l] ?*; simplify.
+    generalize (elements X). intros [| ? l] ?*; simp.
     rewrite (nil_length_inv l) // !list_elem_of_singleton. congruence.
   Qed.
   Lemma gmultisetｰsizeｰ1ｰelem_of X :

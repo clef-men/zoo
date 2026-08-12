@@ -57,7 +57,7 @@ Section bi.
     Proof.
       iIntros "% HΦ #H".
       iApply (big_sepL2ｰimplｰstrong with "HΦ"); [done.. |].
-      iModIntro. iSteps. simplify. iSteps.
+      iModIntro. iSteps. simp. iSteps.
     Qed.
     Lemma big_sepL2ｰimplｰstrongｰr `{!BiAffine PROP} {B} Φ1 l1 l2 (Φ2 : nat → A1 → B → PROP) 𝑙 :
       length l2 = length 𝑙 →
@@ -74,7 +74,7 @@ Section bi.
     Proof.
       iIntros "% HΦ #H".
       iApply (big_sepL2ｰimplｰstrong with "HΦ"); [done.. |].
-      iModIntro. iSteps. simplify. iSteps.
+      iModIntro. iSteps. simp. iSteps.
     Qed.
 
     Lemma big_sepL2ｰimplｰsepL `{!BiAffine PROP} {B} Φ1 l1 l2 (Φ2 : nat → B → PROP) 𝑙 :
@@ -452,7 +452,7 @@ Section bi.
       iIntros "% H".
       iDestruct (big_sepL2_const_sepL_r with "[$H //]") as "H".
       iApply (big_sepL2_impl with "H"). iModIntro.
-      iSteps. simplify. iSteps.
+      iSteps. simp. iSteps.
     Qed.
     Lemma big_sepLｰextractｰr `{!BiAffine PROP} Φ l1 l2 :
       length l1 = length l2 →
@@ -466,7 +466,7 @@ Section bi.
       iIntros "% H".
       iDestruct (big_sepL2_const_sepL_l with "[$H //]") as "H".
       iApply (big_sepL2_impl with "H"). iModIntro.
-      iSteps. simplify. iSteps.
+      iSteps. simp. iSteps.
     Qed.
 
     Lemma big_sepL2ｰretractｰl `{!BiAffine PROP} Φ l1 l2 :
@@ -480,7 +480,7 @@ Section bi.
       iIntros "H".
       iDestruct (big_sepL2_length with "H") as %Hlen. iStep.
       iApply (big_sepL2ｰimplｰsepL with "H"); first naive_solver. iIntros "!>".
-      iSteps. simplify. iSteps.
+      iSteps. simp. iSteps.
     Qed.
     Lemma big_sepL2ｰretractｰr `{!BiAffine PROP} Φ l1 l2 :
       ([∗ list] k ↦ x1; x2 ∈ l1; l2, Φ k x1 x2) ⊢
@@ -493,7 +493,7 @@ Section bi.
       iIntros "H".
       iDestruct (big_sepL2_length with "H") as %Hlen. iStep.
       iApply (big_sepL2ｰimplｰsepL with "H"); first naive_solver. iIntros "!>".
-      iSteps. simplify. iSteps.
+      iSteps. simp. iSteps.
     Qed.
 
     Lemma big_sepL2ｰseqｰl `{!BiAffine PROP} `(Φ : nat → nat → A → PROP) i n l2 :
@@ -504,7 +504,7 @@ Section bi.
       iIntros "(-> & H)".
       iApply (big_sepLｰimplｰstrong with "H").
       { simpl_length. lia. }
-      iIntros "!>" (k ? x2 (k1 & x2_ & -> & (-> & _)%lookup_seq & Hlookup1)%lookup_zip_with_Some Hlookup2) "H". simplify.
+      iIntros "!>" (k ? x2 (k1 & x2_ & -> & (-> & _)%lookup_seq & Hlookup1)%lookup_zip_with_Some Hlookup2) "H". simp.
       iSteps.
     Qed.
     Lemma big_sepL2ｰseqｰr `{!BiAffine PROP} `(Φ : nat → A → nat → PROP) l1 i n :

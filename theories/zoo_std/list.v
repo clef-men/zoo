@@ -183,7 +183,7 @@ Section zoo۰G.
     iInduction j as [| j] "IH" forall (t i vs Hj).
     all: iIntros "%Hlookup %Ht %Φ _ HΦ".
     all: pose proof Hlookup as Hi%lookup_lt_Some.
-    all: destruct vs as [| v' vs]; simpl in Hi; first lia; simplify.
+    all: destruct vs as [| v' vs]; simpl in Hi; first lia; simp.
     all: wp۰rec; wp۰pures.
     - rewrite bool_decide_eq_true_2; first lia. wp۰pures.
       wp۰apply list٠headｰspec; [done.. |].

@@ -504,7 +504,7 @@ Section spsc_bqueue۰G.
     spsc_bqueue۰model t vs -∗
     ⌜length vs ≤ cap⌝.
   Proof.
-    iIntros "(:inv =1) (:model =2)". simplify.
+    iIntros "(:inv =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
     iSteps.
   Qed.
@@ -513,7 +513,7 @@ Section spsc_bqueue۰G.
     spsc_bqueue۰model t vs2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)". simplify.
+    iIntros "(:model =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
@@ -530,7 +530,7 @@ Section spsc_bqueue۰G.
     spsc_bqueue۰model t vs -∗
     ⌜vs `suffix_of` ws⌝.
   Proof.
-    iIntros "(:producer =1) (:model =2)". simplify.
+    iIntros "(:producer =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (modelｰvalid with "Hproducer₁ Hmodel₁_2").
   Qed.

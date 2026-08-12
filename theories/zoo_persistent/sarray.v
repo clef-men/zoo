@@ -197,7 +197,7 @@ Section sarray۰G.
     sarray۰model t vs2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)". simplify.
+    iIntros "(:model =1) (:model =2)". simp.
     iApply (pointstoｰexclusive with "Hl_root_1 Hl_root_2").
   Qed.
 

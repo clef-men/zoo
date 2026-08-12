@@ -331,7 +331,7 @@ Proof.
   intros.
   edestruct (base_reducibleｰfillｰprim_step tid []) as (? & ? & ?).
   all: rewrite ?fillｰnil; eauto.
-  simplify. done.
+  simp. done.
 Qed.
 
 Lemma pure_base_stepｰpure_step e1 e2 :
@@ -443,7 +443,7 @@ Proof.
   { destruct e; try done; eauto. }
   assert (to_val (fill (k :: K) (Val w)) = None).
   { destruct k; simpl; apply fillｰnot_val; done. }
-  simplify.
+  simp.
 Qed.
 Lemma prim_stepｰto_valｰisｰbase_step tid e σ1 κ v σ2 es :
   prim_step tid e σ1 κ (Val v) σ2 es →

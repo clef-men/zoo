@@ -1310,7 +1310,7 @@ Module base.
       iInv "Hinv" as "(:inv۰inner =3)".
       iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %?.
       wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
-      wp۰cas as Hcas; zoo_simplify in Hcas; last lia.
+      wp۰cas as Hcas; zoo_simp in Hcas; last lia.
       iStep. iIntros "!> %prophs %Hprophss3 Hprophet_model".
       iSplitR "HΦ".
       { iFrameSteps.
@@ -1341,7 +1341,7 @@ Module base.
       wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
       wp۰apply (wpｰcasｰnobranch' with "Ht_front") as (b) "%Hcas Ht_front".
       iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
-      destruct b; zoo_simplify in Hcas; first subst front1.
+      destruct b; zoo_simp in Hcas; first subst front1.
 
       - iDestruct (prophet_multi۰fullｰvalid with "Hprophet_model Hprophet_full") as %->.
         rewrite fn_lookup_alter Hpasts1 // in Hloser.
@@ -1376,7 +1376,7 @@ Module base.
       iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
       iDestruct (inv۰stateｰwinner۰pop with "Hstate Hwinner_pop") as "(%P_ & -> & #Heq & Hstate & Hwinner_pop)".
       rewrite Hprophss1.
-      destruct b; zoo_simplify in Hcas; last congruence.
+      destruct b; zoo_simp in Hcas; last congruence.
       iMod (frontｰupdate with "Hfront_auth") as "Hfront_auth".
       iDestruct "Hstate" as "[(:inv۰state۰nonempty۰steal =1) | (:inv۰state۰emptyish۰steal =1)]".
 
@@ -1461,7 +1461,7 @@ Module base.
       wp۰apply (wpｰcasｰnobranch' with "Ht_front") as (b) "%Hcas Ht_front".
       iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
       iDestruct (inv۰stateｰwinner۰steal with "Hstate Hwinner_steal") as "(%P_ & -> & _ & (:inv۰state۰emptyish۰pop =1) & Hwinner_steal)".
-      destruct b; zoo_simplify in Hcas; last congruence.
+      destruct b; zoo_simp in Hcas; last congruence.
       iMod (frontｰupdate with "Hfront_auth") as "Hfront_auth".
       iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
 
@@ -1504,7 +1504,7 @@ Module base.
 
       - iDestruct "Hstate" as "(:inv۰state۰empty =1 lazy=)".
         assert (length vs1 = 0) as ->%nil_length_inv by lia.
-        destruct b; zoo_simplify in Hcas; last lia.
+        destruct b; zoo_simp in Hcas; last lia.
 
         iMod (frontｰupdate with "Hfront_auth") as "Hfront_auth".
         iClear "Hfront_lb". iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
@@ -2215,7 +2215,7 @@ Section ws_bdeque_1۰G.
     ws_bdeque_1۰model t vs -∗
     ⌜length vs ≤ cap⌝.
   Proof.
-    iIntros "(:inv =1) (:model =2)". simplify.
+    iIntros "(:inv =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.ws_bdeque_1۰modelｰvalid with "Hinv_1 Hmodel_2").
   Qed.
@@ -2224,7 +2224,7 @@ Section ws_bdeque_1۰G.
     ws_bdeque_1۰model t vs2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)". simplify.
+    iIntros "(:model =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.ws_bdeque_1۰modelｰexclusive with "Hmodel_1 Hmodel_2").
   Qed.
@@ -2234,7 +2234,7 @@ Section ws_bdeque_1۰G.
     ws_bdeque_1۰owner t ws2 -∗
     False.
   Proof.
-    iIntros "(:owner =1) (:owner =2)". simplify.
+    iIntros "(:owner =1) (:owner =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.ws_bdeque_1۰ownerｰexclusive with "Howner_1 Howner_2").
   Qed.
@@ -2243,7 +2243,7 @@ Section ws_bdeque_1۰G.
     ws_bdeque_1۰model γ vs -∗
     ⌜vs `suffix_of` ws⌝.
   Proof.
-    iIntros "(:owner =1) (:model =2)". simplify.
+    iIntros "(:owner =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.ws_bdeque_1۰ownerｰmodel with "Howner_1 Hmodel_2").
   Qed.
@@ -2300,11 +2300,11 @@ Section ws_bdeque_1۰G.
       ws_bdeque_1۰owner t vs
     >>>.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     awp۰apply (base.ws_bdeque_1٠sizeｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
@@ -2325,11 +2325,11 @@ Section ws_bdeque_1۰G.
       ws_bdeque_1۰owner t vs
     >>>.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     awp۰apply (base.ws_bdeque_1٠is_emptyｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
@@ -2352,11 +2352,11 @@ Section ws_bdeque_1۰G.
       ws_bdeque_1۰owner t (if b then vs ++ [v] else ws)
     >>>.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     awp۰apply (base.ws_bdeque_1٠pushｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
@@ -2378,7 +2378,7 @@ Section ws_bdeque_1۰G.
     iIntros "%Φ (:inv) HΦ".
 
     awp۰apply (base.ws_bdeque_1٠stealｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
@@ -2410,11 +2410,11 @@ Section ws_bdeque_1۰G.
       ws_bdeque_1۰owner t ws'
     >>>.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     awp۰apply (base.ws_bdeque_1٠popｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1". 1: iSteps. iIntros "%o %ws' ($ & Ho)".
       iExists o, ws'. destruct o.

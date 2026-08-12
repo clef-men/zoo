@@ -226,7 +226,7 @@ Section prophet_multi۰G.
     prophet_multi۰full γ i prophs -∗
     ⌜prophs = pasts i ++ prophss i⌝.
   Proof.
-    iIntros "(:model =1) (:full =2)". simplify.
+    iIntros "(:model =1) (:full =2)". simp.
     iDestruct (prophet_wise۰fullｰvalid with "Hmodel1 Hfull2") as %->.
     rewrite Hpasts1 Hprophss1 untangleｰapp //.
   Qed.
@@ -235,7 +235,7 @@ Section prophet_multi۰G.
     prophet_multi۰full γ i prophs2 -∗
     ⌜prophs1 = prophs2⌝.
   Proof.
-    iIntros "(:full =1) (:full =2)". simplify.
+    iIntros "(:full =1) (:full =2)". simp.
     iDestruct (prophet_wise۰fullｰagree with "Hfull1 Hfull2") as %->.
     iSteps.
   Qed.

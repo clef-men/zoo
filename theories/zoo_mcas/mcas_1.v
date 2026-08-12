@@ -613,7 +613,7 @@ Section mcas_1۰G.
       iDestruct "Hcasn_inv'" as "(:casn۰inv)".
       iSteps.
       iApply (big_sepL_impl with "Hlocs"). iIntros "!> %i' %descr' %Hdescr_lookup' H".
-      case_decide; last iSteps. simplify.
+      case_decide; last iSteps. simp.
       iDestruct "H" as "(H & $)".
       iDestruct (metaｰagree with "Hloc_meta H") as %->.
       setoid_rewrite <- (fixpoint_B_unfold (casn۰inv۰pre ι) (loc۰inv۰pre ι) _).
@@ -923,7 +923,7 @@ Section mcas_1۰G.
     False.
   Proof.
     iIntros "(%γ_lock & %Hlookup & Hexcl1) (%_γ_lock & %_Hlookup & Hexcl2)".
-    simplify.
+    simp.
     iApply (exclｰexclusive with "Hexcl1 Hexcl2").
   Qed.
 
@@ -1338,7 +1338,7 @@ Section mcas_1۰G.
 
         - iDestruct "Hlstatus" as "(:casn۰inv۰inner۰running >)".
           wp۰cas as Hcas | _.
-          { exfalso. zoo_simplify in Hcas. naive_solver. }
+          { exfalso. zoo_simp in Hcas. naive_solver. }
           iStep. iIntros "!> %prophs %Hprophs Hgproph".
 
           assert (metadata۰success η = final_status۰to_bool fstatus) as Hsuccess.
@@ -1702,7 +1702,7 @@ Section mcas_1۰G.
             - rewrite list_lookup_fmap Hdescrs1_lookup //.
             - rewrite list_lookup_fmap Hdescrs_lookup -Hloc1 //.
           }
-          simplify.
+          simp.
           iSplitR "HΦ". { iFrameSteps. }
           iModIntro. clear.
 
@@ -1844,7 +1844,7 @@ Section mcas_1۰G.
                  - rewrite list_lookup_fmap Hdescrs3_lookup //.
                  - rewrite list_lookup_fmap Hdescrs1_lookup /=. congruence.
                }
-               simplify.
+               simp.
 
                iInv "Hcasn1_inv" as "(:casn۰inv۰inner =1)".
                iDestruct (lstatusｰfinished with "Hlstatus1_auth Hlstatus1_lb") as %->.
@@ -2304,7 +2304,7 @@ Section mcas_1۰G.
       { iApply (big_sepL2ｰimplｰstrongｰl with "Hmodels"); first done. iIntros "!> %i %loc %v %descr %Hlocs_lookup %Hvs_lookup %Hdescrs_lookup (:loc۰model)".
         iDestruct (big_sepL2_lookup_l with "Hlocs") as "(%γ_ & %Hγs_lookup & Hmeta_ & _)"; first done.
         iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-        odestruct Forall2iｰlookupｰr; [done.. |]. simplify.
+        odestruct Forall2iｰlookupｰr; [done.. |]. simp.
         iSteps.
       }
       iAssert (
@@ -2317,7 +2317,7 @@ Section mcas_1۰G.
       { iIntros "Hmodels₁".
         iApply (big_sepL2ｰimplｰstrongｰl with "Hmodels₁"); first done. iIntros "!> %i %descr %v %loc %Hdescrs_lookup %Hvs_lookup %Hlocs_lookup Hmodel₁".
         iDestruct (big_sepL2_lookup_l with "Hlocs") as "(%γ & %Hγs_lookup & Hmeta & _)"; first done.
-        odestruct Forall2iｰlookupｰr; [done.. |]. simplify.
+        odestruct Forall2iｰlookupｰr; [done.. |]. simp.
         iSteps.
       }
       iAaccIntro with "Hmodels"; first iSteps. iIntros "%b H !>".
@@ -2327,10 +2327,10 @@ Section mcas_1۰G.
         iSplit. { rewrite Hbefores //. }
         iApply (big_sepLｰimplｰsepL2 with "Hmodels₁"); [simpl; congruence.. |]. iIntros "!> %i %descr %loc %after %Hdescrs_lookup %Hlocs_lookup %Hafters_lookup Hmodel₁".
         iDestruct (big_sepL2_lookup_l with "Hlocs") as "(%γ & %Hγs_lookup & Hmeta & _)"; first done.
-        odestruct Forall2iｰlookupｰr; [done.. |]. simplify.
+        odestruct Forall2iｰlookupｰr; [done.. |]. simp.
         iSteps.
       - iDestruct "H" as "(%i & %descr & %v & %Hdescrs_lookup & %Hvs_lookup & %Hneq & Hmodels₁)".
-        odestruct Forall2iｰlookupｰr; [done.. |]. simplify.
+        odestruct Forall2iｰlookupｰr; [done.. |]. simp.
         iSteps.
     }
 
@@ -2345,7 +2345,7 @@ Section mcas_1۰G.
         eapply NoDup_lookup; [done | naive_solver..].
       - iApply (big_sepL_wand with "Hstates_casn").
         iApply (big_sepL2ｰimplｰsepL with "Hlocs"); first auto. iIntros "!> %i %loc %γ %descr %Hlocs_lookup %Hγs_lookup %Hdescrs_lookup (Hmeta & Hloc_inv)".
-        odestruct Forall2iｰlookupｰr; [done.. |]. simplify.
+        odestruct Forall2iｰlookupｰr; [done.. |]. simp.
         iSteps.
     }
 

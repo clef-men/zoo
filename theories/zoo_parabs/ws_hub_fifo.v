@@ -249,7 +249,7 @@ Section ws_hub_fifo۰G.
     owner γ i -∗
     False.
   Proof.
-    iIntros "(:owner_ =1) (:owner_ =2)". simplify.
+    iIntros "(:owner_ =1) (:owner_ =2)". simp.
     iApply (exclｰexclusive with "Howner1 Howner2").
   Qed.
 
@@ -329,7 +329,7 @@ Section ws_hub_fifo۰G.
     ws_hub_fifo۰inv t ι sz2 -∗
     ⌜sz1 = sz2⌝.
   Proof.
-    iIntros "(:inv =1) (:inv =2)". simplify.
+    iIntros "(:inv =1) (:inv =2)". simp.
     iDestruct (pointstoｰagree with "H𝑡1_size H𝑡2_size") as %[=].
     iSteps.
   Qed.
@@ -339,7 +339,7 @@ Section ws_hub_fifo۰G.
     ws_hub_fifo۰owner t i status2 empty2 -∗
     False.
   Proof.
-    iIntros "(:owner =1) (:owner =2)". simplify.
+    iIntros "(:owner =1) (:owner =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (ownerｰexclusive with "Howner_1 Howner_2").
   Qed.
@@ -349,7 +349,7 @@ Section ws_hub_fifo۰G.
     ws_hub_fifo۰owner t i status empty -∗
     ⌜i < sz⌝.
   Proof.
-    iIntros "(:inv) (:owner)". simplify.
+    iIntros "(:inv) (:owner)". simp.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-.
     iApply (ownerｰvalid with "Howner").
   Qed.

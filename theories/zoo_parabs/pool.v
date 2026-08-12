@@ -1336,7 +1336,7 @@ Section pool۰G.
     pool۰inv t sz2 -∗
     ⌜sz1 = sz2⌝.
   Proof.
-    iIntros "(:inv =1) (:inv =2)". simplify.
+    iIntros "(:inv =1) (:inv =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.pool۰invｰagree with "Hinv_1 Hinv_2").
   Qed.
@@ -1422,7 +1422,7 @@ Section pool۰G.
     pool۰obligation t P2 -∗
     pool۰obligation t (P1 ∗ P2).
   Proof.
-    iIntros "(:obligation =1) (:obligation =2)". simplify.
+    iIntros "(:obligation =1) (:obligation =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iDestruct (base.pool۰obligationｰcombine with "Hobligation_1 Hobligation_2") as "$".
     iSteps.
@@ -1432,7 +1432,7 @@ Section pool۰G.
     pool۰finished t -∗
     ▷ □ P.
   Proof.
-    iIntros "(:obligation =1) (:finished =2)". simplify.
+    iIntros "(:obligation =1) (:finished =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.pool۰obligationｰfinished with "Hobligation_1 Hfinished_2").
   Qed.
@@ -1482,7 +1482,7 @@ Section pool۰G.
     wp۰apply (base.pool٠run_onｰspec Ψ with "[$Hmodel Htask]").
     { iIntros "%ctx %scope Hctx".
       wp۰apply (wpｰwand with "(Htask [$Hctx])") as (v) "((:context =1) & $)"; first iSteps.
-      simplify.
+      simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
       iFrame.
     }
@@ -1534,7 +1534,7 @@ Section pool۰G.
     { iIntros "%𝑡 %γ %ctx %scope #Hinv Hmeta Hctx".
       iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
       wp۰apply (wpｰwand with "(Htask [] [$Hctx])") as (v) "((:context =1) & HΨ)". 1-2: iSteps.
-      simplify.
+      simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
       iFrameSteps.
     }
@@ -1552,7 +1552,7 @@ Section pool۰G.
       pool۰context t ctx scope
     }}}.
   Proof.
-    iIntros "%Φ ((:model =1) & (:context =2)) HΦ". simplify.
+    iIntros "%Φ ((:model =1) & (:context =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.pool٠sizeｰspec with "[$]").
@@ -1584,13 +1584,13 @@ Section pool۰G.
     wp۰apply (base.pool٠asyncｰspec P Q with "[$Hctx Htask]") as "(Hctx & Hconsumer & Hobligation)".
     { iIntros "{%} %ctx %scope Hctx".
       wp۰apply (wpｰwand with "(Htask [$Hctx])") as (v) "((:context =1) & $)"; first iSteps.
-      simplify.
+      simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
       iFrame.
     }
 
     iStep 2. iSplitL "Hconsumer". 2:iSteps.
-    iIntros "(:finished =1)". simplify.
+    iIntros "(:finished =1)". simp.
     iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-.
     iApply ("Hconsumer" with "Hfinished_1").
   Qed.

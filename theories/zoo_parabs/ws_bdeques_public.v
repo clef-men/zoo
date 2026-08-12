@@ -109,7 +109,7 @@ Section ws_bdeques_public۰G.
   Proof.
     iIntros "(:owner =1) (:owner =2)".
     iDestruct (array۰modelｰagree with "Hqueues1 Hqueues2") as %<-. iClear "Hqueues2".
-    simplify.
+    simp.
     iApply (ws_bdeque_2۰ownerｰexclusive with "Hqueue1_owner Hqueue2_owner").
   Qed.
 

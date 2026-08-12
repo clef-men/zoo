@@ -282,7 +282,7 @@ Section zoo۰G.
     iDestruct (pointstoｰagree with "Hnode_1 Hnode_2") as %?.
     iDestruct (pointstoｰcombine with "Hnode_1 Hnode_2") as "(-> & Hnode)".
     destruct nodes as [| node2 nodes].
-    - simplify. iSteps.
+    - simp. iSteps.
     - iDestruct ("IH" with "[%] H1 H2") as "(-> & H)".
       { simpl. lia. }
       iSteps.

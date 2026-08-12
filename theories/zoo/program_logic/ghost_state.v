@@ -440,7 +440,7 @@ Section zoo۰G.
     iDestruct (big_sepL2ｰretractｰl with "H1") as "(% & H1)".
     iDestruct (big_sepL2ｰretractｰl with "H2") as "(% & H2)".
     iDestruct (big_sepL2_sepL_2 with "H1 H2") as "H"; first congruence.
-    iApply (big_sepL2_impl with "H"). iIntros "!> %k %v1 %v2 _ _ ((%l1 & %Hl1_lookup & Hl1) & (%l2 & %Hl2_lookup & Hl2))". simplify.
+    iApply (big_sepL2_impl with "H"). iIntros "!> %k %v1 %v2 _ _ ((%l1 & %Hl1_lookup & Hl1) & (%l2 & %Hl2_lookup & Hl2))". simp.
     iApply (pointstoｰagree with "Hl1 Hl2").
   Qed.
   Lemma big_sepL2ｰrefｰpointstoｰagree ls dq1 vs1 dq2 vs2 :

@@ -612,7 +612,7 @@ Module base.
           wp۰apply+ "HLöb".
           iSteps.
 
-        + destruct state; zoo_simplify.
+        + destruct state; zoo_simp.
           iDestruct "Hstate" as "(:inv۰state۰unset)".
           iMod (mutex۰initｰtoｰinv (lazy۰resolved γ) with "Hmtx_init [//]") as "#Hmtx_inv".
           iSplitR "Hmtx_locked Hlstate_unset₂ Hthunk HΦ".
@@ -796,7 +796,7 @@ Section lazy۰G.
     (∀ v, Χ1 v -∗ Χ2 v) ={⊤}=∗
     lazy۰consumer t Χ2.
   Proof.
-    iIntros "(:inv =1) (:consumer =2) H". simplify.
+    iIntros "(:inv =1) (:consumer =2) H". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iDestruct (base.lazy۰consumerｰwand with "Hinv_1 Hconsumer_2 H") as "H".
     iSteps.
@@ -806,7 +806,7 @@ Section lazy۰G.
     lazy۰consumer t (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
     [∗ list] Χ ∈ Χs, lazy۰consumer t Χ.
   Proof.
-    iIntros "(:inv =1) (:consumer =2)". simplify.
+    iIntros "(:inv =1) (:consumer =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iDestruct (base.lazy۰consumerｰdivide with "Hinv_1 Hconsumer_2") as "H".
     iApply (big_sepL_impl with "H").
@@ -828,7 +828,7 @@ Section lazy۰G.
     lazy۰result t v2 -∗
     ⌜v1 = v2⌝.
   Proof.
-    iIntros "(:result =1) (:result =2)". simplify.
+    iIntros "(:result =1) (:result =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.lazy۰resultｰagree with "Hresult_1 Hresult_2").
   Qed.
@@ -838,7 +838,7 @@ Section lazy۰G.
     lazy۰result t v ={⊤}=∗
     ▷ □ Ξ v.
   Proof.
-    iIntros "(:inv =1) (:result =2)". simplify.
+    iIntros "(:inv =1) (:result =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.lazyｰinvｰresult with "Hinv_1 Hresult_2").
   Qed.
@@ -859,7 +859,7 @@ Section lazy۰G.
       ▷^2 Χ v ∗
       ▷ □ Ξ v.
   Proof.
-    iIntros "(:inv =1) (:result =2) (:consumer =3)". simplify.
+    iIntros "(:inv =1) (:result =2) (:consumer =3)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iDestruct (metaｰagree with "Hmeta_2 Hmeta_3") as %<-.
     iApply (base.lazyｰinvｰresultｰconsumer with "Hinv_1 Hresult_2 Hconsumer_3").
@@ -955,7 +955,7 @@ Section lazy۰G.
       £ 2
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.lazy٠is_setｰspecｰresult with "[$] HΦ").
@@ -992,7 +992,7 @@ Section lazy۰G.
       £ 2
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.lazy٠is_unsetｰspecｰresult with "[$] HΦ").
@@ -1026,7 +1026,7 @@ Section lazy۰G.
       £ 2
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.lazy٠getｰspecｰresult with "[$] HΦ").

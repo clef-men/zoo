@@ -163,13 +163,13 @@ Section consistent.
     split.
     - apply elem_of_dom_2 in Hreprs_lookup_repr1.
       set_solver.
-    - intros elt repr descr Hreprs_lookup_elt [(<- & <-) | (? & Hdescrs_lookup_elt)]%lookup_insert_Some. simplify.
+    - intros elt repr descr Hreprs_lookup_elt [(<- & <-) | (? & Hdescrs_lookup_elt)]%lookup_insert_Some. simp.
       + right. exists repr2.
         rewrite unify_at₁ unifyｰlookup₂' //.
       + destruct_decide (repr = repr1) as -> | ?.
         * rewrite unify_at₁.
           ospecialize* (Hconsistent elt); [done.. |].
-          destruct Hconsistent as [| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr1_)]; first naive_solver. simplify.
+          destruct Hconsistent as [| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr1_)]; first naive_solver. simp.
           right. exists parent.
           rewrite unifyｰlookup₁ // unifyｰlookup₂' //.
           naive_solver.

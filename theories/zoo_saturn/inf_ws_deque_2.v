@@ -517,7 +517,7 @@ Section inf_ws_deque_2۰G.
     inf_ws_deque_2۰model t vs2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)". simplify.
+    iIntros "(:model =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.inf_ws_deque_2۰modelｰexclusive with "Hmodel_1 Hmodel_2").
   Qed.
@@ -527,7 +527,7 @@ Section inf_ws_deque_2۰G.
     inf_ws_deque_2۰owner t ws2 -∗
     False.
   Proof.
-    iIntros "(:owner =1) (:owner =2)". simplify.
+    iIntros "(:owner =1) (:owner =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.inf_ws_deque_2۰ownerｰexclusive with "Howner_1 Howner_2").
   Qed.
@@ -536,7 +536,7 @@ Section inf_ws_deque_2۰G.
     inf_ws_deque_2۰model γ vs -∗
     ⌜vs `suffix_of` ws⌝.
   Proof.
-    iIntros "(:owner =1) (:model =2)". simplify.
+    iIntros "(:owner =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.inf_ws_deque_2ｰownerｰmodel with "Howner_1 Hmodel_2").
   Qed.
@@ -577,11 +577,11 @@ Section inf_ws_deque_2۰G.
       inf_ws_deque_2۰owner t vs
     >>>.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     awp۰apply (base.inf_ws_deque_2٠sizeｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
@@ -602,11 +602,11 @@ Section inf_ws_deque_2۰G.
       inf_ws_deque_2۰owner t vs
     >>>.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     awp۰apply (base.inf_ws_deque_2٠is_emptyｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
@@ -627,11 +627,11 @@ Section inf_ws_deque_2۰G.
       inf_ws_deque_2۰owner t (vs ++ [v])
     >>>.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     awp۰apply (base.inf_ws_deque_2٠pushｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
@@ -653,7 +653,7 @@ Section inf_ws_deque_2۰G.
     iIntros "%Φ (:inv) HΦ".
 
     awp۰apply (base.inf_ws_deque_2٠stealｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
@@ -685,11 +685,11 @@ Section inf_ws_deque_2۰G.
       inf_ws_deque_2۰owner t ws'
     >>>.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     awp۰apply (base.inf_ws_deque_2٠popｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1". 1: iSteps. iIntros "%o %ws' ($ & Ho)".
       iExists o, ws'. destruct o.

@@ -1341,7 +1341,7 @@ Section vertex۰G.
 
     wp۰apply (wpｰwand with "(Hwp Hctx Hready [$Hmodel])") as (res) "{%} (%b & %task & -> & ($ & Hmodel & Hwp))"; first iSteps.
     iExists b, task. iStep.
-    iDestruct "Hmodel" as "(:model =1)". simplify.
+    iDestruct "Hmodel" as "(:model =1)". simp.
     iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
     destruct b; iFrameSteps.
   Qed.
@@ -1404,7 +1404,7 @@ Section vertex۰G.
     vertex۰model t task2 iter2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)". simplify.
+    iIntros "(:model =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
     iApply (base.vertex۰modelｰexclusive with "Hmodel_1 Hmodel_2").
   Qed.
@@ -1413,7 +1413,7 @@ Section vertex۰G.
     vertex۰finished t -∗
     False.
   Proof.
-    iIntros "(:model =1) (:finished =2)". simplify.
+    iIntros "(:model =1) (:finished =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
     iApply (base.vertex۰modelｰfinished with "Hmodel_1 Hfinished_2").
   Qed.
@@ -1424,7 +1424,7 @@ Section vertex۰G.
     (Q1 -∗ Q2) ={⊤}=∗
     vertex۰output t Q2.
   Proof.
-    iIntros "(:inv =1) (:output =2) H". simplify.
+    iIntros "(:inv =1) (:output =2) H". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
     iMod (base.vertex۰outputｰwand with "Hinv_1 Houtput_2 H") as "H".
     iFrameSteps.
@@ -1434,7 +1434,7 @@ Section vertex۰G.
     vertex۰output t ([∗ list] Q ∈ Qs, Q) ={⊤}=∗
     [∗ list] Q ∈ Qs, vertex۰output t Q.
   Proof.
-    iIntros "(:inv =1) (:output =2)". simplify.
+    iIntros "(:inv =1) (:output =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
     iMod (base.vertex۰outputｰdivide with "Hinv_1 Houtput_2") as "H".
     iApply (big_sepL_impl with "H").
@@ -1456,7 +1456,7 @@ Section vertex۰G.
     vertex۰ready iter -∗
     vertex۰finished t.
   Proof.
-    iIntros "(:predecessor) Hready". simplify.
+    iIntros "(:predecessor) Hready". simp.
     iDestruct (base.vertexｰpredecessorｰfinished with "Hpredecessor Hready") as "Hfinished".
     iSteps.
   Qed.
@@ -1466,7 +1466,7 @@ Section vertex۰G.
     vertex۰finished t ={⊤}=∗
     ▷ □ R.
   Proof.
-    iIntros "(:inv =1) (:finished =2)". simplify.
+    iIntros "(:inv =1) (:finished =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
     iApply (base.vertexｰinvｰfinished with "Hinv_1 Hfinished_2").
   Qed.
@@ -1486,7 +1486,7 @@ Section vertex۰G.
     vertex۰output t Q ={⊤}=∗
     ▷^2 Q.
   Proof.
-    iIntros "(:inv =1) (:finished =2) (:output =3)". simplify.
+    iIntros "(:inv =1) (:finished =2) (:output =3)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_3") as %<-.
     iApply (base.vertexｰinvｰfinishedｰoutput with "Hinv_1 Hfinished_2 Houtput_3").
@@ -1591,8 +1591,8 @@ Section vertex۰G.
       vertex۰predecessor t1 iter
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:inv =2) & Hmodel_2) HΦ". simplify.
-    iDestruct "Hmodel_2" as "(:model =2 !=)". simplify.
+    iIntros "%Φ ((:inv =1) & (:inv =2) & Hmodel_2) HΦ". simp.
+    iDestruct "Hmodel_2" as "(:model =2 !=)". simp.
     iDestruct (metaｰagree with "Hmeta_2 Hmeta_2_") as %<-. iClear "Hmeta_2_".
 
     wp۰apply (base.vertex٠precedeｰspec with "[$Hmodel_2]").
@@ -1613,7 +1613,7 @@ Section vertex۰G.
       pool۰context pool ctx scope
     }}}.
   Proof.
-    iIntros "%Φ (Hctx & (:inv =1) & (:model =2) & Htask) HΦ". simplify.
+    iIntros "%Φ (Hctx & (:inv =1) & (:model =2) & Htask) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
     iDestruct (vertex۰wpｰtoｰbase with "Hmeta_1 Htask") as "Htask".
 

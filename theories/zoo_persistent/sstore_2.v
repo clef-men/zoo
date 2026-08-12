@@ -463,7 +463,7 @@ Module base.
       sstore_2۰model t σ₀2 σ2 -∗
       False.
     Proof.
-      iIntros "(%l1 & %γ1 & %g1 & %root1 & %ς1 & %Heq1 & -> & _ & Hl_gen_1 & _) (%l2 & %γ2 & %g2 & %root2 & %ς2 & %Heq2 & -> & _ & Hl_gen_2 & _)". simplify.
+      iIntros "(%l1 & %γ1 & %g1 & %root1 & %ς1 & %Heq1 & -> & _ & Hl_gen_1 & _) (%l2 & %γ2 & %g2 & %root2 & %ς2 & %Heq2 & -> & _ & Hl_gen_2 & _)". simp.
       iApply (pointstoｰexclusive with "Hl_gen_1 Hl_gen_2").
     Qed.
 
@@ -1098,7 +1098,7 @@ Module base.
       destruct δs_cnode as [| (r1, g1, v1, _node) δs_cnode _] using rev_ind; first naive_solver lia.
       simpl in *.
       iDestruct (deltas۰chainｰsnocｰinv with "Hδs_cnode") as "(%Hnode & Hδs_cnode & Hδ)".
-      simplify.
+      simp.
 
       wp۰rec.
       destruct δs_cnode as [| (r2, g2, v2, node') δs_cnode _] using rev_ind.
@@ -1123,7 +1123,7 @@ Module base.
           set δs_base' := δs_base ++ [Delta r1 g1' v1' base'].
           opose proof* (treemapｰrerootｰrooted _ _ δs_base') as Hϵs'; [done.. |].
           iApply "HΦ".
-          simplify. iSteps; try iPureIntro.
+          simp. iSteps; try iPureIntro.
           { apply NoDup_nil_2. }
           { rewrite deltas۰applyｰnil //. }
           { rewrite -{2}(insert_id (delete base' cnodes) base descr_base).

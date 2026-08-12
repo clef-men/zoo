@@ -352,7 +352,7 @@ Section domain۰G.
     key۰id key id2 -∗
     ⌜id1 = id2⌝.
   Proof.
-    iIntros "(:key۰id =1) (:key۰id =2)". simplify.
+    iIntros "(:key۰id =1) (:key۰id =2)". simp.
     iSteps.
   Qed.
   #[local] Lemma key۰idｰinj key1 id1 key2 id2 :
@@ -361,7 +361,7 @@ Section domain۰G.
     key۰id key2 id2 -∗
     ⌜id1 ≠ id2⌝.
   Proof.
-    iIntros "% (:key۰id =1) (:key۰id =2) <-". simplify.
+    iIntros "% (:key۰id =1) (:key۰id =2) <-". simp.
     iDestruct (zoo_counter۰atｰagree with "Hcounter_at1 Hcounter_at2") as %<-. done.
   Qed.
 
@@ -464,7 +464,7 @@ Section domain۰G.
     iDestruct (local_pointstoｰagree with "Hlocal1 Hlocal2") as %[= <-]. iClear "Hlocal2".
     iDestruct (metaｰagree with "Hl1_meta Hl2_meta") as %<-. iClear "Hl2_meta".
     iDestruct (key۰idｰagree with "Hid1 Hid2") as %<-. iClear "Hid2".
-    iDestruct (ghost_map_elem_combine with "Hlocal_at1 Hlocal_at2") as "(Hlocal_at & %)". simplify.
+    iDestruct (ghost_map_elem_combine with "Hlocal_at1 Hlocal_at2") as "(Hlocal_at & %)". simp.
     iStep. iFrame "#∗".
   Qed.
   Lemma domain۰local_pointstoｰvalidｰ2 tid key dq1 v1 dq2 v2 :
@@ -605,7 +605,7 @@ Section domain۰G.
     wp۰apply (zoo_counter٠incrｰspec ids fn with "Hids") as (id) "(Hid & %Hids)".
     iSteps.
     rewrite Forall_lookup. iIntros "%i %key %Hkeys_lookup ->".
-    iDestruct (big_sepL2_lookup_l with "Hkeys") as "(%id' & %Hids_lookup & %fn' & %)"; first done. simplify.
+    iDestruct (big_sepL2_lookup_l with "Hkeys") as "(%id' & %Hids_lookup & %fn' & %)"; first done. simp.
     eapply Forall_lookup_1 in Hids; done.
   Qed.
 

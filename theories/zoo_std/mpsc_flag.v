@@ -372,7 +372,7 @@ Section mpsc_flag۰G.
     mpsc_flag۰consumer t -∗
     False.
   Proof.
-    iIntros "(:consumer =1) (:consumer =2)". simplify.
+    iIntros "(:consumer =1) (:consumer =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.mpsc_flag۰consumerｰexclusive with "Hconsumer_1 Hconsumer_2").
   Qed.
@@ -412,7 +412,7 @@ Section mpsc_flag۰G.
         mpsc_flag۰consumer t
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:consumer =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:consumer =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.mpsc_flag٠getｰspec with "[$]") as (b) "Hb".

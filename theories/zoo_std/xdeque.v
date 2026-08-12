@@ -33,7 +33,7 @@ Section zoo۰G.
     xdeque۰model t nodes2 -∗
     False.
   Proof.
-    iIntros "(%l1 & %Heq1 & Hprev1 & _) (%l2 & %Heq2 & Hprev2 & _)". simplify.
+    iIntros "(%l1 & %Heq1 & Hprev1 & _) (%l2 & %Heq2 & Hprev2 & _)". simp.
     iApply (pointstoｰexclusive with "Hprev1 Hprev2").
   Qed.
 
@@ -330,7 +330,7 @@ Section zoo۰G.
       } {
         erewrite take_S_r => //.
       }
-    - rewrite list_lookup_middle in Hlookup; first lia. simplify.
+    - rewrite list_lookup_middle in Hlookup; first lia. simp.
       rewrite bool_decide_eq_true_2 // firstn_all2 //. iSteps.
     - rewrite list_lookup_alt length_app /= in Hlookup. lia.
   Qed.

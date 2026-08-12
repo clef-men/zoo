@@ -751,7 +751,7 @@ Section ivar_1۰G.
     ivar_1۰producer t -∗
     False.
   Proof.
-    iIntros "(:producer =1) (:producer =2)". simplify.
+    iIntros "(:producer =1) (:producer =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.ivar_1۰producerｰexclusive with "Hproducer_1 Hproducer_2").
   Qed.
@@ -762,7 +762,7 @@ Section ivar_1۰G.
     (∀ v, Χ1 v -∗ Χ2 v) ={⊤}=∗
     ivar_1۰consumer t Χ2.
   Proof.
-    iIntros "(:inv =1) (:consumer =2) H". simplify.
+    iIntros "(:inv =1) (:consumer =2) H". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iDestruct (base.ivar_1۰consumerｰwand with "Hinv_1 Hconsumer_2 H") as "H".
     iSteps.
@@ -772,7 +772,7 @@ Section ivar_1۰G.
     ivar_1۰consumer t (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
     [∗ list] Χ ∈ Χs, ivar_1۰consumer t Χ.
   Proof.
-    iIntros "(:inv =1) (:consumer =2)". simplify.
+    iIntros "(:inv =1) (:consumer =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iDestruct (base.ivar_1۰consumerｰdivide with "Hinv_1 Hconsumer_2") as "H".
     iApply (big_sepL_impl with "H").
@@ -794,7 +794,7 @@ Section ivar_1۰G.
     ivar_1۰result t v2 -∗
     ⌜v1 = v2⌝.
   Proof.
-    iIntros "(:result =1) (:result =2)". simplify.
+    iIntros "(:result =1) (:result =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.ivar_1۰resultｰagree with "Hresult_1 Hresult_2").
   Qed.
@@ -804,7 +804,7 @@ Section ivar_1۰G.
     ivar_1۰result t v -∗
     False.
   Proof.
-    iIntros "(:producer =1) (:result =2)". simplify.
+    iIntros "(:producer =1) (:result =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.ivar_1ｰproducerｰresult with "Hproducer_1 Hresult_2").
   Qed.
@@ -814,7 +814,7 @@ Section ivar_1۰G.
     ivar_1۰result t v ={⊤}=∗
     ▷ □ Ξ v.
   Proof.
-    iIntros "(:inv =1) (:result =2)". simplify.
+    iIntros "(:inv =1) (:result =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.ivar_1ｰinvｰresult with "Hinv_1 Hresult_2").
   Qed.
@@ -835,7 +835,7 @@ Section ivar_1۰G.
       ▷^2 Χ v ∗
       ▷ □ Ξ v.
   Proof.
-    iIntros "(:inv =1) (:result =2) (:consumer =3)". simplify.
+    iIntros "(:inv =1) (:result =2) (:consumer =3)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iDestruct (metaｰagree with "Hmeta_2 Hmeta_3") as %<-.
     iApply (base.ivar_1ｰinvｰresultｰconsumer with "Hinv_1 Hresult_2 Hconsumer_3").
@@ -930,7 +930,7 @@ Section ivar_1۰G.
       £ 2
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.ivar_1٠try_getｰspecｰresult with "[$] HΦ").
@@ -967,7 +967,7 @@ Section ivar_1۰G.
       £ 2
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.ivar_1٠is_unsetｰspecｰresult with "[$] HΦ").
@@ -1004,7 +1004,7 @@ Section ivar_1۰G.
       £ 2
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.ivar_1٠is_setｰspecｰresult with "[$] HΦ").
@@ -1021,7 +1021,7 @@ Section ivar_1۰G.
       £ 2
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.ivar_1٠getｰspec with "[$] HΦ").
@@ -1040,7 +1040,7 @@ Section ivar_1۰G.
       ivar_1۰result t v
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:producer =2) & HΨ & HΞ) HΦ". simplify.
+    iIntros "%Φ ((:inv =1) & (:producer =2) & HΨ & HΞ) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp۰apply (base.ivar_1٠setｰspec _ _ Ψ with "[$]").

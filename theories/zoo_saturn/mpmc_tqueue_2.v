@@ -315,7 +315,7 @@ Section mpmc_tqueue_2۰G.
     mpmc_tqueue_2۰model t vs2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)". simplify.
+    iIntros "(:model =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.mpmc_tqueue_2۰modelｰexclusive with "Hmodel_1 Hmodel_2").
   Qed.
@@ -325,7 +325,7 @@ Section mpmc_tqueue_2۰G.
     mpmc_tqueue_2۰nonfull t -∗
     False.
   Proof.
-    iIntros "(:full =1) (:nonfull =2)". simplify.
+    iIntros "(:full =1) (:nonfull =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.mpmc_tqueue_2ｰfullｰnonfull with "Hfull_1 Hnonfull_2").
   Qed.
@@ -338,7 +338,7 @@ Section mpmc_tqueue_2۰G.
       ⌜vs = []⌝ ∗
       mpmc_tqueue_2۰model t vs.
   Proof.
-    iIntros "% (:inv =1) (:model =2) (:finished =3)". simplify.
+    iIntros "% (:inv =1) (:model =2) (:finished =3)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
     iDestruct (metaｰagree with "Hmeta_2 Hmeta_3") as %<-.
     iMod (base.mpmc_tqueue_2ｰmodelｰfinished with "Hinv_1 Hmodel_2 Hfinished_3") as "($ & $)"; first done.
@@ -404,7 +404,7 @@ Section mpmc_tqueue_2۰G.
     iIntros "%Φ (:inv) HΦ".
 
     awp۰apply (base.mpmc_tqueue_2٠is_emptyｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
@@ -437,13 +437,13 @@ Section mpmc_tqueue_2۰G.
     iIntros "(:inv) HΦ".
 
     wp۰apply (base.mpmc_tqueue_2٠pushｰspec _ _ _ _ E with "[$]").
-    { iMod "HΦ" as (vs) "((:model =1) & HΦ)". simplify.
+    { iMod "HΦ" as (vs) "((:model =1) & HΦ)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iFrame. iIntros "!> %b Hb".
       iMod ("HΦ" $! b with "[Hb]") as "(Hb & $)".
       { destruct b; iSteps. }
       destruct b; last iSteps.
-      iDestruct "Hb" as "(:nonfull =2)". simplify.
+      iDestruct "Hb" as "(:nonfull =2)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_2") as %<-. iClear "Hmeta_2".
       iFrameSteps.
     }
@@ -479,7 +479,7 @@ Section mpmc_tqueue_2۰G.
     iIntros "%Φ (:inv) HΦ".
 
     awp۰apply (base.mpmc_tqueue_2٠popｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; first iSteps. iIntros "%o %vs' (Hmodel & $)".
       iFrameSteps. destruct o; iSteps.

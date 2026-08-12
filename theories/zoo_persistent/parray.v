@@ -180,7 +180,7 @@ Section parray۰G.
     parray۰inv γ -∗
     False.
   Proof.
-    iIntros "(:inv =1) (:inv =2)". simplify.
+    iIntros "(:inv =1) (:inv =2)". simp.
     iApply (nodes۰authｰexclusive with "Hnodes_auth_1 Hnodes_auth_2").
   Qed.
 

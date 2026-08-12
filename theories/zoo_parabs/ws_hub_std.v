@@ -243,7 +243,7 @@ Section ws_hub_std۰G.
     ws_hub_std۰inv t ι sz2 -∗
     ⌜sz1 = sz2⌝.
   Proof.
-    iIntros "(:inv =1) (:inv =2)". simplify.
+    iIntros "(:inv =1) (:inv =2)". simp.
     iDestruct (metaｰagree with "Hmeta1 Hmeta2") as %<-.
     iSteps.
   Qed.
@@ -253,7 +253,7 @@ Section ws_hub_std۰G.
     ws_hub_std۰owner t i status2 empty2 -∗
     False.
   Proof.
-    iIntros "(:owner =1) (:owner =2)". simplify.
+    iIntros "(:owner =1) (:owner =2)". simp.
     iDestruct (metaｰagree with "Hmeta1 Hmeta2") as %<-. iClear "Hmeta2".
     iApply (ws_deques_public۰ownerｰexclusive with "Hdeques_owner1 Hdeques_owner2").
   Qed.
@@ -263,7 +263,7 @@ Section ws_hub_std۰G.
     ws_hub_std۰owner t i status empty -∗
     ⌜i < sz⌝.
   Proof.
-    iIntros "(:inv) (:owner)". simplify.
+    iIntros "(:inv) (:owner)". simp.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-.
     iApply (ws_deques_publicｰinvｰowner with "Hdeques_inv Hdeques_owner").
   Qed.
@@ -286,7 +286,7 @@ Section ws_hub_std۰G.
     { rewrite lookup_seq. auto with lia. }
     iDestruct "Howner" as "(:owner)". injection Heq as <-.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (ws_deques_publicｰmodelｰowner with "Hdeques_model Hdeques_owner") as "(%us_ & %Hlookup_ & %Hws)". simplify.
+    iDestruct (ws_deques_publicｰmodelｰowner with "Hdeques_model Hdeques_owner") as "(%us_ & %Hlookup_ & %Hws)". simp.
     iPureIntro. apply suffix_nil_inv. naive_solver.
   Qed.
 

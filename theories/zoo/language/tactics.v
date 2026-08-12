@@ -131,7 +131,7 @@ Tactic Notation "zoo_simpl" :=
   simpl;
   zoo_fold_typeclasses.
 
-Tactic Notation "zoo_simplify" "in" hyp(H) :=
+Tactic Notation "zoo_simp" "in" hyp(H) :=
   zoo_simpl in H;
   try match type of H with
   | to_val _ = Some _ =>
@@ -188,9 +188,9 @@ Tactic Notation "zoo_simplify" "in" hyp(H) :=
       apply valｰsimilarｰblockｰnongenerativeｰgenerative in H as []; done
   end;
   try zoo_simpl in H.
-Tactic Notation "zoo_simplify" :=
+Tactic Notation "zoo_simp" :=
   repeat_on_hyps (fun H =>
-    zoo_simplify in H
+    zoo_simp in H
   );
   simplify_eq/=;
   zoo_fold_typeclasses in *.
@@ -202,7 +202,7 @@ Ltac invert_base_step :=
       try (is_var e; fail 1);
       invert H
   end;
-  zoo_simplify.
+  zoo_simp.
 
 Create HintDb zoo.
 

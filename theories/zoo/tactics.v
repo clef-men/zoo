@@ -5,7 +5,7 @@ Require Import zoo.prelude.
 Ltac done :=
   stdpp.tactics.done.
 
-Tactic Notation "simplify" :=
+Tactic Notation "simp" :=
   repeat (destruct_conjs; destruct_or?);
   simplify_eq/=.
 
