@@ -1,9 +1,30 @@
+Require Ltac2.Ltac2.
+
 Require Export stdpp.fin_maps.
 Require Export stdpp.fin_map_dom.
 
 Require Import zoo.prelude.
 Require Import zoo.common.option.
 Require Import zoo.options.
+
+Module doms.
+  Import Ltac2.
+
+  Ltac2 main () :=
+    Control.enter (fun () =>
+      List.iter (fun (hyp, _, ty) =>
+        lazy_match! ty with
+        | _ = _ =>
+            try (apply (f_equal dom) in $hyp as ?)
+        | _ =>
+            ()
+        end
+      ) (Control.hyps ())
+    ).
+End doms.
+
+Ltac doms :=
+  ltac2:(doms.main ()).
 
 Section dom.
   Context `{FinMapDom K M D}.

@@ -529,7 +529,7 @@ Module base.
       iSteps; try iPureIntro.
       { rewrite /descriptor۰wf. set_solver. }
       { rewrite !store۰onｰinsertｰsupport //; last congruence.
-        apply (f_equal dom) in Hδs. set_solver.
+        doms. set_solver.
       } {
         iClear "Helem_base". clear dependent descr δs.
         iApply (big_sepM2_impl with "Hcnodes"). iIntros "!> !>" (cnode descr (cnode' & δs)) "%Hcnodes_lookup %Hϵs_lookup (%descr' & %Hcnodes_lookup' & ((%Hcnode_store_dom & %Hcnode_store_gen) & #Helem_cnode & %Hδs_nodup & %Hδs' & Hδs'))".
@@ -537,7 +537,7 @@ Module base.
         iSteps; iPureIntro.
         - rewrite /descriptor۰wf. set_solver.
         - rewrite !store۰onｰinsertｰsupport //; last congruence.
-          apply (f_equal dom) in Hδs'. set_solver.
+          doms. set_solver.
       }
     Qed.
 
@@ -1112,8 +1112,7 @@ Module base.
           wp۰apply+ assertｰspec; first rewrite bool_decide_eq_true_2 //.
           assert (∃ data, store۰on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
           { apply elem_of_dom.
-            apply (f_equal dom) in Hδs_cnode.
-            set_solver.
+            apply (f_equal dom) in Hδs_cnode. set_solver.
           }
           iDestruct (big_sepM_insert_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
           do 2 wp۰load. do 3 wp۰store. wp۰pures. wp۰rec. wp۰store.
@@ -1165,8 +1164,7 @@ Module base.
           wp۰apply+ assertｰspec; first rewrite bool_decide_eq_true_2 //.
           assert (∃ data, store۰on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
           { apply elem_of_dom.
-            apply (f_equal dom) in Hδs_cnode.
-            set_solver.
+            apply (f_equal dom) in Hδs_cnode. set_solver.
           }
           iDestruct (big_sepM_insert_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
           do 2 wp۰load. do 3 wp۰store.
@@ -1211,8 +1209,7 @@ Module base.
         assert (∃ data, store۰on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
         { apply elem_of_dom.
           rewrite deltas۰applyｰsnoc in Hδs_cnode.
-          apply (f_equal dom) in Hδs_cnode.
-          set_solver.
+          apply (f_equal dom) in Hδs_cnode. set_solver.
         }
         iDestruct (big_sepM_insert_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
         do 2 wp۰load. do 3 wp۰store.
@@ -1309,8 +1306,7 @@ Module base.
             assert (∃ data, store۰on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
             { apply elem_of_dom.
               rewrite deltas۰applyｰsnoc in Hδs.
-              apply (f_equal dom) in Hδs.
-              set_solver.
+              apply (f_equal dom) in Hδs. set_solver.
             }
             iDestruct (big_sepM_insert_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
             do 2 wp۰load. do 3 wp۰store. wp۰pures. wp۰rec. wp۰store.
@@ -1339,8 +1335,7 @@ Module base.
             assert (∃ data, store۰on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
             { apply elem_of_dom.
               rewrite deltas۰applyｰsnoc in Hδs.
-              apply (f_equal dom) in Hδs.
-              set_solver.
+              apply (f_equal dom) in Hδs. set_solver.
             }
             iDestruct (big_sepM_insert_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
             do 2 wp۰load. do 3 wp۰store.
@@ -1365,8 +1360,7 @@ Module base.
           assert (∃ data, store۰on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
           { apply elem_of_dom.
             rewrite deltas۰applyｰsnoc in Hδs.
-            apply (f_equal dom) in Hδs.
-            set_solver.
+            apply (f_equal dom) in Hδs. set_solver.
           }
           iDestruct (big_sepM_insert_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
           do 2 wp۰load. do 3 wp۰store.
