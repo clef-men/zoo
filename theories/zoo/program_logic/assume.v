@@ -1,6 +1,6 @@
 Require Import zoo.prelude.
 Require Import zoo.base.
-Require Import zoo_std.diverge.
+Require Import zoo.program_logic.diverge.
 Require Import zoo.options.
 
 Definition assume : val :=

@@ -1,7 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.assert.
+Require Import zoo.program_logic.assert.
 Require Import zoo.options.
 
 Notation "'sstore_2٠ref_gen'" := (

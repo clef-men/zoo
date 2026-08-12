@@ -143,6 +143,10 @@ theories/zoo/program_logic/identifier.v
 theories/zoo/program_logic/structural_equality.v
 theories/zoo/program_logic/counter.v
 theories/zoo/program_logic/biglater.v
+theories/zoo/program_logic/for_.v
+theories/zoo/program_logic/diverge.v
+theories/zoo/program_logic/assert.v
+theories/zoo/program_logic/assume.v
 
 theories/zoo/proofmode.v
 
@@ -159,10 +163,6 @@ theories/zoo/base.v
 #BEGIN zoo-std
 -Q theories/zoo_std zoo_std
 
-theories/zoo_std/diverge.v
-theories/zoo_std/assert.v
-theories/zoo_std/assume.v
-theories/zoo_std/for_.v
 theories/zoo_std/ref_.v
 theories/zoo_std/option.v
 theories/zoo_std/goption__types.v

@@ -1,9 +1,9 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
+Require Export zoo.program_logic.assume.
+Require Export zoo.program_logic.diverge.
 Require Export zoo_std.array.
-Require Export zoo_std.assume.
-Require Export zoo_std.diverge.
 Require Export zoo_std.int.
 Require Import zoo.options.
 
