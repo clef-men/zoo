@@ -19,7 +19,7 @@ Require Import zoo.options.
 
 Implicit Type b full : bool.
 Implicit Type i : nat.
-Implicit Type l loc casn : location.
+Implicit Type loc casn : location.
 Implicit Type casns : list location.
 Implicit Type gid : identifier.
 Implicit Type v w state : val.
