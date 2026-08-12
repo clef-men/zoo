@@ -124,15 +124,15 @@ Tactic Notation "zoo۰fold_typeclasses" "in" "*" :=
   );
   zoo۰fold_typeclasses.
 
-Tactic Notation "zoo_simpl" "in" hyp(H) :=
+Tactic Notation "zoo۰simpl" "in" hyp(H) :=
   simpl in H;
   zoo۰fold_typeclasses in H.
-Tactic Notation "zoo_simpl" :=
+Tactic Notation "zoo۰simpl" :=
   simpl;
   zoo۰fold_typeclasses.
 
 Tactic Notation "zoo_simp" "in" hyp(H) :=
-  zoo_simpl in H;
+  zoo۰simpl in H;
   try match type of H with
   | to_val _ = Some _ =>
       apply of_valｰto_val in H
@@ -169,15 +169,15 @@ Tactic Notation "zoo_simp" "in" hyp(H) :=
       let H2 := fresh in
       let H3 := fresh in
       apply valｰsimilarｰblockｰgenerative in H as (H1 & H2 & H3); last naive_solver;
-      zoo_simpl in H1;
-      zoo_simpl in H2;
-      zoo_simpl in H3
+      zoo۰simpl in H1;
+      zoo۰simpl in H2;
+      zoo۰simpl in H3
   | @similar val _ (ValBlock Nongenerative _ _) (ValBlock Nongenerative _ _) =>
       let H1 := fresh in
       let H2 := fresh in
       apply valｰsimilarｰblockｰnongenerative in H as (H1 & H2);
-      zoo_simpl in H1;
-      zoo_simpl in H2
+      zoo۰simpl in H1;
+      zoo۰simpl in H2
   | @similar val _ (ValLit (LitLoc _)) (ValBlock _ _ _) =>
       apply valｰsimilarｰlocationｰblock in H as []
   | @similar val _ (ValBlock _ _ _) (ValLit (LitLoc _)) =>
@@ -187,7 +187,7 @@ Tactic Notation "zoo_simp" "in" hyp(H) :=
   | @similar val _ (ValBlock Nongenerative _ _) (ValBlock (Generative _) _ _) =>
       apply valｰsimilarｰblockｰnongenerativeｰgenerative in H as []; done
   end;
-  try zoo_simpl in H.
+  try zoo۰simpl in H.
 Tactic Notation "zoo_simp" :=
   repeat_on_hyps (fun H =>
     zoo_simp in H
