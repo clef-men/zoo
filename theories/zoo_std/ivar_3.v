@@ -823,7 +823,7 @@ Module base.
 
           wp۰apply+ ("HLöb" with "HP HΩ HΦ").
 
-        + destruct state as [waiters' | v]; zoo_simp.
+        + destruct state as [waiters' | v]; zoo۰simp.
           iDestruct "Hstate" as "(:inv۰state۰unset)".
           iMod (waitersｰinsert waiter with "Hwaiters_auth") as "(Hwaiters_auth & #Hwaiters_elem)".
           iDestruct (big_sepL2_cons₂' _ waiter ω with "[HP HΩ H£] Hwaiters") as "Hwaiters". 1: iSteps.

@@ -535,7 +535,7 @@ Section bag_2۰G.
     iInv "Hinv" as "(:inv۰inner =2)".
     wp۰cas as Hcas; first iSteps.
     assert (head nodes1 = head nodes2) as ->.
-    { destruct nodes1, nodes2; zoo_simp; done. }
+    { destruct nodes1, nodes2; zoo۰simp; done. }
     iDestruct (xtchainｰcons₂ with "Hnode_header [] Hnodes2") as "Hnodes"; first iSteps.
 
     iAssert ⌜descrs2 !! node = None⌝%I as %Hdescr2_lookup.

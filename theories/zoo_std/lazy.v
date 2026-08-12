@@ -612,7 +612,7 @@ Module base.
           wp۰apply+ "HLöb".
           iSteps.
 
-        + destruct state; zoo_simp.
+        + destruct state; zoo۰simp.
           iDestruct "Hstate" as "(:inv۰state۰unset)".
           iMod (mutex۰initｰtoｰinv (lazy۰resolved γ) with "Hmtx_init [//]") as "#Hmtx_inv".
           iSplitR "Hmtx_locked Hlstate_unset₂ Hthunk HΦ".

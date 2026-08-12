@@ -1310,7 +1310,7 @@ Module base.
       iInv "Hinv" as "(:inv۰inner =3)".
       iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %?.
       wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
-      wp۰cas as Hcas; zoo_simp in Hcas; last lia.
+      wp۰cas as Hcas; zoo۰simp in Hcas; last lia.
       iStep. iIntros "!> %prophs %Hprophss3 Hprophet_model".
       iSplitR "HΦ".
       { iFrameSteps.
@@ -1341,7 +1341,7 @@ Module base.
       wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
       wp۰apply (wpｰcasｰnobranch' with "Ht_front") as (b) "%Hcas Ht_front".
       iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
-      destruct b; zoo_simp in Hcas; first subst front1.
+      destruct b; zoo۰simp in Hcas; first subst front1.
 
       - iDestruct (prophet_multi۰fullｰvalid with "Hprophet_model Hprophet_full") as %->.
         rewrite fn_lookup_alter Hpasts1 // in Hloser.
@@ -1376,7 +1376,7 @@ Module base.
       iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
       iDestruct (inv۰stateｰwinner۰pop with "Hstate Hwinner_pop") as "(%P_ & -> & #Heq & Hstate & Hwinner_pop)".
       rewrite Hprophss1.
-      destruct b; zoo_simp in Hcas; last congruence.
+      destruct b; zoo۰simp in Hcas; last congruence.
       iMod (frontｰupdate with "Hfront_auth") as "Hfront_auth".
       iDestruct "Hstate" as "[(:inv۰state۰nonempty۰steal =1) | (:inv۰state۰emptyish۰steal =1)]".
 
@@ -1461,7 +1461,7 @@ Module base.
       wp۰apply (wpｰcasｰnobranch' with "Ht_front") as (b) "%Hcas Ht_front".
       iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
       iDestruct (inv۰stateｰwinner۰steal with "Hstate Hwinner_steal") as "(%P_ & -> & _ & (:inv۰state۰emptyish۰pop =1) & Hwinner_steal)".
-      destruct b; zoo_simp in Hcas; last congruence.
+      destruct b; zoo۰simp in Hcas; last congruence.
       iMod (frontｰupdate with "Hfront_auth") as "Hfront_auth".
       iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
 
@@ -1504,7 +1504,7 @@ Module base.
 
       - iDestruct "Hstate" as "(:inv۰state۰empty =1 lazy=)".
         assert (length vs1 = 0) as ->%nil_length_inv by lia.
-        destruct b; zoo_simp in Hcas; last lia.
+        destruct b; zoo۰simp in Hcas; last lia.
 
         iMod (frontｰupdate with "Hfront_auth") as "Hfront_auth".
         iClear "Hfront_lb". iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".

@@ -1338,7 +1338,7 @@ Section mcas_1۰G.
 
         - iDestruct "Hlstatus" as "(:casn۰inv۰inner۰running >)".
           wp۰cas as Hcas | _.
-          { exfalso. zoo_simp in Hcas. naive_solver. }
+          { exfalso. zoo۰simp in Hcas. naive_solver. }
           iStep. iIntros "!> %prophs %Hprophs Hgproph".
 
           assert (metadata۰success η = final_status۰to_bool fstatus) as Hsuccess.

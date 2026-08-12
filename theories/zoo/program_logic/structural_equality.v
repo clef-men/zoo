@@ -872,7 +872,7 @@ Proof.
   all: destruct v2 as [[] | | [] tag2 [| v2 vs2]] => //.
   all: try rewrite bool_decide_eq_true //.
   intros Habstract1 Habstract2 Hsimilar.
-  zoo_simp in Hsimilar.
+  zoo۰simp in Hsimilar.
   rewrite andb_true_iff.
   split; apply beqｰtrue; naive_solver.
 Qed.

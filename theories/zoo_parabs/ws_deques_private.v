@@ -1338,7 +1338,7 @@ Section ws_deques_private۰G.
       apply list_lookup_fmap_Some in Hrequests2_lookup as (request & -> & Hrequests2_lookup).
       destruct b.
 
-      + destruct request; zoo_simp in Hcas; first done.
+      + destruct request; zoo۰simp in Hcas; first done.
         iMod (channelsｰprepare (λ o, ws_deques_private۰owner #l i_ Blocked ws -∗ Φ o)%I with "Hchannels_sender Hchannels_receiver") as "(Hchannels_sender & Hchannels_receiver)".
         iDestruct (big_sepL_insert_acc with "Hrequests") as "(Hrequest & Hrequests)"; first done.
         iDestruct ("Hrequests" $! (RequestSome i_) with "[Hrequest Hchannels_sender HΦ]") as "Hrequests".
