@@ -136,8 +136,9 @@ Section graph.
       assert (path g a (xs++xs) a) as Hloop.
       { by eapply pathｰapp. }
       specialize (Huniq a a xs (xs++xs) Hpath Hloop).
-      apply (f_equal length) in Huniq. simp_length in Huniq.
-      assert (length xs = 0) by lia. destruct xs; simpl in *; try done; lia. }
+      lengths.
+      assert (length xs = 0) by lia.
+      destruct xs; try done; lia. }
     { intros ????? X1 X2.
       destruct (Hroot r1) as (xs1&Hxs1).
       { eapply elem_ofｰvertices. eauto. }

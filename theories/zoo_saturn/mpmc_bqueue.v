@@ -1078,9 +1078,7 @@ Module base.
             ⌝%I as "(-> & %Hif)".
             { iDestruct (big_sepL2_length with "Hnodes") as %?.
               iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_back") as %?%lookup_lt_Some.
-              iPureIntro.
-              apply (f_equal length) in Hhist1. simp_length/= in Hhist1.
-              lia.
+              iPureIntro. lengths/=. lia.
             }
             rewrite bool_decide_eq_false_2; first lia.
             iMod ("HΦ" $! false with "[$Hmodel₁ //] [//]") as "HΦ".

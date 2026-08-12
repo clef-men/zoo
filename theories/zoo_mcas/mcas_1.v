@@ -821,7 +821,7 @@ Section mcas_1۰G.
       { erewrite Heq, lookup_app_l_Some; first done.
         rewrite lookup_snoc_Some. right. done.
       }
-      apply (f_equal length) in Heq. rewrite 3!length_app in Heq. lia.
+      lengths. lia.
   Qed.
   #[local] Lemma history۰lbｰvalidｰne γ casns1 casn1 casns2 casn2 :
     casn1 ≠ casn2 →

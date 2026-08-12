@@ -1,3 +1,5 @@
+Require Ltac2.Ltac2.
+
 Require stdpp.list.
 Require stdpp.sorting.
 
@@ -35,6 +37,35 @@ Tactic Notation "simp_length" "in" "*" :=
   autorewrite with simp_length in *; try done.
 Tactic Notation "simp_length" "/=" "in" "*" :=
   repeat (progress csimpl in * || simp_length in * ).
+
+Module lengths.
+  Import Ltac2.
+
+  Ltac2 main () :=
+    Control.enter (fun () =>
+      List.iter (fun (hyp, _, ty) =>
+        lazy_match! ty with
+        | _ = _ =>
+            try (apply (f_equal length) in $hyp as ?)
+        | _ ≡ₚ _ =>
+            apply Permutation_length in $hyp as ?
+        | _ ⊆+ _ =>
+            apply submseteq_length in $hyp as ?
+        | _ `prefix_of` _ =>
+            apply prefix_length in $hyp as ?
+        | _ =>
+            ()
+        end
+      ) (Control.hyps ())
+    ).
+End lengths.
+
+Tactic Notation "lengths" :=
+  ltac2:(lengths.main ());
+  simp_length in *.
+Tactic Notation "lengths" "/=" :=
+  ltac2:(lengths.main ());
+  simp_length/= in *.
 
 Section basic.
   Context {A : Type}.

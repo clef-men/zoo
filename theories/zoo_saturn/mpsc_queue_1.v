@@ -450,10 +450,8 @@ Module base.
         rewrite -(bool_decide_ext _ _ (length_zero_iff_nil _)).
         iDestruct (big_sepL2_length with "Hnodes") as %<-.
         rewrite bool_decide_eq_false_2.
-        { apply (f_equal length) in Hhist as Hhist_length.
-          simp_length/= in Hhist_length.
-          apply lookup_lt_Some in Hlookup'.
-          lia.
+        { apply lookup_lt_Some in Hlookup'.
+          lengths/=. lia.
         }
 
         iSplitR "Hconsumer HΨ HΦ". { iFrameSteps. }
@@ -472,9 +470,8 @@ Module base.
         destruct_decide (length vs = 0) as ->%nil_length_inv | Hvs; last first.
         { iDestruct (big_sepL2_length with "Hnodes") as %?.
           exfalso.
-          apply (f_equal length) in Hhist.
           opose proof* lengthｰlookupｰlast as Heq; [done.. |].
-          simp_length/= in Hhist. lia.
+          lengths/=. lia.
         }
 
         destruct op; last done.

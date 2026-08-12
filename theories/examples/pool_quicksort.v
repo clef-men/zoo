@@ -106,7 +106,7 @@ Section pool۰G.
     }
 
     rewrite Z.max_r in Hi1 H2. 1: lia.
-    apply Permutation_length in Hxs' as ?.
+    lengths.
 
     iDestruct (array۰sliceｰcons₂ with "Harr_1 Harr_2") as "Harr".
 
@@ -231,7 +231,7 @@ Section pool۰G.
         wp۰apply+ ("HLöb" with "[%] [%] [%] Hctx Harr_3") as "($ & Hpool_consumer)".
         { lia. }
         { simp_length/=. lia. }
-        { apply Permutation_length in Hxs. simp_length/= in Hxs. lia. }
+        { lengths/=. lia. }
         iEval (simp_length/=) in "Hpool_consumer".
         iEval (rewrite -Hp Nat.add_1_r) in "Hpool_consumer".
         iFrameSteps.
@@ -243,8 +243,8 @@ Section pool۰G.
       iMod "Hpool_consumer_2" as ">(%xs2' & %Hxs2'_permutation & %Hxs2'_sorted & Harr_3)".
       iModIntro.
       iDestruct (array۰sliceｰappｰ3₁ with "Harr_1 Harr_2 Harr_3") as "Harr".
-      { simp_length. apply Permutation_length in Hxs1'_permutation. lia. }
-      { simp_length/=. apply Permutation_length in Hxs1'_permutation. lia. }
+      { lengths. lia. }
+      { lengths/=. lia. }
       iEval (rewrite -(fmap_app _ [_]) -fmap_app) in "Harr".
       iFrame. iPureIntro. split.
       { rewrite -Hxs1'_permutation -Hxs2'_permutation //. }
@@ -287,8 +287,7 @@ Section pool۰G.
 
     iSteps.
     iMod "Hpool_consumer" as "(%xs' & %Hxs' & %Hxs'_sorted & Harr_slice)".
-    iModIntro. iSteps. iPureIntro.
-    simp_length. apply Permutation_length. done.
+    iModIntro. iSteps. iPureIntro. lengths.
   Qed.
 
   Lemma pool_quicksort٠mainｰspec (num_dom : nat) arr xs :

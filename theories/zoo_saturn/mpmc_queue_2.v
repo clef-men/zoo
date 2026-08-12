@@ -1125,7 +1125,7 @@ Section mpmc_queue_2۰G.
       iAssert ⌜(i_front2 + length vs2 = i_back2 + length vs_back2 + 1)%nat⌝%I as %Hsize.
       { destruct status2.
         - iDestruct "Hstatus" as "(:inv۰status۰stable =2)". iPureIntro.
-          apply (f_equal length) in Hvs2. simp_length in Hvs2. lia.
+          lengths. lia.
         - iDestruct "Hstatus" as "(:inv۰status۰unstable =2)". iPureIntro.
           simp_length/=. lia.
       }
