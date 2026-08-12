@@ -71,7 +71,7 @@ Section zoo۰G.
       apply nsteps_once, pure_base_stepｰpure_step.
       split.
       + auto with zoo.
-      + intros. invert_base_step. done.
+      + intros. inv_base_step. done.
     - done.
   Qed.
 

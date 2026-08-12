@@ -139,7 +139,7 @@ Section pure_exec.
     eauto with zoo.
   #[local] Ltac solve_exec_puredet :=
     intros;
-    invert_base_step;
+    inv_base_step;
     try naive_solver.
   #[local] Ltac solve_pure_exec :=
     intros ?; destruct_and?;
@@ -168,7 +168,7 @@ Section pure_exec.
     apply nsteps_once, pure_base_stepｰpure_step.
     split; first solve_exec_safe.
     intros tid σ1 κ e σ2 es Hstep.
-    invert_base_step.
+    inv_base_step.
     split_and!; try done.
     enough (
       ∀ recs1 recs2 vs1 vs2 e,

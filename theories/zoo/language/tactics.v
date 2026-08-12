@@ -195,7 +195,7 @@ Tactic Notation "zoo۰simp" :=
   simplify_eq/=;
   zoo۰fold_typeclasses in *.
 
-Ltac invert_base_step :=
+Ltac inv_base_step :=
   simpl in *;
   repeat match goal with
   | H: base_step _ ?e _ _ _ _ _ |- _ =>

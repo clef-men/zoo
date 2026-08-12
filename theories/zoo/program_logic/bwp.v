@@ -897,7 +897,7 @@ Section zoo۰G.
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
     iDestruct (state_interpｰheaders۰atｰvalid with "Hinterp Hl") as %Hheaders_lookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e_ %σ_ %es -> %Hstep _ !>".
-    invert_base_step.
+    inv_base_step.
     iSteps.
   Qed.
   Lemma bwpｰmatchｰcontext K `{!Context K} l hdr x_fb e_fb brs e tid E Φ :
@@ -932,11 +932,11 @@ Section zoo۰G.
     iIntros "!> %κ %κs' %e2 %σ2 %es -> %Hstep H£".
     destruct κ as [| (pid' & (w' & v')) κ _] using rev_ind.
     - exfalso. apply prim_stepｰresolveｰinv in Hstep; last done.
-      invert_base_step.
+      inv_base_step.
       destruct κ; done.
     - rewrite -assoc.
       apply prim_stepｰresolveｰinv in Hstep; last done.
-      invert_base_step. simplify_list_eq.
+      inv_base_step. simplify_list_eq.
       iMod ("H" $! _ _ (Val w') σ2 es with "[%] [%] H£") as "H".
       { done. }
       { eexists [] _ _; done. }

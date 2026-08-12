@@ -557,7 +557,7 @@ Section zoo۰G.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit. { iPureIntro. apply base_reducibleｰequal. }
     iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !> !>".
-    invert_base_step; iSteps.
+    inv_base_step; iSteps.
   Qed.
   Lemma wpｰequal v1 v2 tid E Φ :
     ▷ (
@@ -597,7 +597,7 @@ Section zoo۰G.
     iApply bwpｰwpｰweak. iIntros.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
-    invert_base_step.
+    inv_base_step.
     select (state۰alloc_condition _ _ _) ltac:(fun H =>
       destruct H
     ).
@@ -624,7 +624,7 @@ Section zoo۰G.
     iApply bwpｰwpｰweak. iIntros.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
-    invert_base_step.
+    inv_base_step.
     select (state۰alloc_condition _ _ _) ltac:(fun H =>
       destruct H
     ).
@@ -648,7 +648,7 @@ Section zoo۰G.
     iApply bwpｰwpｰweak. iIntros.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
-    invert_base_step.
+    inv_base_step.
     iFrameSteps.
   Qed.
 
@@ -688,7 +688,7 @@ Section zoo۰G.
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
     iDestruct (state_interpｰheaders۰atｰvalid with "Hinterp Hheader") as %Hheaders_lookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e %σ2 %es -> %Hstep _ !>".
-    invert_base_step.
+    inv_base_step.
     iFrameSteps.
   Qed.
 
@@ -703,7 +703,7 @@ Section zoo۰G.
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
     iDestruct (state_interpｰheaders۰atｰvalid with "Hinterp Hheader") as %Hheaders_lookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e %σ2 %es -> %Hstep _ !>".
-    invert_base_step.
+    inv_base_step.
     iFrameSteps.
   Qed.
 
@@ -722,7 +722,7 @@ Section zoo۰G.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iDestruct (state_interpｰpointstoｰvalid with "Hinterp Hl") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !> !>".
-    invert_base_step.
+    inv_base_step.
     iFrameSteps.
   Qed.
 
@@ -741,7 +741,7 @@ Section zoo۰G.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iDestruct (state_interpｰpointstoｰvalid with "Hinterp Hl") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
-    invert_base_step.
+    inv_base_step.
     iMod (state_interpｰpointstoｰupdate with "Hinterp Hl") as "($ & Hl)".
     iSteps.
   Qed.
@@ -761,7 +761,7 @@ Section zoo۰G.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iDestruct (state_interpｰpointstoｰvalid with "Hinterp Hl") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
-    invert_base_step.
+    inv_base_step.
     iMod (state_interpｰpointstoｰupdate with "Hinterp Hl") as "($ & Hl)".
     iSteps.
   Qed.
@@ -786,7 +786,7 @@ Section zoo۰G.
     iDestruct (state_interpｰpointstoｰvalid with "Hinterp Hl") as %Hlookup.
     iSplit. { iPureIntro. eapply base_reducibleｰcas. done. }
     iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
-    invert_base_step; first iSteps.
+    inv_base_step; first iSteps.
     iDestruct ("HΦ" $! true with "[//] Hl") as "(-> & Hl & HΦ)".
     iMod (state_interpｰpointstoｰupdate with "Hinterp Hl") as "($ & Hl)".
     iSteps.
@@ -866,7 +866,7 @@ Section zoo۰G.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iDestruct (state_interpｰpointstoｰvalid with "Hinterp Hl") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
-    invert_base_step.
+    inv_base_step.
     iMod (state_interpｰpointstoｰupdate with "Hinterp Hl") as "($ & Hl)";
     iFrameSteps.
   Qed.
@@ -884,7 +884,7 @@ Section zoo۰G.
     iApply bwpｰwpｰweak. iIntros.
     iApply bwpｰliftｰatomicｰbaseｰstep; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
-    invert_base_step.
+    inv_base_step.
     iMod (state_interpｰfork with "Hinterp") as "(Hinterp & Htid)".
     iFrameStep.
     rewrite right_id Nat.add_0_r.
@@ -906,7 +906,7 @@ Section zoo۰G.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iDestruct (state_interpｰlocal_pointstoｰvalid with "Hinterp Htid") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
-    invert_base_step.
+    inv_base_step.
     iFrameSteps.
   Qed.
 
@@ -925,7 +925,7 @@ Section zoo۰G.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iDestruct (state_interpｰlocal_pointstoｰvalid with "Hinterp Htid") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
-    invert_base_step.
+    inv_base_step.
     iMod (state_interpｰlocal_pointstoｰupdate with "Hinterp Htid") as "($ & Htid)".
     iSteps.
   Qed.
@@ -945,7 +945,7 @@ Section zoo۰G.
     iApply bwpｰwpｰweak. iIntros.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
-    invert_base_step.
+    inv_base_step.
     iMod (state_interpｰprophetｰnew with "Hinterp") as "(%prophs & Hinterp & Hpid)"; first done.
     iFrameSteps.
   Qed.
