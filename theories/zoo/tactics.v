@@ -9,10 +9,10 @@ Tactic Notation "simp" :=
   repeat (destruct_conjs; destruct_or?);
   simplify_eq/=.
 
-Tactic Notation "invert" ident(H) "as" simple_intropattern(pat) :=
+Tactic Notation "inv" "/=" ident(H) "as" simple_intropattern(pat) :=
   inversion H as pat; clear H; simplify_eq/=.
-Tactic Notation "invert" ident(H) :=
-  invert H as [].
+Tactic Notation "inv" "/=" ident(H) :=
+  inv/= H as [].
 
 Tactic Notation "solve_proper+" :=
   solve_proper_core ltac:(fun _ => f_equiv || solve_proper_prepare).

@@ -71,7 +71,7 @@ Section treemap۰rooted.
       treemap۰path tree node' node path1 ∧
       treemap۰path tree dst node' path2.
   Proof.
-    move: node. induction path1 => node Hpath; invert Hpath; naive_solver.
+    move: node. induction path1 => node Hpath; inv/= Hpath; naive_solver.
   Qed.
 
   Lemma treemap۰pathｰmono {tree dst node path} tree' :
@@ -106,7 +106,7 @@ Section treemap۰rooted.
     path = [].
   Proof.
     intros (Hlookup_root & _) Hpath.
-    invert Hpath. done.
+    inv Hpath. done.
   Qed.
   Lemma treemap۰pathｰis_cons tree root node path :
     treemap۰rooted tree root →
@@ -118,7 +118,7 @@ Section treemap۰rooted.
       treemap۰path tree root node' path'.
   Proof.
     intros Hrooted Hpath Hnode.
-    invert Hpath as [| ? []]. naive_solver.
+    inv/= Hpath as [| ? []]. naive_solver.
   Qed.
 
   #[local] Lemma treemap۰pathｰacyclic {tree root path} node ϵ node' :
@@ -188,7 +188,7 @@ Section treemap۰rooted.
     assert (root ≠ root') as Hroot' by congruence.
     induction 1 as [| node ϵ node' edge'' path Htree_lookup_node ? ? Hpath Hpath']; first done.
     destruct_decide (node = root) as -> | Hnode; first congruence.
-    destruct_decide (node = root') as -> | Hnode_; first invert Hpath.
+    destruct_decide (node = root') as -> | Hnode_; first inv/= Hpath.
     econstructor; try done.
     rewrite lookup_insert_ne // lookup_delete_ne //.
   Qed.

@@ -200,7 +200,7 @@ Ltac invert_base_step :=
   repeat match goal with
   | H: base_step _ ?e _ _ _ _ _ |- _ =>
       try (is_var e; fail 1);
-      invert H
+      inv/= H
   end;
   zoo۰simp.
 

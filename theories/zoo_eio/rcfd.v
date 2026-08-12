@@ -439,9 +439,9 @@ Section rcfd۰G.
     iDestruct (lstateｰvalid with "Hauth Hlb") as %Hlsteps.
     iPureIntro.
     apply rtc_inv in Hlsteps as [<- | (lstate' & Hlstep & Hlsteps)]; first naive_solver.
-    invert Hlstep.
+    inv Hlstep.
     apply rtc_inv in Hlsteps as [<- | (lstate' & Hlstep & Hlsteps)]; first naive_solver.
-    invert Hlstep.
+    inv Hlstep.
   Qed.
   #[local] Lemma lstateｰvalidｰclosingｰusers' γ lstate :
     lstate۰auth γ lstate -∗
@@ -461,7 +461,7 @@ Section rcfd۰G.
     iDestruct (lstateｰvalid with "Hauth Hlb") as %Hlsteps.
     iPureIntro.
     apply rtc_inv in Hlsteps as [<- | (lstate' & Hlstep & Hlsteps)]; first naive_solver.
-    invert Hlstep.
+    inv Hlstep.
   Qed.
   #[local] Lemma lstateｰupdateｰcloseｰusers γ :
     lstate۰auth γ LOpen -∗

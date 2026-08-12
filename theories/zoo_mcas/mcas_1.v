@@ -231,7 +231,7 @@ Qed.
 Proof.
   intros Hlsteps. move: i1. induction Hlsteps as [lstatus | lstatus1 ? lstatus2 Hlstep Hlsteps IH] => i1.
   - naive_solver.
-  - intros -> ->. invert Hlstep.
+  - intros -> ->. inv Hlstep.
     + specialize (IH ˖i1). lia.
     + apply lstepsｰfinished in Hlsteps as [=].
 Qed.

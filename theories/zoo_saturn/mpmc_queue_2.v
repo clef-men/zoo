@@ -106,7 +106,7 @@ Variant step : relation state :=
   step state1 state2 →
   state۰le state1 state2.
 Proof.
-  intros Hstep. invert Hstep; [done.. |].
+  intros Hstep. inv Hstep; [done.. |].
   split.
   - apply insert_subseteq. done.
   - simpl. lia.
@@ -576,7 +576,7 @@ Section mpmc_queue_2۰G.
     iIntros "(:state۰auth) Hlb".
     iDestruct (auth_mono۰lbｰvalid with "Hauth Hlb") as %[| (state & Hstep & (? & ?)%stepsｰmono)]%rtc_inv.
     - naive_solver.
-    - invert Hstep.
+    - inv/= Hstep.
       assert (backs1 !! back = Some (i2 + length move)) as backs1_lookup.
       { eapply lookup_weaken; last done.
         apply lookup_insert_eq.

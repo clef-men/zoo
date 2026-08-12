@@ -794,7 +794,7 @@ Lemma of_valsｰto_vals es vs :
 Proof.
   revert vs. induction es as [| e es IH]; first naive_solver. move=> [| v vs] /= H.
   all: destruct (to_val e) eqn:Heq, (to_vals es); try done.
-  invert H.
+  inv H.
   f_equal; last naive_solver.
   destruct e; naive_solver.
 Qed.

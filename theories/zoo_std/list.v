@@ -477,7 +477,7 @@ Section zoo۰G.
   Proof.
     iInduction vs_right as [| v vs_right] "IH" forall (vs_left acc i t).
     all: iIntros (->); simp_length.
-    all: iIntros "%Hi %Ht %Φ (HΨ & #Hfn) HΦ"; invert Ht.
+    all: iIntros "%Hi %Ht %Φ (HΨ & #Hfn) HΦ"; inv/= Ht.
     all: wp۰rec; wp۰pures.
     - rewrite !right_id. iSteps.
     - wp۰apply (wpｰwand with "(Hfn [] [HΨ])") as "{% acc} %acc HΨ".
@@ -622,7 +622,7 @@ Section zoo۰G.
   Proof.
     iInduction vs_right as [| v vs_right] "IH" forall (vs_left i t acc).
     all: iIntros (->); simp_length.
-    all: iIntros "%Hi %Ht %Φ (HΨ & #Hfn) HΦ"; invert Ht.
+    all: iIntros "%Hi %Ht %Φ (HΨ & #Hfn) HΦ"; inv/= Ht.
     all: wp۰rec; wp۰pures credit:"H£".
     - rewrite Nat.add_0_r. iSteps.
     - rewrite Z.add_1_r -Nat2Z.inj_succ.
@@ -1085,7 +1085,7 @@ Section zoo۰G.
   Proof.
     iInduction vs_right as [| v vs_right] "IH" forall (vs_left ws_left i t).
     all: iIntros (->); simp_length.
-    all: iIntros "%Hi1 %Hi2 %Ht %Φ (HΨ & #Hfn) HΦ"; invert Ht.
+    all: iIntros "%Hi1 %Hi2 %Ht %Φ (HΨ & #Hfn) HΦ"; inv/= Ht.
     all: wp۰rec; wp۰pures.
     - iApply ("HΦ" $! _ []).
       rewrite !right_id. iSteps.

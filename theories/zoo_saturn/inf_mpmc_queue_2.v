@@ -119,7 +119,7 @@ Qed.
   lstep lstate1 lstate2 →
   lstate۰winner lstate1 = lstate۰winner lstate2.
 Proof.
-  intros Hlstep. invert Hlstep; done.
+  intros Hlstep. inv Hlstep; done.
 Qed.
 #[local] Lemma lstepsｰwinner lstate1 lstate2 :
   rtc lstep lstate1 lstate2 →

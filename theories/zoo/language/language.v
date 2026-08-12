@@ -540,7 +540,7 @@ Lemma prim_stepｰresolveｰinv tid e v1 v2 σ1 κ e2 σ2 es :
 Proof.
   intros Hatomic [K e1' e2' Hfill -> Hstep]. simpl in *.
   induction K as [| k K _] using rev_ind.
-  - invert Hstep.
+  - inv/= Hstep.
     constructor. done.
   - rewrite fillｰapp /= in Hfill. destruct k; inversion Hfill; subst; clear Hfill.
     + assert (filli k (fill K e1') = fill (K ++ [k]) e1') as Heq1; first by rewrite fillｰapp.
@@ -552,9 +552,9 @@ Proof.
     + rename select (of_val v1 = _) into Hv1.
       assert (to_val (fill K e1') = Some v1) as Hfill_v1 by rewrite -Hv1 //.
       apply to_valｰfillｰSome in Hfill_v1 as (-> & ->).
-      invert Hstep.
+      inv Hstep.
     + rename select (of_val v2 = _) into Hv2.
       assert (to_val (fill K e1') = Some v2) as Hfill_v2 by rewrite -Hv2 //.
       apply to_valｰfillｰSome in Hfill_v2 as (-> & ->).
-      invert Hstep.
+      inv Hstep.
 Qed.

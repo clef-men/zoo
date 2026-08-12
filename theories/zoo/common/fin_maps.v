@@ -109,7 +109,7 @@ Section map_Forall2.
       + intros k x 𝑥 Hm_lookup H𝑚_lookup.
         specialize (Hm𝑚 k).
         rewrite Hm_lookup H𝑚_lookup // in Hm𝑚.
-        invert Hm𝑚. done.
+        inv Hm𝑚. done.
     - intros (Hdom & Hm𝑚) k.
       specialize (Hm𝑚 k).
       destruct (m !! k) as [x |] eqn:Hm_lookup.

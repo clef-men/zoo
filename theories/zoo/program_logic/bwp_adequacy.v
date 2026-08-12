@@ -64,10 +64,10 @@ Section zoo۰G.
   Proof.
     iInduction n as [| n] "IH" forall (es1 σ1 κs1 κs2 ns Φs) => /=.
     all: iIntros "%Hsteps Hinterp H£s H".
-    - invert Hsteps.
+    - inv/= Hsteps.
       rewrite Nat.add_0_r Nat.sub_diag app_nil_r.
       iFrameSteps.
-    - invert Hsteps as [| ? ? (es1' & σ1') ? κ κs1' Hstep Hsteps'].
+    - inv Hsteps as [| ? ? (es1' & σ1') ? κ κs1' Hstep Hsteps'].
       rewrite -(assoc (++)).
       iDestruct "H£s" as "(H£ & H£s)".
       iMod (bwpsｰstep with "Hinterp H£ H") as "H"; [done.. |].
