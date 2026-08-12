@@ -375,7 +375,7 @@ Module base.
       iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
       iAaccIntro with "Hbase_model". 1: iSteps. iIntros "%b (-> & _ & Hbase_model)".
       iDestruct (modelｰownerｰagree with "Howner Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
-      iEval (simpl_length) in "Hbase_model" |- *.
+      iEval (simp_length) in "Hbase_model" |- *.
       case_bool_decide.
 
       - iExists true.
@@ -383,7 +383,7 @@ Module base.
         iDestruct (big_sepL2ｰsnoc₂ with "Hslots Hslot") as "Hslots".
         rewrite -fmap_snoc. iSteps; iPureIntro.
         { rewrite bool_decide_eq_true_2 //. 1: lia. }
-        { simpl_length/=. lia. }
+        { simp_length/=. lia. }
 
       - iExists false. iFrameSteps. iPureIntro.
         rewrite bool_decide_eq_false_2 //. 1: lia.
@@ -462,7 +462,7 @@ Module base.
         iDestruct (big_sepL2ｰsnocｰinvｰl with "Hslots") as "(%vs' & %v & -> & Hslots & Hslot)".
         rewrite removelast_last.
         iExists (Some v), vs'. iFrameSteps. iPureIntro.
-        etrans. 2: done. simpl_length. lia.
+        etrans. 2: done. simp_length. lia.
 
       - iDestruct "Ho" as "(%Hslots & -> & Hbase_model)".
         apply fmap_nil_inv in Hslots as ->.

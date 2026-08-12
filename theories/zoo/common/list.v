@@ -8,7 +8,7 @@ Require Import zoo.options.
 Export stdpp.list.
 Export stdpp.sorting.
 
-Create HintDb simpl_length.
+Create HintDb simp_length.
 
 #[global] Hint Rewrite
   @length_reverse
@@ -21,20 +21,20 @@ Create HintDb simpl_length.
   @length_seq
   @length_seqZ
   @length_zip_with
-: simpl_length.
+: simp_length.
 
-Tactic Notation "simpl_length" :=
-  autorewrite with simpl_length; try done.
-Tactic Notation "simpl_length" "/=" :=
-  repeat (progress csimpl in * || simpl_length).
-Tactic Notation "simpl_length" "in" ne_hyp_list(Hs) :=
-  autorewrite with simpl_length in Hs; try done.
-Tactic Notation "simpl_length" "/=" "in" ne_hyp_list(Hs) :=
-  repeat (progress csimpl in * || simpl_length in Hs).
-Tactic Notation "simpl_length" "in" "*" :=
-  autorewrite with simpl_length in *; try done.
-Tactic Notation "simpl_length" "/=" "in" "*" :=
-  repeat (progress csimpl in * || simpl_length in * ).
+Tactic Notation "simp_length" :=
+  autorewrite with simp_length; try done.
+Tactic Notation "simp_length" "/=" :=
+  repeat (progress csimpl in * || simp_length).
+Tactic Notation "simp_length" "in" ne_hyp_list(Hs) :=
+  autorewrite with simp_length in Hs; try done.
+Tactic Notation "simp_length" "/=" "in" ne_hyp_list(Hs) :=
+  repeat (progress csimpl in * || simp_length in Hs).
+Tactic Notation "simp_length" "in" "*" :=
+  autorewrite with simp_length in *; try done.
+Tactic Notation "simp_length" "/=" "in" "*" :=
+  repeat (progress csimpl in * || simp_length in * ).
 
 Section basic.
   Context {A : Type}.
@@ -305,7 +305,7 @@ Section basic.
   Proof.
     intros Hi.
     rewrite insert_take_drop //.
-    replace i with (length $ take i l) at 1 by (simpl_length; lia).
+    replace i with (length $ take i l) at 1 by (simp_length; lia).
     rewrite delete_middle delete_take_drop //.
   Qed.
 End basic.
@@ -408,7 +408,7 @@ End zip3_with.
 
 #[global] Hint Rewrite
   @lengthｰzip3_with
-: simpl_length.
+: simp_length.
 
 Section zip3.
   Context {A1 A2 A3 : Type}.
@@ -443,7 +443,7 @@ End zip3.
 
 #[global] Hint Rewrite
   @lengthｰzip3
-: simpl_length.
+: simp_length.
 
 Section foldri.
   Implicit Type i : nat.
@@ -1011,7 +1011,7 @@ End slice.
 
 #[global] Hint Rewrite
   @lengthｰslice
-: simpl_length.
+: simp_length.
 
 Section with_slice.
   Context {A : Type}.
@@ -1149,7 +1149,7 @@ End with_slice.
 
 #[global] Hint Rewrite
   @lengthｰwith_slice
-: simpl_length.
+: simp_length.
 
 Section rotation.
   Context {A : Type}.
@@ -1214,7 +1214,7 @@ End rotation.
 
 #[global] Hint Rewrite
   @lengthｰrotation
-: simpl_length.
+: simp_length.
 
 Section omap.
   Context {A : Type}.
@@ -1292,7 +1292,7 @@ End omap.
 
 #[global] Hint Rewrite
   @lengthｰomap
-: simpl_length.
+: simp_length.
 
 Section oflatten.
   Context {A : Type}.
@@ -1404,7 +1404,7 @@ End oflatten.
 
 #[global] Hint Rewrite
   @lengthｰoflatten
-: simpl_length.
+: simp_length.
 
 Section Sorted.
   Context `(R : A → A → Prop).

@@ -170,7 +170,7 @@ Section semaphore۰G.
       iApply exclｰalloc.
     }
     iMod (big_sepL_bupd with "H") as "H".
-    iDestruct (big_sepLｰexists with "H") as "(%ηs & %Hηs & H)". simpl_length in Hηs.
+    iDestruct (big_sepLｰexists with "H") as "(%ηs & %Hηs & H)". simp_length in Hηs.
     iDestruct (big_sepL2ｰretractｰr with "H") as "(_ & H)".
     iDestruct (big_sepLｰretractｰindex with "H") as "H".
     iSteps.

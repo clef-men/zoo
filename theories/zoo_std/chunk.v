@@ -426,13 +426,13 @@ Section zoo۰G.
     Proof.
       iSplit.
       - iIntros "((%vs1 & % & Hmodel1) & (%vs2 & % & Hmodel2))".
-        iExists (vs1 ++ vs2). iSplit; first (simpl_length; naive_solver).
+        iExists (vs1 ++ vs2). iSplit; first (simp_length; naive_solver).
         iApply (chunk۰modelｰapp₁ with "Hmodel1 Hmodel2"); first congruence.
       - iIntros "(%vs & % & Hmodel)".
         iDestruct (chunk۰modelｰapp₂ (take n1 vs) (drop n1 vs) with "Hmodel") as "(Hmodel1 & Hmodel2)"; first rewrite take_drop //.
         iSplitL "Hmodel1".
-        + iExists (take n1 vs). simpl_length. iSteps.
-        + iExists (drop n1 vs). simpl_length. rewrite Nat.min_l; first lia. iSteps.
+        + iExists (take n1 vs). simp_length. iSteps.
+        + iExists (drop n1 vs). simp_length. rewrite Nat.min_l; first lia. iSteps.
     Qed.
     Lemma chunk۰spanｰapp₁ dq l1 (n1 : nat) l2 n2 :
       l2 = l1 +ₗ n1 →
@@ -493,7 +493,7 @@ Section zoo۰G.
       iDestruct (chunk۰modelｰupdate i with "Hmodel") as "(H↦ & Hmodel)"; [lia | | done |].
       { rewrite list_lookup_lookup_total_lt; naive_solver lia. }
       iExists (vs !!! ₊i). iFrame. iIntros "%v H↦".
-      iExists (<[₊i := v]> vs). iSplit; first simpl_length.
+      iExists (<[₊i := v]> vs). iSplit; first simp_length.
       iSteps.
     Qed.
     Lemma chunk۰spanｰlookupｰacc {l dq n} (i : Z) :
@@ -741,7 +741,7 @@ Section zoo۰G.
       intros -> -> ? ?.
       rewrite -{1}(take_drop n1 vs).
       rewrite -{1}(take_drop n2 (drop n1 vs)) drop_drop.
-      rewrite -!chunk۰csliceｰapp. simpl_length.
+      rewrite -!chunk۰csliceｰapp. simp_length.
       rewrite !Nat.min_l //; first lia.
     Qed.
 
@@ -917,9 +917,9 @@ Section zoo۰G.
         setoid_rewrite chunk۰csliceｰmod at 2; last done.
         rewrite Nat.Div0.mod_same.
         rewrite chunk۰csliceｰtoｰmodelｰaux //.
-        { simpl_length. lia. }
+        { simp_length. lia. }
         rewrite chunk۰csliceｰtoｰmodelｰaux //.
-        { simpl_length. lia. }
+        { simp_length. lia. }
         rewrite location۰addｰ0 //.
     Qed.
     Lemma chunk۰csliceｰtoｰmodelｰfull l sz i dq vs :
@@ -950,17 +950,17 @@ Section zoo۰G.
       setoid_rewrite chunk۰csliceｰmod; [| done..].
 
       setoid_rewrite (chunk۰csliceｰappｰ3 (j2 - j1) j2 (sz - j2) sz) at 1; [| lia..].
-      setoid_rewrite (chunk۰csliceｰappｰ3 (sz - j2) sz j1 (j1 + sz)) at 4; [| simpl_length; lia..].
+      setoid_rewrite (chunk۰csliceｰappｰ3 (sz - j2) sz j1 (j1 + sz)) at 4; [| simp_length; lia..].
 
       rewrite (chunk۰csliceｰshiftｰleft _ _ (j1 + sz)); first lia.
       rewrite Nat.add_sub.
       rewrite (drop_app_length' _ _ (sz - j2 + j1)).
-      { simpl_length. lia. }
+      { simp_length. lia. }
 
       rewrite (take_app_le _ _ (sz - j2)).
-      { simpl_length. lia. }
+      { simp_length. lia. }
       rewrite (take_drop_commute _ j1 (sz - j2)) take_app_length'.
-      { simpl_length. lia. }
+      { simp_length. lia. }
       rewrite drop_drop.
 
       iSteps.
@@ -983,16 +983,16 @@ Section zoo۰G.
 
       - rewrite chunk۰csliceｰrotationｰrightｰaux // minusｰmod₁'' //; first lia.
 
-      - rewrite (chunk۰csliceｰrotationｰrightｰaux i2 i1) //; first  simpl_length.
+      - rewrite (chunk۰csliceｰrotationｰrightｰaux i2 i1) //; first  simp_length.
         rewrite minusｰmod₂; [lia.. |].
         rewrite Nat.add_sub'.
         destruct_decide (n `mod` sz = 0) as -> | ?.
         + rewrite Nat.sub_0_r Nat.Div0.mod_same !rotationｰ0 //.
         + rewrite Nat.mod_small; first lia.
           rewrite /rotation drop_app_length'.
-          { simpl_length. lia. }
+          { simp_length. lia. }
           rewrite take_app_length'.
-          { simpl_length. lia. }
+          { simp_length. lia. }
           rewrite take_drop //.
     Qed.
     Lemma chunk۰csliceｰrotationｰright₁ {l sz i dq vs} n :
@@ -1046,12 +1046,12 @@ Section zoo۰G.
       replace vs with (rotation (n `mod` sz) ws) at 1; first last.
       { rewrite -(take_drop (sz - n `mod` sz) vs) /ws.
         rewrite /rotation drop_app_length'.
-        { simpl_length. lia. }
+        { simp_length. lia. }
         rewrite take_app_length' //.
-        { simpl_length. lia. }
+        { simp_length. lia. }
       }
       rewrite -chunk۰csliceｰrotationｰright //.
-      { rewrite /ws. simpl_length. }
+      { rewrite /ws. simp_length. }
     Qed.
     Lemma chunk۰csliceｰrotationｰleft₁ l sz i n dq vs :
       0 < sz →
@@ -1109,8 +1109,8 @@ Section zoo۰G.
       2: iDestruct (chunk۰csliceｰrotationｰleft₁' i2 (i1 - i2) with "Hcslice") as "$"; [lia.. |].
       all: iStep.
       all: iIntros "Hcslice".
-      1: iDestruct (chunk۰csliceｰrotationｰleft₁' i1 (i2 - i1) with "Hcslice") as "Hcslice"; [done | simpl_length | lia |].
-      2: iDestruct (chunk۰csliceｰrotationｰright₁' i1 (i1 - i2) with "Hcslice") as "Hcslice"; [done | simpl_length | lia |].
+      1: iDestruct (chunk۰csliceｰrotationｰleft₁' i1 (i2 - i1) with "Hcslice") as "Hcslice"; [done | simp_length | lia |].
+      2: iDestruct (chunk۰csliceｰrotationｰright₁' i1 (i1 - i2) with "Hcslice") as "Hcslice"; [done | simp_length | lia |].
       all: rewrite rotationｰadd; first lia.
       all: rewrite rotationｰlength //; first lia.
     Qed.
@@ -1254,11 +1254,11 @@ Section zoo۰G.
       iDestruct (chunk۰modelｰapp₂ with "Hmodel") as "(Hmodel1 & Hmodel2)"; first done.
       iDestruct (big_sepL_app with "Hvs") as "(Hvs1 & Hvs2)".
       iSplitL "Hmodel2 Hvs2".
-      - iExists (drop i vs). simpl_length. rewrite Nat.min_l; first lia. iSteps.
+      - iExists (drop i vs). simp_length. rewrite Nat.min_l; first lia. iSteps.
       - iIntros "(%vs2 & %Hvs2 & Hmodel2 & Hvs2)".
         iDestruct (chunk۰modelｰapp₁ with "Hmodel1 Hmodel2") as "Hmodel".
-        { f_equal. simpl_length. lia. }
-        iExists (take i vs ++ vs2). simpl_length. rewrite Nat.min_l; first lia. iFrameSteps.
+        { f_equal. simp_length. lia. }
+        iExists (take i vs ++ vs2). simp_length. rewrite Nat.min_l; first lia. iFrameSteps.
     Qed.
 
     Lemma itype۰chunkｰle sz' τ `{!iType _ τ} sz l :
@@ -1272,11 +1272,11 @@ Section zoo۰G.
       iDestruct (chunk۰modelｰapp₂ with "Hmodel") as "(Hmodel1 & Hmodel2)"; first done.
       iDestruct (big_sepL_app with "Hvs") as "(Hvs1 & Hvs2)".
       iSplitL "Hmodel1 Hvs1".
-      - iExists (take sz' vs). simpl_length. iSteps.
+      - iExists (take sz' vs). simp_length. iSteps.
       - iIntros "(%vs1 & %Hvs1 & Hmodel1 & Hvs1)".
         iDestruct (chunk۰modelｰapp₁ with "Hmodel1 Hmodel2") as "Hmodel".
-        { f_equal. simpl_length. lia. }
-        iExists (vs1 ++ drop sz' vs). simpl_length. iFrameSteps.
+        { f_equal. simp_length. lia. }
+        iExists (vs1 ++ drop sz' vs). simp_length. iFrameSteps.
     Qed.
   End itype۰chunk.
 End zoo۰G.

@@ -79,7 +79,7 @@ Section zoo۰G.
 
     wp۰rec.
     wp۰apply (array٠unsafe_makeｰspec with "[//]") as (data) "Hextra"; first done.
-    iApply array۰modelｰtoｰcslice in "Hextra". simpl_length.
+    iApply array۰modelｰtoｰcslice in "Hextra". simp_length.
     iDestruct (array۰csliceｰtoｰinv with "Hextra") as "#Hdata_inv".
     iDestruct (array۰csliceｰnil with "Hdata_inv") as "Hvs".
     wp۰block l as "(Hl_capacity & Hl_data & Hl_front & Hl_back & _)".
@@ -158,7 +158,7 @@ Section zoo۰G.
     wp۰rec. do 2 wp۰load.
     wp۰apply (array٠unsafe_csetｰspec with "Hvs"); first lia.
     replace (₊(front + i) - front) with ₊i by lia.
-    iSteps; simpl_length.
+    iSteps; simp_length.
   Qed.
 
   Lemma bqueue٠pushｰspec t cap vs v :
@@ -184,7 +184,7 @@ Section zoo۰G.
     iDestruct (array۰csliceｰapp₁ with "Hvs Hcell") as "Hvs"; first done.
     wp۰store. wp۰pures.
     replace (back + 1)%Z with ⁺˖back by lia.
-    iSteps; iPureIntro; simpl_length/=; lia.
+    iSteps; iPureIntro; simp_length/=; lia.
   Qed.
 
   Lemma bqueue٠pop_frontｰspec t cap vs :
@@ -213,7 +213,7 @@ Section zoo۰G.
       wp۰store. wp۰pures.
       iApply array۰csliceｰshiftｰright in "Hcell".
       iDestruct (array۰csliceｰapp₁ with "Hextra Hcell") as "Hextra".
-      { simpl_length. lia. }
+      { simp_length. lia. }
       iApply "HΦ".
       rewrite -replicate_S_end.
       replace (front + 1)%Z with ⁺˖front by lia.
@@ -248,7 +248,7 @@ Section zoo۰G.
       iSpecialize ("HΦ" $! None).
       iSteps.
 
-    - destruct vs as [| v vs _] using rev_ind; first naive_solver. simpl_length/= in *.
+    - destruct vs as [| v vs _] using rev_ind; first naive_solver. simp_length/= in *.
       wp۰load.
       iDestruct (array۰csliceｰapp with "Hvs") as "(Hvs & Hcell)".
       wp۰apply+ (array٠unsafe_cgetｰspecｰcell with "Hcell") as "Hcell"; first lia.

@@ -489,7 +489,7 @@ Proof.
   destruct vs1, vs2; try done.
   - intros [= ->%(inj _)]. done.
   - intros (<- & Hlen%Forall2'ｰlength).
-    simpl_length in Hlen.
+    simp_length in Hlen.
 Qed.
 Lemma valｰsimilarｰlocationｰblock l gen tag vs :
   ¬ ValLit (LitLoc l) ≈ ValBlock gen tag vs.

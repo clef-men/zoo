@@ -62,7 +62,7 @@ Section pool_counter۰G.
     iMod auth_fracｰalloc as "(%γ & $ & Hfrag)". 1: done.
     iDestruct (auth_frac۰fragｰdivide (replicate n 0) with "Hfrag") as "Hfrags".
     { clear. induction n => //. }
-    iEval (simpl_length) in "Hfrags".
+    iEval (simp_length) in "Hfrags".
     iApply (big_sepLｰreplicate₁ with "Hfrags").
   Qed.
   #[local] Lemma tokensｰincr γ cnt n contrib :
@@ -83,8 +83,8 @@ Section pool_counter۰G.
   Proof.
     iIntros "%Hn Hauth Hfrags".
     iDestruct (big_sepLｰreplicate₂ (λ _, tokens۰frag γ n) with "Hfrags") as "Hfrags".
-    iDestruct (auth_frac۰fragｰgather with "Hfrags") as "Hfrag". 1: simpl_length.
-    iEval (simpl_length) in "Hfrag".
+    iDestruct (auth_frac۰fragｰgather with "Hfrags") as "Hfrag". 1: simp_length.
+    iEval (simp_length) in "Hfrag".
     iEval (rewrite Qp.mul_div_r) in "Hfrag".
     iDestruct (auth_fracｰauthｰfragｰagreeｰL with "Hauth Hfrag") as %->.
     iPureIntro.

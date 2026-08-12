@@ -575,7 +575,7 @@ Section spsc_bqueue۰G.
     wp۰rec.
     iApply wpｰfupd.
     wp۰apply (array٠unsafe_makeｰspec with "[//]") as "%data Hdata_model"; first done.
-    iDestruct (array۰modelｰtoｰinv with "Hdata_model") as "#Hdata_inv". simpl_length.
+    iDestruct (array۰modelｰtoｰinv with "Hdata_model") as "#Hdata_inv". simp_length.
     wp۰block l as "Hmeta" "(Hl_data & Hl_front & Hl_front_cache & Hl_back & Hl_back_cache & _)".
     iMod (pointstoｰpersist with "Hl_data") as "#Hl_data".
 
@@ -921,11 +921,11 @@ Section spsc_bqueue۰G.
     iMod (modelｰpush v with "Hproducer₁ Hmodel₁ Hmodel₂") as "(Hproducer₁ & Hmodel₁ & Hmodel₂)".
     rewrite bool_decide_eq_false_2; first lia.
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ".
-    { iSteps. iPureIntro. simpl_length/=. lia. }
+    { iSteps. iPureIntro. simp_length/=. lia. }
 
     iSplitR "Hl_front_cache Hproducer₁ HΦ".
     { do 2 iModIntro. iExists _, front3, _, ˖back, (vs3 ++ [v]), (hist3 ++ [v]). iFrame.
-      simpl_length. iStep 3.
+      simp_length. iStep 3.
       iSplit. { rewrite Hvs3 drop_app_le //; first lia. }
       iStep.
       rewrite assoc. iSplitL "Hfront Hvs Hback_".
@@ -934,7 +934,7 @@ Section spsc_bqueue۰G.
           destruct cstable3; iSteps.
         + rewrite /= !drop_0 fmap_app.
           iApply (array۰csliceｰapp₁ with "Hvs Hback_").
-          simpl_length. naive_solver lia.
+          simp_length. naive_solver lia.
       - case_decide.
         + assert (γ.(metadata۰capacity) - (˖back - front3) - 1 = 0) as -> by lia.
           iSteps.
@@ -1087,7 +1087,7 @@ Section spsc_bqueue۰G.
       iSplit. { erewrite drop_S in Hvs2 => //. naive_solver. }
       iStep.
       rewrite assoc. iSplitL "Hvs".
-      - rewrite -{1}(take_drop 1 vs2) fmap_app -array۰csliceｰapp. simpl_length.
+      - rewrite -{1}(take_drop 1 vs2) fmap_app -array۰csliceｰapp. simp_length.
         destruct vs2.
         2: rewrite Nat.add_1_r.
         all: destruct pstable2; iSteps.
@@ -1098,7 +1098,7 @@ Section spsc_bqueue۰G.
           destruct pstable2; iSteps.
         + rewrite decide_False; first lia. iFrame.
           iDestruct (array۰csliceｰapp₁ with "Hextra Hfront_") as "Hextra".
-          { simpl_length. lia. }
+          { simp_length. lia. }
           rewrite -replicate_S_end.
           assert (˖(γ.(metadata۰capacity) - (back2 - front) - 1) = γ.(metadata۰capacity) - (back2 - ˖front) - 1) as -> by lia.
           iSteps.

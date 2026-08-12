@@ -227,7 +227,7 @@ Section zoo۰G.
       wp۰apply (wpｰwand with "(Hfn [] HΨ)") as "%v HΨ"; first iSteps.
       wp۰pures.
       rewrite Z.add_1_r -Nat2Z.inj_succ.
-      wp۰apply ("IH" $! (vs_left ++ [v]) ˖i with "[] [] [] [$HΨ //]"); simpl_length/=; [iSteps.. |].
+      wp۰apply ("IH" $! (vs_left ++ [v]) ˖i with "[] [] [] [$HΨ //]"); simp_length/=; [iSteps.. |].
       iIntros "%t %vs_right (%Hvs_right & %Ht & HΨ)". rewrite {}Ht.
       wp۰pures.
       iApply ("HΦ" $! _ (v :: vs_right)).
@@ -476,7 +476,7 @@ Section zoo۰G.
     }}}.
   Proof.
     iInduction vs_right as [| v vs_right] "IH" forall (vs_left acc i t).
-    all: iIntros (->); simpl_length.
+    all: iIntros (->); simp_length.
     all: iIntros "%Hi %Ht %Φ (HΨ & #Hfn) HΦ"; invert Ht.
     all: wp۰rec; wp۰pures.
     - rewrite !right_id. iSteps.
@@ -487,7 +487,7 @@ Section zoo۰G.
       rewrite Z.add_1_r -Nat2Z.inj_succ take_app_length.
       wp۰apply ("IH" with "[%] [%] [//] [$HΨ $Hfn]").
       { rewrite -assoc //. }
-      { simpl_length/=. lia. }
+      { simp_length/=. lia. }
       iSteps.
   Qed.
   Lemma list٠foldliｰspec Ψ fn acc t vs :
@@ -621,17 +621,17 @@ Section zoo۰G.
     }}}.
   Proof.
     iInduction vs_right as [| v vs_right] "IH" forall (vs_left i t acc).
-    all: iIntros (->); simpl_length.
+    all: iIntros (->); simp_length.
     all: iIntros "%Hi %Ht %Φ (HΨ & #Hfn) HΦ"; invert Ht.
     all: wp۰rec; wp۰pures credit:"H£".
     - rewrite Nat.add_0_r. iSteps.
     - rewrite Z.add_1_r -Nat2Z.inj_succ.
       wp۰apply ("IH" with "[%] [%] [//] [$HΨ $Hfn]") as "{% acc} %acc HΨ".
       { rewrite (assoc (++) _ [_]) //. }
-      { simpl_length/=. lia. }
+      { simp_length/=. lia. }
       iApply wpｰfupd. wp۰apply (wpｰwand with "(Hfn [] [HΨ])") as "{% acc} %acc HΨ".
       { rewrite list_lookup_middle //. }
-      all: rewrite (assoc (++) _ [_]) drop_app_length' //; first (simpl_length/=; lia).
+      all: rewrite (assoc (++) _ [_]) drop_app_length' //; first (simp_length/=; lia).
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       iSteps.
   Qed.
@@ -762,7 +762,7 @@ Section zoo۰G.
       ⌜acc = #(length vs_left)⌝
     )%I.
     wp۰apply+ (list٠foldlｰspec Ψ); [done | | iSteps].
-    iSteps. simpl_length. iSteps.
+    iSteps. simp_length. iSteps.
   Qed.
 
   Lemma list٠rev_appｰspec t1 vs1 t2 vs2 :
@@ -1084,7 +1084,7 @@ Section zoo۰G.
     }}}.
   Proof.
     iInduction vs_right as [| v vs_right] "IH" forall (vs_left ws_left i t).
-    all: iIntros (->); simpl_length.
+    all: iIntros (->); simp_length.
     all: iIntros "%Hi1 %Hi2 %Ht %Φ (HΨ & #Hfn) HΦ"; invert Ht.
     all: wp۰rec; wp۰pures.
     - iApply ("HΦ" $! _ []).
@@ -1096,11 +1096,11 @@ Section zoo۰G.
       rewrite Z.add_1_r -Nat2Z.inj_succ take_app_length.
       wp۰apply ("IH" with "[%] [%] [%] [//] [$HΨ $Hfn]") as "%t' %ws_right (%Hvs & %Ht' & HΨ)".
       { rewrite -assoc //. }
-      { simpl_length/=. lia. }
-      { simpl_length/=. lia. }
+      { simp_length/=. lia. }
+      { simp_length/=. lia. }
       wp۰pures.
       iApply ("HΦ" $! _ (w :: ws_right)).
-      rewrite -!assoc. simpl_length/= in Hvs. rewrite Ht'. iSteps.
+      rewrite -!assoc. simp_length/= in Hvs. rewrite Ht'. iSteps.
   Qed.
   Lemma list٠mapiｰspec Ψ fn t vs :
     list۰model' t vs →

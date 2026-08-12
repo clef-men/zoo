@@ -230,11 +230,11 @@ Section ws_hub_fifo۰G.
     iMod (big_sepL_bupd with "H") as "H".
     iDestruct (big_sepLｰexists with "H") as "(%γ_owners & %Hlength & H)".
     iDestruct (big_sepL2_intro (λ _ _ _, ⌜length γ_owners = sz⌝)%I (seq 0 sz) γ_owners with "[%]") as "Hlength". 1: done.
-    { simpl_length in Hlength. naive_solver. }
+    { simp_length in Hlength. naive_solver. }
     iDestruct (big_sepL2_sep_2 with "Hlength H") as "H".
     iDestruct (big_sepL2ｰretractｰr with "H") as "(_ & H)".
     iDestruct (big_sepLｰseqｰindex₂ with "H") as "H".
-    { simpl_length. }
+    { simp_length. }
     iSteps.
   Qed.
   #[local] Lemma ownerｰvalid γ i :
@@ -264,7 +264,7 @@ Section ws_hub_fifo۰G.
   Proof.
     iMod ghost_listｰalloc as "(%γ_emptiness & $ & Hats)".
     iDestruct (big_sepLｰreplicate₁ with "Hats") as "$".
-    iSteps. iPureIntro. simpl_length.
+    iSteps. iPureIntro. simp_length.
   Qed.
   #[local] Lemma emptiness۰atｰvalid γ vs i empty :
     emptiness۰auth γ vs -∗
@@ -308,7 +308,7 @@ Section ws_hub_fifo۰G.
     iDestruct (ghost_listｰlookup with "Hauth Hat") as %Hi%lookup_lt_Some.
     iMod (ghost_listｰupdateｰat Nonempty with "Hauth Hat") as "($ & $)".
     iPureIntro. split.
-    - simpl_length.
+    - simp_length.
     - right. exists i. apply list_lookup_insert_eq => //.
   Qed.
   #[local] Lemma emptinessｰupdateｰEmpty γ i empty :
@@ -319,7 +319,7 @@ Section ws_hub_fifo۰G.
   Proof.
     iIntros "(:emptiness۰auth) Hat".
     iMod (ghost_listｰupdateｰat Empty with "Hauth Hat") as "($ & $)".
-    iSteps. simpl_length.
+    iSteps. simp_length.
   Qed.
 
   Opaque emptiness۰auth'.

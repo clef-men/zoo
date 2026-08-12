@@ -129,7 +129,7 @@ Section bi.
         [∗ list] k ↦ x; x3 ∈ zip l1 l2; l3, Φ k x.1 x.2 x3.
     Proof.
       rewrite big_sepL3ｰalt big_sepL2_alt zipｰzip.
-      simpl_length. iSteps.
+      simp_length. iSteps.
     Qed.
   End big_sepL3.
 
@@ -171,7 +171,7 @@ Section bi.
       setoid_rewrite big_sepL2_alt.
       setoid_rewrite zipｰzip.
       setoid_rewrite big_sepL3ｰalt.
-      simpl_length.
+      simp_length.
       iIntros "(% & %l3 & % & % & $)". iSteps.
     Qed.
 
@@ -182,7 +182,7 @@ Section bi.
         [∗ list] k ↦ x2; x3 ∈ l2; l3, Φ k x2 x3.
     Proof.
       rewrite big_sepL3ｰsepL2₁ big_sepL2_const_sepL_r big_sepL2_alt.
-      simpl_length. iSteps.
+      simp_length. iSteps.
     Qed.
     Lemma big_sepL3ｰconstｰsepL2₂ `{!BiAffine PROP} (Φ : nat → A1 → A3 → PROP) l1 (l2 : list A2) l3 :
       ([∗ list] k ↦ x1; _; x3 ∈ l1; l2; l3, Φ k x1 x3) ⊣⊢
@@ -191,7 +191,7 @@ Section bi.
         [∗ list] k ↦ x1; x3 ∈ l1; l3, Φ k x1 x3.
     Proof.
       rewrite big_sepL3ｰsepL2₂ big_sepL2_const_sepL_r big_sepL2_alt.
-      simpl_length. iSteps.
+      simp_length. iSteps.
     Qed.
     Lemma big_sepL3ｰconstｰsepL2₃ `{!BiAffine PROP} (Φ : nat → A1 → A2 → PROP) l1 l2 (l3 : list A3) :
       ([∗ list] k ↦ x1; x2; _ ∈ l1; l2; l3, Φ k x1 x2) ⊣⊢
@@ -200,7 +200,7 @@ Section bi.
         [∗ list] k ↦ x1; x2 ∈ l1; l2, Φ k x1 x2.
     Proof.
       rewrite big_sepL3ｰsepL2₃ big_sepL2_const_sepL_l big_sepL2_alt.
-      simpl_length. iSteps.
+      simp_length. iSteps.
     Qed.
 
     Lemma big_sepL3ｰsep `{!BiAffine PROP} Φ1 Φ2 l1 l2 l3 :

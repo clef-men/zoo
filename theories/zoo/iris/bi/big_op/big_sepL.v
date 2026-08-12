@@ -132,7 +132,7 @@ Section bi.
       ) -∗
       [∗ list] k ↦ x ∈ l2, Φ2 k x.
     Proof.
-      setoid_rewrite big_sepLｰtoｰseqｰ0. simpl_length.
+      setoid_rewrite big_sepLｰtoｰseqｰ0. simp_length.
       iIntros "%Hlength Hl1 H". rewrite -Hlength.
       iDestruct (big_sepL_sep_2 with "Hl1 H") as "H".
       iApply (big_sepL_impl with "H"). iIntros "!>" (k ? (-> & Hk)%lookup_seq) "((%x1 & %Hl1_lookup & Hx1) & (% & %H & H))".
@@ -175,7 +175,7 @@ Section bi.
       rewrite big_sepL2_alt.
       iIntros "% % HΦ #H". iStep 2.
       iApply (big_sepLｰimplｰstrong with "HΦ").
-      { simpl_length. lia. }
+      { simp_length. lia. }
       iIntros "!>" (k x (𝑥1, 𝑥2) ? (? & ? & [= <- <-] & ? & ?)%lookup_zip_with_Some).
       iSteps.
     Qed.
@@ -233,7 +233,7 @@ Section bi.
     Proof.
       iSplit.
       all: iIntros "H".
-      all: iApply (big_sepLｰimplｰstrong with "H"); first simpl_length.
+      all: iApply (big_sepLｰimplｰstrong with "H"); first simp_length.
       1: iIntros "!>" (? ? ? (-> & _)%lookup_replicate_1 (-> & _)%lookup_seq).
       2: iIntros "!>" (? ? ? (-> & _)%lookup_seq (-> & _)%lookup_replicate_1).
       all: iSteps.

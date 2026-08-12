@@ -460,7 +460,7 @@ Section ws_deques_private۰G.
   Proof.
     iIntros "(:models۰auth) Hat".
     iMod (ghost_listｰupdateｰat with "Hauth Hat") as "($ & $)".
-    iPureIntro. simpl_length.
+    iPureIntro. simp_length.
   Qed.
 
   Opaque models۰auth'.
@@ -491,9 +491,9 @@ Section ws_deques_private۰G.
     iDestruct (big_sepL2ｰretractｰr with "H1") as "(_ & H1)".
     iDestruct (big_sepL2ｰretractｰr with "H2") as "(_ & H2)".
     iDestruct (big_sepLｰseqｰindex₂ with "H1") as "H1".
-    { simpl_length. }
+    { simp_length. }
     iDestruct (big_sepLｰseqｰindex₂ with "H2") as "H2".
-    { simpl_length. }
+    { simp_length. }
     iSteps.
   Qed.
   #[local] Lemma ownerｰagree γ i status1 status2 :
@@ -556,9 +556,9 @@ Section ws_deques_private۰G.
     iDestruct (big_sepL2ｰretractｰr with "H1") as "(_ & H1)".
     iDestruct (big_sepL2ｰretractｰr with "H2") as "(_ & H2)".
     iDestruct (big_sepLｰseqｰindex₂ with "H1") as "H1".
-    { simpl_length. }
+    { simp_length. }
     iDestruct (big_sepLｰseqｰindex₂ with "H2") as "H2".
-    { simpl_length. }
+    { simp_length. }
     iExists γ_channels. iSplitL "H1".
     1: iApply (big_sepL_impl with "H1").
     2: iApply (big_sepL_impl with "H2").
@@ -856,7 +856,7 @@ Section ws_deques_private۰G.
     iApply "HΦ".
     iSplitR "Hmodels_auth Hqueues Hmodels_ats Howners₁ Hchannels_2".
 
-    - rewrite Hqueues_length. simpl_length.
+    - rewrite Hqueues_length. simp_length.
       iEval (rewrite -(fmap_replicate status۰to_val _ Nonblocked)) in "Hstatuses_model".
       iEval (rewrite -(fmap_replicate request۰to_val _ RequestNone)) in "Hrequests_model".
       iEval (rewrite -(fmap_replicate response۰to_val _ ResponseWaiting)) in "Hresponses_model".

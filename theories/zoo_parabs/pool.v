@@ -493,7 +493,7 @@ Module base.
       iMod (ghost_listｰalloc (replicate ˖sz ∅)) as "(%γ_locals & $ & Hats)".
       iSplitR.
       - iPureIntro. split.
-        + simpl_length.
+        + simp_length.
         + rewrite gmultisetｰdisj_union_listｰreplicateｰempty //.
       - iApply big_sepLｰreplicate₁ in "Hats".
         iApply (big_sepL_impl with "Hats"). iIntros "!> !> %i_ %i _ Hat".
@@ -527,7 +527,7 @@ Module base.
       iDestruct (ghost_listｰlookup with "Hauth Hat") as %Hlookup.
       iMod (ghost_listｰupdateｰat ({[+local+]} ⊎ scope ⊎ locals) with "Hauth Hat") as "($ & $)".
       iFrameSteps; iPureIntro.
-      { simpl_length. }
+      { simp_length. }
       { rewrite -assoc gmultisetｰdisj_union_listｰinsertｰdisj_unionｰl //. }
     Qed.
     #[local] Lemma locals۰atｰfinish γ i local P scope :
@@ -834,7 +834,7 @@ Module base.
 
         - iDestruct (big_sepL_sep_2 with "Hhub_owners Hlocals_ats") as "H".
           iApply (big_sepLｰimplｰstrong with "H").
-          { simpl_length. }
+          { simp_length. }
           iIntros "!>" (k i1 i2 (-> & Hi1)%lookup_seq (-> & Hi2)%lookup_seq) "(Hhub_owner & Hlocals_at) %𝑑𝑜𝑚𝑠 #Hinv".
 
           wp۰apply+ (domain٠spawnｰspec with "[Hhub_owner Hlocals_at]"); last iSteps. iIntros "%tid _".

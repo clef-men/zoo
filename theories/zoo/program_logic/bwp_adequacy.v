@@ -50,7 +50,7 @@ Section zoo۰G.
     do 2 iModIntro.
     iMod "He1" as "(Hinterp & He2 & Hes)".
     iDestruct ("H" with "He2") as "H".
-    simpl_length. rewrite Nat.add_sub' (list_insert_id Φs) // big_sepL2_app. simpl_length.
+    simp_length. rewrite Nat.add_sub' (list_insert_id Φs) // big_sepL2_app. simp_length.
     iSteps.
   Qed.
   #[local] Lemma bwpsｰsteps n es1 σ1 es2 σ2 κs1 κs2 ns Φs :

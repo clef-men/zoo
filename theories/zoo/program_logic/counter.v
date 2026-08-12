@@ -48,6 +48,6 @@ Section zoo۰G.
     iMod (zoo_counterｰupdate v with "Hauth") as "Hauth".
     iDestruct (zoo_counter۰atｰget with "Hauth") as "#Hat".
     { apply list_lookup_middle. done. }
-    iSteps. iPureIntro. simpl_length/=. lia.
+    iSteps. iPureIntro. simp_length/=. lia.
   Qed.
 End zoo۰G.

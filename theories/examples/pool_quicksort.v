@@ -136,10 +136,10 @@ Section pool۰G.
       ) as (xs1 & xs2 & -> & Hxs1_length & Hxs1 & Hxs2_length & Hxs2).
       { exists (take ₊(i1 - i - 1) xs'), (drop ₊(i1 - i - 1) xs'). split_and!.
         - rewrite take_drop //.
-        - simpl_length. lia.
+        - simp_length. lia.
         - apply Forall_lookup. intros k x (Hlookup & Hk)%lookup_take_Some.
           eapply Z.le_ge, H1; [done | lia].
-        - simpl_length. lia.
+        - simp_length. lia.
         - apply Forall_lookup. intros k x Hlookup.
           rewrite lookup_drop in Hlookup.
           apply lookup_lt_Some in Hlookup as ?.
@@ -148,20 +148,20 @@ Section pool۰G.
       iEval (rewrite fmap_app) in "Harr".
 
       destruct xs1 as [| x xs1 _] using rev_ind. 1: naive_solver lia.
-      simpl_length/= in Hxs1_length.
+      simp_length/= in Hxs1_length.
       iEval (rewrite fmap_app /=) in "Harr".
 
       iDestruct (array۰sliceｰapp₂ (_ :: _) with "Harr") as "(Harr_1 & Harr_2)". 1: done.
       wp۰apply+ (array٠unsafe_swapｰspecｰslice 0 ₊(i1 - i - 1) with "Harr_1") as "Harr_1". 1-4,6: auto with lia.
       { apply lookupｰconsｰrｰSome. 1: lia.
-        apply lookupｰappｰrｰSome; simpl_length. 1: lia.
+        apply lookupｰappｰrｰSome; simp_length. 1: lia.
         replace _ with 0 by lia. done.
       }
       iEval (rewrite /= insertｰconsｰr; first lia) in "Harr_1".
-      iEval (rewrite insert_app_r_alt; first (simpl_length; lia)) in "Harr_1".
-      iEval (simpl_length) in "Harr_1".
+      iEval (rewrite insert_app_r_alt; first (simp_length; lia)) in "Harr_1".
+      iEval (simp_length) in "Harr_1".
       iEval (rewrite insertｰconsｰl; first lia) in "Harr_1".
-      iDestruct (array۰sliceｰapp₁' with "Harr_1 Harr_2") as "Harr". 1: simpl_length/=.
+      iDestruct (array۰sliceｰapp₁' with "Harr_1 Harr_2") as "Harr". 1: simp_length/=.
       iEval (rewrite -(assoc _ (_ :: _))) in "Harr".
 
       wp۰load. wp۰pures.
@@ -230,9 +230,9 @@ Section pool۰G.
       { iIntros "{% ctx scope} %ctx %scope Hctx".
         wp۰apply+ ("HLöb" with "[%] [%] [%] Hctx Harr_3") as "($ & Hpool_consumer)".
         { lia. }
-        { simpl_length/=. lia. }
-        { apply Permutation_length in Hxs. simpl_length/= in Hxs. lia. }
-        iEval (simpl_length/=) in "Hpool_consumer".
+        { simp_length/=. lia. }
+        { apply Permutation_length in Hxs. simp_length/= in Hxs. lia. }
+        iEval (simp_length/=) in "Hpool_consumer".
         iEval (rewrite -Hp Nat.add_1_r) in "Hpool_consumer".
         iFrameSteps.
       }
@@ -243,8 +243,8 @@ Section pool۰G.
       iMod "Hpool_consumer_2" as ">(%xs2' & %Hxs2'_permutation & %Hxs2'_sorted & Harr_3)".
       iModIntro.
       iDestruct (array۰sliceｰappｰ3₁ with "Harr_1 Harr_2 Harr_3") as "Harr".
-      { simpl_length. apply Permutation_length in Hxs1'_permutation. lia. }
-      { simpl_length/=. apply Permutation_length in Hxs1'_permutation. lia. }
+      { simp_length. apply Permutation_length in Hxs1'_permutation. lia. }
+      { simp_length/=. apply Permutation_length in Hxs1'_permutation. lia. }
       iEval (rewrite -(fmap_app _ [_]) -fmap_app) in "Harr".
       iFrame. iPureIntro. split.
       { rewrite -Hxs1'_permutation -Hxs2'_permutation //. }
@@ -280,7 +280,7 @@ Section pool۰G.
     wp۰rec.
 
     wp۰apply+ (array٠sizeｰspec with "Harr_model") as "Harr_model".
-    iEval (simpl_length).
+    iEval (simp_length).
 
     iDestruct (array۰modelｰtoｰslice' with "Harr_model") as "(Harr_slice & #Harr_model)".
     wp۰apply+ (pool_quicksort٠main₂ｰspec with "[$]") as "(Hctx & Hpool_consumer)". 1-3: lia.
@@ -288,7 +288,7 @@ Section pool۰G.
     iSteps.
     iMod "Hpool_consumer" as "(%xs' & %Hxs' & %Hxs'_sorted & Harr_slice)".
     iModIntro. iSteps. iPureIntro.
-    simpl_length. apply Permutation_length. done.
+    simp_length. apply Permutation_length. done.
   Qed.
 
   Lemma pool_quicksort٠mainｰspec (num_dom : nat) arr xs :

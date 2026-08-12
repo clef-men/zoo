@@ -1179,7 +1179,7 @@ Module base.
           wp۰apply+ ("HLöb" $! _ ϵs' cnode descr_cnode [] cnode' descr_cnode' (δs_cnode ++ [_]) with "[] [] [] [] [] [] [- HΦ]"); try iPureIntro; try done.
           { eapply treemapｰrerootｰpath; done. }
           { rewrite lookup_insert_ne // lookup_delete_ne //. }
-          { simpl_length/=. lia. }
+          { simp_length/=. lia. }
           { rewrite right_id //. }
           { rewrite reverse_snoc assoc //. }
           iSteps; try iPureIntro.
@@ -1224,7 +1224,7 @@ Module base.
         set δs_base' := δs_base ++ [Delta r1 g1' v1' node'].
         set δs_cnode' := δs_cnode ++ [Delta r2 g2 v2 node'].
         wp۰apply+ ("HLöb" $! ς' _ base descr_base δs_base' cnode descr_cnode δs_cnode' with "[] [] [] [] [] [] [- HΦ]"); try iPureIntro; try done.
-        { rewrite /δs_cnode'. simpl_length/=. lia. }
+        { rewrite /δs_cnode'. simp_length/=. lia. }
         { rewrite -assoc (comm _ [_]) assoc fmap_app in Hnodup.
           rewrite /δs_cnode' /δs_base' assoc fmap_app //.
         }
@@ -1349,7 +1349,7 @@ Module base.
             rewrite deltas۰applyｰsingleton store۰onｰinsert in Hδs.
             rewrite -Hδs delete_delete.
             wp۰apply+ (sstore_2٠revertｰspecｰaux (δs_base := []) (δs_cnode := δs_cnode' ++ [_]) base' with "[- HΦ]"); try done.
-            { simpl_length/=. lia. }
+            { simp_length/=. lia. }
             { rewrite right_id //. }
             { rewrite reverse_app fmap_app -assoc //. }
             { iSteps; try iPureIntro.

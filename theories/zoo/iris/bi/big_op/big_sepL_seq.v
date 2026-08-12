@@ -162,7 +162,7 @@ Section bi.
     Proof.
       intros. iSplit.
       all: iIntros "H".
-      all: iApply (big_sepLｰimplｰstrong with "H"); first simpl_length.
+      all: iApply (big_sepLｰimplｰstrong with "H"); first simp_length.
       all: iIntros "!> %k %k_ % % % HΦ".
       all: pose proof lookup_seq.
       all: naive_solver.
@@ -188,7 +188,7 @@ Section bi.
     Proof.
       iSplit.
       all: iIntros "H".
-      all: iApply (big_sepLｰimplｰstrong with "H"); first simpl_length.
+      all: iApply (big_sepLｰimplｰstrong with "H"); first simp_length.
       all: iIntros "!>" (k ? ? (-> & _)%lookup_seq (-> & _)%lookup_seq).
       all: rewrite Nat.add_shuffle0.
       all: iSteps.
@@ -246,7 +246,7 @@ Section bi.
         [∗ list] k ↦ x ∈ xs, Φ (i + k) x.
     Proof.
       iIntros "H".
-      iDestruct (big_sepLｰexists with "H") as "(%xs & %Hxs & H)". simpl_length in Hxs.
+      iDestruct (big_sepLｰexists with "H") as "(%xs & %Hxs & H)". simp_length in Hxs.
       iDestruct (big_sepL2ｰseqｰl with "H") as "H".
       iSteps.
     Qed.
@@ -257,7 +257,7 @@ Section bi.
     Proof.
       iIntros "H".
       iApply (big_sepLｰimplｰstrong with "H").
-      { simpl_length. lia. }
+      { simp_length. lia. }
       iIntros "!>" (k k1 k2 (-> & _)%lookup_seq (-> & _)%lookup_seqZ) "HΦ".
       rewrite -Nat2Z.inj_add Nat2Z.id //.
     Qed.

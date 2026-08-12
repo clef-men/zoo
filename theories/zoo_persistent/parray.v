@@ -404,7 +404,7 @@ Section parray۰G.
 
       iApply "HΦ".
       iFrame "∗#". iSteps. iPureIntro.
-      rewrite /vs'. simpl_length.
+      rewrite /vs'. simp_length.
   Qed.
 End parray۰G.
 

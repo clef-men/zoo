@@ -810,7 +810,7 @@ Proof.
 Qed.
 Hint Rewrite
   @lengthｰof_vals
-: simpl_length.
+: simp_length.
 
 #[global] Instance valｰinhabited : Inhabited val :=
   populate ValUnit.

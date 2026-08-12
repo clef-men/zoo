@@ -314,7 +314,7 @@ Section sarray۰G.
       }
       rewrite -{2}(delete_insert_id nodes root' vs') //.
       iFrame "#∗". iSteps. iPureIntro.
-      rewrite /vs'. simpl_length.
+      rewrite /vs'. simp_length.
   Qed.
 
   Lemma sarray٠captureｰspec t vs :

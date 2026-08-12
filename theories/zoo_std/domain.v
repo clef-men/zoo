@@ -635,7 +635,7 @@ Section domain۰G.
     wp۰apply+ (domain٠key۰idｰspec with "Hid") as "_".
     wp۰apply+ (dynarray_1٠growｰspec with "Hl") as "Hl"; first lia.
 
-    iEval (simpl_length) in "Hl".
+    iEval (simp_length) in "Hl".
     iEval (rewrite -(fmap_replicate option۰to_val _ None) -fmap_app) in "Hl".
 
     wp۰apply+ (dynarray_1٠getｰspec _ _ _ None with "Hl") as "Hl".
@@ -643,13 +643,13 @@ Section domain۰G.
     { rewrite Nat2Z.id list_lookup_fmap_Some.
       exists None. split; first done.
       eapply consistentｰlookupｰSomeｰNone; last done.
-      { simpl_length. lia. }
+      { simp_length. lia. }
       apply consistentｰappｰNone. done.
     }
     wp۰apply+ (domain٠key_initｰspec with "Hkey") as (v) "HΨ".
     iMod (localｰupdate (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
     wp۰apply+ (dynarray_1٠setｰspec with "Hl") as "Hl".
-    { simpl_length. lia. }
+    { simp_length. lia. }
     wp۰pures.
 
     iApply "HΦ".
@@ -657,7 +657,7 @@ Section domain۰G.
     iFrameSteps; iPureIntro.
     { rewrite dom_insert_lookup_L //. }
     { apply consistentｰupdate.
-      { simpl_length. lia. }
+      { simp_length. lia. }
       { apply consistentｰappｰNone. done. }
     }
   Qed.
@@ -684,7 +684,7 @@ Section domain۰G.
     wp۰apply+ (domain٠key۰idｰspec with "Hid") as "_".
     wp۰apply+ (dynarray_1٠growｰspec with "Hl") as "Hl"; first lia.
 
-    iEval (simpl_length) in "Hl".
+    iEval (simp_length) in "Hl".
     iEval (rewrite -(fmap_replicate option۰to_val _ None) -fmap_app) in "Hl".
 
     wp۰apply+ (dynarray_1٠getｰspec _ _ _ (Some v) with "Hl") as "Hl".
@@ -744,19 +744,19 @@ Section domain۰G.
     wp۰apply+ (domain٠key۰idｰspec with "Hid") as "_".
     wp۰apply+ (dynarray_1٠growｰspec with "Hl") as "Hl"; first lia.
 
-    iEval (simpl_length) in "Hl".
+    iEval (simp_length) in "Hl".
     iEval (rewrite -(fmap_replicate option۰to_val _ None) -fmap_app) in "Hl".
 
     iMod (localｰupdate (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
     wp۰apply+ (dynarray_1٠setｰspec with "Hl") as "Hl".
-    { simpl_length. lia. }
+    { simp_length. lia. }
 
     iApply "HΦ".
     rewrite Nat2Z.id -(list_fmap_insert _ _ _ (Some _)).
     iFrameSteps; iPureIntro.
     { rewrite dom_insert_lookup_L //. }
     { apply consistentｰupdate.
-      { simpl_length. lia. }
+      { simp_length. lia. }
       { apply consistentｰappｰNone. done. }
     }
   Qed.
@@ -783,19 +783,19 @@ Section domain۰G.
     wp۰apply+ (domain٠key۰idｰspec with "Hid") as "_".
     wp۰apply+ (dynarray_1٠growｰspec with "Hl") as "Hl"; first lia.
 
-    iEval (simpl_length) in "Hl".
+    iEval (simp_length) in "Hl".
     iEval (rewrite -(fmap_replicate option۰to_val _ None) -fmap_app) in "Hl".
 
     iMod (localｰupdate (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
     wp۰apply+ (dynarray_1٠setｰspec with "Hl") as "Hl".
-    { simpl_length. lia. }
+    { simp_length. lia. }
 
     iApply "HΦ".
     rewrite Nat2Z.id -(list_fmap_insert _ _ _ (Some _)).
     iFrameSteps; iPureIntro.
     { rewrite dom_insert_lookup_L //. }
     { apply consistentｰupdate.
-      { simpl_length. lia. }
+      { simp_length. lia. }
       { apply consistentｰappｰNone. done. }
     }
   Qed.

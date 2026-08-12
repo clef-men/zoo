@@ -86,7 +86,7 @@ Section zoo۰G.
     wp۰apply (array٠sizeｰspec with "Harr") as "Harr".
 
     iSteps. iExists (nexts ++ reverse prevs).
-    rewrite app_nil_r. iSteps. simpl_length.
+    rewrite app_nil_r. iSteps. simp_length.
   Qed.
 
   Lemma random_round٠nextｰspec t sz prevs :
@@ -105,7 +105,7 @@ Section zoo۰G.
   Proof.
     iIntros "%Hprevs %Φ (:model) HΦ".
     pose proof Hpermutation as Hlength%Permutation_length.
-    simpl_length in Hlength.
+    simp_length in Hlength.
 
     wp۰rec. do 3 wp۰load.
     wp۰apply+ (random_state٠intｰspec with "Hrand") as (j) "(%Hj & Hrand)"; first lia.
@@ -126,9 +126,9 @@ Section zoo۰G.
     { lia. }
 
     wp۰apply+ (array٠unsafe_setｰspec with "Harr") as "Harr".
-    { simpl_length. lia. }
+    { simp_length. lia. }
     wp۰apply+ (array٠unsafe_setｰspec with "Harr") as "Harr".
-    { simpl_length. lia. }
+    { simp_length. lia. }
     wp۰store. wp۰pures.
 
     iApply "HΦ".
@@ -150,7 +150,7 @@ Section zoo۰G.
     assert (₊(length nexts - 1) = i) as -> by lia.
     assert (<[j := next]> (take i nexts) ++ [prev] = <[i := prev]> (<[j := next]> nexts)) as Heq.
     { destruct_decide (j = i) as -> | H.
-      - rewrite list_insert_ge. { simpl_length. lia. }
+      - rewrite list_insert_ge. { simp_length. lia. }
         rewrite list_insert_insert_eq insert_take_drop; first lia.
         rewrite skipn_all2 //; first lia.
       - rewrite list_insert_insert_ne // (insert_take_drop nexts); first lia.
@@ -160,7 +160,7 @@ Section zoo۰G.
     iSteps. iExists (<[j := next]> (take i nexts)). iSteps.
     + iPureIntro.
       rewrite -Hpermutation reverse_snoc (assoc _ _ [_]) Heq Permutationｰswap' //.
-    + simpl_length. iSteps.
+    + simp_length. iSteps.
     + rewrite reverse_snoc (assoc _ _ [_]) Heq insert_app_l; first lia.
       rewrite insert_app_l // length_insert; first lia.
   Qed.
@@ -234,7 +234,7 @@ Section zoo۰G.
     iIntros "%Hcnt %Φ (:model') HΦ".
 
     wp۰apply (random_round٠nextｰspec with "Ht") as (i) "(%Hi & Ht)"; first lia.
-    iSteps. iExists (prevs ++ [i]). simpl_length. iSteps.
+    iSteps. iExists (prevs ++ [i]). simp_length. iSteps.
   Qed.
 End zoo۰G.
 

@@ -451,7 +451,7 @@ Module base.
         iDestruct (big_sepL2_length with "Hnodes") as %<-.
         rewrite bool_decide_eq_false_2.
         { apply (f_equal length) in Hhist as Hhist_length.
-          simpl_length/= in Hhist_length.
+          simp_length/= in Hhist_length.
           apply lookup_lt_Some in Hlookup'.
           lia.
         }
@@ -474,7 +474,7 @@ Module base.
           exfalso.
           apply (f_equal length) in Hhist.
           opose proof* lengthｰlookupｰlast as Heq; [done.. |].
-          simpl_length/= in Hhist. lia.
+          simp_length/= in Hhist. lia.
         }
 
         destruct op; last done.

@@ -136,7 +136,7 @@ Section graph.
       assert (path g a (xs++xs) a) as Hloop.
       { by eapply pathｰapp. }
       specialize (Huniq a a xs (xs++xs) Hpath Hloop).
-      apply (f_equal length) in Huniq. simpl_length in Huniq.
+      apply (f_equal length) in Huniq. simp_length in Huniq.
       assert (length xs = 0) by lia. destruct xs; simpl in *; try done; lia. }
     { intros ????? X1 X2.
       destruct (Hroot r1) as (xs1&Hxs1).
@@ -342,7 +342,7 @@ Section graph.
     mirror xs ys →
     length xs = length ys.
   Proof.
-    induction 1. done. simpl_length/=. lia.
+    induction 1. done. simp_length/=. lia.
   Qed.
 
   Lemma mirrorｰmirroredｰedges xs ys r x r' :
@@ -384,7 +384,7 @@ Section graph.
       { eapply pathｰapp. done.
         apply pathｰcons.  set_solver. apply pathｰnil.
       }
-      { simpl_length/=. lia. }
+      { simp_length/=. lia. }
     }
   Qed.
 

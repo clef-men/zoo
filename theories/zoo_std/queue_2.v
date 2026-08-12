@@ -123,7 +123,7 @@ Section zoo۰G.
     )%I as "(%front_ & -> & #Hfront_header)".
     { iDestruct (chain۰modelｰapp₂ with "Hfront Hback") as "Hfront".
       iApply (chain۰modelｰtag with "Hfront").
-      { simpl_length/=. lia. }
+      { simp_length/=. lia. }
     }
 
     wp۰match.

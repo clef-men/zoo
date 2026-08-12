@@ -95,7 +95,7 @@ Section zoo۰G.
     wp۰rec.
     wp۰apply+ (array٠unsafe_makeｰspec with "[//]") as "%data Hmodel"; first done.
     iSteps.
-    - simpl_length.
+    - simp_length.
     - iExists 0. rewrite right_id Nat2Z.id. iSteps.
   Qed.
 
@@ -253,7 +253,7 @@ Section zoo۰G.
     iIntros "%Φ (:model) HΦ".
     wp۰rec. wp۰load.
     wp۰apply (array٠sizeｰspec with "Hmodel") as "Hmodel".
-    simpl_length. iSteps.
+    simp_length. iSteps.
   Qed.
 
   Lemma dynarray_1٠is_emptyｰspec t vs :
@@ -306,7 +306,7 @@ Section zoo۰G.
     iIntros "%Hi %Φ (:model) HΦ".
     wp۰rec. wp۰load.
     wp۰apply (array٠unsafe_setｰspec with "Hmodel") as "Hmodel".
-    { simpl_length. lia. }
+    { simp_length. lia. }
     iApply "HΦ".
     iExists extra. iStep.
     rewrite length_insert insert_app_l; first lia. iSteps.
@@ -345,14 +345,14 @@ Section zoo۰G.
     wp۰pures.
     case_bool_decide as Htest.
     all: wp۰pures.
-    all: simpl_length in Htest.
+    all: simp_length in Htest.
     - wp۰apply (dynarray_1٠next_capacityｰspec with "[//]") as "%n' %Hn'"; first lia.
       wp۰apply int٠maxｰspec.
       wp۰apply+ (array٠unsafe_allocｰspec with "[//]") as "%data' Hmodel'"; first lia.
       wp۰load.
       wp۰apply+ (array٠unsafe_copy_sliceｰspec with "[$Hmodel $Hmodel']") as "(Hmodel & Hmodel')"; try lia.
-      { simpl_length. lia. }
-      { simpl_length. lia. }
+      { simp_length. lia. }
+      { simp_length. lia. }
       wp۰store.
       iApply ("HΦ" $! (₊(n `max` n') - length vs)).
       rewrite Nat2Z.id with_sliceｰ0 drop_replicate take_app_length.
@@ -429,10 +429,10 @@ Section zoo۰G.
       wp۰load.
       wp۰apply+ (array٠unsafe_fill_sliceｰspec with "Hmodel") as "Hmodel".
       { lia. }
-      { simpl_length. lia. }
+      { simp_length. lia. }
       iSteps.
       { iPureIntro.
-        simpl_length.
+        simp_length.
         rewrite -Nat.le_add_sub; first lia.
         rewrite Z2Nat.id //.
       } {
@@ -459,9 +459,9 @@ Section zoo۰G.
     wp۰apply+ (dynarray_1٠reserve_extraｰspec' with "Hmodel") as "%extra (%Hextra & (:model'))"; first lia.
     wp۰load. wp۰store. wp۰load.
     wp۰apply (array٠unsafe_setｰspec with "Hmodel").
-    { simpl_length. lia. }
+    { simp_length. lia. }
     rewrite Nat2Z.id insert_app_r_alt // Nat.sub_diag insert_replicate_lt // /= (assoc (++) vs [v] (replicate _ _)).
-    iSteps. simpl_length. iSteps.
+    iSteps. simp_length. iSteps.
   Qed.
 
   Lemma dynarray_1٠popｰspec {t vs} vs' v :
@@ -477,14 +477,14 @@ Section zoo۰G.
   Proof.
     iIntros (->) "%Φ (:model) HΦ".
     wp۰rec. wp۰load. wp۰store. wp۰load.
-    simpl_length. rewrite Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
+    simp_length. rewrite Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
     wp۰apply+ (array٠unsafe_getｰspec with "Hmodel") as "Hmodel"; [lia | | done |].
-    { rewrite lookup_app_l; first (simpl_length/=; lia).
+    { rewrite lookup_app_l; first (simp_length/=; lia).
       rewrite lookup_app_r; first lia.
       rewrite Nat2Z.id Nat.sub_diag //.
     }
     wp۰apply+ (array٠unsafe_setｰspec with "Hmodel").
-    { simpl_length/=. lia. }
+    { simp_length/=. lia. }
     iSteps. iExists ˖extra.
     rewrite -assoc insert_app_r_alt; first lia. rewrite Nat2Z.id Nat.sub_diag //.
   Qed.
@@ -505,7 +505,7 @@ Section zoo۰G.
     wp۰pures.
     case_bool_decide; wp۰pures; first iSteps.
     wp۰apply (array٠unsafe_shrinkｰspec with "Hmodel") as "%data' (_ & Hmodel)".
-    { simpl_length. lia. }
+    { simp_length. lia. }
     wp۰store.
     iSteps. iExists 0. rewrite Nat2Z.id take_app_length right_id //.
   Qed.
@@ -553,7 +553,7 @@ Section zoo۰G.
     wp۰apply (array٠unsafe_iteri_sliceｰspec Ψ with "[$HΨ $Hmodel]").
     { lia. }
     { lia. }
-    { simpl_length. lia. }
+    { simp_length. lia. }
     { iIntros "!> %i %v %Hi %Hlookup HΨ".
       rewrite sliceｰ0 take_app_le; first lia.
       wp۰apply (wpｰwand with "(Hfn [%] HΨ)").

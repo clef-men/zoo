@@ -601,7 +601,7 @@ Section zoo۰G.
     select (state۰alloc_condition _ _ _) ltac:(fun H =>
       destruct H
     ).
-    iMod (state_interpｰalloc _ _ (replicate ₊n ()%V) with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)". all: simpl_length. 1: naive_solver.
+    iMod (state_interpｰalloc _ _ (replicate ₊n ()%V) with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)". all: simp_length. 1: naive_solver.
     iFrameSteps.
   Qed.
 
@@ -628,7 +628,7 @@ Section zoo۰G.
     select (state۰alloc_condition _ _ _) ltac:(fun H =>
       destruct H
     ).
-    iMod (state_interpｰalloc with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)". all: simpl_length in *. 1: naive_solver.
+    iMod (state_interpｰalloc with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)". all: simp_length in *. 1: naive_solver.
     iFrameSteps.
   Qed.
 

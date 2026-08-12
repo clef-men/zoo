@@ -418,7 +418,7 @@ Module base.
       iMod (mono_listｰupdateｰsnoc with "Hauth") as "Hauth".
       iDestruct (mono_list۰atｰget with "Hauth") as "#Hat".
       { rewrite list_lookup_middle //. }
-      iFrame. simpl_length. iSteps.
+      iFrame. simp_length. iSteps.
     Qed.
     Opaque consumers۰auth'.
     Opaque consumers۰at.
@@ -460,7 +460,7 @@ Module base.
       iMod (mono_listｰupdateｰsnoc with "Hauth") as "Hauth".
       iDestruct (mono_list۰atｰget with "Hauth") as "#Hat".
       { rewrite list_lookup_middle //. }
-      iFrame. simpl_length. iSteps.
+      iFrame. simp_length. iSteps.
     Qed.
     #[local] Lemma tokens۰pendingｰupdate γ i :
       tokens۰pending γ i ⊢ |==>
@@ -734,7 +734,7 @@ Module base.
 
           iSplitL.
           { iExists front1, ˖back1. iFrame.
-            simpl_length.
+            simp_length.
             rewrite Hvs drop_app_le; first lia.
             rewrite Nat.max_r; first lia.
             assert (front1 - ˖back1 = 0) as -> by lia.

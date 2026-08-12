@@ -38,7 +38,7 @@ Section bi.
       rewrite !big_sepL2_alt.
       iIntros "% % (% & HΦ) #H". iStep 2.
       iApply (big_sepLｰimplｰstrong with "HΦ").
-      { simpl_length. lia. }
+      { simp_length. lia. }
       iIntros "!>" (k (x1, x2) (𝑥1, 𝑥2) (? & ? & [= <- <-] & ? & ?)%lookup_zip_with_Some (? & ? & [= <- <-] & ? & ?)%lookup_zip_with_Some).
       iSteps.
     Qed.
@@ -93,7 +93,7 @@ Section bi.
       rewrite big_sepL2_alt.
       iIntros "% (% & HΦ) #H".
       iApply (big_sepLｰimplｰstrong with "HΦ").
-      { simpl_length. lia. }
+      { simp_length. lia. }
       iIntros "!>" (k (x1, x2) 𝑥 (? & ? & [= <- <-] & ? & ?)%lookup_zip_with_Some ?).
       iSteps.
     Qed.
@@ -500,10 +500,10 @@ Section bi.
       ([∗ list] k ↦ x1; x2 ∈ seq i n; l2, Φ k x1 x2) ⊢
       [∗ list] k ↦ x2 ∈ l2, Φ k (i + k) x2.
     Proof.
-      rewrite big_sepL2_alt. simpl_length.
+      rewrite big_sepL2_alt. simp_length.
       iIntros "(-> & H)".
       iApply (big_sepLｰimplｰstrong with "H").
-      { simpl_length. lia. }
+      { simp_length. lia. }
       iIntros "!>" (k ? x2 (k1 & x2_ & -> & (-> & _)%lookup_seq & Hlookup1)%lookup_zip_with_Some Hlookup2) "H". simp.
       iSteps.
     Qed.

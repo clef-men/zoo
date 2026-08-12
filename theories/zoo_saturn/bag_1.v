@@ -258,7 +258,7 @@ Section bag_1۰G.
 
     iApply "HΦ".
     iSplitR "Hmodel₁"; last iSteps.
-    iExists l, γ. simpl_length in Hslots. iStep 6.
+    iExists l, γ. simp_length in Hslots. iStep 6.
     iApply inv_alloc.
     iExists 0, 0, ∅, (replicate ₊sz None). iSteps.
     - iPureIntro. Z_to_nat sz. clear. rewrite Nat2Z.id.
@@ -339,7 +339,7 @@ Section bag_1۰G.
     iSplitR "HΦ". { iFrameSteps. }
     iIntros "!> {%- Hsz}".
 
-    simpl_length.
+    simp_length.
     wp۰apply+ (array٠unsafe_getｰspec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
     wp۰apply (bag_1٠push₁ｰspec with "[$Hmeta $Hinv] HΦ").
@@ -437,7 +437,7 @@ Section bag_1۰G.
     iSplitR "HΦ". { iFrameSteps. }
     iIntros "!> {%- Hsz}".
 
-    simpl_length.
+    simp_length.
     wp۰apply+ (array٠unsafe_getｰspec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
     wp۰apply (bag_1٠pop₁ｰspec with "[$Hmeta $Hinv] HΦ").

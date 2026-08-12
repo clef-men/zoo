@@ -1284,7 +1284,7 @@ Module base.
             + intros.
               rewrite fn_lookup_alter_ne; first lia.
               apply Hpasts1; first lia.
-            + simpl_length/=. lia.
+            + simp_length/=. lia.
 
           - destruct vs1 as [| v2 vs1] => /=; first naive_solver lia.
             simpl in Hvs1.
@@ -1293,7 +1293,7 @@ Module base.
             + intros.
               rewrite fn_lookup_alter_ne; first lia.
               apply Hpasts1; first lia.
-            + simpl_length/=. lia.
+            + simp_length/=. lia.
         }
         iIntros "!> {%}".
 
@@ -1381,7 +1381,7 @@ Module base.
           - intros.
             rewrite fn_lookup_alter_ne; first lia.
             apply Hpasts1; first lia.
-          - simpl_length/=. lia.
+          - simp_length/=. lia.
         }
         rewrite Hhist1. iSteps.
 
@@ -1506,7 +1506,7 @@ Module base.
 
         - iDestruct "Hstate" as "(:inv۰state۰nonempty =1 lazy=)".
           iFrameSteps; iPureIntro.
-          + simpl_length/=. lia.
+          + simp_length/=. lia.
           + rewrite take_app_le //; first lia.
       }
       iSteps.
@@ -1790,7 +1790,7 @@ Module base.
       destruct_decide (˖front1 = back) as <- | Hbranch1.
 
       - assert (length vs1 = 0) as ->%nil_length_inv.
-        { simpl_length/= in Hvs1. lia. }
+        { simp_length/= in Hvs1. lia. }
 
         iDestruct (history۰atｰget front1 with "Hhistory_auth") as "#Hhistory_at"; first done.
         iMod (ownerｰupdate Unstable front1 priv with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
@@ -1810,7 +1810,7 @@ Module base.
 
           iSplitR "Howner₁ Hwinner_steal HΦ".
           { iExists Emptyish. iFrameSteps. iPureIntro.
-            simpl_length/=. lia.
+            simp_length/=. lia.
           }
           iIntros "!> {%}".
 
@@ -1828,7 +1828,7 @@ Module base.
 
             iSplitR "Howner₁ Hwinner_steal HΦ".
             { iExists Emptyish. iFrameSteps. iPureIntro.
-              simpl_length/=. lia.
+              simp_length/=. lia.
             }
             iIntros "!> {%}".
 
@@ -1853,7 +1853,7 @@ Module base.
 
           iSplitR "Howner₁ HΦ".
           { iExists Emptyish. iFrameStep 7. iExists P. iSteps. iPureIntro.
-            simpl_length/=. lia.
+            simp_length/=. lia.
           }
           iIntros "!> {%- Hbranch2}".
 
@@ -1872,7 +1872,7 @@ Module base.
 
         iSplitR "Howner₁ HΦ".
         { iExists Nonempty. iFrameSteps; iPureIntro.
-          all: simpl_length/= in Hvs1.
+          all: simp_length/= in Hvs1.
           - lia.
           - rewrite take_app_le //; first lia.
         }

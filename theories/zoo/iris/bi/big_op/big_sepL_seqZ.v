@@ -144,7 +144,7 @@ Section bi.
     Proof.
       iIntros "%Hi %Hn H".
       iApply (big_sepLｰimplｰstrong with "H").
-      { simpl_length. }
+      { simp_length. }
       iIntros "!>" (k k1 k2 (-> & _)%lookup_seqZ (-> & _)%lookup_seq) "HΦ".
       replace ⁺(₊i + k) with (i + k)%Z by lia. done.
     Qed.

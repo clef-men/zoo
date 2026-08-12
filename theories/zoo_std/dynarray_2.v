@@ -129,10 +129,10 @@ Section zoo۰G.
     }
 
     iSteps.
-    - simpl_length. iSteps.
+    - simp_length. iSteps.
     - iExists elems, 0. rewrite right_id. iSteps.
       iApply (big_sepL2ｰreplicateｰr₂ (λ _, element۰model) with "Helems").
-      { simpl_length in Helems. }
+      { simp_length in Helems. }
   Qed.
 
   Lemma dynarray_2٠initiｰspec Ψ sz fn :
@@ -168,7 +168,7 @@ Section zoo۰G.
     { iSplit.
       - iSteps. iExists []. iSteps.
       - iIntros "!> %t %i %slots %Hi1 %Hi2 (%elems & %vs & -> & HΨ & Helems)".
-        simpl_length in Hi2.
+        simp_length in Hi2.
         iDestruct (big_sepL2_length with "Helems") as %Helems.
         wp۰apply+ (wpｰwand with "(Hfn [%] HΨ)") as "%v HΨ"; first lia.
         wp۰apply (dynarray_2٠elementｰspec with "[//]") as (elem) "Helem".
@@ -180,7 +180,7 @@ Section zoo۰G.
 
     iApply "HΦ".
     iDestruct (big_sepL2_length with "Helems") as %Helems'.
-    simpl_length in Helems.
+    simp_length in Helems.
     iFrameStep. iExists 0. rewrite right_id. iSteps.
   Qed.
   Lemma dynarray_2٠initiｰspec' Ψ sz fn :
@@ -303,7 +303,7 @@ Section zoo۰G.
     iIntros "%Φ (:model) HΦ".
     wp۰rec. rewrite /dynarray_2٠data. wp۰load.
     wp۰apply (array٠sizeｰspec with "Hmodel") as "Hmodel".
-    simpl_length.
+    simp_length.
     iDestruct (big_sepL2_length with "Helems") as %->.
     iSteps.
   Qed.
@@ -346,7 +346,7 @@ Section zoo۰G.
     wp۰rec. rewrite /dynarray_2٠data. wp۰load.
     wp۰apply+ (array٠getｰspec with "[$Hmodel]") as "(% & Hmodel)".
     { rewrite Nat2Z.id lookup_app_l.
-      { simpl_length. lia. }
+      { simp_length. lia. }
       rewrite list_lookup_fmap_Some. naive_solver.
     }
     iSteps.
@@ -373,13 +373,13 @@ Section zoo۰G.
     wp۰rec. rewrite /dynarray_2٠data. wp۰load.
     wp۰apply+ (array٠getｰspec with "[$Hmodel]") as "Hmodel".
     { rewrite Nat2Z.id lookup_app_l.
-      { simpl_length. lia. }
+      { simp_length. lia. }
       rewrite list_lookup_fmap_Some. naive_solver.
     }
     wp۰match. wp۰store.
     iDestruct ("Helems" with "[Helem_header Helem_value]") as "Helems"; first iSteps.
     rewrite (list_insert_id elems) //.
-    iSteps. simpl_length.
+    iSteps. simp_length.
   Qed.
 
   #[local] Lemma dynarray_2٠next_capacityｰspec n :
@@ -465,7 +465,7 @@ Section zoo۰G.
 
     - wp۰load.
       wp۰apply+ (array٠sizeｰspec with "Hmodel") as "Hmodel".
-      wp۰pures. iEval simpl_length.
+      wp۰pures. iEval simp_length.
       case_bool_decide; wp۰pures; first iSteps.
       wp۰store.
 
@@ -473,18 +473,18 @@ Section zoo۰G.
         ∃ elem,
         ⌜𝑒𝑙𝑒𝑚 = #elem⌝ ∗
         element۰model elem v
-      )%I with "[$Hmodel]") as (𝑒𝑙𝑒𝑚𝑠) "(%H𝑒𝑙𝑒𝑚𝑠 & Hmodel & Helems')"; simpl_length; [lia.. | iSteps |].
+      )%I with "[$Hmodel]") as (𝑒𝑙𝑒𝑚𝑠) "(%H𝑒𝑙𝑒𝑚𝑠 & Hmodel & Helems')"; simp_length; [lia.. | iSteps |].
 
       iDestruct (big_sepLｰexists with "Helems'") as "(%elems' & _ & Helems')".
       iDestruct (big_sepL2_sep with "Helems'") as "(Heq & Helems')".
       iDestruct (big_sepL2ｰForall2 with "Heq") as %->%listｰfmapｰaltｰForall2ｰl. iClear "Heq".
       iDestruct (big_sepL2_const_sepL_r with "Helems'") as "(_ & Helems')".
       iDestruct (big_sepL2ｰreplicateｰr₂ (const element۰model) _ _ (₊sz - length vs) with "Helems'") as "Helems'".
-      { simpl_length in H𝑒𝑙𝑒𝑚𝑠. lia. }
+      { simp_length in H𝑒𝑙𝑒𝑚𝑠. lia. }
       iDestruct (big_sepL2_app with "Helems Helems'") as "Helems".
-      rewrite Nat2Z.id with_sliceｰappｰlength'; first simpl_length.
+      rewrite Nat2Z.id with_sliceｰappｰlength'; first simp_length.
       rewrite assoc -fmap_app drop_replicate.
-      iSteps. simpl_length. iSteps.
+      iSteps. simp_length. iSteps.
   Qed.
   #[local] Lemma dynarray_2٠grow₁ｰspec t vs sz v :
     {{{
@@ -560,9 +560,9 @@ Section zoo۰G.
     iExists l, data, (elems ++ [elem]), (extra - 1). iStep.
     rewrite length_app Z.add_1_r -Nat2Z.inj_succ Nat.add_comm /=. iFrame.
     rewrite insert_app_r_alt.
-    { simpl_length. lia. }
+    { simp_length. lia. }
     destruct extra.
-    - simpl_length in Htest. lia.
+    - simp_length in Htest. lia.
     - rewrite Nat2Z.id length_fmap Helems Nat.sub_diag.
       rewrite fmap_snoc -assoc /= Nat.sub_0_r.
       iSteps.
@@ -620,21 +620,21 @@ Section zoo۰G.
     do 2 (wp۰apply+ assumeｰspec' as "_").
     wp۰pures.
     rewrite length_app Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
-    iDestruct (big_sepL2_length with "Helems") as %Helems. simpl_length/= in Helems.
+    iDestruct (big_sepL2_length with "Helems") as %Helems. simp_length/= in Helems.
     destruct elems as [| elem elems _] using rev_ind; first (simpl in Helems; lia).
     rewrite length_app Nat.add_cancel_r in Helems. iEval (rewrite -Helems).
     iDestruct (big_sepL2_snoc with "Helems") as "(Helems & (:element۰model))".
     wp۰apply (array٠unsafe_getｰspec with "Hmodel") as "Hmodel"; [lia | | done |].
     { rewrite Nat2Z.id lookup_app_l.
-      { simpl_length/=. lia. }
+      { simp_length/=. lia. }
       rewrite list_lookup_fmap lookup_app_r // Nat.sub_diag //.
     }
     wp۰match.
     wp۰apply (array٠unsafe_setｰspec with "Hmodel") as "Hmodel".
-    { simpl_length/=. lia. }
+    { simp_length/=. lia. }
 
     rewrite fmap_snoc -assoc Nat2Z.id insert_app_r_alt.
-    all: simpl_length.
+    all: simp_length.
     rewrite Nat.sub_diag /=.
     wp۰store. wp۰load.
     iApply "HΦ".
@@ -662,7 +662,7 @@ Section zoo۰G.
     iApply "HΦ".
     iExists l, data', elems, 0.
     rewrite take_app_length'.
-    { simpl_length. lia. }
+    { simp_length. lia. }
     rewrite right_id. iSteps.
   Qed.
 
@@ -718,12 +718,12 @@ Section zoo۰G.
     { iIntros "!> %i %slots%Hi %Hlookup (HΨ & Helems)".
       iDestruct (big_sepL2_length with "Helems") as "%Helems".
       rewrite lookup_app_l in Hlookup.
-      { simpl_length. lia. }
+      { simp_length. lia. }
       apply list_lookup_fmap_Some in Hlookup as (elem & -> & Hlookup).
       iDestruct (big_sepL2ｰlookupｰaccｰl with "Helems") as "(%v & % & (:element۰model) & Helems)"; first done.
       wp۰match. wp۰load.
       rewrite sliceｰ0 take_app_le.
-      { simpl_length. lia. }
+      { simp_length. lia. }
       wp۰apply (wpｰwand with "(Hfn [//] HΨ)").
       rewrite -take_S_r //. iSteps.
     }

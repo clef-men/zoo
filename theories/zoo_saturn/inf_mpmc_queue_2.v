@@ -709,7 +709,7 @@ Module base.
       iMod (mono_listｰupdateｰsnoc η with "Hauth") as "Hauth".
       iDestruct (mono_list۰atｰget with "Hauth") as "#Hat".
       { apply list_lookup_middle. done. }
-      iSteps. simpl_length/=. iSteps.
+      iSteps. simp_length/=. iSteps.
     Qed.
     Opaque producers۰auth'.
     Opaque producers۰at.
@@ -758,7 +758,7 @@ Module base.
       iIntros "% (:consumers۰lb)".
       iDestruct (mono_list۰lbｰmono (take i2 ηs) with "Hlb") as "$".
       { apply prefix_take. }
-      simpl_length. iSteps.
+      simp_length. iSteps.
     Qed.
     #[local] Lemma consumers۰lbｰget γ i :
       consumers۰auth γ i ⊢
@@ -788,7 +788,7 @@ Module base.
       iMod (mono_listｰupdateｰsnoc η with "Hauth") as "Hauth".
       iDestruct (mono_list۰atｰget with "Hauth") as "#Hat".
       { apply list_lookup_middle. done. }
-      iSteps. simpl_length/=. iSteps.
+      iSteps. simp_length/=. iSteps.
     Qed.
     Opaque consumers۰auth'.
     Opaque consumers۰at.
@@ -919,7 +919,7 @@ Module base.
 
           wp۰apply+ (prophet_typed₁ｰwpｰresolve with "Hproph"); [done.. |].
           iSteps. iPureIntro.
-          rewrite Hvs2. simpl_length. lia.
+          rewrite Hvs2. simp_length. lia.
 
         + iDestruct (consumers۰lbｰvalid with "Hconsumers_auth Hconsumers_lb1") as %?.
           iDestruct (consumers۰lbｰget with "Hconsumers_auth") as "#Hconsumers_lb2".
@@ -1023,14 +1023,14 @@ Module base.
 
           iSplitR "Hproducers_at HΦ".
           { iFrame.
-            rewrite firstn_all2. { simpl_length/=. lia. }
+            rewrite firstn_all2. { simp_length/=. lia. }
             rewrite (skipn_all2 (n := ˖back1)).
-            { simpl_length/=. lia. }
+            { simp_length/=. lia. }
             iFrameSteps; iPureIntro.
             - rewrite drop_app_le; first lia.
               rewrite oflattenｰsnocｰSome Hvs1 //.
-            - simpl_length/=. lia.
-            - simpl_length/=. lia.
+            - simp_length/=. lia.
+            - simp_length/=. lia.
           }
           iIntros "!> {%- Hwinner}".
 
@@ -1069,14 +1069,14 @@ Module base.
           { rewrite Hlstates1 //. }
           iSplitR "HΦ".
           { iFrame.
-            rewrite firstn_all2. { simpl_length/=. lia. }
+            rewrite firstn_all2. { simp_length/=. lia. }
             rewrite (skipn_all2 (n := ˖back1)).
-            { simpl_length/=. lia. }
+            { simp_length/=. lia. }
             iFrameSteps; iPureIntro.
             - rewrite drop_app_le; first lia.
               rewrite oflattenｰsnocｰNone Hvs1 //.
-            - simpl_length/=. lia.
-            - simpl_length/=. lia.
+            - simp_length/=. lia.
+            - simp_length/=. lia.
           }
           iIntros "!> {%- Hloser}".
 
@@ -1137,8 +1137,8 @@ Module base.
           { rewrite -take_S_r //.
             setoid_rewrite Nat.add_succ_r.
             iFrameSteps; iPureIntro.
-            - rewrite drop_ge //. { simpl_length/=. lia. }
-            - simpl_length/=. lia.
+            - rewrite drop_ge //. { simp_length/=. lia. }
+            - simp_length/=. lia.
           }
           iIntros "!> {%}".
 
@@ -1187,8 +1187,8 @@ Module base.
           { rewrite -take_S_r //.
             setoid_rewrite Nat.add_succ_r.
             iFrameSteps; iPureIntro.
-            - rewrite drop_ge //. { simpl_length/=. lia. }
-            - simpl_length/=. lia.
+            - rewrite drop_ge //. { simp_length/=. lia. }
+            - simp_length/=. lia.
           }
           iIntros "!> {%- Hloser}".
 
@@ -1268,7 +1268,7 @@ Module base.
             rewrite take_app_le; first lia.
             rewrite drop_app_le; first lia.
             iFrameSteps. iPureIntro.
-            simpl_length/=. lia.
+            simp_length/=. lia.
           }
           iIntros "!> {%- Hwinner}".
 
@@ -1314,7 +1314,7 @@ Module base.
             rewrite take_app_le; first lia.
             rewrite drop_app_le; first lia.
             iFrameSteps. iPureIntro.
-            simpl_length/=. lia.
+            simp_length/=. lia.
           }
           iIntros "!> {%- Hloser}".
 

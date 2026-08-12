@@ -1393,7 +1393,7 @@ Section mcas_1۰G.
               - iApply (big_sepL_impl with "Hmodels₂").
                 rewrite /descriptor۰final Hsuccess /=. iSteps.
               - iApply (big_sepLｰseqｰindex₁ (drop i η.(metadata۰descrs))) in "Hlocks".
-                { simpl_length. }
+                { simp_length. }
                 iApply (big_sepL_impl with "Hlocks").
                 iSteps.
             }
@@ -2241,7 +2241,7 @@ Section mcas_1۰G.
     iDestruct (big_sepLｰexists with "Hdescrs") as "(%descrs & _ & Hdescrs)".
     iDestruct (big_sepL2_sep_sepL_r with "Hdescrs") as "(Hvs_cass & Hdescrs)".
     iDestruct (big_sepL2ｰForall2 with "Hvs_cass") as %->%listｰfmapｰaltｰForall2ｰl. iClear "Hvs_cass".
-    simpl_length in Hvs_cass.
+    simp_length in Hvs_cass.
     iDestruct (big_sepL_sep with "Hdescrs") as "(#Hstates_casn & Hdescrs)".
     iDestruct (big_sepL_sep with "Hdescrs") as "(Hstates & Hdescrs)".
     iApply big_sepLｰextractｰr in "Hdescrs"; first lia.

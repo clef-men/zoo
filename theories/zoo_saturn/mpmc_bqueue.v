@@ -1079,7 +1079,7 @@ Module base.
             { iDestruct (big_sepL2_length with "Hnodes") as %?.
               iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_back") as %?%lookup_lt_Some.
               iPureIntro.
-              apply (f_equal length) in Hhist1. simpl_length/= in Hhist1.
+              apply (f_equal length) in Hhist1. simp_length/= in Hhist1.
               lia.
             }
             rewrite bool_decide_eq_false_2; first lia.
@@ -1212,7 +1212,7 @@ Module base.
       iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)".
       iAaccIntro with "[$Hmodel₁]". 1,2: iSteps. iIntros "%b (-> & $) !>".
       iSteps. iPureIntro.
-      case_bool_decide; simpl_length/=; lia.
+      case_bool_decide; simp_length/=; lia.
     Qed.
 
     #[local] Lemma mpmc_bqueue٠popｰspecｰaux t γ :
@@ -1257,23 +1257,23 @@ Module base.
       iDestruct (big_sepL2_cons_inv_l with "Hnodes") as "(%v & %vs' & -> & Hfront_data & Hnodes)".
       set past := past1 ++ [front].
       iMod (frontｰupdate (length past) with "Hfront_auth") as "Hfront_auth".
-      { rewrite /past. simpl_length. lia. }
+      { rewrite /past. simp_length. lia. }
       iDestruct (big_sepMｰimplｰthreadｰfupd _ (waiter۰model γ past)%I with "Hwaiters Hmodel₂ [#]") as ">(Hwaiters & Hmodel₂)".
       { iIntros "!> %waiter %j %Hlookup (%P & #Hwaiter & HP) Hmodel₂".
         destruct (Nat.lt_trichotomy j (length past1)) as [Hj | [-> | Hj]].
         - rewrite decide_True //.
           rewrite /waiter۰model. setoid_rewrite decide_True; last first.
-          { rewrite /past. simpl_length. lia. }
+          { rewrite /past. simp_length. lia. }
           iSteps.
         - rewrite decide_False; first lia.
           rewrite /waiter۰model. setoid_rewrite decide_True; last first.
-          { rewrite /past. simpl_length/=. lia. }
+          { rewrite /past. simp_length/=. lia. }
           iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
           iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
           iSteps.
         - rewrite decide_False; first lia.
           rewrite /waiter۰model. setoid_rewrite decide_False; last first.
-          { rewrite /past. simpl_length/=. lia. }
+          { rewrite /past. simp_length/=. lia. }
           iSteps.
       }
 

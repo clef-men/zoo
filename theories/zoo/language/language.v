@@ -470,7 +470,7 @@ Lemma stepｰlength ρ1 κ ρ2 :
   length ρ1.1 ≤ length ρ2.1.
 Proof.
   intros (tid & e1 & e2 & σ2 & es & Hstep & Hlookup & ->).
-  simpl_length/=. lia.
+  simp_length/=. lia.
 Qed.
 Lemma nstepsｰlength n ρ1 κs ρ2 :
   nsteps n ρ1 κs ρ2 →

@@ -189,7 +189,7 @@ Section zoo۰G.
     iIntros "(:state_interp)".
     iMod (localsｰupdateｰpush with "Hlocals_auth") as "(Hlocals_auth & Hlocals)".
     rewrite Hlocals. iFrameSteps. iPureIntro.
-    simpl_length/=. lia.
+    simp_length/=. lia.
   Qed.
   Lemma state_interpｰlocal_pointstoｰupdate {ns nt σ κs tid w} v :
     state_interp ns nt σ κs -∗
@@ -199,7 +199,7 @@ Section zoo۰G.
   Proof.
     iIntros "(:state_interp) Htid".
     iMod (localsｰupdateｰpointsto with "Hlocals_auth Htid") as "(Hlocals_auth & Htid)".
-    iFrameSteps. simpl_length.
+    iFrameSteps. simp_length.
   Qed.
 
   Lemma state_interpｰprophetｰnew {ns nt σ κs} pid :

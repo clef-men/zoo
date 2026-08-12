@@ -90,7 +90,7 @@ Section zoo۰G.
 
     wp۰rec. rewrite queue_3٠min_capacityｰunfold.
     wp۰apply (array٠unsafe_makeｰspec with "[//]") as (data) "Hextra"; first done.
-    iApply array۰modelｰtoｰcslice in "Hextra". simpl_length.
+    iApply array۰modelｰtoｰcslice in "Hextra". simp_length.
     iDestruct (array۰csliceｰtoｰinv with "Hextra") as "#Hdata_inv".
     iDestruct (array۰csliceｰnil with "Hdata_inv") as "Hvs".
     wp۰block l as "(Hl_data & Hl_front & Hl_back & _)".
@@ -169,7 +169,7 @@ Section zoo۰G.
     wp۰rec. do 2 wp۰load.
     wp۰apply (array٠unsafe_csetｰspec with "Hvs"); first lia.
     replace (₊(front + i) - front) with ₊i by lia.
-    iSteps; simpl_length.
+    iSteps; simp_length.
   Qed.
 
   #[local] Lemma queue_3٠next_capacityｰspec n :
@@ -239,7 +239,7 @@ Section zoo۰G.
     iDestruct (array۰csliceｰapp₁ with "Hvs Hcell") as "Hvs"; first done.
     wp۰store.
     replace (back + 1)%Z with ⁺˖back by lia.
-    iSteps; iPureIntro; simpl_length/=; lia.
+    iSteps; iPureIntro; simp_length/=; lia.
   Qed.
 
   #[local] Lemma queue_3٠shrinkｰspec t vs :
@@ -260,7 +260,7 @@ Section zoo۰G.
     case_bool_decide; last iSteps.
     iDestruct (array۰csliceｰapp₁ with "Hvs Hextra") as "Hvs"; first done.
     wp۰pures. rewrite -Z.div2_spec.
-    wp۰apply (array٠unsafe_cshrink_sliceｰspec with "Hvs") as (data') "(_ & Hvs)"; [simpl_length; lia.. |].
+    wp۰apply (array٠unsafe_cshrink_sliceｰspec with "Hvs") as (data') "(_ & Hvs)"; [simp_length; lia.. |].
     wp۰store.
     rewrite Nat2Z.id Nat.sub_diag sliceｰ0 take_app_ge; first lia.
     rewrite take_replicate.
@@ -294,7 +294,7 @@ Section zoo۰G.
       wp۰store.
       iApply array۰csliceｰshiftｰright in "Hcell".
       iDestruct (array۰csliceｰapp₁ with "Hextra Hcell") as "Hextra".
-      { simpl_length. lia. }
+      { simp_length. lia. }
       rewrite -replicate_S_end.
       wp۰apply+ (queue_3٠shrinkｰspec _ vs with "[-HΦ]") as "Hmodel".
       { iExists ˖extra. iFrameSteps. }
@@ -330,7 +330,7 @@ Section zoo۰G.
       iSpecialize ("HΦ" $! None).
       iSteps.
 
-    - destruct vs as [| v vs _] using rev_ind; first naive_solver. simpl_length/= in *.
+    - destruct vs as [| v vs _] using rev_ind; first naive_solver. simp_length/= in *.
       wp۰load.
       iDestruct (array۰csliceｰapp with "Hvs") as "(Hvs & Hcell)".
       wp۰apply+ (array٠unsafe_cgetｰspecｰcell with "Hcell") as "Hcell"; first lia.

@@ -317,7 +317,7 @@ Section ws_hub_hybrid۰G.
   Proof.
     iMod ghost_listｰalloc as "(%γ_emptiness & $ & Hats)".
     iDestruct (big_sepLｰreplicate₁ with "Hats") as "$".
-    iSteps. iPureIntro. simpl_length.
+    iSteps. iPureIntro. simp_length.
   Qed.
   #[local] Lemma emptiness۰atｰvalid γ vs_queue i empty :
     emptiness۰auth γ vs_queue -∗
@@ -361,7 +361,7 @@ Section ws_hub_hybrid۰G.
     iDestruct (ghost_listｰlookup with "Hauth Hat") as %Hi%lookup_lt_Some.
     iMod (ghost_listｰupdateｰat Nonempty with "Hauth Hat") as "($ & $)".
     iPureIntro. split.
-    - simpl_length.
+    - simp_length.
     - right. exists i. apply list_lookup_insert_eq => //.
   Qed.
   #[local] Lemma emptinessｰupdateｰEmpty γ i empty :
@@ -372,7 +372,7 @@ Section ws_hub_hybrid۰G.
   Proof.
     iIntros "(:emptiness۰auth) Hat".
     iMod (ghost_listｰupdateｰat Empty with "Hauth Hat") as "($ & $)".
-    iSteps. simpl_length.
+    iSteps. simp_length.
   Qed.
 
   Opaque emptiness۰auth'.

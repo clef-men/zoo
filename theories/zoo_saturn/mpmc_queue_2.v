@@ -1125,9 +1125,9 @@ Section mpmc_queue_2۰G.
       iAssert ⌜(i_front2 + length vs2 = i_back2 + length vs_back2 + 1)%nat⌝%I as %Hsize.
       { destruct status2.
         - iDestruct "Hstatus" as "(:inv۰status۰stable =2)". iPureIntro.
-          apply (f_equal length) in Hvs2. simpl_length in Hvs2. lia.
+          apply (f_equal length) in Hvs2. simp_length in Hvs2. lia.
         - iDestruct "Hstatus" as "(:inv۰status۰unstable =2)". iPureIntro.
-          simpl_length/=. lia.
+          simp_length/=. lia.
       }
 
       iSplitR "Hproph HΦ". { iFrameSteps. }
@@ -1268,9 +1268,9 @@ Section mpmc_queue_2۰G.
           iDestruct (big_sepM_insert_2 with "[Hback2] Hbacks") as "Hbacks"; first iFrameSteps.
           iSplitR "HΦ".
           { iFrameSteps; iPureIntro.
-            - simpl_length.
+            - simp_length.
             - rewrite Hvs_back2 right_id //.
-            - simpl_length.
+            - simp_length.
           }
           iIntros "!> {%}".
 
@@ -1722,9 +1722,9 @@ Section mpmc_queue_2۰G.
         iDestruct (big_sepM_insert_2 with "[Hback1] Hbacks") as "Hbacks"; first iFrameSteps.
         iSplitR "HΦ".
         { iFrameSteps; iPureIntro.
-          - simpl_length/=. lia.
+          - simp_length/=. lia.
           - rewrite Hvs_back1 right_id //.
-          - simpl_length/= in *. lia.
+          - simp_length/= in *. lia.
         }
         iIntros "!> {%}".
 
