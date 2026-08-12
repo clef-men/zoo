@@ -104,32 +104,32 @@ Ltac reshape_expr e tac :=
   in
   go (@nil ectxi) (@nil (val * val)) e.
 
-Tactic Notation "zoo_fold_typeclasses" "in" hyp(H) :=
+Tactic Notation "zoo۰fold_typeclasses" "in" hyp(H) :=
   try match type of H with
   | val۰nonsimilar _ _ =>
       change val۰nonsimilar with (@nonsimilar val val۰nonsimilar) in H
   | val۰similar _ _ =>
       change val۰similar with (@similar val val۰similar) in H
   end.
-Tactic Notation "zoo_fold_typeclasses" :=
+Tactic Notation "zoo۰fold_typeclasses" :=
   try match goal with
   | |- val۰nonsimilar _ _ =>
       change val۰nonsimilar with (@nonsimilar val val۰nonsimilar)
   | |- val۰similar _ _ =>
       change val۰similar with (@similar val val۰similar)
   end.
-Tactic Notation "zoo_fold_typeclasses" "in" "*" :=
+Tactic Notation "zoo۰fold_typeclasses" "in" "*" :=
   repeat_on_hyps (fun H =>
-    zoo_fold_typeclasses in H
+    zoo۰fold_typeclasses in H
   );
-  zoo_fold_typeclasses.
+  zoo۰fold_typeclasses.
 
 Tactic Notation "zoo_simpl" "in" hyp(H) :=
   simpl in H;
-  zoo_fold_typeclasses in H.
+  zoo۰fold_typeclasses in H.
 Tactic Notation "zoo_simpl" :=
   simpl;
-  zoo_fold_typeclasses.
+  zoo۰fold_typeclasses.
 
 Tactic Notation "zoo_simp" "in" hyp(H) :=
   zoo_simpl in H;
@@ -193,7 +193,7 @@ Tactic Notation "zoo_simp" :=
     zoo_simp in H
   );
   simplify_eq/=;
-  zoo_fold_typeclasses in *.
+  zoo۰fold_typeclasses in *.
 
 Ltac invert_base_step :=
   simpl in *;
