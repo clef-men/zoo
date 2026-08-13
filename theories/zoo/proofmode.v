@@ -589,7 +589,7 @@ Tactic Notation "wp۰pure" open_constr(e_foc) "credits:" constr(Hcredits) :=
       | pm_reduce;
         first
         [ iDestructHyp Htmp as Hcredits
-        | fail 2 "wp۰pure:" Hcredits "is not fresh"
+        | fail 2 "wp۰pure: invalid intro pattern for credits:" Hcredits
         ];
         wp۰finish
       ]
@@ -615,7 +615,7 @@ Tactic Notation "wp۰pure" open_constr(e_foc) "credit:" constr(Hcredit) :=
       | pm_reduce;
         first
         [ iDestructHyp Htmp as Hcredit
-        | fail 2 "wp۰pure:" Hcredit "is not fresh"
+        | fail 2 "wp۰pure: invalid intro pattern for credit:" Hcredit
         ];
         wp۰finish
       ]
@@ -673,7 +673,7 @@ Tactic Notation "wp۰pure" open_constr(e_foc) "steps:" constr(Hsteps_lb) "credit
         | pm_reduce;
           first
           [ iDestructHyp Htmp as Hcredits
-          | fail 3 "wp۰pure:" Hcredits "is not fresh"
+          | fail 3 "wp۰pure: invalid intro pattern for credits:" Hcredits
           ];
           wp۰finish
         ]
@@ -705,7 +705,7 @@ Tactic Notation "wp۰pure" open_constr(e_foc) "steps:" constr(Hsteps_lb) "credit
         | pm_reduce;
           first
           [ iDestructHyp Htmp as Hcredit
-          | fail 3 "wp۰pure:" Hcredit "is not fresh"
+          | fail 3 "wp۰pure: invalid intro pattern for credit:" Hcredit
           ];
           wp۰finish
         ]
@@ -831,15 +831,15 @@ Tactic Notation "wp۰alloc" ident(l) "as" constr(Hheader) constr(Hmeta) constr(H
       pm_reduce;
       first
       [ iDestructHyp Hheader' as Hheader
-      | fail 1 "wp۰alloc:" Hheader "is not fresh"
+      | fail 1 "wp۰alloc: invalid intro pattern for header:" Hheader
       ];
       first
       [ iDestructHyp Hmeta' as Hmeta
-      | fail 1 "wp۰alloc:" Hmeta "is not fresh"
+      | fail 1 "wp۰alloc: invalid intro pattern for meta:" Hmeta
       ];
       first
       [ iDestructHyp Hl' as Hl
-      | fail 1 "wp۰alloc:" Hl "is not fresh"
+      | fail 1 "wp۰alloc: invalid intro pattern for block:" Hl
       ];
       wp۰finish
     ]
@@ -875,15 +875,15 @@ Tactic Notation "wp۰block" ident(l) "as" constr(Hheader) constr(Hmeta) constr(H
       pm_reduce;
       first
       [ iDestructHyp Hheader' as Hheader
-      | fail 1 "wp۰block:" Hheader "is not fresh"
+      | fail 1 "wp۰block: invalid intro pattern for header:" Hheader
       ];
       first
       [ iDestructHyp Hmeta' as Hmeta
-      | fail 1 "wp۰block:" Hmeta "is not fresh"
+      | fail 1 "wp۰block: invalid intro pattern for meta:" Hmeta
       ];
       first
       [ iDestructHyp Hl' as Hl
-      | fail 1 "wp۰block:" Hl "is not fresh"
+      | fail 1 "wp۰block: invalid intro pattern for block:" Hl
       ];
       wp۰finish
     ]
@@ -915,15 +915,15 @@ Tactic Notation "wp۰ref" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl)
       pm_reduce;
       first
       [ iDestructHyp Hheader' as Hheader
-      | fail 1 "wp۰ref:" Hheader "is not fresh"
+      | fail 1 "wp۰ref: invalid intro pattern for header:" Hheader
       ];
       first
       [ iDestructHyp Hmeta' as Hmeta
-      | fail 1 "wp۰ref:" Hmeta "is not fresh"
+      | fail 1 "wp۰ref: invalid intro pattern for meta:" Hmeta
       ];
       first
       [ iDestructHyp Hl' as Hl
-      | fail 1 "wp۰ref:" Hl "is not fresh"
+      | fail 1 "wp۰ref: invalid intro pattern for block:" Hl
       ];
       wp۰finish
     ]
