@@ -42,3 +42,22 @@ Section big_sepS.
     iSteps. rewrite big_sepS_empty. iSteps.
   Qed.
 End big_sepS.
+
+Section big_sepMS.
+  Context {PROP : bi}.
+  Context `{Countable K}.
+
+  Implicit Type Φ : K → PROP.
+
+  #[global] Instance diahintｰbig_sepMSｰempty Φ :
+    HINT ε₀ ✱ [- ;
+      emp
+    ] ⊫ [id];
+      [∗ mset] k ∈ ∅, Φ k
+    ✱ [
+      emp
+    ].
+  Proof.
+    iSteps. rewrite big_sepMS_empty. iSteps.
+  Qed.
+End big_sepMS.

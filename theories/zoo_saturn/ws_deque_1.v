@@ -1112,7 +1112,7 @@ Module base.
       iStep.
       iApply inv_alloc.
       iExists Empty, Stable, 1, 1, data, min_capacity, [()%V], [], (replicate min_capacity ()%V), ∅, (λ _, []), prophss.
-      rewrite big_sepMS_empty. iFrameSteps.
+      iFrameSteps.
     Qed.
 
     #[local] Lemma frontｰspec t γ :

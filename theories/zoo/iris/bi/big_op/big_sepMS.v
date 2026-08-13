@@ -53,7 +53,7 @@ Section bi.
       [∗ list] s ∈ ss, [∗ mset] x ∈ s, Φ x.
     Proof.
       iInduction ss as [| s ss IH].
-      - rewrite big_sepMS_empty. iSteps.
+      - iSteps.
       - rewrite /= big_sepMS_disj_union.
         iSplit.
         all: iIntros "($ & H)".

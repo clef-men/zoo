@@ -754,7 +754,7 @@ Module base.
       iApply inv_alloc.
       iExists 1, Init, iter, ∅. iFrame. iSplitR "Hsuccessors_model".
       - rewrite /inv۰state /inv۰state۰init.
-        iExists ∅. rewrite big_sepMS_empty left_id. iSteps.
+        iExists ∅. rewrite left_id. iSteps.
       - iExists []. iSteps.
     Qed.
 
@@ -1089,7 +1089,7 @@ Module base.
         iMod (iterationｰupdate iter' with "Hiteration₁ Hiteration₂") as "(Hiteration₁ & Hiteration₂)".
         iSplitR "Hctx Ht_task Hstate₁ Hiteration₁ Htask".
         { iFrameSteps.
-          iExists ∅. rewrite left_id big_sepMS_empty. iSteps.
+          iExists ∅. rewrite left_id. iSteps.
         }
         iIntros "{%} !>".
 

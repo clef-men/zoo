@@ -452,7 +452,7 @@ Module base.
     #[local] Lemma jobs۰finishedｰempty :
       ⊢ jobs۰finished ∅.
     Proof.
-      iApply (big_sepMS_empty with "[//]").
+      iSteps.
     Qed.
     #[local] Lemma jobs۰finishedｰelem_of job jobs :
       job ∈ jobs →
@@ -830,7 +830,7 @@ Module base.
         - iIntros "!> %𝑑𝑜𝑚𝑠".
           iApply inv_alloc.
           iDestruct (globals۰modelｰinit (γ 𝑑𝑜𝑚𝑠) with "Hjobs_auth Hlocals_auth") as "$".
-          iFrame. rewrite big_sepMS_empty //.
+          iFrameSteps.
 
         - iDestruct (big_sepL_sep_2 with "Hhub_owners Hlocals_ats") as "H".
           iApply (big_sepLｰimplｰstrong with "H").
