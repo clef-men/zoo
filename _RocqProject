@@ -66,6 +66,7 @@ theories/zoo/iris/proofmode/ltac_tactics.v
 theories/zoo/iris/proofmode.v
 
 theories/zoo/iris/diaframe/base.v
+theories/zoo/iris/diaframe/hints.v
 theories/zoo/iris/diaframe/tactics.v
 theories/zoo/iris/diaframe.v
 

@@ -545,7 +545,7 @@ Section domain۰G.
     iMod (metaｰset γ with "Hl_meta") as "#Hl_meta"; first done.
 
     wp۰apply+ (wpｰwand with "(Hfn [Hl Hlocal_auth])") as (res) "HΨ".
-    { iExists l, γ, [], ∅, ∅. rewrite big_sepM_empty. iSteps. }
+    { iExists l, γ, [], ∅, ∅. iSteps. }
     iApply wpｰthread_id_mono.
     wp۰apply (ivar_2٠setｰspec with "[$Hivar_inv $Hivar_producer $HΨ //]").
     iSteps.

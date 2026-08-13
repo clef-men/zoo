@@ -237,7 +237,7 @@ Section sarray۰G.
     iModIntro. iFrame "#∗".
     rewrite length_replicate delete_singleton_eq big_sepM_empty.
     rewrite big_sepLｰreplicate -big_sepL_intro.
-    auto 10.
+    iFrame "#∗" => //.
   Qed.
 
   Lemma sarray٠getｰspec {t vs} i v :

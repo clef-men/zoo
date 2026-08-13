@@ -2108,9 +2108,7 @@ Section mcas_1۰G.
     iDestruct (lstatus۰lbｰgetｰfinished (η := η) (Running 1) with "Hlstatus_auth") as "#Hlstatus_lb".
 
     iMod (inv_alloc _ _ (casn۰inv۰inner casn η ι (λ _, True)%I) with "[Hgid Hgproph Hcasn_status Hstate_before Hstate_after Hmodel₂ Hlstatus_auth Hhelpers_auth Howner]") as "#Hcasn_inv".
-    { iExists §After%V, Finished, ∅.
-      setoid_rewrite big_sepM_empty. iSteps.
-    }
+    { iFrameSteps. }
 
     iAssert (|={⊤}=> loc۰inv' ι (loc, γ))%I with "[Hloc Hlock Hhistory_auth]" as ">#Hloc_inv'".
     { iApply loc۰inv'ｰintro.
@@ -2288,7 +2286,7 @@ Section mcas_1۰G.
 
     iMod (inv_alloc _ _ (casn۰inv۰inner casn η ι Φ') with "[Hgproph Hcasn_state Hlstatus_auth Hlocks Hhelpers_auth Hwinning Hstates HΦ]") as "#Hcasn_inv".
     { iExists _, (Running 0), ∅, _. iFrameStep 3.
-      rewrite big_sepM_empty comm. iSteps.
+      rewrite comm. iSteps.
       iSplitL "Hlocks".
       { iApply (big_sepLｰseqｰindex ηs_lock); first lia.
         iApply (big_sepL_impl with "Hlocks").

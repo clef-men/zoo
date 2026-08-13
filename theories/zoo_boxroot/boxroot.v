@@ -188,7 +188,7 @@ Section boxroot۰G.
     }
     wp۰pures.
     iApply "HΦ".
-    iFrame. iExists l_global. rewrite big_sepM_empty. iSteps.
+    iFrameSteps.
   Admitted.
 
   Lemma boxroot٠createｰspec {gc global l} ω :

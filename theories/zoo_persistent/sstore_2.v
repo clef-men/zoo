@@ -492,7 +492,7 @@ Module base.
       iMod (metaｰset γ with "Hmeta") as "Hmeta"; first done.
 
       iApply "HΦ".
-      iStep. iExists l, γ, 0, root, ∅. iFrame. rewrite big_sepM_empty. iSteps.
+      iStep. iExists l, γ, 0, root, ∅. iFrameSteps.
     Qed.
 
     Lemma sstore_2٠refｰspec t σ₀ σ v :

@@ -43,7 +43,7 @@ Section bi.
     Proof.
       iIntros "Hm HP #HΦ".
       iInduction m as [| k x m Hlookup] "IH" using map_ind.
-      - rewrite !big_sepM_empty. iSteps.
+      - iSteps.
       - iDestruct (big_sepM_insert with "Hm") as "(Hk & Hm)"; first done.
         iDestruct ("HΦ" with "[%] Hk HP") as "(Hk & HP)".
         { rewrite lookup_insert_eq //. }
@@ -73,7 +73,7 @@ Section bi.
     Proof.
       iIntros "Hm HP #HΦ".
       iInduction m as [| k x m Hlookup] "IH" using map_ind.
-      - rewrite !big_sepM_empty. iSteps.
+      - iSteps.
       - iDestruct (big_sepM_insert with "Hm") as "(Hk & Hm)"; first done.
         iMod ("HΦ" with "[%] Hk HP") as "(Hk & HP)".
         { rewrite lookup_insert_eq //. }
@@ -131,7 +131,7 @@ Section bi.
       [∗ list] k ↦ x ∈ l, Φ (start + k) x.
     Proof.
       iInduction l as [| x l] "IH" forall (start).
-      - rewrite big_sepM_empty. iSteps.
+      - iSteps.
       - rewrite /= Nat.add_0_r.
         setoid_rewrite <- Nat.add_succ_comm.
         rewrite big_sepM_insert.

@@ -424,7 +424,7 @@ Module base.
       iApply inv_alloc.
       iExists [front], [], front, [], front, [], ∅. iFrameSteps.
       - rewrite list_elem_of_singleton //.
-      - rewrite xtchainｰsingleton big_sepM_empty. iSteps.
+      - rewrite xtchainｰsingleton. iSteps.
     Qed.
 
     Lemma mpmc_bqueue٠capacityｰspec t γ ι cap :

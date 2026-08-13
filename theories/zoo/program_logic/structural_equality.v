@@ -121,7 +121,7 @@ Section zoo۰G.
   Lemma structeq۰footprintｰempty :
     ⊢ structeq۰footprint ∅.
   Proof.
-    rewrite /structeq۰footprint big_sepM_empty //.
+    iSteps.
   Qed.
 
   Lemma structeq۰footprintｰheader {footprint} l blk :

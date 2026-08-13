@@ -490,7 +490,7 @@ Section bag_2۰G.
     iSplitR "Hmodel₁"; last iSteps.
     iExists l, γ. iStep 3. iApply inv_alloc. iFrame.
     iDestruct xtchainｰnil as "$".
-    rewrite big_sepM_empty. iSteps.
+    iSteps.
   Qed.
 
   #[local] Lemma bag_2٠add_producer₁ｰspec l γ (queue : val) :

@@ -448,7 +448,7 @@ Module base.
       iFrame "#∗". iStep.
       iApply inv_alloc.
       iExists [front], [], front, [], [], ∅. iFrameSteps.
-      rewrite xtchainｰsingleton big_sepM_empty. iSteps.
+      rewrite xtchainｰsingleton. iSteps.
     Qed.
 
     #[local] Lemma frontｰspecｰstrong Ψ t γ :

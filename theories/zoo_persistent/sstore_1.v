@@ -612,7 +612,7 @@ Section sstore_1۰G.
     iMod (metaｰset γ nroot with "Hmeta") as "Hmeta". set_solver.
     iApply "HΦ". iModIntro.
     iExists t0,r,∅,∅,{[r := ∅]}. iFrame.
-    rewrite !big_sepM_empty big_sepS_empty !right_id.
+    rewrite big_sepS_empty.
     iSteps; iPureIntro.
     { constructor.
       { rewrite dom_singleton_L verticesｰempty //. set_solver. }
