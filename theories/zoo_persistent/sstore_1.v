@@ -612,7 +612,6 @@ Section sstore_1۰G.
     iMod (metaｰset γ nroot with "Hmeta") as "Hmeta". set_solver.
     iApply "HΦ". iModIntro.
     iExists t0,r,∅,∅,{[r := ∅]}. iFrame.
-    rewrite big_sepS_empty.
     iSteps; iPureIntro.
     { constructor.
       { rewrite dom_singleton_L verticesｰempty //. set_solver. }
@@ -1034,7 +1033,7 @@ Section sstore_1۰G.
   Proof.
     iIntros (->???? Φ) "(?&?&?) HΦ".
     iApply (sstore_1٠revertｰspecｰaux g ∅ with "[-HΦ]"); try done.
-    { rewrite big_sepS_empty. iFrame. }
+    { iFrameSteps. }
     { iModIntro. iIntros "[% ?]". iApply "HΦ". iExists _. rewrite left_id_L //. }
   Qed.
 
