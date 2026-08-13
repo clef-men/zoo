@@ -893,9 +893,7 @@ Module base.
       wp۰apply (inf_array٠createｰspec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
       iDestruct (inf_array۰modelｰtoｰmodel'ｰconstant 1 with "Hdata_model") as "Hdata_model".
 
-      wp۰block t as "Hmeta" "(Ht_front & Ht_back & Ht_data & Ht_proph & _)".
-      iMod (pointstoｰpersist with "Ht_data") as "#Ht_data".
-      iMod (pointstoｰpersist with "Ht_proph") as "#Ht_proph".
+      wp۰block t as "Hmeta" "Ht_front Ht_back #Ht_data #Ht_proph".
 
       iMod modelｰownerｰalloc as "(%γ_model & %γ_owner & Hmodel₁ & Hmodel₂ & Howner₁ & Howner₂)".
       iMod frontｰalloc as "(%γ_front & Hfront_auth)".

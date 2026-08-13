@@ -474,7 +474,7 @@ Section bag_2۰G.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰block l as "Hmeta" "(Hl_producers & _)".
+    wp۰block l as "Hmeta" "Hl_producers".
 
     iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod queuesｰalloc as "(%γ_queues & Hqueues_auth)".
@@ -527,8 +527,7 @@ Section bag_2۰G.
     iSplitR "Hqueue_model HΦ". { iFrameSteps. }
     iIntros "!> {%}".
 
-    wp۰block node as "#Hnode_header" "_" "(Hnode_next & Hnode_queue & _)".
-    iMod (pointstoｰpersist with "Hnode_next") as "#Hnode_next".
+    wp۰block node as "#Hnode_header" "_" "#Hnode_next Hnode_queue".
     wp۰match. wp۰pures.
 
     wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
@@ -655,7 +654,7 @@ Section bag_2۰G.
     iIntros "%Φ (:inv) HΦ".
 
     wp۰rec.
-    wp۰block 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 as "(Hconsumer_queue & _)".
+    wp۰block 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 as "Hconsumer_queue".
     iSteps. iExists None. iSteps.
   Qed.
 

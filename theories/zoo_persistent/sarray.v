@@ -219,9 +219,7 @@ Section sarray۰G.
     wp۰rec.
     wp۰apply+ (array٠unsafe_makeｰspec with "[//]") as "%data Hdata"; first done.
     wp۰ref root as "Hroot".
-    wp۰block l as "Hmeta" "(Hl_equal & Hl_data & Hl_root & _)".
-    iMod (pointstoｰpersist with "Hl_equal") as "#Hl_equal".
-    iMod (pointstoｰpersist with "Hl_data") as "#Hl_data".
+    wp۰block l as "Hmeta" "#Hl_equal #Hl_data Hl_root".
 
     iMod (nodesｰalloc root (replicate ₊sz v)) as "(%γ_nodes & Hnodes_auth & #Hnodes_elem)".
 

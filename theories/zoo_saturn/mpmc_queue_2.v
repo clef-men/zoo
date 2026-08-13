@@ -911,9 +911,8 @@ Section mpmc_queue_2۰G.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰block back as "Hback_header" "_" "(Hback_index & Hback_move & _)".
-    iMod (pointstoｰpersist with "Hback_index") as "#Hback_index".
-    wp۰block l as "Hmeta" "(Hl_front & Hl_back & _)".
+    wp۰block back as "Hback_header" "_" "#Hback_index Hback_move".
+    wp۰block l as "Hmeta" "Hl_front Hl_back".
 
     iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod (stateｰalloc back) as "(%γ_state & Hstate_auth)".
@@ -1623,7 +1622,7 @@ Section mpmc_queue_2۰G.
                { iFrameSteps. iExists _, _, []. iSteps. }
                iSteps.
 
-          * wp۰block back as "#Hback_header" "_" "(Hback_index & Hback_move & _) /=".
+          * wp۰block back as "#Hback_header" "_" "Hback_index Hback_move" => /=.
             wp۰match.
             wp۰apply (frontｰspec_strong (Some i_front1) (Some i1) with "[$Hinv $Hfront_lb_1 $Hstate_at_1]") as (i_front3 vs_front3) "(#Hfront_lb_3 & %Hi_front3 & (%i3 & %Hi3 & %Hfront3))".
             wp۰equal as _ | (-> & ->)%(inj2 suffix۰to_val _ _ _ []); wp۰pures.

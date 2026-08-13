@@ -3,7 +3,9 @@ Require Import iris.proofmode.reduction.
 Require Import iris.proofmode.spec_patterns.
 
 Require Import zoo.prelude.
+Require Import zoo.common.format.
 Require Export zoo.iris.proofmode.
+Require Import zoo.iris.proofmode.intro_patterns.
 Require Import zoo.iris.diaframe.
 Require Import zoo.language.notations.
 Require Export zoo.language.tactics.
@@ -851,6 +853,56 @@ Tactic Notation "wp۰alloc" ident(l) "as" constr(Hl) :=
 Tactic Notation "wp۰alloc" ident(l) :=
   wp۰alloc l as "?".
 
+#[local] Fixpoint wp۰block۰parse۰aux pats :=
+  match pats with
+  | [] =>
+      Some ([IDrop], [])
+  | pat :: pats =>
+      '(pat, id) ←
+        match pat with
+        | IIdent id =>
+            Some (pat, None)
+        | IFresh =>
+            Some (pat, None)
+        | IIntuitionistic (IIdent id as pat) =>
+            Some (pat, Some id)
+        | _ =>
+            None
+        end ;
+      '(pats, ids) ← wp۰block۰parse۰aux pats ;
+      let pats := pat :: pats in
+      let ids :=
+        if id is Some id then
+          id :: ids
+        else
+          ids
+      in
+      Some (pats, ids)
+  end.
+#[local] Definition wp۰block۰parse str :=
+  pats ← intro_pat.parse str ;
+  '(pats, ids) ← wp۰block۰parse۰aux pats ;
+  let pat := intro_pat.big_conj pats in
+  Some (pat, ids).
+#[local] Ltac wp۰block۰persist ids :=
+  lazymatch ids with
+  | [] =>
+      idtac
+  | ?id :: ?ids =>
+      let pat := constr:("#" +:+ id) in
+      iMod (pointstoｰpersist with id) as pat;
+      wp۰block۰persist ids
+  end.
+#[local] Ltac wp۰block۰destruct Hl Hl' :=
+  lazymatch eval vm_compute in (wp۰block۰parse Hl) with
+  | None =>
+      fail
+  | Some (?pat, ?ids) =>
+      let pat0 := constr:("") in
+      let env := constr:(∅ : format۰env) in
+      _iDestructHyp_go Hl' pat0 pat env;
+      wp۰block۰persist ids
+  end.
 Tactic Notation "wp۰block" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl) :=
   let Hheader' := iFresh in
   let Hmeta' := iFresh in
@@ -882,7 +934,7 @@ Tactic Notation "wp۰block" ident(l) "as" constr(Hheader) constr(Hmeta) constr(H
       | fail 1 "wp۰block: invalid intro pattern for meta:" Hmeta
       ];
       first
-      [ iDestructHyp Hl' as Hl
+      [ wp۰block۰destruct Hl Hl'
       | fail 1 "wp۰block: invalid intro pattern for block:" Hl
       ];
       wp۰finish
@@ -892,8 +944,6 @@ Tactic Notation "wp۰block" ident(l) "as" constr(Hmeta) constr(Hl) :=
   wp۰block l as "_" Hmeta Hl.
 Tactic Notation "wp۰block" ident(l) "as" constr(Hl) :=
   wp۰block l as "_" Hl.
-Tactic Notation "wp۰block" ident(l) :=
-  wp۰block l as "?".
 
 Tactic Notation "wp۰ref" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl) :=
   let Hheader' := Hheader in

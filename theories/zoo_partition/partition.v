@@ -363,7 +363,7 @@ Section partition۰G.
 
     wp۰rec.
     wp۰apply (partition٠dllist٠createｰspec with "[//]") as (elt) "(Helt_prev & Helt_next & #Helt_data & Helt_class & Helt_seen)".
-    wp۰block class as "(Hclass_first & Hclass_last & Hclass_len & Hclass_split & Hclass_split_len & _)".
+    wp۰block class as "Hclass_first Hclass_last Hclass_len Hclass_split Hclass_split_len".
     wp۰store. wp۰pures.
 
     iAssert ⌜descrs !! class = None⌝%I as %Hclass.

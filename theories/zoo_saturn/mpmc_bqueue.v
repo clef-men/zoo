@@ -399,10 +399,8 @@ Module base.
       iIntros "%Hcap %Φ _ HΦ".
 
       wp۰rec.
-      wp۰block front as "Hfront_header" "_" "(Hfront_next & Hfront_data & Hfront_index & Hfront_capacity & _)".
-      iMod (pointstoｰpersist with "Hfront_index") as "#Hfront_index".
-      wp۰block t as "Hmeta" "(Ht_capacity & Ht_front & Ht_back & _)".
-      iMod (pointstoｰpersist with "Ht_capacity") as "#Hcapacity".
+      wp۰block front as "Hfront_header" "_" "Hfront_next Hfront_data #Hfront_index Hfront_capacity".
+      wp۰block t as "Hmeta" "#Ht_capacity Ht_front Ht_back".
 
       iMod historyｰalloc as "(%γ_history & Hhistory_auth)".
       iMod frontｰalloc as "(%γ_front & Hfront_auth)".
@@ -1203,7 +1201,7 @@ Module base.
       iIntros "%Φ (:inv) HΦ".
 
       wp۰rec.
-      wp۰block new_back as "#Hnew_back_header" "_" "(Hnew_back_next & Hnew_back_data & Hnew_back_index & Hnew_back_estimated_capacity & _)".
+      wp۰block new_back as "#Hnew_back_header" "_" "Hnew_back_next Hnew_back_data Hnew_back_index Hnew_back_estimated_capacity".
       wp۰apply+ (backｰspec with "Hinv") as (back i_back) "(:node۰model =back)".
 
       awp۰apply (mpmc_bqueue٠push_2ｰspec with "[$]").

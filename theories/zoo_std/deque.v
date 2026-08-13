@@ -76,7 +76,7 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (%nodes & Hmodel & Hnodes) HΦ".
     wp۰rec.
-    wp۰block node as "(Hnode_prev & Hnode_next & Hnode_data & _)".
+    wp۰block node as "Hnode_prev Hnode_next Hnode_data".
     wp۰apply (xdeque٠push_frontｰspec with "[$Hmodel $Hnode_prev $Hnode_next]").
     iSteps.
   Qed.
@@ -93,7 +93,7 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ (%nodes & Hmodel & Hnodes) HΦ".
     wp۰rec.
-    wp۰block node as "(Hnode_prev & Hnode_next & Hnode_data & _)".
+    wp۰block node as "Hnode_prev Hnode_next Hnode_data".
     wp۰apply (xdeque٠push_backｰspec with "[$Hmodel $Hnode_prev $Hnode_next]").
     iSteps. iApply big_sepL2_snoc. iSteps.
   Qed.

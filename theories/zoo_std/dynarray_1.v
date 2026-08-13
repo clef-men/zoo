@@ -58,7 +58,7 @@ Section zoo۰G.
     iIntros "%Φ _ HΦ".
     wp۰rec.
     wp۰apply (array٠createｰspec with "[//]") as "%data Hmodel".
-    wp۰block l as "Hl_meta" "(Hl_size & Hl_data & _)".
+    wp۰block l as "Hl_meta" "Hl_size Hl_data".
     iDestruct (meta_tokenｰdifference (↑nroot.@"user") with "Hl_meta") as "(Hl_meta & _)"; first done.
     iSteps. iExists 0. iSteps.
   Qed.
@@ -125,7 +125,7 @@ Section zoo۰G.
 
     wp۰rec.
     wp۰apply+ (array٠unsafe_initiｰspec (λ _, Ψ) with "[$HΨ]") as "%data %vs (%Hvs & Hmodel & HΨ)"; [done | iSteps |].
-    wp۰block l as "(Hl_size & Hl_data & _)".
+    wp۰block l as "Hl_size Hl_data".
     iSteps. iExists 0. rewrite right_id. iSteps.
   Qed.
   Lemma dynarray_1٠initiｰspec' Ψ sz fn :

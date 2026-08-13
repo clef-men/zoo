@@ -2063,10 +2063,8 @@ Section mcas_1۰G.
     wp۰rec.
     wp۰apply (wpｰid with "[//]") as (gid) "Hgid".
     wp۰apply+ (prophet_typedｰwpｰproph global_prophet with "[//]") as (pid prophs) "Hgproph".
-    wp۰block casn as "Hcasn_meta" "(Hcasn_status & Hcasn_proph & _)".
-    iMod (pointstoｰpersist with "Hcasn_proph") as "#Hcasn_proph".
-    wp۰block state as "(Hstate_casn & Hstate_before & Hstate_after & _)".
-    iMod (pointstoｰpersist with "Hstate_casn") as "#Hstate_casn".
+    wp۰block casn as "Hcasn_meta" "Hcasn_status #Hcasn_proph".
+    wp۰block state as "#Hstate_casn Hstate_before Hstate_after".
     wp۰ref loc as "Hloc_meta" "Hloc".
 
     iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
@@ -2197,8 +2195,7 @@ Section mcas_1۰G.
 
     wp۰rec credit:"H£".
     wp۰apply+ (prophet_typedｰwpｰproph global_prophet with "[//]") as (pid prophs0) "Hgproph".
-    wp۰block casn as "Hcasn_meta" "(Hcasn_state & Hcasn_proph & _)".
-    iMod (pointstoｰpersist with "Hcasn_proph") as "#Hcasn_proph".
+    wp۰block casn as "Hcasn_meta" "Hcasn_state #Hcasn_proph".
 
     pose (Ψ i (_ : val) 𝑐𝑎𝑠 := (
       ∃ descr,
@@ -2221,8 +2218,7 @@ Section mcas_1۰G.
     )%I : iProp Σ).
     wp۰apply+ (list٠mapｰspecｰdisentangled Ψ with "[]") as (𝑐𝑎𝑠𝑠 𝑐𝑎𝑠s) "(%Hvs_cass & -> & Hdescrs)"; first done.
     { iIntros "!>" (i ? (loc & before & after & Hlocs_lookup & Hbefores_lookup & Hafters_lookup & ->)%lookupｰzip3_withｰSome).
-      wp۰block state as "(Hstate_casn & Hstate_before & Hstate_after & _)".
-      iMod (pointstoｰpersist with "Hstate_casn") as "#Hstate_casn".
+      wp۰block state as "#Hstate_casn Hstate_before Hstate_after".
       wp۰pures.
       destruct (lookup_lt_is_Some_2 γs i) as (γ & Hγs_lookup).
       { rewrite Hγs. eapply lookup_lt_Some. done. }

@@ -828,12 +828,7 @@ Section ws_deques_private۰G.
     }
     iDestruct (array۰modelｰtoｰinv with "Hqueues_model") as "#Hqueues_inv".
     iMod (array۰modelｰpersist with "Hqueues_model") as "#Hqueues_model".
-    wp۰block l as "Hmeta" "(Hl_size & Hl_queues & Hl_statuses & Hl_requests & Hl_responses & _)".
-    iMod (pointstoｰpersist with "Hl_size") as "#Hl_size".
-    iMod (pointstoｰpersist with "Hl_queues") as "#Hl_queues".
-    iMod (pointstoｰpersist with "Hl_statuses") as "#Hl_statuses".
-    iMod (pointstoｰpersist with "Hl_requests") as "#Hl_requests".
-    iMod (pointstoｰpersist with "Hl_responses") as "#Hl_responses".
+    wp۰block l as "Hmeta" "#Hl_size #Hl_queues #Hl_statuses #Hl_requests #Hl_responses".
 
     iMod modelsｰalloc as "(%γ_models & Hmodels_auth & Hmodels_ats)".
     iMod ownerｰalloc as "(%γ_owners & Howners₁ & Howners₂)".

@@ -75,7 +75,7 @@ Section waiter۰G.
     wp۰rec.
     wp۰apply (condition٠createｰspec with "[//]") as "%cond #Hcond_inv".
     wp۰apply (mutex٠createｰspecｰinit with "[//]") as "%mtx Hmtx_init".
-    wp۰block 𝑡 as "(H𝑡_mutex & H𝑡_condition & H𝑡_flag & _)".
+    wp۰block 𝑡 as "H𝑡_mutex H𝑡_condition H𝑡_flag".
 
     iMod (mutex۰initｰtoｰinv (inv۰inner 𝑡) with "Hmtx_init [$H𝑡_flag]").
     iSteps.

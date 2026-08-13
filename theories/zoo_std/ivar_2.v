@@ -409,9 +409,7 @@ Module base.
       wp۰rec.
       wp۰apply+ (condition٠createｰspec _ with "[//]") as "%cond #Hcondition_inv".
       wp۰apply+ (mutex٠createｰspec True with "[//]") as "%mtx #Hmutex_inv".
-      wp۰block t as "Hmeta" "(Ht_mutex & Ht_condition & Ht_result & _)".
-      iMod (pointstoｰpersist with "Ht_mutex") as "Ht_mutex".
-      iMod (pointstoｰpersist with "Ht_condition") as "Ht_condition".
+      wp۰block t as "Hmeta" "#Ht_mutex #Ht_condition Ht_result".
 
       iMod lstateｰalloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
       iMod consumerｰalloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
@@ -448,9 +446,7 @@ Module base.
       wp۰rec.
       wp۰apply+ (condition٠createｰspec _ with "[//]") as "%cond #Hcondition_inv".
       wp۰apply+ (mutex٠createｰspec True with "[//]") as "%mtx #Hmutex_inv".
-      wp۰block t as "Hmeta" "(Ht_mutex & Ht_condition & Ht_result & _)".
-      iMod (pointstoｰpersist with "Ht_mutex") as "Ht_mutex".
-      iMod (pointstoｰpersist with "Ht_condition") as "Ht_condition".
+      wp۰block t as "Hmeta" "#Ht_mutex #Ht_condition Ht_result".
 
       iMod lstateｰalloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
       iMod consumerｰalloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".

@@ -337,8 +337,8 @@ Module base.
       iIntros "%Φ _ HΦ".
 
       wp۰rec.
-      wp۰block front as "#Hfront_header" "_" "(Hfront_next & _)".
-      wp۰block t as "Hmeta" "(Ht_front & Ht_back & _)".
+      wp۰block front as "#Hfront_header" "_" "Hfront_next".
+      wp۰block t as "Hmeta" "Ht_front Ht_back".
 
       iMod historyｰalloc as "(%γ_history & Hhistory_auth)".
       iMod frontｰalloc as "(%γ_front & Hfront_auth)".
@@ -815,7 +815,7 @@ Module base.
 
       wp۰rec credit:"H£".
       iDestruct (atomic_updateｰframeｰl with "[H£ $HΦ]") as "HΦ"; first iAccu.
-      wp۰block new_back as "#Hnew_back_header" "_" "(Hnew_back_next & Hnew_back_data & _)".
+      wp۰block new_back as "#Hnew_back_header" "_" "Hnew_back_next Hnew_back_data".
       wp۰match.
       wp۰apply+ (backｰspec with "Hinv") as (back i) "(:node۰model =back)".
       wp۰apply+ (mpmc_queue_1٠push₁ｰspec with "[$]").

@@ -483,7 +483,7 @@ Module base.
 
       wp۰rec.
       wp۰ref root as "Hroot".
-      wp۰block l as "Hmeta" "(Hl_gen & Hl_root & _)".
+      wp۰block l as "Hmeta" "Hl_gen Hl_root".
 
       iMod (cnodesｰalloc root) as "(%γ & Hauth)".
 
@@ -509,7 +509,8 @@ Module base.
     Proof.
       iIntros "%Φ (%l & %γ & %g & %root & %ς & -> & -> & #Hmeta & Hl_gen & Hl_root & Hroot & Hς & (%Hς_dom & %Hς_gen) & Hmodel) HΦ".
 
-      wp۰rec. wp۰block r as "(Hr_gen & Hr_value & _)".
+      wp۰rec.
+      wp۰block r as "Hr_gen Hr_value".
       iAssert ⌜σ₀ !! r = None⌝%I as %Hr.
       { rewrite -not_elem_of_dom. iIntros "%Hr".
         iDestruct (big_sepM_lookup with "Hς") as "(_Hr_gen & _)".

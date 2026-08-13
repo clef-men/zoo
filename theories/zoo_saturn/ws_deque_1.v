@@ -1086,8 +1086,7 @@ Module base.
       iEval (rewrite rotationｰreplicate) in "Hdata_cslice".
       iDestruct "Hdata_cslice" as "(Hdata_cslice₁ & Hdata_cslice₂)".
 
-      wp۰block t as "Hmeta" "(Ht_front & Ht_back & Ht_data & Ht_proph & _)".
-      iMod (pointstoｰpersist with "Ht_proph") as "#Ht_proph".
+      wp۰block t as "Hmeta" "Ht_front Ht_back Ht_data #Ht_proph".
 
       iMod modelｰownerｰalloc as "(%γ_model & %γ_owner & Hmodel₁ & Hmodel₂ & Howner₁ & Howner₂)".
       iMod frontｰalloc as "(%γ_front & Hfront_auth)".

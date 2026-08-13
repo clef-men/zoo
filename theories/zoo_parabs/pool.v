@@ -846,10 +846,7 @@ Module base.
       }
       iMod (array۰modelｰpersist with "Hdomains") as "#Hdomains".
 
-      wp۰block t as "Hmeta" "(Ht_size & Ht_hub & Ht_domains & _)".
-      iMod (pointstoｰpersist with "Ht_size") as "#Ht_size".
-      iMod (pointstoｰpersist with "Ht_hub") as "#Ht_hub".
-      iMod (pointstoｰpersist with "Ht_domains") as "#Ht_domains".
+      wp۰block t as "Hmeta" "#Ht_size #Ht_hub #Ht_domains".
 
       iApply "HΦ".
       iFrameSteps.

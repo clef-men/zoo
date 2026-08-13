@@ -79,7 +79,7 @@ Section zoo۰G.
     iIntros "%Φ _ HΦ".
     wp۰rec.
     wp۰apply (array٠createｰspec with "[//]") as "%data Hmodel".
-    wp۰block l as "Hl_meta" "(Hl_size & Hl_data & _)".
+    wp۰block l as "Hl_meta" "Hl_size Hl_data".
     iDestruct (meta_tokenｰdifference (↑nroot.@"user") with "Hl_meta") as "(Hl_meta & _)"; first done.
     iSteps. iExists [], 0. iSteps.
   Qed.
@@ -176,7 +176,7 @@ Section zoo۰G.
         rewrite -fmap_snoc big_sepL2_snoc. iSteps.
     }
 
-    wp۰block l as "(Hl_size & Hl_data & _)".
+    wp۰block l as "Hl_size Hl_data".
 
     iApply "HΦ".
     iDestruct (big_sepL2_length with "Helems") as %Helems'.

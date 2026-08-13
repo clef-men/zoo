@@ -63,7 +63,7 @@ Section zoo۰G.
     }
 
     wp۰apply (random_state٠createｰspec with "[//]") as (rand) "Hrand".
-    wp۰block l as "(Hl_random & Hl_array & Hl_index & _)".
+    wp۰block l as "Hl_random Hl_array Hl_index".
 
     iApply "HΦ".
     iFrameSteps. iExists (seq 0 ₊sz).

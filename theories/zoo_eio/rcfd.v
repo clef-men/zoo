@@ -646,7 +646,7 @@ Section rcfd۰G.
 
     wp۰rec.
     wp۰block۰generative open.
-    wp۰block l as "Hmeta" "(Hl_ops & Hl_fd & _)".
+    wp۰block l as "Hmeta" "Hl_ops Hl_fd".
 
     iMod (tokensｰalloc with "HΨ") as "(%γ_tokens & Htokens_auth)".
     iMod (lstateｰalloc owned) as "(%γ_lstate & Hlstate_auth & Howner)".

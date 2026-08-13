@@ -52,7 +52,7 @@ Section zoo۰G.
     wp۰rec.
     wp۰apply (chain٠blockｰspec None) as (back) "Hback_model".
     { iApply chain۰modelｰnil. iSteps. }
-    wp۰block l as "(Hfront & Hback & _)".
+    wp۰block l as "Hfront Hback".
     iApply "HΦ". iExists l, back, back. iFrameSteps.
     iApply chain۰modelｰnil₁.
   Qed.

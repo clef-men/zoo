@@ -268,8 +268,7 @@ Section inf_array۰G.
     wp۰rec.
     wp۰apply (array٠createｰspec with "[//]") as "%data Hdata".
     wp۰apply+ (mutex٠createｰspecｰinit with "[//]") as (mtx) "Hmtx_init".
-    wp۰block l as "Hmeta" "(Hl_data & Hl_default & Hl_mtx & _)".
-    iMod (pointstoｰpersist with "Hl_default") as "#Hl_default".
+    wp۰block l as "Hmeta" "Hl_data #Hl_default Hl_mtx".
 
     iMod (modelｰalloc default) as "(%γ_model & Hmodel₁ & Hmodel₂)".
 

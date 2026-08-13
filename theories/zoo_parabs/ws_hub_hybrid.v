@@ -474,11 +474,7 @@ Section ws_hub_hybrid۰G.
 
     wp۰apply+ (ws_bdeques_public٠createｰspec with "[//]") as (deques) "(#Hdeques_inv & Hdeques_model & Hdeques_owner)". 1: done.
 
-    wp۰block 𝑡 as "Hmeta" "(H𝑡_deques & H𝑡_rounds & H𝑡_queue & H𝑡_waiters & H𝑡_num_active & _)".
-    iMod (pointstoｰpersist with "H𝑡_deques") as "#H𝑡_deques".
-    iMod (pointstoｰpersist with "H𝑡_rounds") as "#H𝑡_rounds".
-    iMod (pointstoｰpersist with "H𝑡_queue") as "#H𝑡_queue".
-    iMod (pointstoｰpersist with "H𝑡_waiters") as "#H𝑡_waiters".
+    wp۰block 𝑡 as "Hmeta" "#H𝑡_deques #H𝑡_rounds #H𝑡_queue #H𝑡_waiters H𝑡_num_active".
 
     iMod (emptinessｰalloc ₊sz) as "(%γ_emptiness & Hemptiness_auth & Hemptiness_ats)".
 

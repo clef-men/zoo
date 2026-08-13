@@ -206,8 +206,7 @@ Section boxroot۰G.
   Proof.
     iIntros "%Hω %Φ (%l_global & %γ & %roots & %map & -> & #Hmeta & %Hmap_dom & Hroots_auth & Hroots & Hmap) HΦ".
     wp۰rec.
-    wp۰block root as "(Hroot_prev & Hroot_next & Hroot & _)".
-    (* iApply wpｰfupd. *)
+    wp۰block root as "Hroot_prev Hroot_next Hroot".
     wp۰apply+ (xdeque٠push_backｰspec with "[$Hroots $Hroot_prev $Hroot_next]") as "Hroots".
     iAssert ⌜map !! root = None⌝%I as %Hroot.
     { rewrite -eq_None_ne_Some. iIntros "%ω' %Hmap_lookup".

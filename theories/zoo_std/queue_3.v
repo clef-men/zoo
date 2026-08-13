@@ -93,7 +93,6 @@ Section zoo۰G.
     iApply array۰modelｰtoｰcslice in "Hextra". simp_length.
     iDestruct (array۰csliceｰtoｰinv with "Hextra") as "#Hdata_inv".
     iDestruct (array۰csliceｰnil with "Hdata_inv") as "Hvs".
-    wp۰block l as "(Hl_data & Hl_front & Hl_back & _)".
     iSteps.
   Qed.
 

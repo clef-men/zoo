@@ -109,9 +109,8 @@ Section zoo۰G.
     }}
   | 30.
   Proof.
-    iSteps.
-    wp۰block l as "Hheader" "Hmeta" "Hl".
-    iSteps.
+    iSteps as (Φ vs Hes Hvs) "HΦ".
+    iApply (wpｰblockｰmutable with "[//] HΦ"). all: done.
   Qed.
 
   #[global] Instance refｰdiaspec e v E :

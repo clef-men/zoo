@@ -243,7 +243,7 @@ Section bag_1۰G.
         + iApply big_sepL_snoc.
           iSteps.
     }
-    wp۰block l as "Hmeta" "(Hdata & Hfront & Hback & _)".
+    wp۰block l as "Hmeta" "Hdata Hfront Hback".
     iMod (array۰modelｰpersist with "Hdata_model") as "#Hdata_model".
 
     iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".

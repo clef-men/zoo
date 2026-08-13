@@ -391,10 +391,7 @@ Section ws_hub_fifo۰G.
     wp۰rec.
     wp۰apply+ (waiters٠createｰspec with "[//]") as (waiters) "#Hwaiters_inv". 1: done.
     wp۰apply (mpmc_queue_1٠createｰspec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)".
-    wp۰block 𝑡 as "Hmeta" "(H𝑡_size & H𝑡_queue & H𝑡_waiters & H𝑡_num_active & _)".
-    iMod (pointstoｰpersist with "H𝑡_size") as "#H𝑡_size".
-    iMod (pointstoｰpersist with "H𝑡_queue") as "#H𝑡_queue".
-    iMod (pointstoｰpersist with "H𝑡_waiters") as "#H𝑡_waiters".
+    wp۰block 𝑡 as "Hmeta" "#H𝑡_size #H𝑡_queue #H𝑡_waiters H𝑡_num_active".
 
     iMod ownerｰalloc as "(%γ_owners & Howners)".
     iMod (emptinessｰalloc ₊sz) as "(%γ_emptiness & Hemptiness_auth & Hemptiness_ats)".

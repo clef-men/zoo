@@ -142,9 +142,7 @@ Section mpsc_waiter۰G.
     wp۰rec.
     wp۰apply+ (condition٠createｰspec with "[//]") as "%cond #Hcondition_inv".
     wp۰apply+ (mutex٠createｰspec True with "[//]") as "%mtx #Hmutex_inv".
-    wp۰block 𝑡 as "Hmeta" "(H𝑡_mutex & H𝑡_condition & H𝑡_flag & _)".
-    iMod (pointstoｰpersist with "H𝑡_mutex") as "H𝑡_mutex".
-    iMod (pointstoｰpersist with "H𝑡_condition") as "H𝑡_condition".
+    wp۰block 𝑡 as "Hmeta" "#H𝑡_mutex #H𝑡_condition H𝑡_flag".
 
     iMod (oneshotｰalloc ()) as "(%γ_lstate & Hpending)".
 

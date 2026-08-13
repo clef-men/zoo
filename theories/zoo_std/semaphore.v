@@ -215,9 +215,7 @@ Section semaphore۰G.
     wp۰rec.
     wp۰apply+ (condition٠createｰspec with "[//]") as (cond) "#Hcondition_inv".
     wp۰apply (mutex٠createｰspecｰinit with "[//]") as (mtx) "Hmutex_init".
-    wp۰block l as "Hmeta" "(Hl_mutex & Hl_condition & Hl_count & _)".
-    iMod (pointstoｰpersist with "Hl_mutex") as "#Hl_mutex".
-    iMod (pointstoｰpersist with "Hl_condition") as "#Hl_condition".
+    wp۰block l as "Hmeta" "#Hl_mutex #Hl_condition Hl_count".
 
     iMod tokensｰalloc as "(%γ_tokens & Htokens_auth & Htokens_frags)".
 
