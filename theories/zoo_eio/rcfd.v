@@ -113,13 +113,13 @@ Proof.
 Qed.
 
 Class RcfdG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] rcfd۰G۰spsc_waiter۰G :: SpscWaiterG Σ
+  { #[local] rcfd۰G۰waiter_spsc۰G :: WaiterSpscG Σ
   ; #[local] rcfd۰G۰tokens۰G :: AuthGmultisetG Σ Qp
   ; #[local] rcfd۰G۰lstate۰G :: AuthMonoG Σ (A := leibnizO lstate) lstep
   }.
 
 Definition rcfd۰Σ :=
-  #[spsc_waiter۰Σ
+  #[waiter_spsc۰Σ
   ; auth_gmultiset۰Σ Qp
   ; auth_mono۰Σ (A := leibnizO lstate) lstep
   ].
@@ -1298,7 +1298,7 @@ Section rcfd۰G.
       iSplitR "Howner HΦ". { iFrameSteps 2. }
       iIntros "!> {%}".
 
-      wp۰apply+ (spsc_waiter٠createｰspec (Ψ 1%Qp) with "[//]") as "%waiter (#Hwaiter_inv & Hwaiter_producer & Hwaiter_consumer)".
+      wp۰apply+ (waiter_spsc٠createｰspec (Ψ 1%Qp) with "[//]") as "%waiter (#Hwaiter_inv & Hwaiter_producer & Hwaiter_consumer)".
       wp۰pures.
 
       wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
@@ -1329,16 +1329,16 @@ Section rcfd۰G.
           - iDestruct (tokens۰authｰconsume with "Htokens_auth") as "HΨ".
             iMod (lstateｰupdateｰcloseｰno_users with "Hlstate_auth") as "Hlstate_auth".
             iExists (Closing _). iFrameStep 8.
-            wp۰apply (spsc_waiter٠notifyｰspec with "[$Hwaiter_inv $Hwaiter_producer $HΨ]").
+            wp۰apply (waiter_spsc٠notifyｰspec with "[$Hwaiter_inv $Hwaiter_producer $HΨ]").
             iSteps.
           - iDestruct (tokens۰authｰvalid with "Htokens_auth") as %?.
             iExists (Closing _). iFrame. iSteps as "HΨ".
-            wp۰apply (spsc_waiter٠notifyｰspec with "[$Hwaiter_inv $Hwaiter_producer $HΨ]").
+            wp۰apply (waiter_spsc٠notifyｰspec with "[$Hwaiter_inv $Hwaiter_producer $HΨ]").
             iSteps.
         }
         iIntros "!> {%}".
 
-        wp۰apply+ (spsc_waiter٠waitｰspec with "[$Hwaiter_inv $Hwaiter_consumer]") as "HΨ".
+        wp۰apply+ (waiter_spsc٠waitｰspec with "[$Hwaiter_inv $Hwaiter_consumer]") as "HΨ".
         wp۰pures.
         iApply ("HΦ" $! (Some _)).
         destruct γ.(metadata۰owned); iSteps.

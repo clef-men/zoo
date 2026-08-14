@@ -2,7 +2,7 @@ Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import unix.unix.
-Require Import zoo_std.spsc_waiter.
+Require Import zoo_std.waiter_spsc.
 Require Import zoo.options.
 
 Notation "'rcfd٠Open'" := (
@@ -98,15 +98,15 @@ Definition rcfd٠remove : val :=
     | rcfd٠Closing ⎽ ->
         §None
     | rcfd٠Open "fd" 𝗮𝘀 "state" ->
-        𝗹𝗲𝘁 "waiter" = spsc_waiter٠create () 𝗶𝗻
+        𝗹𝗲𝘁 "waiter" = waiter_spsc٠create () 𝗶𝗻
         𝗹𝗲𝘁 "new_state" =
-          ‘rcfd٠Closing[ 𝗳𝘂𝗻 ⎽ -> spsc_waiter٠notify "waiter"
+          ‘rcfd٠Closing[ 𝗳𝘂𝗻 ⎽ -> waiter_spsc٠notify "waiter"
           ]
         𝗶𝗻
         𝗶𝗳
           𝗰𝗮𝘀 "t".[rcfd٠state] "state" "new_state"
         𝘁𝗵𝗲𝗻 (
-          spsc_waiter٠wait "waiter" ⍮
+          waiter_spsc٠wait "waiter" ⍮
           ‘Some( "fd" )
         ) 𝗲𝗹𝘀𝗲 (
           §None

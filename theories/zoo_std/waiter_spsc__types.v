@@ -6,14 +6,14 @@ Require Export zoo_std.mutex.
 Require Import zoo.options.
 
 Notation "'mutex'" := (
-  in_type "zoo_std.spsc_waiter.t" 0
+  in_type "zoo_std.waiter_spsc.t" 0
 )(in custom zoo_field
 ).
 Notation "'condition'" := (
-  in_type "zoo_std.spsc_waiter.t" 1
+  in_type "zoo_std.waiter_spsc.t" 1
 )(in custom zoo_field
 ).
 Notation "'flag'" := (
-  in_type "zoo_std.spsc_waiter.t" 2
+  in_type "zoo_std.waiter_spsc.t" 2
 )(in custom zoo_field
 ).

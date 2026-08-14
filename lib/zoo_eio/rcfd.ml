@@ -69,10 +69,10 @@ let remove t =
   | Closing _ ->
       None
   | Open fd as state ->
-      let waiter = Spsc_waiter.create () in
-      let new_state = Closing (fun () -> Spsc_waiter.notify waiter) in
+      let waiter = Waiter_spsc.create () in
+      let new_state = Closing (fun () -> Waiter_spsc.notify waiter) in
       if Atomic.Loc.compare_and_set [%atomic.loc t.state] state new_state then (
-        Spsc_waiter.wait waiter ;
+        Waiter_spsc.wait waiter ;
         Some fd
       ) else (
         None

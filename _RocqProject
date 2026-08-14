@@ -282,10 +282,10 @@ theories/zoo_std/mpsc_flag__types.v
 theories/zoo_std/mpsc_flag__code.v
 theories/zoo_std/mpsc_flag__opaque.v
 theories/zoo_std/mpsc_flag.v
-theories/zoo_std/spsc_waiter__types.v
-theories/zoo_std/spsc_waiter__code.v
-theories/zoo_std/spsc_waiter__opaque.v
-theories/zoo_std/spsc_waiter.v
+theories/zoo_std/waiter_spsc__types.v
+theories/zoo_std/waiter_spsc__code.v
+theories/zoo_std/waiter_spsc__opaque.v
+theories/zoo_std/waiter_spsc.v
 theories/zoo_std/mpsc_waiter__types.v
 theories/zoo_std/mpsc_waiter__code.v
 theories/zoo_std/mpsc_waiter__opaque.v

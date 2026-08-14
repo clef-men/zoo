@@ -2,7 +2,7 @@ Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Export unix.unix.
-Require Export zoo_std.spsc_waiter.
+Require Export zoo_std.waiter_spsc.
 Require Import zoo.options.
 
 Notation "'Open'" := (
