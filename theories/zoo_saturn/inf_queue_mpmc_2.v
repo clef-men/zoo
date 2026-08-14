@@ -13,8 +13,8 @@ Require Import zoo.base.
 Require Import zoo.program_logic.prophet_identifier.
 Require Import zoo.program_logic.prophet_multi.
 Require Import zoo.program_logic.prophet_nat.
-Require Export zoo_saturn.inf_mpmc_queue_2__code.
-Require Import zoo_saturn.inf_mpmc_queue_2__types.
+Require Export zoo_saturn.inf_queue_mpmc_2__code.
+Require Import zoo_saturn.inf_queue_mpmc_2__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.
@@ -131,21 +131,21 @@ Proof.
   apply lstepｰwinner.
 Qed.
 
-Class InfMpmcQueue2G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] inf_mpmc_queue_2۰G۰inf_array۰G :: InfArrayG Σ
-  ; #[local] inf_mpmc_queue_2۰G۰prophet۰G :: ProphetMultiG Σ prophet_identifier
-  ; #[local] inf_mpmc_queue_2۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
-  ; #[local] inf_mpmc_queue_2۰G۰history۰G :: MonoListG Σ (option val)
-  ; #[local] inf_mpmc_queue_2۰G۰lstate۰G :: AuthMonoG Σ lstep
-  ; #[local] inf_mpmc_queue_2۰G۰lstates۰G :: MonoListG Σ gname
-  ; #[local] inf_mpmc_queue_2۰G۰saved_pred۰G :: SavedPredG Σ val
-  ; #[local] inf_mpmc_queue_2۰G۰producer۰G :: OneshotG Σ () ()
-  ; #[local] inf_mpmc_queue_2۰G۰producers۰G :: MonoListG Σ gname
-  ; #[local] inf_mpmc_queue_2۰G۰consumer۰G :: OneshotG Σ () ()
-  ; #[local] inf_mpmc_queue_2۰G۰consumers۰G :: MonoListG Σ gname
+Class InfQueueMpmc2G Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] inf_queue_mpmc_2۰G۰inf_array۰G :: InfArrayG Σ
+  ; #[local] inf_queue_mpmc_2۰G۰prophet۰G :: ProphetMultiG Σ prophet_identifier
+  ; #[local] inf_queue_mpmc_2۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
+  ; #[local] inf_queue_mpmc_2۰G۰history۰G :: MonoListG Σ (option val)
+  ; #[local] inf_queue_mpmc_2۰G۰lstate۰G :: AuthMonoG Σ lstep
+  ; #[local] inf_queue_mpmc_2۰G۰lstates۰G :: MonoListG Σ gname
+  ; #[local] inf_queue_mpmc_2۰G۰saved_pred۰G :: SavedPredG Σ val
+  ; #[local] inf_queue_mpmc_2۰G۰producer۰G :: OneshotG Σ () ()
+  ; #[local] inf_queue_mpmc_2۰G۰producers۰G :: MonoListG Σ gname
+  ; #[local] inf_queue_mpmc_2۰G۰consumer۰G :: OneshotG Σ () ()
+  ; #[local] inf_queue_mpmc_2۰G۰consumers۰G :: MonoListG Σ gname
   }.
 
-Definition inf_mpmc_queue_2۰Σ :=
+Definition inf_queue_mpmc_2۰Σ :=
   #[inf_array۰Σ
   ; prophet_multi۰Σ prophet_identifier
   ; twins۰Σ (leibnizO (list val))
@@ -158,37 +158,37 @@ Definition inf_mpmc_queue_2۰Σ :=
   ; oneshot۰Σ () ()
   ; mono_list۰Σ gname
   ].
-#[global] Instance subGｰinf_mpmc_queue_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG inf_mpmc_queue_2۰Σ Σ →
-  InfMpmcQueue2G Σ.
+#[global] Instance subGｰinf_queue_mpmc_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG inf_queue_mpmc_2۰Σ Σ →
+  InfQueueMpmc2G Σ.
 Proof.
   solve_inG.
 Qed.
 
 Module base.
-  Section inf_mpmc_queue_2۰G.
-    Context `{inf_mpmc_queue_2۰G : InfMpmcQueue2G Σ}.
+  Section inf_queue_mpmc_2۰G.
+    Context `{inf_queue_mpmc_2۰G : InfQueueMpmc2G Σ}.
 
     Implicit Type t : location.
     Implicit Type Ψ : val → iProp Σ.
 
-    Record inf_mpmc_queue_2۰name :=
-      { inf_mpmc_queue_2۰name۰data : val
-      ; inf_mpmc_queue_2۰name۰inv : namespace
-      ; inf_mpmc_queue_2۰name۰prophet : prophet_id
-      ; inf_mpmc_queue_2۰name۰prophet_name : prophet_multi۰name
-      ; inf_mpmc_queue_2۰name۰model : gname
-      ; inf_mpmc_queue_2۰name۰history : gname
-      ; inf_mpmc_queue_2۰name۰lstates : gname
-      ; inf_mpmc_queue_2۰name۰producers : gname
-      ; inf_mpmc_queue_2۰name۰consumers : gname
+    Record inf_queue_mpmc_2۰name :=
+      { inf_queue_mpmc_2۰name۰data : val
+      ; inf_queue_mpmc_2۰name۰inv : namespace
+      ; inf_queue_mpmc_2۰name۰prophet : prophet_id
+      ; inf_queue_mpmc_2۰name۰prophet_name : prophet_multi۰name
+      ; inf_queue_mpmc_2۰name۰model : gname
+      ; inf_queue_mpmc_2۰name۰history : gname
+      ; inf_queue_mpmc_2۰name۰lstates : gname
+      ; inf_queue_mpmc_2۰name۰producers : gname
+      ; inf_queue_mpmc_2۰name۰consumers : gname
       }.
-    Implicit Type γ : inf_mpmc_queue_2۰name.
+    Implicit Type γ : inf_queue_mpmc_2۰name.
 
-    #[global] Instance inf_mpmc_queue_2۰nameｰeq_dec : EqDecision inf_mpmc_queue_2۰name :=
+    #[global] Instance inf_queue_mpmc_2۰nameｰeq_dec : EqDecision inf_queue_mpmc_2۰name :=
       ltac:(solve_decision).
-    #[global] Instance inf_mpmc_queue_2۰nameｰcountable :
-      Countable inf_mpmc_queue_2۰name.
+    #[global] Instance inf_queue_mpmc_2۰nameｰcountable :
+      Countable inf_queue_mpmc_2۰name.
     Proof.
       solve_countable.
     Qed.
@@ -196,18 +196,18 @@ Module base.
     #[local] Definition model₁' γ_model vs :=
       twins۰twin₁ γ_model (DfracOwn 1) vs.
     #[local] Definition model₁ γ vs :=
-      model₁' γ.(inf_mpmc_queue_2۰name۰model) vs.
+      model₁' γ.(inf_queue_mpmc_2۰name۰model) vs.
     #[local] Definition model₂' γ_model vs :=
       twins۰twin₂ γ_model vs.
     #[local] Definition model₂ γ vs :=
-      model₂' γ.(inf_mpmc_queue_2۰name۰model) vs.
+      model₂' γ.(inf_queue_mpmc_2۰name۰model) vs.
 
     #[local] Definition history۰auth' γ_history hist :=
       mono_list۰auth γ_history (DfracOwn 1) hist.
     #[local] Definition history۰auth γ :=
-      history۰auth' γ.(inf_mpmc_queue_2۰name۰history).
+      history۰auth' γ.(inf_queue_mpmc_2۰name۰history).
     #[local] Definition history۰at γ i o :=
-      mono_list۰at γ.(inf_mpmc_queue_2۰name۰history) i o.
+      mono_list۰at γ.(inf_queue_mpmc_2۰name۰history) i o.
 
     #[local] Definition lstates۰auth' γ_lstates lstates : iProp Σ :=
       ∃ ηs,
@@ -215,7 +215,7 @@ Module base.
       [∗ list] η; lstate ∈ ηs; lstates,
         auth_mono۰auth _ η DfracDiscarded lstate.
     #[local] Definition lstates۰auth γ :=
-      lstates۰auth' γ.(inf_mpmc_queue_2۰name۰lstates).
+      lstates۰auth' γ.(inf_queue_mpmc_2۰name۰lstates).
     #[local] Instance : CustomIpat "lstates۰auth" :=
       " ( %ηs
         & Hauth
@@ -224,7 +224,7 @@ Module base.
       ".
     #[local] Definition lstates۰at γ i lstate : iProp Σ :=
       ∃ η,
-      mono_list۰at γ.(inf_mpmc_queue_2۰name۰lstates) i η ∗
+      mono_list۰at γ.(inf_queue_mpmc_2۰name۰lstates) i η ∗
       auth_mono۰auth _ η DfracDiscarded lstate.
     #[local] Instance : CustomIpat "lstates۰at" :=
       " ( %η{}
@@ -234,7 +234,7 @@ Module base.
       ".
     #[local] Definition lstates۰lb γ i lstate : iProp Σ :=
       ∃ η,
-      mono_list۰at γ.(inf_mpmc_queue_2۰name۰lstates) i η ∗
+      mono_list۰at γ.(inf_queue_mpmc_2۰name۰lstates) i η ∗
       auth_mono۰lb _ η lstate.
     #[local] Instance : CustomIpat "lstates۰lb" :=
       " ( %η{}
@@ -248,7 +248,7 @@ Module base.
       mono_list۰auth γ_producers (DfracOwn 1) ηs ∗
       ⌜length ηs = i⌝.
     #[local] Definition producers۰auth γ :=
-      producers۰auth' γ.(inf_mpmc_queue_2۰name۰producers).
+      producers۰auth' γ.(inf_queue_mpmc_2۰name۰producers).
     #[local] Instance : CustomIpat "producers۰auth" :=
       " ( %ηs
         & Hauth
@@ -257,7 +257,7 @@ Module base.
       ".
     #[local] Definition producers۰at γ i own : iProp Σ :=
       ∃ η,
-      mono_list۰at γ.(inf_mpmc_queue_2۰name۰producers) i η ∗
+      mono_list۰at γ.(inf_queue_mpmc_2۰name۰producers) i η ∗
       match own with
       | Own =>
           oneshot۰pending η (DfracOwn 1) ()
@@ -276,7 +276,7 @@ Module base.
       mono_list۰auth γ_consumers (DfracOwn 1) ηs ∗
       ⌜length ηs = i⌝.
     #[local] Definition consumers۰auth γ :=
-      consumers۰auth' γ.(inf_mpmc_queue_2۰name۰consumers).
+      consumers۰auth' γ.(inf_queue_mpmc_2۰name۰consumers).
     #[local] Instance : CustomIpat "consumers۰auth" :=
       " ( %ηs{}
         & Hauth{}
@@ -285,7 +285,7 @@ Module base.
       ".
     #[local] Definition consumers۰at γ i own : iProp Σ :=
       ∃ η,
-      mono_list۰at γ.(inf_mpmc_queue_2۰name۰consumers) i η ∗
+      mono_list۰at γ.(inf_queue_mpmc_2۰name۰consumers) i η ∗
       match own with
       | Own =>
           oneshot۰pending η (DfracOwn 1) ()
@@ -300,7 +300,7 @@ Module base.
       ".
     #[local] Definition consumers۰lb γ i : iProp Σ :=
       ∃ ηs,
-      mono_list۰lb γ.(inf_mpmc_queue_2۰name۰consumers) ηs ∗
+      mono_list۰lb γ.(inf_queue_mpmc_2۰name۰consumers) ηs ∗
       ⌜length ηs = i⌝.
     #[local] Instance : CustomIpat "consumers۰lb" :=
       " ( %ηs{}
@@ -311,7 +311,7 @@ Module base.
 
     #[local] Definition winner γ i : iProp Σ :=
       ∃ id prophs,
-      prophet_multi۰full prophet_identifier γ.(inf_mpmc_queue_2۰name۰prophet_name) i prophs ∗
+      prophet_multi۰full prophet_identifier γ.(inf_queue_mpmc_2۰name۰prophet_name) i prophs ∗
       ⌜head prophs = Some id⌝ ∗
       identifier۰model id.
     #[local] Instance : CustomIpat "winner" :=
@@ -327,7 +327,7 @@ Module base.
       AU <{
         ∃∃ vs,
         model₁ γ vs
-      }> @ ⊤ ∖ ↑γ.(inf_mpmc_queue_2۰name۰inv), ∅ <{
+      }> @ ⊤ ∖ ↑γ.(inf_queue_mpmc_2۰name۰inv), ∅ <{
         ∀∀ v vs',
         ⌜vs = v :: vs'⌝ ∗
         model₁ γ vs'
@@ -427,14 +427,14 @@ Module base.
       ∃ front back hist slots vs lstates pasts prophss,
       t.[front] ↦ #front ∗
       t.[back] ↦ #back ∗
-      inf_array۰model γ.(inf_mpmc_queue_2۰name۰data) slots ∗
+      inf_array۰model γ.(inf_queue_mpmc_2۰name۰data) slots ∗
       model₂ γ vs ∗
       ⌜vs = oflatten (drop front hist)⌝ ∗
       history۰auth γ hist ∗
       ⌜length hist = back⌝ ∗
       lstates۰auth γ lstates ∗
       ⌜length lstates = front `max` back⌝ ∗
-      prophet_multi۰model prophet_identifier γ.(inf_mpmc_queue_2۰name۰prophet) γ.(inf_mpmc_queue_2۰name۰prophet_name) pasts prophss ∗
+      prophet_multi۰model prophet_identifier γ.(inf_queue_mpmc_2۰name۰prophet) γ.(inf_queue_mpmc_2۰name۰prophet_name) pasts prophss ∗
       producers۰auth γ back ∗
       consumers۰auth γ front ∗
       ( [∗ list] i ↦ lstate ∈ take back lstates,
@@ -472,12 +472,12 @@ Module base.
         & Hslots
         )
       ".
-    Definition inf_mpmc_queue_2۰inv t γ ι : iProp Σ :=
-      ⌜ι = γ.(inf_mpmc_queue_2۰name۰inv)⌝ ∗
-      t.[data] ↦□ γ.(inf_mpmc_queue_2۰name۰data) ∗
-      t.[proph] ↦□ #γ.(inf_mpmc_queue_2۰name۰prophet) ∗
-      inf_array۰inv γ.(inf_mpmc_queue_2۰name۰data) ∗
-      inv γ.(inf_mpmc_queue_2۰name۰inv) (inv۰inner t γ).
+    Definition inf_queue_mpmc_2۰inv t γ ι : iProp Σ :=
+      ⌜ι = γ.(inf_queue_mpmc_2۰name۰inv)⌝ ∗
+      t.[data] ↦□ γ.(inf_queue_mpmc_2۰name۰data) ∗
+      t.[proph] ↦□ #γ.(inf_queue_mpmc_2۰name۰prophet) ∗
+      inf_array۰inv γ.(inf_queue_mpmc_2۰name۰data) ∗
+      inv γ.(inf_queue_mpmc_2۰name۰inv) (inv۰inner t γ).
     #[local] Instance : CustomIpat "inv" :=
       " ( ->
         & #Ht_data
@@ -487,14 +487,14 @@ Module base.
         )
       ".
 
-    Definition inf_mpmc_queue_2۰model :=
+    Definition inf_queue_mpmc_2۰model :=
       model₁.
     #[local] Instance : CustomIpat "model" :=
       " Hmodel₁{_{}}
       ".
 
-    #[global] Instance inf_mpmc_queue_2۰modelｰtimeless γ vs :
-      Timeless (inf_mpmc_queue_2۰model γ vs).
+    #[global] Instance inf_queue_mpmc_2۰modelｰtimeless γ vs :
+      Timeless (inf_queue_mpmc_2۰model γ vs).
     Proof.
       apply _.
     Qed.
@@ -529,8 +529,8 @@ Module base.
     Proof.
       destruct slot; apply _.
     Qed.
-    #[global] Instance inf_mpmc_queue_2۰invｰpersistent t γ ι :
-      Persistent (inf_mpmc_queue_2۰inv t γ ι).
+    #[global] Instance inf_queue_mpmc_2۰invｰpersistent t γ ι :
+      Persistent (inf_queue_mpmc_2۰inv t γ ι).
     Proof.
       apply _.
     Qed.
@@ -812,26 +812,26 @@ Module base.
       destruct slot; iSteps.
     Qed.
 
-    Lemma inf_mpmc_queue_2۰modelｰexclusive γ vs1 vs2 :
-      inf_mpmc_queue_2۰model γ vs1 -∗
-      inf_mpmc_queue_2۰model γ vs2 -∗
+    Lemma inf_queue_mpmc_2۰modelｰexclusive γ vs1 vs2 :
+      inf_queue_mpmc_2۰model γ vs1 -∗
+      inf_queue_mpmc_2۰model γ vs2 -∗
       False.
     Proof.
       iIntros "(:model =1) (:model =2)".
       iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
     Qed.
 
-    Lemma inf_mpmc_queue_2٠createｰspec ι :
+    Lemma inf_queue_mpmc_2٠createｰspec ι :
       {{{
         True
       }}}
-        inf_mpmc_queue_2٠create ()
+        inf_queue_mpmc_2٠create ()
       {{{
         t γ
       , RET #t;
         meta_token t ⊤ ∗
-        inf_mpmc_queue_2۰inv t γ ι ∗
-        inf_mpmc_queue_2۰model γ []
+        inf_queue_mpmc_2۰inv t γ ι ∗
+        inf_queue_mpmc_2۰model γ []
       }}}.
     Proof.
       iIntros "%Φ _ HΦ".
@@ -848,30 +848,30 @@ Module base.
       iMod consumersｰalloc as "(%γ_consumers & Hconsumers_auth)".
 
       pose γ :=
-        {|inf_mpmc_queue_2۰name۰data := data
-        ; inf_mpmc_queue_2۰name۰inv := ι
-        ; inf_mpmc_queue_2۰name۰prophet := pid
-        ; inf_mpmc_queue_2۰name۰prophet_name := γ_prophet
-        ; inf_mpmc_queue_2۰name۰model := γ_model
-        ; inf_mpmc_queue_2۰name۰history := γ_history
-        ; inf_mpmc_queue_2۰name۰lstates := γ_lstates
-        ; inf_mpmc_queue_2۰name۰producers := γ_producers
-        ; inf_mpmc_queue_2۰name۰consumers := γ_consumers
+        {|inf_queue_mpmc_2۰name۰data := data
+        ; inf_queue_mpmc_2۰name۰inv := ι
+        ; inf_queue_mpmc_2۰name۰prophet := pid
+        ; inf_queue_mpmc_2۰name۰prophet_name := γ_prophet
+        ; inf_queue_mpmc_2۰name۰model := γ_model
+        ; inf_queue_mpmc_2۰name۰history := γ_history
+        ; inf_queue_mpmc_2۰name۰lstates := γ_lstates
+        ; inf_queue_mpmc_2۰name۰producers := γ_producers
+        ; inf_queue_mpmc_2۰name۰consumers := γ_consumers
         |}.
 
       iApply ("HΦ" $! t γ).
       iFrameSteps. iExists (λ _, Nothing). iSteps. iExists []. iSteps.
     Qed.
 
-    Lemma inf_mpmc_queue_2٠sizeｰspec t γ ι :
+    Lemma inf_queue_mpmc_2٠sizeｰspec t γ ι :
       <<<
-        inf_mpmc_queue_2۰inv t γ ι
+        inf_queue_mpmc_2۰inv t γ ι
       | ∀∀ vs,
-        inf_mpmc_queue_2۰model γ vs
+        inf_queue_mpmc_2۰model γ vs
       >>>
-        inf_mpmc_queue_2٠size #t @ ↑ι
+        inf_queue_mpmc_2٠size #t @ ↑ι
       <<<
-        inf_mpmc_queue_2۰model γ vs
+        inf_queue_mpmc_2۰model γ vs
       | sz,
         RET #sz;
         ⌜length vs ≤ sz⌝
@@ -951,15 +951,15 @@ Module base.
         iSteps.
     Qed.
 
-    Lemma inf_mpmc_queue_2٠is_emptyｰspec t γ ι :
+    Lemma inf_queue_mpmc_2٠is_emptyｰspec t γ ι :
       <<<
-        inf_mpmc_queue_2۰inv t γ ι
+        inf_queue_mpmc_2۰inv t γ ι
       | ∀∀ vs,
-        inf_mpmc_queue_2۰model γ vs
+        inf_queue_mpmc_2۰model γ vs
       >>>
-        inf_mpmc_queue_2٠is_empty #t @ ↑ι
+        inf_queue_mpmc_2٠is_empty #t @ ↑ι
       <<<
-        inf_mpmc_queue_2۰model γ vs
+        inf_queue_mpmc_2۰model γ vs
       | b,
         RET #b;
         ⌜if b then vs = [] else True⌝
@@ -969,22 +969,22 @@ Module base.
 
       wp۰rec.
 
-      awp۰apply (inf_mpmc_queue_2٠sizeｰspec with "Hinv").
+      awp۰apply (inf_queue_mpmc_2٠sizeｰspec with "Hinv").
       iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel"; iSteps. iPureIntro.
       case_bool_decide as Hlength; last done.
       apply nil_length_inv. lia.
     Qed.
 
-    Lemma inf_mpmc_queue_2٠pushｰspec t γ ι v :
+    Lemma inf_queue_mpmc_2٠pushｰspec t γ ι v :
       <<<
-        inf_mpmc_queue_2۰inv t γ ι
+        inf_queue_mpmc_2۰inv t γ ι
       | ∀∀ vs,
-        inf_mpmc_queue_2۰model γ vs
+        inf_queue_mpmc_2۰model γ vs
       >>>
-        inf_mpmc_queue_2٠push #t v @ ↑ι
+        inf_queue_mpmc_2٠push #t v @ ↑ι
       <<<
-        inf_mpmc_queue_2۰model γ (vs ++ [v])
+        inf_queue_mpmc_2۰model γ (vs ++ [v])
       | RET ();
         True
       >>>.
@@ -1218,17 +1218,17 @@ Module base.
           iSteps.
     Qed.
 
-    Lemma inf_mpmc_queue_2٠popｰspec t γ ι :
+    Lemma inf_queue_mpmc_2٠popｰspec t γ ι :
       <<<
-        inf_mpmc_queue_2۰inv t γ ι
+        inf_queue_mpmc_2۰inv t γ ι
       | ∀∀ vs,
-        inf_mpmc_queue_2۰model γ vs
+        inf_queue_mpmc_2۰model γ vs
       >>>
-        inf_mpmc_queue_2٠pop #t @ ↑ι
+        inf_queue_mpmc_2٠pop #t @ ↑ι
       <<<
         ∃∃ v vs',
         ⌜vs = v :: vs'⌝ ∗
-        inf_mpmc_queue_2۰model γ vs'
+        inf_queue_mpmc_2۰model γ vs'
       | RET v;
         True
       >>>.
@@ -1455,25 +1455,25 @@ Module base.
 
         + iDestruct (consumers۰lbｰvalid with "Hconsumers_auth Hlstate") as %?. lia.
     Qed.
-  End inf_mpmc_queue_2۰G.
+  End inf_queue_mpmc_2۰G.
 
-  #[global] Opaque inf_mpmc_queue_2۰inv.
-  #[global] Opaque inf_mpmc_queue_2۰model.
+  #[global] Opaque inf_queue_mpmc_2۰inv.
+  #[global] Opaque inf_queue_mpmc_2۰model.
 End base.
 
-Require zoo_saturn.inf_mpmc_queue_2__opaque.
+Require zoo_saturn.inf_queue_mpmc_2__opaque.
 
-Section inf_mpmc_queue_2۰G.
-  Context `{inf_mpmc_queue_2۰G : InfMpmcQueue2G Σ}.
+Section inf_queue_mpmc_2۰G.
+  Context `{inf_queue_mpmc_2۰G : InfQueueMpmc2G Σ}.
 
   Implicit Type 𝑡 : location.
   Implicit Type t : val.
 
-  Definition inf_mpmc_queue_2۰inv t ι : iProp Σ :=
+  Definition inf_queue_mpmc_2۰inv t ι : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    base.inf_mpmc_queue_2۰inv 𝑡 γ ι.
+    base.inf_queue_mpmc_2۰inv 𝑡 γ ι.
   #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{}
       & %γ{}
@@ -1483,11 +1483,11 @@ Section inf_mpmc_queue_2۰G.
       )
     ".
 
-  Definition inf_mpmc_queue_2۰model t vs : iProp Σ :=
+  Definition inf_queue_mpmc_2۰model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    base.inf_mpmc_queue_2۰model γ vs.
+    base.inf_queue_mpmc_2۰model γ vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{}
       & %γ{}
@@ -1497,57 +1497,57 @@ Section inf_mpmc_queue_2۰G.
       )
     ".
 
-  #[global] Instance inf_mpmc_queue_2۰modelｰtimeless t vs :
-    Timeless (inf_mpmc_queue_2۰model t vs).
+  #[global] Instance inf_queue_mpmc_2۰modelｰtimeless t vs :
+    Timeless (inf_queue_mpmc_2۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance inf_mpmc_queue_2۰invｰpersistent t ι :
-    Persistent (inf_mpmc_queue_2۰inv t ι).
+  #[global] Instance inf_queue_mpmc_2۰invｰpersistent t ι :
+    Persistent (inf_queue_mpmc_2۰inv t ι).
   Proof.
     apply _.
   Qed.
 
-  Lemma inf_mpmc_queue_2۰modelｰexclusive t vs1 vs2 :
-    inf_mpmc_queue_2۰model t vs1 -∗
-    inf_mpmc_queue_2۰model t vs2 -∗
+  Lemma inf_queue_mpmc_2۰modelｰexclusive t vs1 vs2 :
+    inf_queue_mpmc_2۰model t vs1 -∗
+    inf_queue_mpmc_2۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.inf_mpmc_queue_2۰modelｰexclusive with "Hmodel_1 Hmodel_2").
+    iApply (base.inf_queue_mpmc_2۰modelｰexclusive with "Hmodel_1 Hmodel_2").
   Qed.
 
-  Lemma inf_mpmc_queue_2٠createｰspec ι :
+  Lemma inf_queue_mpmc_2٠createｰspec ι :
     {{{
       True
     }}}
-      inf_mpmc_queue_2٠create ()
+      inf_queue_mpmc_2٠create ()
     {{{
       t
     , RET t;
-      inf_mpmc_queue_2۰inv t ι ∗
-      inf_mpmc_queue_2۰model t []
+      inf_queue_mpmc_2۰inv t ι ∗
+      inf_queue_mpmc_2۰model t []
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
 
     iApply wpｰfupd.
-    wp۰apply (base.inf_mpmc_queue_2٠createｰspec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
+    wp۰apply (base.inf_queue_mpmc_2٠createｰspec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
     iMod (metaｰset γ with "Hmeta"); first done.
     iSteps.
   Qed.
 
-  Lemma inf_mpmc_queue_2٠sizeｰspec t ι :
+  Lemma inf_queue_mpmc_2٠sizeｰspec t ι :
     <<<
-      inf_mpmc_queue_2۰inv t ι
+      inf_queue_mpmc_2۰inv t ι
     | ∀∀ vs,
-      inf_mpmc_queue_2۰model t vs
+      inf_queue_mpmc_2۰model t vs
     >>>
-      inf_mpmc_queue_2٠size t @ ↑ι
+      inf_queue_mpmc_2٠size t @ ↑ι
     <<<
-      inf_mpmc_queue_2۰model t vs
+      inf_queue_mpmc_2۰model t vs
     | sz,
       RET #sz;
       ⌜length vs ≤ sz⌝
@@ -1555,22 +1555,22 @@ Section inf_mpmc_queue_2۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.inf_mpmc_queue_2٠sizeｰspec with "[$]").
+    awp۰apply (base.inf_queue_mpmc_2٠sizeｰspec with "[$]").
     { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma inf_mpmc_queue_2٠is_emptyｰspec t ι :
+  Lemma inf_queue_mpmc_2٠is_emptyｰspec t ι :
     <<<
-      inf_mpmc_queue_2۰inv t ι
+      inf_queue_mpmc_2۰inv t ι
     | ∀∀ vs,
-      inf_mpmc_queue_2۰model t vs
+      inf_queue_mpmc_2۰model t vs
     >>>
-      inf_mpmc_queue_2٠is_empty t @ ↑ι
+      inf_queue_mpmc_2٠is_empty t @ ↑ι
     <<<
-      inf_mpmc_queue_2۰model t vs
+      inf_queue_mpmc_2۰model t vs
     | b,
       RET #b;
       ⌜if b then vs = [] else True⌝
@@ -1578,59 +1578,59 @@ Section inf_mpmc_queue_2۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.inf_mpmc_queue_2٠is_emptyｰspec with "[$]").
+    awp۰apply (base.inf_queue_mpmc_2٠is_emptyｰspec with "[$]").
     { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma inf_mpmc_queue_2٠pushｰspec t ι v :
+  Lemma inf_queue_mpmc_2٠pushｰspec t ι v :
     <<<
-      inf_mpmc_queue_2۰inv t ι
+      inf_queue_mpmc_2۰inv t ι
     | ∀∀ vs,
-      inf_mpmc_queue_2۰model t vs
+      inf_queue_mpmc_2۰model t vs
     >>>
-      inf_mpmc_queue_2٠push t v @ ↑ι
+      inf_queue_mpmc_2٠push t v @ ↑ι
     <<<
-      inf_mpmc_queue_2۰model t (vs ++ [v])
+      inf_queue_mpmc_2۰model t (vs ++ [v])
     | RET ();
       True
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.inf_mpmc_queue_2٠pushｰspec with "[$]").
+    awp۰apply (base.inf_queue_mpmc_2٠pushｰspec with "[$]").
     { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma inf_mpmc_queue_2٠popｰspec t ι :
+  Lemma inf_queue_mpmc_2٠popｰspec t ι :
     <<<
-      inf_mpmc_queue_2۰inv t ι
+      inf_queue_mpmc_2۰inv t ι
     | ∀∀ vs,
-      inf_mpmc_queue_2۰model t vs
+      inf_queue_mpmc_2۰model t vs
     >>>
-      inf_mpmc_queue_2٠pop t @ ↑ι
+      inf_queue_mpmc_2٠pop t @ ↑ι
     <<<
       ∃∃ v vs',
       ⌜vs = v :: vs'⌝ ∗
-      inf_mpmc_queue_2۰model t vs'
+      inf_queue_mpmc_2۰model t vs'
     | RET v;
       True
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.inf_mpmc_queue_2٠popｰspec with "[$]").
+    awp۰apply (base.inf_queue_mpmc_2٠popｰspec with "[$]").
     { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
-End inf_mpmc_queue_2۰G.
+End inf_queue_mpmc_2۰G.
 
-#[global] Opaque inf_mpmc_queue_2۰inv.
-#[global] Opaque inf_mpmc_queue_2۰model.
+#[global] Opaque inf_queue_mpmc_2۰inv.
+#[global] Opaque inf_queue_mpmc_2۰model.
