@@ -7,8 +7,8 @@ Require Import zoo.iris.base_logic.lib.auth_nat_max.
 Require Import zoo.base.
 Require Import zoo.program_logic.prophet_bool.
 Require Import zoo_std.option.
-Require Export zoo_saturn.mpmc_queue_2__code.
-Require Import zoo_saturn.mpmc_queue_2__types.
+Require Export zoo_saturn.queue_mpmc_2__code.
+Require Import zoo_saturn.queue_mpmc_2__types.
 Require Import zoo.options.
 
 Implicit Type strong : bool.
@@ -121,20 +121,20 @@ Proof.
   apply stepｰmono.
 Qed.
 
-Class MpmcQueue2G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] mpmc_queue_2۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
-  ; #[local] mpmc_queue_2۰G۰state۰G :: AuthMonoG (A := leibnizO state) Σ step
-  ; #[local] mpmc_queue_2۰G۰front۰G :: AuthNatMaxG Σ
+Class QueueMpmc2G Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] queue_mpmc_2۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
+  ; #[local] queue_mpmc_2۰G۰state۰G :: AuthMonoG (A := leibnizO state) Σ step
+  ; #[local] queue_mpmc_2۰G۰front۰G :: AuthNatMaxG Σ
   }.
 
-Definition mpmc_queue_2۰Σ :=
+Definition queue_mpmc_2۰Σ :=
   #[twins۰Σ (leibnizO (list val))
   ; auth_mono۰Σ (A := leibnizO state) step
   ; auth_nat_max۰Σ
   ].
-#[global] Instance subGｰmpmc_queue_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG mpmc_queue_2۰Σ Σ →
-  MpmcQueue2G Σ.
+#[global] Instance subGｰqueue_mpmc_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG queue_mpmc_2۰Σ Σ →
+  QueueMpmc2G Σ.
 Proof.
   solve_inG.
 Qed.
@@ -208,8 +208,8 @@ Proof.
   apply prefix۰to_valｰinj. done.
 Qed.
 
-Section mpmc_queue_2۰G.
-  Context `{mpmc_queue_2۰G : MpmcQueue2G Σ}.
+Section queue_mpmc_2۰G.
+  Context `{queue_mpmc_2۰G : QueueMpmc2G Σ}.
 
   Record metadata :=
     { metadata۰inv : namespace
@@ -431,7 +431,7 @@ Section mpmc_queue_2۰G.
     ".
   #[local] Definition inv' l γ : iProp Σ :=
     inv γ.(metadata۰inv) (inv۰inner false l γ).
-  Definition mpmc_queue_2۰inv t ι : iProp Σ :=
+  Definition queue_mpmc_2۰inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata۰inv)⌝ ∗
@@ -447,7 +447,7 @@ Section mpmc_queue_2۰G.
       )
     ".
 
-  Definition mpmc_queue_2۰model t vs : iProp Σ :=
+  Definition queue_mpmc_2۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -471,8 +471,8 @@ Section mpmc_queue_2۰G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpmc_queue_2۰modelｰtimeless t vs :
-    Timeless (mpmc_queue_2۰model t vs).
+  #[global] Instance queue_mpmc_2۰modelｰtimeless t vs :
+    Timeless (queue_mpmc_2۰model t vs).
   Proof.
     apply _.
   Qed.
@@ -482,8 +482,8 @@ Section mpmc_queue_2۰G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpmc_queue_2۰invｰpersistent t ι :
-    Persistent (mpmc_queue_2۰inv t ι).
+  #[global] Instance queue_mpmc_2۰invｰpersistent t ι :
+    Persistent (queue_mpmc_2۰inv t ι).
   Proof.
     apply _.
   Qed.
@@ -529,7 +529,7 @@ Section mpmc_queue_2۰G.
       ; state۰index := 0
       ; state۰status := Unstable back []
       |}.
-    iMod (auth_monoｰalloc _ (auth_mono۰G := mpmc_queue_2۰G۰state۰G) state) as "(%γ_state & $)".
+    iMod (auth_monoｰalloc _ (auth_mono۰G := queue_mpmc_2۰G۰state۰G) state) as "(%γ_state & $)".
     iSteps.
   Qed.
   #[local] Lemma state۰authｰwf γ backs i status :
@@ -807,9 +807,9 @@ Section mpmc_queue_2۰G.
     iFrameSteps.
   Qed.
 
-  Lemma mpmc_queue_2۰modelｰexclusive t vs1 vs2 :
-    mpmc_queue_2۰model t vs1 -∗
-    mpmc_queue_2۰model t vs2 -∗
+  Lemma queue_mpmc_2۰modelｰexclusive t vs1 vs2 :
+    queue_mpmc_2۰model t vs1 -∗
+    queue_mpmc_2۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simp.
@@ -817,11 +817,11 @@ Section mpmc_queue_2۰G.
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  #[local] Lemma mpmc_queue_2٠suffix_indexｰspec (i : nat) vs :
+  #[local] Lemma queue_mpmc_2٠suffix_indexｰspec (i : nat) vs :
     {{{
       True
     }}}
-      mpmc_queue_2٠suffix_index (suffix۰to_val i vs)
+      queue_mpmc_2٠suffix_index (suffix۰to_val i vs)
     {{{
       RET #i;
       True
@@ -830,12 +830,12 @@ Section mpmc_queue_2۰G.
     destruct vs; iSteps.
   Qed.
 
-  #[local] Lemma mpmc_queue_2٠prefix_indexｰspec (i : nat) back vs :
+  #[local] Lemma queue_mpmc_2٠prefix_indexｰspec (i : nat) back vs :
     {{{
       back ↦ₕ Header §Back 2 ∗
       back.[index] ↦□ #i
     }}}
-      mpmc_queue_2٠prefix_index (prefix۰to_val i back vs)
+      queue_mpmc_2٠prefix_index (prefix۰to_val i back vs)
     {{{
       RET #⁺(i + length vs);
       True
@@ -850,12 +850,12 @@ Section mpmc_queue_2۰G.
     all: iSteps.
   Qed.
 
-  #[local] Lemma mpmc_queue_2٠rev₁ｰspec i vs1 vs2 back :
+  #[local] Lemma queue_mpmc_2٠rev₁ｰspec i vs1 vs2 back :
     0 < length vs1 →
     {{{
       back ↦ₕ Header §Back 2
     }}}
-      mpmc_queue_2٠rev₁ (suffix۰to_val (i + ˖(length vs2)) vs1) (prefix۰to_val i back vs2)
+      queue_mpmc_2٠rev₁ (suffix۰to_val (i + ˖(length vs2)) vs1) (prefix۰to_val i back vs2)
     {{{
       RET suffix۰to_val ˖i (reverse vs2 ++ vs1);
       True
@@ -875,12 +875,12 @@ Section mpmc_queue_2۰G.
       { simpl. lia. }
       rewrite reverse_cons -assoc //.
   Qed.
-  #[local] Lemma mpmc_queue_2٠revｰspec i back vs :
+  #[local] Lemma queue_mpmc_2٠revｰspec i back vs :
     0 < length vs →
     {{{
       back ↦ₕ Header §Back 2
     }}}
-      mpmc_queue_2٠rev (prefix۰to_val i back vs)
+      queue_mpmc_2٠rev (prefix۰to_val i back vs)
     {{{
       RET suffix۰to_val ˖i (reverse vs);
       True
@@ -892,20 +892,20 @@ Section mpmc_queue_2۰G.
     destruct vs as [| v vs]; first naive_solver lia.
     wp۰pures.
     rewrite Z.add_1_r -Nat2Z.inj_succ.
-    wp۰apply (mpmc_queue_2٠rev₁ｰspec i [v] with "Hback_header"); first auto.
+    wp۰apply (queue_mpmc_2٠rev₁ｰspec i [v] with "Hback_header"); first auto.
     rewrite reverse_cons //.
   Qed.
 
-  Lemma mpmc_queue_2٠createｰspec ι :
+  Lemma queue_mpmc_2٠createｰspec ι :
     {{{
       True
     }}}
-      mpmc_queue_2٠create ()
+      queue_mpmc_2٠create ()
     {{{
       t
     , RET t;
-      mpmc_queue_2۰inv t ι ∗
-      mpmc_queue_2۰model t []
+      queue_mpmc_2۰inv t ι ∗
+      queue_mpmc_2۰model t []
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -1074,15 +1074,15 @@ Section mpmc_queue_2۰G.
         iStep. iRight. iSteps.
   Qed.
 
-  Lemma mpmc_queue_2٠sizeｰspec t ι :
+  Lemma queue_mpmc_2٠sizeｰspec t ι :
     <<<
-      mpmc_queue_2۰inv t ι
+      queue_mpmc_2۰inv t ι
     | ∀∀ vs,
-      mpmc_queue_2۰model t vs
+      queue_mpmc_2۰model t vs
     >>>
-      mpmc_queue_2٠size t @ ↑ι
+      queue_mpmc_2٠size t @ ↑ι
     <<<
-      mpmc_queue_2۰model t vs
+      queue_mpmc_2۰model t vs
     | RET #(length vs);
       True
     >>>.
@@ -1136,8 +1136,8 @@ Section mpmc_queue_2۰G.
       wp۰equal as _ | (-> & ->)%(inj2 _).
       all: wp۰apply+ (prophet_typed₁ｰwpｰresolve with "Hproph"); [done.. |].
       all: iStep 12.
-      wp۰apply (mpmc_queue_2٠suffix_indexｰspec with "[//]") as "_".
-      wp۰apply (mpmc_queue_2٠prefix_indexｰspec with "[$]") as "_".
+      wp۰apply (queue_mpmc_2٠suffix_indexｰspec with "[//]") as "_".
+      wp۰apply (queue_mpmc_2٠prefix_indexｰspec with "[$]") as "_".
       wp۰pures.
 
       replace (⁺(i_back2 + length vs_back2) - i_front1 + 1)%Z with ⁺(length vs2) by lia.
@@ -1152,15 +1152,15 @@ Section mpmc_queue_2۰G.
       all: iSteps.
   Qed.
 
-  Lemma mpmc_queue_2٠is_emptyｰspec t ι :
+  Lemma queue_mpmc_2٠is_emptyｰspec t ι :
     <<<
-      mpmc_queue_2۰inv t ι
+      queue_mpmc_2۰inv t ι
     | ∀∀ vs,
-      mpmc_queue_2۰model t vs
+      queue_mpmc_2۰model t vs
     >>>
-      mpmc_queue_2٠is_empty t @ ↑ι
+      queue_mpmc_2٠is_empty t @ ↑ι
     <<<
-      mpmc_queue_2۰model t vs
+      queue_mpmc_2۰model t vs
     | RET #(bool_decide (vs = []%list));
       True
     >>>.
@@ -1169,18 +1169,18 @@ Section mpmc_queue_2۰G.
 
     wp۰rec.
 
-    awp۰apply (mpmc_queue_2٠sizeｰspec with "Hinv").
+    awp۰apply (queue_mpmc_2٠sizeｰspec with "Hinv").
     iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; iSteps.
     destruct vs; iSteps.
   Qed.
 
-  #[local] Lemma mpmc_queue_2٠finishｰspec {l γ} i_back back :
+  #[local] Lemma queue_mpmc_2٠finishｰspec {l γ} i_back back :
     {{{
       inv' l γ ∗
       state۰at γ back i_back
     }}}
-      mpmc_queue_2٠finish #back
+      queue_mpmc_2٠finish #back
     {{{
       RET ();
       True
@@ -1203,14 +1203,14 @@ Section mpmc_queue_2۰G.
     iFrameSteps.
   Qed.
 
-  #[local] Lemma mpmc_queue_2٠helpｰspec {l γ backs i back_prev back} move :
+  #[local] Lemma queue_mpmc_2٠helpｰspec {l γ backs i back_prev back} move :
     0 < length move →
     {{{
       inv' l γ ∗
       state۰lb γ backs i (Unstable back move) ∗
       back_prev ↦ₕ Header §Back 2
     }}}
-      mpmc_queue_2٠help #l #back #⁺(i + length move) (prefix۰to_val i back_prev move)
+      queue_mpmc_2٠help #l #back #⁺(i + length move) (prefix۰to_val i back_prev move)
     {{{
       RET ();
       True
@@ -1238,7 +1238,7 @@ Section mpmc_queue_2۰G.
 
         wp۰pures.
         rewrite bool_decide_eq_true_2; first lia.
-        wp۰apply+ (mpmc_queue_2٠finishｰspec with "[$] HΦ").
+        wp۰apply+ (queue_mpmc_2٠finishｰspec with "[$] HΦ").
 
       + iDestruct (state۰lbｰunstabilized with "Hstate_auth Hstate_lb") as %(-> & -> & ->); first lia.
 
@@ -1247,7 +1247,7 @@ Section mpmc_queue_2۰G.
 
         wp۰pures.
         rewrite bool_decide_eq_false_2; first lia.
-        wp۰apply+ (mpmc_queue_2٠revｰspec with "Hback_prev_header") as "_"; first lia.
+        wp۰apply+ (queue_mpmc_2٠revｰspec with "Hback_prev_header") as "_"; first lia.
         wp۰pures.
 
         wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
@@ -1273,7 +1273,7 @@ Section mpmc_queue_2۰G.
           }
           iIntros "!> {%}".
 
-          wp۰apply+ (mpmc_queue_2٠finishｰspec with "[$] HΦ").
+          wp۰apply+ (queue_mpmc_2٠finishｰspec with "[$] HΦ").
 
     - iAssert ⌜status1 ≠ Unstable back move⌝%I as %Hstabilized.
       { iIntros (->).
@@ -1284,10 +1284,10 @@ Section mpmc_queue_2۰G.
       iSplitR "HΦ". { iFrameSteps. }
       iIntros "!> {%}".
 
-      wp۰apply+ (mpmc_queue_2٠finishｰspec with "[$] HΦ").
+      wp۰apply+ (queue_mpmc_2٠finishｰspec with "[$] HΦ").
   Qed.
 
-  #[local] Lemma mpmc_queue_2٠pushｰspecｰaux l γ v :
+  #[local] Lemma queue_mpmc_2٠pushｰspecｰaux l γ v :
     ⊢ (
       ∀ back i ws (j : Z),
       <<<
@@ -1297,7 +1297,7 @@ Section mpmc_queue_2۰G.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        mpmc_queue_2٠push_aux #l v #j (prefix۰to_val i back ws) @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠push_aux #l v #j (prefix۰to_val i back ws) @ ↑γ.(metadata۰inv)
       <<<
         model₁ γ (vs ++ [v])
       | RET ();
@@ -1309,7 +1309,7 @@ Section mpmc_queue_2۰G.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        mpmc_queue_2٠push #l v @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠push #l v @ ↑γ.(metadata۰inv)
       <<<
         model₁ γ (vs ++ [v])
       | RET ();
@@ -1424,7 +1424,7 @@ Section mpmc_queue_2۰G.
 
         + destruct move as [| w move]; first naive_solver lia.
 
-          wp۰apply+ (mpmc_queue_2٠helpｰspec with "[$]"); first done.
+          wp۰apply+ (queue_mpmc_2٠helpｰspec with "[$]"); first done.
           iSteps.
 
       - iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty1 & -> & (:inv۰status۰stable =1))"; first naive_solver lia.
@@ -1436,28 +1436,28 @@ Section mpmc_queue_2۰G.
         iSteps.
     }
   Qed.
-  Lemma mpmc_queue_2٠pushｰspec t v ι :
+  Lemma queue_mpmc_2٠pushｰspec t v ι :
     <<<
-      mpmc_queue_2۰inv t ι
+      queue_mpmc_2۰inv t ι
     | ∀∀ vs,
-      mpmc_queue_2۰model t vs
+      queue_mpmc_2۰model t vs
     >>>
-      mpmc_queue_2٠push t v @ ↑ι
+      queue_mpmc_2٠push t v @ ↑ι
     <<<
-      mpmc_queue_2۰model t (vs ++ [v])
+      queue_mpmc_2۰model t (vs ++ [v])
     | RET ();
       True
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (mpmc_queue_2٠pushｰspecｰaux with "Hinv").
+    awp۰apply (queue_mpmc_2٠pushｰspecｰaux with "Hinv").
     iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hmodel₁"; iSteps.
   Qed.
 
-  #[local] Lemma mpmc_queue_2٠popｰspecｰaux l γ :
+  #[local] Lemma queue_mpmc_2٠popｰspecｰaux l γ :
     ⊢ (
       ∀ i_front vs_front,
       <<<
@@ -1466,7 +1466,7 @@ Section mpmc_queue_2۰G.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        mpmc_queue_2٠pop_1 #l (suffix۰to_val i_front vs_front) @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠pop_1 #l (suffix۰to_val i_front vs_front) @ ↑γ.(metadata۰inv)
       <<<
         ∃∃ o,
         match o with
@@ -1491,7 +1491,7 @@ Section mpmc_queue_2۰G.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        mpmc_queue_2٠pop_2 #l ’Front[ #i_front ] #back (prefix۰to_val i back_prev move) @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠pop_2 #l ’Front[ #i_front ] #back (prefix۰to_val i back_prev move) @ ↑γ.(metadata۰inv)
       <<<
         ∃∃ o,
         match o with
@@ -1512,7 +1512,7 @@ Section mpmc_queue_2۰G.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        mpmc_queue_2٠pop_3 #l ’Front[ #i_front ] @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠pop_3 #l ’Front[ #i_front ] @ ↑γ.(metadata۰inv)
       <<<
         ∃∃ o,
         match o with
@@ -1532,7 +1532,7 @@ Section mpmc_queue_2۰G.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        mpmc_queue_2٠pop #l @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠pop #l @ ↑γ.(metadata۰inv)
       <<<
         ∃∃ o,
         match o with
@@ -1690,7 +1690,7 @@ Section mpmc_queue_2۰G.
       iIntros "%i_front %backs %back %i %back_prev %move %Φ (%Hmove & %Hi_front & #Hinv & #Hstate_lb & #Hback_prev_header) HΦ".
 
       wp۰rec.
-      wp۰apply+ (mpmc_queue_2٠revｰspec with "[$]") as "_"; first lia.
+      wp۰apply+ (queue_mpmc_2٠revｰspec with "[$]") as "_"; first lia.
       destruct move as [| v move _] using rev_ind; first naive_solver lia.
       rewrite reverse_snoc /=. wp۰pures.
 
@@ -1727,7 +1727,7 @@ Section mpmc_queue_2۰G.
         }
         iIntros "!> {%}".
 
-        wp۰apply+ (mpmc_queue_2٠finishｰspec with "[$]").
+        wp۰apply+ (queue_mpmc_2٠finishｰspec with "[$]").
         iSteps.
     }
 
@@ -1751,22 +1751,22 @@ Section mpmc_queue_2۰G.
       iSteps.
     }
   Qed.
-  Lemma mpmc_queue_2٠popｰspec t ι :
+  Lemma queue_mpmc_2٠popｰspec t ι :
     <<<
-      mpmc_queue_2۰inv t ι
+      queue_mpmc_2۰inv t ι
     | ∀∀ vs,
-      mpmc_queue_2۰model t vs
+      queue_mpmc_2۰model t vs
     >>>
-      mpmc_queue_2٠pop t @ ↑ι
+      queue_mpmc_2٠pop t @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
-          mpmc_queue_2۰model t vs
+          queue_mpmc_2۰model t vs
       | Some v =>
           ∃ vs',
           ⌜vs = v :: vs'⌝ ∗
-          mpmc_queue_2۰model t vs'
+          queue_mpmc_2۰model t vs'
       end
     | RET o;
       True
@@ -1774,7 +1774,7 @@ Section mpmc_queue_2۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (mpmc_queue_2٠popｰspecｰaux with "Hinv").
+    awp۰apply (queue_mpmc_2٠popｰspecｰaux with "Hinv").
     iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hmodel₁"; first iSteps. iIntros (o) "Hmodel₁ !>".
@@ -1782,9 +1782,9 @@ Section mpmc_queue_2۰G.
     iDestruct "Hmodel₁" as "(%vs' & -> & Hmodel₁)".
     iSteps.
   Qed.
-End mpmc_queue_2۰G.
+End queue_mpmc_2۰G.
 
-Require zoo_saturn.mpmc_queue_2__opaque.
+Require zoo_saturn.queue_mpmc_2__opaque.
 
-#[global] Opaque mpmc_queue_2۰inv.
-#[global] Opaque mpmc_queue_2۰model.
+#[global] Opaque queue_mpmc_2۰inv.
+#[global] Opaque queue_mpmc_2۰model.

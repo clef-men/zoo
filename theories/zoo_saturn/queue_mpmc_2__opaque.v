@@ -1,0 +1,17 @@
+Require Import zoo_saturn.queue_mpmc_2__code.
+
+#[global] Opaque queue_mpmc_2٠suffix_index.
+#[global] Opaque queue_mpmc_2٠prefix_index.
+#[global] Opaque queue_mpmc_2٠rev₁.
+#[global] Opaque queue_mpmc_2٠rev.
+#[global] Opaque queue_mpmc_2٠create.
+#[global] Opaque queue_mpmc_2٠size.
+#[global] Opaque queue_mpmc_2٠is_empty.
+#[global] Opaque queue_mpmc_2٠finish.
+#[global] Opaque queue_mpmc_2٠help.
+#[global] Opaque queue_mpmc_2٠push_aux.
+#[global] Opaque queue_mpmc_2٠push.
+#[global] Opaque queue_mpmc_2٠pop_1.
+#[global] Opaque queue_mpmc_2٠pop_2.
+#[global] Opaque queue_mpmc_2٠pop_3.
+#[global] Opaque queue_mpmc_2٠pop.
