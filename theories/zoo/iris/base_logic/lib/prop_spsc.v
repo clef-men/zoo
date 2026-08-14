@@ -8,37 +8,37 @@ Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.iris.diaframe.
 Require Import zoo.options.
 
-Class SpscPropG Σ `{inv۰G : !invGS Σ} :=
-  { #[local] spsc_prop۰G۰state۰G :: OneshotG Σ () ()
-  ; #[local] spsc_prop۰G۰consumer۰G :: ExclG Σ unitO
+Class PropSpscG Σ `{inv۰G : !invGS Σ} :=
+  { #[local] prop_spsc۰G۰state۰G :: OneshotG Σ () ()
+  ; #[local] prop_spsc۰G۰consumer۰G :: ExclG Σ unitO
   }.
 
-Definition spsc_prop۰Σ :=
+Definition prop_spsc۰Σ :=
   #[oneshot۰Σ () ()
   ; excl۰Σ unitO
   ].
-#[global] Instance subGｰspsc_prop۰Σ Σ `{inv۰G : !invGS Σ} :
-  subG spsc_prop۰Σ Σ →
-  SpscPropG Σ.
+#[global] Instance subGｰprop_spsc۰Σ Σ `{inv۰G : !invGS Σ} :
+  subG prop_spsc۰Σ Σ →
+  PropSpscG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section spsc_prop۰G.
-  Context `{spsc_prop۰G : SpscPropG Σ}.
+Section prop_spsc۰G.
+  Context `{prop_spsc۰G : PropSpscG Σ}.
 
   Implicit Type P : iProp Σ.
 
-  Record spsc_prop۰name :=
-    { spsc_prop۰name۰state : gname
-    ; spsc_prop۰name۰consumer : gname
+  Record prop_spsc۰name :=
+    { prop_spsc۰name۰state : gname
+    ; prop_spsc۰name۰consumer : gname
     }.
-  Implicit Type γ : spsc_prop۰name.
+  Implicit Type γ : prop_spsc۰name.
 
-  #[global] Instance spsc_prop۰nameｰeq_dec : EqDecision spsc_prop۰name :=
+  #[global] Instance prop_spsc۰nameｰeq_dec : EqDecision prop_spsc۰name :=
     ltac:(solve_decision).
-  #[global] Instance spsc_prop۰nameｰcountable :
-    Countable spsc_prop۰name.
+  #[global] Instance prop_spsc۰nameｰcountable :
+    Countable prop_spsc۰name.
   Proof.
     solve_countable.
   Qed.
@@ -46,20 +46,20 @@ Section spsc_prop۰G.
   #[local] Definition state۰unset₁' γ_state :=
     oneshot۰pending γ_state (DfracOwn (2/3)) ().
   #[local] Definition state۰unset₁ γ :=
-    state۰unset₁' γ.(spsc_prop۰name۰state).
+    state۰unset₁' γ.(prop_spsc۰name۰state).
   #[local] Definition state۰unset₂' γ_state :=
     oneshot۰pending γ_state (DfracOwn (1/3)) ().
   #[local] Definition state۰unset₂ γ :=
-    state۰unset₂' γ.(spsc_prop۰name۰state).
+    state۰unset₂' γ.(prop_spsc۰name۰state).
   #[local] Definition state۰set' γ_state :=
     oneshot۰shot γ_state ().
   #[local] Definition state۰set γ :=
-    state۰set' γ.(spsc_prop۰name۰state).
+    state۰set' γ.(prop_spsc۰name۰state).
 
   #[local] Definition consumer' γ_consumer :=
     excl γ_consumer ().
   #[local] Definition consumer γ :=
-    consumer' γ.(spsc_prop۰name۰consumer).
+    consumer' γ.(prop_spsc۰name۰consumer).
 
   #[local] Definition inv۰consumer γ P : iProp Σ :=
     P ∨ consumer γ.
@@ -81,70 +81,70 @@ Section spsc_prop۰G.
         )
       ]
     ".
-  Definition spsc_prop۰inv γ ι P :=
+  Definition prop_spsc۰inv γ ι P :=
     inv ι (inv۰inner γ P).
   #[local] Instance : CustomIpat "inv" :=
     " #Hinv
     ".
 
-  Definition spsc_prop۰producer :=
+  Definition prop_spsc۰producer :=
     state۰unset₁.
   #[local] Instance : CustomIpat "producer" :=
     " Hstate_unset₁
     ".
 
-  Definition spsc_prop۰consumer :=
+  Definition prop_spsc۰consumer :=
     consumer.
   #[local] Instance : CustomIpat "consumer" :=
     " Hconsumer
     ".
 
-  Definition spsc_prop۰resolved :=
+  Definition prop_spsc۰resolved :=
     state۰set.
   #[local] Instance : CustomIpat "resolved" :=
     " #Hstate_set
     ".
 
-  #[global] Instance spsc_prop۰invｰcontractive γ ι :
-    Contractive (spsc_prop۰inv γ ι).
+  #[global] Instance prop_spsc۰invｰcontractive γ ι :
+    Contractive (prop_spsc۰inv γ ι).
   Proof.
-    rewrite /spsc_prop۰inv /inv۰inner /inv۰consumer.
+    rewrite /prop_spsc۰inv /inv۰inner /inv۰consumer.
     solve_contractive.
   Qed.
-  #[global] Instance spsc_prop۰invｰne γ ι :
-    NonExpansive (spsc_prop۰inv γ ι).
+  #[global] Instance prop_spsc۰invｰne γ ι :
+    NonExpansive (prop_spsc۰inv γ ι).
   Proof.
     apply _.
   Qed.
-  #[global] Instance spsc_prop۰invｰproper γ ι :
-    Proper ((≡) ==> (≡)) (spsc_prop۰inv γ ι).
-  Proof.
-    apply _.
-  Qed.
-
-  #[global] Instance spsc_prop۰producerｰtimeless γ :
-    Timeless (spsc_prop۰producer γ).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance spsc_prop۰consumerｰtimeless γ :
-    Timeless (spsc_prop۰consumer γ).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance spsc_prop۰resolvedｰtimeless γ :
-    Timeless (spsc_prop۰resolved γ).
+  #[global] Instance prop_spsc۰invｰproper γ ι :
+    Proper ((≡) ==> (≡)) (prop_spsc۰inv γ ι).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance spsc_prop۰invｰpersistent γ ι P :
-    Persistent (spsc_prop۰inv γ ι P).
+  #[global] Instance prop_spsc۰producerｰtimeless γ :
+    Timeless (prop_spsc۰producer γ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance spsc_prop۰resolvedｰpersistent γ :
-    Persistent (spsc_prop۰resolved γ).
+  #[global] Instance prop_spsc۰consumerｰtimeless γ :
+    Timeless (prop_spsc۰consumer γ).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance prop_spsc۰resolvedｰtimeless γ :
+    Timeless (prop_spsc۰resolved γ).
+  Proof.
+    apply _.
+  Qed.
+
+  #[global] Instance prop_spsc۰invｰpersistent γ ι P :
+    Persistent (prop_spsc۰inv γ ι P).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance prop_spsc۰resolvedｰpersistent γ :
+    Persistent (prop_spsc۰resolved γ).
   Proof.
     apply _.
   Qed.
@@ -207,53 +207,53 @@ Section spsc_prop۰G.
     apply exclｰexclusive.
   Qed.
 
-  Lemma spsc_propｰalloc ι P E :
+  Lemma prop_spscｰalloc ι P E :
     ⊢ |={E}=>
       ∃ γ,
-      spsc_prop۰inv γ ι P ∗
-      spsc_prop۰producer γ ∗
-      spsc_prop۰consumer γ.
+      prop_spsc۰inv γ ι P ∗
+      prop_spsc۰producer γ ∗
+      prop_spsc۰consumer γ.
   Proof.
     iMod stateｰalloc as "(%γ_state & Hstate_unset₁ & Hstate_unset₂)".
     iMod consumerｰalloc as "(%γ_consumer & Hconsumer)".
     pose γ :=
-      {|spsc_prop۰name۰state := γ_state
-      ; spsc_prop۰name۰consumer := γ_consumer
+      {|prop_spsc۰name۰state := γ_state
+      ; prop_spsc۰name۰consumer := γ_consumer
       |}.
     iExists γ. iFrame.
     iApply inv_alloc.
     iFrame.
   Qed.
 
-  Lemma spsc_prop۰producerｰexclusive γ :
-    spsc_prop۰producer γ -∗
-    spsc_prop۰producer γ -∗
+  Lemma prop_spsc۰producerｰexclusive γ :
+    prop_spsc۰producer γ -∗
+    prop_spsc۰producer γ -∗
     False.
   Proof.
     apply state۰unset₁ｰexclusive.
   Qed.
   Lemma spcc_prop۰producerｰresolved γ :
-    spsc_prop۰producer γ -∗
-    spsc_prop۰resolved γ -∗
+    prop_spsc۰producer γ -∗
+    prop_spsc۰resolved γ -∗
     False.
   Proof.
     apply state۰unset₁ｰset.
   Qed.
 
-  Lemma spsc_prop۰consumerｰexclusive γ :
-    spsc_prop۰consumer γ -∗
-    spsc_prop۰consumer γ -∗
+  Lemma prop_spsc۰consumerｰexclusive γ :
+    prop_spsc۰consumer γ -∗
+    prop_spsc۰consumer γ -∗
     False.
   Proof.
     apply consumerｰexclusive.
   Qed.
 
-  Lemma spsc_propｰproduce γ ι P E :
+  Lemma prop_spscｰproduce γ ι P E :
     ↑ι ⊆ E →
-    spsc_prop۰inv γ ι P -∗
-    spsc_prop۰producer γ -∗
+    prop_spsc۰inv γ ι P -∗
+    prop_spsc۰producer γ -∗
     ▷ P ={E}=∗
-    spsc_prop۰resolved γ.
+    prop_spsc۰resolved γ.
   Proof.
     iIntros "%HE (:inv) (:producer) HP".
     iInv "Hinv" as "(:inv۰inner)".
@@ -261,11 +261,11 @@ Section spsc_prop۰G.
       iSteps.
     - iDestruct (state۰unset₁ｰset with "Hstate_unset₁ Hstate_set") as %[].
   Qed.
-  Lemma spsc_propｰconsume γ ι P E :
+  Lemma prop_spscｰconsume γ ι P E :
     ↑ι ⊆ E →
-    spsc_prop۰inv γ ι P -∗
-    spsc_prop۰consumer γ -∗
-    spsc_prop۰resolved γ ={E}=∗
+    prop_spsc۰inv γ ι P -∗
+    prop_spsc۰consumer γ -∗
+    prop_spsc۰resolved γ ={E}=∗
     ▷ P.
   Proof.
     iIntros "%H (:inv) (:consumer) (:resolved)".
@@ -275,9 +275,9 @@ Section spsc_prop۰G.
       + iFrameSteps.
       + iDestruct (consumerｰexclusive with "Hconsumer Hconsumer_") as %[].
   Qed.
-End spsc_prop۰G.
+End prop_spsc۰G.
 
-#[global] Opaque spsc_prop۰inv.
-#[global] Opaque spsc_prop۰producer.
-#[global] Opaque spsc_prop۰consumer.
-#[global] Opaque spsc_prop۰resolved.
+#[global] Opaque prop_spsc۰inv.
+#[global] Opaque prop_spsc۰producer.
+#[global] Opaque prop_spsc۰consumer.
+#[global] Opaque prop_spsc۰resolved.

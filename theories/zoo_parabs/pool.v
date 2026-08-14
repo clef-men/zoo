@@ -5,7 +5,7 @@ Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.ghost_list.
 Require Import zoo.iris.base_logic.lib.mono_gmultiset.
 Require Import zoo.iris.base_logic.lib.saved_prop.
-Require Import zoo.iris.base_logic.lib.spsc_prop.
+Require Import zoo.iris.base_logic.lib.prop_spsc.
 Require Import zoo.base.
 Require Export zoo_parabs.base.
 Require Export zoo_parabs.pool__code.
@@ -16,7 +16,7 @@ Implicit Type b : bool.
 Implicit Type v ctx hub task notification notify pred ivar waiter : val.
 Implicit Type empty : emptiness.
 Implicit Type own : ownership.
-Implicit Type η : spsc_prop۰name.
+Implicit Type η : prop_spsc۰name.
 Implicit Type ω : gname.
 
 #[local] Definition max_round_noyield :=
@@ -78,7 +78,7 @@ Class PoolG Σ `{zoo۰G : !ZooG Σ} :=
   ; #[local] pool۰G۰saved_prop۰G :: SavedPropG Σ
   ; #[local] pool۰G۰jobs۰G :: MonoGmultisetG Σ job
   ; #[local] pool۰G۰locals۰G :: GhostListG Σ (gmultiset job)
-  ; #[local] pool۰G۰consumer۰G :: SpscPropG Σ
+  ; #[local] pool۰G۰consumer۰G :: PropSpscG Σ
   }.
 
 Definition pool۰Σ :=
@@ -87,7 +87,7 @@ Definition pool۰Σ :=
   ; saved_prop۰Σ
   ; mono_gmultiset۰Σ job
   ; ghost_list۰Σ (gmultiset job)
-  ; spsc_prop۰Σ
+  ; prop_spsc۰Σ
   ].
 #[global] Instance subGｰpool۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG pool۰Σ Σ →
@@ -1007,10 +1007,10 @@ Module base.
     Proof.
       iIntros "%Φ ((:context) & Htask) HΦ".
 
-      iMod (spsc_propｰalloc nroot P) as "(%η & #Hη_inv & Hη_producer & Hη_consumer)".
+      iMod (prop_spscｰalloc nroot P) as "(%η & #Hη_inv & Hη_producer & Hη_consumer)".
       set R := (
         Q ∗
-        spsc_prop۰resolved η
+        prop_spsc۰resolved η
       )%I.
 
       wp۰rec credits:"H£".
@@ -1026,7 +1026,7 @@ Module base.
           congruence.
         - iApply big_sepMS_singleton.
           rewrite Hglobal. iSteps --silent / as "_ _ HQ HP".
-          iMod (spsc_propｰproduce with "Hη_inv Hη_producer HP") as "#Hη_resolved". 1: done.
+          iMod (prop_spscｰproduce with "Hη_inv Hη_producer HP") as "#Hη_resolved". 1: done.
           iFrame "#" => //.
       }
       iIntros "!> Hhub_owner (Hη_consumer & H£ & HΦ)".
@@ -1047,7 +1047,7 @@ Module base.
         iDestruct (lc_weaken 2 with "H£") as "H£". 1: done.
         iDestruct "H£" as "(H£_1 & H£_2)".
         iMod (lc_fupd_elim_later with "H£_1 HR") as "(_ & #Hη_resolved)".
-        iMod (spsc_propｰconsume with "Hη_inv Hη_consumer Hη_resolved") as "HP". 1: done.
+        iMod (prop_spscｰconsume with "Hη_inv Hη_consumer Hη_resolved") as "HP". 1: done.
         iApply (lc_fupd_elim_later with "H£_2 HP").
       } {
         iApply (pool۰obligationｰwand with "Hobligation").
