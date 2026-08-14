@@ -4,8 +4,8 @@ Require Import zoo.common.list.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Export zoo_saturn.mpsc_queue_2__code.
-Require Import zoo_saturn.mpsc_queue_2__types.
+Require Export zoo_saturn.queue_mpsc_2__code.
+Require Import zoo_saturn.queue_mpsc_2__types.
 Require Import zoo.options.
 
 Implicit Type l : location.
@@ -13,22 +13,22 @@ Implicit Type v t : val.
 Implicit Type vs front back : list val.
 Implicit Type o : option val.
 
-Class MpscQueue2G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] mpsc_queue_2۰G۰twins۰G :: TwinsG Σ (leibnizO (list val))
+Class QueueMpsc2G Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] queue_mpsc_2۰G۰twins۰G :: TwinsG Σ (leibnizO (list val))
   }.
 
-Definition mpsc_queue_2۰Σ :=
+Definition queue_mpsc_2۰Σ :=
   #[twins۰Σ (leibnizO (list val))
   ].
-#[global] Instance subGｰmpsc_queue_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG mpsc_queue_2۰Σ Σ →
-  MpscQueue2G Σ.
+#[global] Instance subGｰqueue_mpsc_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG queue_mpsc_2۰Σ Σ →
+  QueueMpsc2G Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section mpsc_queue_2۰G.
-  Context `{mpsc_queue_2۰G : MpscQueue2G Σ}.
+Section queue_mpsc_2۰G.
+  Context `{queue_mpsc_2۰G : QueueMpsc2G Σ}.
 
   Record metadata :=
     { metadata۰model : gname
@@ -75,7 +75,7 @@ Section mpsc_queue_2۰G.
       & >Hmodel₂
       )
     ".
-  Definition mpsc_queue_2۰inv t ι : iProp Σ :=
+  Definition queue_mpsc_2۰inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -89,7 +89,7 @@ Section mpsc_queue_2۰G.
       )
     ".
 
-  Definition mpsc_queue_2۰model t vs : iProp Σ :=
+  Definition queue_mpsc_2۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -103,7 +103,7 @@ Section mpsc_queue_2۰G.
       )
     ".
 
-  Definition mpsc_queue_2۰consumer t : iProp Σ :=
+  Definition queue_mpsc_2۰consumer t : iProp Σ :=
     ∃ l γ front,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -120,19 +120,19 @@ Section mpsc_queue_2۰G.
       )
     ".
 
-  #[global] Instance mpsc_queue_2۰modelｰtimeless t vs :
-    Timeless (mpsc_queue_2۰model t vs).
+  #[global] Instance queue_mpsc_2۰modelｰtimeless t vs :
+    Timeless (queue_mpsc_2۰model t vs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpsc_queue_2۰consumerｰtimeless t :
-    Timeless (mpsc_queue_2۰consumer t ).
+  #[global] Instance queue_mpsc_2۰consumerｰtimeless t :
+    Timeless (queue_mpsc_2۰consumer t ).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpsc_queue_2۰invｰpersistent t ι :
-    Persistent (mpsc_queue_2۰inv t ι).
+  #[global] Instance queue_mpsc_2۰invｰpersistent t ι :
+    Persistent (queue_mpsc_2۰inv t ι).
   Proof.
     apply _.
   Qed.
@@ -192,9 +192,9 @@ Section mpsc_queue_2۰G.
     apply twinsｰupdate.
   Qed.
 
-  Lemma mpsc_queue_2۰modelｰexclusive t vs1 vs2 :
-    mpsc_queue_2۰model t vs1 -∗
-    mpsc_queue_2۰model t vs2 -∗
+  Lemma queue_mpsc_2۰modelｰexclusive t vs1 vs2 :
+    queue_mpsc_2۰model t vs1 -∗
+    queue_mpsc_2۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simp.
@@ -202,25 +202,25 @@ Section mpsc_queue_2۰G.
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma mpsc_queue_2۰consumerｰexclusive t :
-    mpsc_queue_2۰consumer t -∗
-    mpsc_queue_2۰consumer t -∗
+  Lemma queue_mpsc_2۰consumerｰexclusive t :
+    queue_mpsc_2۰consumer t -∗
+    queue_mpsc_2۰consumer t -∗
     False.
   Proof.
     iSteps.
   Qed.
 
-  Lemma mpsc_queue_2٠createｰspec ι :
+  Lemma queue_mpsc_2٠createｰspec ι :
     {{{
       True
     }}}
-      mpsc_queue_2٠create ()
+      queue_mpsc_2٠create ()
     {{{
       t
     , RET t;
-      mpsc_queue_2۰inv t ι ∗
-      mpsc_queue_2۰model t [] ∗
-      mpsc_queue_2۰consumer t
+      queue_mpsc_2۰inv t ι ∗
+      queue_mpsc_2۰model t [] ∗
+      queue_mpsc_2۰consumer t
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -244,18 +244,18 @@ Section mpsc_queue_2۰G.
     - iSplitL "Hmodel₁"; first iSteps. iExists l, γ, []. iSteps.
   Qed.
 
-  Lemma mpsc_queue_2٠is_emptyｰspec t ι :
+  Lemma queue_mpsc_2٠is_emptyｰspec t ι :
     <<<
-      mpsc_queue_2۰inv t ι ∗
-      mpsc_queue_2۰consumer t
+      queue_mpsc_2۰inv t ι ∗
+      queue_mpsc_2۰consumer t
     | ∀∀ vs,
-      mpsc_queue_2۰model t vs
+      queue_mpsc_2۰model t vs
     >>>
-      mpsc_queue_2٠is_empty t @ ↑ι
+      queue_mpsc_2٠is_empty t @ ↑ι
     <<<
-      mpsc_queue_2۰model t vs
+      queue_mpsc_2۰model t vs
     | RET #(bool_decide (vs = []%list));
-      mpsc_queue_2۰consumer t
+      queue_mpsc_2۰consumer t
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
@@ -292,18 +292,18 @@ Section mpsc_queue_2۰G.
       iSteps. iExists (v :: front). iSteps.
   Qed.
 
-  Lemma mpsc_queue_2٠push_frontｰspec t ι v :
+  Lemma queue_mpsc_2٠push_frontｰspec t ι v :
     <<<
-      mpsc_queue_2۰inv t ι ∗
-      mpsc_queue_2۰consumer t
+      queue_mpsc_2۰inv t ι ∗
+      queue_mpsc_2۰consumer t
     | ∀∀ vs,
-      mpsc_queue_2۰model t vs
+      queue_mpsc_2۰model t vs
     >>>
-      mpsc_queue_2٠push_front t v @ ↑ι
+      queue_mpsc_2٠push_front t v @ ↑ι
     <<<
-      mpsc_queue_2۰model t (v :: vs)
+      queue_mpsc_2۰model t (v :: vs)
     | RET ();
-      mpsc_queue_2۰consumer t
+      queue_mpsc_2۰consumer t
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
@@ -324,15 +324,15 @@ Section mpsc_queue_2۰G.
     iSteps. iExists (v :: front). iSteps.
   Qed.
 
-  Lemma mpsc_queue_2٠push_backｰspec t ι v :
+  Lemma queue_mpsc_2٠push_backｰspec t ι v :
     <<<
-      mpsc_queue_2۰inv t ι
+      queue_mpsc_2۰inv t ι
     | ∀∀ vs,
-      mpsc_queue_2۰model t vs
+      queue_mpsc_2۰model t vs
     >>>
-      mpsc_queue_2٠push_back t v @ ↑ι
+      queue_mpsc_2٠push_back t v @ ↑ι
     <<<
-      mpsc_queue_2۰model t (vs ++ [v])
+      queue_mpsc_2۰model t (vs ++ [v])
     | RET ();
       True
     >>>.
@@ -366,18 +366,18 @@ Section mpsc_queue_2۰G.
     iSteps.
   Qed.
 
-  Lemma mpsc_queue_2٠popｰspec t ι :
+  Lemma queue_mpsc_2٠popｰspec t ι :
     <<<
-      mpsc_queue_2۰inv t ι ∗
-      mpsc_queue_2۰consumer t
+      queue_mpsc_2۰inv t ι ∗
+      queue_mpsc_2۰consumer t
     | ∀∀ vs,
-      mpsc_queue_2۰model t vs
+      queue_mpsc_2۰model t vs
     >>>
-      mpsc_queue_2٠pop t @ ↑ι
+      queue_mpsc_2٠pop t @ ↑ι
     <<<
-      mpsc_queue_2۰model t (tail vs)
+      queue_mpsc_2۰model t (tail vs)
     | RET head vs;
-      mpsc_queue_2۰consumer t
+      queue_mpsc_2۰consumer t
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
@@ -432,10 +432,10 @@ Section mpsc_queue_2۰G.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSteps.
   Qed.
-End mpsc_queue_2۰G.
+End queue_mpsc_2۰G.
 
-Require zoo_saturn.mpsc_queue_2__opaque.
+Require zoo_saturn.queue_mpsc_2__opaque.
 
-#[global] Opaque mpsc_queue_2۰inv.
-#[global] Opaque mpsc_queue_2۰model.
-#[global] Opaque mpsc_queue_2۰consumer.
+#[global] Opaque queue_mpsc_2۰inv.
+#[global] Opaque queue_mpsc_2۰model.
+#[global] Opaque queue_mpsc_2۰consumer.
