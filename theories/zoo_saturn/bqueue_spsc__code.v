@@ -1,0 +1,92 @@
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.array.
+Require Import zoo.options.
+
+Notation "'bqueue_spsc٠data'" := (
+  in_type "zoo_saturn.bqueue_spsc.t" 0
+)(in custom zoo_field
+).
+Notation "'bqueue_spsc٠front'" := (
+  in_type "zoo_saturn.bqueue_spsc.t" 1
+)(in custom zoo_field
+).
+Notation "'bqueue_spsc٠front_cache'" := (
+  in_type "zoo_saturn.bqueue_spsc.t" 2
+)(in custom zoo_field
+).
+Notation "'bqueue_spsc٠back'" := (
+  in_type "zoo_saturn.bqueue_spsc.t" 3
+)(in custom zoo_field
+).
+Notation "'bqueue_spsc٠back_cache'" := (
+  in_type "zoo_saturn.bqueue_spsc.t" 4
+)(in custom zoo_field
+).
+
+Definition bqueue_spsc٠create : val :=
+  𝗳𝘂𝗻 "cap" ->
+    { array٠unsafe_make "cap" §None, 0, 0, 0, 0 }.
+
+Definition bqueue_spsc٠capacity : val :=
+  𝗳𝘂𝗻 "t" ->
+    array٠size "t".{bqueue_spsc٠data}.
+
+Definition bqueue_spsc٠size : val :=
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "back" = "t".{bqueue_spsc٠back} 𝗶𝗻
+    𝗹𝗲𝘁 "front" = "t".{bqueue_spsc٠front} 𝗶𝗻
+    "back" - "front".
+
+Definition bqueue_spsc٠is_empty : val :=
+  𝗳𝘂𝗻 "t" ->
+    bqueue_spsc٠size "t" == 0.
+
+Definition bqueue_spsc٠push₁ : val :=
+  𝗳𝘂𝗻 "t" "data" "back" ->
+    𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
+    𝗶𝗳
+      "back" < "t".{bqueue_spsc٠front_cache} + "cap"
+    𝘁𝗵𝗲𝗻 (
+      true
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "front" = "t".{bqueue_spsc٠front} 𝗶𝗻
+      "t" <-{bqueue_spsc٠front_cache} "front" ⍮
+      "back" < "front" + "cap"
+    ).
+
+Definition bqueue_spsc٠push : val :=
+  𝗳𝘂𝗻 "t" "v" ->
+    𝗹𝗲𝘁 "data" = "t".{bqueue_spsc٠data} 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{bqueue_spsc٠back} 𝗶𝗻
+    𝗶𝗳 bqueue_spsc٠push₁ "t" "data" "back" 𝘁𝗵𝗲𝗻 (
+      array٠unsafe_cset "data" "back" ‘Some( "v" ) ⍮
+      "t" <-{bqueue_spsc٠back} "back" + 1 ⍮
+      false
+    ) 𝗲𝗹𝘀𝗲 (
+      true
+    ).
+
+Definition bqueue_spsc٠pop₁ : val :=
+  𝗳𝘂𝗻 "t" "front" ->
+    𝗶𝗳 "front" < "t".{bqueue_spsc٠back_cache} 𝘁𝗵𝗲𝗻 (
+      true
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "back" = "t".{bqueue_spsc٠back} 𝗶𝗻
+      "t" <-{bqueue_spsc٠back_cache} "back" ⍮
+      "front" < "back"
+    ).
+
+Definition bqueue_spsc٠pop : val :=
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "front" = "t".{bqueue_spsc٠front} 𝗶𝗻
+    𝗶𝗳 bqueue_spsc٠pop₁ "t" "front" 𝘁𝗵𝗲𝗻 (
+      𝗹𝗲𝘁 "data" = "t".{bqueue_spsc٠data} 𝗶𝗻
+      𝗹𝗲𝘁 "res" = array٠unsafe_cget "data" "front" 𝗶𝗻
+      array٠unsafe_cset "data" "front" §None ⍮
+      "t" <-{bqueue_spsc٠front} "front" + 1 ⍮
+      "res"
+    ) 𝗲𝗹𝘀𝗲 (
+      §None
+    ).

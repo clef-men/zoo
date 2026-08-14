@@ -8,8 +8,8 @@ Require Import zoo.iris.base_logic.lib.auth_nat_max.
 Require Import zoo.iris.base_logic.lib.mono_list.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Export zoo_saturn.spsc_bqueue__code.
-Require Import zoo_saturn.spsc_bqueue__types.
+Require Export zoo_saturn.bqueue_spsc__code.
+Require Import zoo_saturn.bqueue_spsc__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.
@@ -26,28 +26,28 @@ Implicit Type stable : stability.
 #[local] Instance stabilityｰinhabited : Inhabited stability :=
   populate Stable.
 
-Class SpscBqueueG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] spsc_bqueue۰G۰model۰G :: AuthTwinsG Σ (leibnizO (list val)) suffix
-  ; #[local] spsc_bqueue۰G۰history۰G :: MonoListG Σ val
-  ; #[local] spsc_bqueue۰G۰stability۰G :: TwinsG Σ (leibnizO stability)
-  ; #[local] spsc_bqueue۰G۰mono_nat۰G :: AuthNatMaxG Σ
+Class BqueueSpscG Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] bqueue_spsc۰G۰model۰G :: AuthTwinsG Σ (leibnizO (list val)) suffix
+  ; #[local] bqueue_spsc۰G۰history۰G :: MonoListG Σ val
+  ; #[local] bqueue_spsc۰G۰stability۰G :: TwinsG Σ (leibnizO stability)
+  ; #[local] bqueue_spsc۰G۰mono_nat۰G :: AuthNatMaxG Σ
   }.
 
-Definition spsc_bqueue۰Σ :=
+Definition bqueue_spsc۰Σ :=
   #[auth_twins۰Σ (leibnizO (list val)) suffix
   ; mono_list۰Σ val
   ; twins۰Σ (leibnizO stability)
   ; auth_nat_max۰Σ
   ].
-#[global] Instance subGｰspsc_bqueue۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG spsc_bqueue۰Σ Σ →
-  SpscBqueueG Σ.
+#[global] Instance subGｰbqueue_spsc۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG bqueue_spsc۰Σ Σ →
+  BqueueSpscG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section spsc_bqueue۰G.
-  Context `{spsc_bqueue۰G : SpscBqueueG Σ}.
+Section bqueue_spsc۰G.
+  Context `{bqueue_spsc۰G : BqueueSpscG Σ}.
 
   Record metadata :=
     { metadata۰capacity : nat
@@ -71,11 +71,11 @@ Section spsc_bqueue۰G.
   Qed.
 
   #[local] Definition model₁' γ_model vs :=
-    auth_twins۰twin₁ (auth_twins۰G := spsc_bqueue۰G۰model۰G) _ γ_model vs.
+    auth_twins۰twin₁ (auth_twins۰G := bqueue_spsc۰G۰model۰G) _ γ_model vs.
   #[local] Definition model₁ γ :=
     model₁' γ.(metadata۰model).
   #[local] Definition model₂' γ_model vs :=
-    auth_twins۰twin₂ (auth_twins۰G := spsc_bqueue۰G۰model۰G) _ γ_model vs.
+    auth_twins۰twin₂ (auth_twins۰G := bqueue_spsc۰G۰model۰G) _ γ_model vs.
   #[local] Definition model₂ γ :=
     model₂' γ.(metadata۰model).
 
@@ -89,7 +89,7 @@ Section spsc_bqueue۰G.
   #[local] Definition producer₁' γ_producer γ_back γ_model stable back ws : iProp Σ :=
     twins۰twin₁ γ_producer (DfracOwn 1) stable ∗
     auth_nat_max۰auth γ_back (DfracOwn (1/2)) back ∗
-    auth_twins۰auth _ (auth_twins۰G := spsc_bqueue۰G۰model۰G) γ_model ws.
+    auth_twins۰auth _ (auth_twins۰G := bqueue_spsc۰G۰model۰G) γ_model ws.
   #[local] Definition producer₁ γ :=
     producer₁' γ.(metadata۰producer) γ.(metadata۰back) γ.(metadata۰model).
   #[local] Instance : CustomIpat "producer₁" :=
@@ -193,7 +193,7 @@ Section spsc_bqueue۰G.
       & #Hinv
       )
     ".
-  Definition spsc_bqueue۰inv t ι cap : iProp Σ :=
+  Definition bqueue_spsc۰inv t ι cap : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata۰inv)⌝ ∗
@@ -209,7 +209,7 @@ Section spsc_bqueue۰G.
       )
     ".
 
-  Definition spsc_bqueue۰model t vs : iProp Σ :=
+  Definition bqueue_spsc۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -225,7 +225,7 @@ Section spsc_bqueue۰G.
       )
     ".
 
-  Definition spsc_bqueue۰producer t ws : iProp Σ :=
+  Definition bqueue_spsc۰producer t ws : iProp Σ :=
     ∃ l γ front_cache back,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -245,7 +245,7 @@ Section spsc_bqueue۰G.
       )
     ".
 
-  Definition spsc_bqueue۰consumer t : iProp Σ :=
+  Definition bqueue_spsc۰consumer t : iProp Σ :=
     ∃ l γ front back_cache,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -265,13 +265,13 @@ Section spsc_bqueue۰G.
       )
     ".
 
-  #[global] Instance spsc_bqueue۰invｰpersistent t ι cap :
-    Persistent (spsc_bqueue۰inv t ι cap).
+  #[global] Instance bqueue_spsc۰invｰpersistent t ι cap :
+    Persistent (bqueue_spsc۰inv t ι cap).
   Proof.
     apply _.
   Qed.
-  #[global] Instance spsc_bqueue۰modelｰtimeless t vs :
-    Timeless (spsc_bqueue۰model t vs).
+  #[global] Instance bqueue_spsc۰modelｰtimeless t vs :
+    Timeless (bqueue_spsc۰model t vs).
   Proof.
     apply _.
   Qed.
@@ -280,8 +280,8 @@ Section spsc_bqueue۰G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance spsc_bqueue۰producerｰtimeless t ws :
-    Timeless (spsc_bqueue۰producer t ws).
+  #[global] Instance bqueue_spsc۰producerｰtimeless t ws :
+    Timeless (bqueue_spsc۰producer t ws).
   Proof.
     apply _.
   Qed.
@@ -290,8 +290,8 @@ Section spsc_bqueue۰G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance spsc_bqueue۰consumerｰtimeless t :
-    Timeless (spsc_bqueue۰consumer t).
+  #[global] Instance bqueue_spsc۰consumerｰtimeless t :
+    Timeless (bqueue_spsc۰consumer t).
   Proof.
     apply _.
   Qed.
@@ -304,7 +304,7 @@ Section spsc_bqueue۰G.
       producer₁' γ_producer γ_back γ_model Stable 0 [] ∗
       producer₂' γ_producer γ_back Stable 0.
   Proof.
-    iMod (auth_twinsｰalloc (auth_twins۰G := spsc_bqueue۰G۰model۰G) _ []) as "(%γ_model & Hmodel_auth & Hmodel₁ & Hmodel₂)".
+    iMod (auth_twinsｰalloc (auth_twins۰G := bqueue_spsc۰G۰model۰G) _ []) as "(%γ_model & Hmodel_auth & Hmodel₁ & Hmodel₂)".
     iMod twinsｰalloc' as "(%γ_producer & Hproducer₁ & Hproducer₂)".
     iMod auth_nat_maxｰalloc as "(%γ_back & Hback_auth₁ & Hback_auth₂)".
     iSteps.
@@ -499,18 +499,18 @@ Section spsc_bqueue۰G.
   Opaque consumer₁'.
   Opaque consumer₂'.
 
-  Lemma spsc_bqueue۰modelｰvalid t ι cap vs :
-    spsc_bqueue۰inv t ι cap -∗
-    spsc_bqueue۰model t vs -∗
+  Lemma bqueue_spsc۰modelｰvalid t ι cap vs :
+    bqueue_spsc۰inv t ι cap -∗
+    bqueue_spsc۰model t vs -∗
     ⌜length vs ≤ cap⌝.
   Proof.
     iIntros "(:inv =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-.
     iSteps.
   Qed.
-  Lemma spsc_bqueue۰modelｰexclusive t vs1 vs2 :
-    spsc_bqueue۰model t vs1 -∗
-    spsc_bqueue۰model t vs2 -∗
+  Lemma bqueue_spsc۰modelｰexclusive t vs1 vs2 :
+    bqueue_spsc۰model t vs1 -∗
+    bqueue_spsc۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simp.
@@ -518,16 +518,16 @@ Section spsc_bqueue۰G.
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma spsc_bqueue۰producerｰexclusive t ws :
-    spsc_bqueue۰producer t ws -∗
-    spsc_bqueue۰producer t ws -∗
+  Lemma bqueue_spsc۰producerｰexclusive t ws :
+    bqueue_spsc۰producer t ws -∗
+    bqueue_spsc۰producer t ws -∗
     False.
   Proof.
     iSteps.
   Qed.
-  Lemma spsc_bqueueｰproducerｰmodel t ws vs :
-    spsc_bqueue۰producer t ws -∗
-    spsc_bqueue۰model t vs -∗
+  Lemma bqueue_spscｰproducerｰmodel t ws vs :
+    bqueue_spsc۰producer t ws -∗
+    bqueue_spsc۰model t vs -∗
     ⌜vs `suffix_of` ws⌝.
   Proof.
     iIntros "(:producer =1) (:model =2)". simp.
@@ -535,9 +535,9 @@ Section spsc_bqueue۰G.
     iApply (modelｰvalid with "Hproducer₁ Hmodel₁_2").
   Qed.
 
-  Lemma spsc_bqueue۰consumerｰexclusive t :
-    spsc_bqueue۰consumer t -∗
-    spsc_bqueue۰consumer t -∗
+  Lemma bqueue_spsc۰consumerｰexclusive t :
+    bqueue_spsc۰consumer t -∗
+    bqueue_spsc۰consumer t -∗
     False.
   Proof.
     iSteps.
@@ -555,19 +555,19 @@ Section spsc_bqueue۰G.
     iSteps. rewrite array۰csliceｰnil. iSteps.
   Qed.
 
-  Lemma spsc_bqueue٠createｰspec ι cap :
+  Lemma bqueue_spsc٠createｰspec ι cap :
     (0 ≤ cap)%Z →
     {{{
       True
     }}}
-      spsc_bqueue٠create #cap
+      bqueue_spsc٠create #cap
     {{{
       t
     , RET t;
-      spsc_bqueue۰inv t ι ₊cap ∗
-      spsc_bqueue۰model t [] ∗
-      spsc_bqueue۰producer t [] ∗
-      spsc_bqueue۰consumer t
+      bqueue_spsc۰inv t ι ₊cap ∗
+      bqueue_spsc۰model t [] ∗
+      bqueue_spsc۰producer t [] ∗
+      bqueue_spsc۰consumer t
     }}}.
   Proof.
     iIntros "%Hcap %Φ _ HΦ".
@@ -610,11 +610,11 @@ Section spsc_bqueue۰G.
     rewrite Nat.sub_0_r. iSteps.
   Qed.
 
-  Lemma spsc_bqueue٠capacityｰspec t ι cap :
+  Lemma bqueue_spsc٠capacityｰspec t ι cap :
     {{{
-      spsc_bqueue۰inv t ι cap
+      bqueue_spsc۰inv t ι cap
     }}}
-      spsc_bqueue٠capacity t
+      bqueue_spsc٠capacity t
     {{{
       RET #cap;
       True
@@ -667,18 +667,18 @@ Section spsc_bqueue۰G.
     iSteps.
   Qed.
 
-  Lemma spsc_bqueue٠sizeｰspecｰproducer t ι cap ws :
+  Lemma bqueue_spsc٠sizeｰspecｰproducer t ι cap ws :
     <<<
-      spsc_bqueue۰inv t ι cap ∗
-      spsc_bqueue۰producer t ws
+      bqueue_spsc۰inv t ι cap ∗
+      bqueue_spsc۰producer t ws
     | ∀∀ vs,
-      spsc_bqueue۰model t vs
+      bqueue_spsc۰model t vs
     >>>
-      spsc_bqueue٠size t @ ↑ι
+      bqueue_spsc٠size t @ ↑ι
     <<<
-      spsc_bqueue۰model t vs
+      bqueue_spsc۰model t vs
     | RET #(length vs);
-      spsc_bqueue۰producer t ws
+      bqueue_spsc۰producer t ws
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:producer)) HΦ". injection Heq as <-.
@@ -705,18 +705,18 @@ Section spsc_bqueue۰G.
 
     iSteps. rewrite Hlen. iSteps.
   Qed.
-  Lemma spsc_bqueue٠sizeｰspecｰconsumer t ι cap :
+  Lemma bqueue_spsc٠sizeｰspecｰconsumer t ι cap :
     <<<
-      spsc_bqueue۰inv t ι cap ∗
-      spsc_bqueue۰consumer t
+      bqueue_spsc۰inv t ι cap ∗
+      bqueue_spsc۰consumer t
     | ∀∀ vs,
-      spsc_bqueue۰model t vs
+      bqueue_spsc۰model t vs
     >>>
-      spsc_bqueue٠size t @ ↑ι
+      bqueue_spsc٠size t @ ↑ι
     <<<
-      spsc_bqueue۰model t vs
+      bqueue_spsc۰model t vs
     | RET #(length vs);
-      spsc_bqueue۰consumer t
+      bqueue_spsc۰consumer t
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
@@ -742,25 +742,25 @@ Section spsc_bqueue۰G.
     iSteps. rewrite Hlen. iSteps.
   Qed.
 
-  Lemma spsc_bqueue٠is_emptyｰspecｰproducer t ι cap ws :
+  Lemma bqueue_spsc٠is_emptyｰspecｰproducer t ι cap ws :
     <<<
-      spsc_bqueue۰inv t ι cap ∗
-      spsc_bqueue۰producer t ws
+      bqueue_spsc۰inv t ι cap ∗
+      bqueue_spsc۰producer t ws
     | ∀∀ vs,
-      spsc_bqueue۰model t vs
+      bqueue_spsc۰model t vs
     >>>
-      spsc_bqueue٠is_empty t @ ↑ι
+      bqueue_spsc٠is_empty t @ ↑ι
     <<<
-      spsc_bqueue۰model t vs
+      bqueue_spsc۰model t vs
     | RET #(bool_decide (vs = []%list));
-      spsc_bqueue۰producer t ws
+      bqueue_spsc۰producer t ws
     >>>.
   Proof.
     iIntros "%Φ (#Hinv & Hproducer) HΦ".
 
     wp۰rec.
 
-    wp۰apply (spsc_bqueue٠sizeｰspecｰproducer with "[$Hinv $Hproducer]").
+    wp۰apply (bqueue_spsc٠sizeｰspecｰproducer with "[$Hinv $Hproducer]").
     iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs HΦ Hproducer".
 
     wp۰pures.
@@ -768,25 +768,25 @@ Section spsc_bqueue۰G.
     { rewrite -length_zero_iff_nil. lia. }
     iApply ("HΦ" with "Hproducer").
   Qed.
-  Lemma spsc_bqueue٠is_emptyｰspecｰconsumer t ι cap :
+  Lemma bqueue_spsc٠is_emptyｰspecｰconsumer t ι cap :
     <<<
-      spsc_bqueue۰inv t ι cap ∗
-      spsc_bqueue۰consumer t
+      bqueue_spsc۰inv t ι cap ∗
+      bqueue_spsc۰consumer t
     | ∀∀ vs,
-      spsc_bqueue۰model t vs
+      bqueue_spsc۰model t vs
     >>>
-      spsc_bqueue٠is_empty t @ ↑ι
+      bqueue_spsc٠is_empty t @ ↑ι
     <<<
-      spsc_bqueue۰model t vs
+      bqueue_spsc۰model t vs
     | RET #(bool_decide (vs = []%list));
-      spsc_bqueue۰consumer t
+      bqueue_spsc۰consumer t
     >>>.
   Proof.
     iIntros "%Φ (#Hinv & Hconsumer) HΦ".
 
     wp۰rec.
 
-    wp۰apply (spsc_bqueue٠sizeｰspecｰconsumer with "[$Hinv $Hconsumer]").
+    wp۰apply (bqueue_spsc٠sizeｰspecｰconsumer with "[$Hinv $Hconsumer]").
     iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs HΦ Hconsumer".
 
     wp۰pures.
@@ -798,15 +798,15 @@ Section spsc_bqueue۰G.
   #[local] Definition push۰au l γ v Ψ : iProp Σ :=
     AU <{
       ∃∃ vs,
-      spsc_bqueue۰model #l vs
+      bqueue_spsc۰model #l vs
     }> @ ⊤ ∖ ↑γ.(metadata۰inv), ∅ <{
       ∀∀ b,
       ⌜b = bool_decide (length vs = γ.(metadata۰capacity))⌝ ∗
-      spsc_bqueue۰model #l (if b then vs else vs ++ [v]),
+      bqueue_spsc۰model #l (if b then vs else vs ++ [v]),
     COMM
       Ψ vs b
     }>.
-  #[local] Lemma spsc_bqueue٠push₁ｰspec l γ front_cache stable back ws v Ψ :
+  #[local] Lemma bqueue_spsc٠push₁ｰspec l γ front_cache stable back ws v Ψ :
     {{{
       inv' l γ ∗
       l.[front_cache] ↦ #front_cache ∗
@@ -814,7 +814,7 @@ Section spsc_bqueue۰G.
       front۰lb γ front_cache ∗
       push۰au l γ v Ψ
     }}}
-      spsc_bqueue٠push₁ #l γ.(metadata۰data) #back
+      bqueue_spsc٠push₁ #l γ.(metadata۰data) #back
     {{{
       b front_cache
     , RET #b;
@@ -869,20 +869,20 @@ Section spsc_bqueue۰G.
         iApply ("HΦ" $! _ front1).
         rewrite !bool_decide_eq_false_2; [lia.. |]. iSteps.
   Qed.
-  Lemma spsc_bqueue٠pushｰspec t ι cap ws v :
+  Lemma bqueue_spsc٠pushｰspec t ι cap ws v :
     <<<
-      spsc_bqueue۰inv t ι cap ∗
-      spsc_bqueue۰producer t ws
+      bqueue_spsc۰inv t ι cap ∗
+      bqueue_spsc۰producer t ws
     | ∀∀ vs,
-      spsc_bqueue۰model t vs
+      bqueue_spsc۰model t vs
     >>>
-      spsc_bqueue٠push t v @ ↑ι
+      bqueue_spsc٠push t v @ ↑ι
     <<<
       ∃∃ b,
       ⌜b = bool_decide (length vs = cap)⌝ ∗
-      spsc_bqueue۰model t (if b then vs else vs ++ [v])
+      bqueue_spsc۰model t (if b then vs else vs ++ [v])
     | RET #b;
-      spsc_bqueue۰producer t (if b then ws else vs ++ [v])
+      bqueue_spsc۰producer t (if b then ws else vs ++ [v])
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:producer)) HΦ". injection Heq as <-.
@@ -890,7 +890,7 @@ Section spsc_bqueue۰G.
 
     wp۰rec. wp۰load.
     wp۰apply+ (backｰspec with "[$]") as "Hproducer₁".
-    iDestruct "Hfront_lb" as "-#Hfront_lb". wp۰apply+ (spsc_bqueue٠push₁ｰspec with "[$]") as (? front_cache') "(-> & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΦ)".
+    iDestruct "Hfront_lb" as "-#Hfront_lb". wp۰apply+ (bqueue_spsc٠push₁ｰspec with "[$]") as (? front_cache') "(-> & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
     iApply fupdｰwp.
@@ -947,14 +947,14 @@ Section spsc_bqueue۰G.
   #[local] Definition pop۰au l γ Ψ : iProp Σ :=
     AU <{
       ∃∃ vs,
-      spsc_bqueue۰model #l vs
+      bqueue_spsc۰model #l vs
     }> @ ⊤ ∖ ↑γ.(metadata۰inv), ∅ <{
-      spsc_bqueue۰model #l (tail vs),
+      bqueue_spsc۰model #l (tail vs),
     COMM
-      spsc_bqueue۰consumer #l -∗
+      bqueue_spsc۰consumer #l -∗
       Ψ (head vs : val)
     }>.
-  #[local] Lemma spsc_bqueue٠pop₁ｰspec l γ back_cache stable front Ψ :
+  #[local] Lemma bqueue_spsc٠pop₁ｰspec l γ back_cache stable front Ψ :
     {{{
       inv' l γ ∗
       l.[back_cache] ↦ #back_cache ∗
@@ -962,7 +962,7 @@ Section spsc_bqueue۰G.
       back۰lb γ back_cache ∗
       pop۰au l γ Ψ
     }}}
-      spsc_bqueue٠pop₁ #l #front
+      bqueue_spsc٠pop₁ #l #front
     {{{
       b back_cache
     , RET #b;
@@ -973,7 +973,7 @@ Section spsc_bqueue۰G.
       if b then
         pop۰au l γ Ψ
       else
-        spsc_bqueue۰consumer #l -∗
+        bqueue_spsc۰consumer #l -∗
         Ψ None
     }}}.
   Proof.
@@ -1015,18 +1015,18 @@ Section spsc_bqueue۰G.
         iApply ("HΦ" $! _ front).
         rewrite !bool_decide_eq_false_2; [lia.. |]. iSteps.
   Qed.
-  Lemma spsc_bqueue٠popｰspec t ι cap :
+  Lemma bqueue_spsc٠popｰspec t ι cap :
     <<<
-      spsc_bqueue۰inv t ι cap ∗
-      spsc_bqueue۰consumer t
+      bqueue_spsc۰inv t ι cap ∗
+      bqueue_spsc۰consumer t
     | ∀∀ vs,
-      spsc_bqueue۰model t vs
+      bqueue_spsc۰model t vs
     >>>
-      spsc_bqueue٠pop t @ ↑ι
+      bqueue_spsc٠pop t @ ↑ι
     <<<
-      spsc_bqueue۰model t (tail vs)
+      bqueue_spsc۰model t (tail vs)
     | RET head vs;
-      spsc_bqueue۰consumer t
+      bqueue_spsc۰consumer t
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
@@ -1034,7 +1034,7 @@ Section spsc_bqueue۰G.
 
     wp۰rec.
     wp۰apply+ (frontｰspec with "[$]") as "Hconsumer₁".
-    iDestruct "Hback_lb" as "-#Hback_lb". wp۰apply+ (spsc_bqueue٠pop₁ｰspec with "[$]") as (? back_cache') "(-> & Hl_back_cache & Hconsumer₁ & #Hback_lb & HΦ)".
+    iDestruct "Hback_lb" as "-#Hback_lb". wp۰apply+ (bqueue_spsc٠pop₁ｰspec with "[$]") as (? back_cache') "(-> & Hl_back_cache & Hconsumer₁ & #Hback_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
     iApply fupdｰwp.
@@ -1104,11 +1104,11 @@ Section spsc_bqueue۰G.
     }
     iSteps.
   Qed.
-End spsc_bqueue۰G.
+End bqueue_spsc۰G.
 
-Require zoo_saturn.spsc_bqueue__opaque.
+Require zoo_saturn.bqueue_spsc__opaque.
 
-#[global] Opaque spsc_bqueue۰inv.
-#[global] Opaque spsc_bqueue۰model.
-#[global] Opaque spsc_bqueue۰producer.
-#[global] Opaque spsc_bqueue۰consumer.
+#[global] Opaque bqueue_spsc۰inv.
+#[global] Opaque bqueue_spsc۰model.
+#[global] Opaque bqueue_spsc۰producer.
+#[global] Opaque bqueue_spsc۰consumer.

@@ -1,0 +1,10 @@
+Require Import zoo_saturn.bqueue_spsc__code.
+
+#[global] Opaque bqueue_spsc٠create.
+#[global] Opaque bqueue_spsc٠capacity.
+#[global] Opaque bqueue_spsc٠size.
+#[global] Opaque bqueue_spsc٠is_empty.
+#[global] Opaque bqueue_spsc٠push₁.
+#[global] Opaque bqueue_spsc٠push.
+#[global] Opaque bqueue_spsc٠pop₁.
+#[global] Opaque bqueue_spsc٠pop.
