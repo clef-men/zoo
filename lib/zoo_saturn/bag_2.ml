@@ -3,7 +3,7 @@
 *)
 
 type 'a queue =
-  'a Spmc_queue.t
+  'a Queue_spmc.t
 
 type ('a, _) producers_ =
   | Null :
@@ -46,7 +46,7 @@ let rec add_producer t queue =
 let add_producer t queue =
   add_producer t (Some queue)
 let create_producer t =
-  let queue = Spmc_queue.create () in
+  let queue = Queue_spmc.create () in
   let node = add_producer t queue in
   { producer_queue= queue
   ; producer_node= node
@@ -60,7 +60,7 @@ let create_consumer _t =
   { consumer_queue= None }
 
 let push producer v =
-  Spmc_queue.push producer.producer_queue v
+  Queue_spmc.push producer.producer_queue v
 
 let rec pop consumer = function
   | Null ->
@@ -70,7 +70,7 @@ let rec pop consumer = function
       | None ->
           pop consumer node_r.next
       | Some queue ->
-          match Spmc_queue.pop queue with
+          match Queue_spmc.pop queue with
           | None ->
               pop consumer node_r.next
           | Some _ as res ->
@@ -83,7 +83,7 @@ let pop t consumer =
   | None ->
       pop t consumer
   | Some queue ->
-      match Spmc_queue.pop queue with
+      match Queue_spmc.pop queue with
       | None ->
           pop t consumer
       | Some _ as res ->

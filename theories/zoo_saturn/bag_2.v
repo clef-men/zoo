@@ -19,13 +19,13 @@ Implicit Type vs ws : list val.
 Implicit Type vss wss : gmap val (list val).
 
 Class Bag2G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] bag_2۰G۰spmc_queue۰G :: SpmcQueueG Σ
+  { #[local] bag_2۰G۰queue_spmc۰G :: QueueSpmcG Σ
   ; #[local] bag_2۰G۰queues۰G :: MonoGmapG Σ location val
   ; #[local] bag_2۰G۰model۰G :: TwinsG Σ (leibnizO (gmap val (list val)))
   }.
 
 Definition bag_2۰Σ :=
-  #[spmc_queue۰Σ
+  #[queue_spmc۰Σ
   ; mono_gmap۰Σ location val
   ; twins۰Σ (leibnizO (gmap val (list val)))
   ].
@@ -128,7 +128,7 @@ Section bag_2۰G.
     | Some queue =>
         ∃ node,
         queues۰at γ node queue ∗
-        spmc_queue۰inv queue (γ.(metadata۰inv).@"producer")
+        queue_spmc۰inv queue (γ.(metadata۰inv).@"producer")
     end.
   #[local] Instance : CustomIpat "queues۰elem" :=
     " ( %node
@@ -150,8 +150,8 @@ Section bag_2۰G.
     ∃ o,
     node.[queue] ↦ o ∗
     ⌜from_option (.= descr.(descriptor۰queue)) True o⌝ ∗
-    spmc_queue۰inv descr.(descriptor۰queue) (γ.(metadata۰inv).@"producer") ∗
-    spmc_queue۰model descr.(descriptor۰queue) descr.(descriptor۰vals).
+    queue_spmc۰inv descr.(descriptor۰queue) (γ.(metadata۰inv).@"producer") ∗
+    queue_spmc۰model descr.(descriptor۰queue) descr.(descriptor۰vals).
   #[local] Instance : CustomIpat "descriptor۰model" :=
     " ( %o{}
       & Hnode{}_queue
@@ -219,8 +219,8 @@ Section bag_2۰G.
     l ↪ γ ∗
     𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node) ↦ₕ Header §Node 2 ∗
     queues۰at γ 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node) 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue) ∗
-    spmc_queue۰inv 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue) (γ.(metadata۰inv).@"producer") ∗
-    spmc_queue۰producer 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue) ws.
+    queue_spmc۰inv 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue) (γ.(metadata۰inv).@"producer") ∗
+    queue_spmc۰producer 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue) ws.
   #[local] Instance : CustomIpat "producer" :=
     " ( %l{;_}
       & %γ{;_}
@@ -436,7 +436,7 @@ Section bag_2۰G.
     iAssert (◇ ⌜descr.(descriptor۰vals) `suffix_of` ws⌝)%I as "#>%".
     { iDestruct (big_sepM_lookup with "Hdescrs") as "(:descriptor۰model >)"; first done.
       rewrite Hdescr_queue.
-      iApply (spmc_queue۰producerｰvalid with "Hqueue_producer_2 Hqueue_model").
+      iApply (queue_spmc۰producerｰvalid with "Hqueue_producer_2 Hqueue_model").
     }
     iSplitL. { iFrameSteps. }
     iSteps.
@@ -447,7 +447,7 @@ Section bag_2۰G.
     False.
   Proof.
     iIntros "(:producer =1) (:producer =2)". simp.
-    iApply (spmc_queue۰producerｰexclusive with "Hqueue_producer_1 Hqueue_producer_2").
+    iApply (queue_spmc۰producerｰexclusive with "Hqueue_producer_1 Hqueue_producer_2").
   Qed.
 
   Lemma bag_2۰consumerｰexclusive t1 t2 consumer :
@@ -497,8 +497,8 @@ Section bag_2۰G.
     <<<
       l ↪ γ ∗
       inv' l γ ∗
-      spmc_queue۰inv queue (γ.(metadata۰inv).@"producer") ∗
-      spmc_queue۰model queue []
+      queue_spmc۰inv queue (γ.(metadata۰inv).@"producer") ∗
+      queue_spmc۰model queue []
     | ∀∀ vss,
       model₁ γ vss
     >>>
@@ -565,8 +565,8 @@ Section bag_2۰G.
     <<<
       l ↪ γ ∗
       inv' l γ ∗
-      spmc_queue۰inv queue (γ.(metadata۰inv).@"producer") ∗
-      spmc_queue۰model queue []
+      queue_spmc۰inv queue (γ.(metadata۰inv).@"producer") ∗
+      queue_spmc۰model queue []
     | ∀∀ vss,
       model₁ γ vss
     >>>
@@ -606,7 +606,7 @@ Section bag_2۰G.
     iIntros "%Φ (:inv) HΦ".
 
     wp۰rec.
-    wp۰apply (spmc_queue٠createｰspec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model & Hqueue_producer)".
+    wp۰apply (queue_spmc٠createｰspec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model & Hqueue_producer)".
 
     awp۰apply+ (bag_2٠add_producerｰspec with "[$Hmeta $Hinv $Hqueue_inv $Hqueue_model]") without "Hqueue_producer".
     iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
@@ -679,7 +679,7 @@ Section bag_2۰G.
 
     wp۰rec.
 
-    awp۰apply+ (spmc_queue٠pushｰspec with "[$Hqueue_inv $Hqueue_producer]").
+    awp۰apply+ (queue_spmc٠pushｰspec with "[$Hqueue_inv $Hqueue_producer]").
     iInv "Hinv" as "(:inv۰inner)".
     iDestruct (queues۰atｰvalidｰproducer with "Hqueues_auth Hqueues_at") as %(descr & Hdescrs_lookup & Hdescr_queue & Hwss_lookup). rewrite -Hdescr_queue.
     iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor۰model >) & Hdescrs)"; first done.
@@ -764,7 +764,7 @@ Section bag_2۰G.
 
       + rewrite Ho0 Hdescr_queue. clear.
 
-        awp۰apply+ (spmc_queue٠popｰspec with "Hqueue0_inv") without "Hconsumer_queue".
+        awp۰apply+ (queue_spmc٠popｰspec with "Hqueue0_inv") without "Hconsumer_queue".
         iInv "Hinv" as "(:inv۰inner =2)".
         iDestruct (queues۰atｰvalid with "Hqueues_auth Hqueues_at") as "(%descr & %Hdescrs_lookup & %Hdescr_queue & %Hwss_lookup)".
         iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor۰model >) & Hdescrs)"; first done.
@@ -884,7 +884,7 @@ Section bag_2۰G.
     destruct queue as [queue |].
 
     - iDestruct "Hqueues_elem" as "(:queues۰elem)".
-      awp۰apply+ (spmc_queue٠popｰspec with "Hqueue_inv") without "Hconsumer_queue".
+      awp۰apply+ (queue_spmc٠popｰspec with "Hqueue_inv") without "Hconsumer_queue".
       iInv "Hinv" as "(:inv۰inner)".
       iDestruct (queues۰atｰvalid with "Hqueues_auth Hqueues_at") as "(%descr & %Hdescrs_lookup & %Hdescr_queue & %Hwss_lookup)".
       iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor۰model >) & Hdescrs)"; first done.

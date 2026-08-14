@@ -11,8 +11,8 @@ Require Import zoo.iris.base_logic.lib.saved_pred.
 Require Import zoo.base.
 Require Import zoo_std.option.
 Require Import zoo_std.xtchain.
-Require Export zoo_saturn.spmc_queue__code.
-Require Import zoo_saturn.spmc_queue__types.
+Require Export zoo_saturn.queue_spmc__code.
+Require Import zoo_saturn.queue_spmc__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.
@@ -23,31 +23,31 @@ Implicit Type vs ws : list val.
 Implicit Type waiter : gname.
 Implicit Type waiters : gmap gname nat.
 
-Class SpmcQueueG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] spmc_queue۰G۰history۰G :: MonoListG Σ location
-  ; #[local] spmc_queue۰G۰front۰G :: AuthNatMaxG Σ
-  ; #[local] spmc_queue۰G۰model۰G :: AuthTwinsG Σ (leibnizO (list val)) suffix
-  ; #[local] spmc_queue۰G۰waiters۰G :: ghost_mapG Σ gname nat
-  ; #[local] spmc_queue۰G۰saved_pred۰G :: SavedPredG Σ bool
+Class QueueSpmcG Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] queue_spmc۰G۰history۰G :: MonoListG Σ location
+  ; #[local] queue_spmc۰G۰front۰G :: AuthNatMaxG Σ
+  ; #[local] queue_spmc۰G۰model۰G :: AuthTwinsG Σ (leibnizO (list val)) suffix
+  ; #[local] queue_spmc۰G۰waiters۰G :: ghost_mapG Σ gname nat
+  ; #[local] queue_spmc۰G۰saved_pred۰G :: SavedPredG Σ bool
   }.
 
-Definition spmc_queue۰Σ :=
+Definition queue_spmc۰Σ :=
   #[mono_list۰Σ location
   ; auth_nat_max۰Σ
   ; auth_twins۰Σ (leibnizO (list val)) suffix
   ; ghost_mapΣ gname nat
   ; saved_pred۰Σ bool
   ].
-#[global] Instance subGｰspmc_queue۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG spmc_queue۰Σ Σ →
-  SpmcQueueG Σ.
+#[global] Instance subGｰqueue_spmc۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG queue_spmc۰Σ Σ →
+  QueueSpmcG Σ.
 Proof.
   solve_inG.
 Qed.
 
 Module base.
-  Section spmc_queue۰G.
-    Context `{spmc_queue۰G : SpmcQueueG Σ}.
+  Section queue_spmc۰G.
+    Context `{queue_spmc۰G : QueueSpmcG Σ}.
 
     Implicit Type t : location.
 
@@ -174,7 +174,7 @@ Module base.
       ".
     #[local] Definition inv' t γ :=
       inv γ.(metadata۰inv) (inv۰inner t γ).
-    Definition spmc_queue۰inv t γ ι : iProp Σ :=
+    Definition queue_spmc۰inv t γ ι : iProp Σ :=
       ⌜ι = γ.(metadata۰inv)⌝ ∗
       inv' t γ.
     #[local] Instance : CustomIpat "inv" :=
@@ -183,7 +183,7 @@ Module base.
         )
       ".
 
-    Definition spmc_queue۰producer t γ ws : iProp Σ :=
+    Definition queue_spmc۰producer t γ ws : iProp Σ :=
       ∃ back,
       t.[back] ↦ #back ∗
       back ↦ₕ Header §Node 2 ∗
@@ -198,25 +198,25 @@ Module base.
         )
       ".
 
-    Definition spmc_queue۰model :=
+    Definition queue_spmc۰model :=
       model₁.
     #[local] Instance : CustomIpat "model" :=
       " Hmodel₁{_{}}
       ".
 
-    #[global] Instance spmc_queue۰modelｰtimeless γ vs :
-      Timeless (spmc_queue۰model γ vs).
+    #[global] Instance queue_spmc۰modelｰtimeless γ vs :
+      Timeless (queue_spmc۰model γ vs).
     Proof.
       apply _.
     Qed.
-    #[global] Instance spmc_queue۰producerｰtimeless t γ ws :
-      Timeless (spmc_queue۰producer t γ ws).
+    #[global] Instance queue_spmc۰producerｰtimeless t γ ws :
+      Timeless (queue_spmc۰producer t γ ws).
     Proof.
       apply _.
     Qed.
 
-    #[global] Instance spmc_queue۰invｰpersistent t γ ι :
-      Persistent (spmc_queue۰inv t γ ι).
+    #[global] Instance queue_spmc۰invｰpersistent t γ ι :
+      Persistent (queue_spmc۰inv t γ ι).
     Proof.
       apply _.
     Qed.
@@ -386,43 +386,43 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma spmc_queue۰modelｰexclusive γ vs1 vs2 :
-      spmc_queue۰model γ vs1 -∗
-      spmc_queue۰model γ vs2 -∗
+    Lemma queue_spmc۰modelｰexclusive γ vs1 vs2 :
+      queue_spmc۰model γ vs1 -∗
+      queue_spmc۰model γ vs2 -∗
       False.
     Proof.
       apply model₁ｰexclusive.
     Qed.
 
-    Lemma spmc_queue۰producerｰvalid t γ vs ws :
-      spmc_queue۰producer t γ ws -∗
-      spmc_queue۰model γ vs -∗
+    Lemma queue_spmc۰producerｰvalid t γ vs ws :
+      queue_spmc۰producer t γ ws -∗
+      queue_spmc۰model γ vs -∗
       ⌜vs `suffix_of` ws⌝.
     Proof.
       iIntros "(:producer =1) (:model =2)".
       iApply (producerｰvalid with "Hproducer_1 Hmodel₁_2").
     Qed.
-    Lemma spmc_queue۰producerｰexclusive t γ ws1 ws2 :
-      spmc_queue۰producer t γ ws1 -∗
-      spmc_queue۰producer t γ ws2 -∗
+    Lemma queue_spmc۰producerｰexclusive t γ ws1 ws2 :
+      queue_spmc۰producer t γ ws1 -∗
+      queue_spmc۰producer t γ ws2 -∗
       False.
     Proof.
       iIntros "(:producer =1) (:producer =2)".
       iApply (producerｰexclusive with "Hproducer_1 Hproducer_2").
     Qed.
 
-    Lemma spmc_queue٠createｰspec ι :
+    Lemma queue_spmc٠createｰspec ι :
       {{{
         True
       }}}
-        spmc_queue٠create ()
+        queue_spmc٠create ()
       {{{
         t γ
       , RET #t;
         meta_token t ⊤ ∗
-        spmc_queue۰inv t γ ι ∗
-        spmc_queue۰model γ [] ∗
-        spmc_queue۰producer t γ []
+        queue_spmc۰inv t γ ι ∗
+        queue_spmc۰model γ [] ∗
+        queue_spmc۰producer t γ []
       }}}.
     Proof.
       iIntros "%Φ _ HΦ".
@@ -727,15 +727,15 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma spmc_queue٠is_emptyｰspec t γ ι :
+    Lemma queue_spmc٠is_emptyｰspec t γ ι :
       <<<
-        spmc_queue۰inv t γ ι
+        queue_spmc۰inv t γ ι
       | ∀∀ vs,
-        spmc_queue۰model γ vs
+        queue_spmc۰model γ vs
       >>>
-        spmc_queue٠is_empty #t @ ↑ι
+        queue_spmc٠is_empty #t @ ↑ι
       <<<
-        spmc_queue۰model γ vs
+        queue_spmc۰model γ vs
       | RET #(bool_decide (vs = []%list));
         True
       >>>.
@@ -752,18 +752,18 @@ Module base.
       wp۰apply+ (nextｰspecｰis_empty with "[$]"); iSteps.
     Qed.
 
-    Lemma spmc_queue٠pushｰspec t γ ι ws v :
+    Lemma queue_spmc٠pushｰspec t γ ι ws v :
       <<<
-        spmc_queue۰inv t γ ι ∗
-        spmc_queue۰producer t γ ws
+        queue_spmc۰inv t γ ι ∗
+        queue_spmc۰producer t γ ws
       | ∀∀ vs,
-        spmc_queue۰model γ vs
+        queue_spmc۰model γ vs
       >>>
-        spmc_queue٠push #t v @ ↑ι
+        queue_spmc٠push #t v @ ↑ι
       <<<
-        spmc_queue۰model γ (vs ++ [v])
+        queue_spmc۰model γ (vs ++ [v])
       | RET ();
-        spmc_queue۰producer t γ (vs ++ [v])
+        queue_spmc۰producer t γ (vs ++ [v])
       >>>.
     Proof.
       iIntros "%Φ ((:inv) & (:producer)) HΦ".
@@ -789,13 +789,13 @@ Module base.
       iSteps.
     Qed.
 
-    #[local] Lemma spmc_queue٠popｰspecｰaux t γ :
+    #[local] Lemma queue_spmc٠popｰspecｰaux t γ :
       <<<
         inv' t γ
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        spmc_queue٠pop #t @ ↑γ.(metadata۰inv)
+        queue_spmc٠pop #t @ ↑γ.(metadata۰inv)
       <<<
         model₁ γ (tail vs)
       | RET head vs;
@@ -859,46 +859,46 @@ Module base.
       iSplitR "Hfront_data H£ HΦ". { iFrameSteps. }
       iSteps.
     Qed.
-    Lemma spmc_queue٠popｰspec t γ ι :
+    Lemma queue_spmc٠popｰspec t γ ι :
       <<<
-        spmc_queue۰inv t γ ι
+        queue_spmc۰inv t γ ι
       | ∀∀ vs,
-        spmc_queue۰model γ vs
+        queue_spmc۰model γ vs
       >>>
-        spmc_queue٠pop #t @ ↑ι
+        queue_spmc٠pop #t @ ↑ι
       <<<
-        spmc_queue۰model γ (tail vs)
+        queue_spmc۰model γ (tail vs)
       | RET head vs;
         True
       >>>.
     Proof.
       iIntros "%Φ (:inv) HΦ".
 
-      wp۰apply (spmc_queue٠popｰspecｰaux with "Hinv").
+      wp۰apply (queue_spmc٠popｰspecｰaux with "Hinv").
       iAuIntro.
       iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)".
       iAaccIntro with "Hmodel₁"; iSteps.
     Qed.
-  End spmc_queue۰G.
+  End queue_spmc۰G.
 
-  #[global] Opaque spmc_queue۰inv.
-  #[global] Opaque spmc_queue۰producer.
-  #[global] Opaque spmc_queue۰model.
+  #[global] Opaque queue_spmc۰inv.
+  #[global] Opaque queue_spmc۰producer.
+  #[global] Opaque queue_spmc۰model.
 End base.
 
-Require zoo_saturn.spmc_queue__opaque.
+Require zoo_saturn.queue_spmc__opaque.
 
-Section spmc_queue۰G.
-  Context `{spmc_queue۰G : SpmcQueueG Σ}.
+Section queue_spmc۰G.
+  Context `{queue_spmc۰G : QueueSpmcG Σ}.
 
   Implicit Type 𝑡 : location.
   Implicit Type t : val.
 
-  Definition spmc_queue۰inv t ι : iProp Σ :=
+  Definition queue_spmc۰inv t ι : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    base.spmc_queue۰inv 𝑡 γ ι.
+    base.queue_spmc۰inv 𝑡 γ ι.
   #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{}
       & %γ{}
@@ -908,11 +908,11 @@ Section spmc_queue۰G.
       )
     ".
 
-  Definition spmc_queue۰producer t ws : iProp Σ :=
+  Definition queue_spmc۰producer t ws : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    base.spmc_queue۰producer 𝑡 γ ws.
+    base.queue_spmc۰producer 𝑡 γ ws.
   #[local] Instance : CustomIpat "producer" :=
     " ( %𝑡{}
       & %γ{}
@@ -922,11 +922,11 @@ Section spmc_queue۰G.
       )
     ".
 
-  Definition spmc_queue۰model t vs : iProp Σ :=
+  Definition queue_spmc۰model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    base.spmc_queue۰model γ vs.
+    base.queue_spmc۰model γ vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{}
       & %γ{}
@@ -936,142 +936,142 @@ Section spmc_queue۰G.
       )
     ".
 
-  #[global] Instance spmc_queue۰modelｰtimeless t vs :
-    Timeless (spmc_queue۰model t vs).
+  #[global] Instance queue_spmc۰modelｰtimeless t vs :
+    Timeless (queue_spmc۰model t vs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance spmc_queue۰producerｰtimeless t ws :
-    Timeless (spmc_queue۰producer t ws).
-  Proof.
-    apply _.
-  Qed.
-
-  #[global] Instance spmc_queue۰invｰpersistent t ι :
-    Persistent (spmc_queue۰inv t ι).
+  #[global] Instance queue_spmc۰producerｰtimeless t ws :
+    Timeless (queue_spmc۰producer t ws).
   Proof.
     apply _.
   Qed.
 
-  Lemma spmc_queue۰modelｰexclusive t vs1 vs2 :
-    spmc_queue۰model t vs1 -∗
-    spmc_queue۰model t vs2 -∗
+  #[global] Instance queue_spmc۰invｰpersistent t ι :
+    Persistent (queue_spmc۰inv t ι).
+  Proof.
+    apply _.
+  Qed.
+
+  Lemma queue_spmc۰modelｰexclusive t vs1 vs2 :
+    queue_spmc۰model t vs1 -∗
+    queue_spmc۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.spmc_queue۰modelｰexclusive with "Hmodel_1 Hmodel_2").
+    iApply (base.queue_spmc۰modelｰexclusive with "Hmodel_1 Hmodel_2").
   Qed.
 
-  Lemma spmc_queue۰producerｰvalid t vs ws :
-    spmc_queue۰producer t ws -∗
-    spmc_queue۰model t vs -∗
+  Lemma queue_spmc۰producerｰvalid t vs ws :
+    queue_spmc۰producer t ws -∗
+    queue_spmc۰model t vs -∗
     ⌜vs `suffix_of` ws⌝.
   Proof.
     iIntros "(:producer =1) (:model =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.spmc_queue۰producerｰvalid with "Hproducer_1 Hmodel_2").
+    iApply (base.queue_spmc۰producerｰvalid with "Hproducer_1 Hmodel_2").
   Qed.
-  Lemma spmc_queue۰producerｰexclusive t ws1 ws2 :
-    spmc_queue۰producer t ws1 -∗
-    spmc_queue۰producer t ws2 -∗
+  Lemma queue_spmc۰producerｰexclusive t ws1 ws2 :
+    queue_spmc۰producer t ws1 -∗
+    queue_spmc۰producer t ws2 -∗
     False.
   Proof.
     iIntros "(:producer =1) (:producer =2)". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.spmc_queue۰producerｰexclusive with "Hproducer_1 Hproducer_2").
+    iApply (base.queue_spmc۰producerｰexclusive with "Hproducer_1 Hproducer_2").
   Qed.
 
-  Lemma spmc_queue٠createｰspec ι :
+  Lemma queue_spmc٠createｰspec ι :
     {{{
       True
     }}}
-      spmc_queue٠create ()
+      queue_spmc٠create ()
     {{{
       t
     , RET t;
-      spmc_queue۰inv t ι ∗
-      spmc_queue۰model t [] ∗
-      spmc_queue۰producer t []
+      queue_spmc۰inv t ι ∗
+      queue_spmc۰model t [] ∗
+      queue_spmc۰producer t []
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
 
     iApply wpｰfupd.
-    wp۰apply (base.spmc_queue٠createｰspec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
+    wp۰apply (base.queue_spmc٠createｰspec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
     iMod (metaｰset γ with "Hmeta"); first done.
     iSteps.
   Qed.
 
-  Lemma spmc_queue٠is_emptyｰspec t ι :
+  Lemma queue_spmc٠is_emptyｰspec t ι :
     <<<
-      spmc_queue۰inv t ι
+      queue_spmc۰inv t ι
     | ∀∀ vs,
-      spmc_queue۰model t vs
+      queue_spmc۰model t vs
     >>>
-      spmc_queue٠is_empty t @ ↑ι
+      queue_spmc٠is_empty t @ ↑ι
     <<<
-      spmc_queue۰model t vs
+      queue_spmc۰model t vs
     | RET #(bool_decide (vs = []%list));
       True
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.spmc_queue٠is_emptyｰspec with "[$]").
+    awp۰apply (base.queue_spmc٠is_emptyｰspec with "[$]").
     { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma spmc_queue٠pushｰspec t ι ws v :
+  Lemma queue_spmc٠pushｰspec t ι ws v :
     <<<
-      spmc_queue۰inv t ι ∗
-      spmc_queue۰producer t ws
+      queue_spmc۰inv t ι ∗
+      queue_spmc۰producer t ws
     | ∀∀ vs,
-      spmc_queue۰model t vs
+      queue_spmc۰model t vs
     >>>
-      spmc_queue٠push t v @ ↑ι
+      queue_spmc٠push t v @ ↑ι
     <<<
-      spmc_queue۰model t (vs ++ [v])
+      queue_spmc۰model t (vs ++ [v])
     | RET ();
-      spmc_queue۰producer t (vs ++ [v])
+      queue_spmc۰producer t (vs ++ [v])
     >>>.
   Proof.
     iIntros "%Φ ((:inv =1) & (:producer =2)) HΦ". simp.
     iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    awp۰apply (base.spmc_queue٠pushｰspec with "[$]").
+    awp۰apply (base.queue_spmc٠pushｰspec with "[$]").
     { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma spmc_queue٠popｰspec t ι :
+  Lemma queue_spmc٠popｰspec t ι :
     <<<
-      spmc_queue۰inv t ι
+      queue_spmc۰inv t ι
     | ∀∀ vs,
-      spmc_queue۰model t vs
+      queue_spmc۰model t vs
     >>>
-      spmc_queue٠pop t @ ↑ι
+      queue_spmc٠pop t @ ↑ι
     <<<
-      spmc_queue۰model t (tail vs)
+      queue_spmc۰model t (tail vs)
     | RET head vs;
       True
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.spmc_queue٠popｰspec with "[$]").
+    awp۰apply (base.queue_spmc٠popｰspec with "[$]").
     { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
       iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
-End spmc_queue۰G.
+End queue_spmc۰G.
 
-#[global] Opaque spmc_queue۰inv.
-#[global] Opaque spmc_queue۰producer.
-#[global] Opaque spmc_queue۰model.
+#[global] Opaque queue_spmc۰inv.
+#[global] Opaque queue_spmc۰producer.
+#[global] Opaque queue_spmc۰model.

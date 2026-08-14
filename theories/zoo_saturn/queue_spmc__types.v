@@ -5,28 +5,28 @@ Require Export zoo_std.domain.
 Require Import zoo.options.
 
 Notation "'Null'" := (
-  in_type "zoo_saturn.spmc_queue.node" 0
+  in_type "zoo_saturn.queue_spmc.node" 0
 )(in custom zoo_tag
 ).
 Notation "'Node'" := (
-  in_type "zoo_saturn.spmc_queue.node" 1
+  in_type "zoo_saturn.queue_spmc.node" 1
 )(in custom zoo_tag
 ).
 
 Notation "'next'" := (
-  in_type "zoo_saturn.spmc_queue.node.Node" 0
+  in_type "zoo_saturn.queue_spmc.node.Node" 0
 )(in custom zoo_field
 ).
 Notation "'data'" := (
-  in_type "zoo_saturn.spmc_queue.node.Node" 1
+  in_type "zoo_saturn.queue_spmc.node.Node" 1
 )(in custom zoo_field
 ).
 
 Notation "'front'" := (
-  in_type "zoo_saturn.spmc_queue.t" 0
+  in_type "zoo_saturn.queue_spmc.t" 0
 )(in custom zoo_field
 ).
 Notation "'back'" := (
-  in_type "zoo_saturn.spmc_queue.t" 1
+  in_type "zoo_saturn.queue_spmc.t" 1
 )(in custom zoo_field
 ).

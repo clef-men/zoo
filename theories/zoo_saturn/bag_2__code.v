@@ -1,7 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_saturn.spmc_queue.
+Require Import zoo_saturn.queue_spmc.
 Require Import zoo_std.domain.
 Require Import zoo.options.
 
@@ -69,7 +69,7 @@ Definition bag_2٠add_producer : val :=
 
 Definition bag_2٠create_producer : val :=
   𝗳𝘂𝗻 "t" ->
-    𝗹𝗲𝘁 "queue" = spmc_queue٠create () 𝗶𝗻
+    𝗹𝗲𝘁 "queue" = queue_spmc٠create () 𝗶𝗻
     𝗹𝗲𝘁 "node" = bag_2٠add_producer "t" "queue" 𝗶𝗻
     ("queue", "node").
 
@@ -86,7 +86,7 @@ Definition bag_2٠create_consumer : val :=
 
 Definition bag_2٠push : val :=
   𝗳𝘂𝗻 "producer" "v" ->
-    spmc_queue٠push "producer".<bag_2٠producer_queue> "v".
+    queue_spmc٠push "producer".<bag_2٠producer_queue> "v".
 
 Definition bag_2٠pop₂ : val :=
   𝗿𝗲𝗰 "pop" "consumer" "param" ->
@@ -98,7 +98,7 @@ Definition bag_2٠pop₂ : val :=
         | None ->
             "pop" "consumer" "node_r".{bag_2٠next}
         | Some "queue" ->
-            𝗺𝗮𝘁𝗰𝗵 spmc_queue٠pop "queue" 𝘄𝗶𝘁𝗵
+            𝗺𝗮𝘁𝗰𝗵 queue_spmc٠pop "queue" 𝘄𝗶𝘁𝗵
             | None ->
                 "pop" "consumer" "node_r".{bag_2٠next}
             | Some ⎽ 𝗮𝘀 "res" ->
@@ -118,7 +118,7 @@ Definition bag_2٠pop : val :=
     | None ->
         bag_2٠pop₁ "t" "consumer"
     | Some "queue" ->
-        𝗺𝗮𝘁𝗰𝗵 spmc_queue٠pop "queue" 𝘄𝗶𝘁𝗵
+        𝗺𝗮𝘁𝗰𝗵 queue_spmc٠pop "queue" 𝘄𝗶𝘁𝗵
         | None ->
             bag_2٠pop₁ "t" "consumer"
         | Some ⎽ 𝗮𝘀 "res" ->
