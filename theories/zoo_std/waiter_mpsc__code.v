@@ -1,0 +1,59 @@
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.condition.
+Require Import zoo_std.mutex.
+Require Import zoo.options.
+
+Notation "'waiter_mpsc٠mutex'" := (
+  in_type "zoo_std.waiter_mpsc.t" 0
+)(in custom zoo_field
+).
+Notation "'waiter_mpsc٠condition'" := (
+  in_type "zoo_std.waiter_mpsc.t" 1
+)(in custom zoo_field
+).
+Notation "'waiter_mpsc٠flag'" := (
+  in_type "zoo_std.waiter_mpsc.t" 2
+)(in custom zoo_field
+).
+
+Definition waiter_mpsc٠create : val :=
+  𝗳𝘂𝗻 ⎽ ->
+    { mutex٠create (), condition٠create (), false }.
+
+Definition waiter_mpsc٠notify : val :=
+  𝗳𝘂𝗻 "t" ->
+    𝗶𝗳 "t".{waiter_mpsc٠flag} 𝘁𝗵𝗲𝗻 (
+      true
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "res" =
+        mutex٠protect "t".{waiter_mpsc٠mutex}
+          (𝗳𝘂𝗻 ⎽ ->
+             𝗶𝗳 "t".{waiter_mpsc٠flag} 𝘁𝗵𝗲𝗻 (
+               true
+             ) 𝗲𝗹𝘀𝗲 (
+               "t" <-{waiter_mpsc٠flag} true ⍮
+               false
+             ))
+      𝗶𝗻
+      condition٠notify "t".{waiter_mpsc٠condition} ⍮
+      "res"
+    ).
+
+Definition waiter_mpsc٠try_wait : val :=
+  𝗳𝘂𝗻 "t" ->
+    "t".{waiter_mpsc٠flag}.
+
+Definition waiter_mpsc٠wait : val :=
+  𝗳𝘂𝗻 "t" ->
+    𝗶𝗳 ~ waiter_mpsc٠try_wait "t" 𝘁𝗵𝗲𝗻 (
+      𝗹𝗲𝘁 "mtx" = "t".{waiter_mpsc٠mutex} 𝗶𝗻
+      𝗹𝗲𝘁 "cond" = "t".{waiter_mpsc٠condition} 𝗶𝗻
+      mutex٠protect "mtx"
+        (𝗳𝘂𝗻 ⎽ ->
+           condition٠wait_until
+             "cond"
+             "mtx"
+             (𝗳𝘂𝗻 ⎽ -> "t".{waiter_mpsc٠flag}))
+    ).

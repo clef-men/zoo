@@ -286,10 +286,10 @@ theories/zoo_std/waiter_spsc__types.v
 theories/zoo_std/waiter_spsc__code.v
 theories/zoo_std/waiter_spsc__opaque.v
 theories/zoo_std/waiter_spsc.v
-theories/zoo_std/mpsc_waiter__types.v
-theories/zoo_std/mpsc_waiter__code.v
-theories/zoo_std/mpsc_waiter__opaque.v
-theories/zoo_std/mpsc_waiter.v
+theories/zoo_std/waiter_mpsc__types.v
+theories/zoo_std/waiter_mpsc__code.v
+theories/zoo_std/waiter_mpsc__opaque.v
+theories/zoo_std/waiter_mpsc.v
 theories/zoo_std/ivar_1__types.v
 theories/zoo_std/ivar_1__code.v
 theories/zoo_std/ivar_1__opaque.v
