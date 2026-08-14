@@ -278,10 +278,10 @@ theories/zoo_std/semaphore__types.v
 theories/zoo_std/semaphore__code.v
 theories/zoo_std/semaphore__opaque.v
 theories/zoo_std/semaphore.v
-theories/zoo_std/mpsc_flag__types.v
-theories/zoo_std/mpsc_flag__code.v
-theories/zoo_std/mpsc_flag__opaque.v
-theories/zoo_std/mpsc_flag.v
+theories/zoo_std/flag_mpsc__types.v
+theories/zoo_std/flag_mpsc__code.v
+theories/zoo_std/flag_mpsc__opaque.v
+theories/zoo_std/flag_mpsc.v
 theories/zoo_std/waiter_spsc__types.v
 theories/zoo_std/waiter_spsc__code.v
 theories/zoo_std/waiter_spsc__opaque.v
