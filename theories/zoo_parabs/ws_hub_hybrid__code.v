@@ -3,7 +3,7 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_parabs.waiters.
 Require Import zoo_parabs.ws_bdeques_public.
-Require Import zoo_saturn.mpmc_queue_1.
+Require Import zoo_saturn.queue_mpmc_1.
 Require Import zoo_std.array.
 Require Import zoo_std.domain.
 Require Import zoo_std.int.
@@ -39,7 +39,7 @@ Definition ws_hub_hybrid٠create : val :=
         "sz"
         (𝗳𝘂𝗻 ⎽ ->
            random_round٠create (int٠positive_part ("sz" - 1))),
-      mpmc_queue_1٠create (),
+      queue_mpmc_1٠create (),
       waiters٠create "sz",
       "sz" + 1
     }.
@@ -93,7 +93,7 @@ Definition ws_hub_hybrid٠push : val :=
     𝗶𝗳
       ~ ws_bdeques_public٠push "t".{ws_hub_hybrid٠deques} "i" "v"
     𝘁𝗵𝗲𝗻 (
-      mpmc_queue_1٠push "t".{ws_hub_hybrid٠queue} "v"
+      queue_mpmc_1٠push "t".{ws_hub_hybrid٠queue} "v"
     ) 𝗲𝗹𝘀𝗲 (
       ()
     ) ⍮
@@ -107,7 +107,7 @@ Definition ws_hub_hybrid٠pop : val :=
     | Some ⎽ 𝗮𝘀 "res" ->
         "res"
     | None ->
-        mpmc_queue_1٠pop "t".{ws_hub_hybrid٠queue}
+        queue_mpmc_1٠pop "t".{ws_hub_hybrid٠queue}
     𝗲𝗻𝗱.
 
 Definition ws_hub_hybrid٠try_steal_once : val :=

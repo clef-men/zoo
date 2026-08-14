@@ -1,13 +1,13 @@
 type 'a t =
   { size: int
-  ; queue: 'a Mpmc_queue_1.t
+  ; queue: 'a Queue_mpmc_1.t
   ; waiters: Waiters.t
   ; mutable num_active: int [@atomic]
   }
 
 let create sz =
   { size= sz
-  ; queue= Mpmc_queue_1.create ()
+  ; queue= Queue_mpmc_1.create ()
   ; waiters= Waiters.create sz
   ; num_active= sz + 1
   }
@@ -34,11 +34,11 @@ let notify_all t =
   Waiters.notify_all t.waiters
 
 let push t _i v =
-  Mpmc_queue_1.push t.queue v ;
+  Queue_mpmc_1.push t.queue v ;
   notify t
 
 let pop' t =
-  Mpmc_queue_1.pop t.queue
+  Queue_mpmc_1.pop t.queue
 let pop t _i =
   pop' t
 

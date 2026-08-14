@@ -3,7 +3,7 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Export zoo_parabs.waiters.
 Require Export zoo_parabs.ws_bdeques_public.
-Require Export zoo_saturn.mpmc_queue_1.
+Require Export zoo_saturn.queue_mpmc_1.
 Require Export zoo_std.array.
 Require Export zoo_std.domain.
 Require Export zoo_std.int.

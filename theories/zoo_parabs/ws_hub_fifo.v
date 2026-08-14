@@ -21,14 +21,14 @@ Implicit Type empty : emptiness.
 Implicit Type emptys : list emptiness.
 
 Class WsHubFifoG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] ws_hub_fifo۰G۰queue۰G :: MpmcQueue1G Σ
+  { #[local] ws_hub_fifo۰G۰queue۰G :: QueueMpmc1G Σ
   ; #[local] ws_hub_fifo۰G۰waiters۰G :: WaitersG Σ
   ; #[local] ws_hub_fifo۰G۰owner۰G :: ExclG Σ unitO
   ; #[local] ws_hub_fifo۰G۰emptiness۰G :: GhostListG Σ emptiness
   }.
 
 Definition ws_hub_fifo۰Σ :=
-  #[mpmc_queue_1۰Σ
+  #[queue_mpmc_1۰Σ
   ; waiters۰Σ
   ; excl۰Σ unitO
   ; ghost_list۰Σ emptiness
@@ -147,7 +147,7 @@ Section ws_hub_fifo۰G.
     𝑡.[size] ↦□ #γ.(metadata۰size) ∗
     𝑡.[queue] ↦□ γ.(metadata۰queue) ∗
     𝑡.[waiters] ↦□ γ.(metadata۰waiters) ∗
-    mpmc_queue_1۰inv γ.(metadata۰queue) ι ∗
+    queue_mpmc_1۰inv γ.(metadata۰queue) ι ∗
     waiters۰inv γ.(metadata۰waiters) sz ∗
     inv nroot (inv۰inner 𝑡).
   #[local] Instance : CustomIpat "inv" :=
@@ -169,7 +169,7 @@ Section ws_hub_fifo۰G.
     ∃ 𝑡 γ ws,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    mpmc_queue_1۰model γ.(metadata۰queue) ws ∗
+    queue_mpmc_1۰model γ.(metadata۰queue) ws ∗
     ⌜consistent vs ws⌝ ∗
     emptiness۰auth γ vs.
   #[local] Instance : CustomIpat "model" :=
@@ -390,7 +390,7 @@ Section ws_hub_fifo۰G.
 
     wp۰rec.
     wp۰apply+ (waiters٠createｰspec with "[//]") as (waiters) "#Hwaiters_inv". 1: done.
-    wp۰apply (mpmc_queue_1٠createｰspec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)".
+    wp۰apply (queue_mpmc_1٠createｰspec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)".
     wp۰block 𝑡 as "Hmeta" "#H𝑡_size #H𝑡_queue #H𝑡_waiters H𝑡_num_active".
 
     iMod ownerｰalloc as "(%γ_owners & Howners)".
@@ -561,7 +561,7 @@ Section ws_hub_fifo۰G.
 
     wp۰rec. wp۰load.
 
-    awp۰apply (mpmc_queue_1٠pushｰspec with "Hqueue_inv").
+    awp۰apply (queue_mpmc_1٠pushｰspec with "Hqueue_inv").
     iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model".
@@ -610,7 +610,7 @@ Section ws_hub_fifo۰G.
 
     wp۰rec. wp۰load.
 
-    awp۰apply+ (mpmc_queue_1٠popｰspec with "Hqueue_inv").
+    awp۰apply+ (queue_mpmc_1٠popｰspec with "Hqueue_inv").
     iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model".

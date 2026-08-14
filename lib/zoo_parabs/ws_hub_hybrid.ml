@@ -1,7 +1,7 @@
 type 'a t =
   { deques: 'a Ws_bdeques_public.t
   ; rounds: Random_round.t array
-  ; queue : 'a Mpmc_queue_1.t
+  ; queue : 'a Queue_mpmc_1.t
   ; waiters: Waiters.t
   ; mutable num_active: int [@atomic]
   }
@@ -9,7 +9,7 @@ type 'a t =
 let create sz =
   { deques= Ws_bdeques_public.create sz
   ; rounds= Array.unsafe_init sz (fun _ -> Random_round.create @@ Int.positive_part @@ sz - 1)
-  ; queue= Mpmc_queue_1.create ()
+  ; queue= Queue_mpmc_1.create ()
   ; waiters= Waiters.create sz
   ; num_active= sz + 1
   }
@@ -44,7 +44,7 @@ let notify_all t =
 
 let push t i v =
   if not @@ Ws_bdeques_public.push t.deques i v then
-    Mpmc_queue_1.push t.queue v ;
+    Queue_mpmc_1.push t.queue v ;
   notify t
 
 let pop t i =
@@ -52,7 +52,7 @@ let pop t i =
   | Some _ as res ->
       res
   | None ->
-      Mpmc_queue_1.pop t.queue
+      Queue_mpmc_1.pop t.queue
 
 let try_steal_once t i =
   let round = Array.unsafe_get t.rounds i in

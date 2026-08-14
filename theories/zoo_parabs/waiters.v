@@ -10,12 +10,12 @@ Implicit Type v t waiters queue : val.
 Implicit Type 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 𝑞𝑢𝑒𝑢𝑒 : list val.
 
 Class WaitersG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] waiters۰G۰queue۰G :: MpmcQueue1G Σ
+  { #[local] waiters۰G۰queue۰G :: QueueMpmc1G Σ
   ; #[local] waiters۰G۰waiter۰G :: WaiterG Σ
   }.
 
 Definition waiters۰Σ :=
-  #[mpmc_queue_1۰Σ
+  #[queue_mpmc_1۰Σ
   ; waiter۰Σ
   ].
 #[global] Instance subGｰws_hub_Σ Σ `{zoo۰G : !ZooG Σ} :
@@ -30,7 +30,7 @@ Section waiters۰G.
 
   #[local] Definition waiters۰inv۰inner queue : iProp Σ :=
     ∃ 𝑞𝑢𝑒𝑢𝑒,
-    mpmc_queue_1۰model queue 𝑞𝑢𝑒𝑢𝑒 ∗
+    queue_mpmc_1۰model queue 𝑞𝑢𝑒𝑢𝑒 ∗
     [∗ list] 𝑤𝑎𝑖𝑡𝑒𝑟 ∈ 𝑞𝑢𝑒𝑢𝑒,
       waiter۰inv 𝑤𝑎𝑖𝑡𝑒𝑟.
   #[local] Instance : CustomIpat "inv۰inner" :=
@@ -45,7 +45,7 @@ Section waiters۰G.
     array۰model waiters Discard 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 ∗
     ⌜length 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 = sz⌝ ∗
     ([∗ list] 𝑤𝑎𝑖𝑡𝑒𝑟 ∈ 𝑤𝑎𝑖𝑡𝑒𝑟𝑠, waiter۰inv 𝑤𝑎𝑖𝑡𝑒𝑟) ∗
-    mpmc_queue_1۰inv queue (nroot.@"queue") ∗
+    queue_mpmc_1۰inv queue (nroot.@"queue") ∗
     inv (nroot.@"inv") (waiters۰inv۰inner queue).
   #[local] Instance : CustomIpat "inv" :=
     " ( %waiters
@@ -81,7 +81,7 @@ Section waiters۰G.
     iIntros "%Hsz %Φ _ HΦ".
 
     wp۰rec.
-    wp۰apply (mpmc_queue_1٠createｰspec with "[//]") as (t) "(#Hqueue_inv & Hmodel)".
+    wp۰apply (queue_mpmc_1٠createｰspec with "[//]") as (t) "(#Hqueue_inv & Hmodel)".
 
     wp۰apply (array٠unsafe_initｰspecｰdisentangled (λ _ 𝑤𝑎𝑖𝑡𝑒𝑟,
       waiter۰inv 𝑤𝑎𝑖𝑡𝑒𝑟
@@ -133,7 +133,7 @@ Section waiters۰G.
 
     wp۰rec.
 
-    awp۰apply+ (mpmc_queue_1٠popｰspec with "Hqueue_inv") without "HΦ".
+    awp۰apply+ (queue_mpmc_1٠popｰspec with "Hqueue_inv") without "HΦ".
     iInv "Hinv" as "(:inv۰inner)".
     iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model !>".
     destruct 𝑞𝑢𝑒𝑢𝑒 as [| 𝑤𝑎𝑖𝑡𝑒𝑟 𝑞𝑢𝑒𝑢𝑒]. 1: iSteps.
@@ -161,7 +161,7 @@ Section waiters۰G.
 
     wp۰rec.
 
-    awp۰apply+ (mpmc_queue_1٠popｰspec with "Hqueue_inv") without "HΦ".
+    awp۰apply+ (queue_mpmc_1٠popｰspec with "Hqueue_inv") without "HΦ".
     iInv "Hinv" as "(:inv۰inner)".
     iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model !>".
     destruct 𝑞𝑢𝑒𝑢𝑒 as [| 𝑤𝑎𝑖𝑡𝑒𝑟 𝑞𝑢𝑒𝑢𝑒]. 1: iSteps.
@@ -193,7 +193,7 @@ Section waiters۰G.
     wp۰apply+ (array٠unsafe_getｰspec with "Hwaiters") as "_". 1-3: done || lia.
     wp۰apply+ (waiter٠prepare_waitｰspec with "H𝑤𝑎𝑖𝑡𝑒𝑟") as "_".
 
-    awp۰apply+ (mpmc_queue_1٠pushｰspec with "Hqueue_inv") without "HΦ".
+    awp۰apply+ (queue_mpmc_1٠pushｰspec with "Hqueue_inv") without "HΦ".
     iInv "Hinv" as "(:inv۰inner)".
     iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model !>".
     iSplitL. { iFrameSteps. }

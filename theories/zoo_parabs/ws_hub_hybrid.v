@@ -23,14 +23,14 @@ Implicit Type empty : emptiness.
 
 Class WsHubHybridG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] ws_hub_hybrid۰G۰deques۰G :: WsBdequesPublicG Σ
-  ; #[local] ws_hub_hybrid۰G۰queue۰G :: MpmcQueue1G Σ
+  ; #[local] ws_hub_hybrid۰G۰queue۰G :: QueueMpmc1G Σ
   ; #[local] ws_hub_hybrid۰G۰waiters۰G :: WaitersG Σ
   ; #[local] ws_hub_hybrid۰G۰emptiness۰G :: GhostListG Σ emptiness
   }.
 
 Definition ws_hub_hybrid۰Σ :=
   #[ws_bdeques_public۰Σ
-  ; mpmc_queue_1۰Σ
+  ; queue_mpmc_1۰Σ
   ; waiters۰Σ
   ; ghost_list۰Σ emptiness
   ].
@@ -228,7 +228,7 @@ Section ws_hub_hybrid۰G.
     𝑡.[waiters] ↦□ γ.(metadata۰waiters) ∗
     ws_bdeques_public۰inv γ.(metadata۰deques) ι γ.(metadata۰size) ∗
     array۰inv γ.(metadata۰rounds) γ.(metadata۰size) ∗
-    mpmc_queue_1۰inv γ.(metadata۰queue) ι ∗
+    queue_mpmc_1۰inv γ.(metadata۰queue) ι ∗
     waiters۰inv γ.(metadata۰waiters) sz ∗
     inv nroot (inv۰inner 𝑡).
   #[local] Instance : CustomIpat "inv" :=
@@ -254,7 +254,7 @@ Section ws_hub_hybrid۰G.
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
     ws_bdeques_public۰model γ.(metadata۰deques) vss ∗
-    mpmc_queue_1۰model γ.(metadata۰queue) vs_queue ∗
+    queue_mpmc_1۰model γ.(metadata۰queue) vs_queue ∗
     ⌜consistent vs vss vs_queue⌝ ∗
     emptiness۰auth γ vs_queue.
   #[local] Instance : CustomIpat "model" :=
@@ -460,7 +460,7 @@ Section ws_hub_hybrid۰G.
 
     wp۰apply+ (waiters٠createｰspec with "[//]") as (waiters) "#Hwaiters_inv". 1: done.
 
-    wp۰apply (mpmc_queue_1٠createｰspec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)".
+    wp۰apply (queue_mpmc_1٠createｰspec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)".
 
     wp۰apply+ (array٠unsafe_initｰspecｰdisentangled (λ _ round, random_round۰model' round (₊sz - 1) (₊sz - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)". 1: done.
     { iIntros "!> %i %Hi".
@@ -711,7 +711,7 @@ Section ws_hub_hybrid۰G.
 
       wp۰load.
 
-      awp۰apply (mpmc_queue_1٠pushｰspec with "Hqueue_inv") without "Hdeques_owner Hround".
+      awp۰apply (queue_mpmc_1٠pushｰspec with "Hqueue_inv") without "Hdeques_owner Hround".
       iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
       iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model".
@@ -776,7 +776,7 @@ Section ws_hub_hybrid۰G.
 
       wp۰load.
 
-      awp۰apply (mpmc_queue_1٠popｰspec with "Hqueue_inv") without "Hdeques_owner Hround".
+      awp۰apply (queue_mpmc_1٠popｰspec with "Hqueue_inv") without "Hdeques_owner Hround".
       iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
       iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model".

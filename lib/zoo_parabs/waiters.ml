@@ -1,11 +1,11 @@
 type t =
   { waiters: Waiter.t array
-  ; queue: Waiter.t Mpmc_queue_1.t
+  ; queue: Waiter.t Queue_mpmc_1.t
   }
 
 let create sz =
   { waiters= Array.unsafe_init sz Waiter.create
-  ; queue= Mpmc_queue_1.create ()
+  ; queue= Queue_mpmc_1.create ()
   }
 
 let notify t i =
@@ -13,7 +13,7 @@ let notify t i =
   Waiter.notify waiter |> ignore
 
 let rec notify_one t =
-  match Mpmc_queue_1.pop t.queue with
+  match Queue_mpmc_1.pop t.queue with
   | None ->
       ()
   | Some waiter ->
@@ -21,7 +21,7 @@ let rec notify_one t =
         notify_one t
 
 let rec notify_all t =
-  match Mpmc_queue_1.pop t.queue with
+  match Queue_mpmc_1.pop t.queue with
   | None ->
       ()
   | Some waiter ->
@@ -31,7 +31,7 @@ let rec notify_all t =
 let prepare_wait t i =
   let waiter = Array.unsafe_get t.waiters i in
   Waiter.prepare_wait waiter ;
-  Mpmc_queue_1.push t.queue waiter
+  Queue_mpmc_1.push t.queue waiter
 
 let cancel_wait t i =
   let waiter = Array.unsafe_get t.waiters i in

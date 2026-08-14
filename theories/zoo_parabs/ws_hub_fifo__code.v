@@ -2,7 +2,7 @@ Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_parabs.waiters.
-Require Import zoo_saturn.mpmc_queue_1.
+Require Import zoo_saturn.queue_mpmc_1.
 Require Import zoo.options.
 
 Notation "'ws_hub_fifo٠size'" := (
@@ -24,7 +24,7 @@ Notation "'ws_hub_fifo٠num_active'" := (
 
 Definition ws_hub_fifo٠create : val :=
   𝗳𝘂𝗻 "sz" ->
-    { "sz", mpmc_queue_1٠create (), waiters٠create "sz", "sz" + 1 }.
+    { "sz", queue_mpmc_1٠create (), waiters٠create "sz", "sz" + 1 }.
 
 Definition ws_hub_fifo٠size : val :=
   𝗳𝘂𝗻 "t" ->
@@ -62,12 +62,12 @@ Definition ws_hub_fifo٠notify_all : val :=
 
 Definition ws_hub_fifo٠push : val :=
   𝗳𝘂𝗻 "t" "_i" "v" ->
-    mpmc_queue_1٠push "t".{ws_hub_fifo٠queue} "v" ⍮
+    queue_mpmc_1٠push "t".{ws_hub_fifo٠queue} "v" ⍮
     ws_hub_fifo٠notify "t".
 
 Definition ws_hub_fifo٠pop' : val :=
   𝗳𝘂𝗻 "t" ->
-    mpmc_queue_1٠pop "t".{ws_hub_fifo٠queue}.
+    queue_mpmc_1٠pop "t".{ws_hub_fifo٠queue}.
 
 Definition ws_hub_fifo٠pop : val :=
   𝗳𝘂𝗻 "t" "_i" ->

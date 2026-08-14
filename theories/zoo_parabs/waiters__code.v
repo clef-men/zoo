@@ -2,7 +2,7 @@ Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_parabs.waiter.
-Require Import zoo_saturn.mpmc_queue_1.
+Require Import zoo_saturn.queue_mpmc_1.
 Require Import zoo_std.array.
 Require Import zoo.options.
 
@@ -17,7 +17,7 @@ Notation "'waiters٠queue'" := (
 
 Definition waiters٠create : val :=
   𝗳𝘂𝗻 "sz" ->
-    (array٠unsafe_init "sz" waiter٠create, mpmc_queue_1٠create ()).
+    (array٠unsafe_init "sz" waiter٠create, queue_mpmc_1٠create ()).
 
 Definition waiters٠notify : val :=
   𝗳𝘂𝗻 "t" "i" ->
@@ -30,7 +30,7 @@ Definition waiters٠notify : val :=
 Definition waiters٠notify_one : val :=
   𝗿𝗲𝗰 "notify_one" "t" ->
     𝗺𝗮𝘁𝗰𝗵
-      mpmc_queue_1٠pop "t".<waiters٠queue>
+      queue_mpmc_1٠pop "t".<waiters٠queue>
     𝘄𝗶𝘁𝗵
     | None ->
         ()
@@ -43,7 +43,7 @@ Definition waiters٠notify_one : val :=
 Definition waiters٠notify_all : val :=
   𝗿𝗲𝗰 "notify_all" "t" ->
     𝗺𝗮𝘁𝗰𝗵
-      mpmc_queue_1٠pop "t".<waiters٠queue>
+      queue_mpmc_1٠pop "t".<waiters٠queue>
     𝘄𝗶𝘁𝗵
     | None ->
         ()
@@ -58,7 +58,7 @@ Definition waiters٠prepare_wait : val :=
       array٠unsafe_get "t".<waiters٠waiters> "i"
     𝗶𝗻
     waiter٠prepare_wait "waiter" ⍮
-    mpmc_queue_1٠push "t".<waiters٠queue> "waiter".
+    queue_mpmc_1٠push "t".<waiters٠queue> "waiter".
 
 Definition waiters٠cancel_wait : val :=
   𝗳𝘂𝗻 "t" "i" ->
