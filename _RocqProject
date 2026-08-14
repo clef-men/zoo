@@ -394,10 +394,10 @@ theories/zoo_saturn/bqueue_spsc__types.v
 theories/zoo_saturn/bqueue_spsc__code.v
 theories/zoo_saturn/bqueue_spsc__opaque.v
 theories/zoo_saturn/bqueue_spsc.v
-theories/zoo_saturn/mpmc_bqueue__types.v
-theories/zoo_saturn/mpmc_bqueue__code.v
-theories/zoo_saturn/mpmc_bqueue__opaque.v
-theories/zoo_saturn/mpmc_bqueue.v
+theories/zoo_saturn/bqueue_mpmc__types.v
+theories/zoo_saturn/bqueue_mpmc__code.v
+theories/zoo_saturn/bqueue_mpmc__opaque.v
+theories/zoo_saturn/bqueue_mpmc.v
 theories/zoo_saturn/queue_spmc__types.v
 theories/zoo_saturn/queue_spmc__code.v
 theories/zoo_saturn/queue_spmc__opaque.v
