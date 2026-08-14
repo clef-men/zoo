@@ -5,8 +5,8 @@ Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Export zoo_saturn.mpsc_queue_3__code.
-Require Import zoo_saturn.mpsc_queue_3__types.
+Require Export zoo_saturn.queue_mpsc_3__code.
+Require Import zoo_saturn.queue_mpsc_3__types.
 Require Import zoo.options.
 
 Implicit Type b closed : bool.
@@ -15,24 +15,24 @@ Implicit Type v t : val.
 Implicit Type vs front back : list val.
 Implicit Type ws : option (list val).
 
-Class MpscQueue3G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] mpsc_queue_3۰G۰twins۰G :: TwinsG Σ (leibnizO (list val))
-  ; #[local] mpsc_queue_3۰G۰lstate۰G :: OneshotG Σ () ()
+Class QueueMpsc3G Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] queue_mpsc_3۰G۰twins۰G :: TwinsG Σ (leibnizO (list val))
+  ; #[local] queue_mpsc_3۰G۰lstate۰G :: OneshotG Σ () ()
   }.
 
-Definition mpsc_queue_3۰Σ :=
+Definition queue_mpsc_3۰Σ :=
   #[twins۰Σ (leibnizO (list val))
   ; oneshot۰Σ () ()
   ].
-#[global] Instance subGｰmpsc_queue_3۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG mpsc_queue_3۰Σ Σ →
-  MpscQueue3G Σ.
+#[global] Instance subGｰqueue_mpsc_3۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG queue_mpsc_3۰Σ Σ →
+  QueueMpsc3G Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section mpsc_queue_3۰G.
-  Context `{mpsc_queue_3۰G : MpscQueue3G Σ}.
+Section queue_mpsc_3۰G.
+  Context `{queue_mpsc_3۰G : QueueMpsc3G Σ}.
 
   Record metadata :=
     { metadata۰model : gname
@@ -99,7 +99,7 @@ Section mpsc_queue_3۰G.
       & [(>Hopen₂ & %back{} & >-> & >Hmodel₂{_{suff}}) | (>Hclosed{_{suff}} & >->)]
       )
     ".
-  Definition mpsc_queue_3۰inv t ι : iProp Σ :=
+  Definition queue_mpsc_3۰inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -113,7 +113,7 @@ Section mpsc_queue_3۰G.
       )
     ".
 
-  Definition mpsc_queue_3۰model t vs : iProp Σ :=
+  Definition queue_mpsc_3۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -127,7 +127,7 @@ Section mpsc_queue_3۰G.
       )
     ".
 
-  Definition mpsc_queue_3۰consumer t ws : iProp Σ :=
+  Definition queue_mpsc_3۰consumer t ws : iProp Σ :=
     ∃ l γ v_front front,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -156,7 +156,7 @@ Section mpsc_queue_3۰G.
       )
     ".
 
-  Definition mpsc_queue_3۰closed t : iProp Σ :=
+  Definition queue_mpsc_3۰closed t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -170,24 +170,24 @@ Section mpsc_queue_3۰G.
       )
     ".
 
-  #[global] Instance mpsc_queue_3۰modelｰtimeless t vs :
-    Timeless (mpsc_queue_3۰model t vs).
+  #[global] Instance queue_mpsc_3۰modelｰtimeless t vs :
+    Timeless (queue_mpsc_3۰model t vs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpsc_queue_3۰consumerｰtimeless t ws :
-    Timeless (mpsc_queue_3۰consumer t ws ).
+  #[global] Instance queue_mpsc_3۰consumerｰtimeless t ws :
+    Timeless (queue_mpsc_3۰consumer t ws ).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpsc_queue_3۰invｰpersistent t ι :
-    Persistent (mpsc_queue_3۰inv t ι).
+  #[global] Instance queue_mpsc_3۰invｰpersistent t ι :
+    Persistent (queue_mpsc_3۰inv t ι).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpsc_queue_3۰closedｰpersistent t :
-    Persistent (mpsc_queue_3۰closed t).
+  #[global] Instance queue_mpsc_3۰closedｰpersistent t :
+    Persistent (queue_mpsc_3۰closed t).
   Proof.
     apply _.
   Qed.
@@ -280,9 +280,9 @@ Section mpsc_queue_3۰G.
     iApply (oneshotｰupdateｰshot with "Hopen").
   Qed.
 
-  Lemma mpsc_queue_3۰modelｰexclusive t vs1 vs2 :
-    mpsc_queue_3۰model t vs1 -∗
-    mpsc_queue_3۰model t vs2 -∗
+  Lemma queue_mpsc_3۰modelｰexclusive t vs1 vs2 :
+    queue_mpsc_3۰model t vs1 -∗
+    queue_mpsc_3۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simp.
@@ -290,31 +290,31 @@ Section mpsc_queue_3۰G.
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma mpsc_queue_3۰consumerｰexclusive t ws1 ws2 :
-    mpsc_queue_3۰consumer t ws1 -∗
-    mpsc_queue_3۰consumer t ws2 -∗
+  Lemma queue_mpsc_3۰consumerｰexclusive t ws1 ws2 :
+    queue_mpsc_3۰consumer t ws1 -∗
+    queue_mpsc_3۰consumer t ws2 -∗
     False.
   Proof.
     iSteps.
   Qed.
-  Lemma mpsc_queue_3ｰconsumerｰclosed t vs :
-    mpsc_queue_3۰consumer t (Some vs) ⊢
-    mpsc_queue_3۰closed t.
+  Lemma queue_mpsc_3ｰconsumerｰclosed t vs :
+    queue_mpsc_3۰consumer t (Some vs) ⊢
+    queue_mpsc_3۰closed t.
   Proof.
     iSteps.
   Qed.
 
-  Lemma mpsc_queue_3٠createｰspec ι :
+  Lemma queue_mpsc_3٠createｰspec ι :
     {{{
       True
     }}}
-      mpsc_queue_3٠create ()
+      queue_mpsc_3٠create ()
     {{{
       t
     , RET t;
-      mpsc_queue_3۰inv t ι ∗
-      mpsc_queue_3۰model t [] ∗
-      mpsc_queue_3۰consumer t None
+      queue_mpsc_3۰inv t ι ∗
+      queue_mpsc_3۰model t [] ∗
+      queue_mpsc_3۰consumer t None
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -338,18 +338,18 @@ Section mpsc_queue_3۰G.
     iSteps. iExists []. iSteps.
   Qed.
 
-  Lemma mpsc_queue_3٠is_emptyｰspecｰopen t ι :
+  Lemma queue_mpsc_3٠is_emptyｰspecｰopen t ι :
     <<<
-      mpsc_queue_3۰inv t ι ∗
-      mpsc_queue_3۰consumer t None
+      queue_mpsc_3۰inv t ι ∗
+      queue_mpsc_3۰consumer t None
     | ∀∀ vs,
-      mpsc_queue_3۰model t vs
+      queue_mpsc_3۰model t vs
     >>>
-      mpsc_queue_3٠is_empty t @ ↑ι
+      queue_mpsc_3٠is_empty t @ ↑ι
     <<<
-      mpsc_queue_3۰model t vs
+      queue_mpsc_3۰model t vs
     | RET #(bool_decide (vs = []%list));
-      mpsc_queue_3۰consumer t None
+      queue_mpsc_3۰consumer t None
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer open=)) HΦ". injection Heq as <-.
@@ -389,15 +389,15 @@ Section mpsc_queue_3۰G.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSteps.
   Qed.
-  Lemma mpsc_queue_3٠is_emptyｰspecｰclosed t ι vs :
+  Lemma queue_mpsc_3٠is_emptyｰspecｰclosed t ι vs :
     {{{
-      mpsc_queue_3۰inv t ι ∗
-      mpsc_queue_3۰consumer t (Some vs)
+      queue_mpsc_3۰inv t ι ∗
+      queue_mpsc_3۰consumer t (Some vs)
     }}}
-      mpsc_queue_3٠is_empty t
+      queue_mpsc_3٠is_empty t
     {{{
       RET #(bool_decide (vs = []%list));
-      mpsc_queue_3۰consumer t (Some vs)
+      queue_mpsc_3۰consumer t (Some vs)
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer closed=)) HΦ". injection Heq as <-.
@@ -408,18 +408,18 @@ Section mpsc_queue_3۰G.
     destruct front as [| v front]; iSteps.
   Qed.
 
-  Lemma mpsc_queue_3٠push_frontｰspecｰopen t ι v :
+  Lemma queue_mpsc_3٠push_frontｰspecｰopen t ι v :
     <<<
-      mpsc_queue_3۰inv t ι ∗
-      mpsc_queue_3۰consumer t None
+      queue_mpsc_3۰inv t ι ∗
+      queue_mpsc_3۰consumer t None
     | ∀∀ vs,
-      mpsc_queue_3۰model t vs
+      queue_mpsc_3۰model t vs
     >>>
-      mpsc_queue_3٠push_front t v @ ↑ι
+      queue_mpsc_3٠push_front t v @ ↑ι
     <<<
-      mpsc_queue_3۰model t (v :: vs)
+      queue_mpsc_3۰model t (v :: vs)
     | RET false;
-      mpsc_queue_3۰consumer t None
+      queue_mpsc_3۰consumer t None
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer open=)) HΦ". injection Heq as <-.
@@ -441,21 +441,21 @@ Section mpsc_queue_3۰G.
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
     iSteps.
   Qed.
-  Lemma mpsc_queue_3٠push_frontｰspecｰclosed t ι vs v :
+  Lemma queue_mpsc_3٠push_frontｰspecｰclosed t ι vs v :
     <<<
-      mpsc_queue_3۰inv t ι ∗
-      mpsc_queue_3۰consumer t (Some vs)
+      queue_mpsc_3۰inv t ι ∗
+      queue_mpsc_3۰consumer t (Some vs)
     | ∀∀ vs',
-      mpsc_queue_3۰model t vs'
+      queue_mpsc_3۰model t vs'
     >>>
-      mpsc_queue_3٠push_front t v @ ↑ι
+      queue_mpsc_3٠push_front t v @ ↑ι
     <<<
       ∃∃ b,
       ⌜b = bool_decide (vs = [])⌝ ∗
       ⌜vs' = vs⌝ ∗
-      mpsc_queue_3۰model t (if b then [] else v :: vs)
+      queue_mpsc_3۰model t (if b then [] else v :: vs)
     | RET #b;
-      mpsc_queue_3۰consumer t (Some $ if b then [] else v :: vs)
+      queue_mpsc_3۰consumer t (Some $ if b then [] else v :: vs)
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer closed=)) HΦ". injection Heq as <-.
@@ -486,22 +486,22 @@ Section mpsc_queue_3۰G.
       iSteps.
   Qed.
 
-  Lemma mpsc_queue_3٠push_backｰspecｰopen closed t ι v :
+  Lemma queue_mpsc_3٠push_backｰspecｰopen closed t ι v :
     <<<
-      mpsc_queue_3۰inv t ι
+      queue_mpsc_3۰inv t ι
     | ∀∀ vs,
-      mpsc_queue_3۰model t vs
+      queue_mpsc_3۰model t vs
     >>>
-      mpsc_queue_3٠push_back t v @ ↑ι
+      queue_mpsc_3٠push_back t v @ ↑ι
     <<<
       ∃∃ closed,
       if closed then
-        mpsc_queue_3۰model t vs
+        queue_mpsc_3۰model t vs
       else
-        mpsc_queue_3۰model t (vs ++ [v])
+        queue_mpsc_3۰model t (vs ++ [v])
     | RET #closed;
       if closed then
-        mpsc_queue_3۰closed t
+        queue_mpsc_3۰closed t
       else
         True
     >>>.
@@ -543,12 +543,12 @@ Section mpsc_queue_3۰G.
       iMod ("HΦ" $! true with "Hmodel") as "HΦ".
       iSteps.
   Qed.
-  Lemma mpsc_queue_3٠push_backｰspecｰclosed closed t ι v :
+  Lemma queue_mpsc_3٠push_backｰspecｰclosed closed t ι v :
     {{{
-      mpsc_queue_3۰inv t ι ∗
-      mpsc_queue_3۰closed t
+      queue_mpsc_3۰inv t ι ∗
+      queue_mpsc_3۰closed t
     }}}
-      mpsc_queue_3٠push_back t v
+      queue_mpsc_3٠push_back t v
     {{{
       RET true;
       True
@@ -567,18 +567,18 @@ Section mpsc_queue_3۰G.
     iSteps.
   Qed.
 
-  Lemma mpsc_queue_3٠popｰspecｰopen t ι :
+  Lemma queue_mpsc_3٠popｰspecｰopen t ι :
     <<<
-      mpsc_queue_3۰inv t ι ∗
-      mpsc_queue_3۰consumer t None
+      queue_mpsc_3۰inv t ι ∗
+      queue_mpsc_3۰consumer t None
     | ∀∀ vs,
-      mpsc_queue_3۰model t vs
+      queue_mpsc_3۰model t vs
     >>>
-      mpsc_queue_3٠pop t @ ↑ι
+      queue_mpsc_3٠pop t @ ↑ι
     <<<
-      mpsc_queue_3۰model t (tail vs)
+      queue_mpsc_3۰model t (tail vs)
     | RET head vs;
-      mpsc_queue_3۰consumer t None
+      queue_mpsc_3۰consumer t None
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer open=)) HΦ". injection Heq as <-.
@@ -632,19 +632,19 @@ Section mpsc_queue_3۰G.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSteps.
   Qed.
-  Lemma mpsc_queue_3٠popｰspecｰclosed t ι vs :
+  Lemma queue_mpsc_3٠popｰspecｰclosed t ι vs :
     <<<
-      mpsc_queue_3۰inv t ι ∗
-      mpsc_queue_3۰consumer t (Some vs)
+      queue_mpsc_3۰inv t ι ∗
+      queue_mpsc_3۰consumer t (Some vs)
     | ∀∀ vs',
-      mpsc_queue_3۰model t vs'
+      queue_mpsc_3۰model t vs'
     >>>
-      mpsc_queue_3٠pop t @ ↑ι
+      queue_mpsc_3٠pop t @ ↑ι
     <<<
       ⌜vs' = vs⌝ ∗
-      mpsc_queue_3۰model t (tail vs)
+      queue_mpsc_3۰model t (tail vs)
     | RET head vs;
-      mpsc_queue_3۰consumer t (Some $ tail vs)
+      queue_mpsc_3۰consumer t (Some $ tail vs)
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer closed=)) HΦ". injection Heq as <-.
@@ -674,18 +674,18 @@ Section mpsc_queue_3۰G.
       iSteps.
   Qed.
 
-  Lemma mpsc_queue_3٠closeｰspecｰopen t ι :
+  Lemma queue_mpsc_3٠closeｰspecｰopen t ι :
     <<<
-      mpsc_queue_3۰inv t ι ∗
-      mpsc_queue_3۰consumer t None
+      queue_mpsc_3۰inv t ι ∗
+      queue_mpsc_3۰consumer t None
     | ∀∀ vs,
-      mpsc_queue_3۰model t vs
+      queue_mpsc_3۰model t vs
     >>>
-      mpsc_queue_3٠close t @ ↑ι
+      queue_mpsc_3٠close t @ ↑ι
     <<<
-      mpsc_queue_3۰model t vs
+      queue_mpsc_3۰model t vs
     | RET false;
-      mpsc_queue_3۰consumer t (Some vs)
+      queue_mpsc_3۰consumer t (Some vs)
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer open=)) HΦ". injection Heq as <-.
@@ -716,15 +716,15 @@ Section mpsc_queue_3۰G.
 
     iSteps. rewrite clist۰appｰClosed. erewrite clist۰appｰclosed => //.
   Qed.
-  Lemma mpsc_queue_3٠closeｰspecｰclosed t ι vs :
+  Lemma queue_mpsc_3٠closeｰspecｰclosed t ι vs :
     {{{
-      mpsc_queue_3۰inv t ι ∗
-      mpsc_queue_3۰consumer t (Some vs)
+      queue_mpsc_3۰inv t ι ∗
+      queue_mpsc_3۰consumer t (Some vs)
     }}}
-      mpsc_queue_3٠close t
+      queue_mpsc_3٠close t
     {{{
       RET true;
-      mpsc_queue_3۰consumer t (Some vs)
+      queue_mpsc_3۰consumer t (Some vs)
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer closed=)) HΦ". injection Heq as <-.
@@ -737,11 +737,11 @@ Section mpsc_queue_3۰G.
     { iDestruct (lstateｰopen₂ｰclosed with "Hopen₂ Hclosed") as %[]. }
     iSteps.
   Qed.
-End mpsc_queue_3۰G.
+End queue_mpsc_3۰G.
 
-Require zoo_saturn.mpsc_queue_3__opaque.
+Require zoo_saturn.queue_mpsc_3__opaque.
 
-#[global] Opaque mpsc_queue_3۰inv.
-#[global] Opaque mpsc_queue_3۰model.
-#[global] Opaque mpsc_queue_3۰consumer.
-#[global] Opaque mpsc_queue_3۰closed.
+#[global] Opaque queue_mpsc_3۰inv.
+#[global] Opaque queue_mpsc_3۰model.
+#[global] Opaque queue_mpsc_3۰consumer.
+#[global] Opaque queue_mpsc_3۰closed.

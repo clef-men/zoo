@@ -410,10 +410,10 @@ theories/zoo_saturn/queue_mpsc_2__types.v
 theories/zoo_saturn/queue_mpsc_2__code.v
 theories/zoo_saturn/queue_mpsc_2__opaque.v
 theories/zoo_saturn/queue_mpsc_2.v
-theories/zoo_saturn/mpsc_queue_3__types.v
-theories/zoo_saturn/mpsc_queue_3__code.v
-theories/zoo_saturn/mpsc_queue_3__opaque.v
-theories/zoo_saturn/mpsc_queue_3.v
+theories/zoo_saturn/queue_mpsc_3__types.v
+theories/zoo_saturn/queue_mpsc_3__code.v
+theories/zoo_saturn/queue_mpsc_3__opaque.v
+theories/zoo_saturn/queue_mpsc_3.v
 theories/zoo_saturn/mpmc_queue_1__types.v
 theories/zoo_saturn/mpmc_queue_1__code.v
 theories/zoo_saturn/mpmc_queue_1__opaque.v
