@@ -2,30 +2,30 @@ Require Import zoo.prelude.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Export zoo_saturn.mpmc_stack_1__code.
-Require Import zoo_saturn.mpmc_stack_1__types.
+Require Export zoo_saturn.stack_mpmc_1__code.
+Require Import zoo_saturn.stack_mpmc_1__types.
 Require Import zoo.options.
 
 Implicit Type l : location.
 Implicit Type v t : val.
 Implicit Type vs : list val.
 
-Class MpmcStack1G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] mpmc_stack_1۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
+Class StackMpmc1G Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] stack_mpmc_1۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
   }.
 
-Definition mpmc_stack_1۰Σ :=
+Definition stack_mpmc_1۰Σ :=
   #[twins۰Σ (leibnizO (list val))
   ].
-#[global] Instance subGｰmpmc_stack_1۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG mpmc_stack_1۰Σ Σ →
-  MpmcStack1G Σ.
+#[global] Instance subGｰstack_mpmc_1۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG stack_mpmc_1۰Σ Σ →
+  StackMpmc1G Σ.
 Proof.
   solve_inG.
 Qed.
 
 Section zoo۰G.
-  Context `{mpmc_stack_1۰G : MpmcStack1G Σ}.
+  Context `{stack_mpmc_1۰G : StackMpmc1G Σ}.
 
   #[local] Definition metadata :=
     gname.
@@ -46,7 +46,7 @@ Section zoo۰G.
       & Hmodel₂
       )
     ".
-  Definition mpmc_stack_1۰inv t ι : iProp Σ :=
+  Definition stack_mpmc_1۰inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -60,7 +60,7 @@ Section zoo۰G.
       )
     ".
 
-  Definition mpmc_stack_1۰model t vs : iProp Σ :=
+  Definition stack_mpmc_1۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -74,14 +74,14 @@ Section zoo۰G.
       )
     ".
 
-  #[global] Instance mpmc_stack_1۰modelｰtimeless t vs :
-    Timeless (mpmc_stack_1۰model t vs).
+  #[global] Instance stack_mpmc_1۰modelｰtimeless t vs :
+    Timeless (stack_mpmc_1۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpmc_stack_1۰invｰpersistent t ι :
-    Persistent (mpmc_stack_1۰inv t ι).
+  #[global] Instance stack_mpmc_1۰invｰpersistent t ι :
+    Persistent (stack_mpmc_1۰inv t ι).
   Proof.
     apply _.
   Qed.
@@ -117,9 +117,9 @@ Section zoo۰G.
     apply twinsｰupdate.
   Qed.
 
-  Lemma mpmc_stack_1۰modelｰexclusive t vs1 vs2 :
-    mpmc_stack_1۰model t vs1 -∗
-    mpmc_stack_1۰model t vs2 -∗
+  Lemma stack_mpmc_1۰modelｰexclusive t vs1 vs2 :
+    stack_mpmc_1۰model t vs1 -∗
+    stack_mpmc_1۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simp.
@@ -127,16 +127,16 @@ Section zoo۰G.
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma mpmc_stack_1٠createｰspec ι :
+  Lemma stack_mpmc_1٠createｰspec ι :
     {{{
       True
     }}}
-      mpmc_stack_1٠create ()
+      stack_mpmc_1٠create ()
     {{{
       t
     , RET t;
-      mpmc_stack_1۰inv t ι ∗
-      mpmc_stack_1۰model t []
+      stack_mpmc_1۰inv t ι ∗
+      stack_mpmc_1۰model t []
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -152,15 +152,15 @@ Section zoo۰G.
     iStep 2. iApply inv_alloc. iExists []. iSteps.
   Qed.
 
-  Lemma mpmc_stack_1٠pushｰspec t ι v :
+  Lemma stack_mpmc_1٠pushｰspec t ι v :
     <<<
-      mpmc_stack_1۰inv t ι
+      stack_mpmc_1۰inv t ι
     | ∀∀ vs,
-      mpmc_stack_1۰model t vs
+      stack_mpmc_1۰model t vs
     >>>
-      mpmc_stack_1٠push t v @ ↑ι
+      stack_mpmc_1٠push t v @ ↑ι
     <<<
-      mpmc_stack_1۰model t (v :: vs)
+      stack_mpmc_1۰model t (v :: vs)
     | RET ();
       True
     >>>.
@@ -191,15 +191,15 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma mpmc_stack_1٠popｰspec t ι :
+  Lemma stack_mpmc_1٠popｰspec t ι :
     <<<
-      mpmc_stack_1۰inv t ι
+      stack_mpmc_1۰inv t ι
     | ∀∀ vs,
-      mpmc_stack_1۰model t vs
+      stack_mpmc_1۰model t vs
     >>>
-      mpmc_stack_1٠pop t @ ↑ι
+      stack_mpmc_1٠pop t @ ↑ι
     <<<
-      mpmc_stack_1۰model t (tail vs)
+      stack_mpmc_1۰model t (tail vs)
     | RET head vs;
       True
     >>>.
@@ -240,15 +240,15 @@ Section zoo۰G.
       iSteps.
   Qed.
 
-  Lemma mpmc_stack_1٠snapshotｰspec t ι :
+  Lemma stack_mpmc_1٠snapshotｰspec t ι :
     <<<
-      mpmc_stack_1۰inv t ι
+      stack_mpmc_1۰inv t ι
     | ∀∀ vs,
-      mpmc_stack_1۰model t vs
+      stack_mpmc_1۰model t vs
     >>>
-      mpmc_stack_1٠snapshot t @ ↑ι
+      stack_mpmc_1٠snapshot t @ ↑ι
     <<<
-      mpmc_stack_1۰model t vs
+      stack_mpmc_1۰model t vs
     | RET glist۰to_val vs;
       True
     >>>.
@@ -267,7 +267,7 @@ Section zoo۰G.
   Qed.
 End zoo۰G.
 
-Require zoo_saturn.mpmc_stack_1__opaque.
+Require zoo_saturn.stack_mpmc_1__opaque.
 
-#[global] Opaque mpmc_stack_1۰inv.
-#[global] Opaque mpmc_stack_1۰model.
+#[global] Opaque stack_mpmc_1۰inv.
+#[global] Opaque stack_mpmc_1۰model.

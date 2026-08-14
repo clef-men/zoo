@@ -5,11 +5,11 @@ Require Import zoo_std.domain.
 Require Import zoo_std.glist.
 Require Import zoo.options.
 
-Definition mpmc_stack_1٠create : val :=
+Definition stack_mpmc_1٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
     𝗿𝗲𝗳 §glist٠Nil.
 
-Definition mpmc_stack_1٠push : val :=
+Definition stack_mpmc_1٠push : val :=
   𝗿𝗲𝗰 "push" "t" "v" ->
     𝗹𝗲𝘁 "old" = !"t" 𝗶𝗻
     𝗹𝗲𝘁 "new_" = ‘glist٠Cons[ "v", "old" ] 𝗶𝗻
@@ -18,7 +18,7 @@ Definition mpmc_stack_1٠push : val :=
       "push" "t" "v"
     ).
 
-Definition mpmc_stack_1٠pop : val :=
+Definition stack_mpmc_1٠pop : val :=
   𝗿𝗲𝗰 "pop" "t" ->
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
     | glist٠Nil ->
@@ -32,6 +32,6 @@ Definition mpmc_stack_1٠pop : val :=
         )
     𝗲𝗻𝗱.
 
-Definition mpmc_stack_1٠snapshot : val :=
+Definition stack_mpmc_1٠snapshot : val :=
   𝗳𝘂𝗻 "t" ->
     !"t".
