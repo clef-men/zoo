@@ -370,10 +370,10 @@ theories/zoo_saturn/stack_mpmc_1__types.v
 theories/zoo_saturn/stack_mpmc_1__code.v
 theories/zoo_saturn/stack_mpmc_1__opaque.v
 theories/zoo_saturn/stack_mpmc_1.v
-theories/zoo_saturn/mpmc_stack_2__types.v
-theories/zoo_saturn/mpmc_stack_2__code.v
-theories/zoo_saturn/mpmc_stack_2__opaque.v
-theories/zoo_saturn/mpmc_stack_2.v
+theories/zoo_saturn/stack_mpmc_2__types.v
+theories/zoo_saturn/stack_mpmc_2__code.v
+theories/zoo_saturn/stack_mpmc_2__opaque.v
+theories/zoo_saturn/stack_mpmc_2.v
 theories/zoo_saturn/bstack_mpmc__types.v
 theories/zoo_saturn/bstack_mpmc__code.v
 theories/zoo_saturn/bstack_mpmc__opaque.v

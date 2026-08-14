@@ -6,11 +6,11 @@ Require Import zoo_std.domain.
 Require Import zoo_std.optional.
 Require Import zoo.options.
 
-Definition mpmc_stack_2٠create : val :=
+Definition stack_mpmc_2٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
     𝗿𝗲𝗳 §clist٠Open.
 
-Definition mpmc_stack_2٠push : val :=
+Definition stack_mpmc_2٠push : val :=
   𝗿𝗲𝗰 "push" "t" "v" ->
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
     | clist٠Closed ->
@@ -25,7 +25,7 @@ Definition mpmc_stack_2٠push : val :=
         )
     𝗲𝗻𝗱.
 
-Definition mpmc_stack_2٠pop : val :=
+Definition stack_mpmc_2٠pop : val :=
   𝗿𝗲𝗰 "pop" "t" ->
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
     | clist٠Closed ->
@@ -41,10 +41,10 @@ Definition mpmc_stack_2٠pop : val :=
         )
     𝗲𝗻𝗱.
 
-Definition mpmc_stack_2٠is_closed : val :=
+Definition stack_mpmc_2٠is_closed : val :=
   𝗳𝘂𝗻 "t" ->
     !"t" == §clist٠Closed.
 
-Definition mpmc_stack_2٠close : val :=
+Definition stack_mpmc_2٠close : val :=
   𝗳𝘂𝗻 "t" ->
     𝘅𝗰𝗵𝗴 "t".[contents] §clist٠Closed.

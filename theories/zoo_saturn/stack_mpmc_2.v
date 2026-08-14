@@ -2,30 +2,30 @@ Require Import zoo.prelude.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Export zoo_saturn.mpmc_stack_2__code.
-Require Import zoo_saturn.mpmc_stack_2__types.
+Require Export zoo_saturn.stack_mpmc_2__code.
+Require Import zoo_saturn.stack_mpmc_2__types.
 Require Import zoo.options.
 
 Implicit Type l : location.
 Implicit Type v t : val.
 Implicit Type ws : list val.
 
-Class MpmcStack2G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] mpmc_stack_2۰G۰model۰G :: TwinsG Σ (leibnizO (option $ list val))
+Class StackMpmc2G Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] stack_mpmc_2۰G۰model۰G :: TwinsG Σ (leibnizO (option $ list val))
   }.
 
-Definition mpmc_stack_2۰Σ :=
+Definition stack_mpmc_2۰Σ :=
   #[twins۰Σ (leibnizO (option $ list val))
   ].
-#[global] Instance subGｰmpmc_stack_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG mpmc_stack_2۰Σ Σ →
-  MpmcStack2G Σ.
+#[global] Instance subGｰstack_mpmc_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG stack_mpmc_2۰Σ Σ →
+  StackMpmc2G Σ.
 Proof.
   solve_inG.
 Qed.
 
 Section zoo۰G.
-  Context `{mpmc_stack_2۰G : MpmcStack2G Σ}.
+  Context `{stack_mpmc_2۰G : StackMpmc2G Σ}.
 
   #[local] Definition metadata :=
     gname.
@@ -46,7 +46,7 @@ Section zoo۰G.
       & Hmodel₂
       )
     ".
-  Definition mpmc_stack_2۰inv t ι : iProp Σ :=
+  Definition stack_mpmc_2۰inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -60,7 +60,7 @@ Section zoo۰G.
       )
     ".
 
-  Definition mpmc_stack_2۰model t vs : iProp Σ :=
+  Definition stack_mpmc_2۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -74,22 +74,22 @@ Section zoo۰G.
       )
     ".
 
-  Definition mpmc_stack_2۰closed t :=
-    mpmc_stack_2۰model t None.
+  Definition stack_mpmc_2۰closed t :=
+    stack_mpmc_2۰model t None.
 
-  #[global] Instance mpmc_stack_2۰modelｰtimeless t vs :
-    Timeless (mpmc_stack_2۰model t vs).
+  #[global] Instance stack_mpmc_2۰modelｰtimeless t vs :
+    Timeless (stack_mpmc_2۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpmc_stack_2۰invｰpersistent t ι :
-    Persistent (mpmc_stack_2۰inv t ι).
+  #[global] Instance stack_mpmc_2۰invｰpersistent t ι :
+    Persistent (stack_mpmc_2۰inv t ι).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpmc_stack_2۰modelｰpersistent t :
-    Persistent (mpmc_stack_2۰model t None).
+  #[global] Instance stack_mpmc_2۰modelｰpersistent t :
+    Persistent (stack_mpmc_2۰model t None).
   Proof.
     apply _.
   Qed.
@@ -136,9 +136,9 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma mpmc_stack_2۰modelｰexclusive t vs1 vs2 :
-    mpmc_stack_2۰model t (Some vs1) -∗
-    mpmc_stack_2۰model t vs2 -∗
+  Lemma stack_mpmc_2۰modelｰexclusive t vs1 vs2 :
+    stack_mpmc_2۰model t (Some vs1) -∗
+    stack_mpmc_2۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simp.
@@ -146,16 +146,16 @@ Section zoo۰G.
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma mpmc_stack_2٠createｰspec ι :
+  Lemma stack_mpmc_2٠createｰspec ι :
     {{{
       True
     }}}
-      mpmc_stack_2٠create ()
+      stack_mpmc_2٠create ()
     {{{
       t
     , RET t;
-      mpmc_stack_2۰inv t ι ∗
-      mpmc_stack_2۰model t (Some [])
+      stack_mpmc_2۰inv t ι ∗
+      stack_mpmc_2۰model t (Some [])
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -172,15 +172,15 @@ Section zoo۰G.
     iStep 2. iApply inv_alloc. iExists (Some []). iSteps.
   Qed.
 
-  Lemma mpmc_stack_2٠pushｰspec t ι v :
+  Lemma stack_mpmc_2٠pushｰspec t ι v :
     <<<
-      mpmc_stack_2۰inv t ι
+      stack_mpmc_2۰inv t ι
     | ∀∀ vs,
-      mpmc_stack_2۰model t vs
+      stack_mpmc_2۰model t vs
     >>>
-      mpmc_stack_2٠push t v @ ↑ι
+      stack_mpmc_2٠push t v @ ↑ι
     <<<
-      mpmc_stack_2۰model t (cons v <$> vs)
+      stack_mpmc_2۰model t (cons v <$> vs)
     | RET #(bool_decide (vs = None));
       £ 1
     >>>.
@@ -232,12 +232,12 @@ Section zoo۰G.
       iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
-  Lemma mpmc_stack_2٠pushｰspecｰclosed t ι v :
+  Lemma stack_mpmc_2٠pushｰspecｰclosed t ι v :
     {{{
-      mpmc_stack_2۰inv t ι ∗
-      mpmc_stack_2۰closed t
+      stack_mpmc_2۰inv t ι ∗
+      stack_mpmc_2۰closed t
     }}}
-      mpmc_stack_2٠push t v
+      stack_mpmc_2٠push t v
     {{{
       RET true;
       True
@@ -246,21 +246,21 @@ Section zoo۰G.
     iIntros "%Φ (#Hinv & #Hclosed) HΦ".
 
     iApply wpｰfupd.
-    awp۰apply (mpmc_stack_2٠pushｰspec with "Hinv").
+    awp۰apply (stack_mpmc_2٠pushｰspec with "Hinv").
     iAaccIntro with "Hclosed"; first iSteps. iIntros "_ !> H£".
     iDestruct (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iSteps.
   Qed.
 
-  Lemma mpmc_stack_2٠popｰspec t ι :
+  Lemma stack_mpmc_2٠popｰspec t ι :
     <<<
-      mpmc_stack_2۰inv t ι
+      stack_mpmc_2۰inv t ι
     | ∀∀ vs,
-      mpmc_stack_2۰model t vs
+      stack_mpmc_2۰model t vs
     >>>
-      mpmc_stack_2٠pop t @ ↑ι
+      stack_mpmc_2٠pop t @ ↑ι
     <<<
-      mpmc_stack_2۰model t (tail <$> vs)
+      stack_mpmc_2۰model t (tail <$> vs)
     | RET default Anything (option۰to_optional ∘ head <$> vs);
       £ 1
     >>>.
@@ -316,12 +316,12 @@ Section zoo۰G.
       iSplitR "H£ HΦ". { iFrameSteps. }
       iSteps.
   Qed.
-  Lemma mpmc_stack_2٠popｰspecｰclosed t ι v :
+  Lemma stack_mpmc_2٠popｰspecｰclosed t ι v :
     {{{
-      mpmc_stack_2۰inv t ι ∗
-      mpmc_stack_2۰closed t
+      stack_mpmc_2۰inv t ι ∗
+      stack_mpmc_2۰closed t
     }}}
-      mpmc_stack_2٠pop t
+      stack_mpmc_2٠pop t
     {{{
       RET §optional٠Anything;
       True
@@ -330,21 +330,21 @@ Section zoo۰G.
     iIntros "%Φ (#Hinv & #Hclosed) HΦ".
 
     iApply wpｰfupd.
-    awp۰apply (mpmc_stack_2٠popｰspec with "Hinv").
+    awp۰apply (stack_mpmc_2٠popｰspec with "Hinv").
     iAaccIntro with "Hclosed"; first iSteps. iIntros "_ !> H£".
     iDestruct (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iSteps.
   Qed.
 
-  Lemma mpmc_stack_2٠is_closedｰspec t ι :
+  Lemma stack_mpmc_2٠is_closedｰspec t ι :
     <<<
-      mpmc_stack_2۰inv t ι
+      stack_mpmc_2۰inv t ι
     | ∀∀ vs,
-      mpmc_stack_2۰model t vs
+      stack_mpmc_2۰model t vs
     >>>
-      mpmc_stack_2٠is_closed t @ ↑ι
+      stack_mpmc_2٠is_closed t @ ↑ι
     <<<
-      mpmc_stack_2۰model t vs
+      stack_mpmc_2۰model t vs
     | RET #(bool_decide (vs = None));
       £ 1
     >>>.
@@ -372,12 +372,12 @@ Section zoo۰G.
       iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
-  Lemma mpmc_stack_2٠is_closedｰspecｰclosed t ι :
+  Lemma stack_mpmc_2٠is_closedｰspecｰclosed t ι :
     {{{
-      mpmc_stack_2۰inv t ι ∗
-      mpmc_stack_2۰closed t
+      stack_mpmc_2۰inv t ι ∗
+      stack_mpmc_2۰closed t
     }}}
-      mpmc_stack_2٠is_closed t
+      stack_mpmc_2٠is_closed t
     {{{
       RET true;
       True
@@ -386,21 +386,21 @@ Section zoo۰G.
     iIntros "%Φ (#Hinv & #Hclosed) HΦ".
 
     iApply wpｰfupd.
-    awp۰apply (mpmc_stack_2٠is_closedｰspec with "Hinv").
+    awp۰apply (stack_mpmc_2٠is_closedｰspec with "Hinv").
     iAaccIntro with "Hclosed"; first iSteps. iIntros "_ !> H£".
     iDestruct (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iSteps.
   Qed.
 
-  Lemma mpmc_stack_2٠closeｰspec t ι :
+  Lemma stack_mpmc_2٠closeｰspec t ι :
     <<<
-      mpmc_stack_2۰inv t ι
+      stack_mpmc_2۰inv t ι
     | ∀∀ vs,
-      mpmc_stack_2۰model t vs
+      stack_mpmc_2۰model t vs
     >>>
-      mpmc_stack_2٠close t @ ↑ι
+      stack_mpmc_2٠close t @ ↑ι
     <<<
-      mpmc_stack_2۰model t None
+      stack_mpmc_2۰model t None
     | RET from_option list۰to_clist_open Closed vs;
       £ 1
     >>>.
@@ -425,12 +425,12 @@ Section zoo۰G.
       iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
-  Lemma mpmc_stack_2٠closedｰspecｰclosed t ι v :
+  Lemma stack_mpmc_2٠closedｰspecｰclosed t ι v :
     {{{
-      mpmc_stack_2۰inv t ι ∗
-      mpmc_stack_2۰closed t
+      stack_mpmc_2۰inv t ι ∗
+      stack_mpmc_2۰closed t
     }}}
-      mpmc_stack_2٠close t
+      stack_mpmc_2٠close t
     {{{
       RET §clist٠Closed;
       True
@@ -439,14 +439,14 @@ Section zoo۰G.
     iIntros "%Φ (#Hinv & #Hclosed) HΦ".
 
     iApply wpｰfupd.
-    awp۰apply (mpmc_stack_2٠closeｰspec with "Hinv").
+    awp۰apply (stack_mpmc_2٠closeｰspec with "Hinv").
     iAaccIntro with "Hclosed"; first iSteps. iIntros "_ !> H£".
     iDestruct (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iSteps.
   Qed.
 End zoo۰G.
 
-Require zoo_saturn.mpmc_stack_2__opaque.
+Require zoo_saturn.stack_mpmc_2__opaque.
 
-#[global] Opaque mpmc_stack_2۰inv.
-#[global] Opaque mpmc_stack_2۰model.
+#[global] Opaque stack_mpmc_2۰inv.
+#[global] Opaque stack_mpmc_2۰model.

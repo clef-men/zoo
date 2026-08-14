@@ -54,7 +54,7 @@ Definition vertex۰iteration :=
 Implicit Type iter : vertex۰iteration.
 
 Class VertexG Σ `{pool۰G : PoolG Σ} :=
-  { #[local] vertex۰G۰stack۰G :: MpmcStack2G Σ
+  { #[local] vertex۰G۰stack۰G :: StackMpmc2G Σ
   ; #[local] vertex۰G۰state۰G :: TwinsG Σ (leibnizO state)
   ; #[local] vertex۰G۰iteration۰G :: TwinsG Σ (leibnizO vertex۰iteration)
   ; #[local] vertex۰G۰dependencies۰G :: MonoGmultisetG Σ vertex۰name
@@ -63,7 +63,7 @@ Class VertexG Σ `{pool۰G : PoolG Σ} :=
   }.
 
 Definition vertex۰Σ :=
-  #[mpmc_stack_2۰Σ
+  #[stack_mpmc_2۰Σ
   ; twins۰Σ (leibnizO state)
   ; twins۰Σ (leibnizO vertex۰iteration)
   ; mono_gmultiset۰Σ vertex۰name
@@ -289,10 +289,10 @@ Module base.
       ".
     #[local] Definition inv۰successors inv γ finished :=
       if finished then (
-        mpmc_stack_2۰model γ.(vertex۰name۰successors) None
+        stack_mpmc_2۰model γ.(vertex۰name۰successors) None
       ) else (
         ∃ succs,
-        mpmc_stack_2۰model γ.(vertex۰name۰successors) (Some $ #*@{location} succs) ∗
+        stack_mpmc_2۰model γ.(vertex۰name۰successors) (Some $ #*@{location} succs) ∗
         [∗ list] succ ∈ succs, inv۰successor inv γ succ
       )%I.
     #[local] Instance : CustomIpat "inv۰successors۰finished" :=
@@ -334,7 +334,7 @@ Module base.
     :=
       λ inv t γ P R, (
         t.[succs] ↦□ γ.(vertex۰name۰successors) ∗
-        mpmc_stack_2۰inv γ.(vertex۰name۰successors) (nroot.@"successors") ∗
+        stack_mpmc_2۰inv γ.(vertex۰name۰successors) (nroot.@"successors") ∗
         invariants.inv (nroot.@"inv") (inv۰inner inv t γ P R)
       )%I.
     #[local] Instance : CustomIpat "inv۰pre" :=
@@ -730,7 +730,7 @@ Module base.
       )%I) as (res) "->".
       { destruct task; iSteps. }
 
-      wp۰apply+ (mpmc_stack_2٠createｰspec with "[//]") as (succs) "(#Hsuccessors_inv & Hsuccessors_model)".
+      wp۰apply+ (stack_mpmc_2٠createｰspec with "[//]") as (succs) "(#Hsuccessors_inv & Hsuccessors_model)".
       wp۰block t as "Hmeta" "Ht_task Ht_preds #Ht_succs".
 
       iMod stateｰalloc as "(%γ_state & Hstate₁ & Hstate₂)".
@@ -824,7 +824,7 @@ Module base.
       iApply (wpｰframeｰwand with "[Ht2_task HΦ]"); first iAccu.
       wp۰load.
 
-      awp۰apply+ (mpmc_stack_2٠is_closedｰspec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
+      awp۰apply+ (stack_mpmc_2٠is_closedｰspec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
       iInv "Hinv_1" as "(:inv۰inner which=1 =1)".
       case_decide as [-> | Hstate1].
 
@@ -876,7 +876,7 @@ Module base.
 
         wp۰pures. clear.
 
-        awp۰apply (mpmc_stack_2٠pushｰspec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
+        awp۰apply (stack_mpmc_2٠pushｰspec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
         iInv "Hinv_1" as "(:inv۰inner which=1 =2)".
         case_decide as [-> | Hstate2].
 
@@ -1102,7 +1102,7 @@ Module base.
 
           wp۰load.
 
-          awp۰apply (mpmc_stack_2٠closeｰspec with "Hsuccessors_inv") without "Hctx".
+          awp۰apply (stack_mpmc_2٠closeｰspec with "Hsuccessors_inv") without "Hctx".
           iInv "Hinv" as "(:inv۰inner =2)".
           iDestruct (stateｰagree with "Hstate₁ Hstate₂") as %<-.
           iDestruct "Hinv_state" as "(:inv۰state۰init =2 >)".

@@ -2,7 +2,7 @@ Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_parabs.pool.
-Require Import zoo_saturn.mpmc_stack_2.
+Require Import zoo_saturn.stack_mpmc_2.
 Require Import zoo_std.clist.
 Require Import zoo.options.
 
@@ -29,7 +29,7 @@ Definition vertex٠create : val :=
           𝗳𝘂𝗻 ⎽ -> true
       𝗲𝗻𝗱
     𝗶𝗻
-    { "task", 1, mpmc_stack_2٠create () }.
+    { "task", 1, stack_mpmc_2٠create () }.
 
 Definition vertex٠create' : val :=
   𝗳𝘂𝗻 "task" ->
@@ -47,9 +47,9 @@ Definition vertex٠set_task : val :=
 Definition vertex٠precede : val :=
   𝗳𝘂𝗻 "t1" "t2" ->
     𝗹𝗲𝘁 "succs1" = "t1".{vertex٠succs} 𝗶𝗻
-    𝗶𝗳 ~ mpmc_stack_2٠is_closed "succs1" 𝘁𝗵𝗲𝗻 (
+    𝗶𝗳 ~ stack_mpmc_2٠is_closed "succs1" 𝘁𝗵𝗲𝗻 (
       𝗳𝗮𝗮 "t2".[vertex٠preds] 1 ⍮
-      𝗶𝗳 mpmc_stack_2٠push "succs1" "t2" 𝘁𝗵𝗲𝗻 (
+      𝗶𝗳 stack_mpmc_2٠push "succs1" "t2" 𝘁𝗵𝗲𝗻 (
         𝗳𝗮𝗮 "t2".[vertex٠preds] (-1) ⍮
         ()
       )
@@ -66,7 +66,7 @@ Definition vertex٠precede : val :=
            "t" <-{vertex٠preds} 1 ⍮
            𝗶𝗳 "t".{vertex٠task} "ctx" 𝘁𝗵𝗲𝗻 (
              𝗹𝗲𝘁 "succs" =
-               mpmc_stack_2٠close "t".{vertex٠succs}
+               stack_mpmc_2٠close "t".{vertex٠succs}
              𝗶𝗻
              clist٠iter
                (𝗳𝘂𝗻 "succ" -> "release" "ctx" "succ")

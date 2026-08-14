@@ -8,7 +8,7 @@ type task =
 type t =
   { mutable task: task
   ; mutable preds: int [@atomic]
-  ; succs: t Mpmc_stack_2.t
+  ; succs: t Stack_mpmc_2.t
   }
 
 let create task =
@@ -21,7 +21,7 @@ let create task =
   in
   { task
   ; preds= 1
-  ; succs= Mpmc_stack_2.create ()
+  ; succs= Stack_mpmc_2.create ()
   }
 let create' task =
   create (Some (fun ctx -> task ctx ; true))
@@ -34,9 +34,9 @@ let set_task t task =
 
 let precede t1 t2 =
   let succs1 = t1.succs in
-  if not @@ Mpmc_stack_2.is_closed succs1 then (
+  if not @@ Stack_mpmc_2.is_closed succs1 then (
     Atomic.Loc.fetch_and_add [%atomic.loc t2.preds] 1 |> ignore ;
-    if Mpmc_stack_2.push succs1 t2 then
+    if Stack_mpmc_2.push succs1 t2 then
       Atomic.Loc.fetch_and_add [%atomic.loc t2.preds] (-1) |> ignore
   )
 
@@ -47,7 +47,7 @@ and run ctx t =
   Pool.async ctx @@ fun ctx ->
     t.preds <- 1 ;
     if t.task ctx then
-      let succs = Mpmc_stack_2.close t.succs in
+      let succs = Stack_mpmc_2.close t.succs in
       Clist.iter (fun succ -> release ctx succ) succs
     else
       release ctx t
