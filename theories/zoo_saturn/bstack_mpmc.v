@@ -3,8 +3,8 @@ Require Import zoo.common.countable.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.base.
 Require Import zoo_std.option.
-Require Export zoo_saturn.mpmc_bstack__code.
-Require Import zoo_saturn.mpmc_bstack__types.
+Require Export zoo_saturn.bstack_mpmc__code.
+Require Import zoo_saturn.bstack_mpmc__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.
@@ -13,22 +13,22 @@ Implicit Type l : location.
 Implicit Type v t front : val.
 Implicit Type vs : list val.
 
-Class MpmcBstackG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] mpmc_bstack۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
+Class BstackMpmcG Σ `{zoo۰G : !ZooG Σ} :=
+  { #[local] bstack_mpmc۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
   }.
 
-Definition mpmc_bstack۰Σ :=
+Definition bstack_mpmc۰Σ :=
   #[twins۰Σ (leibnizO (list val))
   ].
-#[global] Instance subGｰmpmc_bstack۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG mpmc_bstack۰Σ Σ →
-  MpmcBstackG Σ.
+#[global] Instance subGｰbstack_mpmc۰Σ Σ `{zoo۰G : !ZooG Σ} :
+  subG bstack_mpmc۰Σ Σ →
+  BstackMpmcG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section mpmc_bstack۰G.
-  Context `{mpmc_bstack۰G : MpmcBstackG Σ}.
+Section bstack_mpmc۰G.
+  Context `{bstack_mpmc۰G : BstackMpmcG Σ}.
 
   Record metadata :=
     { metadata۰capacity : nat
@@ -91,7 +91,7 @@ Section mpmc_bstack۰G.
       & Hmodel₂
       )
     ".
-  Definition mpmc_bstack۰inv t ι cap : iProp Σ :=
+  Definition bstack_mpmc۰inv t ι cap : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -111,7 +111,7 @@ Section mpmc_bstack۰G.
       )
     ".
 
-  Definition mpmc_bstack۰model t vs : iProp Σ :=
+  Definition bstack_mpmc۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -127,14 +127,14 @@ Section mpmc_bstack۰G.
       )
     ".
 
-  #[global] Instance mpmc_bstack۰modelｰtimeless t vs :
-    Timeless (mpmc_bstack۰model t vs).
+  #[global] Instance bstack_mpmc۰modelｰtimeless t vs :
+    Timeless (bstack_mpmc۰model t vs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance mpmc_bstack۰invｰpersistent t ι cap :
-    Persistent (mpmc_bstack۰inv t ι cap).
+  #[global] Instance bstack_mpmc۰invｰpersistent t ι cap :
+    Persistent (bstack_mpmc۰inv t ι cap).
   Proof.
     apply _.
   Qed.
@@ -170,18 +170,18 @@ Section mpmc_bstack۰G.
     apply twinsｰupdate.
   Qed.
 
-  Lemma mpmc_bstack۰modelｰvalid t ι cap vs :
-    mpmc_bstack۰inv t ι cap -∗
-    mpmc_bstack۰model t vs -∗
+  Lemma bstack_mpmc۰modelｰvalid t ι cap vs :
+    bstack_mpmc۰inv t ι cap -∗
+    bstack_mpmc۰model t vs -∗
     ⌜length vs ≤ cap⌝.
   Proof.
     iIntros "(:inv) (:model)". injection Heq as <-.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iSteps.
   Qed.
-  Lemma mpmc_bstack۰modelｰexclusive t vs1 vs2 :
-    mpmc_bstack۰model t vs1 -∗
-    mpmc_bstack۰model t vs2 -∗
+  Lemma bstack_mpmc۰modelｰexclusive t vs1 vs2 :
+    bstack_mpmc۰model t vs1 -∗
+    bstack_mpmc۰model t vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simp.
@@ -189,17 +189,17 @@ Section mpmc_bstack۰G.
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma mpmc_bstack٠createｰspec ι (cap : Z) :
+  Lemma bstack_mpmc٠createｰspec ι (cap : Z) :
     (0 < cap)%Z →
     {{{
       True
     }}}
-      mpmc_bstack٠create #cap
+      bstack_mpmc٠create #cap
     {{{
       t
     , RET t;
-      mpmc_bstack۰inv t ι ₊cap ∗
-      mpmc_bstack۰model t []
+      bstack_mpmc۰inv t ι ₊cap ∗
+      bstack_mpmc۰model t []
     }}}.
   Proof.
     iIntros "%Hcap %Φ _ HΦ".
@@ -221,15 +221,15 @@ Section mpmc_bstack۰G.
     iStep 5. iApply inv_alloc. iExists []. iSteps.
   Qed.
 
-  Lemma mpmc_bstack٠sizeｰspec t ι cap :
+  Lemma bstack_mpmc٠sizeｰspec t ι cap :
     <<<
-      mpmc_bstack۰inv t ι cap
+      bstack_mpmc۰inv t ι cap
     | ∀∀ vs,
-      mpmc_bstack۰model t vs
+      bstack_mpmc۰model t vs
     >>>
-      mpmc_bstack٠size t @ ↑ι
+      bstack_mpmc٠size t @ ↑ι
     <<<
-      mpmc_bstack۰model t vs
+      bstack_mpmc۰model t vs
     | RET #(length vs);
       True
     >>>.
@@ -251,15 +251,15 @@ Section mpmc_bstack۰G.
     destruct vs as [| v vs]; iSteps.
   Qed.
 
-  Lemma mpmc_bstack٠is_emptyｰspec t ι cap :
+  Lemma bstack_mpmc٠is_emptyｰspec t ι cap :
     <<<
-      mpmc_bstack۰inv t ι cap
+      bstack_mpmc۰inv t ι cap
     | ∀∀ vs,
-      mpmc_bstack۰model t vs
+      bstack_mpmc۰model t vs
     >>>
-      mpmc_bstack٠is_empty t @ ↑ι
+      bstack_mpmc٠is_empty t @ ↑ι
     <<<
-      mpmc_bstack۰model t vs
+      bstack_mpmc۰model t vs
     | RET #(bool_decide (vs = []%list));
       True
     >>>.
@@ -281,36 +281,36 @@ Section mpmc_bstack۰G.
     destruct vs as [| v vs]; iSteps.
   Qed.
 
-  #[local] Lemma mpmc_bstack٠push_aux_pushｰspec t ι cap v :
+  #[local] Lemma bstack_mpmc٠push_aux_pushｰspec t ι cap v :
     ⊢ (
       ∀ (sz : Z) front ws,
       <<<
         ⌜sz = length ws⌝ ∗
         ⌜front = list۰to_val (length ws) ws⌝ ∗
         ⌜length ws < cap⌝ ∗
-        mpmc_bstack۰inv t ι cap
+        bstack_mpmc۰inv t ι cap
       | ∀∀ vs,
-        mpmc_bstack۰model t vs
+        bstack_mpmc۰model t vs
       >>>
-        mpmc_bstack٠push_aux t #sz v front @ ↑ι
+        bstack_mpmc٠push_aux t #sz v front @ ↑ι
       <<<
         ∃∃ b,
         ⌜b = bool_decide (length vs < cap)⌝ ∗
-        mpmc_bstack۰model t (if b then v :: vs else vs)
+        bstack_mpmc۰model t (if b then v :: vs else vs)
       | RET #b;
         True
       >>>
     ) ∧ (
       <<<
-        mpmc_bstack۰inv t ι cap
+        bstack_mpmc۰inv t ι cap
       | ∀∀ vs,
-        mpmc_bstack۰model t vs
+        bstack_mpmc۰model t vs
       >>>
-        mpmc_bstack٠push t v @ ↑ι
+        bstack_mpmc٠push t v @ ↑ι
       <<<
         ∃∃ b,
         ⌜b = bool_decide (length vs < cap)⌝ ∗
-        mpmc_bstack۰model t (if b then v :: vs else vs)
+        bstack_mpmc۰model t (if b then v :: vs else vs)
       | RET #b;
         True
       >>>
@@ -376,34 +376,34 @@ Section mpmc_bstack۰G.
           rewrite bool_decide_eq_false_2; first lia.
           wp۰apply+ ("IHpush_aux" $! _ _ (w :: vs) with "[] HΦ"); first iSteps.
   Qed.
-  Lemma mpmc_bstack٠pushｰspec t ι cap v :
+  Lemma bstack_mpmc٠pushｰspec t ι cap v :
     <<<
-      mpmc_bstack۰inv t ι cap
+      bstack_mpmc۰inv t ι cap
     | ∀∀ vs,
-      mpmc_bstack۰model t vs
+      bstack_mpmc۰model t vs
     >>>
-      mpmc_bstack٠push t v @ ↑ι
+      bstack_mpmc٠push t v @ ↑ι
     <<<
       ∃∃ b,
       ⌜b = bool_decide (length vs < cap)⌝ ∗
-      mpmc_bstack۰model t (if b then v :: vs else vs)
+      bstack_mpmc۰model t (if b then v :: vs else vs)
     | RET #b;
       True
     >>>.
   Proof.
-    iPoseProof mpmc_bstack٠push_aux_pushｰspec as "(_ & H)".
+    iPoseProof bstack_mpmc٠push_aux_pushｰspec as "(_ & H)".
     iApply "H".
   Qed.
 
-  Lemma mpmc_bstack٠popｰspec t ι cap :
+  Lemma bstack_mpmc٠popｰspec t ι cap :
     <<<
-      mpmc_bstack۰inv t ι cap
+      bstack_mpmc۰inv t ι cap
     | ∀∀ vs,
-      mpmc_bstack۰model t vs
+      bstack_mpmc۰model t vs
     >>>
-      mpmc_bstack٠pop t @ ↑ι
+      bstack_mpmc٠pop t @ ↑ι
     <<<
-      mpmc_bstack۰model t (tail vs)
+      bstack_mpmc۰model t (tail vs)
     | RET head vs;
       True
     >>>.
@@ -445,9 +445,9 @@ Section mpmc_bstack۰G.
       iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
-End mpmc_bstack۰G.
+End bstack_mpmc۰G.
 
-Require zoo_saturn.mpmc_bstack__opaque.
+Require zoo_saturn.bstack_mpmc__opaque.
 
-#[global] Opaque mpmc_bstack۰inv.
-#[global] Opaque mpmc_bstack۰model.
+#[global] Opaque bstack_mpmc۰inv.
+#[global] Opaque bstack_mpmc۰model.
