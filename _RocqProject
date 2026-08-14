@@ -386,10 +386,10 @@ theories/zoo_saturn/inf_mpmc_queue_2__types.v
 theories/zoo_saturn/inf_mpmc_queue_2__code.v
 theories/zoo_saturn/inf_mpmc_queue_2__opaque.v
 theories/zoo_saturn/inf_mpmc_queue_2.v
-theories/zoo_saturn/mpmc_tqueue_2__types.v
-theories/zoo_saturn/mpmc_tqueue_2__code.v
-theories/zoo_saturn/mpmc_tqueue_2__opaque.v
-theories/zoo_saturn/mpmc_tqueue_2.v
+theories/zoo_saturn/tqueue_mpmc_2__types.v
+theories/zoo_saturn/tqueue_mpmc_2__code.v
+theories/zoo_saturn/tqueue_mpmc_2__opaque.v
+theories/zoo_saturn/tqueue_mpmc_2.v
 theories/zoo_saturn/bqueue_spsc__types.v
 theories/zoo_saturn/bqueue_spsc__code.v
 theories/zoo_saturn/bqueue_spsc__opaque.v
