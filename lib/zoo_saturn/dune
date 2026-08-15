@@ -2,6 +2,7 @@
   (name zoo_saturn)
   (public_name zoo_saturn)
   (libraries
+    backoff
     zoo
     zoo_std
   )

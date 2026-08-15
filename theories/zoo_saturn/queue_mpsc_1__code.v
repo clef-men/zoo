@@ -1,7 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.domain.
+Require Import backoff.backoff.
 Require Import zoo.options.
 
 Notation "'queue_mpsc_1٠Null'" := (
@@ -45,13 +45,13 @@ Definition queue_mpsc_1٠is_empty : val :=
         "front_r".{queue_mpsc_1٠next} == §queue_mpsc_1٠Null
     𝗲𝗻𝗱.
 
-Definition queue_mpsc_1٠push₁ : val :=
-  𝗿𝗲𝗰 "push" "node" "new_back" ->
+Definition queue_mpsc_1٠push₂ : val :=
+  𝗿𝗲𝗰 "push" "node" "new_back" "backoff" ->
     𝗺𝗮𝘁𝗰𝗵 "node" 𝘄𝗶𝘁𝗵
     | queue_mpsc_1٠Node ⎽ ⎽ 𝗮𝘀 "node_r" ->
         𝗺𝗮𝘁𝗰𝗵 "node_r".{queue_mpsc_1٠next} 𝘄𝗶𝘁𝗵
         | queue_mpsc_1٠Node ⎽ ⎽ 𝗮𝘀 "next" ->
-            "push" "next" "new_back"
+            "push" "next" "new_back" "backoff"
         | queue_mpsc_1٠Null ->
             𝗶𝗳
               ~
@@ -60,14 +60,17 @@ Definition queue_mpsc_1٠push₁ : val :=
                 §queue_mpsc_1٠Null
                 "new_back"
             𝘁𝗵𝗲𝗻 (
-              domain٠yield () ⍮
-              "push" "node" "new_back"
+              "push" "node" "new_back" (backoff٠once "backoff")
             )
         𝗲𝗻𝗱
     𝗲𝗻𝗱.
 
-Definition queue_mpsc_1٠fix_back : val :=
-  𝗿𝗲𝗰 "fix_back" "t" "back" "new_back" ->
+Definition queue_mpsc_1٠push₁ : val :=
+  𝗳𝘂𝗻 "node" "new_back" ->
+    queue_mpsc_1٠push₂ "node" "new_back" backoff٠default.
+
+Definition queue_mpsc_1٠fix_back₁ : val :=
+  𝗿𝗲𝗰 "fix_back" "t" "back" "new_back" "backoff" ->
     𝗺𝗮𝘁𝗰𝗵 "new_back" 𝘄𝗶𝘁𝗵
     | queue_mpsc_1٠Node ⎽ ⎽ 𝗮𝘀 "new_back_r" ->
         𝗶𝗳
@@ -75,10 +78,17 @@ Definition queue_mpsc_1٠fix_back : val :=
           𝗮𝗻𝗱
           ~ 𝗰𝗮𝘀 "t".[queue_mpsc_1٠back] "back" "new_back"
         𝘁𝗵𝗲𝗻 (
-          domain٠yield () ⍮
-          "fix_back" "t" "t".{queue_mpsc_1٠back} "new_back"
+          "fix_back"
+            "t"
+            "t".{queue_mpsc_1٠back}
+            "new_back"
+            (backoff٠once "backoff")
         )
     𝗲𝗻𝗱.
+
+Definition queue_mpsc_1٠fix_back : val :=
+  𝗳𝘂𝗻 "t" "back" "new_back" ->
+    queue_mpsc_1٠fix_back₁ "t" "back" "new_back" backoff٠default.
 
 Definition queue_mpsc_1٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->

@@ -51,14 +51,14 @@ let is_empty t =
   let Node front_r = t.front in
   front_r.next == Null
 
-let rec fix_back t back new_back =
+let rec fix_back t back new_back backoff =
   let Node new_back_r = new_back in
   if new_back_r.next == Null
   && not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back
-  then (
-    Domain.yield () ;
-    fix_back t t.back new_back
-  )
+  then
+    fix_back t t.back new_back (Backoff.once backoff)
+let fix_back t back new_back =
+  fix_back t back new_back Backoff.default
 let rec push_1 t back cap (new_back : (_, [`Node]) node) =
   let Node back_r = back in
   let (Node new_back_r as new_back) = new_back in
@@ -99,17 +99,17 @@ let push t v =
   in
   push_2 t t.back new_back
 
-let rec pop t =
+let rec pop t backoff =
   let Node front_r as front = t.front in
   match front_r.next with
   | Null ->
       None
   | Node new_front_r as new_front ->
-      if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
+      if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then
         let v = new_front_r.data in
         new_front_r.data <- Obj.magic () ;
         Some v
-      ) else (
-        Domain.yield () ;
-        pop t
-      )
+      else
+        pop t (Backoff.once backoff)
+let pop t =
+  pop t Backoff.default

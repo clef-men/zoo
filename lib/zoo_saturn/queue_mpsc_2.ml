@@ -20,12 +20,12 @@ let is_empty t =
 let push_front t v =
   t.front <- Cons (v, t.front)
 
-let rec push_back t v =
+let rec push_back t v backoff =
   let back = t.back in
-  if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back (Cons (v, back)) then (
-    Domain.yield () ;
-    push_back t v
-  )
+  if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back (Cons (v, back)) then
+    push_back t v (Backoff.once backoff)
+let push_back t v =
+  push_back t v Backoff.default
 
 let pop t =
   match t.front with

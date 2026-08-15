@@ -1,7 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.domain.
+Require Import backoff.backoff.
 Require Import zoo.options.
 
 Notation "'queue_spmc٠Null'" := (
@@ -58,8 +58,8 @@ Definition queue_spmc٠push : val :=
         𝗲𝗻𝗱
     𝗲𝗻𝗱.
 
-Definition queue_spmc٠pop : val :=
-  𝗿𝗲𝗰 "pop" "t" ->
+Definition queue_spmc٠pop₁ : val :=
+  𝗿𝗲𝗰 "pop" "t" "backoff" ->
     𝗺𝗮𝘁𝗰𝗵 "t".{queue_spmc٠front} 𝘄𝗶𝘁𝗵
     | queue_spmc٠Node ⎽ ⎽ 𝗮𝘀 "front" ->
         𝗹𝗲𝘁 "front_r" = "front" 𝗶𝗻
@@ -75,8 +75,11 @@ Definition queue_spmc٠pop : val :=
               "new_front_r" <-{queue_spmc٠data} () ⍮
               ‘Some( "v" )
             ) 𝗲𝗹𝘀𝗲 (
-              domain٠yield () ⍮
-              "pop" "t"
+              "pop" "t" (backoff٠once "backoff")
             )
         𝗲𝗻𝗱
     𝗲𝗻𝗱.
+
+Definition queue_spmc٠pop : val :=
+  𝗳𝘂𝗻 "t" ->
+    queue_spmc٠pop₁ "t" backoff٠default.

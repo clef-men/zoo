@@ -18,7 +18,7 @@ Require Import zoo.options.
 Implicit Type b : bool.
 Implicit Type front front_cache back : nat.
 Implicit Type id : prophet_id.
-Implicit Type v : val.
+Implicit Type v backoff : val.
 Implicit Type us vs ws hist priv : list val.
 Implicit Type past prophs : list prophet_identifier.(prophet_typed۰type).
 Implicit Type pasts prophss : nat → list prophet_identifier.(prophet_typed۰type).
@@ -1746,25 +1746,26 @@ Module base.
         iFrameSteps.
     Qed.
 
-    Lemma ws_bdeque_1٠stealｰspec t γ ι cap :
+    #[local] Lemma ws_bdeque_1٠steal₁ｰspec t γ ι cap backoff :
       <<<
-        ws_bdeque_1۰inv t γ ι cap
+        ws_bdeque_1۰inv t γ ι cap ∗
+        backoff۰model backoff
       | ∀∀ vs,
         ws_bdeque_1۰model γ vs
       >>>
-        ws_bdeque_1٠steal #t @ ↑ι
+        ws_bdeque_1٠steal₁ #t backoff @ ↑ι
       <<<
         ws_bdeque_1۰model γ (tail vs)
       | RET head vs;
         True
       >>>.
     Proof.
-      iIntros "%Φ (:inv) HΦ".
+      iIntros "%Φ ((:inv) & Hbackoff) HΦ".
 
-      iLöb as "HLöb".
+      iLöb as "HLöb" forall (backoff).
 
       wp۰rec.
-      wp۰apply (wpｰid with "[//]") as (id) "Hid".
+      wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
       wp۰apply+ frontｰspec as (front1) "#Hfront_lb_1"; first iSteps.
       wp۰pures.
 
@@ -1786,7 +1787,7 @@ Module base.
       destruct_decide (front1 = front2) as <- | ?; last first.
       { assert (front1 < front2) as Hbranch2 by lia.
         iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb_2".
-        iSplitR "HΦ". { iFrameSteps. }
+        iSplitR "Hbackoff HΦ". { iFrameSteps. }
         iIntros "!> {%- Hcapacity Hbranch1 Hbranch2}".
 
         wp۰pures.
@@ -1802,7 +1803,7 @@ Module base.
       iEval (rewrite Hpasts2 //=) in "Hprophet_full".
 
       destruct_decide (head $ prophss2 front1 = Some id) as (prophs0 & Hbranch3)%head_Some | Hbranch3; last first.
-      { iSplitR "HΦ". { iFrameSteps. }
+      { iSplitR "Hbackoff HΦ". { iFrameSteps. }
         remember (prophss2 front1) as prophs0.
         iIntros "!> {%- Hcapacity Hbranch1 Hbranch3}".
 
@@ -1842,6 +1843,25 @@ Module base.
       wp۰load.
       wp۰apply+ (resolveｰspecｰwinner۰pop with "[$Hwinner_pop]") as "HΦ"; first iSteps.
       iSteps.
+    Qed.
+
+    Lemma ws_bdeque_1٠stealｰspec t γ ι cap :
+      <<<
+        ws_bdeque_1۰inv t γ ι cap
+      | ∀∀ vs,
+        ws_bdeque_1۰model γ vs
+      >>>
+        ws_bdeque_1٠steal #t @ ↑ι
+      <<<
+        ws_bdeque_1۰model γ (tail vs)
+      | RET head vs;
+        True
+      >>>.
+    Proof.
+      iIntros "%Φ Hinv HΦ".
+
+      wp۰rec.
+      wp۰apply+ (ws_bdeque_1٠steal₁ｰspec with "[$Hinv] HΦ"). 1: iSteps.
     Qed.
 
     Variant pop_state :=

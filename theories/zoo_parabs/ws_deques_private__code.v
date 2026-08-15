@@ -1,9 +1,9 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
+Require Import backoff.backoff.
 Require Import zoo_std.array.
 Require Import zoo_std.atomic_array.
-Require Import zoo_std.domain.
 Require Import zoo_std.queue_3.
 Require Import zoo_std.random_round.
 Require Import zoo.options.
@@ -154,14 +154,13 @@ Definition ws_deques_private٠pop : val :=
     ws_deques_private٠respond "t" "i" ⍮
     "res".
 
-Definition ws_deques_private٠steal_to₁ : val :=
-  𝗿𝗲𝗰 "steal_to" "t" "i" ->
+Definition ws_deques_private٠steal_to₂ : val :=
+  𝗿𝗲𝗰 "steal_to" "t" "i" "backoff" ->
     𝗺𝗮𝘁𝗰𝗵
       array٠unsafe_get "t".{ws_deques_private٠responses} "i"
     𝘄𝗶𝘁𝗵
     | ws_deques_private٠ResponseWaiting ->
-        domain٠yield () ⍮
-        "steal_to" "t" "i"
+        "steal_to" "t" "i" (backoff٠once "backoff")
     | ws_deques_private٠ResponseNone ->
         array٠unsafe_set
           "t".{ws_deques_private٠responses}
@@ -175,6 +174,10 @@ Definition ws_deques_private٠steal_to₁ : val :=
           §ws_deques_private٠ResponseWaiting ⍮
         ‘Some( "v" )
     𝗲𝗻𝗱.
+
+Definition ws_deques_private٠steal_to₁ : val :=
+  𝗳𝘂𝗻 "t" "i" ->
+    ws_deques_private٠steal_to₂ "t" "i" backoff٠default.
 
 Definition ws_deques_private٠steal_to : val :=
   𝗳𝘂𝗻 "t" "i" "j" ->

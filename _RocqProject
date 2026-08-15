@@ -363,6 +363,13 @@ theories/zoo_persistent/suf.v
 
 #END zoo-persistent
 
+#BEGIN backoff
+-Q theories/backoff backoff
+
+theories/backoff/backoff.v
+
+#END backoff
+
 #BEGIN zoo-saturn
 -Q theories/zoo_saturn zoo_saturn
 

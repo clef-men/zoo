@@ -34,17 +34,16 @@ type 'a t =
 let create () =
   { producers= Null }
 
-let rec add_producer t queue =
+let rec add_producer t queue backoff =
   let producers = t.producers in
   let (Node _ as new_producers : _ producer_node) = Node { next= producers; queue } in
-  if Atomic.Loc.compare_and_set [%atomic.loc t.producers] producers new_producers then (
+  if Atomic.Loc.compare_and_set [%atomic.loc t.producers] producers new_producers then
     new_producers
-  ) else (
-    Domain.yield () ;
-    add_producer t queue
-  )
+  else
+    add_producer t queue (Backoff.once backoff)
 let add_producer t queue =
-  add_producer t (Some queue)
+  add_producer t (Some queue) Backoff.default
+
 let create_producer t =
   let queue = Queue_spmc.create () in
   let node = add_producer t queue in

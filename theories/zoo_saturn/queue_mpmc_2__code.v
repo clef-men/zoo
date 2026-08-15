@@ -1,7 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.domain.
+Require Import backoff.backoff.
 Require Import zoo.options.
 
 Notation "'queue_mpmc_2٠Front'" := (
@@ -139,54 +139,62 @@ Definition queue_mpmc_2٠help : val :=
     𝗲𝗻𝗱.
 
 #[local] Definition __zoo_recs_0 :=
-  ( 𝗿𝗲𝗰𝘀 "push_aux" "t" "v" "i" "back" ->
+  ( 𝗿𝗲𝗰𝘀 "push_aux" "t" "v" "i" "back" "backoff" ->
       𝗹𝗲𝘁 "new_back" =
         ‘queue_mpmc_2٠Snoc[ "i" + 1, "v", "back" ]
       𝗶𝗻
       𝗶𝗳
         ~ 𝗰𝗮𝘀 "t".[queue_mpmc_2٠back] "back" "new_back"
       𝘁𝗵𝗲𝗻 (
-        domain٠yield () ⍮
-        "push" "t" "v"
+        "push" "t" "v" (backoff٠once "backoff")
       )
-    𝘄𝗶𝘁𝗵 "push" "t" "v" ->
+    𝘄𝗶𝘁𝗵 "push" "t" "v" "backoff" ->
       𝗺𝗮𝘁𝗰𝗵 "t".{queue_mpmc_2٠back} 𝘄𝗶𝘁𝗵
       | queue_mpmc_2٠Snoc "i" ⎽ ⎽ 𝗮𝘀 "back" ->
-          "push_aux" "t" "v" "i" "back"
+          "push_aux" "t" "v" "i" "back" "backoff"
       | queue_mpmc_2٠Back ⎽ ⎽ 𝗮𝘀 "back" ->
           𝗹𝗲𝘁 "back_r" = "back" 𝗶𝗻
           𝗺𝗮𝘁𝗰𝗵 "back_r".{queue_mpmc_2٠move} 𝘄𝗶𝘁𝗵
           | queue_mpmc_2٠Used ->
-              "push_aux" "t" "v" "back_r".{queue_mpmc_2٠index} "back"
+              "push_aux"
+                "t"
+                "v"
+                "back_r".{queue_mpmc_2٠index}
+                "back"
+                "backoff"
           | queue_mpmc_2٠Snoc "i_move" ⎽ ⎽ 𝗮𝘀 "move" ->
               queue_mpmc_2٠help "t" "back" "i_move" "move" ⍮
-              "push" "t" "v"
+              "push" "t" "v" "backoff"
           𝗲𝗻𝗱
       𝗲𝗻𝗱
   )%zoo_recs.
 Definition queue_mpmc_2٠push_aux :=
   ValRecs 0 __zoo_recs_0.
-Definition queue_mpmc_2٠push :=
+Definition queue_mpmc_2٠push₁ :=
   ValRecs 1 __zoo_recs_0.
 #[global] Instance :
   AsValRecs' queue_mpmc_2٠push_aux 0 __zoo_recs_0 [
     queue_mpmc_2٠push_aux ;
-    queue_mpmc_2٠push
+    queue_mpmc_2٠push₁
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' queue_mpmc_2٠push 1 __zoo_recs_0 [
+  AsValRecs' queue_mpmc_2٠push₁ 1 __zoo_recs_0 [
     queue_mpmc_2٠push_aux ;
-    queue_mpmc_2٠push
+    queue_mpmc_2٠push₁
   ].
 Proof.
   done.
 Qed.
 
+Definition queue_mpmc_2٠push : val :=
+  𝗳𝘂𝗻 "t" "v" ->
+    queue_mpmc_2٠push₁ "t" "v" backoff٠default.
+
 #[local] Definition __zoo_recs_1 :=
-  ( 𝗿𝗲𝗰𝘀 "pop_1" "t" "front" ->
+  ( 𝗿𝗲𝗰𝘀 "pop_1" "t" "front" "backoff" ->
       𝗺𝗮𝘁𝗰𝗵 "front" 𝘄𝗶𝘁𝗵
       | queue_mpmc_2٠Cons ⎽ "v" "new_front" ->
           𝗶𝗳
@@ -194,8 +202,7 @@ Qed.
           𝘁𝗵𝗲𝗻 (
             ‘Some( "v" )
           ) 𝗲𝗹𝘀𝗲 (
-            domain٠yield () ⍮
-            "pop" "t"
+            "pop" "t" (backoff٠once "backoff")
           )
       | queue_mpmc_2٠Front "i_front" 𝗮𝘀 "front" ->
           𝗺𝗮𝘁𝗰𝗵 "t".{queue_mpmc_2٠back} 𝘄𝗶𝘁𝗵
@@ -206,7 +213,7 @@ Qed.
                 𝘁𝗵𝗲𝗻 (
                   ‘Some( "v" )
                 ) 𝗲𝗹𝘀𝗲 (
-                  "pop" "t"
+                  "pop" "t" "backoff"
                 )
               ) 𝗲𝗹𝘀𝗲 (
                 𝗺𝗮𝘁𝗰𝗵
@@ -217,21 +224,21 @@ Qed.
                       "t".{queue_mpmc_2٠front}
                     𝗶𝗻
                     𝗶𝗳 "front'" != "front" 𝘁𝗵𝗲𝗻 (
-                      "pop_1" "t" "front'"
+                      "pop_1" "t" "front'" "backoff"
                     ) 𝗲𝗹𝘀𝗲 𝗶𝗳
                        𝗰𝗮𝘀 "t".[queue_mpmc_2٠back] "move" "back"
                      𝘁𝗵𝗲𝗻 (
-                      "pop_2" "t" "front" "back" "move"
+                      "pop_2" "t" "front" "back" "move" "backoff"
                     ) 𝗲𝗹𝘀𝗲 (
-                      "pop" "t"
+                      "pop" "t" "backoff"
                     )
                 𝗲𝗻𝗱
               )
           | queue_mpmc_2٠Back ⎽ ⎽ ->
-              "pop_3" "t" "front"
+              "pop_3" "t" "front" "backoff"
           𝗲𝗻𝗱
       𝗲𝗻𝗱
-    𝘄𝗶𝘁𝗵 "pop_2" "t" "front" "back" "move" ->
+    𝘄𝗶𝘁𝗵 "pop_2" "t" "front" "back" "move" "backoff" ->
       𝗺𝗮𝘁𝗰𝗵 queue_mpmc_2٠rev "move" 𝘄𝗶𝘁𝗵
       | queue_mpmc_2٠Cons ⎽ "v" "new_front" ->
           𝗶𝗳
@@ -240,19 +247,18 @@ Qed.
             queue_mpmc_2٠finish "back" ⍮
             ‘Some( "v" )
           ) 𝗲𝗹𝘀𝗲 (
-            domain٠yield () ⍮
-            "pop" "t"
+            "pop" "t" (backoff٠once "backoff")
           )
       𝗲𝗻𝗱
-    𝘄𝗶𝘁𝗵 "pop_3" "t" "front" ->
+    𝘄𝗶𝘁𝗵 "pop_3" "t" "front" "backoff" ->
       𝗹𝗲𝘁 "front'" = "t".{queue_mpmc_2٠front} 𝗶𝗻
       𝗶𝗳 "front'" == "front" 𝘁𝗵𝗲𝗻 (
         §None
       ) 𝗲𝗹𝘀𝗲 (
-        "pop_1" "t" "front'"
+        "pop_1" "t" "front'" "backoff"
       )
-    𝘄𝗶𝘁𝗵 "pop" "t" ->
-      "pop_1" "t" "t".{queue_mpmc_2٠front}
+    𝘄𝗶𝘁𝗵 "pop" "t" "backoff" ->
+      "pop_1" "t" "t".{queue_mpmc_2٠front} "backoff"
   )%zoo_recs.
 Definition queue_mpmc_2٠pop_1 :=
   ValRecs 0 __zoo_recs_1.
@@ -260,14 +266,14 @@ Definition queue_mpmc_2٠pop_2 :=
   ValRecs 1 __zoo_recs_1.
 Definition queue_mpmc_2٠pop_3 :=
   ValRecs 2 __zoo_recs_1.
-Definition queue_mpmc_2٠pop :=
+Definition queue_mpmc_2٠pop₁ :=
   ValRecs 3 __zoo_recs_1.
 #[global] Instance :
   AsValRecs' queue_mpmc_2٠pop_1 0 __zoo_recs_1 [
     queue_mpmc_2٠pop_1 ;
     queue_mpmc_2٠pop_2 ;
     queue_mpmc_2٠pop_3 ;
-    queue_mpmc_2٠pop
+    queue_mpmc_2٠pop₁
   ].
 Proof.
   done.
@@ -277,7 +283,7 @@ Qed.
     queue_mpmc_2٠pop_1 ;
     queue_mpmc_2٠pop_2 ;
     queue_mpmc_2٠pop_3 ;
-    queue_mpmc_2٠pop
+    queue_mpmc_2٠pop₁
   ].
 Proof.
   done.
@@ -287,18 +293,22 @@ Qed.
     queue_mpmc_2٠pop_1 ;
     queue_mpmc_2٠pop_2 ;
     queue_mpmc_2٠pop_3 ;
-    queue_mpmc_2٠pop
+    queue_mpmc_2٠pop₁
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' queue_mpmc_2٠pop 3 __zoo_recs_1 [
+  AsValRecs' queue_mpmc_2٠pop₁ 3 __zoo_recs_1 [
     queue_mpmc_2٠pop_1 ;
     queue_mpmc_2٠pop_2 ;
     queue_mpmc_2٠pop_3 ;
-    queue_mpmc_2٠pop
+    queue_mpmc_2٠pop₁
   ].
 Proof.
   done.
 Qed.
+
+Definition queue_mpmc_2٠pop : val :=
+  𝗳𝘂𝗻 "t" ->
+    queue_mpmc_2٠pop₁ "t" backoff٠default.

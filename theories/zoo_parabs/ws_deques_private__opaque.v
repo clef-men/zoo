@@ -7,6 +7,7 @@ Require Import zoo_parabs.ws_deques_private__code.
 #[global] Opaque ws_deques_private٠respond.
 #[global] Opaque ws_deques_private٠push.
 #[global] Opaque ws_deques_private٠pop.
+#[global] Opaque ws_deques_private٠steal_to₂.
 #[global] Opaque ws_deques_private٠steal_to₁.
 #[global] Opaque ws_deques_private٠steal_to.
 #[global] Opaque ws_deques_private٠steal_as₁.

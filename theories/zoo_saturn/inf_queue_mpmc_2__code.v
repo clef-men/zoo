@@ -1,8 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
+Require Import backoff.backoff.
 Require Import zoo.program_logic.identifier.
-Require Import zoo_std.domain.
 Require Import zoo_std.inf_array.
 Require Import zoo_std.int.
 Require Import zoo_std.optional.
@@ -67,8 +67,8 @@ Definition inf_queue_mpmc_2٠push : val :=
       "push" "t" "v"
     ).
 
-Definition inf_queue_mpmc_2٠pop : val :=
-  𝗿𝗲𝗰 "pop" "t" ->
+Definition inf_queue_mpmc_2٠pop₁ : val :=
+  𝗿𝗲𝗰 "pop" "t" "backoff" ->
     𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
     𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[inf_queue_mpmc_2٠front] 1 𝗶𝗻
     𝗺𝗮𝘁𝗰𝗵
@@ -80,10 +80,13 @@ Definition inf_queue_mpmc_2٠pop : val :=
         ("i", "id")
     𝘄𝗶𝘁𝗵
     | optional٠Nothing ->
-        domain٠yield () ⍮
-        "pop" "t"
+        "pop" "t" (backoff٠once "backoff")
     | optional٠Anything ->
         𝗳𝗮𝗶𝗹
     | optional٠Something "v" ->
         "v"
     𝗲𝗻𝗱.
+
+Definition inf_queue_mpmc_2٠pop : val :=
+  𝗳𝘂𝗻 "t" ->
+    inf_queue_mpmc_2٠pop₁ "t" backoff٠default.

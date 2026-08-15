@@ -30,17 +30,17 @@ let push t v =
   back_r.next <- new_back ;
   t.back <- new_back
 
-let rec pop t =
+let rec pop t backoff =
   let Node front_r as front = t.front in
   match front_r.next with
   | Null ->
       None
   | Node new_front_r as new_front ->
-      if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
+      if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then
         let v = new_front_r.data in
         new_front_r.data <- Obj.magic () ;
         Some v
-      ) else (
-        Domain.yield () ;
-        pop t
-      )
+      else
+        pop t (Backoff.once backoff)
+let pop t =
+  pop t Backoff.default

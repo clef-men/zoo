@@ -14,7 +14,7 @@ Require Import zoo_parabs.ws_deques_private__types.
 Require Import zoo.options.
 
 Implicit Type l : location.
-Implicit Type v t queue round : val.
+Implicit Type v t queue round backoff : val.
 Implicit Type o : option val.
 Implicit Type vs ws : list val.
 Implicit Type vss wss : list (list val).
@@ -1182,7 +1182,7 @@ Section ws_deques_private۰G.
       iApply ("HΦ" with "Howner").
   Qed.
 
-  #[local] Lemma ws_deques_private٠steal_to₁ｰspec l γ i i_ Ψ :
+  #[local] Lemma ws_deques_private٠steal_to₂ｰspec l γ i i_ Ψ backoff :
     i = ⁺i_ →
     i_ < γ.(metadata۰size) →
     {{{
@@ -1190,9 +1190,10 @@ Section ws_deques_private۰G.
       l.[responses] ↦□ γ.(metadata۰responses۰array) ∗
       array۰inv γ.(metadata۰responses۰array) γ.(metadata۰size) ∗
       inv γ.(metadata۰inv) (inv۰inner γ) ∗
-      channels۰receiver γ i_ Ψ None
+      channels۰receiver γ i_ Ψ None ∗
+      backoff۰model backoff
     }}}
-      ws_deques_private٠steal_to₁ #l #i
+      ws_deques_private٠steal_to₂ #l #i backoff
     {{{
       o Ψ_sender Ψ_receiver
     , RET o;
@@ -1201,9 +1202,9 @@ Section ws_deques_private۰G.
       Ψ o
     }}}.
   Proof.
-    iIntros (-> Hi) "%Φ (#Hmeta & #Hl_responses & #Hresponses_inv & #Hinv & Hchannels_receiver) HΦ".
+    iIntros (-> Hi) "%Φ (#Hmeta & #Hl_responses & #Hresponses_inv & #Hinv & Hchannels_receiver & Hbackoff) HΦ".
 
-    iLöb as "HLöb".
+    iLöb as "HLöb" forall (backoff).
 
     wp۰rec. wp۰load.
 
@@ -1215,11 +1216,11 @@ Section ws_deques_private۰G.
     apply list_lookup_fmap_Some in Hresponses1_lookup as (response & -> & Hresponses1_lookup).
     destruct response as [| | v].
 
-    - iSplitR "Hchannels_receiver". { iFrameSteps. }
+    - iSplitR "Hchannels_receiver Hbackoff". { iFrameSteps. }
       iIntros "!> _ HΦ".
 
-      wp۰apply+ domain٠yieldｰspec.
-      wp۰apply+ ("HLöb" with "Hchannels_receiver HΦ").
+      wp۰apply+ (backoff٠onceｰspec with "Hbackoff") as "{% backoff} %backoff Hbackoff".
+      wp۰apply+ ("HLöb" with "Hchannels_receiver Hbackoff HΦ").
 
     - iDestruct (big_sepL_lookup_acc with "Hresponses") as "(Hresponse & Hresponses)"; first done.
       iDestruct "Hresponse" as "(:response۰model =1)".
@@ -1274,6 +1275,31 @@ Section ws_deques_private۰G.
       iRewrite "Heq" in "HΨ".
       iApply ("HΦ" $! (Some v)).
       iSteps.
+  Qed.
+
+  #[local] Lemma ws_deques_private٠steal_to₁ｰspec l γ i i_ Ψ :
+    i = ⁺i_ →
+    i_ < γ.(metadata۰size) →
+    {{{
+      l ↪ γ ∗
+      l.[responses] ↦□ γ.(metadata۰responses۰array) ∗
+      array۰inv γ.(metadata۰responses۰array) γ.(metadata۰size) ∗
+      inv γ.(metadata۰inv) (inv۰inner γ) ∗
+      channels۰receiver γ i_ Ψ None
+    }}}
+      ws_deques_private٠steal_to₁ #l #i
+    {{{
+      o Ψ_sender Ψ_receiver
+    , RET o;
+      channels۰sender γ i_ Ψ_sender None ∗
+      channels۰receiver γ i_ Ψ_receiver None ∗
+      Ψ o
+    }}}.
+  Proof.
+    iIntros (-> Hi) "%Φ (Hmeta & Hl_responses & Hresponses_inv & Hinv & Hchannels_receiver) HΦ".
+
+    wp۰rec.
+    wp۰apply+ (ws_deques_private٠steal_to₂ｰspec with "[- HΦ] HΦ"). 1,2: done. 1: iFrameSteps.
   Qed.
   Lemma ws_deques_private٠steal_toｰspec t ι (sz : nat) i i_ ws j :
     i = ⁺i_ →

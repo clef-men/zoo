@@ -39,6 +39,7 @@
   (name zoo_saturn)
   (synopsis "Saturn")
   (depends
+    backoff
     zoo
     zoo_std
   )

@@ -30,14 +30,15 @@ let rec push t v =
   if not @@ Inf_array.cas_resolve t.data i Nothing (Something v) t.proph (i, id) then
     push t v
 
-let rec pop t =
+let rec pop t backoff =
   let id = Zoo.id () in
   let i = Atomic.Loc.fetch_and_add [%atomic.loc t.front] 1 in
   match Inf_array.xchg_resolve t.data i Anything t.proph (i, id) with
   | Nothing ->
-      Domain.yield () ;
-      pop t
+      pop t (Backoff.once backoff)
   | Anything ->
       assert false
   | Something v ->
       v
+let pop t =
+  pop t Backoff.default

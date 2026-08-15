@@ -10,7 +10,7 @@ Require Import zoo.options.
 Implicit Type b : bool.
 Implicit Type cap sz : nat.
 Implicit Type l : location.
-Implicit Type v t front : val.
+Implicit Type v t front backoff : val.
 Implicit Type vs : list val.
 
 Class BstackMpmcG Σ `{zoo۰G : !ZooG Σ} :=
@@ -283,16 +283,17 @@ Section bstack_mpmc۰G.
 
   #[local] Lemma bstack_mpmc٠push_aux_pushｰspec t ι cap v :
     ⊢ (
-      ∀ (sz : Z) front ws,
+      ∀ (sz : Z) front ws backoff,
       <<<
         ⌜sz = length ws⌝ ∗
         ⌜front = list۰to_val (length ws) ws⌝ ∗
         ⌜length ws < cap⌝ ∗
-        bstack_mpmc۰inv t ι cap
+        bstack_mpmc۰inv t ι cap ∗
+        backoff۰model backoff
       | ∀∀ vs,
         bstack_mpmc۰model t vs
       >>>
-        bstack_mpmc٠push_aux t #sz v front @ ↑ι
+        bstack_mpmc٠push_aux t #sz v front backoff @ ↑ι
       <<<
         ∃∃ b,
         ⌜b = bool_decide (length vs < cap)⌝ ∗
@@ -301,12 +302,14 @@ Section bstack_mpmc۰G.
         True
       >>>
     ) ∧ (
+      ∀ backoff,
       <<<
-        bstack_mpmc۰inv t ι cap
+        bstack_mpmc۰inv t ι cap ∗
+        backoff۰model backoff
       | ∀∀ vs,
         bstack_mpmc۰model t vs
       >>>
-        bstack_mpmc٠push t v @ ↑ι
+        bstack_mpmc٠push₁ t v backoff @ ↑ι
       <<<
         ∃∃ b,
         ⌜b = bool_decide (length vs < cap)⌝ ∗
@@ -317,10 +320,10 @@ Section bstack_mpmc۰G.
     ).
   Proof.
     iLöb as "HLöb".
-    iDestruct "HLöb" as "(IHpush_aux & IHpush)".
+    iDestruct "HLöb" as "(IHpush_aux & IHpush₁)".
     iSplit.
 
-    - iIntros "%sz %front %ws %Φ (-> & -> & %Hws & (:inv)) HΦ".
+    - iIntros "%sz %front %ws %backoff %Φ (-> & -> & %Hws & (:inv) & Hbackoff) HΦ".
 
       wp۰rec. wp۰pures.
 
@@ -328,7 +331,7 @@ Section bstack_mpmc۰G.
       iInv "Hinv" as "(:inv۰inner)".
       wp۰cas as _ | <-%list۰to_valｰinj'.
 
-      + iSplitR "HΦ". { iFrameSteps. }
+      + iSplitR "Hbackoff HΦ". { iFrameSteps. }
         iSteps.
 
       + iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
@@ -342,7 +345,7 @@ Section bstack_mpmc۰G.
         { iFrameSteps. rewrite Nat.sub_0_r //. }
         iSteps.
 
-    - iIntros "%Φ (:inv) HΦ".
+    - iIntros "%backoff %Φ ((:inv) & Hbackoff) HΦ".
 
       wp۰rec. wp۰pures.
 
@@ -364,18 +367,38 @@ Section bstack_mpmc۰G.
         rewrite bool_decide_eq_true_2; first naive_solver lia.
         iSteps.
 
-      + iSplitR "HΦ". { iFrameSteps. }
+      + iSplitR "Hbackoff HΦ". { iFrameSteps. }
         iIntros "!> {%- Hlen}".
 
         destruct vs as [| w vs]; wp۰pures.
 
-        * wp۰apply ("IHpush_aux" $! _ _ [] with "[] HΦ"); first iSteps.
+        * wp۰apply ("IHpush_aux" $! _ _ [] with "[$Hbackoff] HΦ"); first iSteps.
 
         * simpl in Hlen.
           wp۰load. wp۰pures.
           rewrite bool_decide_eq_false_2; first lia.
-          wp۰apply+ ("IHpush_aux" $! _ _ (w :: vs) with "[] HΦ"); first iSteps.
+          wp۰apply+ ("IHpush_aux" $! _ _ (w :: vs) with "[$Hbackoff] HΦ"); first iSteps.
   Qed.
+  #[local] Lemma bstack_mpmc٠push₁ｰspec t ι cap v backoff :
+    <<<
+      bstack_mpmc۰inv t ι cap ∗
+      backoff۰model backoff
+    | ∀∀ vs,
+      bstack_mpmc۰model t vs
+    >>>
+      bstack_mpmc٠push₁ t v backoff @ ↑ι
+    <<<
+      ∃∃ b,
+      ⌜b = bool_decide (length vs < cap)⌝ ∗
+      bstack_mpmc۰model t (if b then v :: vs else vs)
+    | RET #b;
+      True
+    >>>.
+  Proof.
+    iPoseProof bstack_mpmc٠push_aux_pushｰspec as "(_ & H)".
+    iApply "H".
+  Qed.
+
   Lemma bstack_mpmc٠pushｰspec t ι cap v :
     <<<
       bstack_mpmc۰inv t ι cap
@@ -391,28 +414,31 @@ Section bstack_mpmc۰G.
       True
     >>>.
   Proof.
-    iPoseProof bstack_mpmc٠push_aux_pushｰspec as "(_ & H)".
-    iApply "H".
+    iIntros "%Φ Hinv HΦ".
+
+    wp۰rec.
+    wp۰apply+ (bstack_mpmc٠push₁ｰspec with "[$Hinv] HΦ"). 1: iSteps.
   Qed.
 
-  Lemma bstack_mpmc٠popｰspec t ι cap :
+  #[local] Lemma bstack_mpmc٠pop₁ｰspec t ι cap backoff :
     <<<
-      bstack_mpmc۰inv t ι cap
+      bstack_mpmc۰inv t ι cap ∗
+      backoff۰model backoff
     | ∀∀ vs,
       bstack_mpmc۰model t vs
     >>>
-      bstack_mpmc٠pop t @ ↑ι
+      bstack_mpmc٠pop₁ t backoff @ ↑ι
     <<<
       bstack_mpmc۰model t (tail vs)
     | RET head vs;
       True
     >>>.
   Proof.
-    iIntros "%Φ (:inv) HΦ".
+    iIntros "%Φ ((:inv) & Hbackoff) HΦ".
 
-    iLöb as "HLöb".
+    iLöb as "HLöb" forall (backoff).
 
-    wp۰rec.
+    wp۰rec. wp۰pures.
 
     wp۰bind (_.{front})%E.
     iInv "Hinv" as "(:inv۰inner =1)".
@@ -426,7 +452,7 @@ Section bstack_mpmc۰G.
       iSplitR "HΦ". { iFrameSteps. }
       iSteps.
 
-    - iSplitR "HΦ". { iFrameSteps. }
+    - iSplitR "Hbackoff HΦ". { iFrameSteps. }
       iIntros "{%} !>".
 
       wp۰pures.
@@ -444,6 +470,25 @@ Section bstack_mpmc۰G.
       { simpl in Hvs. iSteps. }
       iSplitR "HΦ". { iFrameSteps. }
       iSteps.
+  Qed.
+
+  Lemma bstack_mpmc٠popｰspec t ι cap :
+    <<<
+      bstack_mpmc۰inv t ι cap
+    | ∀∀ vs,
+      bstack_mpmc۰model t vs
+    >>>
+      bstack_mpmc٠pop t @ ↑ι
+    <<<
+      bstack_mpmc۰model t (tail vs)
+    | RET head vs;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ Hinv HΦ".
+
+    wp۰rec.
+    wp۰apply (bstack_mpmc٠pop₁ｰspec with "[$Hinv] HΦ"). 1: iSteps.
   Qed.
 End bstack_mpmc۰G.
 

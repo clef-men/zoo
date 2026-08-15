@@ -10,8 +10,10 @@ Require Import zoo_saturn.queue_mpmc_2__code.
 #[global] Opaque queue_mpmc_2٠finish.
 #[global] Opaque queue_mpmc_2٠help.
 #[global] Opaque queue_mpmc_2٠push_aux.
+#[global] Opaque queue_mpmc_2٠push₁.
 #[global] Opaque queue_mpmc_2٠push.
 #[global] Opaque queue_mpmc_2٠pop_1.
 #[global] Opaque queue_mpmc_2٠pop_2.
 #[global] Opaque queue_mpmc_2٠pop_3.
+#[global] Opaque queue_mpmc_2٠pop₁.
 #[global] Opaque queue_mpmc_2٠pop.

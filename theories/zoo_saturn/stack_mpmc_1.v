@@ -7,7 +7,7 @@ Require Import zoo_saturn.stack_mpmc_1__types.
 Require Import zoo.options.
 
 Implicit Type l : location.
-Implicit Type v t : val.
+Implicit Type v t backoff : val.
 Implicit Type vs : list val.
 
 Class StackMpmc1G Σ `{zoo۰G : !ZooG Σ} :=
@@ -152,29 +152,30 @@ Section zoo۰G.
     iStep 2. iApply inv_alloc. iExists []. iSteps.
   Qed.
 
-  Lemma stack_mpmc_1٠pushｰspec t ι v :
+  #[local] Lemma stack_mpmc_1٠push₁ｰspec t ι v backoff :
     <<<
-      stack_mpmc_1۰inv t ι
+      stack_mpmc_1۰inv t ι ∗
+      backoff۰model backoff
     | ∀∀ vs,
       stack_mpmc_1۰model t vs
     >>>
-      stack_mpmc_1٠push t v @ ↑ι
+      stack_mpmc_1٠push₁ t v backoff @ ↑ι
     <<<
       stack_mpmc_1۰model t (v :: vs)
     | RET ();
       True
     >>>.
   Proof.
-    iIntros "%Φ (:inv) HΦ".
+    iIntros "%Φ ((:inv) & Hbackoff) HΦ".
 
-    iLöb as "HLöb".
+    iLöb as "HLöb" forall (backoff).
 
     wp۰rec. wp۰pures.
 
     wp۰bind (!_)%E.
     iInv "Hinv" as "(:inv۰inner)".
     wp۰load.
-    iSplitR "HΦ"; first iSteps.
+    iSplitR "Hbackoff HΦ"; first iSteps.
     iModIntro.
 
     wp۰pures.
@@ -191,22 +192,42 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma stack_mpmc_1٠popｰspec t ι :
+  Lemma stack_mpmc_1٠pushｰspec t ι v :
     <<<
       stack_mpmc_1۰inv t ι
     | ∀∀ vs,
       stack_mpmc_1۰model t vs
     >>>
-      stack_mpmc_1٠pop t @ ↑ι
+      stack_mpmc_1٠push t v @ ↑ι
+    <<<
+      stack_mpmc_1۰model t (v :: vs)
+    | RET ();
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ Hinv HΦ".
+
+    wp۰rec.
+    wp۰apply+ (stack_mpmc_1٠push₁ｰspec with "[$Hinv] HΦ"). 1: iSteps.
+  Qed.
+
+  #[local] Lemma stack_mpmc_1٠pop₁ｰspec t ι backoff :
+    <<<
+      stack_mpmc_1۰inv t ι ∗
+      backoff۰model backoff
+    | ∀∀ vs,
+      stack_mpmc_1۰model t vs
+    >>>
+      stack_mpmc_1٠pop₁ t backoff @ ↑ι
     <<<
       stack_mpmc_1۰model t (tail vs)
     | RET head vs;
       True
     >>>.
   Proof.
-    iIntros "%Φ (:inv) HΦ".
+    iIntros "%Φ ((:inv) & Hbackoff) HΦ".
 
-    iLöb as "HLöb".
+    iLöb as "HLöb" forall (backoff).
 
     wp۰rec. wp۰pures.
 
@@ -222,7 +243,7 @@ Section zoo۰G.
       iSplitR "HΦ". { iExists []. iSteps. }
       iSteps.
 
-    - iSplitR "HΦ". { iExists (v :: vs). iSteps. }
+    - iSplitR "Hbackoff HΦ". { iExists (v :: vs). iSteps. }
       iModIntro.
 
       wp۰pures.
@@ -238,6 +259,25 @@ Section zoo۰G.
       iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
       iSplitR "HΦ"; first iSteps.
       iSteps.
+  Qed.
+
+  Lemma stack_mpmc_1٠popｰspec t ι :
+    <<<
+      stack_mpmc_1۰inv t ι
+    | ∀∀ vs,
+      stack_mpmc_1۰model t vs
+    >>>
+      stack_mpmc_1٠pop t @ ↑ι
+    <<<
+      stack_mpmc_1۰model t (tail vs)
+    | RET head vs;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ Hinv HΦ".
+
+    wp۰rec.
+    wp۰apply (stack_mpmc_1٠pop₁ｰspec with "[$Hinv] HΦ"). 1: iSteps.
   Qed.
 
   Lemma stack_mpmc_1٠snapshotｰspec t ι :

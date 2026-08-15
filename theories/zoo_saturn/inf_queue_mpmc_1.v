@@ -15,7 +15,7 @@ Require Import zoo.options.
 
 Implicit Type b : bool.
 Implicit Type front back : nat.
-Implicit Type v : val.
+Implicit Type v backoff : val.
 Implicit Type vs hist : list val.
 Implicit Type slot : optional val.
 Implicit Type slots : nat → optional val.
@@ -779,22 +779,23 @@ Module base.
       iSteps.
     Qed.
 
-    #[local] Lemma inf_queue_mpmc_1٠pop₁ｰspec t γ front Ψ :
+    #[local] Lemma inf_queue_mpmc_1٠pop₁ｰspec t γ front Ψ backoff :
       {{{
         inv' t γ ∗
         consumers۰at γ front Ψ ∗
-        tokens۰pending γ front
+        tokens۰pending γ front ∗
+        backoff۰model backoff
       }}}
-        inf_queue_mpmc_1٠pop₁ #t #front
+        inf_queue_mpmc_1٠pop₁ #t #front backoff
       {{{
         v
       , RET v;
         Ψ v
       }}}.
     Proof.
-      iIntros "%Φ ((:inv') & #Hconsumers_at & Htokens_pending) HΦ".
+      iIntros "%Φ ((:inv') & #Hconsumers_at & Htokens_pending & Hbackoff) HΦ".
 
-      iLöb as "HLöb".
+      iLöb as "HLöb" forall (backoff).
 
       wp۰rec credit:"H£". wp۰load.
 
@@ -802,13 +803,13 @@ Module base.
       iInv "Hinv" as "(:inv۰inner =1)".
       iAaccIntro with "Hdata_model"; first auto with iFrame. iIntros "Hdata_model".
       iAssert (▷ slot۰model γ front (slots1 front))%I with "[Hslots]" as "#>Hslot"; first iSteps.
-      iSplitL. { iFrameSteps. }
+      iSplitR "Hbackoff". { iFrameSteps. }
       iIntros "!> _ (Htokens_pending & H£ & HΦ) {%}".
 
       rewrite Nat2Z.id /=. destruct (slots1 front) as [| | v].
 
-      - iStep 8.
-        wp۰apply ("HLöb" with "Htokens_pending HΦ").
+      - wp۰apply+ (backoff٠onceｰspec with "Hbackoff") as "{% backoff} %backoff Hbackoff".
+        wp۰apply ("HLöb" with "Htokens_pending Hbackoff HΦ").
 
       - iDestruct (tokens۰pendingｰdone with "Htokens_pending Hslot") as %[].
 
@@ -837,6 +838,7 @@ Module base.
         iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
         iSteps.
     Qed.
+
     Lemma inf_queue_mpmc_1٠popｰspec t γ ι :
       <<<
         inf_queue_mpmc_1۰inv t γ ι

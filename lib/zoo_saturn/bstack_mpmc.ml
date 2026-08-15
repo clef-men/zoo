@@ -24,32 +24,32 @@ let size t =
 let is_empty t =
   t.front == Nil
 
-let rec push_aux t sz v front =
+let rec push_aux t sz v front backoff =
   let new_front = Cons (sz + 1, v, front) in
-  if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
+  if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then
     true
-  ) else (
-    Domain.yield () ;
-    push t v
-  )
-and push t v =
+  else
+    push t v (Backoff.once backoff)
+and push t v backoff =
   match t.front with
   | Nil ->
-      push_aux t 0 v Nil
+      push_aux t 0 v Nil backoff
   | Cons (sz, _, _) as front ->
       if t.capacity <= sz then
         false
       else
-        push_aux t sz v front
+        push_aux t sz v front backoff
+let push t v =
+  push t v Backoff.default
 
-let rec pop t =
+let rec pop t backoff =
   match t.front with
   | Nil ->
       None
   | Cons (_, v, new_front) as front ->
-      if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
+      if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then
         Some v
-      ) else (
-        Domain.yield () ;
-        pop t
-      )
+      else
+        pop t (Backoff.once backoff)
+let pop t =
+  pop t Backoff.default

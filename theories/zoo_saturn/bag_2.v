@@ -13,7 +13,7 @@ Require Import zoo.options.
 
 Implicit Type l node 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 : location.
 Implicit Type nodes : list location.
-Implicit Type v t producer consumer : val.
+Implicit Type v t producer consumer backoff : val.
 Implicit Type o : option val.
 Implicit Type vs ws : list val.
 Implicit Type vss wss : gmap val (list val).
@@ -493,16 +493,17 @@ Section bag_2۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma bag_2٠add_producer₁ｰspec l γ (queue : val) :
+  #[local] Lemma bag_2٠add_producer₁ｰspec l γ (queue : val) backoff :
     <<<
       l ↪ γ ∗
       inv' l γ ∗
       queue_spmc۰inv queue (γ.(metadata۰inv).@"producer") ∗
-      queue_spmc۰model queue []
+      queue_spmc۰model queue [] ∗
+      backoff۰model backoff
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2٠add_producer₁ #l (Some queue) @ ↑γ.(metadata۰inv)
+      bag_2٠add_producer₁ #l (Some queue) backoff @ ↑γ.(metadata۰inv)
     <<<
       ∃∃ node,
       let 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :=
@@ -516,15 +517,16 @@ Section bag_2۰G.
       queues۰at γ node queue
     >>>.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hqueue_inv & Hqueue_model) HΦ".
-    iLöb as "HLöb".
+    iIntros "%Φ (#Hmeta & #Hinv & #Hqueue_inv & Hqueue_model & Hbackoff) HΦ".
+
+    iLöb as "HLöb" forall (backoff).
 
     wp۰rec. wp۰pures.
 
     wp۰bind (_.{producers})%E.
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰load.
-    iSplitR "Hqueue_model HΦ". { iFrameSteps. }
+    iSplitR "Hqueue_model Hbackoff HΦ". { iFrameSteps. }
     iIntros "!> {%}".
 
     wp۰block node as "#Hnode_header" "_" "#Hnode_next Hnode_queue".
@@ -561,6 +563,7 @@ Section bag_2۰G.
     iSplitR "HΦ". { iFrameSteps. }
     iSteps.
   Qed.
+
   #[local] Lemma bag_2٠add_producerｰspec l γ (queue : val) :
     <<<
       l ↪ γ ∗
@@ -584,11 +587,12 @@ Section bag_2۰G.
       queues۰at γ node queue
     >>>.
   Proof.
-    iIntros "%Φ H HΦ".
+    iIntros "%Φ (Hmeta & Hinv & Hqueue_inv & Hqueue_model) HΦ".
 
     wp۰rec.
-    wp۰apply+ (bag_2٠add_producer₁ｰspec with "H HΦ").
+    wp۰apply+ (bag_2٠add_producer₁ｰspec with "[- HΦ] HΦ"). 1: iFrameSteps.
   Qed.
+
   Lemma bag_2٠create_producerｰspec t ι :
     <<<
       bag_2۰inv t ι

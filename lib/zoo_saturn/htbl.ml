@@ -114,19 +114,19 @@ let find t key =
 let mem t key =
   find_node t key != Nil
 
-let rec take buckets i =
+let rec take buckets i backoff =
   match Atomic_array.unsafe_get buckets i with
   | Init ->
       assert false
   | Resize bucket ->
       bucket
   | bucket ->
-      if Atomic_array.unsafe_cas buckets i bucket (Resize bucket) then (
+      if Atomic_array.unsafe_cas buckets i bucket (Resize bucket) then
         bucket
-      ) else (
-        Domain.yield () ;
-        take buckets i
-      )
+      else
+        take buckets i (Backoff.once backoff)
+let take buckets i =
+  take buckets i Backoff.default
 
 let rec split_buckets t state buckets mask i step =
   let i = (i + step) land mask in
@@ -204,7 +204,7 @@ let resize t state delta =
     else if min_buckets < cap && 3 * sz < cap then
       resize t state (cap lsr 1)
 
-let rec add t key v =
+let rec add t key v backoff =
   let state = t.state in
   let i = index t state key in
   match Atomic_array.unsafe_get state.buckets i with
@@ -212,7 +212,7 @@ let rec add t key v =
       assert false
   | Resize _ ->
       finish t ;
-      add t key v
+      add t key v Backoff.default
   | bucket ->
       if bucket_assoc t.equal key bucket != Nil then (
         false
@@ -220,11 +220,12 @@ let rec add t key v =
         resize t state 1 ;
         true
       ) else (
-        Domain.yield () ;
-        add t key v
+        add t key v (Backoff.once backoff)
       )
+let add t key v =
+  add t key v Backoff.default
 
-let rec remove t key =
+let rec remove t key backoff =
   let state = t.state in
   let i = index t state key in
   match Atomic_array.unsafe_get state.buckets i with
@@ -232,7 +233,7 @@ let rec remove t key =
       assert false
   | Resize _ ->
       finish t ;
-      remove t key
+      remove t key Backoff.default
   | bucket ->
       match bucket_dissoc t.equal key bucket with
       | None ->
@@ -242,6 +243,7 @@ let rec remove t key =
             resize t state (-1) ;
             true
           ) else (
-            Domain.yield () ;
-            remove t key
+            remove t key (Backoff.once backoff)
           )
+let remove t key =
+  remove t key Backoff.default

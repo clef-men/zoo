@@ -11,7 +11,7 @@ Require Import zoo.options.
 Implicit Type front back : nat.
 Implicit Type l slot : location.
 Implicit Type slots : list location.
-Implicit Type v t data : val.
+Implicit Type v t data backoff : val.
 Implicit Type vs : gmultiset val.
 Implicit Type o : option val.
 Implicit Type os : list (option val).
@@ -267,25 +267,26 @@ Section bag_1۰G.
       iSteps.
   Qed.
 
-  #[local] Lemma bag_1٠push₁ｰspec slot v l γ :
+  #[local] Lemma bag_1٠push₁ｰspec slot v l γ backoff :
     slot ∈ γ.(metadata۰slots) →
     <<<
       l ↪ γ ∗
-      inv' l γ
+      inv' l γ ∗
+      backoff۰model backoff
     | ∀∀ vs,
       bag_1۰model #l vs
     >>>
-      bag_1٠push₁ #slot ’Some[ v ] @ ↑γ.(metadata۰inv)
+      bag_1٠push₁ #slot ’Some[ v ] backoff @ ↑γ.(metadata۰inv)
     <<<
       bag_1۰model #l ({[+v+]} ⊎ vs)
     | RET ();
       True
     >>>.
   Proof.
-    iIntros ((i & Hslots_lookup)%list_elem_of_lookup) "%Φ (#Hmeta & #Hinv) HΦ".
+    iIntros ((i & Hslots_lookup)%list_elem_of_lookup) "%Φ (#Hmeta & #Hinv & Hbackoff) HΦ".
     pose proof Hslots_lookup as Hi%lookup_lt_Some.
 
-    iLöb as "HLöb".
+    iLöb as "HLöb" forall (backoff).
 
     wp۰rec. wp۰pures.
 
@@ -298,7 +299,7 @@ Section bag_1۰G.
 
     - iDestruct ("Hslots" with "Hslot") as "Hslots".
       rewrite !list_insert_id //.
-      iSplitR "HΦ". { iFrameSteps. }
+      iSplitR "Hbackoff HΦ". { iFrameSteps. }
       iSteps.
 
     - iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
@@ -314,6 +315,7 @@ Section bag_1۰G.
       }
       iSteps.
   Qed.
+
   Lemma bag_1٠pushｰspec t ι v :
     <<<
       bag_1۰inv t ι
@@ -342,19 +344,20 @@ Section bag_1۰G.
     simp_length.
     wp۰apply+ (array٠unsafe_getｰspec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
-    wp۰apply (bag_1٠push₁ｰspec with "[$Hmeta $Hinv] HΦ").
-    apply list_elem_of_lookup_total_2. lia.
+    wp۰apply (bag_1٠push₁ｰspec with "[$Hmeta $Hinv] HΦ"). 2: iSteps.
+    { apply list_elem_of_lookup_total_2. lia. }
   Qed.
 
-  #[local] Lemma bag_1٠pop₁ｰspec slot l γ :
+  #[local] Lemma bag_1٠pop₁ｰspec slot l γ backoff :
     slot ∈ γ.(metadata۰slots) →
     <<<
       l ↪ γ ∗
-      inv' l γ
+      inv' l γ ∗
+      backoff۰model backoff
     | ∀∀ vs,
       bag_1۰model #l vs
     >>>
-      bag_1٠pop₁ #slot @ ↑γ.(metadata۰inv)
+      bag_1٠pop₁ #slot backoff @ ↑γ.(metadata۰inv)
     <<<
       ∃∃ v vs',
       ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
@@ -363,10 +366,10 @@ Section bag_1۰G.
       True
     >>>.
   Proof.
-    iIntros ((i & Hslots_lookup)%list_elem_of_lookup) "%Φ (#Hmeta & #Hinv) HΦ".
+    iIntros ((i & Hslots_lookup)%list_elem_of_lookup) "%Φ (#Hmeta & #Hinv & Hbackoff) HΦ".
     pose proof Hslots_lookup as Hi%lookup_lt_Some.
 
-    iLöb as "HLöb".
+    iLöb as "HLöb" forall (backoff).
 
     wp۰rec. wp۰pures.
 
@@ -376,7 +379,7 @@ Section bag_1۰G.
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
     iDestruct (big_sepL2_lookup_acc with "Hslots") as "(Hslot & Hslots)"; [done.. |].
     wp۰load.
-    iSplitR "HΦ". { iFrameSteps. }
+    iSplitR "Hbackoff HΦ". { iFrameSteps. }
     iIntros "!> {%- Hslots_lookup Hi}".
 
     destruct o as [v |]; last iSteps.
@@ -391,7 +394,7 @@ Section bag_1۰G.
 
     - iDestruct ("Hslots" with "Hslot") as "Hslots".
       rewrite !list_insert_id //.
-      iSplitR "HΦ". { iFrameSteps. }
+      iSplitR "Hbackoff HΦ". { iFrameSteps. }
       iSteps.
 
     - iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
@@ -410,6 +413,7 @@ Section bag_1۰G.
       }
       iSteps.
   Qed.
+
   Lemma bag_1٠popｰspec t ι :
     <<<
       bag_1۰inv t ι
@@ -440,8 +444,8 @@ Section bag_1۰G.
     simp_length.
     wp۰apply+ (array٠unsafe_getｰspec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
-    wp۰apply (bag_1٠pop₁ｰspec with "[$Hmeta $Hinv] HΦ").
-    apply list_elem_of_lookup_total_2. lia.
+    wp۰apply (bag_1٠pop₁ｰspec with "[$Hmeta $Hinv] HΦ"). 2: iSteps.
+    { apply list_elem_of_lookup_total_2. lia. }
   Qed.
 End bag_1۰G.
 

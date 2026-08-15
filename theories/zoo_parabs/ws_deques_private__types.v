@@ -1,9 +1,9 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
+Require Export backoff.backoff.
 Require Export zoo_std.array.
 Require Export zoo_std.atomic_array.
-Require Export zoo_std.domain.
 Require Export zoo_std.queue_3.
 Require Export zoo_std.random_round.
 Require Import zoo.options.

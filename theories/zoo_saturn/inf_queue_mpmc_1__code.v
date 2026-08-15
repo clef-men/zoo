@@ -1,7 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.domain.
+Require Import backoff.backoff.
 Require Import zoo_std.inf_array.
 Require Import zoo_std.int.
 Require Import zoo_std.optional.
@@ -60,13 +60,12 @@ Definition inf_queue_mpmc_1٠push : val :=
       ‘optional٠Something( "v" ).
 
 Definition inf_queue_mpmc_1٠pop₁ : val :=
-  𝗿𝗲𝗰 "pop" "t" "i" ->
+  𝗿𝗲𝗰 "pop" "t" "i" "backoff" ->
     𝗺𝗮𝘁𝗰𝗵
       inf_array٠get "t".{inf_queue_mpmc_1٠data} "i"
     𝘄𝗶𝘁𝗵
     | optional٠Nothing ->
-        domain٠yield () ⍮
-        "pop" "t" "i"
+        "pop" "t" "i" (backoff٠once "backoff")
     | optional٠Anything ->
         𝗳𝗮𝗶𝗹
     | optional٠Something "v" ->
@@ -77,7 +76,7 @@ Definition inf_queue_mpmc_1٠pop₁ : val :=
 Definition inf_queue_mpmc_1٠pop : val :=
   𝗳𝘂𝗻 "t" ->
     𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[inf_queue_mpmc_1٠front] 1 𝗶𝗻
-    inf_queue_mpmc_1٠pop₁ "t" "i".
+    inf_queue_mpmc_1٠pop₁ "t" "i" backoff٠default.
 
 Definition inf_queue_mpmc_1٠try_pop : val :=
   𝗳𝘂𝗻 "t" ->

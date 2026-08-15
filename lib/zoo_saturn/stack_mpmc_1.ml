@@ -8,25 +8,25 @@ type 'a t =
 let create () =
   Atomic.make Glist.Nil
 
-let rec push t v =
+let rec push t v backoff =
   let old = Atomic.get t in
   let new_ = Glist.Cons (v, old) in
-  if not @@ Atomic.compare_and_set t old new_ then (
-    Domain.yield () ;
-    push t v
-  )
+  if not @@ Atomic.compare_and_set t old new_ then
+    push t v (Backoff.once backoff)
+let push t v =
+  push t v Backoff.default
 
-let rec pop t =
+let rec pop t backoff =
   match Atomic.get t with
   | Glist.Nil ->
       None
   | Cons (v, new_) as old ->
-      if Atomic.compare_and_set t old new_ then (
+      if Atomic.compare_and_set t old new_ then
         Some v
-      ) else (
-        Domain.yield () ;
-        pop t
-      )
+      else
+        pop t (Backoff.once backoff)
+let pop t =
+  pop t Backoff.default
 
 let snapshot t =
   Atomic.get t

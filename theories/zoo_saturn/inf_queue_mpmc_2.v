@@ -19,7 +19,7 @@ Require Import zoo.options.
 
 Implicit Type b : bool.
 Implicit Type front back : nat.
-Implicit Type v : val.
+Implicit Type v backoff : val.
 Implicit Type o : option val.
 Implicit Type vs : list val.
 Implicit Type hist : list (option val).
@@ -1218,13 +1218,14 @@ Module base.
           iSteps.
     Qed.
 
-    Lemma inf_queue_mpmc_2٠popｰspec t γ ι :
+    #[local] Lemma inf_queue_mpmc_2٠pop₁ｰspec t γ ι backoff :
       <<<
-        inf_queue_mpmc_2۰inv t γ ι
+        inf_queue_mpmc_2۰inv t γ ι ∗
+        backoff۰model backoff
       | ∀∀ vs,
         inf_queue_mpmc_2۰model γ vs
       >>>
-        inf_queue_mpmc_2٠pop #t @ ↑ι
+        inf_queue_mpmc_2٠pop₁ #t backoff @ ↑ι
       <<<
         ∃∃ v vs',
         ⌜vs = v :: vs'⌝ ∗
@@ -1233,9 +1234,9 @@ Module base.
         True
       >>>.
     Proof.
-      iIntros "%Φ (:inv) HΦ".
+      iIntros "%Φ ((:inv) & Hbackoff) HΦ".
 
-      iLöb as "HLöb".
+      iLöb as "HLöb" forall (backoff).
 
       wp۰rec.
       wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
@@ -1260,7 +1261,7 @@ Module base.
             iSteps.
           }
 
-          iSplitR "Hconsumers_at HΦ".
+          iSplitR "Hconsumers_at Hbackoff HΦ".
           { iFrame.
             rewrite (drop_ge hist1); first lia.
             rewrite take_app_le; first lia.
@@ -1288,7 +1289,7 @@ Module base.
             iDestruct (consumers۰atｰexclusive with "Hconsumers_at Hconsumers_at_") as %[].
           }
           iMod (consumers۰atｰdiscard with "Hconsumers_at") as "#Hconsumers_at".
-          iMod ("Hclose1" with "[- HΦ]") as "_".
+          iMod ("Hclose1" with "[- Hbackoff HΦ]") as "_".
           { rewrite -(fnｰcomposeｰinsert _ _ _ Anything).
             iFrameSteps.
             rewrite fnｰlookupｰinsert. case_decide.
@@ -1420,7 +1421,7 @@ Module base.
           erewrite drop_S, oflattenｰconsｰNone in Hvs1; last done.
           iDestruct (lstates۰lbｰget with "Hlstates_auth") as "#Hlstates_lb"; first done.
 
-          iSplitR "Hconsumers_at HΦ". { iFrameSteps. }
+          iSplitR "Hconsumers_at Hbackoff HΦ". { iFrameSteps. }
           iIntros "!> {%}".
 
           do 2 wp۰load.
@@ -1441,7 +1442,7 @@ Module base.
             iDestruct (consumers۰atｰexclusive with "Hconsumers_at Hconsumers_at_") as %[].
           }
           iMod (consumers۰atｰdiscard with "Hconsumers_at") as "#Hconsumers_at".
-          iMod ("Hclose1" with "[- HΦ]") as "_".
+          iMod ("Hclose1" with "[- Hbackoff HΦ]") as "_".
           { rewrite -(fnｰcomposeｰinsert _ _ _ Anything).
             iFrameSteps.
             rewrite fnｰlookupｰinsert. case_decide.
@@ -1454,6 +1455,27 @@ Module base.
           iDestruct (consumers۰lbｰvalid with "Hconsumers_auth Hconsumers_lb") as %?. lia.
 
         + iDestruct (consumers۰lbｰvalid with "Hconsumers_auth Hlstate") as %?. lia.
+    Qed.
+
+    Lemma inf_queue_mpmc_2٠popｰspec t γ ι :
+      <<<
+        inf_queue_mpmc_2۰inv t γ ι
+      | ∀∀ vs,
+        inf_queue_mpmc_2۰model γ vs
+      >>>
+        inf_queue_mpmc_2٠pop #t @ ↑ι
+      <<<
+        ∃∃ v vs',
+        ⌜vs = v :: vs'⌝ ∗
+        inf_queue_mpmc_2۰model γ vs'
+      | RET v;
+        True
+      >>>.
+    Proof.
+      iIntros "%Φ Hinv HΦ".
+
+      wp۰rec.
+      wp۰apply (inf_queue_mpmc_2٠pop₁ｰspec with "[$Hinv] HΦ"). 1: iSteps.
     Qed.
   End inf_queue_mpmc_2۰G.
 

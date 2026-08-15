@@ -1,8 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
+Require Import backoff.backoff.
 Require Import zoo.program_logic.identifier.
-Require Import zoo_std.domain.
 Require Import zoo_std.inf_array.
 Require Import zoo.options.
 
@@ -41,8 +41,8 @@ Definition inf_ws_deque_1٠push : val :=
     inf_array٠set "t".{inf_ws_deque_1٠data} "back" "v" ⍮
     "t" <-{inf_ws_deque_1٠back} "back" + 1.
 
-Definition inf_ws_deque_1٠steal : val :=
-  𝗿𝗲𝗰 "steal" "t" ->
+Definition inf_ws_deque_1٠steal₁ : val :=
+  𝗿𝗲𝗰 "steal" "t" "backoff" ->
     𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
     𝗹𝗲𝘁 "front" = "t".{inf_ws_deque_1٠front} 𝗶𝗻
     𝗹𝗲𝘁 "back" = "t".{inf_ws_deque_1٠back} 𝗶𝗻
@@ -56,9 +56,12 @@ Definition inf_ws_deque_1٠steal : val :=
      𝘁𝗵𝗲𝗻 (
       ‘Some( inf_array٠get "t".{inf_ws_deque_1٠data} "front" )
     ) 𝗲𝗹𝘀𝗲 (
-      domain٠yield () ⍮
-      "steal" "t"
+      "steal" "t" (backoff٠once "backoff")
     ).
+
+Definition inf_ws_deque_1٠steal : val :=
+  𝗳𝘂𝗻 "t" ->
+    inf_ws_deque_1٠steal₁ "t" backoff٠default.
 
 Definition inf_ws_deque_1٠pop₁ : val :=
   𝗳𝘂𝗻 "t" "id" "back" ->

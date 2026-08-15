@@ -1,7 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.domain.
+Require Import backoff.backoff.
 Require Import zoo_std.glist.
 Require Import zoo.options.
 
@@ -32,8 +32,8 @@ Definition queue_mpsc_2٠push_front : val :=
     "t" <-{queue_mpsc_2٠front}
       ‘glist٠Cons[ "v", "t".{queue_mpsc_2٠front} ].
 
-Definition queue_mpsc_2٠push_back : val :=
-  𝗿𝗲𝗰 "push_back" "t" "v" ->
+Definition queue_mpsc_2٠push_back₁ : val :=
+  𝗿𝗲𝗰 "push_back" "t" "v" "backoff" ->
     𝗹𝗲𝘁 "back" = "t".{queue_mpsc_2٠back} 𝗶𝗻
     𝗶𝗳
       ~
@@ -42,9 +42,12 @@ Definition queue_mpsc_2٠push_back : val :=
         "back"
         ‘glist٠Cons[ "v", "back" ]
     𝘁𝗵𝗲𝗻 (
-      domain٠yield () ⍮
-      "push_back" "t" "v"
+      "push_back" "t" "v" (backoff٠once "backoff")
     ).
+
+Definition queue_mpsc_2٠push_back : val :=
+  𝗳𝘂𝗻 "t" "v" ->
+    queue_mpsc_2٠push_back₁ "t" "v" backoff٠default.
 
 Definition queue_mpsc_2٠pop : val :=
   𝗳𝘂𝗻 "t" ->

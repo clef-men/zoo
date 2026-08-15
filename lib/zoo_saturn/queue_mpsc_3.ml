@@ -31,17 +31,17 @@ let push_front t v =
       t.front <- Cons (v, front) ;
       false
 
-let rec push_back t v =
+let rec push_back t v backoff =
   match t.back with
   | Closed ->
       true
   | _ as back ->
-      if Atomic.Loc.compare_and_set [%atomic.loc t.back] back (Cons (v, back)) then (
+      if Atomic.Loc.compare_and_set [%atomic.loc t.back] back (Cons (v, back)) then
         false
-      ) else (
-        Domain.yield () ;
-        push_back t v
-      )
+      else
+        push_back t v (Backoff.once backoff)
+let push_back t v =
+  push_back t v Backoff.default
 
 let pop t =
   match t.front with

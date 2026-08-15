@@ -40,7 +40,7 @@ let push t v =
   ) ;
   t.back <- back + 1
 
-let rec steal t =
+let rec steal t backoff =
   let id = Zoo.id () in
   let front = t.front in
   let back = t.back in
@@ -53,12 +53,12 @@ let rec steal t =
       Zoo.resolve_with (
         Atomic.Loc.compare_and_set [%atomic.loc t.front] front (front + 1)
       ) t.proph (front, id)
-    then (
+    then
       Some v
-    ) else (
-      Domain.yield () ;
-      steal t
-    )
+    else
+      steal t (Backoff.once backoff)
+let steal t =
+  steal t Backoff.default
 
 let[@inline] pop t id back =
   let front = t.front in

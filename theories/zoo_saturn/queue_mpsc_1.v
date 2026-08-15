@@ -13,7 +13,7 @@ Require Import zoo.options.
 Implicit Type b : bool.
 Implicit Type front node back new_back : location.
 Implicit Type hist past nodes : list location.
-Implicit Type v : val.
+Implicit Type v backoff : val.
 Implicit Type o : option val.
 Implicit Type vs : list val.
 
@@ -585,17 +585,18 @@ Module base.
       iSteps.
     Qed.
 
-    #[local] Lemma queue_mpsc_1٠push₁ｰspec t γ i node new_back v :
+    #[local] Lemma queue_mpsc_1٠push₂ｰspec t γ i node new_back v backoff :
       <<<
         inv' t γ ∗
         node۰model γ node i ∗
         new_back ↦ₕ Header §Node 2 ∗
         new_back.[next] ↦ §Null ∗
-        new_back.[data] ↦ v
+        new_back.[data] ↦ v ∗
+        backoff۰model backoff
       | ∀∀ vs,
         queue_mpsc_1۰model γ vs
       >>>
-        queue_mpsc_1٠push₁ #node #new_back @ ↑γ.(queue_mpsc_1۰name۰inv)
+        queue_mpsc_1٠push₂ #node #new_back backoff @ ↑γ.(queue_mpsc_1۰name۰inv)
       <<<
         queue_mpsc_1۰model γ (vs ++ [v])
       | RET ();
@@ -603,9 +604,9 @@ Module base.
         history۰at γ j new_back
       >>>.
     Proof.
-      iIntros "%Φ (#Hinv & (:node۰model =node) & #Hnew_back_header & Hnew_back_next & Hnew_back_data) HΦ".
+      iIntros "%Φ (#Hinv & (:node۰model =node) & #Hnew_back_header & Hnew_back_next & Hnew_back_data& Hbackoff) HΦ".
 
-      iLöb as "HLöb" forall (i node) "Hnode_header Hhistory_at_node".
+      iLöb as "HLöb" forall (i node backoff) "Hnode_header Hhistory_at_node".
 
       wp۰rec. wp۰match.
       wp۰apply+ (nextｰspec with "[$]") as (res) "[-> | (%node' & -> & (:node۰model =node'))]"; last iSteps.
@@ -619,7 +620,7 @@ Module base.
 
       - wp۰cas as _ | [=].
         iDestruct (xtchainｰlookup₂ with "Hhist1 Hnode_header Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
-        iSplitR "Hnew_back_next Hnew_back_data HΦ". { iFrameSteps. }
+        iSplitR "Hnew_back_next Hnew_back_data Hbackoff HΦ". { iFrameSteps. }
         iSteps.
 
       - wp۰cas as ? | _; first done.
@@ -645,21 +646,46 @@ Module base.
         iSteps.
     Qed.
 
-    #[local] Lemma queue_mpsc_1٠fix_backｰspec t γ i back j new_back :
+    #[local] Lemma queue_mpsc_1٠push₁ｰspec t γ i node new_back v :
+      <<<
+        inv' t γ ∗
+        node۰model γ node i ∗
+        new_back ↦ₕ Header §Node 2 ∗
+        new_back.[next] ↦ §Null ∗
+        new_back.[data] ↦ v
+      | ∀∀ vs,
+        queue_mpsc_1۰model γ vs
+      >>>
+        queue_mpsc_1٠push₁ #node #new_back @ ↑γ.(queue_mpsc_1۰name۰inv)
+      <<<
+        queue_mpsc_1۰model γ (vs ++ [v])
+      | RET ();
+        ∃ j,
+        history۰at γ j new_back
+      >>>.
+    Proof.
+      iIntros "%Φ (Hinv & Hnode & Hnew_back_header & Hnew_back_next & Hnew_back_data) HΦ".
+
+      wp۰rec.
+      wp۰apply+ (queue_mpsc_1٠push₂ｰspec with "[- HΦ] HΦ"). 1: iFrameSteps.
+    Qed.
+
+    #[local] Lemma queue_mpsc_1٠fix_back₁ｰspec t γ i back j new_back backoff :
       {{{
         inv' t γ ∗
         history۰at γ i back ∗
-        node۰model γ new_back j
+        node۰model γ new_back j ∗
+        backoff۰model backoff
       }}}
-        queue_mpsc_1٠fix_back #t #back #new_back
+        queue_mpsc_1٠fix_back₁ #t #back #new_back backoff
       {{{
         RET ();
         True
       }}}.
     Proof.
-      iIntros "%Φ (#Hinv & #Hhistory_at_back & (:node۰model =new_back)) HΦ".
+      iIntros "%Φ (#Hinv & #Hhistory_at_back & (:node۰model =new_back) & Hbackoff) HΦ".
 
-      iLöb as "HLöb" forall (i back) "Hhistory_at_back".
+      iLöb as "HLöb" forall (i back backoff) "Hhistory_at_back".
 
       wp۰rec. wp۰match.
 
@@ -676,9 +702,27 @@ Module base.
       }
 
       destruct b; last iSteps.
-      wp۰apply+ domain٠yieldｰspec.
+      wp۰apply+ (backoff٠onceｰspec with "Hbackoff") as "{% backoff} %backoff Hbackoff".
       wp۰apply+ (backｰspec with "Hinv") as (back' i') "(:node۰model =back')".
-      iApply ("HLöb" with "HΦ Hhistory_at_back'").
+      iApply ("HLöb" with "Hbackoff HΦ Hhistory_at_back'").
+    Qed.
+
+    #[local] Lemma queue_mpsc_1٠fix_backｰspec t γ i back j new_back :
+      {{{
+        inv' t γ ∗
+        history۰at γ i back ∗
+        node۰model γ new_back j
+      }}}
+        queue_mpsc_1٠fix_back #t #back #new_back
+      {{{
+        RET ();
+        True
+      }}}.
+    Proof.
+      iIntros "%Φ (Hinv & Hhistory_at_back & Hnew_back) HΦ".
+
+      wp۰rec.
+      wp۰apply+ (queue_mpsc_1٠fix_back₁ｰspec with "[- HΦ] HΦ"). 1: iFrameSteps.
     Qed.
 
     Lemma queue_mpsc_1٠pushｰspec t γ ι v :
@@ -774,8 +818,7 @@ Module base.
     Proof.
       iIntros "%Φ ((:inv) & (:consumer)) HΦ".
 
-      wp۰apply (queue_mpsc_1٠popｰspecｰaux with "[$]").
-      iAuIntro.
+      awp۰apply (queue_mpsc_1٠popｰspecｰaux with "[$]").
       iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)".
       iAaccIntro with "Hmodel₁"; iSteps.
     Qed.

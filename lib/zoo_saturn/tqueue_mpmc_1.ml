@@ -42,16 +42,17 @@ let push t v =
       true
     )
 
-let rec pop data i =
+let rec pop data i backoff =
   match Atomic_array.unsafe_get data i with
   | Optional.Nothing ->
-      Domain.yield () ;
-      pop data i
+      pop data i (Backoff.once backoff)
   | Anything ->
       assert false
   | Something v ->
       Atomic_array.unsafe_set data i Anything ;
       Some v
+let pop data i =
+  pop data i Backoff.default
 let pop t =
   if t.capacity <= t.front then
     None

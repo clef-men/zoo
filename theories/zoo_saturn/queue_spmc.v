@@ -18,7 +18,7 @@ Require Import zoo.options.
 Implicit Type b : bool.
 Implicit Type front node back new_back : location.
 Implicit Type hist past nodes : list location.
-Implicit Type v : val.
+Implicit Type v backoff : val.
 Implicit Type vs ws : list val.
 Implicit Type waiter : gname.
 Implicit Type waiters : gmap gname nat.
@@ -789,22 +789,23 @@ Module base.
       iSteps.
     Qed.
 
-    #[local] Lemma queue_spmc٠popｰspecｰaux t γ :
+    #[local] Lemma queue_spmc٠pop₁ｰspec t γ backoff :
       <<<
-        inv' t γ
+        inv' t γ ∗
+        backoff۰model backoff
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_spmc٠pop #t @ ↑γ.(metadata۰inv)
+        queue_spmc٠pop₁ #t backoff @ ↑γ.(metadata۰inv)
       <<<
         model₁ γ (tail vs)
       | RET head vs;
         True
       >>>.
     Proof.
-      iIntros "%Φ #Hinv HΦ".
+      iIntros "%Φ (#Hinv & Hbackoff) HΦ".
 
-      iLöb as "HLöb".
+      iLöb as "HLöb" forall (backoff).
 
       wp۰rec credit:"H£".
       wp۰apply+ (frontｰspec with "Hinv") as (front i) "(#Hfront_header & #Hhistory_at_front & #Hfront_lb_front)".
@@ -859,6 +860,7 @@ Module base.
       iSplitR "Hfront_data H£ HΦ". { iFrameSteps. }
       iSteps.
     Qed.
+
     Lemma queue_spmc٠popｰspec t γ ι :
       <<<
         queue_spmc۰inv t γ ι
@@ -874,8 +876,8 @@ Module base.
     Proof.
       iIntros "%Φ (:inv) HΦ".
 
-      wp۰apply (queue_spmc٠popｰspecｰaux with "Hinv").
-      iAuIntro.
+      wp۰rec.
+      awp۰apply (queue_spmc٠pop₁ｰspec with "[$Hinv]"). 1: iSteps.
       iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)".
       iAaccIntro with "Hmodel₁"; iSteps.
     Qed.

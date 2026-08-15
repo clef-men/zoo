@@ -1,8 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
+Require Import backoff.backoff.
 Require Import zoo_saturn.queue_spmc.
-Require Import zoo_std.domain.
 Require Import zoo.options.
 
 Notation "'bag_2٠Null'" := (
@@ -47,7 +47,7 @@ Definition bag_2٠create : val :=
     { §bag_2٠Null }.
 
 Definition bag_2٠add_producer₁ : val :=
-  𝗿𝗲𝗰 "add_producer" "t" "queue" ->
+  𝗿𝗲𝗰 "add_producer" "t" "queue" "backoff" ->
     𝗹𝗲𝘁 "producers" = "t".{bag_2٠producers} 𝗶𝗻
     𝗺𝗮𝘁𝗰𝗵
       ‘bag_2٠Node{ "producers", "queue" }
@@ -58,14 +58,13 @@ Definition bag_2٠add_producer₁ : val :=
         𝘁𝗵𝗲𝗻 (
           "new_producers"
         ) 𝗲𝗹𝘀𝗲 (
-          domain٠yield () ⍮
-          "add_producer" "t" "queue"
+          "add_producer" "t" "queue" (backoff٠once "backoff")
         )
     𝗲𝗻𝗱.
 
 Definition bag_2٠add_producer : val :=
   𝗳𝘂𝗻 "t" "queue" ->
-    bag_2٠add_producer₁ "t" ‘Some( "queue" ).
+    bag_2٠add_producer₁ "t" ‘Some( "queue" ) backoff٠default.
 
 Definition bag_2٠create_producer : val :=
   𝗳𝘂𝗻 "t" ->

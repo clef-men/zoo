@@ -1,7 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.domain.
+Require Import backoff.backoff.
 Require Import zoo.options.
 
 Notation "'bqueue_mpmc٠Null'" := (
@@ -95,8 +95,8 @@ Definition bqueue_mpmc٠is_empty : val :=
         "front_r".{bqueue_mpmc٠next} == §bqueue_mpmc٠Null
     𝗲𝗻𝗱.
 
-Definition bqueue_mpmc٠fix_back : val :=
-  𝗿𝗲𝗰 "fix_back" "t" "back" "new_back" ->
+Definition bqueue_mpmc٠fix_back₁ : val :=
+  𝗿𝗲𝗰 "fix_back" "t" "back" "new_back" "backoff" ->
     𝗺𝗮𝘁𝗰𝗵 "new_back" 𝘄𝗶𝘁𝗵
     | bqueue_mpmc٠Node ⎽ ⎽ ⎽ ⎽ 𝗮𝘀 "new_back_r" ->
         𝗶𝗳
@@ -104,10 +104,17 @@ Definition bqueue_mpmc٠fix_back : val :=
           𝗮𝗻𝗱
           ~ 𝗰𝗮𝘀 "t".[bqueue_mpmc٠back] "back" "new_back"
         𝘁𝗵𝗲𝗻 (
-          domain٠yield () ⍮
-          "fix_back" "t" "t".{bqueue_mpmc٠back} "new_back"
+          "fix_back"
+            "t"
+            "t".{bqueue_mpmc٠back}
+            "new_back"
+            (backoff٠once "backoff")
         )
     𝗲𝗻𝗱.
+
+Definition bqueue_mpmc٠fix_back : val :=
+  𝗳𝘂𝗻 "t" "back" "new_back" ->
+    bqueue_mpmc٠fix_back₁ "t" "back" "new_back" backoff٠default.
 
 #[local] Definition __zoo_recs_0 :=
   ( 𝗿𝗲𝗰𝘀 "push_1" "t" "back" "cap" "new_back" ->
@@ -199,8 +206,8 @@ Definition bqueue_mpmc٠push : val :=
     𝗶𝗻
     bqueue_mpmc٠push_2 "t" "t".{bqueue_mpmc٠back} "new_back".
 
-Definition bqueue_mpmc٠pop : val :=
-  𝗿𝗲𝗰 "pop" "t" ->
+Definition bqueue_mpmc٠pop₁ : val :=
+  𝗿𝗲𝗰 "pop" "t" "backoff" ->
     𝗺𝗮𝘁𝗰𝗵 "t".{bqueue_mpmc٠front} 𝘄𝗶𝘁𝗵
     | bqueue_mpmc٠Node ⎽ ⎽ ⎽ ⎽ 𝗮𝘀 "front" ->
         𝗹𝗲𝘁 "front_r" = "front" 𝗶𝗻
@@ -216,8 +223,11 @@ Definition bqueue_mpmc٠pop : val :=
               "new_front_r" <-{bqueue_mpmc٠data} () ⍮
               ‘Some( "v" )
             ) 𝗲𝗹𝘀𝗲 (
-              domain٠yield () ⍮
-              "pop" "t"
+              "pop" "t" (backoff٠once "backoff")
             )
         𝗲𝗻𝗱
     𝗲𝗻𝗱.
+
+Definition bqueue_mpmc٠pop : val :=
+  𝗳𝘂𝗻 "t" ->
+    bqueue_mpmc٠pop₁ "t" backoff٠default.

@@ -1,8 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
+Require Import backoff.backoff.
 Require Import zoo_std.array.
-Require Import zoo_std.domain.
 Require Import zoo_std.goption.
 Require Import zoo.options.
 
@@ -29,12 +29,11 @@ Definition bag_1٠create : val :=
     }.
 
 Definition bag_1٠push₁ : val :=
-  𝗿𝗲𝗰 "push" "slot" "o" ->
+  𝗿𝗲𝗰 "push" "slot" "o" "backoff" ->
     𝗶𝗳
       ~ 𝗰𝗮𝘀 "slot".[contents] §goption٠None "o"
     𝘁𝗵𝗲𝗻 (
-      domain٠yield () ⍮
-      "push" "slot" "o"
+      "push" "slot" "o" (backoff٠once "backoff")
     ).
 
 Definition bag_1٠push : val :=
@@ -43,21 +42,23 @@ Definition bag_1٠push : val :=
     𝗹𝗲𝘁 "i" =
       𝗳𝗮𝗮 "t".[bag_1٠back] 1 𝗿𝗲𝗺 array٠size "data"
     𝗶𝗻
-    bag_1٠push₁ (array٠unsafe_get "data" "i") ‘goption٠Some[ "v" ].
+    bag_1٠push₁
+      (array٠unsafe_get "data" "i")
+      ‘goption٠Some[ "v" ]
+      backoff٠default.
 
 Definition bag_1٠pop₁ : val :=
-  𝗿𝗲𝗰 "pop" "slot" ->
+  𝗿𝗲𝗰 "pop" "slot" "backoff" ->
     𝗺𝗮𝘁𝗰𝗵 !"slot" 𝘄𝗶𝘁𝗵
     | goption٠None ->
-        "pop" "slot"
+        "pop" "slot" (backoff٠once "backoff")
     | goption٠Some "v" 𝗮𝘀 "o" ->
         𝗶𝗳
           𝗰𝗮𝘀 "slot".[contents] "o" §goption٠None
         𝘁𝗵𝗲𝗻 (
           "v"
         ) 𝗲𝗹𝘀𝗲 (
-          domain٠yield () ⍮
-          "pop" "slot"
+          "pop" "slot" backoff٠default
         )
     𝗲𝗻𝗱.
 
@@ -67,4 +68,4 @@ Definition bag_1٠pop : val :=
     𝗹𝗲𝘁 "i" =
       𝗳𝗮𝗮 "t".[bag_1٠front] 1 𝗿𝗲𝗺 array٠size "data"
     𝗶𝗻
-    bag_1٠pop₁ (array٠unsafe_get "data" "i").
+    bag_1٠pop₁ (array٠unsafe_get "data" "i") backoff٠default.

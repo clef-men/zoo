@@ -73,17 +73,18 @@ let pop t i =
   respond t i ;
   res
 
-let rec steal_to t i =
+let rec steal_to t i backoff =
   match Array.unsafe_get t.responses i with
   | ResponseWaiting ->
-      Domain.yield () ;
-      steal_to t i
+      steal_to t i (Backoff.once backoff)
   | ResponseNone ->
       Array.unsafe_set t.responses i ResponseWaiting ;
       None
   | ResponseSome v ->
       Array.unsafe_set t.responses i ResponseWaiting ;
       Some v
+let steal_to t i =
+  steal_to t i Backoff.default
 let steal_to t i j =
   if Array.unsafe_get t.statuses j == Nonblocked
   && Atomic_array.unsafe_cas t.requests j RequestNone (RequestSome i)

@@ -1,9 +1,9 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
+Require Import backoff.backoff.
 Require Import zoo.program_logic.identifier.
 Require Import zoo_std.array.
-Require Import zoo_std.domain.
 Require Import zoo.options.
 
 Notation "'ws_bdeque_1٠capacity'" := (
@@ -71,8 +71,8 @@ Definition ws_bdeque_1٠push : val :=
       false
     ).
 
-Definition ws_bdeque_1٠steal : val :=
-  𝗿𝗲𝗰 "steal" "t" ->
+Definition ws_bdeque_1٠steal₁ : val :=
+  𝗿𝗲𝗰 "steal" "t" "backoff" ->
     𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
     𝗹𝗲𝘁 "front" = "t".{ws_bdeque_1٠front} 𝗶𝗻
     𝗹𝗲𝘁 "back" = "t".{ws_bdeque_1٠back} 𝗶𝗻
@@ -89,10 +89,13 @@ Definition ws_bdeque_1٠steal : val :=
       𝘁𝗵𝗲𝗻 (
         ‘Some( "v" )
       ) 𝗲𝗹𝘀𝗲 (
-        domain٠yield () ⍮
-        "steal" "t"
+        "steal" "t" (backoff٠once "backoff")
       )
     ).
+
+Definition ws_bdeque_1٠steal : val :=
+  𝗳𝘂𝗻 "t" ->
+    ws_bdeque_1٠steal₁ "t" backoff٠default.
 
 Definition ws_bdeque_1٠pop₁ : val :=
   𝗳𝘂𝗻 "t" "id" "back" ->

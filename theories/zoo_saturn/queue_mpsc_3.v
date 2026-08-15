@@ -11,7 +11,7 @@ Require Import zoo.options.
 
 Implicit Type b closed : bool.
 Implicit Type l : location.
-Implicit Type v t : val.
+Implicit Type v t backoff : val.
 Implicit Type vs front back : list val.
 Implicit Type ws : option (list val).
 
@@ -486,13 +486,14 @@ Section queue_mpsc_3۰G.
       iSteps.
   Qed.
 
-  Lemma queue_mpsc_3٠push_backｰspecｰopen closed t ι v :
+  #[local] Lemma queue_mpsc_3٠push_back₁ｰspecｰopen t ι v backoff :
     <<<
-      queue_mpsc_3۰inv t ι
+      queue_mpsc_3۰inv t ι ∗
+      backoff۰model backoff
     | ∀∀ vs,
       queue_mpsc_3۰model t vs
     >>>
-      queue_mpsc_3٠push_back t v @ ↑ι
+      queue_mpsc_3٠push_back₁ t v backoff @ ↑ι
     <<<
       ∃∃ closed,
       if closed then
@@ -506,9 +507,9 @@ Section queue_mpsc_3۰G.
         True
     >>>.
   Proof.
-    iIntros "%Φ (:inv) HΦ".
+    iIntros "%Φ ((:inv) & Hbackoff) HΦ".
 
-    iLöb as "HLöb".
+    iLöb as "HLöb" forall (backoff).
 
     wp۰rec. wp۰pures.
 
@@ -516,7 +517,7 @@ Section queue_mpsc_3۰G.
     iInv "Hinv" as "(:inv۰inner =1)".
 
     - wp۰load.
-      iSplitR "HΦ". { iFrameSteps. }
+      iSplitR "Hbackoff HΦ". { iFrameSteps. }
       iModIntro. clear.
 
       iApply wpｰmatchｰclistｰopen. wp۰pures.
@@ -543,7 +544,54 @@ Section queue_mpsc_3۰G.
       iMod ("HΦ" $! true with "Hmodel") as "HΦ".
       iSteps.
   Qed.
-  Lemma queue_mpsc_3٠push_backｰspecｰclosed closed t ι v :
+  #[local] Lemma queue_mpsc_3٠push_back₁ｰspecｰclosed t ι v backoff :
+    {{{
+      queue_mpsc_3۰inv t ι ∗
+      queue_mpsc_3۰closed t
+    }}}
+      queue_mpsc_3٠push_back₁ t v backoff
+    {{{
+      RET true;
+      True
+    }}}.
+  Proof.
+    iIntros "%Φ ((:inv) & (:closed)) HΦ". injection Heq as <-.
+    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+
+    wp۰rec. wp۰pures.
+
+    wp۰bind (_.{back})%E.
+    iInv "Hinv" as "(:inv۰inner suff=)".
+    { iDestruct (lstateｰopen₂ｰclosed with "Hopen₂ Hclosed") as %[]. }
+    iSteps.
+  Qed.
+
+  Lemma queue_mpsc_3٠push_backｰspecｰopen t ι v :
+    <<<
+      queue_mpsc_3۰inv t ι
+    | ∀∀ vs,
+      queue_mpsc_3۰model t vs
+    >>>
+      queue_mpsc_3٠push_back t v @ ↑ι
+    <<<
+      ∃∃ closed,
+      if closed then
+        queue_mpsc_3۰model t vs
+      else
+        queue_mpsc_3۰model t (vs ++ [v])
+    | RET #closed;
+      if closed then
+        queue_mpsc_3۰closed t
+      else
+        True
+    >>>.
+  Proof.
+    iIntros "%Φ Hinv HΦ".
+
+    wp۰rec.
+    wp۰apply+ (queue_mpsc_3٠push_back₁ｰspecｰopen with "[$Hinv] HΦ"). 1: iSteps.
+  Qed.
+  Lemma queue_mpsc_3٠push_backｰspecｰclosed t ι v :
     {{{
       queue_mpsc_3۰inv t ι ∗
       queue_mpsc_3۰closed t
@@ -554,17 +602,10 @@ Section queue_mpsc_3۰G.
       True
     }}}.
   Proof.
-    iIntros "%Φ ((:inv) & (:closed)) HΦ". injection Heq as <-.
-    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iIntros "%Φ Hinv HΦ".
 
-    iLöb as "HLöb".
-
-    wp۰rec. wp۰pures.
-
-    wp۰bind (_.{back})%E.
-    iInv "Hinv" as "(:inv۰inner suff=)".
-    { iDestruct (lstateｰopen₂ｰclosed with "Hopen₂ Hclosed") as %[]. }
-    iSteps.
+    wp۰rec.
+    wp۰apply+ (queue_mpsc_3٠push_back₁ｰspecｰclosed with "[$Hinv] HΦ").
   Qed.
 
   Lemma queue_mpsc_3٠popｰspecｰopen t ι :

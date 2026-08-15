@@ -31,11 +31,10 @@ let push t v =
   let i = Atomic.Loc.fetch_and_add [%atomic.loc t.back] 1 in
   Inf_array.set t.data i (Something v)
 
-let rec pop t i =
+let rec pop t i backoff =
   match Inf_array.get t.data i with
   | Nothing ->
-      Domain.yield () ;
-      pop t i
+      pop t i (Backoff.once backoff)
   | Anything ->
       assert false
   | Something v ->
@@ -43,7 +42,7 @@ let rec pop t i =
       v
 let pop t =
   let i = Atomic.Loc.fetch_and_add [%atomic.loc t.front] 1 in
-  pop t i
+  pop t i Backoff.default
 
 let try_pop t =
   if is_empty_weak t then

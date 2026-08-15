@@ -1,7 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
-Require Import zoo_std.domain.
+Require Import backoff.backoff.
 Require Import zoo.options.
 
 Notation "'bstack_mpmc٠Nil'" := (
@@ -40,7 +40,7 @@ Definition bstack_mpmc٠is_empty : val :=
     "t".{bstack_mpmc٠front} == §bstack_mpmc٠Nil.
 
 #[local] Definition __zoo_recs_0 :=
-  ( 𝗿𝗲𝗰𝘀 "push_aux" "t" "sz" "v" "front" ->
+  ( 𝗿𝗲𝗰𝘀 "push_aux" "t" "sz" "v" "front" "backoff" ->
       𝗹𝗲𝘁 "new_front" =
         ‘bstack_mpmc٠Cons[ "sz" + 1, "v", "front" ]
       𝗶𝗻
@@ -49,44 +49,47 @@ Definition bstack_mpmc٠is_empty : val :=
       𝘁𝗵𝗲𝗻 (
         true
       ) 𝗲𝗹𝘀𝗲 (
-        domain٠yield () ⍮
-        "push" "t" "v"
+        "push" "t" "v" (backoff٠once "backoff")
       )
-    𝘄𝗶𝘁𝗵 "push" "t" "v" ->
+    𝘄𝗶𝘁𝗵 "push" "t" "v" "backoff" ->
       𝗺𝗮𝘁𝗰𝗵 "t".{bstack_mpmc٠front} 𝘄𝗶𝘁𝗵
       | bstack_mpmc٠Nil ->
-          "push_aux" "t" 0 "v" §bstack_mpmc٠Nil
+          "push_aux" "t" 0 "v" §bstack_mpmc٠Nil "backoff"
       | bstack_mpmc٠Cons "sz" ⎽ ⎽ 𝗮𝘀 "front" ->
           𝗶𝗳 "t".{bstack_mpmc٠capacity} ≤ "sz" 𝘁𝗵𝗲𝗻 (
             false
           ) 𝗲𝗹𝘀𝗲 (
-            "push_aux" "t" "sz" "v" "front"
+            "push_aux" "t" "sz" "v" "front" "backoff"
           )
       𝗲𝗻𝗱
   )%zoo_recs.
 Definition bstack_mpmc٠push_aux :=
   ValRecs 0 __zoo_recs_0.
-Definition bstack_mpmc٠push :=
+Definition bstack_mpmc٠push₁ :=
   ValRecs 1 __zoo_recs_0.
 #[global] Instance :
   AsValRecs' bstack_mpmc٠push_aux 0 __zoo_recs_0 [
     bstack_mpmc٠push_aux ;
-    bstack_mpmc٠push
+    bstack_mpmc٠push₁
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' bstack_mpmc٠push 1 __zoo_recs_0 [
+  AsValRecs' bstack_mpmc٠push₁ 1 __zoo_recs_0 [
     bstack_mpmc٠push_aux ;
-    bstack_mpmc٠push
+    bstack_mpmc٠push₁
   ].
 Proof.
   done.
 Qed.
 
-Definition bstack_mpmc٠pop : val :=
-  𝗿𝗲𝗰 "pop" "t" ->
+Definition bstack_mpmc٠push : val :=
+  𝗳𝘂𝗻 "t" "v" ->
+    bstack_mpmc٠push₁ "t" "v" backoff٠default.
+
+Definition bstack_mpmc٠pop₁ : val :=
+  𝗿𝗲𝗰 "pop" "t" "backoff" ->
     𝗺𝗮𝘁𝗰𝗵 "t".{bstack_mpmc٠front} 𝘄𝗶𝘁𝗵
     | bstack_mpmc٠Nil ->
         §None
@@ -96,7 +99,10 @@ Definition bstack_mpmc٠pop : val :=
         𝘁𝗵𝗲𝗻 (
           ‘Some( "v" )
         ) 𝗲𝗹𝘀𝗲 (
-          domain٠yield () ⍮
-          "pop" "t"
+          "pop" "t" (backoff٠once "backoff")
         )
     𝗲𝗻𝗱.
+
+Definition bstack_mpmc٠pop : val :=
+  𝗳𝘂𝗻 "t" ->
+    bstack_mpmc٠pop₁ "t" backoff٠default.

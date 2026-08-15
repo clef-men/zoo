@@ -14,7 +14,7 @@ Require Import zoo.options.
 Implicit Type strong : bool.
 Implicit Type l back back_prev : location.
 Implicit Type backs : gmap location nat.
-Implicit Type v w t pref suff 𝑚𝑜𝑣𝑒 : val.
+Implicit Type v w t pref suff 𝑚𝑜𝑣𝑒 backoff : val.
 Implicit Type o : option val.
 Implicit Type vs vs_front vs_back move : list val.
 
@@ -1287,29 +1287,32 @@ Section queue_mpmc_2۰G.
       wp۰apply+ (queue_mpmc_2٠finishｰspec with "[$] HΦ").
   Qed.
 
-  #[local] Lemma queue_mpmc_2٠pushｰspecｰaux l γ v :
+  #[local] Lemma queue_mpmc_2٠push₁ｰspecｰaux l γ v :
     ⊢ (
-      ∀ back i ws (j : Z),
+      ∀ back i ws (j : Z) backoff,
       <<<
         ⌜j = ⁺(i + length ws)⌝ ∗
         inv' l γ ∗
-        state۰at γ back i
+        state۰at γ back i ∗
+        backoff۰model backoff
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_mpmc_2٠push_aux #l v #j (prefix۰to_val i back ws) @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠push_aux #l v #j (prefix۰to_val i back ws) backoff @ ↑γ.(metadata۰inv)
       <<<
         model₁ γ (vs ++ [v])
       | RET ();
         True
       >>>
     ) ∧ (
+      ∀ backoff,
       <<<
-        inv' l γ
+        inv' l γ ∗
+        backoff۰model backoff
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_mpmc_2٠push #l v @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠push₁ #l v backoff @ ↑γ.(metadata۰inv)
       <<<
         model₁ γ (vs ++ [v])
       | RET ();
@@ -1322,7 +1325,7 @@ Section queue_mpmc_2۰G.
     iSplit.
 
     { iClear "IHpush_aux".
-      iIntros "%back %i %ws %j %Φ (-> & #Hinv & #Hstate_at) HΦ".
+      iIntros "%back %i %ws %j %backoff %Φ (-> & #Hinv & #Hstate_at & Hbackoff) HΦ".
 
       wp۰rec. wp۰pures.
 
@@ -1332,7 +1335,7 @@ Section queue_mpmc_2۰G.
       iDestruct (state۰atｰvalid with "Hstate_auth Hstate_at") as %(Hbacks1_lookup_ & _).
       wp۰cas as _ | (_ & -> & ->)%prefix۰to_valｰinj'.
 
-      - iSplitR "HΦ".
+      - iSplitR "Hbackoff HΦ".
         { rewrite inv۰statusｰweaken. iFrameSteps. }
         iSteps.
 
@@ -1357,7 +1360,7 @@ Section queue_mpmc_2۰G.
         iSteps.
     }
 
-    { iIntros "%Φ #Hinv HΦ".
+    { iIntros "%backoff %Φ (#Hinv & Hbackoff) HΦ".
 
       wp۰rec. wp۰pures.
 
@@ -1383,7 +1386,7 @@ Section queue_mpmc_2۰G.
             iSteps.
         }
 
-        iSplitR "HΦ". { iFrameSteps. }
+        iSplitR "Hbackoff HΦ". { iFrameSteps. }
         iIntros "!> {%}".
 
         wp۰match. wp۰pures.
@@ -1420,7 +1423,7 @@ Section queue_mpmc_2۰G.
         }
 
         + wp۰load.
-          wp۰apply ("IHpush_aux" $! back1 i_back1 [] with "[$Hinv $Hstate_at_1] HΦ"); first iSteps.
+          wp۰apply ("IHpush_aux" $! back1 i_back1 [] with "[$Hinv $Hstate_at_1 $Hbackoff] HΦ"); first iSteps.
 
         + destruct move as [| w move]; first naive_solver lia.
 
@@ -1429,13 +1432,31 @@ Section queue_mpmc_2۰G.
 
       - iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty1 & -> & (:inv۰status۰stable =1))"; first naive_solver lia.
 
-        iSplitR "HΦ". { iFrameSteps. }
+        iSplitR "Hbackoff HΦ". { iFrameSteps. }
         iIntros "!> {%}".
 
-        wp۰apply+ ("IHpush_aux" $! _ _ (v1 :: vs_back1) with "[$Hinv $Hstate_at_1] HΦ").
+        wp۰apply+ ("IHpush_aux" $! _ _ (v1 :: vs_back1) with "[$Hinv $Hstate_at_1 $Hbackoff] HΦ").
         iSteps.
     }
   Qed.
+  #[local] Lemma queue_mpmc_2٠push₁ｰspec l γ v backoff :
+    <<<
+      inv' l γ ∗
+      backoff۰model backoff
+    | ∀∀ vs,
+      model₁ γ vs
+    >>>
+      queue_mpmc_2٠push₁ #l v backoff @ ↑γ.(metadata۰inv)
+    <<<
+      model₁ γ (vs ++ [v])
+    | RET ();
+      True
+    >>>.
+  Proof.
+    iPoseProof queue_mpmc_2٠push₁ｰspecｰaux as "(_ & H)".
+    iApply "H".
+  Qed.
+
   Lemma queue_mpmc_2٠pushｰspec t v ι :
     <<<
       queue_mpmc_2۰inv t ι
@@ -1451,22 +1472,24 @@ Section queue_mpmc_2۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (queue_mpmc_2٠pushｰspecｰaux with "Hinv").
+    wp۰rec.
+    awp۰apply+ (queue_mpmc_2٠push₁ｰspec with "[$Hinv]"). 1: iSteps.
     iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hmodel₁"; iSteps.
   Qed.
 
-  #[local] Lemma queue_mpmc_2٠popｰspecｰaux l γ :
+  #[local] Lemma queue_mpmc_2٠pop₁ｰspecｰaux l γ :
     ⊢ (
-      ∀ i_front vs_front,
+      ∀ i_front vs_front backoff,
       <<<
         inv' l γ ∗
-        front۰lb γ i_front
+        front۰lb γ i_front ∗
+        backoff۰model backoff
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_mpmc_2٠pop_1 #l (suffix۰to_val i_front vs_front) @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠pop_1 #l (suffix۰to_val i_front vs_front) backoff @ ↑γ.(metadata۰inv)
       <<<
         ∃∃ o,
         match o with
@@ -1481,17 +1504,18 @@ Section queue_mpmc_2۰G.
         True
       >>>
     ) ∧ (
-      ∀ (i_front : nat) backs back i back_prev move,
+      ∀ (i_front : nat) backs back i back_prev move backoff,
       <<<
         ⌜i_front ≤ ˖i⌝ ∗
         ⌜1 < length move⌝ ∗
         inv' l γ ∗
         state۰lb γ backs i (Unstable back move) ∗
-        back_prev ↦ₕ Header §Back 2
+        back_prev ↦ₕ Header §Back 2 ∗
+        backoff۰model backoff
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_mpmc_2٠pop_2 #l ’Front[ #i_front ] #back (prefix۰to_val i back_prev move) @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠pop_2 #l ’Front[ #i_front ] #back (prefix۰to_val i back_prev move) backoff @ ↑γ.(metadata۰inv)
       <<<
         ∃∃ o,
         match o with
@@ -1506,13 +1530,14 @@ Section queue_mpmc_2۰G.
         True
       >>>
     ) ∧ (
-      ∀ i_front,
+      ∀ i_front backoff,
       <<<
-        inv' l γ
+        inv' l γ ∗
+        backoff۰model backoff
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_mpmc_2٠pop_3 #l ’Front[ #i_front ] @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠pop_3 #l ’Front[ #i_front ] backoff @ ↑γ.(metadata۰inv)
       <<<
         ∃∃ o,
         match o with
@@ -1527,12 +1552,14 @@ Section queue_mpmc_2۰G.
         True
       >>>
     ) ∧ (
+      ∀ backoff,
       <<<
-        inv' l γ
+        inv' l γ ∗
+        backoff۰model backoff
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_mpmc_2٠pop #l @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠pop₁ #l backoff @ ↑γ.(metadata۰inv)
       <<<
         ∃∃ o,
         match o with
@@ -1552,7 +1579,7 @@ Section queue_mpmc_2۰G.
     iDestruct "HLöb" as "(IHpop_1 & IHpop_2 & IHpop_3 & IHpop)".
     repeat iSplit.
 
-    { iIntros "%i_front %vs_front %Φ (#Hinv & #Hfront_lb) HΦ".
+    { iIntros "%i_front %vs_front %backoff %Φ (#Hinv & #Hfront_lb & Hbackoff) HΦ".
 
       wp۰rec. wp۰pures.
       destruct vs_front as [| v vs_front]; wp۰pures.
@@ -1582,12 +1609,12 @@ Section queue_mpmc_2۰G.
               iFrame "#".
           }
 
-          iSplitR "HΦ". { iFrameSteps. }
+          iSplitR "Hbackoff HΦ". { iFrameSteps. }
           iSteps.
 
         + iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty1 & -> & (:inv۰status۰stable =1))"; first naive_solver lia.
 
-          iSplitR "HΦ". { iFrameSteps. }
+          iSplitR "Hbackoff HΦ". { iFrameSteps. }
           iIntros "!> {%- Hfront1 Hi_front1}".
 
           wp۰pures.
@@ -1603,7 +1630,7 @@ Section queue_mpmc_2۰G.
             iInv "Hinv" as "(:inv۰inner =2 >)".
             wp۰cas as _ | (Hcas & -> & ->)%(prefix۰to_valｰinj' _ _ _ _ _ [v]).
 
-            -- iSplitR "HΦ". { iFrameSteps. }
+            -- iSplitR "Hbackoff HΦ". { iFrameSteps. }
                iSteps.
 
             -- ospecialize* Hcas; first done. subst i_back2.
@@ -1640,7 +1667,7 @@ Section queue_mpmc_2۰G.
             iInv "Hinv" as "(:inv۰inner =4 >)".
             wp۰cas as _ | (Hcas & -> & ->)%(prefix۰to_valｰinj' _ _ _ _ _ (v :: vs_back1)).
 
-            -- iSplitR "HΦ". { iFrameSteps. }
+            -- iSplitR "Hbackoff HΦ". { iFrameSteps. }
                iSteps.
 
             -- ospecialize* Hcas; first done. subst i_back4.
@@ -1651,11 +1678,11 @@ Section queue_mpmc_2۰G.
 
                iMod (stateｰdestabilize with "Hstate_auth") as "Hstate_auth".
                iDestruct (state۰lbｰget with "Hstate_auth") as "#Hstate_lb_4".
-               iSplitR "HΦ".
+               iSplitR "Hbackoff HΦ".
                { iFrameSteps. iExists _, _, []. iSteps. }
                iIntros "!> {%- Hvs_back1}".
 
-               wp۰apply+ ("IHpop_2" with "[> $Hinv $Hstate_lb_4] HΦ").
+               wp۰apply+ ("IHpop_2" with "[> $Hinv $Hstate_lb_4 $Hbackoff] HΦ").
                { iSteps.
                  iMod (inv'ｰstate۰at with "Hinv Hstate_at_1") as "(:back۰model₁ =1)".
                  iSteps.
@@ -1665,7 +1692,7 @@ Section queue_mpmc_2۰G.
         iInv "Hinv" as "(:inv۰inner =1 >)".
         wp۰cas as _ | (-> & ->)%(inj2 suffix۰to_val _ _ _ (v :: vs_front)).
 
-        + iSplitR "HΦ". { iFrameSteps. }
+        + iSplitR "Hbackoff HΦ". { iFrameSteps. }
           iSteps.
 
         + iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty1 & -> & (:inv۰status۰stable =1))"; first naive_solver lia.
@@ -1687,7 +1714,7 @@ Section queue_mpmc_2۰G.
     }
 
     { iClear "IHpop_1 IHpop_2".
-      iIntros "%i_front %backs %back %i %back_prev %move %Φ (%Hmove & %Hi_front & #Hinv & #Hstate_lb & #Hback_prev_header) HΦ".
+      iIntros "%i_front %backs %back %i %back_prev %move %backoff %Φ (%Hmove & %Hi_front & #Hinv & #Hstate_lb & #Hback_prev_header & Hbackoff) HΦ".
 
       wp۰rec.
       wp۰apply+ (queue_mpmc_2٠revｰspec with "[$]") as "_"; first lia.
@@ -1699,7 +1726,7 @@ Section queue_mpmc_2۰G.
       iDestruct (inv۰innerｰstrengthen with "Hinv_inner") as "(:inv۰inner =1 >)".
       wp۰cas as _ | (-> & ->)%(inj2 suffix۰to_val _ _ _ []).
 
-      - iSplitR "HΦ".
+      - iSplitR "Hbackoff HΦ".
         { rewrite inv۰statusｰweaken. iFrameSteps. }
         iSteps.
 
@@ -1732,7 +1759,7 @@ Section queue_mpmc_2۰G.
     }
 
     { iClear "IHpop_2 IHpop_3 IHpop".
-      iIntros "%i_front %Φ #Hinv HΦ".
+      iIntros "%i_front %backoff %Φ (#Hinv & Hbackoff) HΦ".
 
       wp۰rec.
       wp۰apply+ (frontｰspec with "Hinv") as (i_front1 vs_front1) "#Hfront_lb".
@@ -1744,13 +1771,39 @@ Section queue_mpmc_2۰G.
     }
 
     { iClear "IHpop_2 IHpop".
-      iIntros "%Φ #Hinv HΦ".
+      iIntros "%backoff %Φ (#Hinv & Hbackoff) HΦ".
 
       wp۰rec.
-      wp۰apply (frontｰspec with "Hinv").
+      wp۰apply+ (frontｰspec with "Hinv").
       iSteps.
     }
   Qed.
+  #[local] Lemma queue_mpmc_2٠pop₁ｰspec l γ backoff :
+    <<<
+      inv' l γ ∗
+      backoff۰model backoff
+    | ∀∀ vs,
+      model₁ γ vs
+    >>>
+      queue_mpmc_2٠pop₁ #l backoff @ ↑γ.(metadata۰inv)
+    <<<
+      ∃∃ o,
+      match o with
+      | None =>
+          model₁ γ vs
+      | Some v =>
+          ∃ vs',
+          ⌜vs = v :: vs'⌝ ∗
+          model₁ γ vs'
+      end
+    | RET o;
+      True
+    >>>.
+  Proof.
+    iDestruct queue_mpmc_2٠pop₁ｰspecｰaux as "(_ & _ & _ & H)".
+    iApply "H".
+  Qed.
+
   Lemma queue_mpmc_2٠popｰspec t ι :
     <<<
       queue_mpmc_2۰inv t ι
@@ -1774,7 +1827,8 @@ Section queue_mpmc_2۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (queue_mpmc_2٠popｰspecｰaux with "Hinv").
+    wp۰rec.
+    awp۰apply (queue_mpmc_2٠pop₁ｰspec with "[$Hinv]"). 1: iSteps.
     iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hmodel₁"; first iSteps. iIntros (o) "Hmodel₁ !>".

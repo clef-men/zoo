@@ -14,28 +14,24 @@ let create sz =
   ; back= 0
   }
 
-let rec push slot o =
-  if not @@ Atomic.compare_and_set slot Goption.None o then (
-    Domain.yield () ;
-    push slot o
-  )
+let rec push slot o backoff =
+  if not @@ Atomic.compare_and_set slot Goption.None o then
+    push slot o (Backoff.once backoff)
 let push t v =
   let data = t.data in
   let i = (Atomic.Loc.fetch_and_add [%atomic.loc t.back] 1) mod Array.size data in
-  push (Array.unsafe_get data i) (Some v)
+  push (Array.unsafe_get data i) (Some v) Backoff.default
 
-let rec pop slot =
+let rec pop slot backoff =
   match Atomic.get slot with
   | Goption.None ->
-      pop slot
+      pop slot (Backoff.once backoff)
   | Some v as o ->
-      if Atomic.compare_and_set slot o None then (
+      if Atomic.compare_and_set slot o None then
         v
-      ) else (
-        Domain.yield () ;
-        pop slot
-      )
+      else
+        pop slot Backoff.default
 let pop t =
   let data = t.data in
   let i = (Atomic.Loc.fetch_and_add [%atomic.loc t.front] 1) mod Array.size data in
-  pop (Array.unsafe_get data i)
+  pop (Array.unsafe_get data i) Backoff.default

@@ -86,33 +86,31 @@ let help t back i_move move =
   | _ ->
       finish back
 
-let rec push_aux t v i back =
+let rec push_aux t v i back backoff =
   let new_back = Snoc (i + 1, v, back) in
-  if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then (
-    Domain.yield () ;
-    push t v
-  )
-and push t v =
+  if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then
+    push t v (Backoff.once backoff)
+and push t v backoff =
   match t.back with
   | Snoc (i, _, _) as back ->
-      push_aux t v i back
+      push_aux t v i back backoff
   | Back back_r as back ->
       match back_r.move with
       | Used ->
-          push_aux t v back_r.index back
+          push_aux t v back_r.index back backoff
       | Snoc (i_move, _, _) as move ->
           help t back i_move move ;
-          push t v
+          push t v backoff
+let push t v =
+  push t v Backoff.default
 
-let rec pop_1 t front =
+let rec pop_1 t front backoff =
   match front with
   | Cons (_, v, new_front) ->
-      if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
+      if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then
         Some v
-      ) else (
-        Domain.yield () ;
-        pop t
-      )
+      else
+        pop t (Backoff.once backoff)
   | Front i_front as front ->
       (* let proph = Zoo.proph () in *)
       match t.back with
@@ -121,46 +119,47 @@ let rec pop_1 t front =
             if Atomic.Loc.compare_and_set [%atomic.loc t.back] move move_pref then
               Some v
             else
-              pop t
+              pop t backoff
           ) else (
             let (Back _ as back : (_, [`Back]) prefix) = Back { index= i_move; move } in
             let front' = t.front in
             if front' != front then
-              pop_1 t front'
+              pop_1 t front' backoff
             else if Atomic.Loc.compare_and_set [%atomic.loc t.back] move back then
-              pop_2 t front back move
+              pop_2 t front back move backoff
             else
-              pop t
+              pop t backoff
           )
       (* | Back back_r as back -> *)
       (*     match back_r.move with *)
       (*     | Used -> *)
-      (*         pop_3 t proph front *)
+      (*         pop_3 t proph front backoff *)
       (*     | Snoc (i_move, _, _) as move -> *)
       (*         if i_front < i_move then ( *)
       (*           Zoo.resolve_silent proph false ; *)
-      (*           pop_2 t front back move *)
+      (*           pop_2 t front back move backoff *)
       (*         ) else ( *)
-      (*           pop_3 t proph front *)
+      (*           pop_3 t proph front backoff *)
       (*         ) *)
       | Back _ ->
-          pop_3 t front
-and pop_2 t front back move =
+          pop_3 t front backoff
+and pop_2 t front back move backoff =
   let (Cons (_, v, new_front) : (_, [`Cons]) suffix) = rev move in
   if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
     finish back ;
     Some v
   ) else (
-    Domain.yield () ;
-    pop t
+    pop t (Backoff.once backoff)
   )
-(* and pop_3 t proph front = *)
-and pop_3 t front =
+(* and pop_3 t proph front backoff = *)
+and pop_3 t front backoff =
   let front' = t.front in
   (* if Zoo.resolve proph (front' == front) then *)
   if front' == front then
     None
   else
-    pop_1 t front'
-and pop t =
-  pop_1 t t.front
+    pop_1 t front' backoff
+and pop t backoff =
+  pop_1 t t.front backoff
+let pop t =
+  pop t Backoff.default
