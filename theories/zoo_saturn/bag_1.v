@@ -276,7 +276,8 @@ Section bag_1۰G.
     | ∀∀ vs,
       bag_1۰model #l vs
     >>>
-      bag_1٠push₁ #slot ’Some[ v ] backoff @ ↑γ.(metadata۰inv)
+      bag_1٠push₁ #slot ’Some[ v ] backoff
+      @ ↑γ.(metadata۰inv)
     <<<
       bag_1۰model #l ({[+v+]} ⊎ vs)
     | RET ();
@@ -322,7 +323,8 @@ Section bag_1۰G.
     | ∀∀ vs,
       bag_1۰model t vs
     >>>
-      bag_1٠push t v @ ↑ι
+      bag_1٠push t v
+      @ ↑ι
     <<<
       bag_1۰model t ({[+v+]} ⊎ vs)
     | RET ();
@@ -357,7 +359,8 @@ Section bag_1۰G.
     | ∀∀ vs,
       bag_1۰model #l vs
     >>>
-      bag_1٠pop₁ #slot backoff @ ↑γ.(metadata۰inv)
+      bag_1٠pop₁ #slot backoff
+      @ ↑γ.(metadata۰inv)
     <<<
       ∃∃ v vs',
       ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
@@ -420,7 +423,8 @@ Section bag_1۰G.
     | ∀∀ vs,
       bag_1۰model t vs
     >>>
-      bag_1٠pop t @ ↑ι
+      bag_1٠pop t
+      @ ↑ι
     <<<
       ∃∃ v vs',
       ⌜vs = {[+v+]} ⊎ vs'⌝ ∗

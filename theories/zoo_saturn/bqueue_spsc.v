@@ -674,7 +674,8 @@ Section bqueue_spsc۰G.
     | ∀∀ vs,
       bqueue_spsc۰model t vs
     >>>
-      bqueue_spsc٠size t @ ↑ι
+      bqueue_spsc٠size t
+      @ ↑ι
     <<<
       bqueue_spsc۰model t vs
     | RET #(length vs);
@@ -712,7 +713,8 @@ Section bqueue_spsc۰G.
     | ∀∀ vs,
       bqueue_spsc۰model t vs
     >>>
-      bqueue_spsc٠size t @ ↑ι
+      bqueue_spsc٠size t
+      @ ↑ι
     <<<
       bqueue_spsc۰model t vs
     | RET #(length vs);
@@ -749,7 +751,8 @@ Section bqueue_spsc۰G.
     | ∀∀ vs,
       bqueue_spsc۰model t vs
     >>>
-      bqueue_spsc٠is_empty t @ ↑ι
+      bqueue_spsc٠is_empty t
+      @ ↑ι
     <<<
       bqueue_spsc۰model t vs
     | RET #(bool_decide (vs = []%list));
@@ -775,7 +778,8 @@ Section bqueue_spsc۰G.
     | ∀∀ vs,
       bqueue_spsc۰model t vs
     >>>
-      bqueue_spsc٠is_empty t @ ↑ι
+      bqueue_spsc٠is_empty t
+      @ ↑ι
     <<<
       bqueue_spsc۰model t vs
     | RET #(bool_decide (vs = []%list));
@@ -876,7 +880,8 @@ Section bqueue_spsc۰G.
     | ∀∀ vs,
       bqueue_spsc۰model t vs
     >>>
-      bqueue_spsc٠push t v @ ↑ι
+      bqueue_spsc٠push t v
+      @ ↑ι
     <<<
       ∃∃ b,
       ⌜b = bool_decide (length vs = cap)⌝ ∗
@@ -1022,7 +1027,8 @@ Section bqueue_spsc۰G.
     | ∀∀ vs,
       bqueue_spsc۰model t vs
     >>>
-      bqueue_spsc٠pop t @ ↑ι
+      bqueue_spsc٠pop t
+      @ ↑ι
     <<<
       bqueue_spsc۰model t (tail vs)
     | RET head vs;

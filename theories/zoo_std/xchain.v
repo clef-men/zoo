@@ -369,7 +369,8 @@ Section zoo۰G.
     {{{
       xchain dq nodes dst
     }}}
-      (#node).{next} @ E
+      (#node).{next}
+      @ E
     {{{
       RET from_option #@{location} dst (head nodes');
       xchain dq nodes dst
@@ -383,7 +384,8 @@ Section zoo۰G.
     {{{
       xchain dq nodes dst
     }}}
-      (#node).{next} @ E
+      (#node).{next}
+      @ E
     {{{
       RET from_option #@{location} dst (nodes !! ˖i);
       xchain dq nodes dst
@@ -398,7 +400,8 @@ Section zoo۰G.
     {{{
       xchain dq nodes dst
     }}}
-      (#node).{next} @ E
+      (#node).{next}
+      @ E
     {{{
       RET dst;
       xchain dq nodes dst
@@ -414,7 +417,8 @@ Section zoo۰G.
     {{{
       xchain (DfracOwn 1) nodes dst
     }}}
-      (#node) <-{next} v @ E
+      (#node) <-{next} v
+      @ E
     {{{
       RET ();
       xchain (DfracOwn 1) [node] v ∗
@@ -429,7 +433,8 @@ Section zoo۰G.
     {{{
       xchain (DfracOwn 1) nodes dst
     }}}
-      #node <-{next} v @ E
+      #node <-{next} v
+      @ E
     {{{
       RET ();
       xchain (DfracOwn 1) (take ˖i nodes) v ∗
@@ -448,7 +453,8 @@ Section zoo۰G.
     {{{
       xchain (DfracOwn 1) nodes dst
     }}}
-      #node <-{next} v @ E
+      #node <-{next} v
+      @ E
     {{{
       RET ();
       xchain (DfracOwn 1) nodes v
@@ -464,7 +470,8 @@ Section zoo۰G.
       xchain (DfracOwn 1) nodes dst ∗
       node'.[next] ↦ dst'
     }}}
-      #node <-{next} #node' @ E
+      #node <-{next} #node'
+      @ E
     {{{
       RET ();
       xchain (DfracOwn 1) (nodes ++ [node']) dst'

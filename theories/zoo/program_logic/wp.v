@@ -583,7 +583,8 @@ Section zoo۰G.
     {{{
       True
     }}}
-      Alloc #tag #n ∷ tid @ E
+      Alloc #tag #n ∷ tid
+      @ E
     {{{
       l
     , RET #l;
@@ -611,7 +612,8 @@ Section zoo۰G.
     {{{
       True
     }}}
-      Block Mutable tag es ∷ tid @ E
+      Block Mutable tag es ∷ tid
+      @ E
     {{{
       l
     , RET #l;
@@ -637,7 +639,8 @@ Section zoo۰G.
     {{{
       True
     }}}
-      Block ImmutableGenerativeStrong tag es ∷ tid @ E
+      Block ImmutableGenerativeStrong tag es ∷ tid
+      @ E
     {{{
       bid
     , RET ValBlock (Generative (Some bid)) tag vs;
@@ -711,7 +714,8 @@ Section zoo۰G.
     {{{
       ▷ (l +ₗ fld) ↦{dq} v
     }}}
-      Load #l #fld ∷ tid @ E
+      Load #l #fld ∷ tid
+      @ E
     {{{
       RET v;
       (l +ₗ fld) ↦{dq} v
@@ -730,7 +734,8 @@ Section zoo۰G.
     {{{
       ▷ (l +ₗ fld) ↦ w
     }}}
-      Store #l #fld v ∷ tid @ E
+      Store #l #fld v ∷ tid
+      @ E
     {{{
       RET ();
       (l +ₗ fld) ↦ v
@@ -750,7 +755,8 @@ Section zoo۰G.
     {{{
       ▷ (l +ₗ fld) ↦ w
     }}}
-      Xchg (#l, #fld)%V v ∷ tid @ E
+      Xchg (#l, #fld)%V v ∷ tid
+      @ E
     {{{
       RET w;
       (l +ₗ fld) ↦ v
@@ -855,7 +861,8 @@ Section zoo۰G.
     {{{
       ▷ (l +ₗ fld) ↦ #i1
     }}}
-      FAA (#l, #fld)%V #i2 ∷ tid @ E
+      FAA (#l, #fld)%V #i2 ∷ tid
+      @ E
     {{{
       RET #i1;
       (l +ₗ fld) ↦ #(i1 + i2)
@@ -895,7 +902,8 @@ Section zoo۰G.
     {{{
       ▷ tid ↦ₗ{dq} v
     }}}
-      GetLocal ∶ tid @ E
+      GetLocal ∶ tid
+      @ E
     {{{
       RET v;
       tid ↦ₗ{dq} v
@@ -914,7 +922,8 @@ Section zoo۰G.
     {{{
       ▷ tid ↦ₗ w
     }}}
-      SetLocal v ∶ tid @ E
+      SetLocal v ∶ tid
+      @ E
     {{{
       RET ();
       tid ↦ₗ v
@@ -934,7 +943,8 @@ Section zoo۰G.
     {{{
       True
     }}}
-      Proph ∷ tid @ E
+      Proph ∷ tid
+      @ E
     {{{
       prophs pid
     , RET #pid;

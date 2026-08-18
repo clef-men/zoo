@@ -48,7 +48,8 @@ Section zoo۰G.
     {{{
       True
     }}}
-      Id @ E
+      Id
+      @ E
     {{{
       id
     , RET #id;

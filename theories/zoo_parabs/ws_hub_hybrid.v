@@ -678,7 +678,8 @@ Section ws_hub_hybrid۰G.
     | ∀∀ vs,
       ws_hub_hybrid۰model t vs
     >>>
-      ws_hub_hybrid٠push t #i v @ ↑ι
+      ws_hub_hybrid٠push t #i v
+      @ ↑ι
     <<<
       ws_hub_hybrid۰model t ({[+v+]} ⊎ vs)
     | RET ();
@@ -732,7 +733,8 @@ Section ws_hub_hybrid۰G.
     | ∀∀ vs,
       ws_hub_hybrid۰model t vs
     >>>
-      ws_hub_hybrid٠pop t #i @ ↑ι
+      ws_hub_hybrid٠pop t #i
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -804,7 +806,8 @@ Section ws_hub_hybrid۰G.
     | ∀∀ vs,
       ws_hub_hybrid۰model t vs
     >>>
-      ws_hub_hybrid٠try_steal_once t #i @ ↑ι
+      ws_hub_hybrid٠try_steal_once t #i
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -862,7 +865,8 @@ Section ws_hub_hybrid۰G.
     | ∀∀ vs,
       ws_hub_hybrid۰model t vs
     >>>
-      ws_hub_hybrid٠try_steal₁ t #i #yield #max_round pred @ ↑ι
+      ws_hub_hybrid٠try_steal₁ t #i #yield #max_round pred
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -930,7 +934,8 @@ Section ws_hub_hybrid۰G.
     | ∀∀ vs,
       ws_hub_hybrid۰model t vs
     >>>
-      ws_hub_hybrid٠try_steal t #i #max_round_noyield #max_round_yield pred @ ↑ι
+      ws_hub_hybrid٠try_steal t #i #max_round_noyield #max_round_yield pred
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -992,7 +997,8 @@ Section ws_hub_hybrid۰G.
     | ∀∀ vs,
       ws_hub_hybrid۰model t vs
     >>>
-      ws_hub_hybrid٠steal_aux t #i #max_round_noyield #max_round_yield notification pred @ ↑ι
+      ws_hub_hybrid٠steal_aux t #i #max_round_noyield #max_round_yield notification pred
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -1116,7 +1122,8 @@ Section ws_hub_hybrid۰G.
     | ∀∀ vs,
       ws_hub_hybrid۰model t vs
     >>>
-      ws_hub_hybrid٠steal_until t #i #max_round_noyield #max_round_yield notification pred @ ↑ι
+      ws_hub_hybrid٠steal_until t #i #max_round_noyield #max_round_yield notification pred
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -1156,7 +1163,8 @@ Section ws_hub_hybrid۰G.
     | ∀∀ vs,
       ws_hub_hybrid۰model t vs
     >>>
-      ws_hub_hybrid٠steal t #i #max_round_noyield #max_round_yield @ ↑ι
+      ws_hub_hybrid٠steal t #i #max_round_noyield #max_round_yield
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -1253,7 +1261,8 @@ Section ws_hub_hybrid۰G.
     | ∀∀ vs,
       ws_hub_hybrid۰model t vs
     >>>
-      ws_hub_hybrid٠pop_steal_until t #i #max_round_noyield #max_round_yield notification pred @ ↑ι
+      ws_hub_hybrid٠pop_steal_until t #i #max_round_noyield #max_round_yield notification pred
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -1304,7 +1313,8 @@ Section ws_hub_hybrid۰G.
     | ∀∀ vs,
       ws_hub_hybrid۰model t vs
     >>>
-      ws_hub_hybrid٠pop_steal t #i #max_round_noyield #max_round_yield @ ↑ι
+      ws_hub_hybrid٠pop_steal t #i #max_round_noyield #max_round_yield
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with

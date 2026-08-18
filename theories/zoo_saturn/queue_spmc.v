@@ -733,7 +733,8 @@ Module base.
       | ∀∀ vs,
         queue_spmc۰model γ vs
       >>>
-        queue_spmc٠is_empty #t @ ↑ι
+        queue_spmc٠is_empty #t
+        @ ↑ι
       <<<
         queue_spmc۰model γ vs
       | RET #(bool_decide (vs = []%list));
@@ -759,7 +760,8 @@ Module base.
       | ∀∀ vs,
         queue_spmc۰model γ vs
       >>>
-        queue_spmc٠push #t v @ ↑ι
+        queue_spmc٠push #t v
+        @ ↑ι
       <<<
         queue_spmc۰model γ (vs ++ [v])
       | RET ();
@@ -796,7 +798,8 @@ Module base.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_spmc٠pop₁ #t backoff @ ↑γ.(metadata۰inv)
+        queue_spmc٠pop₁ #t backoff
+        @ ↑γ.(metadata۰inv)
       <<<
         model₁ γ (tail vs)
       | RET head vs;
@@ -867,7 +870,8 @@ Module base.
       | ∀∀ vs,
         queue_spmc۰model γ vs
       >>>
-        queue_spmc٠pop #t @ ↑ι
+        queue_spmc٠pop #t
+        @ ↑ι
       <<<
         queue_spmc۰model γ (tail vs)
       | RET head vs;
@@ -1011,7 +1015,8 @@ Section queue_spmc۰G.
     | ∀∀ vs,
       queue_spmc۰model t vs
     >>>
-      queue_spmc٠is_empty t @ ↑ι
+      queue_spmc٠is_empty t
+      @ ↑ι
     <<<
       queue_spmc۰model t vs
     | RET #(bool_decide (vs = []%list));
@@ -1034,7 +1039,8 @@ Section queue_spmc۰G.
     | ∀∀ vs,
       queue_spmc۰model t vs
     >>>
-      queue_spmc٠push t v @ ↑ι
+      queue_spmc٠push t v
+      @ ↑ι
     <<<
       queue_spmc۰model t (vs ++ [v])
     | RET ();
@@ -1057,7 +1063,8 @@ Section queue_spmc۰G.
     | ∀∀ vs,
       queue_spmc۰model t vs
     >>>
-      queue_spmc٠pop t @ ↑ι
+      queue_spmc٠pop t
+      @ ↑ι
     <<<
       queue_spmc۰model t (tail vs)
     | RET head vs;

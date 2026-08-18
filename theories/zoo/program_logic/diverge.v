@@ -26,7 +26,8 @@ Section zoo۰G.
     {{
       True
     }}
-      𝗱𝗶𝘃𝗲𝗿𝗴𝗲 ()%V @ E
+      𝗱𝗶𝘃𝗲𝗿𝗴𝗲 ()%V
+      @ E
     {{
       RET ();
       False

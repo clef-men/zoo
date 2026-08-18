@@ -1532,7 +1532,8 @@ Module base.
       | ∀∀ vs,
         ws_bdeque_1۰model γ vs
       >>>
-        ws_bdeque_1٠size #t @ ↑ι
+        ws_bdeque_1٠size #t
+        @ ↑ι
       <<<
         ⌜vs `suffix_of` ws⌝ ∗
         ws_bdeque_1۰model γ vs
@@ -1573,7 +1574,8 @@ Module base.
       | ∀∀ vs,
         ws_bdeque_1۰model γ vs
       >>>
-        ws_bdeque_1٠is_empty #t @ ↑ι
+        ws_bdeque_1٠is_empty #t
+        @ ↑ι
       <<<
         ⌜vs `suffix_of` ws⌝ ∗
         ws_bdeque_1۰model γ vs
@@ -1614,7 +1616,8 @@ Module base.
       | ∀∀ vs,
         ws_bdeque_1۰model γ vs
       >>>
-        ws_bdeque_1٠push #t v @ ↑ι
+        ws_bdeque_1٠push #t v
+        @ ↑ι
       <<<
         ∃∃ b,
         ⌜b = bool_decide (length vs < cap)⌝ ∗
@@ -1753,7 +1756,8 @@ Module base.
       | ∀∀ vs,
         ws_bdeque_1۰model γ vs
       >>>
-        ws_bdeque_1٠steal₁ #t backoff @ ↑ι
+        ws_bdeque_1٠steal₁ #t backoff
+        @ ↑ι
       <<<
         ws_bdeque_1۰model γ (tail vs)
       | RET head vs;
@@ -1851,7 +1855,8 @@ Module base.
       | ∀∀ vs,
         ws_bdeque_1۰model γ vs
       >>>
-        ws_bdeque_1٠steal #t @ ↑ι
+        ws_bdeque_1٠steal #t
+        @ ↑ι
       <<<
         ws_bdeque_1۰model γ (tail vs)
       | RET head vs;
@@ -1997,7 +2002,8 @@ Module base.
       | ∀∀ vs,
         ws_bdeque_1۰model γ vs
       >>>
-        ws_bdeque_1٠pop #t @ ↑ι
+        ws_bdeque_1٠pop #t
+        @ ↑ι
       <<<
         ∃∃ o ws',
         ⌜vs `suffix_of` ws⌝ ∗
@@ -2309,7 +2315,8 @@ Section ws_bdeque_1۰G.
     | ∀∀ vs,
       ws_bdeque_1۰model t vs
     >>>
-      ws_bdeque_1٠size t @ ↑ι
+      ws_bdeque_1٠size t
+      @ ↑ι
     <<<
       ⌜vs `suffix_of` ws⌝ ∗
       ws_bdeque_1۰model t vs
@@ -2334,7 +2341,8 @@ Section ws_bdeque_1۰G.
     | ∀∀ vs,
       ws_bdeque_1۰model t vs
     >>>
-      ws_bdeque_1٠is_empty t @ ↑ι
+      ws_bdeque_1٠is_empty t
+      @ ↑ι
     <<<
       ⌜vs `suffix_of` ws⌝ ∗
       ws_bdeque_1۰model t vs
@@ -2359,7 +2367,8 @@ Section ws_bdeque_1۰G.
     | ∀∀ vs,
       ws_bdeque_1۰model t vs
     >>>
-      ws_bdeque_1٠push t v @ ↑ι
+      ws_bdeque_1٠push t v
+      @ ↑ι
     <<<
       ∃∃ b,
       ⌜b = bool_decide (length vs < cap)⌝ ∗
@@ -2385,7 +2394,8 @@ Section ws_bdeque_1۰G.
     | ∀∀ vs,
       ws_bdeque_1۰model t vs
     >>>
-      ws_bdeque_1٠steal t @ ↑ι
+      ws_bdeque_1٠steal t
+      @ ↑ι
     <<<
       ws_bdeque_1۰model t (tail vs)
     | RET head vs;
@@ -2408,7 +2418,8 @@ Section ws_bdeque_1۰G.
     | ∀∀ vs,
       ws_bdeque_1۰model t vs
     >>>
-      ws_bdeque_1٠pop t @ ↑ι
+      ws_bdeque_1٠pop t
+      @ ↑ι
     <<<
       ∃∃ o ws',
       ⌜vs `suffix_of` ws⌝ ∗

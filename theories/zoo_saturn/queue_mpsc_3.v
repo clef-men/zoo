@@ -345,7 +345,8 @@ Section queue_mpsc_3۰G.
     | ∀∀ vs,
       queue_mpsc_3۰model t vs
     >>>
-      queue_mpsc_3٠is_empty t @ ↑ι
+      queue_mpsc_3٠is_empty t
+      @ ↑ι
     <<<
       queue_mpsc_3۰model t vs
     | RET #(bool_decide (vs = []%list));
@@ -415,7 +416,8 @@ Section queue_mpsc_3۰G.
     | ∀∀ vs,
       queue_mpsc_3۰model t vs
     >>>
-      queue_mpsc_3٠push_front t v @ ↑ι
+      queue_mpsc_3٠push_front t v
+      @ ↑ι
     <<<
       queue_mpsc_3۰model t (v :: vs)
     | RET false;
@@ -448,7 +450,8 @@ Section queue_mpsc_3۰G.
     | ∀∀ vs',
       queue_mpsc_3۰model t vs'
     >>>
-      queue_mpsc_3٠push_front t v @ ↑ι
+      queue_mpsc_3٠push_front t v
+      @ ↑ι
     <<<
       ∃∃ b,
       ⌜b = bool_decide (vs = [])⌝ ∗
@@ -493,7 +496,8 @@ Section queue_mpsc_3۰G.
     | ∀∀ vs,
       queue_mpsc_3۰model t vs
     >>>
-      queue_mpsc_3٠push_back₁ t v backoff @ ↑ι
+      queue_mpsc_3٠push_back₁ t v backoff
+      @ ↑ι
     <<<
       ∃∃ closed,
       if closed then
@@ -572,7 +576,8 @@ Section queue_mpsc_3۰G.
     | ∀∀ vs,
       queue_mpsc_3۰model t vs
     >>>
-      queue_mpsc_3٠push_back t v @ ↑ι
+      queue_mpsc_3٠push_back t v
+      @ ↑ι
     <<<
       ∃∃ closed,
       if closed then
@@ -615,7 +620,8 @@ Section queue_mpsc_3۰G.
     | ∀∀ vs,
       queue_mpsc_3۰model t vs
     >>>
-      queue_mpsc_3٠pop t @ ↑ι
+      queue_mpsc_3٠pop t
+      @ ↑ι
     <<<
       queue_mpsc_3۰model t (tail vs)
     | RET head vs;
@@ -680,7 +686,8 @@ Section queue_mpsc_3۰G.
     | ∀∀ vs',
       queue_mpsc_3۰model t vs'
     >>>
-      queue_mpsc_3٠pop t @ ↑ι
+      queue_mpsc_3٠pop t
+      @ ↑ι
     <<<
       ⌜vs' = vs⌝ ∗
       queue_mpsc_3۰model t (tail vs)
@@ -722,7 +729,8 @@ Section queue_mpsc_3۰G.
     | ∀∀ vs,
       queue_mpsc_3۰model t vs
     >>>
-      queue_mpsc_3٠close t @ ↑ι
+      queue_mpsc_3٠close t
+      @ ↑ι
     <<<
       queue_mpsc_3۰model t vs
     | RET false;

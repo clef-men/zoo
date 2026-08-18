@@ -869,7 +869,8 @@ Module base.
       | ∀∀ vs,
         inf_queue_mpmc_2۰model γ vs
       >>>
-        inf_queue_mpmc_2٠size #t @ ↑ι
+        inf_queue_mpmc_2٠size #t
+        @ ↑ι
       <<<
         inf_queue_mpmc_2۰model γ vs
       | sz,
@@ -957,7 +958,8 @@ Module base.
       | ∀∀ vs,
         inf_queue_mpmc_2۰model γ vs
       >>>
-        inf_queue_mpmc_2٠is_empty #t @ ↑ι
+        inf_queue_mpmc_2٠is_empty #t
+        @ ↑ι
       <<<
         inf_queue_mpmc_2۰model γ vs
       | b,
@@ -982,7 +984,8 @@ Module base.
       | ∀∀ vs,
         inf_queue_mpmc_2۰model γ vs
       >>>
-        inf_queue_mpmc_2٠push #t v @ ↑ι
+        inf_queue_mpmc_2٠push #t v
+        @ ↑ι
       <<<
         inf_queue_mpmc_2۰model γ (vs ++ [v])
       | RET ();
@@ -1225,7 +1228,8 @@ Module base.
       | ∀∀ vs,
         inf_queue_mpmc_2۰model γ vs
       >>>
-        inf_queue_mpmc_2٠pop₁ #t backoff @ ↑ι
+        inf_queue_mpmc_2٠pop₁ #t backoff
+        @ ↑ι
       <<<
         ∃∃ v vs',
         ⌜vs = v :: vs'⌝ ∗
@@ -1463,7 +1467,8 @@ Module base.
       | ∀∀ vs,
         inf_queue_mpmc_2۰model γ vs
       >>>
-        inf_queue_mpmc_2٠pop #t @ ↑ι
+        inf_queue_mpmc_2٠pop #t
+        @ ↑ι
       <<<
         ∃∃ v vs',
         ⌜vs = v :: vs'⌝ ∗
@@ -1567,7 +1572,8 @@ Section inf_queue_mpmc_2۰G.
     | ∀∀ vs,
       inf_queue_mpmc_2۰model t vs
     >>>
-      inf_queue_mpmc_2٠size t @ ↑ι
+      inf_queue_mpmc_2٠size t
+      @ ↑ι
     <<<
       inf_queue_mpmc_2۰model t vs
     | sz,
@@ -1590,7 +1596,8 @@ Section inf_queue_mpmc_2۰G.
     | ∀∀ vs,
       inf_queue_mpmc_2۰model t vs
     >>>
-      inf_queue_mpmc_2٠is_empty t @ ↑ι
+      inf_queue_mpmc_2٠is_empty t
+      @ ↑ι
     <<<
       inf_queue_mpmc_2۰model t vs
     | b,
@@ -1613,7 +1620,8 @@ Section inf_queue_mpmc_2۰G.
     | ∀∀ vs,
       inf_queue_mpmc_2۰model t vs
     >>>
-      inf_queue_mpmc_2٠push t v @ ↑ι
+      inf_queue_mpmc_2٠push t v
+      @ ↑ι
     <<<
       inf_queue_mpmc_2۰model t (vs ++ [v])
     | RET ();
@@ -1635,7 +1643,8 @@ Section inf_queue_mpmc_2۰G.
     | ∀∀ vs,
       inf_queue_mpmc_2۰model t vs
     >>>
-      inf_queue_mpmc_2٠pop t @ ↑ι
+      inf_queue_mpmc_2٠pop t
+      @ ↑ι
     <<<
       ∃∃ v vs',
       ⌜vs = v :: vs'⌝ ∗

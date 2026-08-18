@@ -847,7 +847,8 @@ Module base.
       | ∀∀ vs,
         bqueue_mpmc۰model γ vs
       >>>
-        bqueue_mpmc٠size #t @ ↑ι
+        bqueue_mpmc٠size #t
+        @ ↑ι
       <<<
         bqueue_mpmc۰model γ vs
       | RET #(length vs);
@@ -923,7 +924,8 @@ Module base.
       | ∀∀ vs,
         bqueue_mpmc۰model γ vs
       >>>
-        bqueue_mpmc٠is_empty #t @ ↑ι
+        bqueue_mpmc٠is_empty #t
+        @ ↑ι
       <<<
         bqueue_mpmc۰model γ vs
       | RET #(bool_decide (vs = []%list));
@@ -1016,7 +1018,8 @@ Module base.
           ⌜length vs ≤ γ.(bqueue_mpmc۰name۰capacity)⌝ ∗
           model₁ γ vs
         >>>
-          bqueue_mpmc٠push_1 #t #back #cap #new_back @ ↑γ.(bqueue_mpmc۰name۰inv)
+          bqueue_mpmc٠push_1 #t #back #cap #new_back
+          @ ↑γ.(bqueue_mpmc۰name۰inv)
         <<<
           ∃∃ b,
           ⌜b = bool_decide (length vs < γ.(bqueue_mpmc۰name۰capacity))⌝ ∗
@@ -1039,7 +1042,8 @@ Module base.
           ⌜length vs ≤ γ.(bqueue_mpmc۰name۰capacity)⌝ ∗
           model₁ γ vs
         >>>
-          bqueue_mpmc٠push_2 #t #back #new_back @ ↑γ.(bqueue_mpmc۰name۰inv)
+          bqueue_mpmc٠push_2 #t #back #new_back
+          @ ↑γ.(bqueue_mpmc۰name۰inv)
         <<<
           ∃∃ b,
           ⌜b = bool_decide (length vs < γ.(bqueue_mpmc۰name۰capacity))⌝ ∗
@@ -1190,7 +1194,8 @@ Module base.
         ⌜length vs ≤ γ.(bqueue_mpmc۰name۰capacity)⌝ ∗
         model₁ γ vs
       >>>
-        bqueue_mpmc٠push_2 #t #back #new_back @ ↑γ.(bqueue_mpmc۰name۰inv)
+        bqueue_mpmc٠push_2 #t #back #new_back
+        @ ↑γ.(bqueue_mpmc۰name۰inv)
       <<<
         ∃∃ b,
         ⌜b = bool_decide (length vs < γ.(bqueue_mpmc۰name۰capacity))⌝ ∗
@@ -1208,7 +1213,8 @@ Module base.
       | ∀∀ vs,
         bqueue_mpmc۰model γ vs
       >>>
-        bqueue_mpmc٠push #t v @ ↑ι
+        bqueue_mpmc٠push #t v
+        @ ↑ι
       <<<
         ∃∃ b,
         ⌜b = bool_decide (length vs < cap)⌝ ∗
@@ -1237,7 +1243,8 @@ Module base.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        bqueue_mpmc٠pop₁ #t backoff @ ↑γ.(bqueue_mpmc۰name۰inv)
+        bqueue_mpmc٠pop₁ #t backoff
+        @ ↑γ.(bqueue_mpmc۰name۰inv)
       <<<
         model₁ γ (tail vs)
       | RET head vs;
@@ -1312,7 +1319,8 @@ Module base.
       | ∀∀ vs,
         bqueue_mpmc۰model γ vs
       >>>
-        bqueue_mpmc٠pop #t @ ↑ι
+        bqueue_mpmc٠pop #t
+        @ ↑ι
       <<<
         bqueue_mpmc۰model γ (tail vs)
       | RET head vs;
@@ -1443,7 +1451,8 @@ Section bqueue_mpmc۰G.
     | ∀∀ vs,
       bqueue_mpmc۰model t vs
     >>>
-      bqueue_mpmc٠size t @ ↑ι
+      bqueue_mpmc٠size t
+      @ ↑ι
     <<<
       bqueue_mpmc۰model t vs
     | RET #(length vs);
@@ -1465,7 +1474,8 @@ Section bqueue_mpmc۰G.
     | ∀∀ vs,
       bqueue_mpmc۰model t vs
     >>>
-      bqueue_mpmc٠is_empty t @ ↑ι
+      bqueue_mpmc٠is_empty t
+      @ ↑ι
     <<<
       bqueue_mpmc۰model t vs
     | RET #(bool_decide (vs = []%list));
@@ -1487,7 +1497,8 @@ Section bqueue_mpmc۰G.
     | ∀∀ vs,
       bqueue_mpmc۰model t vs
     >>>
-      bqueue_mpmc٠push t v @ ↑ι
+      bqueue_mpmc٠push t v
+      @ ↑ι
     <<<
       ∃∃ b,
       ⌜b = bool_decide (length vs < cap)⌝ ∗
@@ -1511,7 +1522,8 @@ Section bqueue_mpmc۰G.
     | ∀∀ vs,
       bqueue_mpmc۰model t vs
     >>>
-      bqueue_mpmc٠pop t @ ↑ι
+      bqueue_mpmc٠pop t
+      @ ↑ι
     <<<
       bqueue_mpmc۰model t (tail vs)
     | RET head vs;

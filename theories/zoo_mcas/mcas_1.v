@@ -2128,7 +2128,8 @@ Section mcas_1۰G.
     | ∀∀ v,
       mcas_1۰loc۰model loc v
     >>>
-      mcas_1٠get #loc @ ↑ι
+      mcas_1٠get #loc
+      @ ↑ι
     <<<
       mcas_1۰loc۰model loc v
     | w,
@@ -2174,7 +2175,8 @@ Section mcas_1۰G.
     | ∀∀ vs,
       [∗ list] loc; v ∈ locs; vs, mcas_1۰loc۰model loc v
     >>>
-      mcas_1٠mcas 𝑠𝑝𝑒𝑐 @ ↑ι
+      mcas_1٠mcas 𝑠𝑝𝑒𝑐
+      @ ↑ι
     <<<
       ∃∃ b,
       if b then

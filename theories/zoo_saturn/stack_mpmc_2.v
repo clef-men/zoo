@@ -179,7 +179,8 @@ Section zoo۰G.
     | ∀∀ vs,
       stack_mpmc_2۰model t vs
     >>>
-      stack_mpmc_2٠push₁ t v backoff @ ↑ι
+      stack_mpmc_2٠push₁ t v backoff
+      @ ↑ι
     <<<
       stack_mpmc_2۰model t (cons v <$> vs)
     | RET #(bool_decide (vs = None));
@@ -240,7 +241,8 @@ Section zoo۰G.
     | ∀∀ vs,
       stack_mpmc_2۰model t vs
     >>>
-      stack_mpmc_2٠push t v @ ↑ι
+      stack_mpmc_2٠push t v
+      @ ↑ι
     <<<
       stack_mpmc_2۰model t (cons v <$> vs)
     | RET #(bool_decide (vs = None));
@@ -279,7 +281,8 @@ Section zoo۰G.
     | ∀∀ vs,
       stack_mpmc_2۰model t vs
     >>>
-      stack_mpmc_2٠pop₁ t backoff @ ↑ι
+      stack_mpmc_2٠pop₁ t backoff
+      @ ↑ι
     <<<
       stack_mpmc_2۰model t (tail <$> vs)
     | RET default Anything (option۰to_optional ∘ head <$> vs);
@@ -344,7 +347,8 @@ Section zoo۰G.
     | ∀∀ vs,
       stack_mpmc_2۰model t vs
     >>>
-      stack_mpmc_2٠pop t @ ↑ι
+      stack_mpmc_2٠pop t
+      @ ↑ι
     <<<
       stack_mpmc_2۰model t (tail <$> vs)
     | RET default Anything (option۰to_optional ∘ head <$> vs);
@@ -382,7 +386,8 @@ Section zoo۰G.
     | ∀∀ vs,
       stack_mpmc_2۰model t vs
     >>>
-      stack_mpmc_2٠is_closed t @ ↑ι
+      stack_mpmc_2٠is_closed t
+      @ ↑ι
     <<<
       stack_mpmc_2۰model t vs
     | RET #(bool_decide (vs = None));
@@ -438,7 +443,8 @@ Section zoo۰G.
     | ∀∀ vs,
       stack_mpmc_2۰model t vs
     >>>
-      stack_mpmc_2٠close t @ ↑ι
+      stack_mpmc_2٠close t
+      @ ↑ι
     <<<
       stack_mpmc_2۰model t None
     | RET from_option list۰to_clist_open Closed vs;

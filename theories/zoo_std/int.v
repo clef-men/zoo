@@ -32,7 +32,8 @@ Section zoo۰G.
       {{
         True
       }}
-        #n1 `min` #n2 @ E
+        #n1 `min` #n2
+        @ E
       {{
         RET #(n1 `min` n2);
         True
@@ -56,7 +57,8 @@ Section zoo۰G.
       {{
         True
       }}
-        #n1 `max` #n2 @ E
+        #n1 `max` #n2
+        @ E
       {{
         RET #(n1 `max` n2);
         True
@@ -82,7 +84,8 @@ Section zoo۰G.
       {{
         True
       }}
-        int٠positive_part #n @ E
+        int٠positive_part #n
+        @ E
       {{
         RET #₊n;
         True
@@ -110,7 +113,8 @@ Section zoo۰G.
       {{
         True
       }}
-        #n1 `min` #n2 @ E
+        #n1 `min` #n2
+        @ E
       {{
         RET #(n1 `min` n2)%nat;
         True
@@ -134,7 +138,8 @@ Section zoo۰G.
       {{
         True
       }}
-        #n1 `max` #n2 @ E
+        #n1 `max` #n2
+        @ E
       {{
         RET #(n1 `max` n2)%nat;
         True
@@ -157,7 +162,8 @@ Section zoo۰G.
       {{
         True
       }}
-        int٠positive_part #n @ E
+        int٠positive_part #n
+        @ E
       {{
         RET #n;
         True

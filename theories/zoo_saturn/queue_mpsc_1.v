@@ -569,7 +569,8 @@ Module base.
       | ∀∀ vs,
         queue_mpsc_1۰model γ vs
       >>>
-        queue_mpsc_1٠is_empty #t @ ↑ι
+        queue_mpsc_1٠is_empty #t
+        @ ↑ι
       <<<
         queue_mpsc_1۰model γ vs
       | RET #(bool_decide (vs = []%list));
@@ -596,7 +597,8 @@ Module base.
       | ∀∀ vs,
         queue_mpsc_1۰model γ vs
       >>>
-        queue_mpsc_1٠push₂ #node #new_back backoff @ ↑γ.(queue_mpsc_1۰name۰inv)
+        queue_mpsc_1٠push₂ #node #new_back backoff
+        @ ↑γ.(queue_mpsc_1۰name۰inv)
       <<<
         queue_mpsc_1۰model γ (vs ++ [v])
       | RET ();
@@ -656,7 +658,8 @@ Module base.
       | ∀∀ vs,
         queue_mpsc_1۰model γ vs
       >>>
-        queue_mpsc_1٠push₁ #node #new_back @ ↑γ.(queue_mpsc_1۰name۰inv)
+        queue_mpsc_1٠push₁ #node #new_back
+        @ ↑γ.(queue_mpsc_1۰name۰inv)
       <<<
         queue_mpsc_1۰model γ (vs ++ [v])
       | RET ();
@@ -731,7 +734,8 @@ Module base.
       | ∀∀ vs,
         queue_mpsc_1۰model γ vs
       >>>
-        queue_mpsc_1٠push #t v @ ↑ι
+        queue_mpsc_1٠push #t v
+        @ ↑ι
       <<<
         queue_mpsc_1۰model γ (vs ++ [v])
       | RET ();
@@ -756,7 +760,8 @@ Module base.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_mpsc_1٠pop #t @ ↑γ.(queue_mpsc_1۰name۰inv)
+        queue_mpsc_1٠pop #t
+        @ ↑γ.(queue_mpsc_1۰name۰inv)
       <<<
         model₁ γ (tail vs)
       | RET head vs;
@@ -809,7 +814,8 @@ Module base.
       | ∀∀ vs,
         queue_mpsc_1۰model γ vs
       >>>
-        queue_mpsc_1٠pop #t @ ↑ι
+        queue_mpsc_1٠pop #t
+        @ ↑ι
       <<<
         queue_mpsc_1۰model γ (tail vs)
       | RET head vs;
@@ -940,7 +946,8 @@ Section queue_mpsc_1۰G.
     | ∀∀ vs,
       queue_mpsc_1۰model t vs
     >>>
-      queue_mpsc_1٠is_empty t @ ↑ι
+      queue_mpsc_1٠is_empty t
+      @ ↑ι
     <<<
       queue_mpsc_1۰model t vs
     | RET #(bool_decide (vs = []%list));
@@ -962,7 +969,8 @@ Section queue_mpsc_1۰G.
     | ∀∀ vs,
       queue_mpsc_1۰model t vs
     >>>
-      queue_mpsc_1٠push t v @ ↑ι
+      queue_mpsc_1٠push t v
+      @ ↑ι
     <<<
       queue_mpsc_1۰model t (vs ++ [v])
     | RET ();
@@ -985,7 +993,8 @@ Section queue_mpsc_1۰G.
     | ∀∀ vs,
       queue_mpsc_1۰model t vs
     >>>
-      queue_mpsc_1٠pop t @ ↑ι
+      queue_mpsc_1٠pop t
+      @ ↑ι
     <<<
       queue_mpsc_1۰model t (tail vs)
     | RET head vs;

@@ -240,7 +240,8 @@ Section zoo۰G.
     {{{
       xtdlchain hdr src nodes dst
     }}}
-      (#node).{prev} @ E
+      (#node).{prev}
+      @ E
     {{{
       RET src;
       xtdlchain hdr src nodes dst
@@ -255,7 +256,8 @@ Section zoo۰G.
     {{{
       xtdlchain hdr src nodes dst
     }}}
-      (#node).{prev} @ E
+      (#node).{prev}
+      @ E
     {{{
       RET from_option #@{location} src (last $ take i nodes);
       xtdlchain hdr src nodes dst
@@ -270,7 +272,8 @@ Section zoo۰G.
     {{{
       xtdlchain hdr src nodes dst
     }}}
-      (#node).{prev} @ E
+      (#node).{prev}
+      @ E
     {{{
       RET src;
       xtdlchain hdr src nodes dst
@@ -286,7 +289,8 @@ Section zoo۰G.
     {{{
       xtdlchain hdr src nodes dst
     }}}
-      (#node).{next} @ E
+      (#node).{next}
+      @ E
     {{{
       RET from_option #@{location} dst (head nodes');
       xtdlchain hdr src nodes dst
@@ -301,7 +305,8 @@ Section zoo۰G.
     {{{
       xtdlchain hdr src nodes dst
     }}}
-      (#node).{next} @ E
+      (#node).{next}
+      @ E
     {{{
       RET from_option #@{location} dst (head $ drop ˖i nodes);
       xtdlchain hdr src nodes dst
@@ -316,7 +321,8 @@ Section zoo۰G.
     {{{
       xtdlchain hdr src nodes dst
     }}}
-      (#node).{next} @ E
+      (#node).{next}
+      @ E
     {{{
       RET dst;
       xtdlchain hdr src nodes dst
@@ -332,7 +338,8 @@ Section zoo۰G.
     {{{
       xtdlchain hdr src nodes dst
     }}}
-      #node <-{prev} v @ E
+      #node <-{prev} v
+      @ E
     {{{
       RET ();
       xtdlchain hdr v nodes dst
@@ -347,7 +354,8 @@ Section zoo۰G.
     {{{
       xtdlchain hdr src nodes dst
     }}}
-      #node <-{prev} v @ E
+      #node <-{prev} v
+      @ E
     {{{
       RET ();
       xtdlchain hdr src (take i nodes) #node ∗
@@ -367,7 +375,8 @@ Section zoo۰G.
     {{{
       xtdlchain hdr src nodes dst
     }}}
-      #node <-{prev} v @ E
+      #node <-{prev} v
+      @ E
     {{{
       RET ();
       xtdlchain hdr v nodes dst
@@ -383,7 +392,8 @@ Section zoo۰G.
     {{{
       xtdlchain hdr src nodes dst
     }}}
-      #node <-{next} v @ E
+      #node <-{next} v
+      @ E
     {{{
       RET ();
       xtdlchain hdr src [node] v ∗
@@ -399,7 +409,8 @@ Section zoo۰G.
     {{{
       xtdlchain hdr src nodes dst
     }}}
-      #node <-{next} v @ E
+      #node <-{next} v
+      @ E
     {{{
       RET ();
       xtdlchain hdr src (take ˖i nodes) v ∗
@@ -419,7 +430,8 @@ Section zoo۰G.
     {{{
       xtdlchain hdr src nodes dst
     }}}
-      #node <-{next} v @ E
+      #node <-{next} v
+      @ E
     {{{
       RET ();
       xtdlchain hdr src nodes v

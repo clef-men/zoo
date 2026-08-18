@@ -263,7 +263,8 @@ Section zoo۰G.
     {{{
       xdlchain src nodes dst
     }}}
-      (#node).{prev} @ E
+      (#node).{prev}
+      @ E
     {{{
       RET src;
       xdlchain src nodes dst
@@ -276,7 +277,8 @@ Section zoo۰G.
     {{{
       xdlchain src nodes dst
     }}}
-      (#node).{prev} @ E
+      (#node).{prev}
+      @ E
     {{{
       RET from_option #@{location} src (last $ take i nodes);
       xdlchain src nodes dst
@@ -291,7 +293,8 @@ Section zoo۰G.
     {{{
       xdlchain src nodes dst
     }}}
-      (#node).{prev} @ E
+      (#node).{prev}
+      @ E
     {{{
       RET src;
       xdlchain src nodes dst
@@ -306,7 +309,8 @@ Section zoo۰G.
     {{{
       xdlchain src nodes dst
     }}}
-      (#node).{next} @ E
+      (#node).{next}
+      @ E
     {{{
       RET from_option #@{location} dst (head nodes');
       xdlchain src nodes dst
@@ -320,7 +324,8 @@ Section zoo۰G.
     {{{
       xdlchain src nodes dst
     }}}
-      (#node).{next} @ E
+      (#node).{next}
+      @ E
     {{{
       RET from_option #@{location} dst (head $ drop ˖i nodes);
       xdlchain src nodes dst
@@ -335,7 +340,8 @@ Section zoo۰G.
     {{{
       xdlchain src nodes dst
     }}}
-      (#node).{next} @ E
+      (#node).{next}
+      @ E
     {{{
       RET dst;
       xdlchain src nodes dst
@@ -353,7 +359,8 @@ Section zoo۰G.
     {{{
       xdlchain src nodes dst
     }}}
-      #node <-{prev} v @ E
+      #node <-{prev} v
+      @ E
     {{{
       RET ();
       xdlchain v nodes dst
@@ -366,7 +373,8 @@ Section zoo۰G.
     {{{
       xdlchain src nodes dst
     }}}
-      #node <-{prev} v @ E
+      #node <-{prev} v
+      @ E
     {{{
       RET ();
       xdlchain src (take i nodes) #node ∗
@@ -385,7 +393,8 @@ Section zoo۰G.
     {{{
       xdlchain src nodes dst
     }}}
-      #node <-{prev} v @ E
+      #node <-{prev} v
+      @ E
     {{{
       RET ();
       xdlchain v nodes dst
@@ -400,7 +409,8 @@ Section zoo۰G.
     {{{
       xdlchain src nodes dst
     }}}
-      #node <-{next} v @ E
+      #node <-{next} v
+      @ E
     {{{
       RET ();
       xdlchain src [node] v ∗
@@ -415,7 +425,8 @@ Section zoo۰G.
     {{{
       xdlchain src nodes dst
     }}}
-      #node <-{next} v @ E
+      #node <-{next} v
+      @ E
     {{{
       RET ();
       xdlchain src (take ˖i nodes) v ∗
@@ -434,7 +445,8 @@ Section zoo۰G.
     {{{
       xdlchain src nodes dst
     }}}
-      #node <-{next} v @ E
+      #node <-{next} v
+      @ E
     {{{
       RET ();
       xdlchain src nodes v

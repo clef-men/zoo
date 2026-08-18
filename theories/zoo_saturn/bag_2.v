@@ -503,7 +503,8 @@ Section bag_2۰G.
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2٠add_producer₁ #l (Some queue) backoff @ ↑γ.(metadata۰inv)
+      bag_2٠add_producer₁ #l (Some queue) backoff
+      @ ↑γ.(metadata۰inv)
     <<<
       ∃∃ node,
       let 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :=
@@ -573,7 +574,8 @@ Section bag_2۰G.
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2٠add_producer #l queue @ ↑γ.(metadata۰inv)
+      bag_2٠add_producer #l queue
+      @ ↑γ.(metadata۰inv)
     <<<
       ∃∃ node,
       let 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :=
@@ -599,7 +601,8 @@ Section bag_2۰G.
     | ∀∀ vss,
       bag_2۰model t vss
     >>>
-      bag_2٠create_producer t @ ↑ι
+      bag_2٠create_producer t
+      @ ↑ι
     <<<
       ∃∃ producer,
       bag_2۰model t (<[producer := []]> vss)
@@ -669,7 +672,8 @@ Section bag_2۰G.
     | ∀∀ vss,
       bag_2۰model t vss
     >>>
-      bag_2٠push producer v @ ↑ι
+      bag_2٠push producer v
+      @ ↑ι
     <<<
       ∃∃ vs,
       ⌜vss !! producer = Some vs⌝ ∗
@@ -721,7 +725,8 @@ Section bag_2۰G.
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2٠pop₂ #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (from_option #@{location} §Null%V $ head nodes) @ ↑γ.(metadata۰inv)
+      bag_2٠pop₂ #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (from_option #@{location} §Null%V $ head nodes)
+      @ ↑γ.(metadata۰inv)
     <<<
       ∃∃ o,
       match o with
@@ -813,7 +818,8 @@ Section bag_2۰G.
     | ∀∀ vss,
       bag_2۰model t vss
     >>>
-      bag_2٠pop₁ t consumer @ ↑ι
+      bag_2٠pop₁ t consumer
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -866,7 +872,8 @@ Section bag_2۰G.
     | ∀∀ vss,
       bag_2۰model t vss
     >>>
-      bag_2٠pop t consumer @ ↑ι
+      bag_2٠pop t consumer
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with

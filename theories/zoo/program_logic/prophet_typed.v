@@ -61,7 +61,8 @@ Section prophet_typed.
     {{{
       True
     }}}
-      Proph @ E
+      Proph
+      @ E
     {{{
       pid prophs
     , RET #pid;
@@ -156,7 +157,8 @@ Section prophet_typed₁.
     {{{
       True
     }}}
-      Proph @ E
+      Proph
+      @ E
     {{{
       pid proph
     , RET #pid;

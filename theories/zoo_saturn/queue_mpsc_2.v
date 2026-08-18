@@ -251,7 +251,8 @@ Section queue_mpsc_2۰G.
     | ∀∀ vs,
       queue_mpsc_2۰model t vs
     >>>
-      queue_mpsc_2٠is_empty t @ ↑ι
+      queue_mpsc_2٠is_empty t
+      @ ↑ι
     <<<
       queue_mpsc_2۰model t vs
     | RET #(bool_decide (vs = []%list));
@@ -299,7 +300,8 @@ Section queue_mpsc_2۰G.
     | ∀∀ vs,
       queue_mpsc_2۰model t vs
     >>>
-      queue_mpsc_2٠push_front t v @ ↑ι
+      queue_mpsc_2٠push_front t v
+      @ ↑ι
     <<<
       queue_mpsc_2۰model t (v :: vs)
     | RET ();
@@ -331,7 +333,8 @@ Section queue_mpsc_2۰G.
     | ∀∀ vs,
       queue_mpsc_2۰model t vs
     >>>
-      queue_mpsc_2٠push_back₁ t v backoff @ ↑ι
+      queue_mpsc_2٠push_back₁ t v backoff
+      @ ↑ι
     <<<
       queue_mpsc_2۰model t (vs ++ [v])
     | RET ();
@@ -373,7 +376,8 @@ Section queue_mpsc_2۰G.
     | ∀∀ vs,
       queue_mpsc_2۰model t vs
     >>>
-      queue_mpsc_2٠push_back t v @ ↑ι
+      queue_mpsc_2٠push_back t v
+      @ ↑ι
     <<<
       queue_mpsc_2۰model t (vs ++ [v])
     | RET ();
@@ -393,7 +397,8 @@ Section queue_mpsc_2۰G.
     | ∀∀ vs,
       queue_mpsc_2۰model t vs
     >>>
-      queue_mpsc_2٠pop t @ ↑ι
+      queue_mpsc_2٠pop t
+      @ ↑ι
     <<<
       queue_mpsc_2۰model t (tail vs)
     | RET head vs;

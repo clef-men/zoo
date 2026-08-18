@@ -81,7 +81,8 @@ Section zoo۰G.
       ⌜0 ≤ tag⌝%Z ∗
       ⌜0 ≤ n⌝%Z
     }}
-      Alloc #tag #n @ E
+      Alloc #tag #n
+      @ E
     {{ l,
       RET #l;
       l ↦ₕ Header ₊tag ₊n ∗
@@ -100,7 +101,8 @@ Section zoo۰G.
       ⌜0 < length es⌝%nat ∗
       ⌜to_vals es = Some vs⌝
     }}
-      Block Mutable tag es @ E
+      Block Mutable tag es
+      @ E
     {{ l,
       RET #l;
       l ↦ₕ Header tag (length es) ∗
@@ -119,7 +121,8 @@ Section zoo۰G.
     {{
       True
     }}
-      𝗿𝗲𝗳 e @ E
+      𝗿𝗲𝗳 e
+      @ E
     {{ l,
       RET #l;
       l ↦ₕ Header 0 1 ∗
@@ -139,7 +142,8 @@ Section zoo۰G.
     {{
       ⌜to_vals es = Some vs⌝
     }}
-      Block ImmutableGenerativeStrong tag es @ E
+      Block ImmutableGenerativeStrong tag es
+      @ E
     {{ bid,
       RET ValBlock (Generative (Some bid)) tag vs;
       True
@@ -155,7 +159,8 @@ Section zoo۰G.
     {{
       l ↦ₕ hdr
     }}
-      GetTag #l @ E
+      GetTag #l
+      @ E
     {{
       RET #(encode_tag hdr.(header۰tag));
       True
@@ -171,7 +176,8 @@ Section zoo۰G.
     {{
       l ↦ₕ hdr
     }}
-      GetSize #l @ E
+      GetSize #l
+      @ E
     {{
       RET #hdr.(header۰size);
       True
@@ -187,7 +193,8 @@ Section zoo۰G.
     {{
       ▷ (l +ₗ fld) ↦{dq} v
     }}
-      Load #l #fld @ E
+      Load #l #fld
+      @ E
     {{
       RET v;
       (l +ₗ fld) ↦{dq} v
@@ -203,7 +210,8 @@ Section zoo۰G.
     {{
       ▷ (l +ₗ fld) ↦ w
     }}
-      Store #l #fld v @ E
+      Store #l #fld v
+      @ E
     {{
       RET ();
       (l +ₗ fld) ↦ v
@@ -219,7 +227,8 @@ Section zoo۰G.
     {{
       ▷ (l +ₗ fld) ↦ w
     }}
-      Xchg (#l, #fld)%V v @ E
+      Xchg (#l, #fld)%V v
+      @ E
     {{
       RET w;
       (l +ₗ fld) ↦ v
@@ -236,7 +245,8 @@ Section zoo۰G.
       ▷ (l +ₗ fld) ↦{dq} v ∗
       ⌜dq = DfracOwn 1 ∨ ¬ v ≈ v1⌝
     }}
-      CAS (#l, #fld)%V v1 v2 @ E
+      CAS (#l, #fld)%V v1 v2
+      @ E
     {{ (b : bool),
       RET #b;
         ⌜b = false⌝ ∗
@@ -257,7 +267,8 @@ Section zoo۰G.
     {{
       ▷ (l +ₗ fld) ↦ #z
     }}
-      FAA (#l, #fld)%V #n @ E
+      FAA (#l, #fld)%V #n
+      @ E
     {{
       RET #z;
       (l +ₗ fld) ↦ #(z + n)
@@ -273,7 +284,8 @@ Section zoo۰G.
     {{
       True
     }}
-      Proph @ E
+      Proph
+      @ E
     {{ prophs pid,
       RET #pid;
       prophet۰model pid prophs

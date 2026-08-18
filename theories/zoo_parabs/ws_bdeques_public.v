@@ -244,7 +244,8 @@ Section ws_bdeques_public۰G.
     | ∀∀ vss,
       ws_bdeques_public۰model t vss
     >>>
-      ws_bdeques_public٠push t #i v @ ↑ι
+      ws_bdeques_public٠push t #i v
+      @ ↑ι
     <<<
       ∃∃ b vs,
       ⌜vss !! i_ = Some vs⌝ ∗
@@ -297,7 +298,8 @@ Section ws_bdeques_public۰G.
     | ∀∀ vss,
       ws_bdeques_public۰model t vss
     >>>
-      ws_bdeques_public٠pop t #i @ ↑ι
+      ws_bdeques_public٠pop t #i
+      @ ↑ι
     <<<
       ∃∃ o ws',
       match o with
@@ -356,7 +358,8 @@ Section ws_bdeques_public۰G.
     | ∀∀ vss,
       ws_bdeques_public۰model t vss
     >>>
-      ws_bdeques_public٠steal_to t #i #j @ ↑ι
+      ws_bdeques_public٠steal_to t #i #j
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -417,7 +420,8 @@ Section ws_bdeques_public۰G.
     | ∀∀ vss,
       ws_bdeques_public۰model t vss
     >>>
-      ws_bdeques_public٠steal_as₁ t #sz #i round #n @ ↑ι
+      ws_bdeques_public٠steal_as₁ t #sz #i round #n
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -479,7 +483,8 @@ Section ws_bdeques_public۰G.
     | ∀∀ vss,
       ws_bdeques_public۰model t vss
     >>>
-      ws_bdeques_public٠steal_as t #i round @ ↑ι
+      ws_bdeques_public٠steal_as t #i round
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with

@@ -526,7 +526,8 @@ Module base.
       | ∀∀ vs,
         inf_queue_mpmc_1۰model γ vs
       >>>
-        inf_queue_mpmc_1٠size #t @ ↑ι
+        inf_queue_mpmc_1٠size #t
+        @ ↑ι
       <<<
         inf_queue_mpmc_1۰model γ vs
       | RET #(length vs);
@@ -614,7 +615,8 @@ Module base.
       | ∀∀ vs,
         inf_queue_mpmc_1۰model γ vs
       >>>
-        inf_queue_mpmc_1٠is_empty #t @ ↑ι
+        inf_queue_mpmc_1٠is_empty #t
+        @ ↑ι
       <<<
         inf_queue_mpmc_1۰model γ vs
       | RET #(bool_decide (vs = []%list));
@@ -637,7 +639,8 @@ Module base.
       | ∀∀ vs,
         inf_queue_mpmc_1۰model γ vs
       >>>
-        inf_queue_mpmc_1٠is_empty_weak #t @ ↑ι
+        inf_queue_mpmc_1٠is_empty_weak #t
+        @ ↑ι
       <<<
         ∃∃ b,
         ⌜if b then vs = [] else True⌝ ∗
@@ -695,7 +698,8 @@ Module base.
       | ∀∀ vs,
         inf_queue_mpmc_1۰model γ vs
       >>>
-        inf_queue_mpmc_1٠push #t v @ ↑ι
+        inf_queue_mpmc_1٠push #t v
+        @ ↑ι
       <<<
         inf_queue_mpmc_1۰model γ (vs ++ [v])
       | RET ();
@@ -845,7 +849,8 @@ Module base.
       | ∀∀ vs,
         inf_queue_mpmc_1۰model γ vs
       >>>
-        inf_queue_mpmc_1٠pop #t @ ↑ι
+        inf_queue_mpmc_1٠pop #t
+        @ ↑ι
       <<<
         ∃∃ v vs',
         ⌜vs = v :: vs'⌝ ∗
@@ -921,7 +926,8 @@ Module base.
       | ∀∀ vs,
         inf_queue_mpmc_1۰model γ vs
       >>>
-        inf_queue_mpmc_1٠try_pop #t @ ↑ι
+        inf_queue_mpmc_1٠try_pop #t
+        @ ↑ι
       <<<
         inf_queue_mpmc_1۰model γ (tail vs)
       | RET head vs;
@@ -1035,7 +1041,8 @@ Section inf_queue_mpmc_1۰G.
     | ∀∀ vs,
       inf_queue_mpmc_1۰model t vs
     >>>
-      inf_queue_mpmc_1٠size t @ ↑ι
+      inf_queue_mpmc_1٠size t
+      @ ↑ι
     <<<
       inf_queue_mpmc_1۰model t vs
     | RET #(length vs);
@@ -1057,7 +1064,8 @@ Section inf_queue_mpmc_1۰G.
     | ∀∀ vs,
       inf_queue_mpmc_1۰model t vs
     >>>
-      inf_queue_mpmc_1٠is_empty t @ ↑ι
+      inf_queue_mpmc_1٠is_empty t
+      @ ↑ι
     <<<
       inf_queue_mpmc_1۰model t vs
     | RET #(bool_decide (vs = []%list));
@@ -1079,7 +1087,8 @@ Section inf_queue_mpmc_1۰G.
     | ∀∀ vs,
       inf_queue_mpmc_1۰model t vs
     >>>
-      inf_queue_mpmc_1٠is_empty_weak t @ ↑ι
+      inf_queue_mpmc_1٠is_empty_weak t
+      @ ↑ι
     <<<
       ∃∃ b,
       ⌜if b then vs = [] else True⌝ ∗
@@ -1103,7 +1112,8 @@ Section inf_queue_mpmc_1۰G.
     | ∀∀ vs,
       inf_queue_mpmc_1۰model t vs
     >>>
-      inf_queue_mpmc_1٠push t v @ ↑ι
+      inf_queue_mpmc_1٠push t v
+      @ ↑ι
     <<<
       inf_queue_mpmc_1۰model t (vs ++ [v])
     | RET ();
@@ -1125,7 +1135,8 @@ Section inf_queue_mpmc_1۰G.
     | ∀∀ vs,
       inf_queue_mpmc_1۰model t vs
     >>>
-      inf_queue_mpmc_1٠pop t @ ↑ι
+      inf_queue_mpmc_1٠pop t
+      @ ↑ι
     <<<
       ∃∃ v vs',
       ⌜vs = v :: vs'⌝ ∗
@@ -1149,7 +1160,8 @@ Section inf_queue_mpmc_1۰G.
     | ∀∀ vs,
       inf_queue_mpmc_1۰model t vs
     >>>
-      inf_queue_mpmc_1٠try_pop t @ ↑ι
+      inf_queue_mpmc_1٠try_pop t
+      @ ↑ι
     <<<
       inf_queue_mpmc_1۰model t (tail vs)
     | RET head vs;

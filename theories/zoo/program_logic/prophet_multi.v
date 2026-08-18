@@ -285,7 +285,8 @@ Section prophet_multi۰G.
     {{{
       True
     }}}
-      Proph @ E
+      Proph
+      @ E
     {{{
       pid γ prophss
     , RET #pid;

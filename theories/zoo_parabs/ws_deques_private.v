@@ -1096,7 +1096,8 @@ Section ws_deques_private۰G.
     | ∀∀ vss,
       ws_deques_private۰model t vss
     >>>
-      ws_deques_private٠push t #i v @ ↑ι
+      ws_deques_private٠push t #i v
+      @ ↑ι
     <<<
       ∃∃ vs,
       ⌜vss !! i_ = Some vs⌝ ∗
@@ -1132,7 +1133,8 @@ Section ws_deques_private۰G.
     | ∀∀ vss,
       ws_deques_private۰model t vss
     >>>
-      ws_deques_private٠pop t #i @ ↑ι
+      ws_deques_private٠pop t #i
+      @ ↑ι
     <<<
       ∃∃ o ws',
       match o with
@@ -1310,7 +1312,8 @@ Section ws_deques_private۰G.
     | ∀∀ vss,
       ws_deques_private۰model t vss
     >>>
-      ws_deques_private٠steal_to t #i #j @ ↑ι
+      ws_deques_private٠steal_to t #i #j
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -1404,7 +1407,8 @@ Section ws_deques_private۰G.
     | ∀∀ vss,
       ws_deques_private۰model t vss
     >>>
-      ws_deques_private٠steal_as₁ t #sz #i round #n @ ↑ι
+      ws_deques_private٠steal_as₁ t #sz #i round #n
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -1466,7 +1470,8 @@ Section ws_deques_private۰G.
     | ∀∀ vss,
       ws_deques_private۰model t vss
     >>>
-      ws_deques_private٠steal_as t #i round @ ↑ι
+      ws_deques_private٠steal_as t #i round
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with

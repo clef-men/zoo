@@ -1080,7 +1080,8 @@ Section queue_mpmc_2۰G.
     | ∀∀ vs,
       queue_mpmc_2۰model t vs
     >>>
-      queue_mpmc_2٠size t @ ↑ι
+      queue_mpmc_2٠size t
+      @ ↑ι
     <<<
       queue_mpmc_2۰model t vs
     | RET #(length vs);
@@ -1158,7 +1159,8 @@ Section queue_mpmc_2۰G.
     | ∀∀ vs,
       queue_mpmc_2۰model t vs
     >>>
-      queue_mpmc_2٠is_empty t @ ↑ι
+      queue_mpmc_2٠is_empty t
+      @ ↑ι
     <<<
       queue_mpmc_2۰model t vs
     | RET #(bool_decide (vs = []%list));
@@ -1298,7 +1300,8 @@ Section queue_mpmc_2۰G.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_mpmc_2٠push_aux #l v #j (prefix۰to_val i back ws) backoff @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠push_aux #l v #j (prefix۰to_val i back ws) backoff
+        @ ↑γ.(metadata۰inv)
       <<<
         model₁ γ (vs ++ [v])
       | RET ();
@@ -1312,7 +1315,8 @@ Section queue_mpmc_2۰G.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_mpmc_2٠push₁ #l v backoff @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠push₁ #l v backoff
+        @ ↑γ.(metadata۰inv)
       <<<
         model₁ γ (vs ++ [v])
       | RET ();
@@ -1446,7 +1450,8 @@ Section queue_mpmc_2۰G.
     | ∀∀ vs,
       model₁ γ vs
     >>>
-      queue_mpmc_2٠push₁ #l v backoff @ ↑γ.(metadata۰inv)
+      queue_mpmc_2٠push₁ #l v backoff
+      @ ↑γ.(metadata۰inv)
     <<<
       model₁ γ (vs ++ [v])
     | RET ();
@@ -1463,7 +1468,8 @@ Section queue_mpmc_2۰G.
     | ∀∀ vs,
       queue_mpmc_2۰model t vs
     >>>
-      queue_mpmc_2٠push t v @ ↑ι
+      queue_mpmc_2٠push t v
+      @ ↑ι
     <<<
       queue_mpmc_2۰model t (vs ++ [v])
     | RET ();
@@ -1489,7 +1495,8 @@ Section queue_mpmc_2۰G.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_mpmc_2٠pop_1 #l (suffix۰to_val i_front vs_front) backoff @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠pop_1 #l (suffix۰to_val i_front vs_front) backoff
+        @ ↑γ.(metadata۰inv)
       <<<
         ∃∃ o,
         match o with
@@ -1515,7 +1522,8 @@ Section queue_mpmc_2۰G.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_mpmc_2٠pop_2 #l ’Front[ #i_front ] #back (prefix۰to_val i back_prev move) backoff @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠pop_2 #l ’Front[ #i_front ] #back (prefix۰to_val i back_prev move) backoff
+        @ ↑γ.(metadata۰inv)
       <<<
         ∃∃ o,
         match o with
@@ -1537,7 +1545,8 @@ Section queue_mpmc_2۰G.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_mpmc_2٠pop_3 #l ’Front[ #i_front ] backoff @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠pop_3 #l ’Front[ #i_front ] backoff
+        @ ↑γ.(metadata۰inv)
       <<<
         ∃∃ o,
         match o with
@@ -1559,7 +1568,8 @@ Section queue_mpmc_2۰G.
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        queue_mpmc_2٠pop₁ #l backoff @ ↑γ.(metadata۰inv)
+        queue_mpmc_2٠pop₁ #l backoff
+        @ ↑γ.(metadata۰inv)
       <<<
         ∃∃ o,
         match o with
@@ -1785,7 +1795,8 @@ Section queue_mpmc_2۰G.
     | ∀∀ vs,
       model₁ γ vs
     >>>
-      queue_mpmc_2٠pop₁ #l backoff @ ↑γ.(metadata۰inv)
+      queue_mpmc_2٠pop₁ #l backoff
+      @ ↑γ.(metadata۰inv)
     <<<
       ∃∃ o,
       match o with
@@ -1810,7 +1821,8 @@ Section queue_mpmc_2۰G.
     | ∀∀ vs,
       queue_mpmc_2۰model t vs
     >>>
-      queue_mpmc_2٠pop t @ ↑ι
+      queue_mpmc_2٠pop t
+      @ ↑ι
     <<<
       ∃∃ o,
       match o with

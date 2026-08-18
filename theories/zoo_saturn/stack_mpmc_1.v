@@ -159,7 +159,8 @@ Section zoo۰G.
     | ∀∀ vs,
       stack_mpmc_1۰model t vs
     >>>
-      stack_mpmc_1٠push₁ t v backoff @ ↑ι
+      stack_mpmc_1٠push₁ t v backoff
+      @ ↑ι
     <<<
       stack_mpmc_1۰model t (v :: vs)
     | RET ();
@@ -198,7 +199,8 @@ Section zoo۰G.
     | ∀∀ vs,
       stack_mpmc_1۰model t vs
     >>>
-      stack_mpmc_1٠push t v @ ↑ι
+      stack_mpmc_1٠push t v
+      @ ↑ι
     <<<
       stack_mpmc_1۰model t (v :: vs)
     | RET ();
@@ -218,7 +220,8 @@ Section zoo۰G.
     | ∀∀ vs,
       stack_mpmc_1۰model t vs
     >>>
-      stack_mpmc_1٠pop₁ t backoff @ ↑ι
+      stack_mpmc_1٠pop₁ t backoff
+      @ ↑ι
     <<<
       stack_mpmc_1۰model t (tail vs)
     | RET head vs;
@@ -267,7 +270,8 @@ Section zoo۰G.
     | ∀∀ vs,
       stack_mpmc_1۰model t vs
     >>>
-      stack_mpmc_1٠pop t @ ↑ι
+      stack_mpmc_1٠pop t
+      @ ↑ι
     <<<
       stack_mpmc_1۰model t (tail vs)
     | RET head vs;
@@ -286,7 +290,8 @@ Section zoo۰G.
     | ∀∀ vs,
       stack_mpmc_1۰model t vs
     >>>
-      stack_mpmc_1٠snapshot t @ ↑ι
+      stack_mpmc_1٠snapshot t
+      @ ↑ι
     <<<
       stack_mpmc_1۰model t vs
     | RET glist۰to_val vs;

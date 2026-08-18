@@ -227,7 +227,8 @@ Section bstack_mpmc۰G.
     | ∀∀ vs,
       bstack_mpmc۰model t vs
     >>>
-      bstack_mpmc٠size t @ ↑ι
+      bstack_mpmc٠size t
+      @ ↑ι
     <<<
       bstack_mpmc۰model t vs
     | RET #(length vs);
@@ -257,7 +258,8 @@ Section bstack_mpmc۰G.
     | ∀∀ vs,
       bstack_mpmc۰model t vs
     >>>
-      bstack_mpmc٠is_empty t @ ↑ι
+      bstack_mpmc٠is_empty t
+      @ ↑ι
     <<<
       bstack_mpmc۰model t vs
     | RET #(bool_decide (vs = []%list));
@@ -293,7 +295,8 @@ Section bstack_mpmc۰G.
       | ∀∀ vs,
         bstack_mpmc۰model t vs
       >>>
-        bstack_mpmc٠push_aux t #sz v front backoff @ ↑ι
+        bstack_mpmc٠push_aux t #sz v front backoff
+        @ ↑ι
       <<<
         ∃∃ b,
         ⌜b = bool_decide (length vs < cap)⌝ ∗
@@ -309,7 +312,8 @@ Section bstack_mpmc۰G.
       | ∀∀ vs,
         bstack_mpmc۰model t vs
       >>>
-        bstack_mpmc٠push₁ t v backoff @ ↑ι
+        bstack_mpmc٠push₁ t v backoff
+        @ ↑ι
       <<<
         ∃∃ b,
         ⌜b = bool_decide (length vs < cap)⌝ ∗
@@ -386,7 +390,8 @@ Section bstack_mpmc۰G.
     | ∀∀ vs,
       bstack_mpmc۰model t vs
     >>>
-      bstack_mpmc٠push₁ t v backoff @ ↑ι
+      bstack_mpmc٠push₁ t v backoff
+      @ ↑ι
     <<<
       ∃∃ b,
       ⌜b = bool_decide (length vs < cap)⌝ ∗
@@ -405,7 +410,8 @@ Section bstack_mpmc۰G.
     | ∀∀ vs,
       bstack_mpmc۰model t vs
     >>>
-      bstack_mpmc٠push t v @ ↑ι
+      bstack_mpmc٠push t v
+      @ ↑ι
     <<<
       ∃∃ b,
       ⌜b = bool_decide (length vs < cap)⌝ ∗
@@ -427,7 +433,8 @@ Section bstack_mpmc۰G.
     | ∀∀ vs,
       bstack_mpmc۰model t vs
     >>>
-      bstack_mpmc٠pop₁ t backoff @ ↑ι
+      bstack_mpmc٠pop₁ t backoff
+      @ ↑ι
     <<<
       bstack_mpmc۰model t (tail vs)
     | RET head vs;
@@ -478,7 +485,8 @@ Section bstack_mpmc۰G.
     | ∀∀ vs,
       bstack_mpmc۰model t vs
     >>>
-      bstack_mpmc٠pop t @ ↑ι
+      bstack_mpmc٠pop t
+      @ ↑ι
     <<<
       bstack_mpmc۰model t (tail vs)
     | RET head vs;

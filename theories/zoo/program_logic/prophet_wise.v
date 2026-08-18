@@ -198,7 +198,8 @@ Section prophet_wise۰G.
     {{{
       True
     }}}
-      Proph @ E
+      Proph
+      @ E
     {{{
       pid γ prophs
     , RET #pid;

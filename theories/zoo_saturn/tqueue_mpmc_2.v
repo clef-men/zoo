@@ -137,7 +137,8 @@ Module base.
       | ∀∀ vs,
         tqueue_mpmc_2۰model γ vs
       >>>
-        tqueue_mpmc_2٠is_empty #t @ ↑ι
+        tqueue_mpmc_2٠is_empty #t
+        @ ↑ι
       <<<
         tqueue_mpmc_2۰model γ vs
       | b,
@@ -179,7 +180,8 @@ Module base.
       | ∀∀ vs,
         tqueue_mpmc_2۰model γ vs
       >>>
-        tqueue_mpmc_2٠pop #t @ ↑ι
+        tqueue_mpmc_2٠pop #t
+        @ ↑ι
       <<<
         ∃∃ o vs',
         tqueue_mpmc_2۰model γ vs' ∗
@@ -393,7 +395,8 @@ Section tqueue_mpmc_2۰G.
     | ∀∀ vs,
       tqueue_mpmc_2۰model t vs
     >>>
-      tqueue_mpmc_2٠is_empty t @ ↑ι
+      tqueue_mpmc_2٠is_empty t
+      @ ↑ι
     <<<
       tqueue_mpmc_2۰model t vs
     | b,
@@ -455,7 +458,8 @@ Section tqueue_mpmc_2۰G.
     | ∀∀ vs,
       tqueue_mpmc_2۰model t vs
     >>>
-      tqueue_mpmc_2٠pop t @ ↑ι
+      tqueue_mpmc_2٠pop t
+      @ ↑ι
     <<<
       ∃∃ o vs',
       tqueue_mpmc_2۰model t vs' ∗

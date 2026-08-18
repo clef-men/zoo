@@ -357,7 +357,8 @@ Section zoo۰G.
     {{{
       xtchain dq hdr nodes dst
     }}}
-      (#node).{next} @ E
+      (#node).{next}
+      @ E
     {{{
       RET from_option #@{location} dst (head nodes');
       xtchain dq hdr nodes dst
@@ -372,7 +373,8 @@ Section zoo۰G.
     {{{
       xtchain hdr dq nodes dst
     }}}
-      (#node).{next} @ E
+      (#node).{next}
+      @ E
     {{{
       RET from_option #@{location} dst (nodes !! ˖i);
       xtchain hdr dq nodes dst
@@ -387,7 +389,8 @@ Section zoo۰G.
     {{{
       xtchain hdr dq nodes dst
     }}}
-      (#node).{next} @ E
+      (#node).{next}
+      @ E
     {{{
       RET dst;
       xtchain hdr dq nodes dst
@@ -403,7 +406,8 @@ Section zoo۰G.
     {{{
       xtchain hdr (DfracOwn 1) nodes dst
     }}}
-      (#node) <-{next} v @ E
+      (#node) <-{next} v
+      @ E
     {{{
       RET ();
       xtchain hdr (DfracOwn 1) [node] v ∗
@@ -419,7 +423,8 @@ Section zoo۰G.
     {{{
       xtchain hdr (DfracOwn 1) nodes dst
     }}}
-      #node <-{next} v @ E
+      #node <-{next} v
+      @ E
     {{{
       RET ();
       xtchain hdr (DfracOwn 1) (take ˖i nodes) v ∗
@@ -438,7 +443,8 @@ Section zoo۰G.
     {{{
       xtchain hdr (DfracOwn 1) nodes dst
     }}}
-      #node <-{next} v @ E
+      #node <-{next} v
+      @ E
     {{{
       RET ();
       xtchain hdr (DfracOwn 1) nodes v
@@ -455,7 +461,8 @@ Section zoo۰G.
       node'.[next] ↦ dst' ∗
       node' ↦ₕ hdr
     }}}
-      #node <-{next} #node' @ E
+      #node <-{next} #node'
+      @ E
     {{{
       RET ();
       xtchain hdr (DfracOwn 1) (nodes ++ [node']) dst'

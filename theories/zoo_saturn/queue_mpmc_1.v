@@ -661,7 +661,8 @@ Module base.
       | ∀∀ vs,
         queue_mpmc_1۰model γ vs
       >>>
-        queue_mpmc_1٠is_empty #t @ ↑ι
+        queue_mpmc_1٠is_empty #t
+        @ ↑ι
       <<<
         queue_mpmc_1۰model γ vs
       | RET #(bool_decide (vs = []%list));
@@ -713,7 +714,8 @@ Module base.
       | ∀∀ vs,
         queue_mpmc_1۰model γ vs
       >>>
-        queue_mpmc_1٠push₂ #node #new_back backoff @ ↑γ.(queue_mpmc_1۰name۰inv)
+        queue_mpmc_1٠push₂ #node #new_back backoff
+        @ ↑γ.(queue_mpmc_1۰name۰inv)
       <<<
         queue_mpmc_1۰model γ (vs ++ [v])
       | RET ();
@@ -773,7 +775,8 @@ Module base.
       | ∀∀ vs,
         queue_mpmc_1۰model γ vs
       >>>
-        queue_mpmc_1٠push₁ #node #new_back @ ↑γ.(queue_mpmc_1۰name۰inv)
+        queue_mpmc_1٠push₁ #node #new_back
+        @ ↑γ.(queue_mpmc_1۰name۰inv)
       <<<
         queue_mpmc_1۰model γ (vs ++ [v])
       | RET ();
@@ -848,7 +851,8 @@ Module base.
       | ∀∀ vs,
         queue_mpmc_1۰model γ vs
       >>>
-        queue_mpmc_1٠push #t v @ ↑ι
+        queue_mpmc_1٠push #t v
+        @ ↑ι
       <<<
         queue_mpmc_1۰model γ (vs ++ [v])
       | RET ();
@@ -875,7 +879,8 @@ Module base.
       | ∀∀ vs,
         queue_mpmc_1۰model γ vs
       >>>
-        queue_mpmc_1٠pop₁ #t backoff @ ↑ι
+        queue_mpmc_1٠pop₁ #t backoff
+        @ ↑ι
       <<<
         queue_mpmc_1۰model γ (tail vs)
       | RET head vs;
@@ -946,7 +951,8 @@ Module base.
       | ∀∀ vs,
         queue_mpmc_1۰model γ vs
       >>>
-        queue_mpmc_1٠pop #t @ ↑ι
+        queue_mpmc_1٠pop #t
+        @ ↑ι
       <<<
         queue_mpmc_1۰model γ (tail vs)
       | RET head vs;
@@ -1048,7 +1054,8 @@ Section queue_mpmc_1۰G.
     | ∀∀ vs,
       queue_mpmc_1۰model t vs
     >>>
-      queue_mpmc_1٠is_empty t @ ↑ι
+      queue_mpmc_1٠is_empty t
+      @ ↑ι
     <<<
       queue_mpmc_1۰model t vs
     | RET #(bool_decide (vs = []%list));
@@ -1085,7 +1092,8 @@ Section queue_mpmc_1۰G.
     | ∀∀ vs,
       queue_mpmc_1۰model t vs
     >>>
-      queue_mpmc_1٠push t v @ ↑ι
+      queue_mpmc_1٠push t v
+      @ ↑ι
     <<<
       queue_mpmc_1۰model t (vs ++ [v])
     | RET ();
@@ -1107,7 +1115,8 @@ Section queue_mpmc_1۰G.
     | ∀∀ vs,
       queue_mpmc_1۰model t vs
     >>>
-      queue_mpmc_1٠pop t @ ↑ι
+      queue_mpmc_1٠pop t
+      @ ↑ι
     <<<
       queue_mpmc_1۰model t (tail vs)
     | RET head vs;
