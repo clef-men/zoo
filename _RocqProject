@@ -563,14 +563,6 @@ theories/zoo_eio/rcfd.v
 
 #END zoo-eio
 
-#BEGIN zoo-boxroot
--Q theories/zoo_boxroot zoo_boxroot
-
-theories/zoo_boxroot/gc.v
-theories/zoo_boxroot/boxroot.v
-
-#END zoo-boxroot
-
 #BEGIN zoo-mcas
 -Q theories/zoo_mcas zoo_mcas
 
