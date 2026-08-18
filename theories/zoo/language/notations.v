@@ -51,7 +51,7 @@ Notation "'𝗳𝗼𝗿𝗸'" :=
   Fork
 : expr_scope.
 Notation "'𝗹𝗼𝗰𝗮𝗹'" :=
-  GetLocal
+  LocalGet
 : expr_scope.
 Notation "'𝗶𝗺𝗺𝗲𝗱𝗶𝗮𝘁𝗲'" :=
   IsImmediate
@@ -66,7 +66,7 @@ Notation "'𝗿𝗲𝘀𝗼𝗹𝘃𝗲'" :=
   Resolve
 : expr_scope.
 Notation "'𝘀𝗲𝘁𝗹𝗼𝗰𝗮𝗹'" :=
-  SetLocal
+  LocalSet
 : expr_scope.
 Notation "'𝘀𝗶𝘇𝗲'" :=
   GetSize

@@ -70,8 +70,8 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxFAA1 v2) K prophs e1
     | FAA ?e1 ?e2 =>
         add_ectxi (CtxFAA2 e1) K prophs e2
-    | SetLocal ?e =>
-        add_ectxi CtxSetLocal K prophs e
+    | LocalSet ?e =>
+        add_ectxi CtxLocalSet K prophs e
     | Resolve ?e0 (Val ?v1) (Val ?v2) =>
         go K (cons (v1, v2) prophs) e0
     | Resolve ?e0 ?e1 (Val ?v2) =>

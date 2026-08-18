@@ -136,8 +136,8 @@ Inductive expr :=
   | CAS (e0 e1 e2 : expr)
   | FAA (e1 e2 : expr)
   | Fork (e : expr)
-  | GetLocal
-  | SetLocal (e : expr)
+  | LocalGet
+  | LocalSet (e : expr)
   | Proph
   | Resolve (e0 e1 e2 : expr)
 with val :=
@@ -250,11 +250,11 @@ Section expr_ind.
   Variable HFork :
     ∀ e, P e →
     P (Fork e).
-  Variable HGetLocal :
-    P GetLocal.
-  Variable HSetLocal :
+  Variable HLocalGet :
+    P LocalGet.
+  Variable HLocalSet :
     ∀ e, P e →
-    P (SetLocal e).
+    P (LocalSet e).
   Variable HProph :
     P Proph.
   Variable HResolve :
@@ -352,10 +352,10 @@ Section expr_ind.
     | Fork e =>
         HFork
           e (expr_ind e)
-    | GetLocal =>
-        HGetLocal
-    | SetLocal e =>
-        HSetLocal
+    | LocalGet =>
+        HLocalGet
+    | LocalSet e =>
+        HLocalSet
           e (expr_ind e)
     | Proph =>
         HProph
@@ -487,11 +487,11 @@ Section exprｰvalｰmutind.
   Variable HFork :
     ∀ e, Pexpr e →
     Pexpr (Fork e).
-  Variable HGetLocal :
-    Pexpr GetLocal.
-  Variable HSetLocal :
+  Variable HLocalGet :
+    Pexpr LocalGet.
+  Variable HLocalSet :
     ∀ e, Pexpr e →
-    Pexpr (SetLocal e).
+    Pexpr (LocalSet e).
   Variable HProph :
     Pexpr Proph.
   Variable HResolve :
@@ -601,10 +601,10 @@ Section exprｰvalｰmutind.
     | Fork e =>
         HFork
           e (exprｰvalｰind e)
-    | GetLocal =>
-        HGetLocal
-    | SetLocal e =>
-        HSetLocal
+    | LocalGet =>
+        HLocalGet
+    | LocalSet e =>
+        HLocalSet
           e (exprｰvalｰind e)
     | Proph =>
         HProph
@@ -936,9 +936,9 @@ Proof.
       | Fork e1, Fork e2 =>
           cast_if
             (decide (e1 = e2))
-      | GetLocal, GetLocal =>
+      | LocalGet, LocalGet =>
           left _
-      | SetLocal e1, SetLocal e2 =>
+      | LocalSet e1, LocalSet e2 =>
           cast_if
             (decide (e1 = e2))
       | Proph, Proph =>
@@ -1117,9 +1117,9 @@ Proof.
     19.
   #[local] Notation code_Fork :=
     20.
-  #[local] Notation code_GetLocal :=
+  #[local] Notation code_LocalGet :=
     21.
-  #[local] Notation code_SetLocal :=
+  #[local] Notation code_LocalSet :=
     22.
   #[local] Notation code_Proph :=
     23.
@@ -1185,10 +1185,10 @@ Proof.
           GenNode code_FAA [go e1; go e2]
       | Fork e =>
           GenNode code_Fork [go e]
-      | GetLocal =>
-          GenNode code_GetLocal []
-      | SetLocal e =>
-          GenNode code_SetLocal [go e]
+      | LocalGet =>
+          GenNode code_LocalGet []
+      | LocalSet e =>
+          GenNode code_LocalSet [go e]
       | Proph =>
           GenNode code_Proph []
       | Resolve e0 e1 e2 =>
@@ -1272,10 +1272,10 @@ Proof.
           FAA (go e1) (go e2)
       | GenNode code_Fork [e] =>
           Fork $ go e
-      | GenNode code_GetLocal [] =>
-          GetLocal
-      | GenNode code_SetLocal [e] =>
-          SetLocal (go e)
+      | GenNode code_LocalGet [] =>
+          LocalGet
+      | GenNode code_LocalSet [e] =>
+          LocalSet (go e)
       | GenNode code_Proph [] =>
           Proph
       | GenNode code_Resolve [e0; e1; e2] =>

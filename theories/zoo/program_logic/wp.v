@@ -902,7 +902,7 @@ Section zoo۰G.
     {{{
       ▷ tid ↦ₗ{dq} v
     }}}
-      GetLocal ∶ tid
+      LocalGet ∶ tid
       @ E
     {{{
       RET v;
@@ -922,7 +922,7 @@ Section zoo۰G.
     {{{
       ▷ tid ↦ₗ w
     }}}
-      SetLocal v ∶ tid
+      LocalSet v ∶ tid
       @ E
     {{{
       RET ();

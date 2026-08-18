@@ -436,7 +436,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
       σ.(state۰locals) !! tid = Some v →
       base_step
         tid
-        GetLocal
+        LocalGet
         σ
         []
         (Val v)
@@ -446,7 +446,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
       is_Some (σ.(state۰locals) !! tid) →
       base_step
         tid
-        (SetLocal (Val v))
+        (LocalSet (Val v))
         σ
         []
         Unit
@@ -575,7 +575,7 @@ Inductive ectxi :=
   | CtxCAS2 e0 e1
   | CtxFAA1 v2
   | CtxFAA2 e1
-  | CtxSetLocal
+  | CtxLocalSet
   | CtxResolve0 (k : ectxi) v1 v2
   | CtxResolve1 e0 v2
   | CtxResolve2 e0 e1.
@@ -650,8 +650,8 @@ Fixpoint filli k e : expr :=
       FAA e $ Val v2
   | CtxFAA2 e1 =>
       FAA e1 e
-  | CtxSetLocal =>
-      SetLocal e
+  | CtxLocalSet =>
+      LocalSet e
   | CtxResolve0 k v1 v2 =>
       Resolve (filli k e) (Val v1) (Val v2)
   | CtxResolve1 e0 v2 =>
