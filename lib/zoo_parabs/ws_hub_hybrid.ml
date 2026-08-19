@@ -1,6 +1,6 @@
 type 'a t =
   { deques: 'a Ws_bdeques_public.t
-  ; rounds: Random_round.t array
+  ; rounds: Random.Round.t array
   ; queue : 'a Queue_mpmc_1.t
   ; waiters: Waiters.t
   ; mutable num_active: int [@atomic]
@@ -8,7 +8,7 @@ type 'a t =
 
 let create sz =
   { deques= Ws_bdeques_public.create sz
-  ; rounds= Array.unsafe_init sz (fun _ -> Random_round.create @@ Int.positive_part @@ sz - 1)
+  ; rounds= Array.unsafe_init sz (fun _ -> Random.Round.create @@ Int.positive_part @@ sz - 1)
   ; queue= Queue_mpmc_1.create ()
   ; waiters= Waiters.create sz
   ; num_active= sz + 1
@@ -56,7 +56,7 @@ let pop t i =
 
 let try_steal_once t i =
   let round = Array.unsafe_get t.rounds i in
-  Random_round.reset round ;
+  Random.Round.reset round ;
   Ws_bdeques_public.steal_as t.deques i round
 
 let rec try_steal t i ~yield ~max_round ~pred =

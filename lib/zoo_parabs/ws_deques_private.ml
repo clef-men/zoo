@@ -97,7 +97,7 @@ let rec steal_as t sz i round n =
   if n <= 0 then
     None
   else
-    let j = (i + 1 + Random_round.next round) mod sz in
+    let j = (i + 1 + Random.Round.next round) mod sz in
     match steal_to t i j with
     | None ->
         steal_as t sz i round (n - 1)

@@ -210,7 +210,7 @@ Section ws_hub_std۰G.
     ws_deques_public۰owner γ.(metadata۰deques) i status ws ∗
     ⌜empty = Empty → ws = []⌝ ∗
     array۰slice γ.(metadata۰rounds) i DfracDiscarded [round] ∗
-    random_round۰model' round (γ.(metadata۰size) - 1) n.
+    random۰round۰model' round (γ.(metadata۰size) - 1) n.
   #[local] Instance : CustomIpat "owner" :=
     " ( %𝑡{;_}
       & %γ{;_}
@@ -311,10 +311,10 @@ Section ws_hub_std۰G.
 
     wp۰apply+ (waiters٠createｰspec with "[//]") as (waiters) "#Hwaiters_inv". 1: done.
 
-    wp۰apply+ (array٠unsafe_initｰspecｰdisentangled (λ _ round, random_round۰model' round (₊sz - 1) (₊sz - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)". 1: done.
+    wp۰apply+ (array٠unsafe_initｰspecｰdisentangled (λ _ round, random۰round۰model' round (₊sz - 1) (₊sz - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)". 1: done.
     { iIntros "!> %i %Hi".
       wp۰apply+ int٠positive_partｰspec.
-      wp۰apply (random_round٠createｰspec' with "[//]"). 1: lia.
+      wp۰apply (random٠round٠createｰspec' with "[//]"). 1: lia.
       rewrite Nat2Z.id. assert (₊(sz - 1) = ₊sz - 1) as -> by lia.
       iSteps.
     }
@@ -625,7 +625,7 @@ Section ws_hub_std۰G.
 
     wp۰rec. wp۰load.
     wp۰apply (array٠unsafe_getｰspecｰcell with "Hrounds") as "_". 1: lia.
-    wp۰apply+ (random_round٠resetｰspec' with "Hround") as "Hround".
+    wp۰apply+ (random٠round٠resetｰspec' with "Hround") as "Hround".
     wp۰load.
 
     iDestruct (ws_deques_publicｰinvｰowner with "Hdeques_inv Hdeques_owner") as %?.

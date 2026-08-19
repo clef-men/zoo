@@ -5,7 +5,7 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import zoo_saturn.ws_bdeque_2.
 Require Import zoo_std.array.
-Require Import zoo_std.random_round.
+Require Import zoo_std.random.
 Require Import zoo.options.
 
 Definition ws_bdeques_public٠capacity : val :=
@@ -49,7 +49,7 @@ Definition ws_bdeques_public٠steal_as₁ : val :=
       §None
     ) 𝗲𝗹𝘀𝗲 (
       𝗹𝗲𝘁 "j" =
-        ("i" + 1 + random_round٠next "round") 𝗿𝗲𝗺 "sz"
+        ("i" + 1 + random٠round٠next "round") 𝗿𝗲𝗺 "sz"
       𝗶𝗻
       𝗺𝗮𝘁𝗰𝗵
         ws_bdeques_public٠steal_to "t" "i" "j"

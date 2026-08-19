@@ -318,14 +318,6 @@ theories/zoo_std/random__types.v
 theories/zoo_std/random__code.v
 theories/zoo_std/random__opaque.v
 theories/zoo_std/random.v
-theories/zoo_std/random_state__types.v
-theories/zoo_std/random_state__code.v
-theories/zoo_std/random_state__opaque.v
-theories/zoo_std/random_state.v
-theories/zoo_std/random_round__types.v
-theories/zoo_std/random_round__code.v
-theories/zoo_std/random_round__opaque.v
-theories/zoo_std/random_round.v
 
 #END zoo-std
 

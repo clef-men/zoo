@@ -10,7 +10,7 @@ Require Export zoo_std.array.
 Require Export zoo_std.domain.
 Require Export zoo_std.int.
 Require Export zoo_std.optional.
-Require Export zoo_std.random_round.
+Require Export zoo_std.random.
 Require Import zoo.options.
 
 Notation "'deques'" := (

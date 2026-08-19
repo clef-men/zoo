@@ -23,5 +23,5 @@ module type S = sig
   val steal_to :
     'a t -> int -> int -> 'a option
   val steal_as :
-    'a t -> int -> Random_round.t -> 'a option
+    'a t -> int -> Random.Round.t -> 'a option
 end

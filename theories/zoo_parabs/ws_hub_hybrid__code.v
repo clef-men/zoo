@@ -10,7 +10,7 @@ Require Import zoo_std.array.
 Require Import zoo_std.domain.
 Require Import zoo_std.int.
 Require Import zoo_std.optional.
-Require Import zoo_std.random_round.
+Require Import zoo_std.random.
 Require Import zoo.options.
 
 Notation "'ws_hub_hybrid٠deques'" := (
@@ -40,7 +40,7 @@ Definition ws_hub_hybrid٠create : val :=
       array٠unsafe_init
         "sz"
         (𝗳𝘂𝗻 ⎽ ->
-           random_round٠create (int٠positive_part ("sz" - 1))),
+           random٠round٠create (int٠positive_part ("sz" - 1))),
       queue_mpmc_1٠create (),
       waiters٠create "sz",
       "sz" + 1
@@ -117,7 +117,7 @@ Definition ws_hub_hybrid٠try_steal_once : val :=
     𝗹𝗲𝘁 "round" =
       array٠unsafe_get "t".{ws_hub_hybrid٠rounds} "i"
     𝗶𝗻
-    random_round٠reset "round" ⍮
+    random٠round٠reset "round" ⍮
     ws_bdeques_public٠steal_as "t".{ws_hub_hybrid٠deques} "i" "round".
 
 Definition ws_hub_hybrid٠try_steal₁ : val :=

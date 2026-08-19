@@ -6,3 +6,10 @@ Require Import zoo_std.random__code.
 #[global] Opaque random٠bits.
 #[global] Opaque random٠int.
 #[global] Opaque random٠int_in_range.
+#[global] Opaque random٠state٠create.
+#[global] Opaque random٠state٠bits.
+#[global] Opaque random٠state٠int.
+#[global] Opaque random٠state٠int_in_range.
+#[global] Opaque random٠round٠create.
+#[global] Opaque random٠round٠reset.
+#[global] Opaque random٠round٠next.

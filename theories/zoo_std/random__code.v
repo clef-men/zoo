@@ -3,6 +3,7 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
+Require Import zoo_std.array.
 Require Import zoo.options.
 
 Parameter random٠init : val.
@@ -14,3 +15,51 @@ Parameter random٠int : val.
 Definition random٠int_in_range : val :=
   𝗳𝘂𝗻 "lb" "ub" ->
     "lb" + random٠int ("ub" - "lb").
+
+Parameter random٠state٠create : val.
+
+Parameter random٠state٠bits : val.
+
+Parameter random٠state٠int : val.
+
+Definition random٠state٠int_in_range : val :=
+  𝗳𝘂𝗻 "t" "lb" "ub" ->
+    "lb" + random٠state٠int "t" ("ub" - "lb").
+
+Notation "'random٠round٠random'" := (
+  in_type "zoo_std.random.round.t" 0
+)(in custom zoo_field
+).
+Notation "'random٠round٠array'" := (
+  in_type "zoo_std.random.round.t" 1
+)(in custom zoo_field
+).
+Notation "'random٠round٠index'" := (
+  in_type "zoo_std.random.round.t" 2
+)(in custom zoo_field
+).
+
+Definition random٠round٠create : val :=
+  𝗳𝘂𝗻 "sz" ->
+    { random٠state٠create (),
+      array٠unsafe_initi "sz" (𝗳𝘂𝗻 "i" -> "i"),
+      "sz"
+    }.
+
+Definition random٠round٠reset : val :=
+  𝗳𝘂𝗻 "t" ->
+    "t" <-{random٠round٠index} array٠size "t".{random٠round٠array}.
+
+Definition random٠round٠next : val :=
+  𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "arr" = "t".{random٠round٠array} 𝗶𝗻
+    𝗹𝗲𝘁 "i" = "t".{random٠round٠index} 𝗶𝗻
+    𝗹𝗲𝘁 "j" =
+      random٠state٠int "t".{random٠round٠random} "i"
+    𝗶𝗻
+    𝗹𝗲𝘁 "res" = array٠unsafe_get "arr" "j" 𝗶𝗻
+    𝗹𝗲𝘁 "i" = "i" - 1 𝗶𝗻
+    array٠unsafe_set "arr" "j" (array٠unsafe_get "arr" "i") ⍮
+    array٠unsafe_set "arr" "i" "res" ⍮
+    "t" <-{random٠round٠index} "i" ⍮
+    "res".

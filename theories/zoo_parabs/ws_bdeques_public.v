@@ -416,7 +416,7 @@ Section ws_bdeques_public۰G.
     <<<
       ws_bdeques_public۰inv t ι sz ∗
       ws_bdeques_public۰owner t i_ Blocked ws ∗
-      random_round۰model' round (sz - 1) n
+      random۰round۰model' round (sz - 1) n
     | ∀∀ vss,
       ws_bdeques_public۰model t vss
     >>>
@@ -436,7 +436,7 @@ Section ws_bdeques_public۰G.
     | RET o;
       ∃ n,
       ws_bdeques_public۰owner t i_ Blocked ws ∗
-      random_round۰model' round (sz - 1) n
+      random۰round۰model' round (sz - 1) n
     >>>.
   Proof.
     iIntros (->) "%Φ (#Hinv & Howner & Hround) HΦ".
@@ -450,7 +450,7 @@ Section ws_bdeques_public۰G.
     - iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
       iApply ("HΦ" $! None with "Hmodel [$Howner Hround]"); first iSteps.
 
-    - wp۰apply (random_round٠nextｰspec' with "Hround") as (j) "(%Hj & Hround)"; first lia.
+    - wp۰apply (random٠round٠nextｰspec' with "Hround") as (j) "(%Hj & Hround)"; first lia.
       wp۰pures.
       rewrite Nat2Z.id.
       pose k := (i_ + 1 + j) `mod` sz.
@@ -479,7 +479,7 @@ Section ws_bdeques_public۰G.
     <<<
       ws_bdeques_public۰inv t ι sz ∗
       ws_bdeques_public۰owner t i_ Blocked ws ∗
-      random_round۰model' round (sz - 1) (sz - 1)
+      random۰round۰model' round (sz - 1) (sz - 1)
     | ∀∀ vss,
       ws_bdeques_public۰model t vss
     >>>
@@ -499,7 +499,7 @@ Section ws_bdeques_public۰G.
     | RET o;
       ∃ n,
       ws_bdeques_public۰owner t i_ Blocked ws ∗
-      random_round۰model' round (sz - 1) n
+      random۰round۰model' round (sz - 1) n
     >>>.
   Proof.
     iIntros (->) "%Hsz %Φ (#Hinv & Hround) HΦ".

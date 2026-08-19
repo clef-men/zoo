@@ -7,7 +7,7 @@ Require Export backoff.backoff.
 Require Export zoo_std.array.
 Require Export zoo_std.atomic_array.
 Require Export zoo_std.queue_3.
-Require Export zoo_std.random_round.
+Require Export zoo_std.random.
 Require Import zoo.options.
 
 Notation "'Blocked'" := (

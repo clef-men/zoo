@@ -3,5 +3,18 @@
 Require Import zoo.prelude.
 Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
+Require Export zoo_std.array.
 Require Import zoo.options.
 
+Notation "'round٠random'" := (
+  in_type "zoo_std.random.round.t" 0
+)(in custom zoo_field
+).
+Notation "'round٠array'" := (
+  in_type "zoo_std.random.round.t" 1
+)(in custom zoo_field
+).
+Notation "'round٠index'" := (
+  in_type "zoo_std.random.round.t" 2
+)(in custom zoo_field
+).
