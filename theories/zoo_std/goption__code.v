@@ -6,10 +6,10 @@ Require Import zoo.language.notations.
 Require Import zoo.options.
 
 Notation "'goption٠None'" := (
-  in_type "zoo_std.goption.t" 0
+  in_type "zoo_std.goption.t" Tag0
 )(in custom zoo_tag
 ).
 Notation "'goption٠Some'" := (
-  in_type "zoo_std.goption.t" 1
+  in_type "zoo_std.goption.t" Tag1
 )(in custom zoo_tag
 ).

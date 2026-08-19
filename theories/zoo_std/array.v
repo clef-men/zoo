@@ -35,7 +35,7 @@ Section zoo۰G.
     Definition array۰inv t (sz : nat) : iProp Σ :=
       ∃ l,
       ⌜t = #l⌝ ∗
-      l ↦ₕ Header 0 sz.
+      l ↦ₕ Header Tag0 sz.
 
     #[global] Instance array۰invｰtimeless t sz :
       Timeless (array۰inv t sz).
@@ -334,7 +334,7 @@ Section zoo۰G.
     Definition array۰model t dq vs : iProp Σ :=
       ∃ l,
       ⌜t = #l⌝ ∗
-      l ↦ₕ Header 0 (length vs) ∗
+      l ↦ₕ Header Tag0 (length vs) ∗
       chunk۰model l dq vs.
 
     Lemma array۰modelｰtoｰinv t dq vs :
@@ -538,7 +538,7 @@ Section zoo۰G.
     Definition array۰cslice t (sz : nat) i dq vs : iProp Σ :=
       ∃ l,
       ⌜t = #l⌝ ∗
-      l ↦ₕ Header 0 sz ∗
+      l ↦ₕ Header Tag0 sz ∗
       chunk۰cslice l sz i dq vs.
 
     Lemma array۰csliceｰtoｰinv t sz i dq vs :
@@ -7785,7 +7785,7 @@ Section zoo۰G.
   Definition itype۰array τ `{!iType _ τ} (sz : nat) t : iProp Σ :=
     ∃ l,
     ⌜t = #l⌝ ∗
-    l ↦ₕ Header 0 sz ∗
+    l ↦ₕ Header Tag0 sz ∗
     itype۰chunk τ sz l.
   #[global] Instance itype۰arrayｰitype τ `{!iType _ τ} sz :
     iType _ (itype۰array τ sz).

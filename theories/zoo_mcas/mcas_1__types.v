@@ -39,14 +39,14 @@ Notation "'proph'" := (
 ).
 
 Notation "'Undetermined'" := (
-  in_type "zoo_mcas.mcas_1.status" 0
+  in_type "zoo_mcas.mcas_1.status" Tag0
 )(in custom zoo_tag
 ).
 Notation "'Before'" := (
-  in_type "zoo_mcas.mcas_1.status" 1
+  in_type "zoo_mcas.mcas_1.status" Tag1
 )(in custom zoo_tag
 ).
 Notation "'After'" := (
-  in_type "zoo_mcas.mcas_1.status" 2
+  in_type "zoo_mcas.mcas_1.status" Tag2
 )(in custom zoo_tag
 ).

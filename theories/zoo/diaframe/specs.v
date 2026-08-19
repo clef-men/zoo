@@ -75,23 +75,24 @@ Section zoo۰G.
     - done.
   Qed.
 
-  #[global] Instance allocｰdiaspec tag n E :
+  #[global] Instance allocｰdiaspec 𝑡𝑎𝑔 tag n E :
+    tag۰of_Z 𝑡𝑎𝑔 = Some tag →
     DIASPEC
     {{
-      ⌜0 ≤ tag⌝%Z ∗
       ⌜0 ≤ n⌝%Z
     }}
-      Alloc #tag #n
+      Alloc #𝑡𝑎𝑔 #n
       @ E
     {{ l,
       RET #l;
-      l ↦ₕ Header ₊tag ₊n ∗
+      l ↦ₕ Header tag ₊n ∗
       meta_token l ⊤ ∗
       l ↦∗ replicate ₊n ()%V
     }}.
   Proof.
+    intros Htag.
     iSteps.
-    wp۰alloc l as "Hheader" "Hmeta" "Hl"; [done.. |].
+    wp۰alloc l as "Hheader" "Hmeta" "Hl".
     iSteps.
   Qed.
 
@@ -125,7 +126,7 @@ Section zoo۰G.
       @ E
     {{ l,
       RET #l;
-      l ↦ₕ Header 0 1 ∗
+      l ↦ₕ Header Tag0 1 ∗
       meta_token l ⊤ ∗
       l ↦ᵣ v
     }}
@@ -162,7 +163,7 @@ Section zoo۰G.
       GetTag #l
       @ E
     {{
-      RET #(encode_tag hdr.(header۰tag));
+      RET #hdr.(header۰tag);
       True
     }}.
   Proof.

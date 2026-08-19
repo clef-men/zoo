@@ -5,8 +5,9 @@ Require Export zoo.common.list.
 Require Export zoo.language.syntax.
 Require Import zoo.options.
 
-Implicit Type i tag : nat.
+Implicit Type i : nat.
 Implicit Type n : Z.
+Implicit Type tag : tag.
 Implicit Type l : location.
 Implicit Type gen : generativity.
 Implicit Type lit : literal.
@@ -167,9 +168,9 @@ Fixpoint val۰to_low v :=
   | ValRecs _ _ =>
       LowvalRecs
   | ValBlock _ tag [] =>
-      LowvalLit (LowlitInt tag)
+      LowvalLit $ LowlitInt $ tag۰to_Z tag
   | ValBlock gen tag vs =>
-      LowvalBlock gen tag vs (val۰to_low <$> vs)
+      LowvalBlock gen tag vs $ val۰to_low <$> vs
   end.
 #[global] Arguments val۰to_low !_ / : simpl nomatch, assert.
 

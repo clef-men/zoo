@@ -7,11 +7,11 @@ Require Import zoo_std.array.
 Require Import zoo.options.
 
 Notation "'parray٠Root'" := (
-  in_type "zoo_persistent.parray.descr" 0
+  in_type "zoo_persistent.parray.descr" Tag0
 )(in custom zoo_tag
 ).
 Notation "'parray٠Diff'" := (
-  in_type "zoo_persistent.parray.descr" 1
+  in_type "zoo_persistent.parray.descr" Tag1
 )(in custom zoo_tag
 ).
 

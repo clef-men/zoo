@@ -8,11 +8,11 @@ Require Export zoo_std.waiter_spsc.
 Require Import zoo.options.
 
 Notation "'Open'" := (
-  in_type "zoo_eio.rcfd.state" 0
+  in_type "zoo_eio.rcfd.state" Tag0
 )(in custom zoo_tag
 ).
 Notation "'Closing'" := (
-  in_type "zoo_eio.rcfd.state" 1
+  in_type "zoo_eio.rcfd.state" Tag1
 )(in custom zoo_tag
 ).
 

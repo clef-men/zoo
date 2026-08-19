@@ -16,11 +16,11 @@ Notation "'sstore_2٠ref_value'" := (
 ).
 
 Notation "'sstore_2٠Root'" := (
-  in_type "zoo_persistent.sstore_2.descr" 0
+  in_type "zoo_persistent.sstore_2.descr" Tag0
 )(in custom zoo_tag
 ).
 Notation "'sstore_2٠Diff'" := (
-  in_type "zoo_persistent.sstore_2.descr" 1
+  in_type "zoo_persistent.sstore_2.descr" Tag1
 )(in custom zoo_tag
 ).
 

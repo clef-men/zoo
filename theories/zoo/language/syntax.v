@@ -7,11 +7,13 @@ Require Import zoo.common.countable.
 Require Import zoo.common.list.
 Require Export zoo.common.binder.
 Require Export zoo.language.location.
+Require Export zoo.language.tag.
 Require Import zoo.options.
 
 Implicit Type b : bool.
-Implicit Type i tag : nat.
+Implicit Type i : nat.
 Implicit Type n : Z.
+Implicit Type tag : tag.
 Implicit Type l : location.
 Implicit Type f x : binder.
 
@@ -94,7 +96,7 @@ Proof.
 Qed.
 
 Record pattern :=
-  { pattern۰tag : nat
+  { pattern۰tag : tag
   ; pattern۰fields : list binder
   ; pattern۰as : binder
   }.
@@ -698,11 +700,11 @@ Notation ValPoison := (
 ).
 
 Notation Tuple := (
-  Block ImmutableNongenerative 0
+  Block ImmutableNongenerative Tag0
 )(only parsing
 ).
 Notation ValTuple := (
-  ValBlock Nongenerative 0
+  ValBlock Nongenerative Tag0
 )(only parsing
 ).
 
@@ -1054,7 +1056,8 @@ Proof.
   all: abstract congruence.
 Defined.
 Variant encode_leaf :=
-  | EncodeNat tag
+  | EncodeNat i
+  | EncodeTag tag
   | EncodeBinder x
   | EncodeGenerativity gen
   | EncodeMutability mut
@@ -1166,7 +1169,7 @@ Proof.
       | Alloc e1 e2 =>
           GenNode code_Alloc [go e1; go e2]
       | Block mut tag es =>
-          GenNode code_Block $ GenLeaf (EncodeMutability mut) :: GenLeaf (EncodeNat tag) :: go_list es
+          GenNode code_Block $ GenLeaf (EncodeMutability mut) :: GenLeaf (EncodeTag tag) :: go_list es
       | Match e0 x e1 brs =>
           GenNode code_Match $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
       | GetTag e =>
@@ -1210,7 +1213,7 @@ Proof.
       | ValRecs i recs =>
          GenNode code_ValRecs (GenLeaf (EncodeNat i) :: go_recursives recs)
       | ValBlock gen tag vs =>
-          GenNode code_ValBlock $ GenLeaf (EncodeGenerativity gen) :: GenLeaf (EncodeNat tag) :: go_list vs
+          GenNode code_ValBlock $ GenLeaf (EncodeGenerativity gen) :: GenLeaf (EncodeTag tag) :: go_list vs
       end
     for go.
   pose decode :=
@@ -1252,7 +1255,7 @@ Proof.
           For (go e1) (go e2) (go e3)
       | GenNode code_Alloc [e1; e2] =>
           Alloc (go e1) (go e2)
-      | GenNode code_Block (GenLeaf (EncodeMutability mut) :: GenLeaf (EncodeNat tag) :: es) =>
+      | GenNode code_Block (GenLeaf (EncodeMutability mut) :: GenLeaf (EncodeTag tag) :: es) =>
           Block mut tag $ go_list es
       | GenNode code_Match (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
           Match (go e0) x (go e1) (go_branches brs)
@@ -1303,7 +1306,7 @@ Proof.
           ValLit lit
       | GenNode code_ValRecs (GenLeaf (EncodeNat i) :: recs) =>
           ValRecs i (go_recursives recs)
-      | GenNode code_ValBlock (GenLeaf (EncodeGenerativity gen) :: GenLeaf (EncodeNat tag) :: vs) =>
+      | GenNode code_ValBlock (GenLeaf (EncodeGenerativity gen) :: GenLeaf (EncodeTag tag) :: vs) =>
           ValBlock gen tag $ go_list vs
       | _ =>
           @inhabitant _ valｰinhabited

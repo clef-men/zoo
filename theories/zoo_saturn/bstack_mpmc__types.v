@@ -7,11 +7,11 @@ Require Export backoff.backoff.
 Require Import zoo.options.
 
 Notation "'Nil'" := (
-  in_type "zoo_saturn.bstack_mpmc.list" 0
+  in_type "zoo_saturn.bstack_mpmc.list" Tag0
 )(in custom zoo_tag
 ).
 Notation "'Cons'" := (
-  in_type "zoo_saturn.bstack_mpmc.list" 1
+  in_type "zoo_saturn.bstack_mpmc.list" Tag1
 )(in custom zoo_tag
 ).
 

@@ -10,11 +10,11 @@ Require Export zoo_std.int.
 Require Import zoo.options.
 
 Notation "'Empty'" := (
-  in_type "zoo_std.dynarray_2.slot" 0
+  in_type "zoo_std.dynarray_2.slot" Tag0
 )(in custom zoo_tag
 ).
 Notation "'Element'" := (
-  in_type "zoo_std.dynarray_2.slot" 1
+  in_type "zoo_std.dynarray_2.slot" Tag1
 )(in custom zoo_tag
 ).
 

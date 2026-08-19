@@ -6,11 +6,11 @@ Require Import zoo.language.notations.
 Require Import zoo.options.
 
 Notation "'queue_2٠Null'" := (
-  in_type "zoo_std.queue_2.node" 0
+  in_type "zoo_std.queue_2.node" Tag0
 )(in custom zoo_tag
 ).
 Notation "'queue_2٠Node'" := (
-  in_type "zoo_std.queue_2.node" 1
+  in_type "zoo_std.queue_2.node" Tag1
 )(in custom zoo_tag
 ).
 

@@ -7,11 +7,11 @@ Require Import backoff.backoff.
 Require Import zoo.options.
 
 Notation "'queue_mpmc_1٠Null'" := (
-  in_type "zoo_saturn.queue_mpmc_1.node" 0
+  in_type "zoo_saturn.queue_mpmc_1.node" Tag0
 )(in custom zoo_tag
 ).
 Notation "'queue_mpmc_1٠Node'" := (
-  in_type "zoo_saturn.queue_mpmc_1.node" 1
+  in_type "zoo_saturn.queue_mpmc_1.node" Tag1
 )(in custom zoo_tag
 ).
 

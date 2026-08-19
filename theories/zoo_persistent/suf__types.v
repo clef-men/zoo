@@ -7,10 +7,10 @@ Require Export zoo_persistent.sstore_2.
 Require Import zoo.options.
 
 Notation "'Root'" := (
-  in_type "zoo_persistent.suf.descr" 0
+  in_type "zoo_persistent.suf.descr" Tag0
 )(in custom zoo_tag
 ).
 Notation "'Link'" := (
-  in_type "zoo_persistent.suf.descr" 1
+  in_type "zoo_persistent.suf.descr" Tag1
 )(in custom zoo_tag
 ).

@@ -6,14 +6,14 @@ Require Import zoo.language.notations.
 Require Import zoo.options.
 
 Notation "'Nothing'" := (
-  in_type "zoo_std.optional.t" 0
+  in_type "zoo_std.optional.t" Tag0
 )(in custom zoo_tag
 ).
 Notation "'Anything'" := (
-  in_type "zoo_std.optional.t" 1
+  in_type "zoo_std.optional.t" Tag1
 )(in custom zoo_tag
 ).
 Notation "'Something'" := (
-  in_type "zoo_std.optional.t" 2
+  in_type "zoo_std.optional.t" Tag2
 )(in custom zoo_tag
 ).

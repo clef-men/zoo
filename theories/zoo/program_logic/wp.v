@@ -577,27 +577,26 @@ Section zoo۰G.
     all: iSteps.
   Qed.
 
-  Lemma wpｰalloc (tag : Z) n tid E :
-    (0 ≤ tag)%Z →
+  Lemma wpｰalloc 𝑡𝑎𝑔 tag n tid E :
+    tag۰of_Z 𝑡𝑎𝑔 = Some tag →
     (0 ≤ n)%Z →
     {{{
       True
     }}}
-      Alloc #tag #n ∷ tid
+      Alloc #𝑡𝑎𝑔 #n ∷ tid
       @ E
     {{{
       l
     , RET #l;
-      l ↦ₕ Header ₊tag ₊n ∗
+      l ↦ₕ Header tag ₊n ∗
       meta_token l ⊤ ∗
       l ↦∗ replicate ₊n ()%V
     }}}.
   Proof.
     iIntros "%Htag %Hn %Φ _ HΦ".
-    Z_to_nat tag. rewrite Nat2Z.id.
     iApply bwpｰwpｰweak. iIntros.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
-    iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
+    iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     inv_base_step.
     select (state۰alloc_condition _ _ _) ltac:(fun H =>
       destruct H
@@ -682,7 +681,7 @@ Section zoo۰G.
 
   Lemma wpｰtag l hdr tid E Φ :
     ▷ l ↦ₕ hdr -∗
-    ▷ Φ #(encode_tag hdr.(header۰tag)) -∗
+    ▷ Φ #hdr.(header۰tag) -∗
     WP GetTag #l ∷ tid @ E {{ Φ }}.
   Proof.
     iIntros ">Hheader HΦ".

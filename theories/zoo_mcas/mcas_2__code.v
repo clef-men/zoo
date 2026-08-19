@@ -39,15 +39,15 @@ Notation "'mcas_2٠proph'" := (
 ).
 
 Notation "'mcas_2٠Undetermined'" := (
-  in_type "zoo_mcas.mcas_2.status" 0
+  in_type "zoo_mcas.mcas_2.status" Tag0
 )(in custom zoo_tag
 ).
 Notation "'mcas_2٠Before'" := (
-  in_type "zoo_mcas.mcas_2.status" 1
+  in_type "zoo_mcas.mcas_2.status" Tag1
 )(in custom zoo_tag
 ).
 Notation "'mcas_2٠After'" := (
-  in_type "zoo_mcas.mcas_2.status" 2
+  in_type "zoo_mcas.mcas_2.status" Tag2
 )(in custom zoo_tag
 ).
 

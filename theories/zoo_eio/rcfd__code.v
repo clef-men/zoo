@@ -8,11 +8,11 @@ Require Import zoo_std.waiter_spsc.
 Require Import zoo.options.
 
 Notation "'rcfd٠Open'" := (
-  in_type "zoo_eio.rcfd.state" 0
+  in_type "zoo_eio.rcfd.state" Tag0
 )(in custom zoo_tag
 ).
 Notation "'rcfd٠Closing'" := (
-  in_type "zoo_eio.rcfd.state" 1
+  in_type "zoo_eio.rcfd.state" Tag1
 )(in custom zoo_tag
 ).
 

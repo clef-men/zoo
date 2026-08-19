@@ -2,8 +2,8 @@ Require Import zoo.prelude.
 Require Export zoo.language.language.
 Require Import zoo.options.
 
-Definition in_type (_ : string) (n : nat) :=
-  n.
+Definition in_type {X} (_ : string) (x : X) :=
+  x.
 #[global] Arguments in_type : simpl never.
 
 Coercion LitBool : bool >-> literal.
@@ -146,7 +146,7 @@ Notation "9" :=
 ).
 
 Notation "0" :=
-  0
+  Tag0
 ( in custom zoo_tag
 ).
 
@@ -463,13 +463,19 @@ Notation "'𝗳𝗼𝗿' x = e1 '𝘁𝗼' e2 '𝗱𝗼' e3 '𝗱𝗼𝗻𝗲'" 
 ) : expr_scope.
 
 Notation "{ e1 , .. , en }" := (
-  Block Mutable 0 (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+  Block
+    Mutable
+    Tag0
+    (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(e1, en at level 200,
   format "'[hv' {  '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
 ) : expr_scope.
 
 Notation "‘ tag { e1 , .. , en }" := (
-  Block Mutable tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+  Block
+    Mutable
+    tag
+    (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 2,
   tag custom zoo_tag,
   e1, en at level 200,
@@ -483,34 +489,53 @@ Notation "§ tag" := (
   format "§ tag"
 ) : stdpp_scope.
 Notation "§ tag" := (
-  Val (ValBlock Nongenerative tag%core (@nil val))
+  Val (
+    ValBlock
+    Nongenerative
+    tag
+    (@nil val)
+  )
 )(at level 2,
   tag custom zoo_tag,
   format "§ tag"
 ) : expr_scope.
 Notation "§ tag" := (
-  ValBlock Nongenerative tag%core (@nil val)
+  ValBlock
+    Nongenerative
+    tag
+    (@nil val)
 )(at level 2,
   tag custom zoo_tag,
   format "§ tag"
 ) : val_scope.
 
 Notation "‘ tag ( e1 , .. , en )" := (
-  Block ImmutableNongenerative tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+  Block
+    ImmutableNongenerative
+    tag
+    (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 2,
   tag custom zoo_tag,
   e1, en at level 200,
   format "'[hv' ‘ tag (  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' ) ']'"
 ) : expr_scope.
 Notation "’ tag ( v1 , .. , vn )" := (
-  Val (ValBlock Nongenerative tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..))
+  Val (
+    ValBlock
+      Nongenerative
+      tag
+      (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+  )
 )(at level 2,
   tag custom zoo_tag,
   v1, vn at level 200,
   format "'[hv' ’ tag (  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ) ']'"
 ): expr_scope.
 Notation "‘ tag ( v1 , .. , vn )" := (
-  ValBlock Nongenerative tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+  ValBlock
+    Nongenerative
+    tag
+    (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 2,
   tag custom zoo_tag,
   v1, vn at level 200,
@@ -518,21 +543,32 @@ Notation "‘ tag ( v1 , .. , vn )" := (
 ): val_scope.
 
 Notation "‘ tag [ e1 , .. , en ]" := (
-  Block ImmutableGenerativeWeak tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+  Block
+    ImmutableGenerativeWeak
+    tag
+    (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 2,
   tag custom zoo_tag,
   e1, en at level 200,
   format "'[hv' ‘ tag [  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' ] ']'"
 ) : expr_scope.
 Notation "’ tag [ v1 , .. , vn ]" := (
-  Val (ValBlock (Generative None) tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..))
+  Val (
+    ValBlock
+      (Generative None)
+      tag
+      (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+  )
 )(at level 2,
   tag custom zoo_tag,
   v1, vn at level 200,
   format "'[hv' ’ tag [  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ] ']'"
 ): expr_scope.
 Notation "‘ tag [ v1 , .. , vn ]" := (
-  ValBlock (Generative None) tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+  ValBlock
+    (Generative None)
+    tag
+    (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 2,
   tag custom zoo_tag,
   v1, vn at level 200,
@@ -540,14 +576,22 @@ Notation "‘ tag [ v1 , .. , vn ]" := (
 ): val_scope.
 
 Notation "‘ tag '@[' e1 , .. , en ]" := (
-  Block ImmutableGenerativeStrong tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+  Block
+    ImmutableGenerativeStrong
+    tag
+    (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 2,
   tag custom zoo_tag,
   e1, en at level 200,
   format "'[hv' ‘ tag @[  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' ] ']'"
 ) : expr_scope.
 Notation "’ tag @ bid [ v1 , .. , vn ]" := (
-  Val (ValBlock (Generative (Some bid)) tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..))
+  Val (
+    ValBlock
+      (Generative (Some bid))
+      tag
+      (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+  )
 )(at level 2,
   tag custom zoo_tag,
   bid at level 1,
@@ -555,7 +599,10 @@ Notation "’ tag @ bid [ v1 , .. , vn ]" := (
   format "'[hv' ’ tag @ bid [  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ] ']'"
 ): expr_scope.
 Notation "‘ tag @ bid [ v1 , .. , vn ]" := (
-  ValBlock (Generative (Some bid)) tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+  ValBlock
+    (Generative (Some bid))
+    tag
+    (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 2,
   tag custom zoo_tag,
   bid at level 1,
@@ -564,16 +611,27 @@ Notation "‘ tag @ bid [ v1 , .. , vn ]" := (
 ): val_scope.
 
 Notation "( v1 , v2 , .. , vn )" := (
-  Val (ValBlock Nongenerative 0 (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..)))
+  Val (
+    ValBlock
+      Nongenerative
+      Tag0
+      (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
+  )
 )(at level 0,
   only printing
 ) : expr_scope.
 Notation "( e1 , e2 , .. , en )" := (
-  Block ImmutableNongenerative 0 (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
+  Block
+    ImmutableNongenerative
+    Tag0
+    (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
 )(at level 0
 ) : expr_scope.
 Notation "( v1 , v2 , .. , vn )" := (
-  ValBlock Nongenerative 0 (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
+  ValBlock
+    Nongenerative
+    Tag0
+    (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
 )(at level 0
 ) : val_scope.
 Notation "()" := (
@@ -586,7 +644,7 @@ Notation "()" :=
 Notation "[ ] -> e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "list" 0)
+        (in_type "list" Tag0)
         (@nil binder)
         BAnon
     )
@@ -598,7 +656,7 @@ Notation "[ ] -> e" := (
 Notation "[ ] '𝗮𝘀' x -> e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "list" 0)
+        (in_type "list" Tag0)
         (@nil binder)
         (BNamed x%string)
     )
@@ -611,7 +669,7 @@ Notation "[ ] '𝗮𝘀' x -> e" := (
 Notation "x1 :: x2 -> e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "list" 1)
+        (in_type "list" Tag1)
         (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
         BAnon
     )
@@ -625,7 +683,7 @@ Notation "x1 :: x2 -> e" := (
 Notation "x1 :: x2 '𝗮𝘀' y -> e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "list" 1)
+        (in_type "list" Tag1)
         (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
         (BNamed y%string)
     )
@@ -640,7 +698,7 @@ Notation "x1 :: x2 '𝗮𝘀' y -> e" := (
 Notation "tag -> e" := (
   @pair pattern expr
     ( Build_pattern
-        tag%core
+        tag
         (@nil binder)
         BAnon
     )
@@ -653,7 +711,7 @@ Notation "tag -> e" := (
 Notation "tag '𝗮𝘀' x -> e" := (
   @pair pattern expr
     ( Build_pattern
-        tag%core
+        tag
         (@nil binder)
         (BNamed x%string)
     )
@@ -667,7 +725,7 @@ Notation "tag '𝗮𝘀' x -> e" := (
 Notation "tag '𝗮𝘀:' x -> e" := (
   @pair pattern expr
     ( Build_pattern
-        tag%core
+        tag
         (@nil binder)
         x%binder
     )
@@ -681,7 +739,7 @@ Notation "tag '𝗮𝘀:' x -> e" := (
 Notation "tag x1 .. xn -> e" := (
   @pair pattern expr
     ( Build_pattern
-        tag%core
+        tag
         (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
         BAnon
     )
@@ -696,7 +754,7 @@ Notation "tag x1 .. xn -> e" := (
 Notation "tag x1 .. xn '𝗮𝘀' y -> e" := (
   @pair pattern expr
     ( Build_pattern
-        tag%core
+        tag
         (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
         (BNamed y%string)
     )
@@ -712,7 +770,7 @@ Notation "tag x1 .. xn '𝗮𝘀' y -> e" := (
 Notation "tag x1 .. xn '𝗮𝘀:' y -> e" := (
   @pair pattern expr
     ( Build_pattern
-        tag%core
+        tag
         (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
         y%binder
     )
@@ -827,7 +885,7 @@ Notation "'𝗹𝗲𝘁' ‘ tag x1 .. xn = e1 '𝗶𝗻' e2" := (
     ( @cons branch
         ( @pair pattern expr
             ( Build_pattern
-                tag%core
+                tag
                 (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
                 BAnon
             )
@@ -849,7 +907,7 @@ Notation "'𝗹𝗲𝘁' x0 , x1 , .. , xn = e1 '𝗶𝗻' e2" := (
     ( @cons branch
         ( @pair pattern expr
             ( Build_pattern
-                0
+                Tag0
                 (@cons binder x0%binder (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..))
                 BAnon
             )
@@ -894,7 +952,9 @@ Notation "l .[ fld ]" := (
 ) : stdpp_scope.
 Notation "v .[ fld ]" := (
   Val
-    ( ValBlock Nongenerative (in_type "atomic_loc" 0)
+    ( ValBlock
+        Nongenerative
+        (in_type "atomic_loc" Tag0)
         ( @cons val v%V
             ( @cons val (ValInt (Z.of_nat fld))
                 (@nil val)
@@ -910,7 +970,7 @@ Notation "v .[ fld ]" := (
 Notation "e .[ fld ]" := (
   Block
     ImmutableNongenerative
-    (in_type "atomic_loc" 0)
+    (in_type "atomic_loc" Tag0)
     ( @cons expr e%E
         ( @cons expr (Val (ValInt (Z.of_nat fld)))
             (@nil expr)
@@ -922,7 +982,9 @@ Notation "e .[ fld ]" := (
   format "e .[ fld ]"
 ) : expr_scope.
 Notation "v .[ fld ]" := (
-  ValBlock Nongenerative (in_type "atomic_loc" 0)
+  ValBlock
+    Nongenerative
+    (in_type "atomic_loc" Tag0)
     ( @cons val v%V
         ( @cons val (ValInt (Z.of_nat fld))
             (@nil val)
@@ -939,7 +1001,10 @@ Notation "'contents'" := (
 )(in custom zoo_field
 ).
 Notation "'𝗿𝗲𝗳' e" := (
-  Block Mutable (in_type "ref" 0) (@cons expr e%E (@nil expr))
+  Block
+    Mutable
+    (in_type "ref" Tag0)
+    (@cons expr e%E (@nil expr))
 )(at level 10
 ) : expr_scope.
 Notation "! e" := (
@@ -955,24 +1020,34 @@ Notation "e1 <- e2" := (
 ) : expr_scope.
 
 Notation "'None'" := (
-  in_type "option" 0
+  in_type "option" Tag0
 )(in custom zoo_tag
 ).
 Notation "'Some'" := (
-  in_type "option" 1
+  in_type "option" Tag1
 )(in custom zoo_tag
 ).
 
 Notation "[ ]" := (
-  Val (ValBlock Nongenerative (in_type "list" 0) (@nil val))
+  Val (
+    ValBlock
+      Nongenerative
+      (in_type "list" Tag0)
+      (@nil val)
+  )
 )(format "[ ]"
 ) : expr_scope.
 Notation "[ ]" := (
-  ValBlock Nongenerative (in_type "list" 0) (@nil val)
+  ValBlock
+    Nongenerative
+    (in_type "list" Tag0)
+    (@nil val)
 )(format "[ ]"
 ) : val_scope.
 Notation "e1 :: e2" := (
-  Block ImmutableNongenerative (in_type "list" 1)
+  Block
+    ImmutableNongenerative
+    (in_type "list" Tag1)
     ( @cons expr e1%E
         ( @cons expr e2%E
             (@nil expr)
@@ -983,7 +1058,9 @@ Notation "e1 :: e2" := (
   format "e1  ::  e2"
 ) : expr_scope.
 Notation "v1 :: v2" := (
-  ValBlock Nongenerative (in_type "list" 1)
+  ValBlock
+    Nongenerative
+    (in_type "list" Tag1)
     ( @cons val v1%V
         ( @cons val v2%V
             (@nil val)

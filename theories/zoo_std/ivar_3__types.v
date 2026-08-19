@@ -6,10 +6,10 @@ Require Import zoo.language.notations.
 Require Import zoo.options.
 
 Notation "'Unset'" := (
-  in_type "zoo_std.ivar_3.state" 0
+  in_type "zoo_std.ivar_3.state" Tag0
 )(in custom zoo_tag
 ).
 Notation "'Set'" := (
-  in_type "zoo_std.ivar_3.state" 1
+  in_type "zoo_std.ivar_3.state" Tag1
 )(in custom zoo_tag
 ).

@@ -187,7 +187,7 @@ Section zoo۰G.
     {{{
       chain۰model tag t vs dst
     }}}
-      Block Mutable (default 0%nat tag) [Val t; Val v]
+      Block Mutable (default Tag0 tag) [Val t; Val v]
     {{{
       t'
     , RET t';

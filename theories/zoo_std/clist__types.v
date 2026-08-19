@@ -6,14 +6,14 @@ Require Import zoo.language.notations.
 Require Import zoo.options.
 
 Notation "'Closed'" := (
-  in_type "zoo_std.clist.t" 0
+  in_type "zoo_std.clist.t" Tag0
 )(in custom zoo_tag
 ).
 Notation "'Open'" := (
-  in_type "zoo_std.clist.t" 1
+  in_type "zoo_std.clist.t" Tag1
 )(in custom zoo_tag
 ).
 Notation "'Cons'" := (
-  in_type "zoo_std.clist.t" 2
+  in_type "zoo_std.clist.t" Tag2
 )(in custom zoo_tag
 ).

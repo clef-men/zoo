@@ -8,11 +8,11 @@ Require Import zoo_saturn.queue_spmc.
 Require Import zoo.options.
 
 Notation "'bag_2٠Null'" := (
-  in_type "zoo_saturn.bag_2.producers_" 0
+  in_type "zoo_saturn.bag_2.producers_" Tag0
 )(in custom zoo_tag
 ).
 Notation "'bag_2٠Node'" := (
-  in_type "zoo_saturn.bag_2.producers_" 1
+  in_type "zoo_saturn.bag_2.producers_" Tag1
 )(in custom zoo_tag
 ).
 

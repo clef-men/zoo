@@ -7,11 +7,11 @@ Require Import zoo_std.array.
 Require Import zoo.options.
 
 Notation "'sarray٠Root'" := (
-  in_type "zoo_persistent.sarray.descr" 0
+  in_type "zoo_persistent.sarray.descr" Tag0
 )(in custom zoo_tag
 ).
 Notation "'sarray٠Diff'" := (
-  in_type "zoo_persistent.sarray.descr" 1
+  in_type "zoo_persistent.sarray.descr" Tag1
 )(in custom zoo_tag
 ).
 

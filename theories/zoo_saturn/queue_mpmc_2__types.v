@@ -7,24 +7,24 @@ Require Export backoff.backoff.
 Require Import zoo.options.
 
 Notation "'Front'" := (
-  in_type "zoo_saturn.queue_mpmc_2.suffix" 0
+  in_type "zoo_saturn.queue_mpmc_2.suffix" Tag0
 )(in custom zoo_tag
 ).
 Notation "'Cons'" := (
-  in_type "zoo_saturn.queue_mpmc_2.suffix" 1
+  in_type "zoo_saturn.queue_mpmc_2.suffix" Tag1
 )(in custom zoo_tag
 ).
 
 Notation "'Back'" := (
-  in_type "zoo_saturn.queue_mpmc_2.prefix" 0
+  in_type "zoo_saturn.queue_mpmc_2.prefix" Tag0
 )(in custom zoo_tag
 ).
 Notation "'Snoc'" := (
-  in_type "zoo_saturn.queue_mpmc_2.prefix" 1
+  in_type "zoo_saturn.queue_mpmc_2.prefix" Tag1
 )(in custom zoo_tag
 ).
 Notation "'Used'" := (
-  in_type "zoo_saturn.queue_mpmc_2.prefix" 2
+  in_type "zoo_saturn.queue_mpmc_2.prefix" Tag2
 )(in custom zoo_tag
 ).
 

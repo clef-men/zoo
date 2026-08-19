@@ -263,21 +263,21 @@ Section zoo۰G.
     all: naive_solver.
   Qed.
 
-  Lemma tacｰwpｰalloc Δ1 Δ2 id1 id2 id3 K tag n tid E Φ :
-    (0 ≤ tag)%Z →
+  Lemma tacｰwpｰalloc Δ1 Δ2 id1 id2 id3 K 𝑡𝑎𝑔 tag n tid E Φ :
+    tag۰of_Z 𝑡𝑎𝑔 = Some tag →
     (0 ≤ n)%Z →
     MaybeIntoLaterNEnvs 1 Δ1 Δ2 →
     ( ∀ l,
       let* Δ3 :=
         envs_app false (Esnoc (Esnoc (Esnoc Enil
-          id1 (l ↦ₕ Header ₊tag ₊n))
+          id1 (l ↦ₕ Header tag ₊n))
           id2 (meta_token l ⊤))
           id3 (l ↦∗ replicate ₊n ()%V))
           Δ2
       in
       envs_entails Δ3 (WP fill K #l ∷ tid @ E {{ Φ }})
     ) →
-    envs_entails Δ1 (WP fill K (Alloc #tag #n) ∷ tid @ E {{ Φ }}).
+    envs_entails Δ1 (WP fill K (Alloc #𝑡𝑎𝑔 #n) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => Htag Hn HΔ1 HΔ3.
     rewrite into_laterN_env_sound -wpｰbind'.
@@ -318,7 +318,7 @@ Section zoo۰G.
     ( ∀ l,
       let* Δ3 :=
         envs_app false (Esnoc (Esnoc (Esnoc Enil
-          id1 (l ↦ₕ Header 0 1))
+          id1 (l ↦ₕ Header Tag0 1))
           id2 (meta_token l ⊤))
           id3 (l ↦ᵣ v))
           Δ2
@@ -372,7 +372,7 @@ Section zoo۰G.
   Lemma tacｰwpｰtag Δ1 Δ2 id p K l hdr tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ1 Δ2 →
     envs_lookup id Δ2 = Some (p, l ↦ₕ hdr)%I →
-    envs_entails Δ2 (WP fill K #(encode_tag hdr.(header۰tag)) ∷ tid @ E {{ Φ }}) →
+    envs_entails Δ2 (WP fill K #hdr.(header۰tag) ∷ tid @ E {{ Φ }}) →
     envs_entails Δ1 (WP fill K (GetTag #l) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ1 Hlookup HΔ2.
@@ -823,8 +823,8 @@ Tactic Notation "wp۰alloc" ident(l) "as" constr(Hheader) constr(Hmeta) constr(H
       )
     | fail 1 "wp۰alloc: cannot find 'Alloc' in" e
     ];
-    [ idtac
-    | idtac
+    [ try fast_done
+    | try fast_done
     | tc_solve
     | first
       [ intros l

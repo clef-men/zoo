@@ -11,37 +11,37 @@ Require Export zoo_std.random.
 Require Import zoo.options.
 
 Notation "'Blocked'" := (
-  in_type "zoo_parabs.ws_deques_private.status" 0
+  in_type "zoo_parabs.ws_deques_private.status" Tag0
 )(in custom zoo_tag
 ).
 Notation "'Nonblocked'" := (
-  in_type "zoo_parabs.ws_deques_private.status" 1
+  in_type "zoo_parabs.ws_deques_private.status" Tag1
 )(in custom zoo_tag
 ).
 
 Notation "'RequestBlocked'" := (
-  in_type "zoo_parabs.ws_deques_private.request" 0
+  in_type "zoo_parabs.ws_deques_private.request" Tag0
 )(in custom zoo_tag
 ).
 Notation "'RequestNone'" := (
-  in_type "zoo_parabs.ws_deques_private.request" 1
+  in_type "zoo_parabs.ws_deques_private.request" Tag1
 )(in custom zoo_tag
 ).
 Notation "'RequestSome'" := (
-  in_type "zoo_parabs.ws_deques_private.request" 2
+  in_type "zoo_parabs.ws_deques_private.request" Tag2
 )(in custom zoo_tag
 ).
 
 Notation "'ResponseWaiting'" := (
-  in_type "zoo_parabs.ws_deques_private.response" 0
+  in_type "zoo_parabs.ws_deques_private.response" Tag0
 )(in custom zoo_tag
 ).
 Notation "'ResponseNone'" := (
-  in_type "zoo_parabs.ws_deques_private.response" 1
+  in_type "zoo_parabs.ws_deques_private.response" Tag1
 )(in custom zoo_tag
 ).
 Notation "'ResponseSome'" := (
-  in_type "zoo_parabs.ws_deques_private.response" 2
+  in_type "zoo_parabs.ws_deques_private.response" Tag2
 )(in custom zoo_tag
 ).
 

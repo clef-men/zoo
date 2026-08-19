@@ -7,11 +7,11 @@ Require Import zoo.program_logic.assert.
 Require Import zoo.options.
 
 Notation "'sstore_1٠Root'" := (
-  in_type "zoo_persistent.sstore_1.descr" 0
+  in_type "zoo_persistent.sstore_1.descr" Tag0
 )(in custom zoo_tag
 ).
 Notation "'sstore_1٠Diff'" := (
-  in_type "zoo_persistent.sstore_1.descr" 1
+  in_type "zoo_persistent.sstore_1.descr" Tag1
 )(in custom zoo_tag
 ).
 

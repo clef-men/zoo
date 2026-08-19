@@ -7,8 +7,9 @@ Require Export zoo.language.state.
 Require Import zoo.options.
 
 Implicit Type b : bool.
-Implicit Type tag sz : nat.
+Implicit Type sz : nat.
 Implicit Type n m : Z.
+Implicit Type tag : tag.
 Implicit Type l : location.
 Implicit Type gen : generativity.
 Implicit Type mut : mutability.
@@ -26,12 +27,6 @@ Implicit Type recs : list recursive.
 Definition thread_id :=
   nat.
 Implicit Type tid : thread_id.
-
-Parameter encode_tag : nat → nat.
-
-Axiom encode_tagｰinj :
-  Inj (=) (=) encode_tag.
-#[global] Existing Instance encode_tagｰinj.
 
 Definition val۰immediate v :=
   match v with
@@ -236,12 +231,13 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (n1 + 1)) (Val $ ValInt n2) e))
         σ
         []
-  | base_stepｰalloc tag n σ l :
+  | base_stepｰalloc 𝑡𝑎𝑔 tag n σ l :
+      tag۰of_Z 𝑡𝑎𝑔 = Some tag →
       (0 ≤ n)%Z →
       state۰alloc_condition l ₊n σ →
       base_step
         tid
-        (Alloc (Val $ ValNat tag) (Val $ ValInt n))
+        (Alloc (Val $ ValInt 𝑡𝑎𝑔) (Val $ ValInt n))
         σ
         []
         (Val $ ValLoc l)
@@ -317,7 +313,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (GetTag $ Val $ ValLoc l)
         σ
         []
-        (Val $ ValNat (encode_tag hdr.(header۰tag)))
+        (Val $ ValNat hdr.(header۰tag))
         σ
         []
   | base_stepｰget_tagｰimmutable gen tag vs σ :
@@ -327,7 +323,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (GetTag $ Val $ ValBlock gen tag vs)
         σ
         []
-        (Val $ ValNat (encode_tag tag))
+        (Val $ ValNat tag)
         σ
         []
   | base_stepｰget_sizeｰmutable l hdr σ :
@@ -473,20 +469,21 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ'
         es.
 
-Lemma base_stepｰalloc' tid tag n σ :
+Lemma base_stepｰalloc' tid 𝑡𝑎𝑔 tag n σ :
   let l := state۰fresh σ in
+  tag۰of_Z 𝑡𝑎𝑔 = Some tag →
   (0 ≤ n)%Z →
   base_step
     tid
-    (Alloc (Val $ ValNat tag) (Val $ ValInt n))
+    (Alloc (Val $ ValInt 𝑡𝑎𝑔) (Val $ ValInt n))
     σ
     []
     (Val $ ValLoc l)
     (state۰alloc l (Header tag ₊n) (replicate ₊n ValUnit) σ)
     [].
 Proof.
-  intros l Hn.
-  apply base_stepｰalloc. 1: done.
+  intros l Htag Hn.
+  apply base_stepｰalloc. 1,2: done.
   apply state۰alloc_conditionｰfresh.
 Qed.
 Lemma base_stepｰblockｰmutable' tid tag es vs σ :
@@ -586,7 +583,7 @@ Notation CtxSeq := (
 )(only parsing
 ).
 Notation CtxTuple := (
-  CtxBlock ImmutableNongenerative 0
+  CtxBlock ImmutableNongenerative Tag0
 )(only parsing
 ).
 

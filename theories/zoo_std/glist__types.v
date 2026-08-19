@@ -6,10 +6,10 @@ Require Import zoo.language.notations.
 Require Import zoo.options.
 
 Notation "'Nil'" := (
-  in_type "zoo_std.glist.t" 0
+  in_type "zoo_std.glist.t" Tag0
 )(in custom zoo_tag
 ).
 Notation "'Cons'" := (
-  in_type "zoo_std.glist.t" 1
+  in_type "zoo_std.glist.t" Tag1
 )(in custom zoo_tag
 ).

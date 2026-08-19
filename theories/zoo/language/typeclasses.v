@@ -403,7 +403,7 @@ Section pure_exec.
       (0 < length vs)
       1
       (GetTag $ Val $ ValBlock gen tag vs)
-      (Val $ ValNat (encode_tag tag)).
+      (Val $ ValNat tag).
   Proof.
     solve_pure_exec.
   Qed.

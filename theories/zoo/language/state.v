@@ -12,7 +12,7 @@ Implicit Type vs : list val.
 Implicit Type h : gmap location val.
 
 Record header := Header
-  { header۰tag : nat
+  { header۰tag : tag
   ; header۰size : nat
   }.
 Add Printing Constructor header.
