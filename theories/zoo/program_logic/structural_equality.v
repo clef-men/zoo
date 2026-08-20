@@ -4,6 +4,7 @@ Require Import zoo.base.
 Require Import zoo.options.
 
 Implicit Type b : bool.
+Implicit Type chr : ascii.
 Implicit Type n : Z.
 Implicit Type tag : tag.
 Implicit Type l : location.
@@ -373,8 +374,8 @@ Lemma valｰimmediateｰstructeq footprint v1 v2 :
 Proof.
   intros Himmediate1 Himmediate2 Hsimilar.
   intros path v1_ v2_ Hreachable1 Hreachable2.
-  destruct v1 as [[b1 | n1 | l1 | |] | | gen1 tag1 []] => //.
-  all: destruct v2 as [[b2 | n2 | l2 | |] | | gen2 tag2 []] => //.
+  destruct v1 as [[b1 | chr1 | n1 | l1 | |] | | gen1 tag1 []] => //.
+  all: destruct v2 as [[b2 | chr2 | n2 | l2 | |] | | gen2 tag2 []] => //.
   all: destruct path; last done.
   all: simp.
   all: cbn.
@@ -388,8 +389,8 @@ Lemma valｰimmediateｰstructneq footprint v1 v2 :
 Proof.
   intros Himmediate1 Himmediate2 Hnonsimilar.
   eexists [], v1, v2. split_and! => //.
-  destruct v1 as [[b1 | n1 | l1 | |] | | gen1 tag1 []] => //.
-  all: destruct v2 as [[b2 | n2 | l2 | |] | | gen2 tag2 []] => //.
+  destruct v1 as [[b1 | chr1 | n1 | l1 | |] | | gen1 tag1 []] => //.
+  all: destruct v2 as [[b2 | chr2 | n2 | l2 | |] | | gen2 tag2 []] => //.
   all: cbn in Hnonsimilar |- *.
   all: rewrite bool_decide_eq_false_2 //.
   all: congruence.
@@ -539,11 +540,11 @@ Section zoo۰G.
 
       wp۰rec. wp۰pures.
 
-      all: destruct v1 as [[b1 | n1 | l1 | |] | | gen1 tag1 [| v1 vs1]].
+      all: destruct v1 as [[b1 | chr1 | n1 | l1 | |] | | gen1 tag1 [| v1 vs1]].
       all: try done.
       all: wp۰pures.
 
-      all: destruct v2 as [[b2 | n2 | l2 | |] | | gen2 tag2 [| v2 vs2]].
+      all: destruct v2 as [[b2 | chr2 | n2 | l2 | |] | | gen2 tag2 [| v2 vs2]].
       all: try done.
       all: wp۰pures.
 

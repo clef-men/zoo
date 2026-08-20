@@ -139,6 +139,8 @@ Tactic Notation "zoo۰simp" "in" hyp(H) :=
 
   | @nonsimilar val _ (ValLit (LitBool _)) (ValLit (LitBool _)) =>
       apply valｰnonsimilarｰbool in H
+  | @nonsimilar val _ (ValLit (LitChar _)) (ValLit (LitChar _)) =>
+      apply valｰnonsimilarｰchar in H
   | @nonsimilar val _ (ValLit (LitInt (Z.of_nat _))) (ValLit (LitInt (Z.of_nat _))) =>
       apply valｰnonsimilarｰnat in H
   | @nonsimilar val _ (ValLit (LitInt _)) (ValLit (LitInt _)) =>
@@ -152,6 +154,8 @@ Tactic Notation "zoo۰simp" "in" hyp(H) :=
 
   | @similar val _ (ValLit (LitBool _)) (ValLit (LitBool _)) =>
       apply valｰsimilarｰbool in H
+  | @similar val _ (ValLit (LitChar _)) (ValLit (LitChar _)) =>
+      apply valｰsimilarｰchar in H
   | @similar val _ (ValLit (LitInt (Z.of_nat _))) (ValLit (LitInt (Z.of_nat _))) =>
       apply valｰsimilarｰnat in H
   | @similar val _ (ValLit (LitInt _)) (ValLit (LitInt _)) =>

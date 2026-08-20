@@ -1,6 +1,5 @@
-Require Export Stdlib.Strings.Ascii.
-
 Require Import zoo.prelude.
+Require Export zoo.common.ascii.
 Require Import zoo.base.
 Require Import zoo.options.
 

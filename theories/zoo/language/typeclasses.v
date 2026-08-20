@@ -245,6 +245,15 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
+  #[global] Instance pureｰequalｰchar chr1 chr2 :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValChar chr1) (Val $ ValChar chr2))
+      (Val $ ValBool (bool_decide (chr1 = chr2))).
+  Proof.
+    solve_pure_exec.
+  Qed.
   #[global] Instance pureｰequalｰint i1 i2 :
     PureExec
       True

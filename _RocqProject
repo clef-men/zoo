@@ -42,6 +42,7 @@ theories/zoo/common/fin_maps.v
 theories/zoo/common/gset.v
 theories/zoo/common/gmultiset.v
 theories/zoo/common/treemap.v
+theories/zoo/common/ascii.v
 theories/zoo/common/string.v
 theories/zoo/common/format.v
 theories/zoo/common/typeclasses.v

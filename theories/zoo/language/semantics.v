@@ -28,16 +28,22 @@ Definition thread_id :=
   nat.
 Implicit Type tid : thread_id.
 
+Definition literal۰immediate lit :=
+  match lit with
+  | LitBool _
+  | LitChar _
+  | LitInt _ =>
+      true
+  | LitLoc _
+  | LitProph _
+  | LitPoison =>
+      false
+  end.
+#[global] Arguments literal۰immediate !_ / : assert.
 Definition val۰immediate v :=
   match v with
   | ValLit lit =>
-      match lit with
-      | LitBool _
-      | LitInt _ =>
-          true
-      | _ =>
-          false
-      end
+      literal۰immediate lit
   | ValRecs _ _ =>
       false
   | ValBlock _ _ [] =>

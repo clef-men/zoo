@@ -7,6 +7,7 @@ Definition in_type {X} (_ : string) (x : X) :=
 #[global] Arguments in_type : simpl never.
 
 Coercion LitBool : bool >-> literal.
+Coercion LitChar : ascii >-> literal.
 Coercion LitInt : Z >-> literal.
 Coercion LitLoc : location >-> literal.
 Coercion LitProph : prophet_id >-> literal.

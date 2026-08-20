@@ -3,14 +3,16 @@ Require Import stdpp.countable.
 Require Import iris.algebra.ofe.
 
 Require Import zoo.prelude.
+Require Export zoo.common.ascii.
+Require Export zoo.common.binder.
 Require Import zoo.common.countable.
 Require Import zoo.common.list.
-Require Export zoo.common.binder.
 Require Export zoo.language.location.
 Require Export zoo.language.tag.
 Require Import zoo.options.
 
 Implicit Type b : bool.
+Implicit Type chr : ascii.
 Implicit Type i : nat.
 Implicit Type n : Z.
 Implicit Type tag : tag.
@@ -55,6 +57,7 @@ Qed.
 
 Variant literal :=
   | LitBool b
+  | LitChar chr
   | LitInt n
   | LitLoc l
   | LitProph pid
@@ -676,6 +679,10 @@ Notation Seq e1 e2 := (
 
 Notation ValBool b := (
   ValLit (LitBool b)
+)(only parsing
+).
+Notation ValChar chr := (
+  ValLit (LitChar chr)
 )(only parsing
 ).
 Notation ValInt n := (

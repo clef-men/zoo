@@ -206,13 +206,18 @@ Section pointsto.
 End pointsto.
 
 Section side_condition_lemmas.
-  Lemma valｰnonsimilarｰlitｰneq lit1 lit2 :
-    lit1 ≠ lit2 →
-    ValLit lit1 ≠ ValLit lit2.
+  Lemma litｰneqｰboolｰneq b1 b2 :
+    b1 ≠ b2 →
+    LitBool b1 ≠ LitBool b2.
   Proof.
     congruence.
   Qed.
-
+  Lemma litｰneqｰcharｰneq chr1 chr2 :
+    chr1 ≠ chr2 →
+    LitChar chr1 ≠ LitChar chr2.
+  Proof.
+    congruence.
+  Qed.
   Lemma litｰneqｰZｰneq n1 n2 :
     n1 ≠ n2 →
     LitInt n1 ≠ LitInt n2.
@@ -220,9 +225,9 @@ Section side_condition_lemmas.
     congruence.
   Qed.
 
-  Lemma litｰneqｰboolｰneq b1 b2 :
-    b1 ≠ b2 →
-    LitBool b1 ≠ LitBool b2.
+  Lemma valｰnonsimilarｰlitｰneq lit1 lit2 :
+    lit1 ≠ lit2 →
+    ValLit lit1 ≠ ValLit lit2.
   Proof.
     congruence.
   Qed.
@@ -243,19 +248,24 @@ Section side_condition_lemmas.
   Proof.
     split; congruence.
   Qed.
-
-  #[global] Instance simplifyｰlitｰintｰneq n1 n2 :
-    SimplifyPureHypSafe
-      (LitInt n1 ≠ LitInt n2)
-      (n1 ≠ n2).
-  Proof.
-    split; congruence.
-  Qed.
-
   #[global] Instance simplifyｰlitｰboolｰneq b1 b2 :
     SimplifyPureHypSafe
       (LitBool b1 ≠ LitBool b2)
       (b1 ≠ b2).
+  Proof.
+    split; congruence.
+  Qed.
+  #[global] Instance simplifyｰlitｰchar chr1 chr2 :
+    SimplifyPureHypSafe
+      (LitChar chr1 ≠ LitChar chr2)
+      (chr1 ≠ chr2).
+  Proof.
+    split; congruence.
+  Qed.
+  #[global] Instance simplifyｰlitｰintｰneq n1 n2 :
+    SimplifyPureHypSafe
+      (LitInt n1 ≠ LitInt n2)
+      (n1 ≠ n2).
   Proof.
     split; congruence.
   Qed.
@@ -294,20 +304,25 @@ Ltac trySolvePureEqAdd1 :=
 
 Ltac trySolvePureAdd1 :=
   match goal with
-  | |- ValLit ?lit1 ≠ ValLit ?lit2 =>
-      assert_fails (has_evar lit1);
-      assert_fails (has_evar lit2);
-      eapply valｰnonsimilarｰlitｰneq;
+  | |- LitBool ?b1 ≠ LitBool ?b2 =>
+      assert_fails (has_evar b1);
+      assert_fails (has_evar b2);
+      eapply litｰneqｰboolｰneq;
+      solve [pure_solver.trySolvePure]
+  | |- LitChar ?chr1 ≠ LitChar ?chr2 =>
+      assert_fails (has_evar chr1);
+      assert_fails (has_evar chr2);
+      eapply litｰneqｰcharｰneq;
       solve [pure_solver.trySolvePure]
   | |- LitInt ?n1 ≠ LitInt ?n2 =>
       assert_fails (has_evar n1);
       assert_fails (has_evar n2);
       eapply litｰneqｰZｰneq;
       solve [pure_solver.trySolvePure]
-  | |- LitBool ?b1 ≠ LitBool ?b2 =>
-      assert_fails (has_evar b1);
-      assert_fails (has_evar b2);
-      eapply litｰneqｰboolｰneq;
+  | |- ValLit ?lit1 ≠ ValLit ?lit2 =>
+      assert_fails (has_evar lit1);
+      assert_fails (has_evar lit2);
+      eapply valｰnonsimilarｰlitｰneq;
       solve [pure_solver.trySolvePure]
   | |- ValBlock ?bid1 ?tag1 ?vs1 ≠ ValBlock ?bid2 ?tag2 ?vs2 =>
       assert_fails (has_evar bid1);

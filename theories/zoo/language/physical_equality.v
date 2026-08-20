@@ -6,6 +6,7 @@ Require Export zoo.language.syntax.
 Require Import zoo.options.
 
 Implicit Type i : nat.
+Implicit Type chr : ascii.
 Implicit Type n : Z.
 Implicit Type tag : tag.
 Implicit Type l : location.
@@ -27,7 +28,9 @@ Implicit Type llit : lowliteral.
 Definition literal۰to_low lit :=
   match lit with
   | LitBool b =>
-      LowlitInt (Nat.b2n b)
+      LowlitInt $ Nat.b2n b
+  | LitChar chr =>
+      LowlitInt $ nat_of_ascii chr
   | LitInt n =>
       LowlitInt n
   | LitLoc l =>
@@ -376,6 +379,12 @@ Lemma valｰnonsimilarｰbool b1 b2 :
 Proof.
   naive_solver.
 Qed.
+Lemma valｰnonsimilarｰchar chr1 chr2 :
+  ValChar chr1 ≉ ValChar chr2 →
+  chr1 ≠ chr2.
+Proof.
+  naive_solver.
+Qed.
 Lemma valｰnonsimilarｰint n1 n2 :
   ValInt n1 ≉ ValInt n2 →
   n1 ≠ n2.
@@ -436,6 +445,12 @@ Qed.
 Lemma valｰsimilarｰbool b1 b2 :
   ValLit (LitBool b1) ≈ ValLit (LitBool b2) →
   b1 = b2.
+Proof.
+  intros [= ->%(inj _)%(inj _)]. done.
+Qed.
+Lemma valｰsimilarｰchar chr1 chr2 :
+  ValLit (LitChar chr1) ≈ ValLit (LitChar chr2) →
+  chr1 = chr2.
 Proof.
   intros [= ->%(inj _)%(inj _)]. done.
 Qed.
