@@ -320,6 +320,10 @@ theories/zoo_std/random__types.v
 theories/zoo_std/random__code.v
 theories/zoo_std/random__opaque.v
 theories/zoo_std/random.v
+theories/zoo_std/string__types.v
+theories/zoo_std/string__code.v
+theories/zoo_std/string__opaque.v
+theories/zoo_std/string.v
 
 #END zoo-std
 

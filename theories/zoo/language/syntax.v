@@ -15,6 +15,7 @@ Implicit Type b : bool.
 Implicit Type chr : ascii.
 Implicit Type i : nat.
 Implicit Type n : Z.
+Implicit Type str : string.
 Implicit Type tag : tag.
 Implicit Type l : location.
 Implicit Type f x : binder.
@@ -59,6 +60,7 @@ Variant literal :=
   | LitBool b
   | LitChar chr
   | LitInt n
+  | LitString str
   | LitLoc l
   | LitProph pid
   | LitPoison.
@@ -88,7 +90,8 @@ Qed.
 Variant binop :=
   | BinopPlus | BinopMinus | BinopMult | BinopQuot | BinopRem
   | BinopLand | BinopLor | BinopLsl | BinopLsr
-  | BinopLe | BinopLt | BinopGe | BinopGt.
+  | BinopLe | BinopLt | BinopGe | BinopGt
+  | BinopStringGet | BinopStringEqual.
 
 #[global] Instance binopｰeq_dec : EqDecision binop :=
   ltac:(solve_decision).
@@ -691,6 +694,10 @@ Notation ValInt n := (
 ).
 Notation ValNat i := (
   ValLit (LitInt (Z.of_nat i))
+)(only parsing
+).
+Notation ValString str := (
+  ValLit (LitString str)
 )(only parsing
 ).
 Notation ValLoc l := (

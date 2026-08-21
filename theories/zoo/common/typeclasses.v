@@ -143,6 +143,14 @@ Section beq.
   Proof.
     apply beqｰspec'.
   Qed.
+
+  Lemma beqｰsym x1 x2 :
+    x1 ≟ x2 = x2 ≟ x1.
+  Proof.
+    destruct (x2 ≟ x1) eqn:Heq.
+    - rewrite !beqｰspec // in Heq |- *.
+    - rewrite !beqｰspec' // in Heq |- *.
+  Qed.
 End beq.
 
 #[global] Program Instance boolｰbeq : Beq bool :=

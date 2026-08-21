@@ -224,6 +224,12 @@ Section side_condition_lemmas.
   Proof.
     congruence.
   Qed.
+  Lemma litｰneqｰstringｰneq str1 str2 :
+    str1 ≠ str2 →
+    LitString str1 ≠ LitString str2.
+  Proof.
+    congruence.
+  Qed.
 
   Lemma valｰnonsimilarｰlitｰneq lit1 lit2 :
     lit1 ≠ lit2 →
@@ -266,6 +272,13 @@ Section side_condition_lemmas.
     SimplifyPureHypSafe
       (LitInt n1 ≠ LitInt n2)
       (n1 ≠ n2).
+  Proof.
+    split; congruence.
+  Qed.
+  #[global] Instance simplifyｰlitｰstring str1 str2 :
+    SimplifyPureHypSafe
+      (LitString str1 ≠ LitString str2)
+      (str1 ≠ str2).
   Proof.
     split; congruence.
   Qed.
@@ -318,6 +331,11 @@ Ltac trySolvePureAdd1 :=
       assert_fails (has_evar n1);
       assert_fails (has_evar n2);
       eapply litｰneqｰZｰneq;
+      solve [pure_solver.trySolvePure]
+  | |- LitString ?str1 ≠ LitString ?str2 =>
+      assert_fails (has_evar str1);
+      assert_fails (has_evar str2);
+      eapply litｰneqｰstringｰneq;
       solve [pure_solver.trySolvePure]
   | |- ValLit ?lit1 ≠ ValLit ?lit2 =>
       assert_fails (has_evar lit1);

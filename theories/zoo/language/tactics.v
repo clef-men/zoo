@@ -160,6 +160,8 @@ Tactic Notation "zoo۰simp" "in" hyp(H) :=
       apply valｰsimilarｰnat in H
   | @similar val _ (ValLit (LitInt _)) (ValLit (LitInt _)) =>
       apply valｰsimilarｰint in H
+  | @similar val _ (ValLit (LitString _)) (ValLit (LitString _)) =>
+      apply valｰsimilarｰstring in H
   | @similar val _ (ValLit (LitLoc _)) (ValLit (LitLoc _)) =>
       apply valｰsimilarｰlocation in H
   | @similar val _ (ValBlock _ _ nil) (ValBlock _ _ nil) =>

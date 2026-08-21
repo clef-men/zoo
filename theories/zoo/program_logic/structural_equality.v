@@ -6,6 +6,7 @@ Require Import zoo.options.
 Implicit Type b : bool.
 Implicit Type chr : ascii.
 Implicit Type n : Z.
+Implicit Type str : string.
 Implicit Type tag : tag.
 Implicit Type l : location.
 Implicit Type gen : generativity.
@@ -23,10 +24,16 @@ Implicit Type lv : lowval.
     𝗲𝗹𝘀𝗲 𝗶𝗳 𝗶𝗺𝗺𝗲𝗱𝗶𝗮𝘁𝗲 "v2" 𝘁𝗵𝗲𝗻
       false
     𝗲𝗹𝘀𝗲 (
-      𝘁𝗮𝗴 "v1" == 𝘁𝗮𝗴 "v2" 𝗮𝗻𝗱
-      𝗹𝗲𝘁 "sz" = 𝘀𝗶𝘇𝗲 "v1" 𝗶𝗻
-      "sz" == 𝘀𝗶𝘇𝗲 "v2" 𝗮𝗻𝗱
-      "structeq_aux" "v1" "v2" "sz"
+      𝗹𝗲𝘁 "tag" = 𝘁𝗮𝗴 "v1" 𝗶𝗻
+      𝗶𝗳 "tag" == 𝘁𝗮𝗴 "v2" 𝘁𝗵𝗲𝗻
+        𝗶𝗳 "tag" == #tag۰string 𝘁𝗵𝗲𝗻
+          "v1" =ₛ "v2"
+        𝗲𝗹𝘀𝗲
+          𝗹𝗲𝘁 "sz" = 𝘀𝗶𝘇𝗲 "v1" 𝗶𝗻
+          "sz" == 𝘀𝗶𝘇𝗲 "v2" 𝗮𝗻𝗱
+          "structeq_aux" "v1" "v2" "sz"
+      𝗲𝗹𝘀𝗲
+        false
     )
   𝘄𝗶𝘁𝗵 "structeq_aux" "v1" "v2" "i" ->
     𝗶𝗳 "i" == 0 𝘁𝗵𝗲𝗻
@@ -95,16 +102,28 @@ Implicit Type footprint : gmap location structeq۰block.
     ; structeq۰block۰fields := inhabitant
     |}.
 
+Definition literal۰traversable footprint lit :=
+  match lit with
+  | LitBool _
+  | LitChar _
+  | LitInt _
+  | LitString _ =>
+      True
+  | LitLoc l =>
+      l ∈ dom footprint
+  | LitProph _
+  | LitPoison =>
+      False
+  end.
+#[global] Arguments literal۰traversable _ !_ / : assert.
+
 Fixpoint val۰traversable footprint v :=
   match v with
-  | ValBool _
-  | ValInt _ =>
-      True
-  | ValLoc l =>
-      l ∈ dom footprint
+  | ValLit lit =>
+      literal۰traversable footprint lit
   | ValBlock _ _ vs =>
       Forall' (val۰traversable footprint) vs
-  | _ =>
+  | ValRecs _ _ =>
       False
   end.
 #[global] Arguments val۰traversable _ !_ / : assert.
@@ -354,6 +373,24 @@ Definition lowval۰compatible footprint lv1 lv2 :=
 Definition val۰compatible footprint v1 v2 :=
   lowval۰compatible footprint (val۰to_low v1) (val۰to_low v2).
 
+Lemma lowval۰compatibleｰsym footprint lv1 lv2 :
+  lowval۰compatible footprint lv1 lv2 =
+  lowval۰compatible footprint lv2 lv1.
+Proof.
+  all: destruct lv1 as [[] | |].
+  all: destruct lv2 as [[] | |].
+  all: simpl.
+  all: try done.
+  1,2: apply bool_decide_ext => //.
+  all: setoid_rewrite beqｰsym at 1 2 => //.
+Qed.
+Lemma val۰compatibleｰsym footprint v1 v2 :
+  val۰compatible footprint v1 v2 =
+  val۰compatible footprint v2 v1.
+Proof.
+  rewrite /val۰compatible lowval۰compatibleｰsym //.
+Qed.
+
 Definition val۰structeq footprint v1 v2 :=
   ∀ path v1' v2',
   val۰reachable footprint v1 path v1' →
@@ -366,6 +403,23 @@ Definition val۰structneq footprint v1 v2 :=
   val۰reachable footprint v2 path v2' ∧
   val۰compatible footprint v1' v2' = false.
 
+Lemma val۰structeqｰsym footprint v1 v2 :
+  val۰structeq footprint v1 v2 →
+  val۰structeq footprint v2 v1.
+Proof.
+  intros Hstructeq path v1' v2' Hreachable1 Hreachable2.
+  rewrite val۰compatibleｰsym. eauto.
+Qed.
+
+Lemma val۰structneqｰsym footprint v1 v2 :
+  val۰structneq footprint v1 v2 →
+  val۰structneq footprint v2 v1.
+Proof.
+  intros (path & v1' & v2' & Hreachable1 & Hreachable2 & Hcompatible).
+  rewrite val۰compatibleｰsym in Hcompatible.
+  rewrite /val۰structneq. naive_solver.
+Qed.
+
 Lemma valｰimmediateｰstructeq footprint v1 v2 :
   val۰immediate v1 →
   val۰immediate v2 →
@@ -374,8 +428,8 @@ Lemma valｰimmediateｰstructeq footprint v1 v2 :
 Proof.
   intros Himmediate1 Himmediate2 Hsimilar.
   intros path v1_ v2_ Hreachable1 Hreachable2.
-  destruct v1 as [[b1 | chr1 | n1 | l1 | |] | | gen1 tag1 []] => //.
-  all: destruct v2 as [[b2 | chr2 | n2 | l2 | |] | | gen2 tag2 []] => //.
+  destruct v1 as [[b1 | chr1 | n1 | str1 | l1 | |] | | gen1 tag1 []] => //.
+  all: destruct v2 as [[b2 | chr2 | str2 | n2 | l2 | |] | | gen2 tag2 []] => //.
   all: destruct path; last done.
   all: simp.
   all: cbn.
@@ -389,27 +443,66 @@ Lemma valｰimmediateｰstructneq footprint v1 v2 :
 Proof.
   intros Himmediate1 Himmediate2 Hnonsimilar.
   eexists [], v1, v2. split_and! => //.
-  destruct v1 as [[b1 | chr1 | n1 | l1 | |] | | gen1 tag1 []] => //.
-  all: destruct v2 as [[b2 | chr2 | n2 | l2 | |] | | gen2 tag2 []] => //.
+  destruct v1 as [[b1 | chr1 | n1 | str1 | l1 | |] | | gen1 tag1 []] => //.
+  all: destruct v2 as [[b2 | chr2 | str2 | n2 | l2 | |] | | gen2 tag2 []] => //.
   all: cbn in Hnonsimilar |- *.
   all: rewrite bool_decide_eq_false_2 //.
   all: congruence.
 Qed.
 
-Lemma val۰structeqｰrefl footprint v :
+Lemma val۰structeqｰreflｰimmediate footprint v :
   val۰immediate v →
   val۰structeq footprint v v.
 Proof.
   intros Himmediate.
   apply valｰimmediateｰstructeq; done.
 Qed.
-Lemma val۰structeqｰrefl' footprint v1 v2 :
+Lemma val۰structeqｰreflｰimmediate' footprint v1 v2 :
   v1 = v2 →
   val۰immediate v1 →
   val۰structeq footprint v1 v2.
 Proof.
   intros ->.
-  apply val۰structeqｰrefl.
+  apply val۰structeqｰreflｰimmediate.
+Qed.
+Lemma val۰structeqｰreflｰstring footprint str :
+  val۰structeq footprint #str #str.
+Proof.
+  intros path v1 v2 Hreachable1 Hreachable2.
+  destruct path. 2: done.
+  simp. cbn.
+  rewrite bool_decide_eq_true_2 //.
+Qed.
+Lemma val۰structeqｰreflｰstring' footprint str1 str2 :
+  str1 = str2 →
+  val۰structeq footprint #str1 #str2.
+Proof.
+  intros ->.
+  apply val۰structeqｰreflｰstring.
+Qed.
+
+Lemma val۰structneqｰstringｰl footprint str v :
+  #str ≠ v →
+  val۰structneq footprint #str v.
+Proof.
+  intros.
+  exists [], #str, v. split_and! => //.
+  destruct v as [[] | | gen tag [| v vs]] => //.
+  rewrite bool_decide_eq_false. naive_solver.
+Qed.
+Lemma val۰structneqｰstringｰr footprint v str :
+  v ≠ #str →
+  val۰structneq footprint v #str.
+Proof.
+  intros.
+  apply val۰structneqｰsym, val۰structneqｰstringｰl => //.
+Qed.
+Lemma val۰structneqｰstring footprint str1 str2 :
+  str1 ≠ str2 →
+  val۰structneq footprint #str1 #str2.
+Proof.
+  intros.
+  apply val۰structneqｰstringｰl. naive_solver.
 Qed.
 
 Section zoo۰G.
@@ -540,11 +633,11 @@ Section zoo۰G.
 
       wp۰rec. wp۰pures.
 
-      all: destruct v1 as [[b1 | chr1 | n1 | l1 | |] | | gen1 tag1 [| v1 vs1]].
+      all: destruct v1 as [[b1 | chr1 | n1 | str1 | l1 | |] | | gen1 tag1 [| v1 vs1]].
       all: try done.
       all: wp۰pures.
 
-      all: destruct v2 as [[b2 | chr2 | n2 | l2 | |] | | gen2 tag2 [| v2 vs2]].
+      all: destruct v2 as [[b2 | chr2 | n2 | str2 | l2 | |] | | gen2 tag2 [| v2 vs2]].
       all: try done.
       all: wp۰pures.
 
@@ -569,20 +662,51 @@ Section zoo۰G.
           );
           try (
             case_bool_decide;
-            [ apply val۰structeqｰrefl'; naive_solver
+            [ apply val۰structeqｰreflｰimmediate'; naive_solver
             | apply valｰimmediateｰstructneq; [done.. |];
               cbn; naive_solver
             ]
           )
         ).
 
+      - iEval (rewrite bool_decide_eq_true_2 //).
+        wp۰pures.
+        iEval (rewrite bool_decide_eq_true_2 //).
+        iSteps. iPureIntro.
+        case_bool_decide.
+        + apply val۰structeqｰreflｰstring' => //.
+        + apply val۰structneqｰstring => //.
+
+      - apply elem_of_dom in Htraversable2 as (blk2 & Hfootprint_lookup_2).
+        wp۰apply (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
+        wp۰pures.
+        rewrite bool_decide_eq_false_2.
+        { pose proof (tag۰stringｰspec blk2.(structeq۰block۰tag)). lia. }
+        iSteps. iPureIntro.
+        apply val۰structneqｰstringｰl => //.
+
+      - rewrite bool_decide_eq_false_2.
+        { pose proof (tag۰stringｰspec tag2). lia. }
+        iSteps. iPureIntro.
+        apply val۰structneqｰstringｰl => //.
+
+      - apply elem_of_dom in Htraversable1 as (blk1 & Hfootprint_lookup_1).
+        wp۰apply (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
+        wp۰pures.
+        rewrite bool_decide_eq_false_2.
+        { pose proof (tag۰stringｰspec blk1.(structeq۰block۰tag)). lia. }
+        iSteps. iPureIntro.
+        apply val۰structneqｰstringｰr => //.
+
       - apply elem_of_dom in Htraversable1 as (blk1 & Hfootprint_lookup_1).
         apply elem_of_dom in Htraversable2 as (blk2 & Hfootprint_lookup_2).
         wp۰apply (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
-        wp۰apply (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
+        wp۰apply+ (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
         wp۰pures.
         case_bool_decide; wp۰pures.
-        + wp۰apply (structeq۰footprintｰwpｰsize with "Hfootprint") as "Hfootprint"; first done.
+        + rewrite bool_decide_eq_false_2.
+          { pose proof (tag۰stringｰspec blk1.(structeq۰block۰tag)). lia. }
+          wp۰apply+ (structeq۰footprintｰwpｰsize with "Hfootprint") as "Hfootprint"; first done.
           wp۰apply+ (structeq۰footprintｰwpｰsize with "Hfootprint") as "Hfootprint"; first done.
           wp۰pures.
           case_bool_decide; wp۰pures.
@@ -603,7 +727,9 @@ Section zoo۰G.
         wp۰apply (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
         wp۰pures.
         case_bool_decide; wp۰pures.
-        + wp۰apply (structeq۰footprintｰwpｰsize with "Hfootprint") as "Hfootprint"; first done.
+        + rewrite bool_decide_eq_false_2.
+          { pose proof (tag۰stringｰspec blk1.(structeq۰block۰tag)). lia. }
+          wp۰apply+ (structeq۰footprintｰwpｰsize with "Hfootprint") as "Hfootprint"; first done.
           wp۰pures.
           case_bool_decide; wp۰pures.
           * wp۰apply ("IHstructeq_aux_loc_block" with "[$Hfootprint] HΦ").
@@ -618,11 +744,18 @@ Section zoo۰G.
           cbn. erewrite !lookup_total_correct; [| done..].
           rewrite andb_false_iff !beqｰspec'. naive_solver.
 
+      - rewrite bool_decide_eq_false_2.
+        { pose proof (tag۰stringｰspec tag1). lia. }
+        iSteps. iPureIntro.
+        apply val۰structneqｰstringｰr => //.
+
       - apply elem_of_dom in Htraversable2 as (blk2 & Hfootprint_lookup_2).
         wp۰apply (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
         wp۰pures.
         case_bool_decide; wp۰pures.
-        + wp۰apply (structeq۰footprintｰwpｰsize with "Hfootprint") as "Hfootprint"; first done.
+        + rewrite bool_decide_eq_false_2.
+          { pose proof (tag۰stringｰspec tag1). lia. }
+          wp۰apply+ (structeq۰footprintｰwpｰsize with "Hfootprint") as "Hfootprint"; first done.
           wp۰pures.
           case_bool_decide; wp۰pures.
           * wp۰apply ("IHstructeq_aux_block_loc" with "[$Hfootprint] HΦ").
@@ -638,7 +771,9 @@ Section zoo۰G.
           rewrite andb_false_iff !beqｰspec'. naive_solver.
 
       - case_bool_decide; wp۰pures.
-        + case_bool_decide; wp۰pures.
+        + rewrite bool_decide_eq_false_2.
+          { pose proof (tag۰stringｰspec tag1). lia. }
+          wp۰pures. case_bool_decide; wp۰pures.
           * wp۰apply ("IHstructeq_aux_block_block" with "[$Hfootprint] HΦ").
             iPureIntro. split_and!; [naive_solver lia.. |].
             intros j ? ? ? Hj%lookup_lt_Some. simpl in Hj. lia.
@@ -843,14 +978,28 @@ End zoo۰G.
 
 (* Abstract (tree-like) values *)
 
+Definition literal۰abstract lit :=
+  match lit with
+  | LitBool _
+  | LitChar _
+  | LitInt _
+  | LitString _ =>
+      True
+  | LitLoc _
+  | LitProph _
+  | LitPoison =>
+      False
+  end.
+#[global] Arguments literal۰abstract !_ / : assert.
+
 Fixpoint val۰abstract v :=
   match v with
-  | ValBool _
-  | ValInt _ =>
-      True
+  | ValLit lit =>
+      literal۰abstract lit
   | ValBlock Nongenerative _ vs =>
       Forall' val۰abstract vs
-  | _ =>
+  | ValBlock (Generative _) _ _
+  | ValRecs _ _ =>
       False
   end.
 #[global] Arguments val۰abstract !_ / : assert.

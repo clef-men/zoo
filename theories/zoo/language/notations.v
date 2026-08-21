@@ -9,6 +9,7 @@ Definition in_type {X} (_ : string) (x : X) :=
 Coercion LitBool : bool >-> literal.
 Coercion LitChar : ascii >-> literal.
 Coercion LitInt : Z >-> literal.
+Coercion LitString : string >-> literal.
 Coercion LitLoc : location >-> literal.
 Coercion LitProph : prophet_id >-> literal.
 
@@ -409,6 +410,16 @@ Notation "e1 ≥ e2" := (
 ) : expr_scope.
 Notation "e1 > e2" := (
   Binop BinopGt e1%E e2%E
+)(at level 70,
+  no associativity
+) : expr_scope.
+Notation "e1 =ₛ e2" := (
+  Binop BinopStringEqual e1%E e2%E
+)(at level 70,
+  no associativity
+) : expr_scope.
+Notation "e1 ≠ₛ e2" := (
+  Unop UnopNeg (Binop BinopStringEqual e1%E e2%E)
 )(at level 70,
   no associativity
 ) : expr_scope.

@@ -213,3 +213,11 @@ Definition tag۰beq tag1 tag2 :=
 Next Obligation.
   setoid_rewrite beqｰspec. naive_solver.
 Qed.
+
+Parameter tag۰string : nat.
+
+Axiom tag۰stringｰspec : ∀ tag,
+  tag < tag۰string.
+#[global] Hint Resolve
+  tag۰stringｰspec
+: core.

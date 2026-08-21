@@ -216,24 +216,45 @@ Section pure_exec.
       solve_pure_exec.
     Qed.
 
-  #[global] Instance pureｰunop op v v' :
+  #[global] Instance pureｰunop op v lit :
     PureExec
-      (eval_unop op v = Some v')
+      (eval_unop op v = Some lit)
       1
       (Unop op (Val v))
-      (Val v').
+      (Val $ ValLit lit).
   Proof.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pureｰbinop op v1 v2 v' :
+  #[global] Instance pureｰbinop op v1 v2 lit :
     PureExec
-      (eval_binop op v1 v2 = Some v')
+      (eval_binop op v1 v2 = Some lit)
       1
       (Binop op (Val v1) (Val v2))
-      (Val v').
+      (Val $ ValLit lit).
   Proof.
     solve_pure_exec.
+  Qed.
+  #[global] Instance pureｰbinopｰstringｰget str i chr :
+    PureExec
+      ( (0 ≤ i)%Z ∧
+        String.get ₊i str = Some chr
+      )
+      1
+      (Binop BinopStringGet (Val $ ValString str) (Val $ ValInt i))
+      (Val $ ValChar chr).
+  Proof.
+    intros (Hi & Hlookup).
+    apply nsteps_once, pure_base_stepｰpure_step.
+    split.
+    - repeat econstructor.
+      rewrite /= decide_True // Hlookup //.
+    - intros.
+      inv_base_step.
+      select (_ = Some lit) (fun H =>
+        rewrite decide_True // Hlookup /= in H
+      ).
+      naive_solver.
   Qed.
 
   #[global] Instance pureｰequalｰbool b1 b2 :
@@ -407,7 +428,16 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pureｰget_tag gen tag vs :
+  #[global] Instance pureｰget_tagｰstring str :
+    PureExec
+      True
+      1
+      (GetTag $ Val $ ValString str)
+      (Val $ ValNat tag۰string).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pureｰget_tagｰblock gen tag vs :
     PureExec
       (0 < length vs)
       1

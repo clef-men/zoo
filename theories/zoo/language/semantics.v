@@ -9,6 +9,7 @@ Require Import zoo.options.
 Implicit Type b : bool.
 Implicit Type sz : nat.
 Implicit Type n m : Z.
+Implicit Type str : string.
 Implicit Type tag : tag.
 Implicit Type l : location.
 Implicit Type gen : generativity.
@@ -34,12 +35,14 @@ Definition literal۰immediate lit :=
   | LitChar _
   | LitInt _ =>
       true
+  | LitString _
   | LitLoc _
   | LitProph _
   | LitPoison =>
       false
   end.
 #[global] Arguments literal۰immediate !_ / : assert.
+
 Definition val۰immediate v :=
   match v with
   | ValLit lit =>
@@ -56,11 +59,11 @@ Definition val۰immediate v :=
 Definition eval_unop op v :=
   match op, v with
   | UnopNeg, ValBool b =>
-      Some $ ValBool (￢ b)
+      Some $ LitBool (￢ b)
   | UnopMinus, ValInt n =>
-      Some $ ValInt (- n)
+      Some $ LitInt (- n)
   | UnopIsImmediate, v =>
-      Some $ ValBool (val۰immediate v)
+      Some $ LitBool (val۰immediate v)
   | _, _ =>
       None
   end.
@@ -69,39 +72,54 @@ Definition eval_unop op v :=
 Definition eval_binop۰int op n1 n2 :=
   match op with
   | BinopPlus =>
-      LitInt (n1 + n2)
+      Some $ LitInt $ n1 + n2
   | BinopMinus =>
-      LitInt (n1 - n2)
+      Some $ LitInt $ n1 - n2
   | BinopMult =>
-      LitInt (n1 * n2)
+      Some $ LitInt $ n1 * n2
   | BinopQuot =>
-      LitInt (n1 `quot` n2)
+      Some $ LitInt $ n1 `quot` n2
   | BinopRem =>
-      LitInt (n1 `rem` n2)
+      Some $ LitInt $ n1 `rem` n2
   | BinopLand =>
-      LitInt (Z.land n1 n2)
+      Some $ LitInt $ Z.land n1 n2
   | BinopLor =>
-      LitInt (Z.lor n1 n2)
+      Some $ LitInt $ Z.lor n1 n2
   | BinopLsl =>
-      LitInt (n1 ≪ n2)
+      Some $ LitInt $ n1 ≪ n2
   | BinopLsr =>
-      LitInt (n1 ≫ n2)
+      Some $ LitInt $ n1 ≫ n2
   | BinopLe =>
-      LitBool (bool_decide (n1 ≤ n2))
+      Some $ LitBool $ bool_decide (n1 ≤ n2)
   | BinopLt =>
-      LitBool (bool_decide (n1 < n2))
+      Some $ LitBool $ bool_decide (n1 < n2)
   | BinopGe =>
-      LitBool (bool_decide (n1 >= n2))
+      Some $ LitBool $ bool_decide (n1 >= n2)
   | BinopGt =>
-      LitBool (bool_decide (n1 > n2))
+      Some $ LitBool $ bool_decide (n1 > n2)
+  | _ =>
+      None
   end%Z.
 #[global] Arguments eval_binop۰int !_ _ _ / : assert.
+Definition eval_binop۰other op v1 v2 :=
+  match op, v1, v2 with
+  | BinopStringGet, ValString str, ValInt i =>
+      if decide (0 ≤ i)%Z then
+        LitChar <$> String.get ₊i str
+      else
+        None
+  | BinopStringEqual, ValString str1, ValString str2 =>
+      Some $ LitBool $ bool_decide (str1 = str2)
+  | _, _, _ =>
+      None
+  end.
+#[global] Arguments eval_binop۰other _ !_ !_ / : assert.
 Definition eval_binop op v1 v2 :=
   match v1, v2 with
   | ValInt n1, ValInt n2 =>
-      Some $ ValLit $ eval_binop۰int op n1 n2
+      eval_binop۰int op n1 n2
   | _, _ =>
-      None
+      eval_binop۰other op v1 v2
   end.
 #[global] Arguments eval_binop _ !_ !_ / : assert.
 
@@ -179,24 +197,24 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (subst' x v1 e2)
         σ
         []
-  | base_stepｰunop op v v' σ :
-      eval_unop op v = Some v' →
+  | base_stepｰunop op v lit σ :
+      eval_unop op v = Some lit →
       base_step
         tid
         (Unop op $ Val v)
         σ
         []
-        (Val v')
+        (Val $ ValLit lit)
         σ
         []
-  | base_stepｰbinop op v1 v2 v' σ :
-      eval_binop op v1 v2 = Some v' →
+  | base_stepｰbinop op v1 v2 lit σ :
+      eval_binop op v1 v2 = Some lit →
       base_step
         tid
         (Binop op (Val v1) (Val v2))
         σ
         []
-        (Val v')
+        (Val $ ValLit lit)
         σ
         []
   | base_stepｰequalｰfail v1 v2 σ :
@@ -291,7 +309,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValBlock (Generative (Some bid)) tag vs)
         σ
         []
-  | base_stepｰmatchｰmutable l hdr x e brs e' σ :
+  | base_stepｰmatchｰlocation l hdr x e brs e' σ :
       σ.(state۰headers) !! l = Some hdr →
       eval_match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x e brs = Some e' →
       base_step
@@ -302,7 +320,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         e'
         σ
         []
-  | base_stepｰmatchｰimmutable gen tag vs x e brs e' σ :
+  | base_stepｰmatchｰblock gen tag vs x e brs e' σ :
       eval_match tag (length vs) (SubjectBlock gen vs) x e brs = Some e' →
       base_step
         tid
@@ -312,7 +330,16 @@ Inductive base_step tid : expr → state → list observation → expr → state
         e'
         σ
         []
-  | base_stepｰget_tagｰmutable l hdr σ :
+  | base_stepｰget_tagｰstring str σ :
+      base_step
+        tid
+        (GetTag $ Val $ ValString str)
+        σ
+        []
+        (Val $ ValNat tag۰string)
+        σ
+        []
+  | base_stepｰget_tagｰlocation l hdr σ :
       σ.(state۰headers) !! l = Some hdr →
       base_step
         tid
@@ -322,7 +349,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValNat hdr.(header۰tag))
         σ
         []
-  | base_stepｰget_tagｰimmutable gen tag vs σ :
+  | base_stepｰget_tagｰblock gen tag vs σ :
       0 < length vs →
       base_step
         tid
@@ -332,7 +359,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValNat tag)
         σ
         []
-  | base_stepｰget_sizeｰmutable l hdr σ :
+  | base_stepｰget_sizeｰlocation l hdr σ :
       σ.(state۰headers) !! l = Some hdr →
       base_step
         tid
@@ -342,7 +369,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValNat hdr.(header۰size))
         σ
         []
-  | base_stepｰget_sizeｰimmutable gen tag vs σ :
+  | base_stepｰget_sizeｰblock gen tag vs σ :
       0 < length vs →
       base_step
         tid
@@ -352,7 +379,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValNat (length vs))
         σ
         []
-  | base_stepｰget_fieldｰmutable l fld v σ :
+  | base_stepｰget_fieldｰlocation l fld v σ :
       σ.(state۰heap) !! (l +ₗ fld) = Some v →
       base_step
         tid
@@ -362,7 +389,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val v)
         σ
         []
-  | base_stepｰget_fieldｰimmutable gen tag vs (fld : nat) v σ :
+  | base_stepｰget_fieldｰblock gen tag vs (fld : nat) v σ :
       vs !! fld = Some v →
       base_step
         tid

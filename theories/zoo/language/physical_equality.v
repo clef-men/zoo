@@ -8,6 +8,7 @@ Require Import zoo.options.
 Implicit Type i : nat.
 Implicit Type chr : ascii.
 Implicit Type n : Z.
+Implicit Type str : string.
 Implicit Type tag : tag.
 Implicit Type l : location.
 Implicit Type gen : generativity.
@@ -17,6 +18,7 @@ Implicit Type vs : list val.
 
 Variant lowliteral :=
   | LowlitInt n
+  | LowlitString str
   | LowlitLoc l
   | LowlitProph
   | LowlitPoison.
@@ -33,6 +35,8 @@ Definition literal۰to_low lit :=
       LowlitInt $ nat_of_ascii chr
   | LitInt n =>
       LowlitInt n
+  | LitString str =>
+      LowlitString str
   | LitLoc l =>
       LowlitLoc l
   | LitProph _ =>
@@ -49,7 +53,9 @@ Definition literal۰to_low lit :=
         llit2 ≠ LowlitInt n1
     | LowlitLoc l1 =>
         llit2 ≠ LowlitLoc l1
-    | _ =>
+    | LowlitString _
+    | LowlitProph
+    | LowlitPoison =>
         True
     end.
 
@@ -334,8 +340,8 @@ Qed.
 Lemma lowvalｰsimilarｰorｰnonsimilar lv1 lv2 :
   lv1 ≈ lv2 ∨ lv1 ≉ lv2.
 Proof.
-  all: destruct lv1 as [[n1 | l1 | |] | | [[bid1 |] |] tag1 [| v1 vs1]].
-  all: destruct lv2 as [[n2 | l2 | |] | | [[bid2 |] |] tag2 [| v2 vs2]].
+  all: destruct lv1 as [[n1 | str1 | l1 | |] | | [[bid1 |] |] tag1 [| v1 vs1]].
+  all: destruct lv2 as [[n2 | str2 | l2 | |] | | [[bid2 |] |] tag2 [| v2 vs2]].
   all: try destruct_decide (n1 = n2).
   all: try destruct_decide (l1 = l2).
   all: try destruct_decide (bid1 = bid2).
@@ -465,6 +471,12 @@ Lemma valｰsimilarｰnat (n1 n2 : nat) :
   n1 = n2.
 Proof.
   intros <-%valｰsimilarｰint%(inj _). done.
+Qed.
+Lemma valｰsimilarｰstring str1 str2 :
+  ValLit (LitString str1) ≈ ValLit (LitString str2) →
+  str1 = str2.
+Proof.
+  intros [= ->]. done.
 Qed.
 Lemma valｰsimilarｰlocation l1 l2 :
   ValLit (LitLoc l1) ≈ ValLit (LitLoc l2) →
