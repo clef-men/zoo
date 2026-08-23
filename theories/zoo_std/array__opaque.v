@@ -64,3 +64,6 @@ Require Import zoo_std.array__code.
 #[global] Opaque array٠unsafe_cgrow_slice.
 #[global] Opaque array٠unsafe_cgrow.
 #[global] Opaque array٠unsafe_cshrink_slice.
+#[global] Opaque array٠partition.
+#[global] Opaque array٠sort₁.
+#[global] Opaque array٠sort.

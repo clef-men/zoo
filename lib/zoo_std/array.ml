@@ -350,3 +350,23 @@ let unsafe_cshrink_slice t i sz' =
   let t' = unsafe_alloc sz' in
   unsafe_ccopy_slice t i t' i sz' ;
   t'
+
+let partition t i sz =
+  let pivot = unsafe_get t i in
+  let i1 = ref (i + 1) in
+  for i2 = i + 1 to i + sz - 1 do
+    if unsafe_get t i2 < pivot then (
+      unsafe_swap t !i1 i2 ;
+      i1 := !i1 + 1
+    )
+  done ;
+  unsafe_swap t i (!i1 - 1) ;
+  !i1 - 1
+
+let rec sort t i sz =
+  if 1 < sz then
+    let pivot = partition t i sz in
+    sort t i (pivot - i) ;
+    sort t (pivot + 1) (sz - (pivot - i) - 1)
+let sort t =
+  sort t 0 (size t)

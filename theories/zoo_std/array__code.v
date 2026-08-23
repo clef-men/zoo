@@ -380,3 +380,28 @@ Definition array٠unsafe_cshrink_slice : val :=
     𝗹𝗲𝘁 "t'" = array٠unsafe_alloc "sz'" 𝗶𝗻
     array٠unsafe_ccopy_slice "t" "i" "t'" "i" "sz'" ⍮
     "t'".
+
+Definition array٠partition : val :=
+  𝗳𝘂𝗻 "t" "i" "sz" ->
+    𝗹𝗲𝘁 "pivot" = array٠unsafe_get "t" "i" 𝗶𝗻
+    𝗹𝗲𝘁 "i1" = 𝗿𝗲𝗳 ("i" + 1) 𝗶𝗻
+    𝗳𝗼𝗿 "i2" = "i" + 1 𝘁𝗼 "i" + "sz" 𝗱𝗼
+      𝗶𝗳 array٠unsafe_get "t" "i2" < "pivot" 𝘁𝗵𝗲𝗻 (
+        array٠unsafe_swap "t" !"i1" "i2" ⍮
+        "i1" <- !"i1" + 1
+      )
+    𝗱𝗼𝗻𝗲 ⍮
+    array٠unsafe_swap "t" "i" (!"i1" - 1) ⍮
+    !"i1" - 1.
+
+Definition array٠sort₁ : val :=
+  𝗿𝗲𝗰 "sort" "t" "i" "sz" ->
+    𝗶𝗳 1 < "sz" 𝘁𝗵𝗲𝗻 (
+      𝗹𝗲𝘁 "pivot" = array٠partition "t" "i" "sz" 𝗶𝗻
+      "sort" "t" "i" ("pivot" - "i") ⍮
+      "sort" "t" ("pivot" + 1) ("sz" - ("pivot" - "i") - 1)
+    ).
+
+Definition array٠sort : val :=
+  𝗳𝘂𝗻 "t" ->
+    array٠sort₁ "t" 0 (array٠size "t").

@@ -143,3 +143,9 @@ val unsafe_cgrow :
 
 val unsafe_cshrink_slice :
   'a t -> int -> int -> 'a t
+
+val partition :
+  'a t -> int -> int -> int
+
+val sort :
+  'a t -> unit
