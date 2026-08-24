@@ -43,6 +43,7 @@ Inductive nsteps : nat → config → list observation → config → Prop :=
      step ρ1 κ ρ2 →
      nsteps n ρ2 κs ρ3 →
      nsteps ˖n ρ1 (κ ++ κs) ρ3.
+#[global] Arguments nsteps n ρ1 κ ρ2 : assert.
 #[local] Hint Constructors nsteps : core.
 
 Definition silent_step ρ1 ρ2 :=

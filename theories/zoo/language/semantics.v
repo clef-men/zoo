@@ -501,6 +501,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val w)
         σ'
         es.
+#[global] Arguments base_step tid e1 σ1 κ e2 σ2 es : assert.
 
 Lemma base_stepｰalloc' tid 𝑡𝑎𝑔 tag n σ :
   let l := state۰fresh σ in
@@ -693,6 +694,7 @@ Fixpoint filli k e : expr :=
 
 Definition ectx :=
   list ectxi.
+Implicit Type K : ectx.
 
 Definition fill K e :=
   foldl (flip filli) e K.
