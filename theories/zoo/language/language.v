@@ -2,7 +2,7 @@ Require Import zoo.prelude.
 Require Export zoo.language.semantics.
 Require Import zoo.options.
 
-Implicit Type e : expr.
+Implicit Type e eᵣ : expr.
 Implicit Type es : list expr.
 Implicit Type v : val.
 Implicit Type σ : state.
@@ -23,10 +23,10 @@ Class AsVal e v :=
   as_val : of_val v = e.
 
 Variant prim_step tid e1 σ1 κ e2 σ2 es : Prop :=
-  | base_stepｰfillｰprim_step' K e1' e2' :
-      e1 = fill K e1' →
-      e2 = fill K e2' →
-      base_step tid e1' σ1 κ e2' σ2 es →
+  | base_stepｰfillｰprim_step' K eᵣ1 eᵣ2 :
+      e1 = fill K eᵣ1 →
+      e2 = fill K eᵣ2 →
+      base_step tid eᵣ1 σ1 κ eᵣ2 σ2 es →
       prim_step tid e1 σ1 κ e2 σ2 es.
 #[global] Arguments base_stepｰfillｰprim_step' {_ _ _ _ _ _ _}.
 
@@ -259,7 +259,8 @@ Lemma base_reducible_no_obsｰbase_reducible tid e σ :
   base_reducible_no_obs tid e σ →
   base_reducible tid e σ.
 Proof.
-  intros (? & ? & ? & ?). eexists. eauto.
+  intros (e' & σ' & es & Hstep).
+  eexists. eauto.
 Qed.
 
 Lemma base_stepｰprim_step tid e1 σ1 κ e2 σ2 es :
@@ -273,28 +274,28 @@ Lemma prim_stepｰnot_val tid e σ κ e' σ' es :
   prim_step tid e σ κ e' σ' es →
   to_val e = None.
 Proof.
-  intros [? ? ? -> -> ?%base_stepｰnot_val].
+  intros [K eᵣ1 eᵣ2 -> -> ?%base_stepｰnot_val].
   apply eq_None_not_Some. intros ?%fillｰval%eq_None_not_Some; done.
 Qed.
 Lemma reducibleｰnot_val tid e σ :
   reducible tid e σ →
   to_val e = None.
 Proof.
-  intros (? & ? & ? & ? & ?).
+  intros (κ & e' & σ' & es & Hstep).
   eauto using prim_stepｰnot_val.
 Qed.
 Lemma reducible_no_obsｰreducible tid e σ :
   reducible_no_obs tid e σ →
   reducible tid e σ.
 Proof.
-  intros (? & ? & ? & ?).
+  intros (e' & σ' & es & Hstep).
   eexists. eauto.
 Qed.
 Lemma base_reducibleｰreducible tid e σ :
   base_reducible tid e σ →
   reducible tid e σ.
 Proof.
-  intros (κ & e' & σ' & es & ?).
+  intros (κ & e' & σ' & es & Hstep).
   exists κ, e', σ', es.
   apply base_stepｰprim_step. done.
 Qed.
@@ -304,25 +305,26 @@ Lemma base_atomicｰatomic e :
   sub_redexes_are_values e →
   Atomic e.
 Proof.
-  intros Hatomic_step Hatomic_fill tid σ κ e' σ' es [K e1' e2' -> -> Hstep].
+  intros Hatomic_step Hatomic_fill tid σ κ e' σ' es [K eᵣ1 eᵣ2 -> -> Hstep].
   assert (K = []) as -> by eauto 10 using base_stepｰnot_val.
   rewrite fillｰnil. eapply Hatomic_step. rewrite fillｰnil //.
 Qed.
 
-Lemma base_reducibleｰfillｰprim_step tid K e1 σ1 κ e2 σ2 es :
-  base_reducible tid e1 σ1 →
-  prim_step tid (fill K e1) σ1 κ e2 σ2 es →
-    ∃ e2',
-    e2 = fill K e2' ∧
-    base_step tid e1 σ1 κ e2' σ2 es.
+Lemma base_reducibleｰfillｰprim_step tid K eᵣ σ κ e' σ' es :
+  base_reducible tid eᵣ σ →
+  prim_step tid (fill K eᵣ) σ κ e' σ' es →
+    ∃ eᵣ',
+    e' = fill K eᵣ' ∧
+    base_step tid eᵣ σ κ eᵣ' σ' es.
 Proof.
-  intros (κ' & e2'' & σ2'' & es'' & HhstepK) [K' e1' e2' HKe1 -> Hstep].
-  edestruct (stepｰbyｰval tid K) as [K'' ?]; eauto using base_stepｰnot_val; simplify_eq/=.
-  rewrite fillｰapp in HKe1; simplify_eq.
-  exists (fill K'' e2'). rewrite fillｰapp; split; first done.
-  apply base_stepｰfillｰval in HhstepK as [[v ?] | ?]; simplify_eq.
-  { apply base_stepｰnot_val in Hstep. simplify_eq. }
-  rewrite !fillｰnil //.
+  intros (κᵣ & eᵣ' & σᵣ & esᵣ & Hstep) [𝐾 𝑒ᵣ 𝑒ᵣ' Heq -> H𝑠𝑡𝑒𝑝].
+  edestruct (stepｰbyｰval tid K) as [K' ?]; eauto using base_stepｰnot_val. simplify_eq/=.
+  rewrite !fillｰapp in Heq |- *.
+  simplify_eq.
+  exists (fill K' 𝑒ᵣ'). split => //.
+  apply base_stepｰfillｰval in Hstep as [(v & H𝑒ᵣ) | ->].
+  { apply base_stepｰnot_val in H𝑠𝑡𝑒𝑝. simplify_eq. }
+  { rewrite !fillｰnil //. }
 Qed.
 Lemma base_reducibleｰprim_step tid e1 σ1 κ e2 σ2 es :
   base_reducible tid e1 σ1 →
