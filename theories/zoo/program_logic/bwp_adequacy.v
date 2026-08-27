@@ -29,7 +29,7 @@ Section zoo۰G.
       bwps nt es (replicate (length es) fork_post).
   Proof.
     iIntros "%Hstep Hinterp H£ H".
-    rewrite {1}bwpｰunfold /bwp۰pre (prim_stepｰnot_val tid e1 σ1 κ e2 σ2 es) //.
+    rewrite {1}bwpｰunfold /bwp۰pre (prim_stepｰnotｰval tid e1 σ1 κ e2 σ2 es) //.
     iMod ("H" with "Hinterp") as "(_ & >H)".
     iMod ("H" with "[//] [//] H£") as "H".
     iModIntro.

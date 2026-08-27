@@ -114,7 +114,7 @@ Record pure_step e1 e2 :=
   }.
 
 Class Context (K : expr → expr) :=
-  { contextｰfillｰnot_val e :
+  { contextｰfillｰnotｰval e :
       to_val e = None →
       to_val (K e) = None
   ; contextｰfillｰstep tid e1 σ1 κ e2 σ2 es :
@@ -209,7 +209,7 @@ Proof.
   move: e. induction K as [| k K IH] => e //=.
   intros ?%IH%filliｰval => //.
 Qed.
-Lemma fillｰnot_val K e :
+Lemma fillｰnotｰval K e :
   to_val e = None →
   to_val (fill K e) = None.
 Proof.
@@ -217,7 +217,7 @@ Proof.
   eauto using fillｰval.
 Qed.
 
-Lemma base_stepｰnot_val tid e1 σ1 κ e2 σ2 es :
+Lemma base_stepｰnotｰval tid e1 σ1 κ e2 σ2 es :
   base_step tid e1 σ1 κ e2 σ2 es →
   to_val e1 = None.
 Proof.
@@ -240,7 +240,7 @@ Proof.
     rewrite !fillｰapp /= in Hfill.
     assert (k1 = k2) as ->.
     { eapply filliｰno_valｰinj, Hfill.
-      all: eauto using fillｰnot_val, base_stepｰnot_val.
+      all: eauto using fillｰnotｰval, base_stepｰnotｰval.
     }
     simplify_eq. destruct (IH K2) as [K ->]; auto.
     exists K. rewrite assoc //.
@@ -270,19 +270,19 @@ Proof.
   apply (base_stepｰfillｰprim_step' []).
   all: rewrite ?fillｰnil //.
 Qed.
-Lemma prim_stepｰnot_val tid e σ κ e' σ' es :
+Lemma prim_stepｰnotｰval tid e σ κ e' σ' es :
   prim_step tid e σ κ e' σ' es →
   to_val e = None.
 Proof.
-  intros [K eᵣ1 eᵣ2 -> -> ?%base_stepｰnot_val].
+  intros [K eᵣ1 eᵣ2 -> -> ?%base_stepｰnotｰval].
   apply eq_None_not_Some. intros ?%fillｰval%eq_None_not_Some; done.
 Qed.
-Lemma reducibleｰnot_val tid e σ :
+Lemma reducibleｰnotｰval tid e σ :
   reducible tid e σ →
   to_val e = None.
 Proof.
   intros (κ & e' & σ' & es & Hstep).
-  eauto using prim_stepｰnot_val.
+  eauto using prim_stepｰnotｰval.
 Qed.
 Lemma reducible_no_obsｰreducible tid e σ :
   reducible_no_obs tid e σ →
@@ -306,7 +306,7 @@ Lemma base_atomicｰatomic e :
   Atomic e.
 Proof.
   intros Hatomic_step Hatomic_fill tid σ κ e' σ' es [K eᵣ1 eᵣ2 -> -> Hstep].
-  assert (K = []) as -> by eauto 10 using base_stepｰnot_val.
+  assert (K = []) as -> by eauto 10 using base_stepｰnotｰval.
   rewrite fillｰnil. eapply Hatomic_step. rewrite fillｰnil //.
 Qed.
 
@@ -318,12 +318,12 @@ Lemma base_reducibleｰfillｰprim_step tid K eᵣ σ κ e' σ' es :
     base_step tid eᵣ σ κ eᵣ' σ' es.
 Proof.
   intros (κᵣ & eᵣ' & σᵣ & esᵣ & Hstep) [𝐾 𝑒ᵣ 𝑒ᵣ' Heq -> H𝑠𝑡𝑒𝑝].
-  edestruct (stepｰbyｰval tid K) as [K' ?]; eauto using base_stepｰnot_val. simplify_eq/=.
+  edestruct (stepｰbyｰval tid K) as [K' ?]; eauto using base_stepｰnotｰval. simplify_eq/=.
   rewrite !fillｰapp in Heq |- *.
   simplify_eq.
   exists (fill K' 𝑒ᵣ'). split => //.
   apply base_stepｰfillｰval in Hstep as [(v & H𝑒ᵣ) | ->].
-  { apply base_stepｰnot_val in H𝑠𝑡𝑒𝑝. simplify_eq. }
+  { apply base_stepｰnotｰval in H𝑠𝑡𝑒𝑝. simplify_eq. }
   { rewrite !fillｰnil //. }
 Qed.
 Lemma base_reducibleｰprim_step tid e1 σ1 κ e2 σ2 es :
@@ -359,7 +359,7 @@ Qed.
   Context (fill K).
 Proof.
   split => /=.
-  - auto using fillｰnot_val.
+  - auto using fillｰnotｰval.
   - intros ? ? ? ? ? ? ? [K' e1' e2' Heq1 Heq2 Hstep].
     exists (K' ++ K) e1' e2'.
     all: rewrite ?Heq1 ?Heq2 ?fillｰapp //.
@@ -399,7 +399,7 @@ Proof.
   - rewrite /reducible_no_obs in Hred |- *. naive_solver eauto using contextｰfillｰstep.
   - intros tid σ1 κ e2' σ2 es Hpstep.
     destruct (contextｰfillｰstepｰinv tid e1 σ1 κ e2' σ2 es) as (e2'' & -> & ?); [|exact Hpstep|].
-    + destruct (Hred tid σ1) as (? & ? & ? & ?); eauto using prim_stepｰnot_val.
+    + destruct (Hred tid σ1) as (? & ? & ? & ?); eauto using prim_stepｰnotｰval.
     + edestruct (Hstep tid σ1 κ e2'' σ2 es) as (? & -> & -> & ->); done.
 Qed.
 Lemma pure_stepｰnstepsｰcontext (K : expr → expr) `{!Context K} n e1 e2 :
@@ -441,11 +441,11 @@ Lemma to_valｰfillｰSome K e v :
 Proof.
   intro H. destruct K as [| k K]; first by apply of_valｰto_val in H. exfalso.
   assert (to_val e ≠ None) as He.
-  { intro A. rewrite fillｰnot_val // in H. }
+  { intro A. rewrite fillｰnotｰval // in H. }
   assert (∃ w, e = Val w) as [w ->].
   { destruct e; try done; eauto. }
   assert (to_val (fill (k :: K) (Val w)) = None).
-  { destruct k; simpl; apply fillｰnot_val; done. }
+  { destruct k; simpl; apply fillｰnotｰval; done. }
   simp.
 Qed.
 Lemma prim_stepｰto_valｰisｰbase_step tid e σ1 κ v σ2 es :

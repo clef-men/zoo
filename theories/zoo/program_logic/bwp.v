@@ -387,7 +387,7 @@ Section zoo۰G.
     destruct (to_val e) as [v |] eqn:He.
     - apply of_valｰto_val in He as <-.
       iApply (bwpｰstate_interp with "H").
-    - rewrite bwpｰunfold /bwp۰pre contextｰfillｰnot_val //.
+    - rewrite bwpｰunfold /bwp۰pre contextｰfillｰnotｰval //.
       iIntros "%ns %nt %σ1 %κs Hinterp !>".
       iMod ("H" with "Hinterp") as ">(%Hreducible1 & H)".
       iModIntro; iSplit; first eauto using reducibleｰcontext.
@@ -407,7 +407,7 @@ Section zoo۰G.
     - apply of_valｰto_val in He as <-.
       iApply bwpｰvalue'.
       iApply "H".
-    - rewrite !bwpｰunfold /bwp۰pre contextｰfillｰnot_val He //.
+    - rewrite !bwpｰunfold /bwp۰pre contextｰfillｰnotｰval He //.
       iIntros "%ns %nt %σ1 %κs Hinterp !>".
       iMod ("H" with "Hinterp") as ">(%Hreducible & H)".
       iModIntro; iSplit; first eauto using reducibleｰcontextｰinv.
@@ -699,7 +699,7 @@ Section zoo۰G.
   Proof.
     iIntros "%Hsafe %Hpure H⧖ H".
     iApply bwpｰliftｰstepｰnofork.
-    { specialize (Hsafe inhabitant). eauto using reducibleｰnot_val. }
+    { specialize (Hsafe inhabitant). eauto using reducibleｰnotｰval. }
     iIntros "%ns' %nt %σ %κs Hinterp".
     iMod "H".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
