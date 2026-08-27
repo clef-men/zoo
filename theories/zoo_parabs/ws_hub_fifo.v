@@ -65,7 +65,7 @@ Section consistent.
       vs = {[+v+]} ⊎ vs' ∧
       consistent vs' ws.
   Proof.
-    naive_solver.
+    naive.
   Qed.
 End consistent.
 
@@ -230,7 +230,7 @@ Section ws_hub_fifo۰G.
     iMod (big_sepL_bupd with "H") as "H".
     iDestruct (big_sepLｰexists with "H") as "(%γ_owners & %Hlength & H)".
     iDestruct (big_sepL2_intro (λ _ _ _, ⌜length γ_owners = sz⌝)%I (seq 0 sz) γ_owners with "[%]") as "Hlength". 1: done.
-    { simp_length in Hlength. naive_solver. }
+    { simp_length in Hlength. naive. }
     iDestruct (big_sepL2_sep_2 with "Hlength H") as "H".
     iDestruct (big_sepL2ｰretractｰr with "H") as "(_ & H)".
     iDestruct (big_sepLｰseqｰindex₂ with "H") as "H".

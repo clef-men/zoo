@@ -137,7 +137,7 @@ Section consistent.
     rewrite -Hconsistent in Hws_lookup.
     apply lookupｰmap۰oflattenｰSomeｰinv in Hws_lookup.
     rewrite lookup_map_seq_Some Nat.sub_0_r in Hws_lookup.
-    naive_solver.
+    naive.
   Qed.
   #[local] Lemma consistentｰinsert {vs ws} id :
     ws !! id = None →
@@ -412,7 +412,7 @@ Section domain۰G.
     iIntros "%Hkey (:dls) Hkey".
     iDestruct (domain۰dls۰keyｰtoｰid with "Hkey") as "(%id & #Hid) {Hkey}".
     assert (ids !! key = None) as Hids_lookup.
-    { apply not_elem_of_dom. naive_solver. }
+    { apply not_elem_of_dom. naive. }
     iAssert ⌜id ∉ dom ws⌝%I as %Hws_lookup%not_elem_of_dom.
     { rewrite -Hids_img not_elem_of_map_img.
       iIntros "%key' %Hids_lookup'".
@@ -492,7 +492,7 @@ Section domain۰G.
     ⌜tid1 ≠ tid2 ∨ key1 ≠ key2⌝.
   Proof.
     rewrite -not_and_r. iIntros "% H1 H2" ((-> & ->)).
-    iDestruct (domain۰dls۰pointstoｰvalidｰ2 with "H1 H2") as %?. naive_solver.
+    iDestruct (domain۰dls۰pointstoｰvalidｰ2 with "H1 H2") as %?. naive.
   Qed.
   Lemma domain۰dls۰pointstoｰne tid1 key1 v1 tid2 key2 dq2 v2 :
     domain۰dls۰pointsto tid1 key1 (DfracOwn 1) v1 -∗
@@ -508,7 +508,7 @@ Section domain۰G.
     False.
   Proof.
     iIntros "H1 H2".
-    iDestruct (domain۰dls۰pointstoｰne with "H1 H2") as %?. naive_solver.
+    iDestruct (domain۰dls۰pointstoｰne with "H1 H2") as %?. naive.
   Qed.
   Lemma domain۰dls۰pointstoｰpersist tid key dq v :
     domain۰dls۰pointsto tid key dq v ⊢ |==>

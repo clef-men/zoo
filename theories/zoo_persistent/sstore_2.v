@@ -205,7 +205,7 @@ Module base.
           σ₀ !! r = Some data.(val).
     Proof.
       destruct data as (g, v).
-      rewrite lookup_union_Some_raw lookup_fmap_Some. naive_solver.
+      rewrite lookup_union_Some_raw lookup_fmap_Some. naive.
     Qed.
     #[local] Lemma store۰onｰlookup' {σ₀ ς} r data :
       ς !! r = Some data →
@@ -241,7 +241,7 @@ Module base.
     Proof.
       intros Hg Hς_gen.
       eapply map_Forall_impl; first done.
-      naive_solver lia.
+      naive lia.
     Qed.
     #[local] Lemma store۰generationｰinsert g ς r data :
       store۰generation g ς →
@@ -560,9 +560,9 @@ Module base.
       { setoid_rewrite store۰onｰlookup.
         apply lookup_union_Some_raw in Hσ_lookup as [Hσ_lookup | (Hσ_lookup & Hσ₀_lookup)].
         - apply lookup_fmap_Some in Hσ_lookup as ((g_r & _v) & ? & Hς_lookup).
-          naive_solver.
+          naive.
         - rewrite lookupｰfmapｰNone in Hσ_lookup.
-          naive_solver.
+          naive.
       }
       iDestruct (big_sepM_lookup_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
       wp۰load.
@@ -587,9 +587,9 @@ Module base.
       assert (∃ g_r w, store۰on σ₀ ς !! r = Some (g_r, w) ∧ g_r ≤ g) as (g_r & w & Hς_lookup & Hg_r).
       { setoid_rewrite store۰onｰlookup.
         destruct (ς !! r) as [(g_r, w) |] eqn:Hς_lookup.
-        - exists g_r, w. split; first naive_solver.
+        - exists g_r, w. split; first naive.
           opose proof* map_Forall_lookup_1; done.
-        - exists 0, w0. split; first naive_solver. lia.
+        - exists 0, w0. split; first naive. lia.
       }
       iDestruct (big_sepM_insert_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
       wp۰load. wp۰pures.
@@ -624,16 +624,16 @@ Module base.
             - exfalso.
               rewrite deltas۰applyｰnil in Hδs.
               rewrite -Hδs store۰onｰlookup in Hς_lookup.
-              destruct Hς_lookup as [Hstore_lookup |]; last naive_solver.
+              destruct Hς_lookup as [Hstore_lookup |]; last naive.
               opose proof* (map_Forall_lookup_1 _ descr.(descriptor۰store)); [done.. |].
-              naive_solver lia.
+              naive lia.
             - rewrite deltas۰applyｰsnoc /=.
               destruct_decide (r = r') as <- | Hr'.
               + rewrite deltas۰applyｰsnoc /= in Hδs.
                 rewrite insert_insert_eq //.
               + rewrite insert_insert_ne //.
                 apply IH; simpl.
-                * rewrite fmap_app NoDup_app in Hδs_nodup. naive_solver.
+                * rewrite fmap_app NoDup_app in Hδs_nodup. naive.
                 * rewrite dom_insert union_subseteq singleton_subseteq_l.
                   split; last done.
                   apply (f_equal dom) in Hδs.
@@ -655,16 +655,16 @@ Module base.
             exfalso.
             apply store۰onｰlookup in Hς_lookup as [].
             - opose proof* map_Forall_lookup_1; [done.. |].
-              naive_solver lia.
-            - naive_solver lia.
+              naive lia.
+            - naive lia.
           } {
             eapply Forall_impl; first done. intros (r', g', v', node) H.
             destruct_decide (r = r') as <- | Hr'.
-            - rewrite lookup_insert_eq. naive_solver.
+            - rewrite lookup_insert_eq. naive.
             - rewrite lookup_insert_ne //.
           }
 
-        + rewrite bool_decide_eq_false_2; first naive_solver. wp۰pures.
+        + rewrite bool_decide_eq_false_2; first naive. wp۰pures.
           wp۰ref root' as "Hroot'". do 2 wp۰load. do 4 wp۰store.
           iDestruct ("Hς" $! (g, v) with "[$Hr_gen $Hr_value]") as "Hς".
           iApply "HΦ".
@@ -677,7 +677,7 @@ Module base.
           assert (r ∉ delta۰ref <$> δs) as Hr_notin_δs.
           { intros (i & ((?, ?, ?, ?) & -> & Hδs_lookup)%list_lookup_fmap_Some_1)%list_elem_of_lookup.
             opose proof* Forall_lookup_1 as H; [done.. |].
-            apply store۰onｰlookup in Hς_lookup. naive_solver.
+            apply store۰onｰlookup in Hς_lookup. naive.
           }
           assert (store۰on σ₀ descr.(descriptor۰store) !! r = Some (g_r, w)) as Hstore_lookup.
           { rewrite Hδs store۰onｰlookup deltas۰apply۰lookupｰne //.
@@ -704,9 +704,9 @@ Module base.
           } {
             rewrite Forall_app Forall_singleton. split.
             - rewrite Forall_forall => δ Hδ. rewrite lookup_insert_ne.
-              { rewrite list_elem_of_fmap in Hr_notin_δs. naive_solver. }
-              rewrite Forall_forall in Hδs_gen. naive_solver.
-            - rewrite lookup_insert_eq. naive_solver.
+              { rewrite list_elem_of_fmap in Hr_notin_δs. naive. }
+              rewrite Forall_forall in Hδs_gen. naive.
+            - rewrite lookup_insert_eq. naive.
           }
     Qed.
 
@@ -734,7 +734,7 @@ Module base.
         { iSteps. iExists (Descriptor 0 ς). iSteps. }
         iExists l, γ, 1, root, ς. iFrame "#∗". iStep 2. iSplitR.
         { iPureIntro. split; first set_solver.
-          eapply map_Forall_impl; first done. naive_solver.
+          eapply map_Forall_impl; first done. naive.
         }
         iExists ∅, []. iSteps; try iPureIntro.
         { apply treemap۰rootedｰempty. }
@@ -751,7 +751,7 @@ Module base.
           iDestruct (deltas۰chainｰnilｰinv with "Hδs") as %<-.
           iSplitL; iSteps.
           { iPureIntro. split; first done.
-            eapply map_Forall_impl => //. naive_solver lia.
+            eapply map_Forall_impl => //. naive lia.
           }
           rewrite decide_False; first lia.
           iSteps.
@@ -1096,7 +1096,7 @@ Module base.
 
       iIntros (Hdescr_lookup_base' Hpath Hϵs_lookup_cnode Hδs_cnode_length Hnodup ->) "%Φ (%v_node & Hnode & Hς & %Hϵs & Hauth & %Hcnodes_lookup_base & ((%Hbase_store_dom & %Hbase_store_gen) & #Helem_base & %Hδs_base_nodup & %Hδs_base & Hδs_base) & %Hcnodes_lookup_cnode & ((%Hcnode_store_dom & %Hcnode_store_gen) & #Helem_cnode & %Hδs_cnode_nodup & %Hδs_cnode & Hδs_cnode) & Hcnodes) HΦ".
 
-      destruct δs_cnode as [| (r1, g1, v1, _node) δs_cnode _] using rev_ind; first naive_solver lia.
+      destruct δs_cnode as [| (r1, g1, v1, _node) δs_cnode _] using rev_ind; first naive lia.
       simpl in *.
       iDestruct (deltas۰chainｰsnocｰinv with "Hδs_cnode") as "(%Hnode & Hδs_cnode & Hδ)".
       simp.
@@ -1461,7 +1461,7 @@ Module base.
           iApply "HΦ".
           iExists l, γ, ˖g', base, descr.(descriptor۰store). unshelve iStep 8.
           { iPureIntro. split; first done.
-            eapply store۰generationｰle; last done. naive_solver.
+            eapply store۰generationｰle; last done. naive.
           }
           iExists cnodes, ϵs', base, descr, []. iSteps.
 
@@ -1487,7 +1487,7 @@ Module base.
           iApply "HΦ".
           iExists l, γ, ˖g', base', descr'.(descriptor۰store). unshelve iStep 8.
           { iPureIntro. split; first done.
-            eapply store۰generationｰle; last done. naive_solver.
+            eapply store۰generationｰle; last done. naive.
           }
           iExists cnodes, ϵs', base', descr', []. iSteps.
     Qed.

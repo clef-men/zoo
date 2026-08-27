@@ -38,7 +38,7 @@ Section treemap۰rooted.
     treemap۰path tree dst2 dst1 path2 →
     treemap۰path tree dst2 node (path1 ++ path2).
   Proof.
-    induction 1; naive_solver.
+    induction 1; naive.
   Qed.
   Lemma treemap۰pathｰsnoc {tree dst1 node path} ϵ dst2 edge :
     treemap۰path tree dst1 node path →
@@ -63,7 +63,7 @@ Section treemap۰rooted.
       tree !! node = Some (node', edge) ∧
       treemap۰path tree dst node' path.
   Proof.
-    inversion 1 as [| ? []]. naive_solver.
+    inversion 1 as [| ? []]. naive.
   Qed.
   Lemma treemap۰pathｰappｰinv tree dst node path1 path2 :
     treemap۰path tree dst node (path1 ++ path2) →
@@ -71,7 +71,7 @@ Section treemap۰rooted.
       treemap۰path tree node' node path1 ∧
       treemap۰path tree dst node' path2.
   Proof.
-    move: node. induction path1 => node Hpath; inv/= Hpath; naive_solver.
+    move: node. induction path1 => node Hpath; inv/= Hpath; naive.
   Qed.
 
   Lemma treemap۰pathｰmono {tree dst node path} tree' :
@@ -83,7 +83,7 @@ Section treemap۰rooted.
     econstructor; [| done..].
     rewrite lookup_union_l //.
     apply eq_None_ne_Some_2 => ? ?.
-    rewrite map_disjoint_spec in Htree'. naive_solver.
+    rewrite map_disjoint_spec in Htree'. naive.
   Qed.
 
   Lemma treemap۰rootedｰempty root :
@@ -97,7 +97,7 @@ Section treemap۰rooted.
     treemap۰rooted tree root →
     tree !! root = None.
   Proof.
-    rewrite /treemap۰rooted. naive_solver.
+    rewrite /treemap۰rooted. naive.
   Qed.
 
   Lemma treemap۰pathｰis_nil tree root path :
@@ -118,7 +118,7 @@ Section treemap۰rooted.
       treemap۰path tree root node' path'.
   Proof.
     intros Hrooted Hpath Hnode.
-    inv/= Hpath as [| ? []]. naive_solver.
+    inv/= Hpath as [| ? []]. naive.
   Qed.
 
   #[local] Lemma treemap۰pathｰacyclic {tree root path} node ϵ node' :
@@ -128,7 +128,7 @@ Section treemap۰rooted.
     ϵ.1 = node' →
     node ≠ node'.
   Proof.
-    rewrite /treemap۰rooted. induction 2; naive_solver.
+    rewrite /treemap۰rooted. induction 2; naive.
   Qed.
   Lemma treemap۰rootedｰacyclic {tree root} node ϵ node' :
     treemap۰rooted tree root →
@@ -147,7 +147,7 @@ Section treemap۰rooted.
       ∃ path,
       treemap۰path tree root node path.
   Proof.
-    rewrite /treemap۰rooted. naive_solver.
+    rewrite /treemap۰rooted. naive.
   Qed.
 
   Lemma treemap۰rootedｰlift {tree root} root' edge :

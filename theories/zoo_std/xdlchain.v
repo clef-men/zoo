@@ -233,7 +233,7 @@ Section zoo۰G.
     False.
   Proof.
     iIntros "% H1 H2".
-    destruct nodes as [| ? []]; first naive_solver lia.
+    destruct nodes as [| ? []]; first naive lia.
     1: iDestruct "H1" as "(H1 & _)".
     1: iDestruct "H2" as "(H2 & _)".
     2: iDestruct "H1" as "(_ & H1 & _)".

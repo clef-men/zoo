@@ -87,7 +87,7 @@ Section zoo۰G.
     { clear.
       apply eq_None_ne_Some. intros x (k & Hk & Hl & _)%chunkｰlookup.
       rewrite -{1}(location۰addｰ0 l) in Hl.
-      naive_solver lia.
+      naive lia.
     }
     iEval (rewrite location۰addｰ0).
     iSteps.

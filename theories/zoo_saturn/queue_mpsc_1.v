@@ -185,7 +185,7 @@ Module base.
       iIntros "Hauth".
       iMod (mono_listｰupdateｰsnoc with "Hauth") as "Hauth".
       iDestruct (history۰atｰget with "Hauth") as "#Hat".
-      { rewrite lookup_snoc_Some. naive_solver. }
+      { rewrite lookup_snoc_Some. naive. }
       iSteps.
     Qed.
 
@@ -252,7 +252,7 @@ Module base.
       False.
     Proof.
       iIntros "(:consumer =1) (:consumer =2)".
-      iDestruct (pointstoｰdfracｰne with "Hconsumer_1 Hconsumer_2") as %?; naive_solver.
+      iDestruct (pointstoｰdfracｰne with "Hconsumer_1 Hconsumer_2") as %?; naive.
     Qed.
 
     Lemma queue_mpsc_1٠createｰspec ι :

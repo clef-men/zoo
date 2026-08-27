@@ -62,7 +62,7 @@ Section consistent.
       eauto.
     - intros H ? (us & -> & Hus%list_elem_of_lookup).
       rewrite list_to_set_disjｰempty.
-      naive_solver.
+      naive.
   Qed.
 
   #[local] Lemma consistentｰpush {vs vss i us} v :
@@ -287,7 +287,7 @@ Section ws_hub_std۰G.
     iDestruct "Howner" as "(:owner)". injection Heq as <-.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (ws_deques_publicｰmodelｰowner with "Hdeques_model Hdeques_owner") as "(%us_ & %Hlookup_ & %Hws)". simp.
-    iPureIntro. apply suffix_nil_inv. naive_solver.
+    iPureIntro. apply suffix_nil_inv. naive.
   Qed.
 
   Lemma ws_hub_std٠createｰspec ι sz :

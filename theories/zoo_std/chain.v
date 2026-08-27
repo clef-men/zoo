@@ -48,7 +48,7 @@ Section zoo۰G.
     chain۰model tag2 t2 vs2 dst2 -∗
     ⌜t1 ≠ t2⌝.
   Proof.
-    intros Hlen1 Hlen2. destruct vs1, vs2; [naive_solver lia.. |].
+    intros Hlen1 Hlen2. destruct vs1, vs2; [naive lia.. |].
     iSteps.
   Qed.
   Lemma chainｰphysicallyｰdistinct' tag t vs dst :
@@ -57,7 +57,7 @@ Section zoo۰G.
     chain۰model tag t vs dst ⊢
     False.
   Proof.
-    intros Hlen1 Hlen2. destruct vs; first naive_solver lia.
+    intros Hlen1 Hlen2. destruct vs; first naive lia.
     iIntros "(:model) //".
   Qed.
   Lemma wpｰequalｰchain tag1 t1 vs1 dst1 tag2 t2 vs2 dst2 Φ :
@@ -73,7 +73,7 @@ Section zoo۰G.
     WP t1 == t2 {{ Φ }}.
   Proof.
     intros Hlen1 Hlen2.
-    destruct vs1 as [| v1 vs1], vs2 as [| v2 vs2]; [naive_solver lia.. |].
+    destruct vs1 as [| v1 vs1], vs2 as [| v2 vs2]; [naive lia.. |].
     iIntros "(:model =1) (:model =2) HΦ".
     wp۰pures.
     iDestruct ("HΦ" with "[$Hl1_header $Hl1_next $Hl1_data $Hmodel1' //] [$Hl2_header $Hl2_next $Hl2_data $Hmodel2' //]") as "HΦ".
@@ -178,7 +178,7 @@ Section zoo۰G.
     False.
   Proof.
     intros.
-    destruct vs1, vs2; [naive_solver lia.. |].
+    destruct vs1, vs2; [naive lia.. |].
     iIntros "(:model =1 eq=1) (:model =2 eq=2)". simp.
     iCombine "Hl1_next Hl2_next" gives %(? & _). done.
   Qed.

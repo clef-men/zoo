@@ -347,7 +347,7 @@ Section zoo۰G.
     wp۰apply+ (array٠getｰspec with "[$Hmodel]") as "(% & Hmodel)".
     { rewrite Nat2Z.id lookup_app_l.
       { simp_length. lia. }
-      rewrite list_lookup_fmap_Some. naive_solver.
+      rewrite list_lookup_fmap_Some. naive.
     }
     iSteps.
   Qed.
@@ -374,7 +374,7 @@ Section zoo۰G.
     wp۰apply+ (array٠getｰspec with "[$Hmodel]") as "Hmodel".
     { rewrite Nat2Z.id lookup_app_l.
       { simp_length. lia. }
-      rewrite list_lookup_fmap_Some. naive_solver.
+      rewrite list_lookup_fmap_Some. naive.
     }
     wp۰match. wp۰store.
     iDestruct ("Helems" with "[Helem_header Helem_value]") as "Helems"; first iSteps.

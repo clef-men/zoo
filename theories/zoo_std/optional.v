@@ -18,7 +18,7 @@ Implicit Type o : optional val.
 #[global] Instance Somethingｰinj A :
   Inj (=) (=) (@Something A).
 Proof.
-  rewrite /Inj. naive_solver.
+  rewrite /Inj. naive.
 Qed.
 
 Definition option۰to_optional {A} (o : option A) :=
@@ -44,7 +44,7 @@ Coercion optional۰to_val o :=
 #[global] Instance optional۰to_valｰinj :
   Inj (=) (=) optional۰to_val.
 Proof.
-  intros [] []; naive_solver.
+  intros [] []; naive.
 Qed.
 
 Lemma optional۰to_valｰsimilarｰNothing_l o :

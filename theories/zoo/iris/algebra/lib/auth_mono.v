@@ -111,7 +111,7 @@ Section relation.
     ✓ auth_mono۰auth dq a ↔
     ✓ dq.
   Proof.
-    rewrite auth_both_dfrac_valid_discrete. naive_solver.
+    rewrite auth_both_dfrac_valid_discrete. naive.
   Qed.
   Lemma auth_mono۰authｰvalid a :
     ✓ auth_mono۰auth (DfracOwn 1) a.
@@ -127,8 +127,8 @@ Section relation.
     rewrite /auth_mono۰auth (comm _ (●{dq2} _)) -!assoc (assoc _ (◯ _)).
     rewrite -auth_frag_op (comm _ (◯ _)) assoc.
     move=> /cmra_valid_op_l /auth_auth_dfrac_op_valid.
-    split; first naive_solver.
-    apply (inj (monopo۰principal Rs)). naive_solver.
+    split; first naive.
+    apply (inj (monopo۰principal Rs)). naive.
   Qed.
   Lemma auth_mono۰authｰdfracｰopｰvalidｰL `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} dq1 a1 dq2 a2 :
     ✓ (auth_mono۰auth dq1 a1 ⋅ auth_mono۰auth dq2 a2) ↔
@@ -146,13 +146,13 @@ Section relation.
     ✓ (auth_mono۰auth (DfracOwn 1) a1 ⋅ auth_mono۰auth (DfracOwn 1) a2) →
     False.
   Proof.
-    intros ?%auth_mono۰authｰdfracｰopｰvalid. naive_solver.
+    intros ?%auth_mono۰authｰdfracｰopｰvalid. naive.
   Qed.
   Lemma auth_mono۰authｰopｰvalidｰL `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} a1 a2 :
     ✓ (auth_mono۰auth (DfracOwn 1) a1 ⋅ auth_mono۰auth (DfracOwn 1) a2) ↔
     False.
   Proof.
-    rewrite auth_mono۰authｰdfracｰopｰvalidｰL. naive_solver.
+    rewrite auth_mono۰authｰdfracｰopｰvalidｰL. naive.
   Qed.
 
   Lemma auth_mono۰lbｰopｰvalid a1 a2 :
@@ -171,11 +171,11 @@ Section relation.
       Rs b a.
   Proof.
     rewrite -assoc -auth_frag_op auth_both_dfrac_valid_discrete. split.
-    - intros. split; first naive_solver.
+    - intros. split; first naive.
       rewrite -monopo۰principalｰincluded.
       eapply (cmra_included_trans (A := monopo۰UR _)).
       + apply cmra_included_r.
-      + naive_solver.
+      + naive.
     - intros (? & ?).
       rewrite (comm op) monopo۰principalｰRｰop //.
   Qed.
@@ -183,7 +183,7 @@ Section relation.
     ✓ (auth_mono۰auth (DfracOwn 1) a ⋅ auth_mono۰lb b) ↔
     Rs b a.
   Proof.
-    rewrite auth_monoｰbothｰdfracｰvalid dfrac_valid_own. naive_solver.
+    rewrite auth_monoｰbothｰdfracｰvalid dfrac_valid_own. naive.
   Qed.
 
   Lemma auth_mono۰lbｰmono a1 a2 :
@@ -208,19 +208,19 @@ Section relation.
   Proof.
     split.
     - intros (? & ->%leibniz_equiv)%auth_mono۰authｰdfracｰincluded. done.
-    - rewrite auth_both_dfrac_included monopo۰principalｰincluded. naive_solver.
+    - rewrite auth_both_dfrac_included monopo۰principalｰincluded. naive.
   Qed.
   Lemma auth_mono۰authｰincluded `{!AntiSymm (≡) Rs} a1 a2 :
     auth_mono۰auth (DfracOwn 1) a1 ≼ auth_mono۰auth (DfracOwn 1) a2 →
     a1 ≡ a2.
   Proof.
-    intros ?%auth_mono۰authｰdfracｰincluded. naive_solver.
+    intros ?%auth_mono۰authｰdfracｰincluded. naive.
   Qed.
   Lemma auth_mono۰authｰincludedｰL `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} a1 a2 :
     auth_mono۰auth (DfracOwn 1) a1 ≼ auth_mono۰auth (DfracOwn 1) a2 ↔
     a1 = a2.
   Proof.
-    rewrite auth_mono۰authｰdfracｰincludedｰL. naive_solver.
+    rewrite auth_mono۰authｰdfracｰincludedｰL. naive.
   Qed.
 
   Lemma auth_mono۰lbｰincluded a1 dq a2 :

@@ -271,7 +271,7 @@ Module base.
       iIntros "Hauth".
       iMod (mono_listｰupdateｰsnoc with "Hauth") as "Hauth".
       iDestruct (history۰atｰget with "Hauth") as "#Hat".
-      { rewrite lookup_snoc_Some. naive_solver. }
+      { rewrite lookup_snoc_Some. naive. }
       iSteps.
     Qed.
 
@@ -648,7 +648,7 @@ Module base.
           assert (nodes ≠ []) as Hnodes.
           { apply lookup_lt_Some in Hlookup'.
             rewrite Hhist length_app /= in Hlookup'.
-            naive_solver lia.
+            naive lia.
           }
           iAssert ⌜vs ≠ []⌝%I as %Hvs.
           { destruct_decide (vs = []) as -> | ?; last done.

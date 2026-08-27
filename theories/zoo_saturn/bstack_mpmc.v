@@ -69,7 +69,7 @@ Section bstack_mpmc۰G.
     vs1 = vs2.
   Proof.
     destruct vs1, vs2; try done.
-    intros (_ & _ & [= ->%(inj _) -> ?%(inj _)]). naive_solver.
+    intros (_ & _ & [= ->%(inj _) -> ?%(inj _)]). naive.
   Qed.
 
   #[local] Definition model₁' γ_model vs :=
@@ -366,9 +366,9 @@ Section bstack_mpmc۰G.
         iSplitR "HΦ". { iFrameSteps. }
         iIntros "!> {%- Hcapacity Hlen}".
 
-        destruct vs as [| w vs]; first naive_solver lia.
+        destruct vs as [| w vs]; first naive lia.
         wp۰load. wp۰pures.
-        rewrite bool_decide_eq_true_2; first naive_solver lia.
+        rewrite bool_decide_eq_true_2; first naive lia.
         iSteps.
 
       + iSplitR "Hbackoff HΦ". { iFrameSteps. }

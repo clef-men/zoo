@@ -130,7 +130,7 @@ Module base.
     #[local] Instance pool۰name۰contextｰinj γ :
       Inj (=) (=) (pool۰name۰context γ).
     Proof.
-      rewrite /Inj. naive_solver.
+      rewrite /Inj. naive.
     Qed.
 
     #[local] Definition jobs۰auth' γ_jobs own :=
@@ -840,7 +840,7 @@ Module base.
           wp۰apply+ (domain٠spawnｰspec with "[Hhub_owner Hlocals_at]"); last iSteps. iIntros "%tid _".
           iApply wpｰthread_id_mono.
 
-          wp۰apply+ (pool٠contextｰspec (γ 𝑑𝑜𝑚𝑠) ˖k with "[//]") as "_"; [naive_solver lia.. |].
+          wp۰apply+ (pool٠contextｰspec (γ 𝑑𝑜𝑚𝑠) ˖k with "[//]") as "_"; [naive lia.. |].
           wp۰apply (pool٠workerｰspec with "[Hhub_owner Hlocals_at]"); first iFrameSteps.
           iSteps.
       }

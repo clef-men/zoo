@@ -172,7 +172,7 @@ Section prophet_wise۰G.
     iIntros "(:model) (:snapshot suff=')".
     iDestruct (agree۰onｰagreeｰL with "Hfull Hfull'") as %Hfull.
     iDestruct (mono_list۰lbｰvalid with "Hpast_auth Hpast_lb") as %(past3 & ->).
-    iPureIntro. rewrite -assoc in Hfull. naive_solver.
+    iPureIntro. rewrite -assoc in Hfull. naive.
   Qed.
 
   Lemma prophet_wise۰lbｰget pid γ past prophs :

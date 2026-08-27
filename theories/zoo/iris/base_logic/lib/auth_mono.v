@@ -231,7 +231,7 @@ Section auth_mono۰G.
   Proof.
     iIntros "Hauth Hlb".
     iDestruct (own_valid_2 with "Hauth Hlb") as %?%auth_monoｰbothｰdfracｰvalid.
-    naive_solver.
+    naive.
   Qed.
   Lemma auth_mono۰lbｰagree γ a1 a2 :
     auth_mono۰lb γ a1 -∗

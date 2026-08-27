@@ -17,7 +17,7 @@ Variant goptional {A} :=
 #[global] Instance Somethingｰinj A :
   Inj (=) (=) (@Something A).
 Proof.
-  rewrite /Inj. naive_solver.
+  rewrite /Inj. naive.
 Qed.
 
 Definition option۰to_goptional {A} (o : option A) :=

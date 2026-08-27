@@ -298,9 +298,9 @@ Section random۰round.
       iApply "HΦ".
       iSplitR.
       { iPureIntro.
-        assert (prev ∈ seq 0 sz) as ?%elem_of_seq; last naive_solver.
+        assert (prev ∈ seq 0 sz) as ?%elem_of_seq; last naive.
         rewrite -Hpermutation elem_of_app list_elem_of_lookup.
-        naive_solver.
+        naive.
       }
       iSplitR.
       { iPureIntro.
@@ -308,7 +308,7 @@ Section random۰round.
         rewrite -Hpermutation NoDup_app in Hnodup.
         setoid_rewrite elem_of_reverse in Hnodup.
         setoid_rewrite list_elem_of_lookup at 1 in Hnodup.
-        naive_solver.
+        naive.
       }
       rewrite Nat2Z.id -!list_fmap_insert.
       assert (₊(length nexts - 1) = i) as -> by lia.

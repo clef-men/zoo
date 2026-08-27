@@ -59,7 +59,7 @@ Qed.
 #[global] Instance list۰to_valｰinj :
   Inj (=) (=) list۰to_val.
 Proof.
-  intros vs1. induction vs1 as []; intros []; naive_solver.
+  intros vs1. induction vs1 as []; intros []; naive.
 Qed.
 
 Lemma list۰to_valｰnil :

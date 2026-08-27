@@ -221,7 +221,7 @@ Section mono_list۰G.
     edestruct (prefix_weak_total l1 l2); [done.. | |].
     1: erewrite (prefix_lookup_Some l1 l2) in Hlookup2; [| done..].
     2: erewrite (prefix_lookup_Some l2 l1) in Hlookup1; [| done..].
-    all: naive_solver.
+    all: naive.
   Qed.
   Lemma mono_list۰elemｰvalid γ q l a :
     mono_list۰auth γ q l -∗
@@ -230,7 +230,7 @@ Section mono_list۰G.
   Proof.
     iIntros "Hauth (%i & Hat)".
     iDestruct (mono_list۰atｰvalid with "Hauth Hat") as %Hlookup.
-    iPureIntro. apply list_elem_of_lookup. naive_solver.
+    iPureIntro. apply list_elem_of_lookup. naive.
   Qed.
 
   Lemma mono_listｰupdate {γ l} l' :

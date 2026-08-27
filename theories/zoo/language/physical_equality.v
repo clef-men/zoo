@@ -233,7 +233,7 @@ Proof.
           left _
       end
   ).
-  all: abstract naive_solver.
+  all: abstract naive.
 Defined.
 
 #[global] Instance lowval۰similar : Similar lowval :=
@@ -300,7 +300,7 @@ Defined.
 #[global] Instance lowvalｰnonsimilarｰsymmetric :
   Symmetric (≉@{lowval}).
 Proof.
-  do 2 intros [| | [[] |]]; naive_solver.
+  do 2 intros [| | [[] |]]; naive.
 Qed.
 
 #[global] Instance lowvalｰsimilarｰreflexive :
@@ -310,13 +310,13 @@ Proof.
   intros [| | []].
   4: apply Forall2'ｰrefl in IH as ?.
   all: clear IH.
-  all: naive_solver.
+  all: naive.
 Qed.
 Lemma lowvalｰsimilarｰrefl lv1 lv2 :
   lv1 = lv2 →
   lv1 ≈ lv2.
 Proof.
-  naive_solver.
+  naive.
 Qed.
 #[global] Instance lowvalｰsimilarｰsymmetric :
   Symmetric (≈@{lowval}).
@@ -325,7 +325,7 @@ Proof.
   do 2 intros [| | []].
   16: apply Forall2'ｰsym in IH as ?.
   all: clear IH.
-  all: naive_solver.
+  all: naive.
 Qed.
 #[global] Instance lowvalｰsimilarｰtransitive :
   Transitive (≈@{lowval}).
@@ -334,7 +334,7 @@ Proof.
   do 3 intros [| | []].
   64: apply Forall2'ｰtrans in IH as ?.
   all: clear IH.
-  all: naive_solver.
+  all: naive.
 Qed.
 
 Lemma lowvalｰsimilarｰorｰnonsimilar lv1 lv2 :
@@ -348,7 +348,7 @@ Proof.
   all: try destruct_decide (tag1 = tag2).
   all: try destruct_decide (v1 = v2).
   all: try destruct_decide (vs1 = vs2).
-  all: cbn; naive_solver.
+  all: cbn; naive.
 Qed.
 Lemma lowvalｰnonsimilarｰsimilar lv1 lv2 lv3 :
   lv1 ≉ lv2 →
@@ -357,7 +357,7 @@ Lemma lowvalｰnonsimilarｰsimilar lv1 lv2 lv3 :
 Proof.
   all: destruct lv2 as [| | []].
   all: destruct lv3 as [| | []].
-  all: naive_solver.
+  all: naive.
 Qed.
 
 #[global] Instance val۰nonsimilar : Nonsimilar val :=
@@ -383,37 +383,37 @@ Lemma valｰnonsimilarｰbool b1 b2 :
   ValBool b1 ≉ ValBool b2 →
   b1 ≠ b2.
 Proof.
-  naive_solver.
+  naive.
 Qed.
 Lemma valｰnonsimilarｰchar chr1 chr2 :
   ValChar chr1 ≉ ValChar chr2 →
   chr1 ≠ chr2.
 Proof.
-  naive_solver.
+  naive.
 Qed.
 Lemma valｰnonsimilarｰint n1 n2 :
   ValInt n1 ≉ ValInt n2 →
   n1 ≠ n2.
 Proof.
-  naive_solver.
+  naive.
 Qed.
 Lemma valｰnonsimilarｰnat (n1 n2 : nat) :
   ValNat n1 ≉ ValNat n2 →
   n1 ≠ n2.
 Proof.
-  naive_solver.
+  naive.
 Qed.
 Lemma valｰnonsimilarｰlocation l1 l2 :
   ValLoc l1 ≉ ValLoc l2 →
   l1 ≠ l2.
 Proof.
-  naive_solver.
+  naive.
 Qed.
 Lemma valｰnonsimilarｰblockｰempty gen1 tag1 gen2 tag2 :
   ValBlock gen1 tag1 [] ≉ ValBlock gen2 tag2 [] →
   tag1 ≠ tag2.
 Proof.
-  naive_solver.
+  naive.
 Qed.
 Lemma valｰnonsimilarｰblockｰgenerative bid1 tag1 vs1 bid2 tag2 vs2 :
   tag1 = tag2 →
@@ -423,7 +423,7 @@ Lemma valｰnonsimilarｰblockｰgenerative bid1 tag1 vs1 bid2 tag2 vs2 :
 Proof.
   intros <- <-.
   destruct vs1; first done.
-  cbn. naive_solver.
+  cbn. naive.
 Qed.
 
 #[global] Instance valｰsimilarｰreflexive :
@@ -435,7 +435,7 @@ Lemma valｰsimilarｰrefl v1 v2 :
   v1 = v2 →
   v1 ≈ v2.
 Proof.
-  naive_solver.
+  naive.
 Qed.
 #[global] Instance valｰsimilarｰsymmetric :
   Symmetric (≈@{val}).
@@ -507,7 +507,7 @@ Lemma valｰsimilarｰblockｰgenerative bid1 tag1 vs1 bid2 tag2 vs2 :
     tag1 = tag2 ∧
     vs1 = vs2.
 Proof.
-  destruct vs1, vs2; naive_solver.
+  destruct vs1, vs2; naive.
 Qed.
 Lemma valｰsimilarｰblockｰnongenerative tag1 vs1 tag2 vs2 :
   ValBlock Nongenerative tag1 vs1 ≈ ValBlock Nongenerative tag2 vs2 →
@@ -533,13 +533,13 @@ Lemma valｰsimilarｰblockｰgenerativeｰnongenerative bid1 tag1 vs1 tag2 vs2 
   length vs1 ≠ 0 ∨ length vs2 ≠ 0 →
   ¬ ValBlock (Generative bid1) tag1 vs1 ≈ ValBlock Nongenerative tag2 vs2.
 Proof.
-  destruct vs1, vs2; cbn; naive_solver lia.
+  destruct vs1, vs2; cbn; naive lia.
 Qed.
 Lemma valｰsimilarｰblockｰnongenerativeｰgenerative tag1 vs1 bid2 tag2 vs2 :
   length vs1 ≠ 0 ∨ length vs2 ≠ 0 →
   ¬ ValBlock Nongenerative tag1 vs1 ≈ ValBlock (Generative bid2) tag2 vs2.
 Proof.
-  intros ? []%symmetry%valｰsimilarｰblockｰgenerativeｰnongenerative. naive_solver.
+  intros ? []%symmetry%valｰsimilarｰblockｰgenerativeｰnongenerative. naive.
 Qed.
 
 Lemma valｰsimilarｰorｰnonsimilar v1 v2 :

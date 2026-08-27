@@ -289,8 +289,8 @@ Section side_condition_lemmas.
       (bid1 ≠ bid2 ∨ tag1 ≠ tag2 ∨ vs1 ≠ vs2).
   Proof.
     split.
-    - rewrite -!not_and_l. naive_solver.
-    - naive_solver.
+    - rewrite -!not_and_l. naive.
+    - naive.
   Qed.
 End side_condition_lemmas.
 

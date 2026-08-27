@@ -202,10 +202,10 @@ Section zoo۰G.
     wp۰rec. do 2 wp۰load. wp۰pures.
     case_bool_decide.
 
-    - destruct vs; last naive_solver lia.
+    - destruct vs; last naive lia.
       iSteps.
 
-    - destruct vs as [| v vs]; first naive_solver. simpl in *.
+    - destruct vs as [| v vs]; first naive. simpl in *.
       wp۰load.
       iDestruct (array۰csliceｰcons with "Hvs") as "(Hcell & Hvs)".
       wp۰apply+ (array٠unsafe_cgetｰspecｰcell with "Hcell") as "Hcell"; first done.
@@ -244,11 +244,11 @@ Section zoo۰G.
     wp۰rec. do 2 wp۰load. wp۰pures.
     case_bool_decide.
 
-    - destruct vs; last naive_solver lia.
+    - destruct vs; last naive lia.
       iSpecialize ("HΦ" $! None).
       iSteps.
 
-    - destruct vs as [| v vs _] using rev_ind; first naive_solver. simp_length/= in *.
+    - destruct vs as [| v vs _] using rev_ind; first naive. simp_length/= in *.
       wp۰load.
       iDestruct (array۰csliceｰapp with "Hvs") as "(Hvs & Hcell)".
       wp۰apply+ (array٠unsafe_cgetｰspecｰcell with "Hcell") as "Hcell"; first lia.

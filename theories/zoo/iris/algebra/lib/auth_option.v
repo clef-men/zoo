@@ -124,7 +124,7 @@ Section cmra.
     a ≼ b →
     ◯O a ≼ ◯O b.
   Proof.
-    intros. apply auth_frag_mono, Some_included. naive_solver.
+    intros. apply auth_frag_mono, Some_included. naive.
   Qed.
   Lemma auth_option۰fragｰcore `{!CmraTotal A} a :
     core (◯O a) = ◯O (core a).
@@ -216,16 +216,16 @@ Section cmra.
   Proof.
     rewrite auth_auth_dfrac_op_validN. split.
     - epose proof (inj Some).
-      naive_solver.
-    - naive_solver solve_proper.
+      naive.
+    - naive solve_proper.
   Qed.
   Lemma auth_option۰authｰdfracｰopｰvalid dq1 a1 dq2 a2 :
     ✓ (●O{dq1} a1 ⋅ ●O{dq2} a2) ↔
     ✓ (dq1 ⋅ dq2) ∧ a1 ≡ a2 ∧ ✓ a1.
   Proof.
     rewrite auth_auth_dfrac_op_valid. split.
-    - epose proof (@inj _ _ (≡) (≡) Some). naive_solver apply _.
-    - naive_solver solve_proper.
+    - epose proof (@inj _ _ (≡) (≡) Some). naive apply _.
+    - naive solve_proper.
   Qed.
   Lemma auth_option۰authｰopｰvalidN n a1 a2 :
     ✓{n} (●O a1 ⋅ ●O a2) ↔
@@ -318,38 +318,38 @@ Section cmra.
     ✓{n} (●O{dq} a ⋅ ◯O b) ↔
     ✓ dq ∧ (a ≡{n}≡ b ∨ b ≼{n} a) ∧ ✓{n} a.
   Proof.
-    rewrite auth_both_dfrac_validN Some_includedN. naive_solver.
+    rewrite auth_both_dfrac_validN Some_includedN. naive.
   Qed.
   Lemma auth_optionｰbothｰdfracｰvalid dq a b :
     ✓ (●O{dq} a ⋅ ◯O b) ↔
     ✓ dq ∧ (∀ n, a ≡{n}≡ b ∨ b ≼{n} a) ∧ ✓ a.
   Proof.
-    rewrite auth_both_dfrac_valid. setoid_rewrite Some_includedN. naive_solver.
+    rewrite auth_both_dfrac_valid. setoid_rewrite Some_includedN. naive.
   Qed.
   Lemma auth_optionｰbothｰvalidN n a b :
     ✓{n} (●O a ⋅ ◯O b) ↔
     (a ≡{n}≡ b ∨ b ≼{n} a) ∧ ✓{n} a.
   Proof.
-    rewrite auth_optionｰbothｰdfracｰvalidN. naive_solver done.
+    rewrite auth_optionｰbothｰdfracｰvalidN. naive done.
   Qed.
   Lemma auth_optionｰbothｰvalid a b :
     ✓ (●O a ⋅ ◯O b) ↔
     (∀ n, a ≡{n}≡ b ∨ b ≼{n} a) ∧ ✓ a.
   Proof.
-    rewrite auth_optionｰbothｰdfracｰvalid. naive_solver done.
+    rewrite auth_optionｰbothｰdfracｰvalid. naive done.
   Qed.
 
   Lemma auth_optionｰbothｰdfracｰvalidｰdiscrete `{!CmraDiscrete A} dq a b :
     ✓ (●O{dq} a ⋅ ◯O b) ↔
     ✓ dq ∧ (a ≡ b ∨ b ≼ a) ∧ ✓ a.
   Proof.
-    rewrite auth_both_dfrac_valid_discrete Some_included. naive_solver.
+    rewrite auth_both_dfrac_valid_discrete Some_included. naive.
   Qed.
   Lemma auth_optionｰbothｰvalidｰdiscrete `{!CmraDiscrete A} a b :
     ✓ (●O a ⋅ ◯O b) ↔
     (a ≡ b ∨ b ≼ a) ∧ ✓ a.
   Proof.
-    rewrite auth_both_valid_discrete Some_included. naive_solver.
+    rewrite auth_both_valid_discrete Some_included. naive.
   Qed.
 
   Lemma auth_option۰authｰdfracｰincludedN n dq1 a1 dq2 a2 b :
@@ -358,28 +358,28 @@ Section cmra.
   Proof.
     rewrite auth_auth_dfrac_includedN. split.
     - epose proof (inj Some).
-      naive_solver.
-    - naive_solver solve_proper.
+      naive.
+    - naive solve_proper.
   Qed.
   Lemma auth_option۰authｰdfracｰincluded dq1 a1 dq2 a2 b :
     ●O{dq1} a1 ≼ ●O{dq2} a2 ⋅ ◯O b ↔
     (dq1 ≼ dq2 ∨ dq1 = dq2) ∧ a1 ≡ a2.
   Proof.
     rewrite auth_auth_dfrac_included. split.
-    - epose proof (@inj _ _ (≡) (≡) Some). naive_solver apply _.
-    - naive_solver solve_proper.
+    - epose proof (@inj _ _ (≡) (≡) Some). naive apply _.
+    - naive solve_proper.
   Qed.
   Lemma auth_option۰authｰincludedN n a1 a2 b :
     ●O a1 ≼{n} ●O a2 ⋅ ◯O b ↔
     a1 ≡{n}≡ a2.
   Proof.
-    rewrite auth_option۰authｰdfracｰincludedN. naive_solver.
+    rewrite auth_option۰authｰdfracｰincludedN. naive.
   Qed.
   Lemma auth_option۰authｰincluded a1 a2 b :
     ●O a1 ≼ ●O a2 ⋅ ◯O b ↔
     a1 ≡ a2.
   Proof.
-    rewrite auth_option۰authｰdfracｰincluded. naive_solver.
+    rewrite auth_option۰authｰdfracｰincluded. naive.
   Qed.
 
   Lemma auth_option۰fragｰincludedN n dq a b1 b2 :
@@ -401,16 +401,16 @@ Section cmra.
   Proof.
     rewrite auth_both_dfrac_includedN Some_includedN. split.
     - epose proof (inj Some).
-      naive_solver.
-    - naive_solver solve_proper.
+      naive.
+    - naive solve_proper.
   Qed.
   Lemma auth_optionｰbothｰdfracｰincluded dq1 a1 dq2 a2 b1 b2 :
     ●O{dq1} a1 ⋅ ◯O b1 ≼ ●O{dq2} a2 ⋅ ◯O b2 ↔
     (dq1 ≼ dq2 ∨ dq1 = dq2) ∧ a1 ≡ a2 ∧ (b1 ≡ b2 ∨ b1 ≼ b2).
   Proof.
     rewrite auth_both_dfrac_included Some_included. split.
-    - epose proof (@inj _ _ (≡) (≡) Some). naive_solver apply _.
-    - naive_solver solve_proper.
+    - epose proof (@inj _ _ (≡) (≡) Some). naive apply _.
+    - naive solve_proper.
   Qed.
   Lemma auth_optionｰbothｰincludedN n a1 a2 b1 b2 :
     ●O a1 ⋅ ◯O b1 ≼{n} ●O a2 ⋅ ◯O b2 ↔
@@ -418,16 +418,16 @@ Section cmra.
   Proof.
     rewrite auth_both_includedN Some_includedN. split.
     - epose proof (inj Some).
-      naive_solver.
-    - naive_solver solve_proper.
+      naive.
+    - naive solve_proper.
   Qed.
   Lemma auth_optionｰbothｰincluded a1 a2 b1 b2 :
     ●O a1 ⋅ ◯O b1 ≼ ●O a2 ⋅ ◯O b2 ↔
     a1 ≡ a2 ∧ (b1 ≡ b2 ∨ b1 ≼ b2).
   Proof.
     rewrite auth_both_included Some_included. split.
-    - epose proof (@inj _ _ (≡) (≡) Some). naive_solver apply _.
-    - naive_solver solve_proper.
+    - epose proof (@inj _ _ (≡) (≡) Some). naive apply _.
+    - naive solve_proper.
   Qed.
 
   Lemma auth_option۰authｰpersist dq a :
@@ -440,7 +440,7 @@ Section cmra.
     ●O{dq} a ~~> ●O{dq} a ⋅ ◯O b.
   Proof.
     intros. apply auth_update_dfrac_alloc; first apply _.
-    rewrite Some_included. naive_solver.
+    rewrite Some_included. naive.
   Qed.
   Lemma auth_option۰authｰupdate a b `{!CoreId b} :
     a ≡ b ∨ b ≼ a →
@@ -463,7 +463,7 @@ Section cmra.
   Proof.
     intros. apply auth_local_update; last done.
     - apply option_local_update. done.
-    - rewrite Some_included. naive_solver.
+    - rewrite Some_included. naive.
   Qed.
 End cmra.
 

@@ -260,7 +260,7 @@ Section zoo۰G.
     rewrite into_laterN_env_sound -wpｰbind' -wpｰequal //.
     apply bi.later_mono, bi.and_intro.
     all: repeat (rewrite bi.pure_wand_forall; apply bi.forall_intro => ?).
-    all: naive_solver.
+    all: naive.
   Qed.
 
   Lemma tacｰwpｰalloc Δ1 Δ2 id1 id2 id3 K 𝑡𝑎𝑔 tag n tid E Φ :

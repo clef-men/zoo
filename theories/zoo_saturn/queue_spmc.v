@@ -605,7 +605,7 @@ Module base.
           assert (nodes ≠ []) as Hnodes.
           { apply lookup_lt_Some in Hlookup'.
             rewrite Hhist length_app /= in Hlookup'.
-            naive_solver lia.
+            naive lia.
           }
           iAssert ⌜vs ≠ []⌝%I as %Hvs.
           { destruct_decide (vs = []) as -> | ?; last done.

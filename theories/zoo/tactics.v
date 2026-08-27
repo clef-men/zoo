@@ -5,6 +5,11 @@ Require Import zoo.prelude.
 Ltac done :=
   stdpp.tactics.done.
 
+Tactic Notation "naive" tactic(tac) :=
+  naive_solver tac.
+Tactic Notation "naive" :=
+  naive_solver.
+
 Tactic Notation "simp" :=
   repeat (destruct_conjs; destruct_or?);
   simplify_eq/=.

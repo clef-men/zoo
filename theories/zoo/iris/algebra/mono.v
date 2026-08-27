@@ -70,11 +70,11 @@ Section relation.
     apply ra_total_mixin; try done.
     - intros ? ?* Heq a.
       specialize (Heq a).
-      rewrite !belowｰapp. naive_solver.
+      rewrite !belowｰapp. naive.
     - intros ?*. done.
-    - intros ?* ?*. rewrite !belowｰapp. naive_solver.
-    - intros ?* ?*. rewrite !belowｰapp. naive_solver.
-    - intros ? ?*. rewrite belowｰapp. naive_solver.
+    - intros ?* ?*. rewrite !belowｰapp. naive.
+    - intros ?* ?*. rewrite !belowｰapp. naive.
+    - intros ? ?*. rewrite belowｰapp. naive.
   Qed.
   Canonical mono۰R :=
     Cmra (mono R) monoｰcmra_mixin.
@@ -109,7 +109,7 @@ Section relation.
   Lemma monoｰidemp x :
     x ⋅ x ≡ x.
   Proof.
-    intros ?*. rewrite belowｰapp. naive_solver.
+    intros ?*. rewrite belowｰapp. naive.
   Qed.
 
   Lemma monoｰincluded x y :
@@ -147,7 +147,7 @@ Section relation.
     all: rewrite belowｰapp.
     - intros [(c & (d & Hd1 & Hd2)%HR & Hc2) |]; last done.
       exists d. eauto.
-    - naive_solver.
+    - naive.
   Qed.
   Lemma mono۰principalｰRｰopN `{!Transitive R} n a b :
     R a b →
@@ -156,7 +156,7 @@ Section relation.
     intros.
     apply mono۰principalｰRｰopNｰbase => c.
     setoid_rewrite list_elem_of_singleton.
-    naive_solver.
+    naive.
   Qed.
   Lemma mono۰principalｰRｰop `{!Transitive R} a b :
     R a b →
@@ -174,7 +174,7 @@ Section relation.
     intros Ha HR.
     destruct (HR a) as [[z [HR1%list_elem_of_singleton HR2]] _].
     - rewrite belowｰapp belowｰprincipal. auto.
-    - naive_solver.
+    - naive.
   Qed.
   Lemma mono۰principalｰopｰR' a b x :
     R a a →
@@ -224,7 +224,7 @@ Section relation.
       + exists b. split; first constructor.
         specialize (Habz w) as [_ [c [->%list_elem_of_singleton Hc2]]].
         { exists y. split; last done.
-          apply elem_of_app. naive_solver.
+          apply elem_of_app. naive.
         }
         etrans; eauto.
   Qed.
@@ -275,7 +275,7 @@ Section ofe_relation.
     intros Hab ?.
     destruct (Hab a) as [[? [?%list_elem_of_singleton ?]] _].
     - exists a. rewrite list_elem_of_singleton //.
-    - naive_solver.
+    - naive.
   Qed.
   Lemma mono۰principalｰinjｰgeneral a b :
     mono۰principal R a ≡ mono۰principal R b →

@@ -43,7 +43,7 @@ Section consistent.
     setoid_rewrite elem_of_gmultiset_disj_union_list.
     setoid_rewrite list_elem_of_fmap.
     setoid_rewrite elem_ofｰoflatten.
-    eexists. split; naive_solver set_solver.
+    eexists. split; naive set_solver.
   Qed.
   #[local] Lemma consistentｰinsert {vs os i} v :
     os !! i = Some None →

@@ -1424,7 +1424,7 @@ Module base.
         iDestruct "Hwinner" as "(:winner۰pending₂)".
         iRight. iFrame. iRight.
         iDestruct "Hwinner" as "(:winner۰model₁)"; last iFrameSteps.
-        destruct vs3 as [| v vs3]; first naive_solver lia.
+        destruct vs3 as [| v vs3]; first naive lia.
         iEval (rewrite -(assoc _ [_])) in "Hdata1_cslice₁".
         iDestruct (array۰csliceｰapp₂ with "Hdata1_cslice₁") as "-#($ & _)"; first done.
         iSteps.
@@ -1681,7 +1681,7 @@ Module base.
       iDestruct "Hstate" as "[(:inv۰state۰nonempty۰steal =1) | (:inv۰state۰emptyish۰steal =1)]".
 
       - iDestruct "Hwinner" as "(:winner۰pending₁)".
-        destruct vs1 as [| v1 vs1] => /=; first naive_solver lia.
+        destruct vs1 as [| v1 vs1] => /=; first naive lia.
 
         iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
         iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
@@ -1711,7 +1711,7 @@ Module base.
               rewrite fn_lookup_alter_ne; first lia.
               apply Hpasts1; first lia.
 
-          - destruct vs1 as [| v2 vs1] => /=; first naive_solver lia.
+          - destruct vs1 as [| v2 vs1] => /=; first naive lia.
             simpl in Hvs1.
             iMod (historyｰupdate _ v2 with "Hhistory_auth") as "(Hhistory_auth & #Hhistory_at)"; first done.
             iExists Nonempty. iFrameSteps; iPureIntro.
@@ -2096,7 +2096,7 @@ Module base.
       iDestruct "Hwinner" as "[(:winner) | (:winner۰pending₂ !=)]"; last first.
       { iDestruct (identifier۰modelｰexclusive with "Hid Hid_") as %[]. }
 
-      destruct vs2 as [| v vs2] => /=; first naive_solver lia.
+      destruct vs2 as [| v vs2] => /=; first naive lia.
       iMod (winnerｰupdate front1 (Some data2) (Φ (Some v)) with "Hwinner_pop Hwinner_steal") as "(Hwinner_pop & Hwinner_steal)".
 
       iSplitR "Hwinner_pop".
@@ -2347,7 +2347,7 @@ Module base.
 
       iDestruct "Hstate" as "(:inv۰state۰nonempty =1 lazy=)".
       assert (0 < back) as Hback by lia.
-      destruct vs1 as [| v vs1 _] using rev_ind; first naive_solver lia.
+      destruct vs1 as [| v vs1 _] using rev_ind; first naive lia.
       simp_length/= in Hvs1.
       simp_length/= in Hdata1.
 

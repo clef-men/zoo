@@ -20,7 +20,7 @@ Lemma locationｰeqｰspec l1 l2 :
   l1 = l2 ↔
   location۰car l1 = location۰car l2.
 Proof.
-  destruct l1, l2; naive_solver.
+  destruct l1, l2; naive.
 Qed.
 
 #[global] Instance locationｰinhabited : Inhabited location :=
@@ -78,7 +78,7 @@ Lemma location۰freshｰfresh ls i :
 Proof.
   intros Hi.
   enough (∀ l, l ∈ ls → location۰car l < location۰car (location۰fresh ls) + i).
-  { naive_solver lia. }
+  { naive lia. }
   apply (set_fold_ind_L (λ r ls, ∀ l, l ∈ ls → (location۰car l < r + i))).
   all: set_solver by eauto with lia.
 Qed.

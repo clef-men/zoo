@@ -96,7 +96,7 @@ Section graph.
     path g a1 xs a2 ∧ a3 = a4 ∧ (a2,b,a3) ∈ g.
   Proof.
     intros Hpath. apply pathｰappｰinv in Hpath. destruct Hpath as (?&?&Hpath).
-    inversion Hpath. subst. inversion H9. naive_solver.
+    inversion Hpath. subst. inversion H9. naive.
   Qed.
 
   Definition acyclic g := ∀ a xs, path g a xs a → xs = nil.
@@ -146,7 +146,7 @@ Section graph.
       { eapply elem_ofｰvertices. eauto. }
       assert (path g r0 ((r0,x1,r1)::xs1) r) as Hp1. by eapply pathｰcons.
       assert (path g r0 ((r0,x2,r2)::xs2) r) as Hp2. by eapply pathｰcons.
-      specialize (Huniq _ _ _ _ Hp1 Hp2). naive_solver. }
+      specialize (Huniq _ _ _ _ Hp1 Hp2). naive. }
   Qed.
 
   Lemma acyclicｰunaliasedｰimplｰuniq_path g :
@@ -271,9 +271,9 @@ Section graph.
     (x = z ∧ bs = nil) ∨ ∃ bs' b y, bs = bs' ++ [(y,b,z)] ∧ path g x bs' y ∧ (y,b,z) ∈ g.
   Proof.
     induction 1.
-    { naive_solver.  }
+    { naive.  }
     right. destruct IHpath as [(->&->)|(bs'&b'&y&->&?&?)].
-    { exists nil. eexists _,_. split; first done. split. eauto using pathｰnil. naive_solver. }
+    { exists nil. eexists _,_. split; first done. split. eauto using pathｰnil. naive. }
     { exists ((a1, b, a2) :: bs'). eexists _,_. rewrite app_comm_cons //. split_and !; try done.
       apply pathｰcons; eauto. }
   Qed.
@@ -290,7 +290,7 @@ Section graph.
     right.
     assert (b0=b ∧ y=r) as (->&->).
     { rewrite /edge elem_of_union elem_of_singleton in Hedge.
-      destruct Hedge. naive_solver. exfalso. apply Hr', elem_ofｰvertices. eauto. }
+      destruct Hedge. naive. exfalso. apply Hr', elem_ofｰvertices. eauto. }
     eexists. split; first done.
     eauto using pathｰcycleｰendｰinvｰaux.
   Qed.
@@ -414,7 +414,7 @@ Section graph.
     { intros. congruence. }
     intros a3' a4'. inversion 1. subst. intros _. destruct bs.
     { inversion Hp1; inversion H10. subst. done. }
-    apply IHHp1 in H10. 2:done. naive_solver.
+    apply IHHp1 in H10. 2:done. naive.
   Qed.
 
   Lemma pathｰendsｰvertices g x1 xs x2 :
@@ -719,7 +719,7 @@ Section sstore_1۰G.
 
     iDestruct (big_sepM_lookup_acc _ _ l v with "[$]") as "(?&Hσ0)".
     { destruct Hinv as [_ Hincl _ _].
-      specialize (Hincl l). rewrite Hl in Hincl. destruct (σ0!!l); naive_solver. }
+      specialize (Hincl l). rewrite Hl in Hincl. destruct (σ0!!l); naive. }
 
     iStepFrameSteps 8.
   Qed.
@@ -1114,7 +1114,7 @@ Section sstore_1۰G.
       simpl. rewrite right_id_L. set_solver. }
     intros Hp1 Hp2. apply pathｰinvｰr in Hp1.
     destruct Hp1 as [? | (bs'&b'&y&X1&X2&X3)].
-    { destruct xs1; naive_solver. }
+    { destruct xs1; naive. }
     apply app_inj_tail in X1. destruct X1 as (<-&->).
 
     apply pathｰinvｰr in Hp2. destruct Hp2 as [(->&->) | (bs'&b&y'&->&?&?)].
@@ -1123,7 +1123,7 @@ Section sstore_1۰G.
 
     destruct_decide (y' = y); last first.
     { eexists _,_,nil. rewrite !right_id_L. split_and!; try done.
-      unfold diff_last. rewrite !last_app. simpl. naive_solver. }
+      unfold diff_last. rewrite !last_app. simpl. naive. }
     subst.
 
     destruct (IHxs1 _ _ _ _ X2 H) as (ys1&ys2&xs&->&->&Hdiff).
@@ -1145,7 +1145,7 @@ Section sstore_1۰G.
   Proof.
     destruct l as [| x l _] using rev_ind. 1: done.
     intros _. unfold diff_last.
-    rewrite !last_app //. simpl. naive_solver.
+    rewrite !last_app //. simpl. naive.
   Qed.
 
   Lemma pathｰuseｰdiff_last (g:gset (location*(location*val)*location)) a1 a2 ys1 ys2 xs r :
@@ -1201,7 +1201,7 @@ Section sstore_1۰G.
     diff_last l1 l2 ↔ diff_last l2 l1.
   Proof.
     unfold diff_last.
-    destruct (last l1),(last l2); naive_solver.
+    destruct (last l1),(last l2); naive.
   Qed.
 
   Lemma pathｰunionｰinv (g1: graph location (location*val)) g2 a1 xs a2 :
@@ -1241,7 +1241,7 @@ Section sstore_1۰G.
     { inversion H6. subst. eauto using pathｰnil. }
     eapply IHzs; eauto. inversion H6. subst.
     apply elem_of_list_to_set in X2. apply X3 in X2.
-    destruct X2 as [|(?&?&?)]. naive_solver.
+    destruct X2 as [|(?&?&?)]. naive.
     assert ((l, x, x0) ∈  g1 ∪ list_to_set ys) as Z. set_solver.
     destruct (X1 _ _ _ _ _ H9 Z). set_solver.
   Qed.
@@ -1260,10 +1260,10 @@ Section sstore_1۰G.
     subst. eapply pathｰcannotｰescape in Hp1; eauto.
     apply pathｰinvｰr in Hp2.
     destruct Hp2 as [|(?&?&?&Heq&Hp2&Hys)].
-    { exfalso. destruct xs1; naive_solver. }
+    { exfalso. destruct xs1; naive. }
     apply elem_of_list_to_set in Hys.
     apply Hclosed in Hys. destruct Hys as [->|(?&?&Hys)].
-    { naive_solver. }
+    { naive. }
     assert ((a, x3, x4) ∈  g1 ∪ list_to_set ys) as Z. set_solver.
     destruct (Hinj _ _ _ _ _ H Z). set_solver.
   Qed.
@@ -1291,7 +1291,7 @@ Section sstore_1۰G.
       apply pathｰmiddle in Ha. destruct Ha as (y&Hy1&Hy2).
       apply pathｰmiddle in Hpath. destruct Hpath as (y'&Hy'1&Hy'2).
       assert (y'=y) as ->.
-      { inversion Hy'2; subst; inversion Hy2; naive_solver. }
+      { inversion Hy'2; subst; inversion Hy2; naive. }
       eapply useｰmirrorｰsubset in Hmirror. 3:apply Hy'1. 2:set_solver.
       destruct Hmirror as (zs&Hzs&_).
       exists (ys1++zs). eapply pathｰapp.
@@ -1500,7 +1500,7 @@ Section sstore_1۰G.
       iStep 5.
       repeat iExists _. iDecompose "HC". iFrame "#∗".
       iPureIntro. split_and!; try done.
-      destruct Hinv as [X1 X2 X3 X4]. constructor; eauto. naive_solver.
+      destruct Hinv as [X1 X2 X3 X4]. constructor; eauto. naive.
     }
 
     assert (rs ∈ vertices g) as Hrs.

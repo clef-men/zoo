@@ -449,7 +449,7 @@ Section inf_array۰G.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
     iMod (modelｰupdate (<[₊i := w]> vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-    iMod ("HΦ" with "[$Hmodel₁ Hw] H£") as "HΦ"; first naive_solver.
+    iMod ("HΦ" with "[$Hmodel₁ Hw] H£") as "HΦ"; first naive.
 
     iFrame. rewrite Hv. iSplitR "HΦ"; last iSteps. iPureIntro.
     rewrite length_insert Hvs.

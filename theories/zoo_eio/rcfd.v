@@ -438,9 +438,9 @@ Section rcfd۰G.
     iIntros "Hauth Hlb".
     iDestruct (lstateｰvalid with "Hauth Hlb") as %Hlsteps.
     iPureIntro.
-    apply rtc_inv in Hlsteps as [<- | (lstate' & Hlstep & Hlsteps)]; first naive_solver.
+    apply rtc_inv in Hlsteps as [<- | (lstate' & Hlstep & Hlsteps)]; first naive.
     inv Hlstep.
-    apply rtc_inv in Hlsteps as [<- | (lstate' & Hlstep & Hlsteps)]; first naive_solver.
+    apply rtc_inv in Hlsteps as [<- | (lstate' & Hlstep & Hlsteps)]; first naive.
     inv Hlstep.
   Qed.
   #[local] Lemma lstateｰvalidｰclosingｰusers' γ lstate :
@@ -460,7 +460,7 @@ Section rcfd۰G.
     iIntros "Hauth Hlb".
     iDestruct (lstateｰvalid with "Hauth Hlb") as %Hlsteps.
     iPureIntro.
-    apply rtc_inv in Hlsteps as [<- | (lstate' & Hlstep & Hlsteps)]; first naive_solver.
+    apply rtc_inv in Hlsteps as [<- | (lstate' & Hlstep & Hlsteps)]; first naive.
     inv Hlstep.
   Qed.
   #[local] Lemma lstateｰupdateｰcloseｰusers γ :
@@ -1154,7 +1154,7 @@ Section rcfd۰G.
       wp۰cas as Hcas.
 
       + iDestruct (inv۰lstateｰClosing with "Hlstate Hlstate_auth") as "(%fn2 & -> & %Hlstate2 & #Hlstate_lb)".
-        { intros ->. zoo۰simp in Hcas. naive_solver. }
+        { intros ->. zoo۰simp in Hcas. naive. }
 
         destruct γ.(metadata۰owned).
         { iDestruct (ownerｰlstate۰auth with "Howner Hlstate_auth") as %->. congruence. }
@@ -1306,7 +1306,7 @@ Section rcfd۰G.
       wp۰cas as Hcas.
 
       + iDestruct (inv۰lstateｰClosing with "Hlstate Hlstate_auth") as "(%fn2 & -> & %Hlstate2 & #Hlstate_lb)".
-        { intros ->. zoo۰simp in Hcas. naive_solver. }
+        { intros ->. zoo۰simp in Hcas. naive. }
 
         destruct γ.(metadata۰owned).
         { iDestruct (ownerｰlstate۰auth with "Howner Hlstate_auth") as %->. congruence. }

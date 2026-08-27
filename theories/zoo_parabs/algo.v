@@ -105,9 +105,9 @@ Section algo۰G.
       iSteps.
 
     - pose mid : Z := beg + (end_ - beg) `quot` 2.
-      iEval (replace ₊(end_ - beg) with (₊(mid - beg) + ₊(end_ - mid)) by naive_solver lia) in "HΧ".
-      iDestruct ("HΧ_split" with "[%] [%] HΧ") as "(HΧ_1 & HΧ_2)"; [naive_solver lia.. |].
-      iEval (replace (beg + ₊(mid - beg))%Z with mid by naive_solver lia) in "HΧ_2".
+      iEval (replace ₊(end_ - beg) with (₊(mid - beg) + ₊(end_ - mid)) by naive lia) in "HΧ".
+      iDestruct ("HΧ_split" with "[%] [%] HΧ") as "(HΧ_1 & HΧ_2)"; [naive lia.. |].
+      iEval (replace (beg + ₊(mid - beg))%Z with mid by naive lia) in "HΧ_2".
 
       wp۰apply (future٠asyncｰspec
         ( λ res,
@@ -120,17 +120,17 @@ Section algo۰G.
         )%I
       with "[$Hctx HΧ_1]") as (fut) "(Hctx & #Hfut_inv & Hfut_consumer)".
       { iIntros "{% ctx scope} %ctx %scope Hctx".
-        wp۰apply+ ("HLöb" with "[%] Hctx HΧ_1"); first naive_solver lia.
+        wp۰apply+ ("HLöb" with "[%] Hctx HΧ_1"); first naive lia.
         { iSteps. }
       }
 
-      wp۰apply+ ("HLöb" with "[%] Hctx HΧ_2") as "(Hctx & HΨ_2)"; first naive_solver lia.
+      wp۰apply+ ("HLöb" with "[%] Hctx HΧ_2") as "(Hctx & HΨ_2)"; first naive lia.
 
       iApply wpｰfupd.
       wp۰apply+ (future٠waitｰspec with "[$]") as (res) "(H£ & Hctx & Hfut_result)".
       iMod (futureｰinvｰresultｰconsumer' with "H£ Hfut_inv Hfut_result Hfut_consumer") as "((-> & HΨ_1) & _)".
 
-      iDestruct (big_sepLｰseqZｰapp₂ with "HΨ_1 HΨ_2") as "HΨ"; [naive_solver lia.. |].
+      iDestruct (big_sepLｰseqZｰapp₂ with "HΨ_1 HΨ_2") as "HΨ"; [naive lia.. |].
       iEval (replace (mid - beg + (end_ - mid))%Z with (end_ - beg)%Z by lia) in "HΨ".
 
       iSteps.
@@ -617,7 +617,7 @@ Section algo۰G.
 
     - pose mid : Z := beg + (end_ - beg) `quot` 2.
       iEval (replace (end_ - beg)%Z with ((mid - beg) + (end_ - mid))%Z by lia) in "Hbody".
-      iDestruct (big_sepLｰseqZｰapp with "Hbody") as "(Hbody_1 & Hbody_2)"; [naive_solver lia.. |].
+      iDestruct (big_sepLｰseqZｰapp with "Hbody") as "(Hbody_1 & Hbody_2)"; [naive lia.. |].
       iEval (replace (beg + (mid - beg))%Z with mid by lia) in "Hbody_2".
 
       wp۰apply+ (future٠asyncｰspec
@@ -625,20 +625,20 @@ Section algo۰G.
         (λ _, True)%I
         with "[$Hctx Hbody_1]") as (fut) "(Hctx & #Hfut_inv & Hfut_consumer)".
       { iIntros "{% ctx scope} %ctx %scope Hctx".
-        wp۰apply+ ("HLöb" with "[%] [$] Hbody_1"); first naive_solver lia.
+        wp۰apply+ ("HLöb" with "[%] [$] Hbody_1"); first naive lia.
         iSteps.
       }
 
-      wp۰apply+ ("HLöb" with "[%] [$] Hbody_2") as (acc2) "(Hctx & HΧ_2)"; first naive_solver lia.
+      wp۰apply+ ("HLöb" with "[%] [$] Hbody_2") as (acc2) "(Hctx & HΧ_2)"; first naive lia.
 
       wp۰apply+ (future٠waitｰspec with "[$]") as (acc1) "(H£_2 & Hctx & #Hfut_result)".
       iMod (futureｰinvｰresultｰconsumer' with "H£_2 Hfut_inv Hfut_result Hfut_consumer") as "(HΧ_1 & _)".
 
-      iEval (replace mid with (beg + ₊(mid - beg))%Z by naive_solver lia) in "HΧ_2".
+      iEval (replace mid with (beg + ₊(mid - beg))%Z by naive lia) in "HΧ_2".
       iApply wpｰfupd.
-      wp۰apply+ (wpｰwand with "(Hop_app [%] [%] HΧ_1 HΧ_2)") as (acc) "HΧ"; [naive_solver lia.. |].
+      wp۰apply+ (wpｰwand with "(Hop_app [%] [%] HΧ_1 HΧ_2)") as (acc) "HΧ"; [naive lia.. |].
       iMod (lc_fupd_elim_later with "H£_1 HΧ") as "HΧ".
-      iEval (replace _ with ₊(end_ - beg) by naive_solver lia) in "HΧ".
+      iEval (replace _ with ₊(end_ - beg) by naive lia) in "HΧ".
 
       iSteps.
   Qed.
@@ -1010,7 +1010,7 @@ Section algo۰G.
 
       pose mid : Z := beg + (end_ - beg) `quot` 2.
       iEval (replace (end_ - beg)%Z with ((mid - beg) + (end_ - mid))%Z by lia) in "Hpred".
-      iDestruct (big_sepLｰseqZｰapp with "Hpred") as "(Hpred_1 & Hpred_2)"; [naive_solver lia.. |].
+      iDestruct (big_sepLｰseqZｰapp with "Hpred") as "(Hpred_1 & Hpred_2)"; [naive lia.. |].
       iEval (replace (beg + (mid - beg))%Z with mid by lia) in "Hpred_2".
 
       wp۰apply+ (future٠asyncｰspec
@@ -1025,11 +1025,11 @@ Section algo۰G.
         (λ _, True)%I
         with "[$Hctx Htoken_1 Hpred_1]") as (fut) "(Hctx & #Hfut_inv & Hfut_consumer)".
       { iIntros "{% ctx scope} %ctx %scope Hctx".
-        wp۰apply+ ("HLöb" with "[%] [$] [$] Hpred_1"); first naive_solver lia.
+        wp۰apply+ ("HLöb" with "[%] [$] [$] Hpred_1"); first naive lia.
         iSteps.
       }
 
-      wp۰apply+ ("HLöb" with "[%] [$] [$] Hpred_2") as "(Hctx & H)"; first naive_solver lia.
+      wp۰apply+ ("HLöb" with "[%] [$] [$] Hpred_2") as "(Hctx & H)"; first naive lia.
 
       iApply wpｰfupd.
       wp۰apply+ (future٠waitｰspec with "[$]") as (res) "(H£ & Hctx & #Hfut_result)".
@@ -1039,7 +1039,7 @@ Section algo۰G.
 
       iCombine "Htoken_1 Htoken_2" as "Htoken".
 
-      iDestruct (big_sepLｰseqZｰapp₂ with "HΧ_1 HΧ_2") as "HΧ"; [naive_solver lia.. |].
+      iDestruct (big_sepLｰseqZｰapp₂ with "HΧ_1 HΧ_2") as "HΧ"; [naive lia.. |].
       iEval (replace (mid - beg + (end_ - mid))%Z with (end_ - beg)%Z by lia) in "HΧ".
 
       iSteps.

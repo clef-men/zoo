@@ -275,7 +275,7 @@ Section ghost_heap۰G.
     iCombine "Hη1 Hη2" gives %Hvalid.
     iPureIntro. move: Hvalid.
     rewrite -reservation_map_data_op reservation_map_data_valid.
-    move=> /to_agree_op_inv_L. naive_solver.
+    move=> /to_agree_op_inv_L. naive.
   Qed.
   Lemma ghost_heap۰metaｰset `{Countable A} γ E l (x : A) ι :
     ↑ι ⊆ E →

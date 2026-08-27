@@ -802,17 +802,17 @@ Lemma to_valsｰof_vals vs :
   to_vals (of_vals vs) = Some vs.
 Proof.
   induction vs as [| v vs IH]; first done.
-  rewrite /= IH. naive_solver.
+  rewrite /= IH. naive.
 Qed.
 Lemma of_valsｰto_vals es vs :
   to_vals es = Some vs →
   of_vals vs = es.
 Proof.
-  revert vs. induction es as [| e es IH]; first naive_solver. move=> [| v vs] /= H.
+  revert vs. induction es as [| e es IH]; first naive. move=> [| v vs] /= H.
   all: destruct (to_val e) eqn:Heq, (to_vals es); try done.
   inv H.
-  f_equal; last naive_solver.
-  destruct e; naive_solver.
+  f_equal; last naive.
+  destruct e; naive.
 Qed.
 #[global] Instance of_valsｰinj :
   Inj (=) (=) of_vals.

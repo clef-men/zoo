@@ -316,7 +316,7 @@ Section zoo۰G.
     ⌜nodes1 ≠ nodes2⌝.
   Proof.
     iIntros "% % H1 H2" (->).
-    iDestruct (xtchainｰvalidｰ2 with "H1 H2") as %?; naive_solver.
+    iDestruct (xtchainｰvalidｰ2 with "H1 H2") as %?; naive.
   Qed.
   Lemma xtchainｰne hdr nodes1 dst1 dq2 nodes2 dst2 :
     0 < length nodes1 →

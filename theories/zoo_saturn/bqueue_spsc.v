@@ -934,11 +934,11 @@ Section bqueue_spsc۰G.
       iStep.
       rewrite assoc. iSplitL "Hfront Hvs Hback_".
       - destruct vs3 as [| v' vs3]; iFrame.
-        + assert (front3 = back) as -> by naive_solver lia.
+        + assert (front3 = back) as -> by naive lia.
           destruct cstable3; iSteps.
         + rewrite /= !drop_0 fmap_app.
           iApply (array۰csliceｰapp₁ with "Hvs Hback_").
-          simp_length. naive_solver lia.
+          simp_length. naive lia.
       - case_decide.
         + assert (γ.(metadata۰capacity) - (˖back - front3) - 1 = 0) as -> by lia.
           iSteps.
@@ -1047,7 +1047,7 @@ Section bqueue_spsc۰G.
     iInv "Hinv" as "(:inv۰inner =1)".
     iDestruct (consumerｰagree with "Hconsumer₁ Hconsumer₂") as %(<- & <-).
     iDestruct (back۰lbｰvalid with "Hproducer₂ Hback_lb") as %Hback1_ge.
-    destruct vs1 as [| v vs1]; first naive_solver lia.
+    destruct vs1 as [| v vs1]; first naive lia.
     iDestruct (history۰atｰget front v with "Hhistory_auth") as "#Hhistory_at".
     { rewrite -(take_drop front hist1) -Hvs1 lookup_app_r length_take; first lia.
       rewrite Nat.min_l; first lia.
@@ -1067,13 +1067,13 @@ Section bqueue_spsc۰G.
     wp۰store.
     iDestruct (consumerｰagree with "Hconsumer₁ Hconsumer₂") as %(<- & <-).
     iDestruct (back۰lbｰvalid with "Hproducer₂ Hback_lb") as %?.
-    destruct vs2 as [| _v vs2]; first naive_solver lia.
+    destruct vs2 as [| _v vs2]; first naive lia.
     iDestruct (historyｰagree with "Hhistory_auth Hhistory_at") as %Hhist2_lookup.
     assert (_v = v) as ->.
     { move: Hhist2_lookup.
       rewrite -(take_drop front hist2) -Hvs2 lookup_app_r length_take; first lia.
       rewrite Nat.min_l; first lia.
-      rewrite Nat.sub_diag. naive_solver.
+      rewrite Nat.sub_diag. naive.
     }
     rewrite /= drop_0.
     iMod (consumerｰupdateｰstability Stable with "Hconsumer₁ Hconsumer₂") as "(Hconsumer₁ & Hconsumer₂)".
@@ -1089,7 +1089,7 @@ Section bqueue_spsc۰G.
     iSplitR "Hl_back_cache Hconsumer₁ HΦ".
     { do 2 iModIntro. iExists _, ˖front, _, back2, vs2, hist2. iFrame. simpl in *.
       iStep 3.
-      iSplit. { erewrite drop_S in Hvs2 => //. naive_solver. }
+      iSplit. { erewrite drop_S in Hvs2 => //. naive. }
       iStep.
       rewrite assoc. iSplitL "Hvs".
       - rewrite -{1}(take_drop 1 vs2) fmap_app -array۰csliceｰapp. simp_length.

@@ -95,7 +95,7 @@ Section big_unionS.
   Proof.
     rewrite big_opS_elements.
     intros (i & s & Hs%list_elem_of_lookup_2%elem_of_elements & Hy)%big_unionLｰelem_of.
-    naive_solver.
+    naive.
   Qed.
 End big_unionS.
 
@@ -136,6 +136,6 @@ Section big_unionM.
   Proof.
     rewrite big_opM_map_to_list.
     intros (i & (k, x) & Hlookup%list_elem_of_lookup_2%elem_of_map_to_list & Hy)%big_unionLｰelem_of.
-    naive_solver.
+    naive.
   Qed.
 End big_unionM.

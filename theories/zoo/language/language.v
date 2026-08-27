@@ -141,7 +141,7 @@ Definition sub_redexes_are_values e :=
 #[global] Instance filliｰinj k :
   Inj (=) (=) (filli k).
 Proof.
-  induction k; intros ?*; naive_solver.
+  induction k; intros ?*; naive.
 Qed.
 Lemma filliｰval k e :
   is_Some (to_val (filli k e)) →
@@ -156,8 +156,8 @@ Lemma filliｰno_valｰinj k1 e1 k2 e2 :
   k1 = k2.
 Proof.
   move: k1.
-  induction k2; intros k1; destruct k1; try naive_solver.
-  intros H1 H2 [= -> -> H%app_inj_2]; first naive_solver.
+  induction k2; intros k1; destruct k1; try naive.
+  intros H1 H2 [= -> -> H%app_inj_2]; first naive.
   simpl. do 3 f_equal.
   apply (f_equal reverse) in H.
   rewrite !reverse_app !reverse_cons -!fmap_reverse /= in H.
@@ -165,7 +165,7 @@ Proof.
     apply (inj reverse);
     remember (reverse vs1) as vs1';
     remember (reverse vs2) as vs2';
-    clear- H1 H2 H; move: vs2' H; induction vs1'; intros []; naive_solver
+    clear- H1 H2 H; move: vs2' H; induction vs1'; intros []; naive
   end.
 Qed.
 Lemma base_stepｰfilliｰval tid k e σ1 κ e2 σ2 es :
@@ -181,7 +181,7 @@ Proof.
       rewrite reverse_app reverse_cons -!fmap_reverse /= in H;
       remember (reverse vs1) as vs1';
       remember (reverse vs2) as vs2';
-      clear- H; move: vs2' H; induction vs1'; intros []; naive_solver
+      clear- H; move: vs2' H; induction vs1'; intros []; naive
     end.
 Qed.
 
@@ -190,7 +190,7 @@ Qed.
 Proof.
   induction K as [| k K IH].
   all: rewrite /Inj.
-  all: naive_solver.
+  all: naive.
 Qed.
 Lemma fillｰnil e :
   fill [] e = e.
@@ -221,7 +221,7 @@ Lemma base_stepｰnotｰval tid e1 σ1 κ e2 σ2 es :
   base_step tid e1 σ1 κ e2 σ2 es →
   to_val e1 = None.
 Proof.
-  destruct 1; naive_solver.
+  destruct 1; naive.
 Qed.
 Lemma stepｰbyｰval tid K1 K2 e1 e2 σ1 κ e2' σ2 es :
   fill K1 e1 = fill K2 e2 →
@@ -353,7 +353,7 @@ Qed.
 #[global] Instance contextｰid :
   Context (@id expr).
 Proof.
-  constructor; naive_solver.
+  constructor; naive.
 Qed.
 #[global] Instance contextｰfill K :
   Context (fill K).
@@ -380,7 +380,7 @@ Lemma reducibleｰcontext (K : expr → expr) `{!Context K} tid e σ :
   reducible tid (K e) σ.
 Proof.
   rewrite /reducible.
-  naive_solver eauto using contextｰfillｰstep.
+  naive eauto using contextｰfillｰstep.
 Qed.
 Lemma reducibleｰcontextｰinv (K : expr → expr) `{!Context K} tid e σ :
   to_val e = None →
@@ -388,7 +388,7 @@ Lemma reducibleｰcontextｰinv (K : expr → expr) `{!Context K} tid e σ :
   reducible tid e σ.
 Proof.
   intros He (e' & σ' & k & es & Hstep). rewrite /reducible.
-  apply contextｰfillｰstepｰinv in Hstep as (e2' & _ & Hstep); naive_solver.
+  apply contextｰfillｰstepｰinv in Hstep as (e2' & _ & Hstep); naive.
 Qed.
 
 Lemma pure_stepｰcontext (K : expr → expr) `{!Context K} e1 e2 :
@@ -396,7 +396,7 @@ Lemma pure_stepｰcontext (K : expr → expr) `{!Context K} e1 e2 :
   pure_step (K e1) (K e2).
 Proof.
   intros [Hred Hstep]. split.
-  - rewrite /reducible_no_obs in Hred |- *. naive_solver eauto using contextｰfillｰstep.
+  - rewrite /reducible_no_obs in Hred |- *. naive eauto using contextｰfillｰstep.
   - intros tid σ1 κ e2' σ2 es Hpstep.
     destruct (contextｰfillｰstepｰinv tid e1 σ1 κ e2' σ2 es) as (e2'' & -> & ?); [|exact Hpstep|].
     + destruct (Hred tid σ1) as (? & ? & ? & ?); eauto using prim_stepｰnotｰval.
@@ -463,7 +463,7 @@ Lemma silent_stepsｰnsteps ρ1 ρ2 :
     nsteps n ρ1 κs ρ2.
 Proof.
   rewrite /silent_step. split.
-  - induction 1; naive_solver.
+  - induction 1; naive.
   - intros (n & κs & Hsteps).
     induction Hsteps; eauto using rtc.
 Qed.

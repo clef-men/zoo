@@ -732,7 +732,7 @@ Section zoo۰G.
     BWP e1 ∶ tid @ E1 {{ Φ }}.
   Proof.
     iIntros "%Hsafe %Hpure H⧖ H".
-    iApply (bwpｰliftｰpureｰstepｰnofork with "H⧖"); [done | naive_solver |].
+    iApply (bwpｰliftｰpureｰstepｰnofork with "H⧖"); [done | naive |].
     iApply (step_fupd_wand with "H"). iIntros "H %σ1 %e2' %κ %es %Hstep H£".
     apply Hpure in Hstep as (-> & _ & -> & ->).
     iSteps.

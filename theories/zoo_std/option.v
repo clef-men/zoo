@@ -17,7 +17,7 @@ Coercion option۰to_val o :=
 #[global] Instance option۰to_valｰinj :
   Inj (=) (=) option۰to_val.
 Proof.
-  intros [] []; naive_solver.
+  intros [] []; naive.
 Qed.
 
 Lemma option۰to_valｰsimilarｰNoneｰl o :

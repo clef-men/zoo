@@ -26,12 +26,12 @@ Section relation.
   #[global] Instance transitiveｰtcｰantisymm `{!Transitive R} `{!AntiSymm R' R} :
     AntiSymm R' (tc R).
   Proof.
-    intros x1 x2 H1%transitiveｰtc H2%transitiveｰtc. naive_solver.
+    intros x1 x2 H1%transitiveｰtc H2%transitiveｰtc. naive.
   Qed.
   #[global] Instance preorderｰrtcｰantisymm `{!Reflexive R} `{!Transitive R} `{!AntiSymm R' R} :
     AntiSymm R' (rtc R).
   Proof.
-    intros x1 x2 H1%preorderｰrtc H2%preorderｰrtc. naive_solver.
+    intros x1 x2 H1%preorderｰrtc H2%preorderｰrtc. naive.
   Qed.
 
   Lemma rtcｰequivalenceｰantisymm R' `{!Equivalence R'} `{!AntiSymm (=) (rtc R)} :

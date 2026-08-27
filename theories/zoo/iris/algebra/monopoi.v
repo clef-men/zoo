@@ -81,16 +81,16 @@ Section relation.
     apply ra_total_mixin; try done.
     - intros ? ?* Heq a.
       specialize (Heq a).
-      rewrite !belowｰapp. naive_solver.
+      rewrite !belowｰapp. naive.
     - intros ?*. done.
     - intros x1 x2 Heq (a & Ha).
       exists a. apply listne۰Forallｰforall.
       intros b (c & Hc & ?)%belowｰelem_of%Heq.
       eapply listne۰Forallｰelem_of in Hc; last done.
-      naive_solver.
-    - intros ?* ?*. rewrite !belowｰapp. naive_solver.
-    - intros ?* ?*. rewrite !belowｰapp. naive_solver.
-    - intros ? ?*. rewrite belowｰapp. naive_solver.
+      naive.
+    - intros ?* ?*. rewrite !belowｰapp. naive.
+    - intros ?* ?*. rewrite !belowｰapp. naive.
+    - intros ? ?*. rewrite belowｰapp. naive.
     - intros x1 x2 H.
       destruct H as (a & (? & _)%listne۰Forallｰapp).
       exists a. done.
@@ -147,7 +147,7 @@ Section relation.
   Lemma monopoiｰidemp x :
     x ⋅ x ≡ x.
   Proof.
-    intros ?*. rewrite belowｰapp. naive_solver.
+    intros ?*. rewrite belowｰapp. naive.
   Qed.
 
   Lemma monopoiｰincluded x y :
@@ -185,7 +185,7 @@ Section relation.
     all: rewrite belowｰapp.
     - intros [(c & (d & Hd1 & Hd2)%HR & Hc2) |]; last done.
       exists d. eauto.
-    - naive_solver.
+    - naive.
   Qed.
   Lemma monopoi۰principalｰRｰopN n a b :
     R a b →
@@ -194,7 +194,7 @@ Section relation.
     intros.
     apply monopoi۰principalｰRｰopNｰbase => c.
     setoid_rewrite listneｰelem_ofｰsingleton.
-    naive_solver.
+    naive.
   Qed.
   Lemma monopoi۰principalｰRｰop a b :
     R a b →
@@ -212,7 +212,7 @@ Section relation.
     intros Ha HR.
     destruct (HR a) as [[z [HR1%listneｰelem_ofｰsingleton HR2]] _].
     - rewrite belowｰapp belowｰprincipal. auto.
-    - naive_solver.
+    - naive.
   Qed.
   Lemma monopoi۰principalｰopｰR' a b x :
     R a a →
@@ -242,7 +242,7 @@ Section relation.
       R a2 a.
   Proof.
     intros (a & (? & (? & _)%Forall_cons)%Forall_cons).
-    naive_solver.
+    naive.
   Qed.
 
   Lemma monopoi۰principalｰincludedN n a b :
@@ -279,7 +279,7 @@ Section relation.
         * exists b. split; first constructor.
           specialize (Habz w) as [_ [c [->%listneｰelem_ofｰsingleton Hc2]]].
           { exists y. split; last done.
-            apply elem_of_app. naive_solver.
+            apply elem_of_app. naive.
           }
           etrans; eauto.
   Qed.
@@ -333,7 +333,7 @@ Section ofe_relation.
     intros Hab ?.
     destruct (Hab a) as [[? [?%listneｰelem_ofｰsingleton ?]] _].
     - exists a. rewrite listneｰelem_ofｰsingleton //.
-    - naive_solver.
+    - naive.
   Qed.
   Lemma monopoi۰principalｰinjｰgeneral a b :
     monopoi۰principal R a ≡ monopoi۰principal R b →

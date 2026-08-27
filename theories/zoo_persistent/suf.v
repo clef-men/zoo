@@ -127,7 +127,7 @@ Section consistent.
     rewrite /consistent /consistent_at.
     intros Hdescrs_lookup Hconsistent.
     eapply consistentｰlookupｰNone in Hconsistent as Hresprs_lookup; last done.
-    apply map_Forall2_insert_2; first naive_solver.
+    apply map_Forall2_insert_2; first naive.
     eapply map_Forall2_impl; first done.
     intros elt' repr' descr' [| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr)]; first auto.
     right. exists parent.
@@ -169,14 +169,14 @@ Section consistent.
       + destruct_decide (repr = repr1) as -> | ?.
         * rewrite unify_at₁.
           ospecialize* (Hconsistent elt); [done.. |].
-          destruct Hconsistent as [| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr1_)]; first naive_solver. simp.
+          destruct Hconsistent as [| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr1_)]; first naive. simp.
           right. exists parent.
           rewrite unifyｰlookup₁ // unifyｰlookup₂' //.
-          naive_solver.
+          naive.
         * rewrite unify_at₂ //.
           ospecialize* (Hconsistent elt); [done.. |].
           destruct Hconsistent as [(rank & <- & ->)| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr1_)].
-          -- left. naive_solver.
+          -- left. naive.
           -- right. exists parent.
              rewrite !(unifyｰlookup₂ repr) //.
   Qed.
@@ -241,7 +241,7 @@ Section suf۰G.
   Proof.
     iIntros "%Hreprs_lookup (:model)". iPureIntro.
     eapply consistentｰlookupｰSome in Hconsistent as (descr & Hdescrs_lookup & []); last done.
-    all: naive_solver.
+    all: naive.
   Qed.
   Lemma suf۰modelｰexclusive t reprs1 reprs2 :
     suf۰model t reprs1 -∗
@@ -381,7 +381,7 @@ Section suf۰G.
     suf۰union_condition reprs repr repr reprs.
   Proof.
     split_and!; [done.. |].
-    naive_solver.
+    naive.
   Qed.
   #[local] Lemma suf۰union_conditionｰsym reprs repr1 repr2 reprs' :
     suf۰union_condition reprs repr1 repr2 reprs' →
@@ -390,7 +390,7 @@ Section suf۰G.
     rewrite /suf۰union_condition.
     intros (Hdom & Hunchanged & (repr12 & Hchanged)).
     split_and!; auto.
-    exists repr12. naive_solver.
+    exists repr12. naive.
   Qed.
   #[local] Lemma unifyｰunion_condition₁ reprs repr1 repr2 :
     repr1 ≠ repr2 →

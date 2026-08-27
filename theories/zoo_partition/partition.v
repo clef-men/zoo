@@ -189,7 +189,7 @@ Section partition۰G.
       ⌜descr1 = descr2⌝.
   Proof.
     iIntros (Hdescrs_lookup_1 (i1 & Helts1_lookup)%list_elem_of_lookup Hdescrs_lookup_2 (i2 & Helts2_lookup)%list_elem_of_lookup) "(:model')".
-    destruct_decide (class1 = class2) as <- | Hneq; first naive_solver.
+    destruct_decide (class1 = class2) as <- | Hneq; first naive.
     iDestruct (big_sepM_delete _ _ class1 with "Hdescrs") as "((:descriptor۰model =1) & Hdescrs)"; first done.
     iDestruct (big_sepM_lookup _ _ class2 with "Hdescrs") as "(:descriptor۰model =2)".
     { rewrite lookup_delete_ne //. }
@@ -284,7 +284,7 @@ Section partition۰G.
     iIntros "(:model) Helt".
     iDestruct (partition۰elementｰvalid' with "Hmodel Helt") as "(%class & %descr & %Hdescrs_lookup & %Helts_elem & _)".
     iExists (list_to_set descr.(descriptor۰elts)). iSplit; iPureIntro.
-    - apply elem_of_map_to_set. naive_solver.
+    - apply elem_of_map_to_set. naive.
     - rewrite elem_of_list_to_set //.
   Qed.
   Lemma partition۰elementｰagree γ elt v1 v2 :
@@ -343,7 +343,7 @@ Section partition۰G.
     wp۰load.
     iDestruct ("Helts" with "[$]") as "Helts".
     iDestruct ("Hdescrs" with "[- Helts_auth Helt HΦ]") as "Hdescrs"; first iSteps.
-    iSteps; naive_solver.
+    iSteps; naive.
   Qed.
 
   Lemma partition٠makeｰspec γ part v :
@@ -394,7 +394,7 @@ Section partition۰G.
       rewrite xdlchainｰsingleton lookup_insert_eq //. iSteps.
     - iApply (big_sepM_impl with "Hdescrs"). iIntros "!> %class' %descr' %Hdescrs_lookup' (:descriptor۰model)".
       iExists first, last, prev_descr, prev, next_descr, next.
-      rewrite !lookup_insert_ne //; [naive_solver.. |]. iSteps.
+      rewrite !lookup_insert_ne //; [naive.. |]. iSteps.
   Qed.
 
   Lemma partition٠make_same_classｰspec γ part elt v v' :
@@ -512,7 +512,7 @@ Section partition۰G.
     apply head_Some_elem_of in Hfirst.
     iDestruct (modelｰdisjoint'' class descr first with "[$]") as %?; [done.. |].
     iSteps as (cl (class' & descr' & Hdescrs_lookup' & <-)%elem_of_map_to_set) / --silent. iPureIntro.
-    rewrite !elem_of_list_to_set. naive_solver.
+    rewrite !elem_of_list_to_set. naive.
   Qed.
 
   Lemma partition٠cardinalｰspec γ part elt v :

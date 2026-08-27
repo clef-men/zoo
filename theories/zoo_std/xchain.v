@@ -262,7 +262,7 @@ Section zoo۰G.
     ⌜✓ dq⌝.
   Proof.
     intros Hvs.
-    destruct nodes as [| node nodes]; first naive_solver lia.
+    destruct nodes as [| node nodes]; first naive lia.
     destruct nodes.
     1: iIntros "Hnode".
     2: iIntros "(Hnode & _)".
@@ -316,7 +316,7 @@ Section zoo۰G.
     ⌜nodes1 ≠ nodes2⌝.
   Proof.
     iIntros "% % H1 H2" (->).
-    iDestruct (xchainｰvalidｰ2 with "H1 H2") as %?; naive_solver.
+    iDestruct (xchainｰvalidｰ2 with "H1 H2") as %?; naive.
   Qed.
   Lemma xchainｰne nodes1 dst1 dq2 nodes2 dst2 :
     0 < length nodes1 →

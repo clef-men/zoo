@@ -165,7 +165,7 @@ Section bi.
       all: iApply (big_sepLｰimplｰstrong with "H"); first simp_length.
       all: iIntros "!> %k %k_ % % % HΦ".
       all: pose proof lookup_seq.
-      all: naive_solver.
+      all: naive.
     Qed.
     Lemma big_sepLｰseqｰindex₁ `{!BiAffine PROP} {Φ} l i n :
       length l = n →

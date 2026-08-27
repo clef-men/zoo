@@ -25,6 +25,6 @@ Section cmra.
     ●V a1 ⋅ ◯V b1 ≡@{view rel} ●V a2 ⋅ ◯V b2 ↔
     a1 ≡ a2 ∧ b1 ≡ b2.
   Proof.
-    rewrite viewｰauthｰfragｰdfracｰop. naive_solver.
+    rewrite viewｰauthｰfragｰdfracｰop. naive.
   Qed.
 End cmra.

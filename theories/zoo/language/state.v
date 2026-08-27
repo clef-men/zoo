@@ -101,13 +101,13 @@ Section chunk.
       xs !! ₊i = Some y.
   Proof.
     move: l 𝑙. induction xs as [| x xs IH] => l 𝑙 /=.
-    - naive_solver.
+    - naive.
     - rewrite lookup_insert_Some IH.
       split.
       + intros [(<- & <-) | (Hl & i & Hi & -> & Hlookup)].
         * exists 0.
           rewrite location۰addｰ0.
-          naive_solver.
+          naive.
         * exists (1 + i)%Z.
           rewrite location۰addｰassoc Z.add_1_l Z2Nat.inj_succ //.
           auto with lia.
@@ -116,7 +116,7 @@ Section chunk.
         { rewrite location۰addｰ0. auto. }
         right. split.
         * rewrite -{1}(location۰addｰ0 l).
-          naive_solver.
+          naive.
         * assert (₊i = ˖₊(i - 1)) as Hi.
           { rewrite -Z2Nat.inj_succ; lia. }
           rewrite Hi /= in Hlookup.
@@ -135,7 +135,7 @@ Section chunk.
     apply map_disjoint_spec. intros 𝑙 x1 x2 (i & ? & -> & ?%lookup_lt_Some%inj_lt)%chunkｰlookup Hlookup.
     ospecialize* (Hm ₊i). 1: lia.
     rewrite Z2Nat.id // in Hm.
-    naive_solver.
+    naive.
   Qed.
 End chunk.
 

@@ -52,12 +52,12 @@ Implicit Type 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : producer.
   𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1.(producer۰node) = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2.(producer۰node) →
   𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1 = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2.
 Proof.
-  destruct 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1, 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2; naive_solver.
+  destruct 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1, 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2; naive.
 Qed.
 #[local] Instance producer۰to_valｰinj :
   Inj (=) (=) producer۰to_val.
 Proof.
-  intros [] []; naive_solver.
+  intros [] []; naive.
 Qed.
 
 Record descriptor :=
@@ -81,7 +81,7 @@ Implicit Type descrs : gmap location descriptor.
   descriptor۰to_producer descr1 node1 = descriptor۰to_producer descr2 node2 →
   node1 = node2.
 Proof.
-  naive_solver.
+  naive.
 Qed.
 
 Section bag_2۰G.
@@ -357,7 +357,7 @@ Section bag_2۰G.
     - apply map_Forallｰinsert₂'.
       + rewrite lookup_insert_eq //.
       + apply map_Forallｰdeleteｰlookup => node' descr' Hnode' Hdescrs_lookup'.
-        rewrite lookup_insert_ne; first naive_solver.
+        rewrite lookup_insert_ne; first naive.
         rewrite map_Forall_lookup in Hdescrs. auto.
   Qed.
   #[local] Lemma queuesｰupdateｰproducer {γ nodes descrs wss} 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 descr f :

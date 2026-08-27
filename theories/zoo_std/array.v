@@ -141,7 +141,7 @@ Section zoo۰G.
       ⌜t1 ≠ t2 ∨ i1 ≠ i2⌝.
     Proof.
       rewrite -not_and_r. iIntros "% % % Hslice1 Hslice2" ((-> & ->)).
-      iDestruct (array۰sliceｰvalidｰ2 with "Hslice1 Hslice2") as %?; naive_solver.
+      iDestruct (array۰sliceｰvalidｰ2 with "Hslice1 Hslice2") as %?; naive.
     Qed.
     Lemma array۰sliceｰne t1 i1 vs1 t2 i2 dq2 vs2 :
       0 < length vs1 →
@@ -161,7 +161,7 @@ Section zoo۰G.
       False.
     Proof.
       iIntros "% % Hslice1 Hslice2".
-      iDestruct (array۰sliceｰne with "Hslice1 Hslice2") as %?; naive_solver.
+      iDestruct (array۰sliceｰne with "Hslice1 Hslice2") as %?; naive.
     Qed.
     Lemma array۰sliceｰpersist t i dq vs :
       array۰slice t i dq vs ⊢ |==>
@@ -456,7 +456,7 @@ Section zoo۰G.
       ⌜t1 ≠ t2⌝.
     Proof.
       iIntros "% % Hmodel1 Hmodel2" (->).
-      iDestruct (array۰modelｰvalidｰ2 with "Hmodel1 Hmodel2") as %?; naive_solver.
+      iDestruct (array۰modelｰvalidｰ2 with "Hmodel1 Hmodel2") as %?; naive.
     Qed.
     Lemma array۰modelｰne t1 vs1 t2 dq2 vs2 :
       0 < length vs1 →
@@ -1090,7 +1090,7 @@ Section zoo۰G.
       ⌜i1 ≠ i2⌝.
     Proof.
       iIntros "% % % Hcslice1 Hcslice2" (->).
-      iDestruct (array۰csliceｰvalidｰ2 with "Hcslice1 Hcslice2") as %?; naive_solver.
+      iDestruct (array۰csliceｰvalidｰ2 with "Hcslice1 Hcslice2") as %?; naive.
     Qed.
     Lemma array۰csliceｰne t sz i1 vs1 i2 dq2 vs2 :
       0 < length vs1 →
@@ -2474,7 +2474,7 @@ Section zoo۰G.
     - rewrite bool_decide_eq_true_2; first (repeat f_equal; lia). wp۰pures.
       iApply ("HΦ" $! []).
       rewrite !right_id. assert (sz = i) as -> by lia. iSteps.
-    - rewrite bool_decide_eq_false_2; first naive_solver lia. wp۰pures.
+    - rewrite bool_decide_eq_false_2; first naive lia. wp۰pures.
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
       awp۰apply+ (array٠unsafe_getｰspecｰatomicｰcell with "[//]") without "HΦ".
       iApply (aaccｰaupdｰcommit with "H'"); first done. iIntros "%dq %v H↦".
@@ -2484,7 +2484,7 @@ Section zoo۰G.
       wp۰apply+ (wpｰwand with "(H [%] [//] HΨ)") as "%acc' HΨ"; first lia.
       wp۰pures.
       rewrite Z.add_1_r -Nat2Z.inj_succ.
-      wp۰apply ("IH" with "[%] [%] [%] HΨ [HΦ]"); simp_length; [naive_solver lia.. |].
+      wp۰apply ("IH" with "[%] [%] [%] HΨ [HΦ]"); simp_length; [naive lia.. |].
       iIntros "!> {% acc} %vs' %acc (<- & HΨ)".
       iApply ("HΦ" $! (v :: vs')).
       rewrite -(assoc (++)). iSteps.
@@ -7870,12 +7870,12 @@ Section zoo۰G.
           - congruence.
           - lia.
         }
-        all: naive_solver lia.
+        all: naive lia.
 
       - iStep 6. iPureIntro.
         intros k x Hlookup_k Hk.
         destruct_decide (k = 𝑖2) as -> | Hcase.
-        all: naive_solver lia.
+        all: naive lia.
     }
 
     rewrite Z.max_r in Hi1 H2. 1: lia.
@@ -7920,7 +7920,7 @@ Section zoo۰G.
       }
       iEval (rewrite fmap_app) in "Hslice".
 
-      destruct xs1 as [| x xs1 _] using rev_ind. 1: naive_solver lia.
+      destruct xs1 as [| x xs1 _] using rev_ind. 1: naive lia.
       simp_length/= in Hxs1_length.
       iEval (rewrite fmap_app /=) in "Hslice".
 

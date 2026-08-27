@@ -570,7 +570,7 @@ Section ws_deques_private۰G.
     False.
   Proof.
     iIntros "(:channels۰sender =1) (:channels۰sender =2)". simp.
-    iDestruct (ghost_predｰdfracｰne with "Hpred_1 Hpred_2") as %?; naive_solver.
+    iDestruct (ghost_predｰdfracｰne with "Hpred_1 Hpred_2") as %?; naive.
   Qed.
   #[local] Lemma channelsｰwaitingｰreceiver γ i Ψ o :
     ▷ channels۰waiting γ i -∗
@@ -667,10 +667,10 @@ Section ws_deques_private۰G.
   Proof.
     iIntros "%Hrequest' Hrequest Howner₁".
     destruct request as [| | j].
-    1,2: iFrame; naive_solver.
+    1,2: iFrame; naive.
     iDestruct "Hrequest" as "(:request۰model >)".
     - iDestruct (ownerｰagree with "Howner₁ Howner₂") as %[=].
-    - iFrame. naive_solver.
+    - iFrame. naive.
   Qed.
   #[local] Lemma request۰modelｰrespond γ i request :
     ▷ request۰model γ i request -∗
@@ -686,7 +686,7 @@ Section ws_deques_private۰G.
   Proof.
     iIntros "Hrequest Howner₁".
     destruct request as [| | j].
-    1,2: iFrame; naive_solver.
+    1,2: iFrame; naive.
     iDestruct "Hrequest" as "(:request۰model >)".
     - iDestruct (ownerｰagree with "Howner₁ Howner₂") as %[=].
     - iMod (ownerｰupdate Blocked with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
@@ -751,7 +751,7 @@ Section ws_deques_private۰G.
     ⌜sz1 = sz2⌝.
   Proof.
     iIntros "(:inv =1) (:inv =2)". simp.
-    iDestruct (pointstoｰagree with "Hl1_size Hl2_size") as %?. naive_solver.
+    iDestruct (pointstoｰagree with "Hl1_size Hl2_size") as %?. naive.
   Qed.
 
   Lemma ws_deques_private۰ownerｰexclusive t i status1 ws1 status2 ws2 :

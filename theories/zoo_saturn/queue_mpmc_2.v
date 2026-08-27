@@ -160,7 +160,7 @@ Qed.
   Inj2 (=) (=) (=) suffix۰to_val.
 Proof.
   move=> + vs1. induction vs1 as [| v1 vs1 IH] => i1 i2 [| v2 vs2] Hsimilar.
-  all: naive_solver.
+  all: naive.
 Qed.
 #[local] Instance suffix۰to_valｰinj2' :
   Inj2 (=) (=) (≈) suffix۰to_val.
@@ -575,7 +575,7 @@ Section queue_mpmc_2۰G.
   Proof.
     iIntros "(:state۰auth) Hlb".
     iDestruct (auth_mono۰lbｰvalid with "Hauth Hlb") as %[| (state & Hstep & (? & ?)%stepsｰmono)]%rtc_inv.
-    - naive_solver.
+    - naive.
     - inv/= Hstep.
       assert (backs1 !! back = Some (i2 + length move)) as backs1_lookup.
       { eapply lookup_weaken; last done.
@@ -645,7 +645,7 @@ Section queue_mpmc_2۰G.
   Proof.
     iIntros "% Hauth Hlb".
     iDestruct (state۰lbｰvalidｰUnstable with "Hauth Hlb") as "[(-> & -> & ->) | ($ & _ & $)]".
-    exfalso. naive_solver lia.
+    exfalso. naive lia.
   Qed.
   #[local] Lemma state۰lbｰunstabilized γ backs1 i1 status1 backs2 i2 back2 move2 :
     i1 < i2 + length move2 →
@@ -677,7 +677,7 @@ Section queue_mpmc_2۰G.
     { apply map_Forall_insert; first done.
       split; first done.
       eapply map_Forall_impl; first apply Hwf.
-      naive_solver lia.
+      naive lia.
     }
 
     iDestruct (state۰lbｰget with "[$Hauth //]") as "#Hstate_lb".
@@ -865,7 +865,7 @@ Section queue_mpmc_2۰G.
 
     iInduction vs2 as [| v2 vs2] "IH" forall (vs1 Hvs1).
     all: wp۰rec.
-    all: destruct vs1 as [| v1 vs1]; first naive_solver lia.
+    all: destruct vs1 as [| v1 vs1]; first naive lia.
     all: wp۰pures.
 
     - rewrite Nat.add_1_r. iSteps.
@@ -889,7 +889,7 @@ Section queue_mpmc_2۰G.
     iIntros "%Hvs %Φ #Hback_header HΦ".
 
     wp۰rec.
-    destruct vs as [| v vs]; first naive_solver lia.
+    destruct vs as [| v vs]; first naive lia.
     wp۰pures.
     rewrite Z.add_1_r -Nat2Z.inj_succ.
     wp۰apply (queue_mpmc_2٠rev₁ｰspec i [v] with "Hback_header"); first auto.
@@ -1429,12 +1429,12 @@ Section queue_mpmc_2۰G.
         + wp۰load.
           wp۰apply ("IHpush_aux" $! back1 i_back1 [] with "[$Hinv $Hstate_at_1 $Hbackoff] HΦ"); first iSteps.
 
-        + destruct move as [| w move]; first naive_solver lia.
+        + destruct move as [| w move]; first naive lia.
 
           wp۰apply+ (queue_mpmc_2٠helpｰspec with "[$]"); first done.
           iSteps.
 
-      - iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty1 & -> & (:inv۰status۰stable =1))"; first naive_solver lia.
+      - iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty1 & -> & (:inv۰status۰stable =1))"; first naive lia.
 
         iSplitR "Hbackoff HΦ". { iFrameSteps. }
         iIntros "!> {%}".
@@ -1622,7 +1622,7 @@ Section queue_mpmc_2۰G.
           iSplitR "Hbackoff HΦ". { iFrameSteps. }
           iSteps.
 
-        + iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty1 & -> & (:inv۰status۰stable =1))"; first naive_solver lia.
+        + iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty1 & -> & (:inv۰status۰stable =1))"; first naive lia.
 
           iSplitR "Hbackoff HΦ". { iFrameSteps. }
           iIntros "!> {%- Hfront1 Hi_front1}".
@@ -1644,7 +1644,7 @@ Section queue_mpmc_2۰G.
                iSteps.
 
             -- ospecialize* Hcas; first done. subst i_back2.
-               iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty2 & -> & (:inv۰status۰stable =2))"; first naive_solver lia.
+               iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty2 & -> & (:inv۰status۰stable =2))"; first naive lia.
                iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %?.
                assert (length vs_front2 = 0) as ->%nil_length_inv by lia.
                replace i_front2 with ˖i2 by lia.
@@ -1681,7 +1681,7 @@ Section queue_mpmc_2۰G.
                iSteps.
 
             -- ospecialize* Hcas; first done. subst i_back4.
-               iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty4 & -> & (:inv۰status۰stable =4))"; first naive_solver lia.
+               iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty4 & -> & (:inv۰status۰stable =4))"; first naive lia.
                iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %Hi_front4.
                replace i_front4 with ˖i4 in * by lia.
                destruct empty4; last lia. subst vs_front4.
@@ -1705,7 +1705,7 @@ Section queue_mpmc_2۰G.
         + iSplitR "Hbackoff HΦ". { iFrameSteps. }
           iSteps.
 
-        + iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty1 & -> & (:inv۰status۰stable =1))"; first naive_solver lia.
+        + iDestruct (inv۰statusｰStable with "Hstatus") as "(%empty1 & -> & (:inv۰status۰stable =1))"; first naive lia.
           destruct empty1; first congruence.
 
           iMod "HΦ" as "(%vs & Hmodel₁ & _ & HΦ)".
@@ -1718,7 +1718,7 @@ Section queue_mpmc_2۰G.
           { destruct (nil_or_length_pos vs_front) as [-> | Hvs_front].
             1: iMod (stateｰempty with "Hstate_auth") as "Hstate_auth".
             all: iFrameSteps; iPureIntro.
-            all: naive_solver lia.
+            all: naive lia.
           }
           iSteps.
     }
@@ -1728,7 +1728,7 @@ Section queue_mpmc_2۰G.
 
       wp۰rec.
       wp۰apply+ (queue_mpmc_2٠revｰspec with "[$]") as "_"; first lia.
-      destruct move as [| v move _] using rev_ind; first naive_solver lia.
+      destruct move as [| v move _] using rev_ind; first naive lia.
       rewrite reverse_snoc /=. wp۰pures.
 
       wp۰bind (𝗰𝗮𝘀 _ _ _)%E.

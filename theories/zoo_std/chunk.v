@@ -238,7 +238,7 @@ Section zoo۰G.
       chunk۰model l dq vs ⊢
       ⌜✓ dq⌝.
     Proof.
-      intros Hvs. destruct vs as [| v vs]; first naive_solver lia.
+      intros Hvs. destruct vs as [| v vs]; first naive lia.
       iIntros "(H↦ & _)".
       iApply (pointstoｰvalid with "H↦").
     Qed.
@@ -250,7 +250,7 @@ Section zoo۰G.
         chunk۰model l (dq1 ⋅ dq2) vs1.
     Proof.
       iInduction vs1 as [| v1 vs1] "IH" forall (l vs2); iIntros "% Hmodel1 Hmodel2".
-      - rewrite (nil_length_inv vs2) //. naive_solver.
+      - rewrite (nil_length_inv vs2) //. naive.
       - destruct vs2 as [| v2 vs2]; first done.
         iDestruct (chunk۰modelｰcons₂ with "Hmodel1") as "(H↦1 & Hmodel1)".
         iDestruct (chunk۰modelｰcons₂ with "Hmodel2") as "(H↦2 & Hmodel2)".
@@ -289,7 +289,7 @@ Section zoo۰G.
       ⌜l1 ≠ l2⌝.
     Proof.
       iIntros "% % % Hmodel1 Hmodel2" (->).
-      iDestruct (chunk۰modelｰvalidｰ2 with "Hmodel1 Hmodel2") as %?; naive_solver.
+      iDestruct (chunk۰modelｰvalidｰ2 with "Hmodel1 Hmodel2") as %?; naive.
     Qed.
     Lemma chunk۰modelｰne l1 vs1 l2 dq2 vs2 :
       0 < length vs1 →
@@ -344,7 +344,7 @@ Section zoo۰G.
     Proof.
       intros q1 q2. rewrite /chunk۰span. setoid_rewrite chunk۰modelｰfractional. iSplit; first iSteps.
       iIntros "((%vs & % & Hmodel1) & (%_vs & % & Hmodel2))".
-      iDestruct (chunk۰modelｰagree with "Hmodel1 Hmodel2") as %<-; first naive_solver.
+      iDestruct (chunk۰modelｰagree with "Hmodel1 Hmodel2") as %<-; first naive.
       iSteps.
     Qed.
     #[global] Instance chunk۰spanｰas_fractional l q n :
@@ -426,7 +426,7 @@ Section zoo۰G.
     Proof.
       iSplit.
       - iIntros "((%vs1 & % & Hmodel1) & (%vs2 & % & Hmodel2))".
-        iExists (vs1 ++ vs2). iSplit; first (simp_length; naive_solver).
+        iExists (vs1 ++ vs2). iSplit; first (simp_length; naive).
         iApply (chunk۰modelｰapp₁ with "Hmodel1 Hmodel2"); first congruence.
       - iIntros "(%vs & % & Hmodel)".
         iDestruct (chunk۰modelｰapp₂ (take n1 vs) (drop n1 vs) with "Hmodel") as "(Hmodel1 & Hmodel2)"; first rewrite take_drop //.
@@ -491,7 +491,7 @@ Section zoo۰G.
     Proof.
       iIntros "%Hi (%vs & %Hvs & Hmodel)".
       iDestruct (chunk۰modelｰupdate i with "Hmodel") as "(H↦ & Hmodel)"; [lia | | done |].
-      { rewrite list_lookup_lookup_total_lt; naive_solver lia. }
+      { rewrite list_lookup_lookup_total_lt; naive lia. }
       iExists (vs !!! ₊i). iFrame. iIntros "%v H↦".
       iExists (<[₊i := v]> vs). iSplit; first simp_length.
       iSteps.
@@ -567,7 +567,7 @@ Section zoo۰G.
       ⌜✓ dq⌝.
     Proof.
       iIntros "% (%vs & % & Hmodel)".
-      iApply (chunk۰modelｰvalid with "Hmodel"); first naive_solver.
+      iApply (chunk۰modelｰvalid with "Hmodel"); first naive.
     Qed.
     Lemma chunk۰spanｰcombine l dq1 n1 dq2 n2 :
       n1 = n2 →
@@ -576,7 +576,7 @@ Section zoo۰G.
       chunk۰span l (dq1 ⋅ dq2) n1.
     Proof.
       iIntros (<-) "(%vs1 & % & Hmodel1) (%vs2 & % & Hmodel2)".
-      iDestruct (chunk۰modelｰcombine with "Hmodel1 Hmodel2") as "(<- & Hmodel)"; first naive_solver.
+      iDestruct (chunk۰modelｰcombine with "Hmodel1 Hmodel2") as "(<- & Hmodel)"; first naive.
       iSteps.
     Qed.
     Lemma chunk۰spanｰvalidｰ2 l dq1 n1 dq2 n2 :
@@ -1120,7 +1120,7 @@ Section zoo۰G.
       chunk۰cslice l sz i dq vs ⊢
       ⌜✓ dq⌝.
     Proof.
-      intros Hvs. destruct vs as [| v vs]; first naive_solver lia.
+      intros Hvs. destruct vs as [| v vs]; first naive lia.
       iIntros "(H↦ & _)".
       iApply (pointstoｰvalid with "H↦").
     Qed.
@@ -1132,7 +1132,7 @@ Section zoo۰G.
         chunk۰cslice l sz i (dq1 ⋅ dq2) vs1.
     Proof.
       iInduction vs1 as [| v1 vs1] "IH" forall (i vs2); iIntros "% Hcslice1 Hcslice2".
-      - rewrite (nil_length_inv vs2) //. naive_solver.
+      - rewrite (nil_length_inv vs2) //. naive.
       - destruct vs2 as [| v2 vs2]; first done.
         iDestruct (chunk۰csliceｰcons₂ with "Hcslice1") as "(H↦1 & Hcslice1)".
         iDestruct (chunk۰csliceｰcons₂ with "Hcslice2") as "(H↦2 & Hcslice2)".
@@ -1172,7 +1172,7 @@ Section zoo۰G.
       ⌜i1 ≠ i2⌝.
     Proof.
       iIntros "% % % Hcslice1 Hcslice2" (->).
-      iDestruct (chunk۰csliceｰvalidｰ2 with "Hcslice1 Hcslice2") as %?; naive_solver.
+      iDestruct (chunk۰csliceｰvalidｰ2 with "Hcslice1 Hcslice2") as %?; naive.
     Qed.
     Lemma chunk۰csliceｰne l sz i1 vs1 i2 dq2 vs2 :
       0 < length vs1 →

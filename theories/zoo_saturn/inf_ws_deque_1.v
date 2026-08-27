@@ -1102,7 +1102,7 @@ Module base.
           apply lookup_app_l_Some; first done.
         - iDestruct "Hstate" as "(:inv۰state۰nonempty >)".
           iPureIntro.
-          destruct vs as [| w vs]; first naive_solver lia.
+          destruct vs as [| w vs]; first naive lia.
           rewrite (assoc (++) hist [w]).
           apply lookup_app_l_Some; first done.
         - iDestruct "Hstate" as "(:inv۰state۰emptyish >)".
@@ -1265,7 +1265,7 @@ Module base.
       iMod (frontｰupdate with "Hfront_auth") as "Hfront_auth".
       iDestruct "Hstate" as "[(:inv۰state۰nonempty۰steal =1) | (:inv۰state۰emptyish۰steal =1)]".
 
-      - destruct vs1 as [| v1 vs1] => /=; first naive_solver lia.
+      - destruct vs1 as [| v1 vs1] => /=; first naive lia.
         iDestruct (history۰atｰget front with "Hhistory_auth") as "#Hhistory_at"; first done.
 
         iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
@@ -1284,7 +1284,7 @@ Module base.
               apply Hpasts1; first lia.
             + simp_length/=. lia.
 
-          - destruct vs1 as [| v2 vs1] => /=; first naive_solver lia.
+          - destruct vs1 as [| v2 vs1] => /=; first naive lia.
             simpl in Hvs1.
             iMod (historyｰupdate _ v2 with "Hhistory_auth") as "(Hhistory_auth & _)"; first done.
             iExists Nonempty. iFrameSteps; iPureIntro.
@@ -1586,7 +1586,7 @@ Module base.
       iDestruct "Hwinner" as "[(:winner) | (:winner۰pending₂ !=)]"; last first.
       { iDestruct (identifier۰modelｰexclusive with "Hid Hid_") as %[]. }
 
-      destruct vs2 as [| v vs2]; first naive_solver lia.
+      destruct vs2 as [| v vs2]; first naive lia.
       iDestruct (history۰atｰget front1 with "Hhistory_auth") as "#Hhistory_at"; first done.
       iMod (winnerｰupdate front1 (Φ (Some v)) with "Hwinner_pop Hwinner_steal") as "(Hwinner_pop & Hwinner_steal)".
 
@@ -1809,7 +1809,7 @@ Module base.
 
       iDestruct "Hstate" as "(:inv۰state۰nonempty =1 lazy=)".
       assert (0 < back) as Hback by lia.
-      destruct vs1 as [| v vs1 _] using rev_ind; first naive_solver lia.
+      destruct vs1 as [| v vs1 _] using rev_ind; first naive lia.
 
       destruct_decide (˖front1 = back) as <- | Hbranch1.
 

@@ -21,6 +21,6 @@ Section ucmra.
     ● a1 ⋅ ◯ b1 ≡ ● a2 ⋅ ◯ b2 ↔
     a1 ≡ a2 ∧ b1 ≡ b2.
   Proof.
-    rewrite authｰauthｰfragｰdfracｰop. naive_solver.
+    rewrite authｰauthｰfragｰdfracｰop. naive.
   Qed.
 End ucmra.

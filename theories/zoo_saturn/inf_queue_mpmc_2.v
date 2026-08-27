@@ -1096,7 +1096,7 @@ Module base.
             - iDestruct "Hslot" as "(:inv۰slot۰nothing)".
               iDestruct (prophet_multi۰fullｰvalid with "Hprophet_model Hprophet_full") as %Hprophs.
               exfalso.
-              rewrite fn_lookup_alter Hpast /= in Hprophs. naive_solver.
+              rewrite fn_lookup_alter Hpast /= in Hprophs. naive.
             - exfalso. done.
             - exfalso. done.
           }
@@ -1158,7 +1158,7 @@ Module base.
             - iDestruct "Hslot" as "(:inv۰slot۰nothing)".
               iDestruct (prophet_multi۰fullｰvalid with "Hprophet_model Hprophet_full") as %Hprophs.
               exfalso.
-              rewrite fn_lookup_alter Hpast /= in Hprophs. naive_solver.
+              rewrite fn_lookup_alter Hpast /= in Hprophs. naive.
             - iDestruct "Hslot" as "(:inv۰slot۰anything)".
               + iDestruct (lstates۰lbｰagree with "Hlstates_lb Hlstates_lb_consumer") as %[=].
               + iDestruct (producers۰atｰexclusive with "Hproducers_at Hproducers_at_") as %[].
@@ -1208,7 +1208,7 @@ Module base.
             - iDestruct "Hslot" as "(:inv۰slot۰nothing)".
               iDestruct (prophet_multi۰fullｰvalid with "Hprophet_model Hprophet_full") as %Hprophs.
               exfalso.
-              rewrite fn_lookup_alter Hpast /= in Hprophs. naive_solver.
+              rewrite fn_lookup_alter Hpast /= in Hprophs. naive.
             - exfalso. done.
             - exfalso. done.
           }
@@ -1335,7 +1335,7 @@ Module base.
           { iDestruct "Hslot" as "(:inv۰slot۰nothing)".
             iDestruct (prophet_multi۰fullｰvalid with "Hprophet_model Hprophet_full") as %Hprophs.
             exfalso.
-            rewrite fn_lookup_alter Hpast /= in Hprophs. naive_solver.
+            rewrite fn_lookup_alter Hpast /= in Hprophs. naive.
           } {
             iDestruct "Hslot" as "(:inv۰slot۰anything suff=)".
             iDestruct (consumers۰atｰexclusive with "Hconsumers_at Hconsumers_at_") as %[].
@@ -1345,7 +1345,7 @@ Module base.
           iDestruct (lstates۰atｰlookup with "Hlstates_auth Hlstates_at") as %Hlstates2_lookup.
           iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at") as %?%lookup_lt_Some.
           iDestruct (big_sepL_lookup_acc with "Hlstates_left") as "(Hlstate & Hlstates_left)".
-          { rewrite lookup_take_Some. naive_solver. }
+          { rewrite lookup_take_Some. naive. }
           iDestruct "Hlstate" as "(:inv۰lstate۰left۰consumer suff=)".
           iDestruct (history۰atｰagree with "Hhistory_at Hhistory_at_") as %[= <-].
           iDestruct (saved_predｰagree v with "Hη Hη_") as "#Heq".
@@ -1368,7 +1368,7 @@ Module base.
       - rewrite Nat.max_r in Hlstates1; first lia.
         destruct (lookup_lt_is_Some_2 lstates1 front1) as (lstate & Hlstates_lookup); first lia.
         iDestruct (big_sepL_lookup_acc with "Hlstates_left") as "(Hlstate & Hlstates_left)".
-        { rewrite lookup_take_Some. naive_solver lia. }
+        { rewrite lookup_take_Some. naive lia. }
         destruct lstate.
         all: try iDestruct "Hlstate" as %[].
         1,2: iMod (consumersｰupdate with "Hconsumers_auth") as "(Hconsumers_auth & Hconsumers_at)".
@@ -1404,7 +1404,7 @@ Module base.
           { iDestruct "Hslot" as "(:inv۰slot۰nothing)".
             iDestruct (prophet_multi۰fullｰvalid with "Hprophet_model Hprophet_full") as %Hprophs.
             exfalso.
-            rewrite fn_lookup_alter Hpast /= in Hprophs. naive_solver.
+            rewrite fn_lookup_alter Hpast /= in Hprophs. naive.
           } {
             iDestruct "Hslot" as "(:inv۰slot۰anything suff=)".
             iDestruct (consumers۰atｰexclusive with "Hconsumers_at Hconsumers_at_") as %[].

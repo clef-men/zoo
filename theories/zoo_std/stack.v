@@ -44,7 +44,7 @@ Section zoo۰G.
   Proof.
     iIntros "%Φ Ht HΦ".
     wp۰apply (dynarray_1٠is_emptyｰspec with "Ht").
-    rewrite (bool_decide_ext (reverse vs = []) (vs = [])) // -{1}reverse_nil. naive_solver.
+    rewrite (bool_decide_ext (reverse vs = []) (vs = [])) // -{1}reverse_nil. naive.
   Qed.
 
   Lemma stack٠pushｰspec t vs v :

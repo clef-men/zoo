@@ -20,12 +20,12 @@ Notation "⎽" :=
       end
   |}.
 Next Obligation.
-  naive_solver.
+  naive.
 Qed.
 Next Obligation.
-  naive_solver.
+  naive.
 Qed.
 Next Obligation.
   intros [] [] => //=.
-  rewrite beqｰspec. naive_solver.
+  rewrite beqｰspec. naive.
 Qed.

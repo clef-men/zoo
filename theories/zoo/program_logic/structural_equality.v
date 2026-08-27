@@ -417,7 +417,7 @@ Lemma val۰structneqｰsym footprint v1 v2 :
 Proof.
   intros (path & v1' & v2' & Hreachable1 & Hreachable2 & Hcompatible).
   rewrite val۰compatibleｰsym in Hcompatible.
-  rewrite /val۰structneq. naive_solver.
+  rewrite /val۰structneq. naive.
 Qed.
 
 Lemma valｰimmediateｰstructeq footprint v1 v2 :
@@ -488,7 +488,7 @@ Proof.
   intros.
   exists [], #str, v. split_and! => //.
   destruct v as [[] | | gen tag [| v vs]] => //.
-  rewrite bool_decide_eq_false. naive_solver.
+  rewrite bool_decide_eq_false. naive.
 Qed.
 Lemma val۰structneqｰstringｰr footprint v str :
   v ≠ #str →
@@ -502,7 +502,7 @@ Lemma val۰structneqｰstring footprint str1 str2 :
   val۰structneq footprint #str1 #str2.
 Proof.
   intros.
-  apply val۰structneqｰstringｰl. naive_solver.
+  apply val۰structneqｰstringｰl. naive.
 Qed.
 
 Section zoo۰G.
@@ -662,9 +662,9 @@ Section zoo۰G.
           );
           try (
             case_bool_decide;
-            [ apply val۰structeqｰreflｰimmediate'; naive_solver
+            [ apply val۰structeqｰreflｰimmediate'; naive
             | apply valｰimmediateｰstructneq; [done.. |];
-              cbn; naive_solver
+              cbn; naive
             ]
           )
         ).
@@ -711,17 +711,17 @@ Section zoo۰G.
           wp۰pures.
           case_bool_decide; wp۰pures.
           * wp۰apply ("IHstructeq_aux_loc_loc" with "[$Hfootprint] HΦ").
-            iPureIntro. split_and!; [naive_solver lia.. |].
+            iPureIntro. split_and!; [naive lia.. |].
             intros j ? ? ? Hj%lookup_lt_Some. lia.
           * iSteps. iPureIntro.
             eexists [], _, _. split_and! => //.
             cbn. erewrite !lookup_total_correct; [| done..].
-            rewrite andb_false_iff !beqｰspec'. naive_solver.
+            rewrite andb_false_iff !beqｰspec'. naive.
         + iSteps. iPureIntro.
           eexists [], _, _. split_and! => //.
           cbn. erewrite !lookup_total_correct; [| done..].
           rewrite andb_false_iff !beqｰspec'.
-          naive_solver congruence.
+          naive congruence.
 
       - apply elem_of_dom in Htraversable1 as (blk1 & Hfootprint_lookup_1).
         wp۰apply (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
@@ -733,16 +733,16 @@ Section zoo۰G.
           wp۰pures.
           case_bool_decide; wp۰pures.
           * wp۰apply ("IHstructeq_aux_loc_block" with "[$Hfootprint] HΦ").
-            iPureIntro. split_and!; [naive_solver lia.. |].
+            iPureIntro. split_and!; [naive lia.. |].
             intros j ? ? ? Hj%lookup_lt_Some. simpl in Hj. lia.
           * iSteps. iPureIntro.
             eexists [], _, _. split_and! => //.
             cbn. erewrite !lookup_total_correct; [| done..].
-            rewrite andb_false_iff !beqｰspec'. naive_solver.
+            rewrite andb_false_iff !beqｰspec'. naive.
         + iSteps. iPureIntro.
           eexists [], _, _. split_and! => //.
           cbn. erewrite !lookup_total_correct; [| done..].
-          rewrite andb_false_iff !beqｰspec'. naive_solver.
+          rewrite andb_false_iff !beqｰspec'. naive.
 
       - rewrite bool_decide_eq_false_2.
         { pose proof (tag۰stringｰspec tag1). lia. }
@@ -759,30 +759,30 @@ Section zoo۰G.
           wp۰pures.
           case_bool_decide; wp۰pures.
           * wp۰apply ("IHstructeq_aux_block_loc" with "[$Hfootprint] HΦ").
-            iPureIntro. split_and!; [naive_solver lia.. |].
+            iPureIntro. split_and!; [naive lia.. |].
             intros j ? ? ? Hj%lookup_lt_Some. lia.
           * iSteps. iPureIntro.
             eexists [], _, _. split_and! => //.
             cbn. erewrite !lookup_total_correct; [| done..].
-            rewrite andb_false_iff !beqｰspec'. naive_solver.
+            rewrite andb_false_iff !beqｰspec'. naive.
         + iSteps. iPureIntro.
           eexists [], _, _. split_and! => //.
           cbn. erewrite !lookup_total_correct; [| done..].
-          rewrite andb_false_iff !beqｰspec'. naive_solver.
+          rewrite andb_false_iff !beqｰspec'. naive.
 
       - case_bool_decide; wp۰pures.
         + rewrite bool_decide_eq_false_2.
           { pose proof (tag۰stringｰspec tag1). lia. }
           wp۰pures. case_bool_decide; wp۰pures.
           * wp۰apply ("IHstructeq_aux_block_block" with "[$Hfootprint] HΦ").
-            iPureIntro. split_and!; [naive_solver lia.. |].
+            iPureIntro. split_and!; [naive lia.. |].
             intros j ? ? ? Hj%lookup_lt_Some. simpl in Hj. lia.
           * iSteps. iPureIntro.
             eexists [], _, _. split_and! => //.
-            rewrite andb_false_iff !beqｰspec'. naive_solver.
+            rewrite andb_false_iff !beqｰspec'. naive.
         + iSteps. iPureIntro.
           eexists [], _, _. split_and! => //.
-          rewrite andb_false_iff !beqｰspec'. naive_solver.
+          rewrite andb_false_iff !beqｰspec'. naive.
     }
 
     { iClear "IHstructeq_aux_loc_block IHstructeq_aux_block_loc IHstructeq_aux_block_block".
@@ -814,7 +814,7 @@ Section zoo۰G.
         + wp۰apply ("IHstructeq_aux_loc_loc" with "[$Hfootprint] HΦ").
           iPureIntro. split_and! => //; try lia.
           intros j.
-          destruct_decide (j = ₊i - 1); naive_solver lia.
+          destruct_decide (j = ₊i - 1); naive lia.
 
         + iSteps. iPureIntro.
           destruct Hb as (path & w1 & w2 & Hreachable1 & Hreachable2 & Hcompatible).
@@ -833,7 +833,7 @@ Section zoo۰G.
         intros [| j path] dst1 dst2 Hreachable1 Hreachable2.
         all: simp.
 
-        + destruct vs2 as [| v2 vs2]; first naive_solver lia.
+        + destruct vs2 as [| v2 vs2]; first naive lia.
           rewrite andb_true_iff !beqｰspec.
           erewrite !lookup_total_correct; done.
 
@@ -851,14 +851,14 @@ Section zoo۰G.
         wp۰apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)"; first iSteps.
         { iPureIntro.
           rewrite /= Forall'ｰForall Forall_lookup in Htraversable2.
-          naive_solver.
+          naive.
         }
         destruct b; wp۰pures.
 
         + wp۰apply ("IHstructeq_aux_loc_block" with "[$Hfootprint] HΦ").
           iPureIntro. split_and! => //; try lia.
           intros j.
-          destruct_decide (j = ₊i - 1); naive_solver lia.
+          destruct_decide (j = ₊i - 1); naive lia.
 
         + iSteps. iPureIntro.
           destruct Hb as (path & w1 & w2 & Hreachable1 & Hreachable2 & Hcompatible).
@@ -877,7 +877,7 @@ Section zoo۰G.
         intros [| j path] dst1 dst2 Hreachable1 Hreachable2.
         all: simp.
 
-        + destruct vs1 as [| v1 vs1]; first naive_solver lia.
+        + destruct vs1 as [| v1 vs1]; first naive lia.
           rewrite andb_true_iff !beqｰspec.
           erewrite !lookup_total_correct; done.
 
@@ -895,14 +895,14 @@ Section zoo۰G.
         wp۰apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)"; first iSteps.
         { iPureIntro.
           rewrite /= Forall'ｰForall Forall_lookup in Htraversable1.
-          naive_solver.
+          naive.
         }
         destruct b; wp۰pures.
 
         + wp۰apply ("IHstructeq_aux_block_loc" with "[$Hfootprint] HΦ").
           iPureIntro. split_and! => //; try lia.
           intros j.
-          destruct_decide (j = ₊i - 1); naive_solver lia.
+          destruct_decide (j = ₊i - 1); naive lia.
 
         + iSteps. iPureIntro.
           destruct Hb as (path & w1 & w2 & Hreachable1 & Hreachable2 & Hcompatible).
@@ -921,8 +921,8 @@ Section zoo۰G.
         intros [| j path] dst1 dst2 Hreachable1 Hreachable2.
         all: simp.
 
-        + destruct vs1 as [| v1 vs1]; first naive_solver lia.
-          destruct vs2 as [| v2 vs2]; first naive_solver lia.
+        + destruct vs1 as [| v1 vs1]; first naive lia.
+          destruct vs2 as [| v2 vs2]; first naive lia.
           rewrite andb_true_iff !beqｰspec //.
 
         + destruct (vs1 !! j) as [v1 |] eqn:Hvs1_lookup; last done.
@@ -938,14 +938,14 @@ Section zoo۰G.
         wp۰apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)".
         { iPureIntro.
           rewrite /= !Forall'ｰForall !Forall_lookup in Htraversable1 Htraversable2.
-          naive_solver.
+          naive.
         }
         destruct b; wp۰pures.
 
         + wp۰apply ("IHstructeq_aux_block_block" with "[$Hfootprint] HΦ").
           iPureIntro. split_and! => //; try lia.
           intros j.
-          destruct_decide (j = ₊i - 1); naive_solver lia.
+          destruct_decide (j = ₊i - 1); naive lia.
 
         + iSteps. iPureIntro.
           destruct Hb as (path & w1 & w2 & Hreachable1 & Hreachable2 & Hcompatible).
@@ -1010,7 +1010,7 @@ Lemma val۰abstractｰtraversable v :
 Proof.
   induction v as [[] | | [] tag vs IH] => //.
   rewrite /= !Forall'ｰForall !Forall_forall in IH |- *.
-  naive_solver.
+  naive.
 Qed.
 
 Lemma val۰compatibleｰreflｰabstract footprint v1 v2 :
@@ -1025,7 +1025,7 @@ Proof.
   intros Habstract1 Habstract2 Hsimilar.
   zoo۰simp in Hsimilar.
   rewrite andb_true_iff.
-  split; apply beqｰtrue; naive_solver.
+  split; apply beqｰtrue; naive.
 Qed.
 
 Lemma valｰstructeqｰabstract₁ footprint v1 v2 :
@@ -1041,7 +1041,7 @@ Proof.
     try (
       ospecialize* (Hstructeq []) => //;
       apply bool_decide_eq_true in Hstructeq;
-      naive_solver
+      naive
     ).
   opose proof* (Hstructeq []) as Hcompatible => //.
   apply andb_prop in Hcompatible as (<-%beqｰeq & Hlen%beqｰeq).
@@ -1051,7 +1051,7 @@ Proof.
   rewrite Forall2'ｰForall2 Forall2_fmap Forall2_same_length_lookup.
   split; first done. intros i v1 v2 Hlookup1 Hlookup2.
   rewrite /= !Forall'ｰForall !Forall_lookup in IH Habstract1 Habstract2.
-  eapply IH; [naive_solver.. |]. intros path v1' v2' Hreachable1 Hreachable2.
+  eapply IH; [naive.. |]. intros path v1' v2' Hreachable1 Hreachable2.
   apply (Hstructeq (i :: path)); rewrite /= ?Hlookup1 ?Hlookup2 //.
 Qed.
 Lemma valｰstructeqｰabstract₂ v1 v2 :
@@ -1079,7 +1079,7 @@ Proof.
     destruct (vs2 !! i) as [v2 |] eqn:Hlookup2; last done.
     rewrite /= !Forall'ｰForall !Forall_lookup in IH Habstract1 Habstract2.
     rewrite Forall2'ｰForall2 Forall2_fmap Forall2_same_length_lookup in Hsimilar.
-    eapply IH; last done; naive_solver.
+    eapply IH; last done; naive.
 Qed.
 Lemma valｰstructeqｰabstract v1 v2 :
   val۰abstract v1 →
@@ -1104,7 +1104,7 @@ Proof.
   all: destruct path; last done; simp.
   all: rewrite bool_decide_eq_false in Hcompatible.
   all: cbn.
-  all: naive_solver congruence.
+  all: naive congruence.
 Qed.
 
 Lemma structeqｰspecｰabstract `{zoo۰G : !ZooG Σ} {v1 v2} :

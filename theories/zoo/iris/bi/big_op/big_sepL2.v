@@ -479,7 +479,7 @@ Section bi.
     Proof.
       iIntros "H".
       iDestruct (big_sepL2_length with "H") as %Hlen. iStep.
-      iApply (big_sepL2ｰimplｰsepL with "H"); first naive_solver. iIntros "!>".
+      iApply (big_sepL2ｰimplｰsepL with "H"); first naive. iIntros "!>".
       iSteps. simp. iSteps.
     Qed.
     Lemma big_sepL2ｰretractｰr `{!BiAffine PROP} Φ l1 l2 :
@@ -492,7 +492,7 @@ Section bi.
     Proof.
       iIntros "H".
       iDestruct (big_sepL2_length with "H") as %Hlen. iStep.
-      iApply (big_sepL2ｰimplｰsepL with "H"); first naive_solver. iIntros "!>".
+      iApply (big_sepL2ｰimplｰsepL with "H"); first naive. iIntros "!>".
       iSteps. simp. iSteps.
     Qed.
 

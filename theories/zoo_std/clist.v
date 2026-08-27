@@ -53,17 +53,17 @@ Fixpoint list۰to_clist_closed vs :=
 #[global] Instance list۰to_clist_openｰinj :
   Inj (=) (=) list۰to_clist_open.
 Proof.
-  intros vs1. induction vs1 as [| v1 vs1 IH]; intros [| v2 vs2]; naive_solver.
+  intros vs1. induction vs1 as [| v1 vs1 IH]; intros [| v2 vs2]; naive.
 Qed.
 #[global] Instance list۰to_clist_closedｰinj :
   Inj (=) (=) list۰to_clist_closed.
 Proof.
-  intros vs1. induction vs1 as [| v1 vs1 IH]; intros [| v2 vs2]; naive_solver.
+  intros vs1. induction vs1 as [| v1 vs1 IH]; intros [| v2 vs2]; naive.
 Qed.
 Lemma list۰to_clistｰopenｰclosed vs1 vs2 :
   list۰to_clist_open vs1 ≠ list۰to_clist_closed vs2.
 Proof.
-  move: vs2. induction vs1; destruct vs2; naive_solver.
+  move: vs2. induction vs1; destruct vs2; naive.
 Qed.
 Lemma list۰to_clist_openｰnotｰclosed vs :
   list۰to_clist_open vs ≠ Closed.
@@ -89,7 +89,7 @@ Lemma clist۰appｰopen {vs1 cvs2} vs2 :
   clist۰app vs1 cvs2 = list۰to_clist_open (vs1 ++ vs2).
 Proof.
   move: cvs2 vs2. induction vs1; first done.
-  intros * ->. f_equal/=. naive_solver.
+  intros * ->. f_equal/=. naive.
 Qed.
 Lemma clist۰appｰOpen vs :
   clist۰app vs Open = list۰to_clist_open vs.
@@ -101,7 +101,7 @@ Lemma clist۰appｰclosed {vs1 cvs2} vs2 :
   clist۰app vs1 cvs2 = list۰to_clist_closed (vs1 ++ vs2).
 Proof.
   move: cvs2 vs2. induction vs1; first done.
-  intros * ->. f_equal/=. naive_solver.
+  intros * ->. f_equal/=. naive.
 Qed.
 Lemma clist۰appｰClosed vs :
   clist۰app vs Closed = list۰to_clist_closed vs.

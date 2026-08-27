@@ -211,7 +211,7 @@ Definition tag۰beq tag1 tag2 :=
   {|beq := tag۰beq
   |}.
 Next Obligation.
-  setoid_rewrite beqｰspec. naive_solver.
+  setoid_rewrite beqｰspec. naive.
 Qed.
 
 Parameter tag۰string : nat.

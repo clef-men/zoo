@@ -107,13 +107,13 @@ Section ofe.
     ✓{n} (twins۰twin₁ dq a) ↔
     ✓ dq.
   Proof.
-    rewrite auth_option۰authｰdfracｰvalidN. naive_solver.
+    rewrite auth_option۰authｰdfracｰvalidN. naive.
   Qed.
   Lemma twins۰twin₁ｰdfracｰvalid dq a :
     ✓ (twins۰twin₁ dq a) ↔
     ✓ dq.
   Proof.
-    rewrite auth_option۰authｰdfracｰvalid. naive_solver.
+    rewrite auth_option۰authｰdfracｰvalid. naive.
   Qed.
   Lemma twins۰twin₁ｰvalidN n a :
     ✓{n} (twins۰twin₁ (DfracOwn 1) a).
@@ -131,16 +131,16 @@ Section ofe.
     ✓ (dq1 ⋅ dq2) ∧ a1 ≡{n}≡ a2.
   Proof.
     rewrite auth_option۰authｰdfracｰopｰvalidN. split.
-    - epose proof (inj Excl). naive_solver.
-    - naive_solver solve_proper.
+    - epose proof (inj Excl). naive.
+    - naive solve_proper.
   Qed.
   Lemma twins۰twin₁ｰdfracｰopｰvalid dq1 a1 dq2 a2 :
     ✓ (twins۰twin₁ dq1 a1 ⋅ twins۰twin₁ dq2 a2) ↔
     ✓ (dq1 ⋅ dq2) ∧ a1 ≡ a2.
   Proof.
     rewrite auth_option۰authｰdfracｰopｰvalid. split.
-    - epose proof (@inj _ _ equiv equiv Excl). naive_solver apply _.
-    - naive_solver solve_proper.
+    - epose proof (@inj _ _ equiv equiv Excl). naive apply _.
+    - naive solve_proper.
   Qed.
   Lemma twins۰twin₁ｰopｰvalidN n a1 a2 :
     ✓{n} (twins۰twin₁ (DfracOwn 1) a1 ⋅ twins۰twin₁ (DfracOwn 1) a2) ↔
@@ -185,7 +185,7 @@ Section ofe.
   Proof.
     rewrite auth_optionｰbothｰdfracｰvalidN. split.
     - intros (? & [?%(inj Excl) | ?%exclusive_includedN] & ?); done || apply _.
-    - naive_solver solve_proper.
+    - naive solve_proper.
   Qed.
   Lemma twinsｰbothｰdfracｰvalid dq a b :
     ✓ (twins۰twin₁ dq a ⋅ twins۰twin₂ b) ↔
@@ -202,13 +202,13 @@ Section ofe.
     ✓{n} (twins۰twin₁ (DfracOwn 1) a ⋅ twins۰twin₂ b) ↔
     a ≡{n}≡ b.
   Proof.
-    rewrite twinsｰbothｰdfracｰvalidN. naive_solver done.
+    rewrite twinsｰbothｰdfracｰvalidN. naive done.
   Qed.
   Lemma twinsｰbothｰvalid a b :
     ✓ (twins۰twin₁ (DfracOwn 1) a ⋅ twins۰twin₂ b) ↔
     a ≡ b.
   Proof.
-    rewrite twinsｰbothｰdfracｰvalid. naive_solver done.
+    rewrite twinsｰbothｰdfracｰvalid. naive done.
   Qed.
 
   Lemma twins۰twin₁ｰpersist dq a :

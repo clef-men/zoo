@@ -72,11 +72,11 @@ Section zoo۰G.
     destruct vs as [| v vs].
     - iDestruct (chain۰modelｰnil with "Hfront") as %->.
       wp۰equal as ? | _.
-      { iDestruct (chainｰphysicallyｰdistinct' with "Hback") as %[]; naive_solver. }
+      { iDestruct (chainｰphysicallyｰdistinct' with "Hback") as %[]; naive. }
       iSteps.
-    - wp۰apply (wpｰequalｰchain with "Hfront Hback") as "Hfront Hback"; [naive_solver lia.. |].
+    - wp۰apply (wpｰequalｰchain with "Hfront Hback") as "Hfront Hback"; [naive lia.. |].
       iSplit; first iSteps. iIntros "->".
-      iDestruct (chain۰modelｰexclusive with "Hback Hfront") as %[]; naive_solver lia.
+      iDestruct (chain۰modelｰexclusive with "Hback Hfront") as %[]; naive lia.
   Qed.
 
   Lemma queue_1٠pushｰspec t vs v :

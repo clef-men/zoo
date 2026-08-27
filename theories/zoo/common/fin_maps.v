@@ -90,7 +90,7 @@ Section map_Forall.
   Proof.
     rewrite map_Forall_lookup.
     setoid_rewrite lookup_delete_Some.
-    naive_solver.
+    naive.
   Qed.
   Lemma map_Forallｰdeleteｰlookup₁ {P m k} k' x :
     map_Forall P (delete k m) →
@@ -99,7 +99,7 @@ Section map_Forall.
     P k' x.
   Proof.
     rewrite map_Forallｰdeleteｰlookup.
-    naive_solver.
+    naive.
   Qed.
   Lemma map_Forallｰdeleteｰlookup₂ P m k :
     ( ∀ k' x,
@@ -146,7 +146,7 @@ Section map_Forall2.
     map_Forall2 R m 𝑚 ↔
     map_Forall2 (λ k x 𝑥, R k 𝑥 x) 𝑚 m.
   Proof.
-    rewrite !map_Forall2ｰalt. naive_solver.
+    rewrite !map_Forall2ｰalt. naive.
   Qed.
 
   Lemma map_Forall2ｰlookupｰNoneｰl {A B R} {m : M A} {𝑚 : M B} k :
@@ -173,7 +173,7 @@ Section map_Forall2.
     𝑚 !! k = Some 𝑥 →
     R k x 𝑥.
   Proof.
-    rewrite map_Forall2ｰalt. naive_solver.
+    rewrite map_Forall2ｰalt. naive.
   Qed.
   Lemma map_Forall2ｰlookupｰSomeｰl {A B R} {m : M A} {𝑚 : M B} k x :
     map_Forall2 R m 𝑚 →
@@ -227,7 +227,7 @@ Section map_Forall2.
   Proof.
     rewrite !map_Forall2ｰalt dom_fmap.
     setoid_rewrite lookup_fmap_Some.
-    naive_solver.
+    naive.
   Qed.
   Lemma map_Forall2ｰfmapｰl₁ {A B C R} (f : A → C) (m : M A) (𝑚 : M B) :
     map_Forall2 (λ k x 𝑥, R k (f x) 𝑥) m 𝑚 →
@@ -336,7 +336,7 @@ Section map۰oflatten.
     intros Hm.
     apply map_empty => k.
     rewrite eq_None_not_Some. intros (a & Hlookup%lookupｰmap۰oflattenｰSomeｰinv).
-    naive_solver.
+    naive.
   Qed.
 
   Lemma map۰oflattenｰunion m1 m2 :

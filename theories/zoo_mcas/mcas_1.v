@@ -230,7 +230,7 @@ Qed.
   i1 ≤ i2.
 Proof.
   intros Hlsteps. move: i1. induction Hlsteps as [lstatus | lstatus1 ? lstatus2 Hlstep Hlsteps IH] => i1.
-  - naive_solver.
+  - naive.
   - intros -> ->. inv Hlstep.
     + specialize (IH ˖i1). lia.
     + apply lstepsｰfinished in Hlsteps as [=].
@@ -836,7 +836,7 @@ Section mcas_1۰G.
     destruct casns3 as [| casn3 casns3 _] using rev_ind.
     - apply (f_equal last) in Heq.
       rewrite right_id !last_snoc in Heq.
-      naive_solver.
+      naive.
     - apply (f_equal last) in Heq as H.
       rewrite assoc last_app_cons !last_snoc /= in H.
       injection H as <-.
@@ -1338,7 +1338,7 @@ Section mcas_1۰G.
 
         - iDestruct "Hlstatus" as "(:casn۰inv۰inner۰running >)".
           wp۰cas as Hcas | _.
-          { exfalso. zoo۰simp in Hcas. naive_solver. }
+          { exfalso. zoo۰simp in Hcas. naive. }
           iStep. iIntros "!> %prophs %Hprophs Hgproph".
 
           assert (metadata۰success η = final_status۰to_bool fstatus) as Hsuccess.
@@ -1674,7 +1674,7 @@ Section mcas_1۰G.
 
       - apply lookup_lt_Some in Hdescrs_lookup as Hi.
         erewrite drop_S; last first.
-        { apply list_lookup_fmap_Some. naive_solver. }
+        { apply list_lookup_fmap_Some. naive. }
         iDestruct (big_sepL_lookup with "Hlocs") as "(Hloc_meta & Hstate_casn & Hloc_inv')"; first done.
         iDestruct (loc۰inv'ｰelim with "Hloc_meta Hloc_inv'") as "Hloc_inv".
 
@@ -1771,7 +1771,7 @@ Section mcas_1۰G.
 
                   ** wp۰apply (mcas_1٠finishｰspecｰloser FinalBefore with "[$Hcasn_meta $Hcasn_inv' $Hgid] HΦ"); first done.
 
-                  ** exfalso. naive_solver.
+                  ** exfalso. naive.
 
                ++ wp۰apply (mcas_1٠finishｰspecｰfinished with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb_finished] HΦ").
 
@@ -2246,12 +2246,12 @@ Section mcas_1۰G.
     assert (Hafters : afters = descriptor۰after <$> descrs).
     { apply listｰfmapｰaltｰForall2ｰl, Forall2_same_length_lookup_2; first congruence. intros.
       eapply Forall2iｰlookupｰr in Hdescrs; last done.
-      naive_solver.
+      naive.
     }
     assert (Hbefores : befores = descriptor۰before <$> descrs).
     { apply listｰfmapｰaltｰForall2ｰl, Forall2_same_length_lookup_2; first congruence. intros.
       eapply Forall2iｰlookupｰr in Hdescrs; last done.
-      naive_solver.
+      naive.
     }
 
     wp۰block۰generative undetermined.
@@ -2338,7 +2338,7 @@ Section mcas_1۰G.
         destruct H1 as (loc1 & before1 & after1 & Hlocs_lookup_1 & _ & _ & -> & _) in Heq.
         odestruct (Forall2iｰlookupｰr _ _ _ i2) as (γ2 & _ & H2); [done.. |].
         destruct H2 as (loc2 & before2 & after2 & Hlocs_lookup_2 & _ & _ & -> & _) in Heq.
-        eapply NoDup_lookup; [done | naive_solver..].
+        eapply NoDup_lookup; [done | naive..].
       - iApply (big_sepL_wand with "Hstates_casn").
         iApply (big_sepL2ｰimplｰsepL with "Hlocs"); first auto. iIntros "!> %i %loc %γ %descr %Hlocs_lookup %Hγs_lookup %Hdescrs_lookup (Hmeta & Hloc_inv)".
         odestruct Forall2iｰlookupｰr; [done.. |]. simp.

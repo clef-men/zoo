@@ -174,7 +174,7 @@ Tactic Notation "zoo۰simp" "in" hyp(H) :=
       let H1 := fresh in
       let H2 := fresh in
       let H3 := fresh in
-      apply valｰsimilarｰblockｰgenerative in H as (H1 & H2 & H3); last naive_solver;
+      apply valｰsimilarｰblockｰgenerative in H as (H1 & H2 & H3); last naive;
       zoo۰simpl in H1;
       zoo۰simpl in H2;
       zoo۰simpl in H3
@@ -255,7 +255,7 @@ Create HintDb zoo.
   base_step _ (Equal _ _) _ _ _ _ _
 ) =>
   eapply base_stepｰequalｰfail;
-  simpl; try naive_solver done
+  simpl; try naive done
 : zoo.
 #[global] Hint Extern 0 (
   base_step _ (Equal _ _) _ _ _ _ _
@@ -283,7 +283,7 @@ Create HintDb zoo.
 ) =>
   eapply base_stepｰcasｰfail;
   [ try done
-  | simpl; try naive_solver done
+  | simpl; try naive done
   ]
 : zoo.
 #[global] Hint Extern 0 (

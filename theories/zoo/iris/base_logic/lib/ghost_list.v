@@ -136,7 +136,7 @@ Section ghost_list۰G.
     False.
   Proof.
     iIntros "Hat1 Hat2".
-    iDestruct (ghost_list۰atｰne with "Hat1 Hat2") as %?. naive_solver.
+    iDestruct (ghost_list۰atｰne with "Hat1 Hat2") as %?. naive.
   Qed.
   Lemma ghost_list۰atｰpersist γ i dq x :
     ghost_list۰at γ i dq x ⊢ |==>
@@ -165,7 +165,7 @@ Section ghost_list۰G.
     iStep 6 as (i x1 x2 Hxs1_lookup Hxs2_lookup).
     iDestruct (big_sepL_lookup with "Hats") as "Hat"; first done.
     iDestruct (ghost_listｰlookup with "Hauth Hat") as %Hxs1_lookup_.
-    naive_solver.
+    naive.
   Qed.
 
   Lemma ghost_listｰupdateｰpush {γ xs} x :

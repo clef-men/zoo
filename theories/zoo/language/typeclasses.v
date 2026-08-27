@@ -17,8 +17,8 @@ Qed.
 Section atomic.
   #[local] Ltac solve_atomic :=
     apply base_atomicｰatomic;
-    [ inversion 1; naive_solver
-    | apply sub_redexes_are_valuesｰalt; intros [] **; naive_solver
+    [ inversion 1; naive
+    | apply sub_redexes_are_valuesｰalt; intros [] **; naive
     ].
 
   #[global] Instance pureｰatomic e v :
@@ -27,7 +27,7 @@ Section atomic.
   Proof.
     intros Hpure%nsteps_once_inv tid σ κ e' σ' es Hstep; last done.
     eapply pure_stepｰdet in Hstep; last done.
-    naive_solver.
+    naive.
   Qed.
 
   #[global] Instance get_sizeｰatomic v :
@@ -140,7 +140,7 @@ Section pure_exec.
   #[local] Ltac solve_exec_puredet :=
     intros;
     inv_base_step;
-    try naive_solver.
+    try naive.
   #[local] Ltac solve_pure_exec :=
     intros ?; destruct_and?;
     apply nsteps_once, pure_base_stepｰpure_step;
@@ -191,7 +191,7 @@ Section pure_exec.
     { eapply Foralliｰlookup₁ in Hvs; first done.
       rewrite Hvs_eq lookup_app_l.
       { simp_length/=. lia. }
-      rewrite lookup_snoc_Some. naive_solver lia.
+      rewrite lookup_snoc_Some. naive lia.
     }
     apply (IH (rec :: recs2) vs1 (v :: vs2)).
     { rewrite Hrecs_eq -assoc //. }
@@ -203,7 +203,7 @@ Section pure_exec.
   Proof.
     pose proof (pureｰapp (ValRec f x (Val v1)) 0 [(f, x, Val v1)] (f, x, Val v1) [ValRec f x (Val v1)] v2) as H.
     rewrite /= !subst'ｰval in H.
-    intros _. naive_solver.
+    intros _. naive.
   Qed.
 
   #[global] Instance pureｰlet x v1 e2 :
@@ -254,7 +254,7 @@ Section pure_exec.
       select (_ = Some lit) (fun H =>
         rewrite decide_True // Hlookup /= in H
       ).
-      naive_solver.
+      naive.
   Qed.
 
   #[global] Instance pureｰequalｰbool b1 b2 :

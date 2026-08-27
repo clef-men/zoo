@@ -83,7 +83,7 @@ Section zoo۰G.
       assert (length es1' - length es1 + (length es2 - length es1') = length es2 - length es1) as ->.
       { apply stepｰlength in Hstep.
         apply nstepsｰlength in Hsteps'.
-        naive_solver lia.
+        naive lia.
       }
       iFrameSteps.
   Qed.

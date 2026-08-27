@@ -137,7 +137,7 @@ Section basic.
     l = [].
   Proof.
     destruct l as [| x l _] using rev_ind; first done.
-    rewrite reverse_snoc app_nil. naive_solver.
+    rewrite reverse_snoc app_nil. naive.
   Qed.
 
   Lemma foldrｰinsertｰstrong `(f : A → B → B) comp l i x y acc :
@@ -198,7 +198,7 @@ Section basic.
     0 < length l1 →
     head (l1 ++ l2) = head l1.
   Proof.
-    destruct l1; naive_solver lia.
+    destruct l1; naive lia.
   Qed.
   Lemma headｰappｰcons l1 x l2 :
     head (l1 ++ x :: l2) = head (l1 ++ [x]).
@@ -229,13 +229,13 @@ Section basic.
     hd default l = x →
     head l = Some x.
   Proof.
-    destruct l; naive_solver lia.
+    destruct l; naive lia.
   Qed.
   Lemma hdｰapp default l1 l2 :
     0 < length l1 →
     hd default (l1 ++ l2) = hd default l1.
   Proof.
-    destruct l1; naive_solver lia.
+    destruct l1; naive lia.
   Qed.
   Lemma hdｰappｰcons default l1 x l2 :
     hd default (l1 ++ x :: l2) = hd default (l1 ++ [x]).
@@ -284,7 +284,7 @@ Section basic.
     l = removelast l ++ [x].
   Proof.
     destruct l as [| y l _] using rev_ind; first done.
-    rewrite last_snoc removelast_last. naive_solver.
+    rewrite last_snoc removelast_last. naive.
   Qed.
 
   Lemma dropｰlookupｰNone l i :
@@ -420,7 +420,7 @@ Section zip3_with.
   Proof.
     move: l2 l3. induction l1 => l2 l3; first done.
     destruct l2, l3; try done.
-    naive_solver.
+    naive.
   Qed.
 
   Lemma lookupｰzip3_withｰSome f l1 l2 l3 i x :
@@ -433,7 +433,7 @@ Section zip3_with.
   Proof.
     move: l1 l2 l3. induction i => l1 l2 l3.
     all: destruct l1, l2, l3; try done.
-    all: naive_solver.
+    all: naive.
   Qed.
 End zip3_with.
 
@@ -562,7 +562,7 @@ Section foldr2.
     move: l21. induction l11 as [| x1 l11 IH] => l21 Hlength.
     - destruct l21; done.
     - destruct l21; first done.
-      simpl. f_equal. naive_solver.
+      simpl. f_equal. naive.
   Qed.
 End foldr2.
 
@@ -594,7 +594,7 @@ Section Forall'.
     Forall' l ↔ Forall P l.
   Proof.
     induction l; first done.
-    rewrite Forall_cons. naive_solver.
+    rewrite Forall_cons. naive.
   Qed.
 End Forall'.
 
@@ -619,8 +619,8 @@ Section Foralli.
   Proof.
     move: l i. induction j => l i.
     all: destruct l; first done.
-    - rewrite right_id. naive_solver.
-    - rewrite -Nat.add_succ_comm. naive_solver.
+    - rewrite right_id. naive.
+    - rewrite -Nat.add_succ_comm. naive.
   Qed.
   Lemma Foralliｰlookup₁ {l} i x :
     Foralli l →
@@ -638,7 +638,7 @@ Section Foralli.
     split.
     - specialize (H 0). rewrite right_id in H. auto.
     - apply IH => j y.
-      rewrite Nat.add_succ_comm. naive_solver.
+      rewrite Nat.add_succ_comm. naive.
   Qed.
   Lemma Foralliｰlookup₂ l :
     (∀ i x, l !! i = Some x → P i x) →
@@ -701,10 +701,10 @@ Section Forall2'.
   Proof.
     move: l2. induction l1 => l2.
     all: destruct l2; try done.
-    all: split; try naive_solver.
+    all: split; try naive.
     - intros ?%Forall2_nil_cons_inv. done.
     - intros ?%Forall2_cons_nil_inv. done.
-    - rewrite Forall2_cons. naive_solver.
+    - rewrite Forall2_cons. naive.
   Qed.
 
   #[global] Instance Forall2'ｰdec `{!RelDecision P} :
@@ -755,7 +755,7 @@ Section Forall2'.
     Symmetric (Forall2' P).
   Proof.
     intros ? l1. induction l1 => l2.
-    all: destruct l2; naive_solver.
+    all: destruct l2; naive.
   Defined.
   #[global] Instance Forall2'ｰsymmetric `{!Symmetric P} :
     Symmetric (Forall2' P).
@@ -768,7 +768,7 @@ Section Forall2'.
     Transitive (Forall2' P).
   Proof.
     intros ? l1. induction l1 => l2 l3.
-    all: destruct l2, l3; naive_solver.
+    all: destruct l2, l3; naive.
   Defined.
   #[global] Instance Forall2'ｰtransitive `{!Transitive P} :
     Transitive (Forall2' P).
@@ -799,7 +799,7 @@ Section Forall2i.
   Proof.
     move: l2 i. induction l1.
     all: destruct l2; first done.
-    all: naive_solver.
+    all: naive.
   Qed.
   Lemma Forall2iｰlength l1 l2 :
     Forall2i l1 l2 →
@@ -817,8 +817,8 @@ Section Forall2i.
     move: l1 l2 i. induction j => l1 l2 i.
     all: destruct l1; first done.
     all: destruct l2; first done.
-    - rewrite right_id. naive_solver.
-    - rewrite -Nat.add_succ_comm. naive_solver.
+    - rewrite right_id. naive.
+    - rewrite -Nat.add_succ_comm. naive.
   Qed.
   Lemma Forall2iｰlookupｰlr {l1 l2} i x1 x2 :
     Forall2i l1 l2 →
@@ -868,7 +868,7 @@ Section Forall2i.
     move: l2 i. induction l1 as [| x1 l1 IH] => l2 i.
     all: destruct l2 as [| x2 l2]; try done.
     intros [= Hlen] H. split.
-    - specialize (H 0). rewrite right_id in H. naive_solver.
+    - specialize (H 0). rewrite right_id in H. naive.
     - apply IH; first done. intros j.
       specialize (H ˖j). rewrite -Nat.add_succ_comm // in H.
   Qed.
@@ -919,7 +919,7 @@ Section fmap.
       𝑙2 = f <$> l2.
   Proof.
     intros (l1 & ? & -> & (x & l2 & -> & -> & ->)%symmetry%fmap_cons_inv & ->)%fmap_app_inv.
-    naive_solver.
+    naive.
   Qed.
   Lemma fmapｰsnocｰinv f l 𝑙 𝑥 :
     f <$> l = 𝑙 ++ [𝑥] →
@@ -973,7 +973,7 @@ Section Permutation.
     split.
     - rewrite !length_insert //.
     - exists (λ j, if decide (j = i1) then i2 else if decide (j = i2) then i1 else j). split.
-      + intros j1 j2. repeat case_decide; naive_solver.
+      + intros j1 j2. repeat case_decide; naive.
       + intros j. repeat case_decide; subst.
         * rewrite list_lookup_insert_eq // length_insert //.
         * rewrite list_lookup_insert_ne // list_lookup_insert_eq //.
@@ -1383,7 +1383,7 @@ Section oflatten.
     x ∈ oflatten l ↔
     Some x ∈ l.
   Proof.
-    rewrite list_elem_of_omap. naive_solver.
+    rewrite list_elem_of_omap. naive.
   Qed.
 
   Lemma oflattenｰlookupｰSome l i x :

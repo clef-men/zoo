@@ -228,7 +228,7 @@ Section disj_union_list.
   Proof.
     setoid_rewrite gmultisetｰemptyｰelem_of.
     setoid_rewrite elem_of_gmultiset_disj_union_list.
-    naive_solver.
+    naive.
   Qed.
   Lemma gmultisetｰdisj_union_listｰreplicateｰempty n :
     ⋃+ replicate n ∅ =@{gmultiset A} ∅.
