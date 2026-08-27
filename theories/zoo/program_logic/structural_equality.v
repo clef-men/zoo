@@ -112,7 +112,7 @@ Definition literal۰traversable footprint lit :=
   | LitLoc l =>
       l ∈ dom footprint
   | LitProph _
-  | LitPoison =>
+  | LitProphErasure =>
       False
   end.
 #[global] Arguments literal۰traversable _ !_ / : assert.
@@ -987,7 +987,7 @@ Definition literal۰abstract lit :=
       True
   | LitLoc _
   | LitProph _
-  | LitPoison =>
+  | LitProphErasure =>
       False
   end.
 #[global] Arguments literal۰abstract !_ / : assert.

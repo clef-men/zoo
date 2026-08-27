@@ -21,7 +21,7 @@ Variant lowliteral :=
   | LowlitString str
   | LowlitLoc l
   | LowlitProph
-  | LowlitPoison.
+  | LowlitProphErasure.
 Implicit Type llit : lowliteral.
 
 #[global] Instance lowliteralｰeq_dec : EqDecision lowliteral :=
@@ -41,8 +41,8 @@ Definition literal۰to_low lit :=
       LowlitLoc l
   | LitProph _ =>
       LowlitProph
-  | LitPoison =>
-      LowlitPoison
+  | LitProphErasure =>
+      LowlitProphErasure
   end.
 #[global] Arguments literal۰to_low !_ / : simpl nomatch, assert.
 
@@ -55,7 +55,7 @@ Definition literal۰to_low lit :=
         llit2 ≠ LowlitLoc l1
     | LowlitString _
     | LowlitProph
-    | LowlitPoison =>
+    | LowlitProphErasure =>
         True
     end.
 
@@ -130,8 +130,8 @@ Notation LowvalProph := (
   LowvalLit LowlitProph
 )(only parsing
 ).
-Notation LowvalPoison := (
-  LowvalLit LowlitPoison
+Notation LowvalProphErasure := (
+  LowvalLit LowlitProphErasure
 )(only parsing
 ).
 

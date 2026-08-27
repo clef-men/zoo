@@ -63,7 +63,7 @@ Variant literal :=
   | LitString str
   | LitLoc l
   | LitProph pid
-  | LitPoison.
+  | LitProphErasure.
 Implicit Type lit : literal.
 
 #[global] Instance literalｰeq_dec : EqDecision literal :=
@@ -708,8 +708,8 @@ Notation ValProph pid := (
   ValLit (LitProph pid)
 )(only parsing
 ).
-Notation ValPoison := (
-  ValLit LitPoison
+Notation ValProphErasure := (
+  ValLit LitProphErasure
 )(only parsing
 ).
 
