@@ -658,7 +658,7 @@ Section Foralli.
 End Foralli.
 
 Section Forall2.
-  Context `(P : A1 → A1 → Prop).
+  Context `(P : A1 → A2 → Prop).
 
   Lemma Forall2ｰinsertｰl {l1 l2} i x1 x2 :
     l2 !! i = Some x2 →
