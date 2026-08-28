@@ -89,6 +89,10 @@ Fixpoint occurs x e :=
       occurs x e0 ||
       occurs x e1 ||
       occurs x e2
+  | ResolveErasure e0 e1 e2 =>
+      occurs x e0 ||
+      occurs x e1 ||
+      occurs x e2
   end.
 
 Definition val۰recursive v :=
@@ -231,6 +235,11 @@ Fixpoint subst (x : string) v e :=
       Proph
   | Resolve e0 e1 e2 =>
       Resolve
+        (subst x v e0)
+        (subst x v e1)
+        (subst x v e2)
+  | ResolveErasure e0 e1 e2 =>
+      ResolveErasure
         (subst x v e0)
         (subst x v e1)
         (subst x v e2)

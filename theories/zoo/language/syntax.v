@@ -148,6 +148,7 @@ Inductive expr :=
   | LocalSet (e : expr)
   | Proph
   | Resolve (e0 e1 e2 : expr)
+  | ResolveErasure (e0 e1 e2 : expr)
 with val :=
   | ValLit lit
   | ValRecs i (recs : list (binder * binder * expr))
@@ -270,6 +271,11 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (Resolve e0 e1 e2).
+  Variable HResolveErasure :
+    ∀ e0, P e0 →
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (ResolveErasure e0 e1 e2).
 
   Fixpoint expr_ind e :=
     match e with
@@ -369,6 +375,11 @@ Section expr_ind.
         HProph
     | Resolve e0 e1 e2 =>
         HResolve
+          e0 (expr_ind e0)
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    | ResolveErasure e0 e1 e2 =>
+        HResolveErasure
           e0 (expr_ind e0)
           e1 (expr_ind e1)
           e2 (expr_ind e2)
@@ -507,6 +518,11 @@ Section exprｰvalｰmutind.
     ∀ e1, Pexpr e1 →
     ∀ e2, Pexpr e2 →
     Pexpr (Resolve e0 e1 e2).
+  Variable HResolveErasure :
+    ∀ e0, Pexpr e0 →
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    Pexpr (ResolveErasure e0 e1 e2).
 
   Variable HValLit :
     ∀ lit,
@@ -618,6 +634,11 @@ Section exprｰvalｰmutind.
         HProph
     | Resolve e0 e1 e2 =>
         HResolve
+          e0 (exprｰvalｰind e0)
+          e1 (exprｰvalｰind e1)
+          e2 (exprｰvalｰind e2)
+    | ResolveErasure e0 e1 e2 =>
+        HResolveErasure
           e0 (exprｰvalｰind e0)
           e1 (exprｰvalｰind e1)
           e2 (exprｰvalｰind e2)
@@ -964,6 +985,11 @@ Proof.
            (decide (e10 = e20))
            (decide (e11 = e21))
            (decide (e12 = e22))
+      | ResolveErasure e10 e11 e12, ResolveErasure e20 e21 e22 =>
+         cast_if_and3
+           (decide (e10 = e20))
+           (decide (e11 = e21))
+           (decide (e12 = e22))
       | _, _ =>
           right _
       end
@@ -1142,6 +1168,8 @@ Proof.
     23.
   #[local] Notation code_Resolve :=
     24.
+  #[local] Notation code_ResolveErasure :=
+    25.
   #[local] Notation code_ValRecs :=
     0.
   #[local] Notation code_recursive :=
@@ -1210,6 +1238,8 @@ Proof.
           GenNode code_Proph []
       | Resolve e0 e1 e2 =>
           GenNode code_Resolve [go e0; go e1; go e2]
+      | ResolveErasure e0 e1 e2 =>
+          GenNode code_ResolveErasure [go e0; go e1; go e2]
       end
     with go_val v :=
       let go_recursive '((f, x), e) :=
@@ -1297,6 +1327,8 @@ Proof.
           Proph
       | GenNode code_Resolve [e0; e1; e2] =>
           Resolve (go e0) (go e1) (go e2)
+      | GenNode code_ResolveErasure [e0; e1; e2] =>
+          ResolveErasure (go e0) (go e1) (go e2)
       | _ =>
           @inhabitant _ exprｰinhabited
       end

@@ -466,4 +466,14 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
+
+  #[global] Instance pureｰresolveｰerasure v0 v1 v2 :
+    PureExec
+      True
+      1
+      (ResolveErasure (Val v0) (Val v1) (Val v2))
+      (Val v0).
+  Proof.
+    solve_pure_exec.
+  Qed.
 End pure_exec.

@@ -78,6 +78,12 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxResolve1 e0 v2) K prophs e1
     | Resolve ?e0 ?e1 ?e2 =>
         add_ectxi (CtxResolve2 e0 e1) K prophs e2
+    | ResolveErasure ?e0 (Val ?v1) (Val ?v2) =>
+        add_ectxi (CtxResolveErasure0 v1 v2) K prophs e0
+    | ResolveErasure ?e0 ?e1 (Val ?v2) =>
+        add_ectxi (CtxResolveErasure1 e0 v2) K prophs e1
+    | ResolveErasure ?e0 ?e1 ?e2 =>
+        add_ectxi (CtxResolveErasure2 e0 e1) K prophs e2
     end
   with go_list K prophs ctx es :=
     let es := eval simpl in (rev es) in

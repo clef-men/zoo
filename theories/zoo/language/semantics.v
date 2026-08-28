@@ -500,7 +500,16 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (κ ++ [(pid, (w, v))])
         (Val w)
         σ'
-        es.
+        es
+  | base_stepｰresolveｰerasure v0 v1 v2 σ :
+      base_step
+        tid
+        (ResolveErasure (Val v0) (Val v1) (Val v2))
+        σ
+        []
+        (Val v0)
+        σ
+        [].
 #[global] Arguments base_step tid e1 σ1 κ e2 σ2 es : assert.
 
 Lemma base_stepｰalloc' tid 𝑡𝑎𝑔 tag n σ :
@@ -609,7 +618,10 @@ Inductive ectxi :=
   | CtxLocalSet
   | CtxResolve0 (k : ectxi) v1 v2
   | CtxResolve1 e0 v2
-  | CtxResolve2 e0 e1.
+  | CtxResolve2 e0 e1
+  | CtxResolveErasure0 v1 v2
+  | CtxResolveErasure1 e0 v2
+  | CtxResolveErasure2 e0 e1.
 Implicit Type k : ectxi.
 
 Notation CtxSeq := (
@@ -624,7 +636,7 @@ Notation CtxTuple := (
 Fixpoint filli k e : expr :=
   match k with
   | CtxApp1 v2 =>
-      App e $ Val v2
+      App e (Val v2)
   | CtxApp2 e1 =>
       App e1 e
   | CtxLet x e2 =>
@@ -632,11 +644,11 @@ Fixpoint filli k e : expr :=
   | CtxUnop op =>
       Unop op e
   | CtxBinop1 op v2 =>
-      Binop op e $ Val v2
+      Binop op e (Val v2)
   | CtxBinop2 op e1 =>
       Binop op e1 e
   | CtxEqual1 v2 =>
-      Equal e $ Val v2
+      Equal e (Val v2)
   | CtxEqual2 e1 =>
       Equal e1 e
   | CtxIf e1 e2 =>
@@ -646,11 +658,11 @@ Fixpoint filli k e : expr :=
   | CtxFor2 v1 e3 =>
       For (Val v1) e e3
   | CtxAlloc1 v2 =>
-      Alloc e $ Val v2
+      Alloc e (Val v2)
   | CtxAlloc2 e1 =>
       Alloc e1 e
   | CtxBlock mut tag es vs =>
-      Block mut tag $ es ++ e :: of_vals vs
+      Block mut tag (es ++ e :: of_vals vs)
   | CtxMatch x e1 brs =>
       Match e x e1 brs
   | CtxGetTag =>
@@ -668,17 +680,17 @@ Fixpoint filli k e : expr :=
   | CtxStore3 e1 e2 =>
       Store e1 e2 e
   | CtxXchg1 v2 =>
-      Xchg e $ Val v2
+      Xchg e (Val v2)
   | CtxXchg2 e1 =>
       Xchg e1 e
   | CtxCAS0 v1 v2 =>
       CAS e (Val v1) (Val v2)
   | CtxCAS1 e0 v2 =>
-      CAS e0 e $ Val v2
+      CAS e0 e (Val v2)
   | CtxCAS2 e0 e1 =>
       CAS e0 e1 e
   | CtxFAA1 v2 =>
-      FAA e $ Val v2
+      FAA e (Val v2)
   | CtxFAA2 e1 =>
       FAA e1 e
   | CtxLocalSet =>
@@ -686,9 +698,15 @@ Fixpoint filli k e : expr :=
   | CtxResolve0 k v1 v2 =>
       Resolve (filli k e) (Val v1) (Val v2)
   | CtxResolve1 e0 v2 =>
-      Resolve e0 e $ Val v2
+      Resolve e0 e (Val v2)
   | CtxResolve2 e0 e1 =>
       Resolve e0 e1 e
+  | CtxResolveErasure0 v1 v2 =>
+      ResolveErasure e (Val v1) (Val v2)
+  | CtxResolveErasure1 e0 v2 =>
+      ResolveErasure e0 e (Val v2)
+  | CtxResolveErasure2 e0 e1 =>
+      ResolveErasure e0 e1 e
   end.
 #[global] Arguments filli !_ _ / : assert.
 
