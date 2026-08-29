@@ -16,6 +16,7 @@ Record header := Header
   ; header۰size : nat
   }.
 Add Printing Constructor header.
+Implicit Type hdr : header.
 
 Record state :=
   { state۰headers : gmap location header

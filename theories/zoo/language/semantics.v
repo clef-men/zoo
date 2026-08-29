@@ -24,6 +24,7 @@ Implicit Type br : branch.
 Implicit Type brs : list branch.
 Implicit Type rec : recursive.
 Implicit Type recs : list recursive.
+Implicit Type hdr : header.
 
 Definition thread_id :=
   nat.
