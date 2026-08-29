@@ -123,8 +123,8 @@ Definition eval_binop op v1 v2 :=
   end.
 #[global] Arguments eval_binop _ !_ !_ / : assert.
 
-Definition eval_app۰aux recs i rec :=
-  subst' rec.1.1 (ValRecs i recs).
+Definition eval_app۰aux recs i rec e :=
+  subst' rec.1.1 (ValRecs i recs) e.
 Definition eval_app' {A} foldri recs x v e : A :=
   foldri (eval_app۰aux recs) (subst' x v e).
 Definition eval_app recs x v e :=
