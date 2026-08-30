@@ -20,8 +20,7 @@ Variant lowliteral :=
   | LowlitInt n
   | LowlitString str
   | LowlitLoc l
-  | LowlitProph
-  | LowlitProphErasure.
+  | LowlitProph.
 Implicit Type llit : lowliteral.
 
 #[global] Instance lowliteralｰeq_dec : EqDecision lowliteral :=
@@ -41,8 +40,6 @@ Definition literal۰to_low lit :=
       LowlitLoc l
   | LitProph _ =>
       LowlitProph
-  | LitProphErasure =>
-      LowlitProphErasure
   end.
 #[global] Arguments literal۰to_low !_ / : simpl nomatch, assert.
 
@@ -54,8 +51,7 @@ Definition literal۰to_low lit :=
     | LowlitLoc l1 =>
         llit2 ≠ LowlitLoc l1
     | LowlitString _
-    | LowlitProph
-    | LowlitProphErasure =>
+    | LowlitProph =>
         True
     end.
 
@@ -128,10 +124,6 @@ Notation LowvalLoc l := (
 ).
 Notation LowvalProph := (
   LowvalLit LowlitProph
-)(only parsing
-).
-Notation LowvalProphErasure := (
-  LowvalLit LowlitProphErasure
 )(only parsing
 ).
 
@@ -340,8 +332,8 @@ Qed.
 Lemma lowvalｰsimilarｰorｰnonsimilar lv1 lv2 :
   lv1 ≈ lv2 ∨ lv1 ≉ lv2.
 Proof.
-  all: destruct lv1 as [[n1 | str1 | l1 | |] | | [[bid1 |] |] tag1 [| v1 vs1]].
-  all: destruct lv2 as [[n2 | str2 | l2 | |] | | [[bid2 |] |] tag2 [| v2 vs2]].
+  all: destruct lv1 as [[n1 | str1 | l1 |] | | [[bid1 |] |] tag1 [| v1 vs1]].
+  all: destruct lv2 as [[n2 | str2 | l2 |] | | [[bid2 |] |] tag2 [| v2 vs2]].
   all: try destruct_decide (n1 = n2).
   all: try destruct_decide (l1 = l2).
   all: try destruct_decide (bid1 = bid2).

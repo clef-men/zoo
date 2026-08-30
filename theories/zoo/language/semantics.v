@@ -38,8 +38,7 @@ Definition literal۰immediate lit :=
       true
   | LitString _
   | LitLoc _
-  | LitProph _
-  | LitProphErasure =>
+  | LitProph _ =>
       false
   end.
 #[global] Arguments literal۰immediate !_ / : assert.
