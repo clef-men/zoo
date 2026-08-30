@@ -596,6 +596,14 @@ Section Forall'.
     induction l; first done.
     rewrite Forall_cons. naive.
   Qed.
+
+  Lemma Forall'ｰcons x l :
+    Forall' (x :: l) ↔
+      P x ∧
+      Forall' l.
+  Proof.
+    rewrite !Forall'ｰForall Forall_cons //.
+  Qed.
 End Forall'.
 
 Section Foralli.
