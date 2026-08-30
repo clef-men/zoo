@@ -427,8 +427,8 @@ Lemma valｰimmediateｰstructeq footprint v1 v2 :
 Proof.
   intros Himmediate1 Himmediate2 Hsimilar.
   intros path v1_ v2_ Hreachable1 Hreachable2.
-  destruct v1 as [[b1 | chr1 | n1 | str1 | l1 | |] | | gen1 tag1 []] => //.
-  all: destruct v2 as [[b2 | chr2 | str2 | n2 | l2 | |] | | gen2 tag2 []] => //.
+  destruct v1 as [[b1 | chr1 | n1 | str1 | l1 |] | | gen1 tag1 []] => //.
+  all: destruct v2 as [[b2 | chr2 | str2 | n2 | l2 |] | | gen2 tag2 []] => //.
   all: destruct path; last done.
   all: simp.
   all: cbn.
@@ -442,8 +442,8 @@ Lemma valｰimmediateｰstructneq footprint v1 v2 :
 Proof.
   intros Himmediate1 Himmediate2 Hnonsimilar.
   eexists [], v1, v2. split_and! => //.
-  destruct v1 as [[b1 | chr1 | n1 | str1 | l1 | |] | | gen1 tag1 []] => //.
-  all: destruct v2 as [[b2 | chr2 | str2 | n2 | l2 | |] | | gen2 tag2 []] => //.
+  destruct v1 as [[b1 | chr1 | n1 | str1 | l1 |] | | gen1 tag1 []] => //.
+  all: destruct v2 as [[b2 | chr2 | str2 | n2 | l2 |] | | gen2 tag2 []] => //.
   all: cbn in Hnonsimilar |- *.
   all: rewrite bool_decide_eq_false_2 //.
   all: congruence.
@@ -632,11 +632,11 @@ Section zoo۰G.
 
       wp۰rec. wp۰pures.
 
-      all: destruct v1 as [[b1 | chr1 | n1 | str1 | l1 | |] | | gen1 tag1 [| v1 vs1]].
+      all: destruct v1 as [[b1 | chr1 | n1 | str1 | l1 |] | | gen1 tag1 [| v1 vs1]].
       all: try done.
       all: wp۰pures.
 
-      all: destruct v2 as [[b2 | chr2 | n2 | str2 | l2 | |] | | gen2 tag2 [| v2 vs2]].
+      all: destruct v2 as [[b2 | chr2 | n2 | str2 | l2 |] | | gen2 tag2 [| v2 vs2]].
       all: try done.
       all: wp۰pures.
 
@@ -848,10 +848,7 @@ Section zoo۰G.
         wp۰pures.
         wp۰apply (structeq۰footprintｰwpｰload' with "Hfootprint") as (fld1) "(%Hfields1_lookup & %Htraversable1 & Hfootprint)"; [done | lia |].
         wp۰apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)"; first iSteps.
-        { iPureIntro.
-          rewrite /= Forall'ｰForall Forall_lookup in Htraversable2.
-          naive.
-        }
+        { iPureIntro. simp_Forall+/= in *. eauto. }
         destruct b; wp۰pures.
 
         + wp۰apply ("IHstructeq_aux_loc_block" with "[$Hfootprint] HΦ").
@@ -892,10 +889,7 @@ Section zoo۰G.
         wp۰pures.
         wp۰apply (structeq۰footprintｰwpｰload' with "Hfootprint") as (fld2) "(%Hfields2_lookup & %Htraversable2 & Hfootprint)"; [done | lia |].
         wp۰apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)"; first iSteps.
-        { iPureIntro.
-          rewrite /= Forall'ｰForall Forall_lookup in Htraversable1.
-          naive.
-        }
+        { iPureIntro. simp_Forall+/= in *. eauto. }
         destruct b; wp۰pures.
 
         + wp۰apply ("IHstructeq_aux_block_loc" with "[$Hfootprint] HΦ").
@@ -935,10 +929,7 @@ Section zoo۰G.
 
         wp۰pures.
         wp۰apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)".
-        { iPureIntro.
-          rewrite /= !Forall'ｰForall !Forall_lookup in Htraversable1 Htraversable2.
-          naive.
-        }
+        { iPureIntro. simp_Forall+/= in *. eauto. }
         destruct b; wp۰pures.
 
         + wp۰apply ("IHstructeq_aux_block_block" with "[$Hfootprint] HΦ").
@@ -1007,8 +998,7 @@ Lemma val۰abstractｰtraversable v :
   val۰traversable ∅ v.
 Proof.
   induction v as [[] | | [] tag vs IH] => //.
-  rewrite /= !Forall'ｰForall !Forall_forall in IH |- *.
-  naive.
+  simp_Forall+/= in *. eauto.
 Qed.
 
 Lemma val۰compatibleｰreflｰabstract footprint v1 v2 :
@@ -1046,9 +1036,8 @@ Proof.
   split; first done.
   set (vs1 := v1 :: vs1') in *. clearbody vs1 => {v1 vs1'}.
   set (vs2 := v2 :: vs2') in *. clearbody vs2 => {v2 vs2'}.
-  rewrite Forall2'ｰForall2 Forall2_fmap Forall2_same_length_lookup.
+  simp_Forall+/= in *.
   split; first done. intros i v1 v2 Hlookup1 Hlookup2.
-  rewrite /= !Forall'ｰForall !Forall_lookup in IH Habstract1 Habstract2.
   eapply IH; [naive.. |]. intros path v1' v2' Hreachable1 Hreachable2.
   apply (Hstructeq (i :: path)); rewrite /= ?Hlookup1 ?Hlookup2 //.
 Qed.
@@ -1075,8 +1064,7 @@ Proof.
     move=> /= Hreachable1 Hreachable2.
     destruct (vs1 !! i) as [v1 |] eqn:Hlookup1; last done.
     destruct (vs2 !! i) as [v2 |] eqn:Hlookup2; last done.
-    rewrite /= !Forall'ｰForall !Forall_lookup in IH Habstract1 Habstract2.
-    rewrite Forall2'ｰForall2 Forall2_fmap Forall2_same_length_lookup in Hsimilar.
+    simp_Forall+/= in *.
     eapply IH; last done; naive.
 Qed.
 Lemma valｰstructeqｰabstract v1 v2 :

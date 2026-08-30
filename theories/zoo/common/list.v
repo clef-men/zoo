@@ -1490,3 +1490,71 @@ Section Sorted.
     eapply Forallｰelem_of; done.
   Qed.
 End Sorted.
+
+Create HintDb simp_Forall۰1.
+
+#[global] Hint Rewrite
+  @Forall'ｰForall
+  @Forall2'ｰForall2
+  @list_eq_Forall2
+
+  @Forall_nil
+  @Forall_singleton
+  @Forall_cons
+  @Forall_app
+  @Forall_fmap
+  @Forall2_nil
+  @Forall2_cons
+  @Forall2_fmap
+  @Forall2_fmap_l
+  @Forall2_fmap_r
+: simp_Forall۰1.
+
+Tactic Notation "simp_Forall" :=
+  autorewrite with simp_Forall۰1.
+Tactic Notation "simp_Forall" "/=" :=
+  simpl;
+  simp_Forall.
+
+Tactic Notation "simp_Forall" "in" ident(H) :=
+  autorewrite with simp_Forall۰1 in H.
+Tactic Notation "simp_Forall" "/=" "in" ident(H) :=
+  simpl in H;
+  simp_Forall in H.
+
+Tactic Notation "simp_Forall" "in" "*" :=
+  autorewrite with simp_Forall۰1 in *.
+Tactic Notation "simp_Forall" "/=" "in" "*" :=
+  simpl in *;
+  simp_Forall in *.
+
+Create HintDb simp_Forall۰2.
+
+#[global] Hint Rewrite
+  @Forall_lookup
+  @Foralliｰlookup
+  @Forall2_same_length_lookup
+: simp_Forall۰2.
+
+Tactic Notation "simp_Forall+" :=
+  simp_Forall;
+  try done;
+  autorewrite with simp_Forall۰2.
+Tactic Notation "simp_Forall+" "/=" :=
+  simpl;
+  simp_Forall+.
+
+Tactic Notation "simp_Forall+" "in" ident(H) :=
+  simp_Forall in H;
+  autorewrite with simp_Forall۰2 in H.
+Tactic Notation "simp_Forall+" "/=" "in" ident(H) :=
+  simpl in H;
+  simp_Forall+ in H.
+
+Tactic Notation "simp_Forall+" "in" "*" :=
+  simp_Forall in *;
+  try done;
+  autorewrite with simp_Forall۰2 in *.
+Tactic Notation "simp_Forall+" "/=" "in" "*" :=
+  simpl in *;
+  simp_Forall+ in *.
