@@ -216,12 +216,37 @@ Proof.
   rewrite !eq_None_not_Some.
   eauto using fillｰval.
 Qed.
+Lemma fillｰprim_step tid K e1 σ1 κ e2 σ2 es :
+  prim_step tid e1 σ1 κ e2 σ2 es →
+  prim_step tid (fill K e1) σ1 κ (fill K e2) σ2 es.
+Proof.
+  destruct 1 as [K' e1ᵣ e2ᵣ -> ->].
+  rewrite -!fillｰapp.
+  econstructor => //.
+Qed.
+Lemma fillｰreducible tid K e σ :
+  reducible tid e σ →
+  reducible tid (fill K e) σ.
+Proof.
+  intros (κ & e' & σ' & es & ?).
+  exists κ, (fill K e'), σ', es.
+  apply fillｰprim_step => //.
+Qed.
 
 Lemma base_stepｰnotｰval tid e1 σ1 κ e2 σ2 es :
   base_step tid e1 σ1 κ e2 σ2 es →
   to_val e1 = None.
 Proof.
   destruct 1; naive.
+Qed.
+Lemma base_stepｰtoｰval tid e σ κ1 e1 σ1' es1 κ2 e2 σ2' es2 :
+  base_step tid e σ κ1 e1 σ1' es1 →
+  base_step tid e σ κ2 e2 σ2' es2 →
+  is_Some (to_val e1) →
+  is_Some (to_val e2).
+Proof.
+  intros Hstep1 Hstep2 He1.
+  inv Hstep1; inv Hstep2 => //.
 Qed.
 Lemma stepｰbyｰval tid K1 K2 e1 e2 σ1 κ e2' σ2 es :
   fill K1 e1 = fill K2 e2 →
@@ -254,6 +279,23 @@ Proof.
   rewrite fillｰapp /=. intros ?%base_stepｰfilliｰval.
   eauto using fillｰval.
 Qed.
+Lemma baseｰredexｰunique tid K1 e1 σ1 K2 e2 σ2 :
+  fill K1 e1 = fill K2 e2 →
+  base_reducible tid e1 σ1 →
+  base_reducible tid e2 σ2 →
+    K1 = K2 ∧
+    e1 = e2.
+Proof.
+  intros Heq (κ1 & e1' & σ1' & es1 & Hstep1) (κ2 & e2' & σ2' & es2 & Hstep2).
+  edestruct (stepｰbyｰval tid K2 K1 e2 e1) as (K & ->).
+  { done. }
+  { eauto using base_stepｰnotｰval. }
+  { eauto using base_stepｰnotｰval. }
+  rewrite fillｰapp in Heq.
+  apply (inj (fill _)) in Heq as <-.
+  odestruct (base_stepｰfillｰval _ K) as [[]%not_eq_None_Some | ->] => //.
+  { eapply base_stepｰnotｰval => //. }
+Qed.
 
 Lemma base_reducible_no_obsｰbase_reducible tid e σ :
   base_reducible_no_obs tid e σ →
@@ -270,6 +312,13 @@ Proof.
   apply (base_stepｰfillｰprim_step' []).
   all: rewrite ?fillｰnil //.
 Qed.
+Lemma base_stepｰfillｰprim_step tid K e1 σ1 κ e2 σ2 es :
+  base_step tid e1 σ1 κ e2 σ2 es →
+  prim_step tid (fill K e1) σ1 κ (fill K e2) σ2 es.
+Proof.
+  econstructor => //.
+Qed.
+
 Lemma prim_stepｰnotｰval tid e σ κ e' σ' es :
   prim_step tid e σ κ e' σ' es →
   to_val e = None.
@@ -277,6 +326,7 @@ Proof.
   intros [K eᵣ1 eᵣ2 -> -> ?%base_stepｰnotｰval].
   apply eq_None_not_Some. intros ?%fillｰval%eq_None_not_Some; done.
 Qed.
+
 Lemma reducibleｰnotｰval tid e σ :
   reducible tid e σ →
   to_val e = None.
@@ -298,6 +348,16 @@ Proof.
   intros (κ & e' & σ' & es & Hstep).
   exists κ, e', σ', es.
   apply base_stepｰprim_step. done.
+Qed.
+Lemma reducibleｰfillｰbase_reducible tid e σ :
+  reducible tid e σ →
+    ∃ K eᵣ,
+    e = fill K eᵣ ∧
+    base_reducible tid eᵣ σ.
+Proof.
+  intros (κ & e' & σ' & es & [K eᵣ eᵣ' -> -> Hstep]).
+  exists K, eᵣ. split => //.
+  exists κ, eᵣ', σ', es => //.
 Qed.
 
 Lemma base_atomicｰatomic e :
@@ -422,6 +482,30 @@ Proof.
   apply: pure_execｰcontext.
 Qed.
 
+Lemma pure_nstepsｰfill {n e1 e2} K :
+  relations.nsteps pure_step n e1 e2 →
+  relations.nsteps pure_step n (fill K e1) (fill K e2).
+Proof.
+  intros Hsteps.
+  eapply pure_execｰfill. 2: done.
+  intros _ => //.
+Qed.
+Lemma pure_stepsｰfill {e1 e2} K :
+  rtc pure_step e1 e2 →
+  rtc pure_step (fill K e1) (fill K e2).
+Proof.
+  rewrite !rtc_nsteps.
+  intros (n & Hsteps%(pure_nstepsｰfill K)).
+  eauto.
+Qed.
+Lemma pure_stepｰfill {e1 e2} K :
+  pure_step e1 e2 →
+  pure_step (fill K e1) (fill K e2).
+Proof.
+  intros Hstep%nsteps_once%(pure_nstepsｰfill K).
+  apply nsteps_once_inv => //.
+Qed.
+
 Lemma sub_redexes_are_valuesｰalt e :
   ( ∀ k e',
     e = filli k e' →
@@ -480,6 +564,44 @@ Lemma nstepsｰlength n ρ1 κs ρ2 :
   length ρ1.1 ≤ length ρ2.1.
 Proof.
   induction 1 as [| ? ? ? ? ? ? Hstep%stepｰlength]; lia.
+Qed.
+
+Lemma valｰnot_stuck tid e σ :
+  is_Some (to_val e) →
+  not_stuck tid e σ.
+Proof.
+  intros (v & ?). left => //.
+Qed.
+Lemma reducibleｰnot_stuck tid e σ :
+  reducible tid e σ →
+  not_stuck tid e σ.
+Proof.
+  rewrite /not_stuck. auto.
+Qed.
+Lemma pure_stepｰnot_stuck tid e1 e2 σ :
+  pure_step e1 e2 →
+  not_stuck tid e1 σ.
+Proof.
+  intros Hstep.
+  eapply reducibleｰnot_stuck, reducible_no_obsｰreducible, pure_stepｰsafe => //.
+Qed.
+
+Lemma safeｰstep ρ1 ρ2 :
+  safe ρ1 →
+  silent_step ρ1 ρ2 →
+  safe ρ2.
+Proof.
+  intros Hsafe Hstep ρ3 Hsteps.
+  apply Hsafe. eauto using rtc.
+Qed.
+Lemma safeｰnot_stuck ρ tid e :
+  safe ρ →
+  ρ.1 !! tid = Some e →
+  not_stuck tid e ρ.2.
+Proof.
+  intros Hsafe Hlookup.
+  specialize (Hsafe ρ). rewrite Foralliｰlookup in Hsafe.
+  eauto using rtc.
 Qed.
 
 Lemma base_reducible_no_obsｰequal tid v1 v2 σ :
