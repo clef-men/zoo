@@ -127,6 +127,7 @@ theories/zoo/language/language.v
 theories/zoo/language/notations.v
 theories/zoo/language/tactics.v
 theories/zoo/language/typeclasses.v
+theories/zoo/language/wf.v
 
 theories/zoo/program_logic/ghost_state.v
 theories/zoo/program_logic/state_interp.v
