@@ -1374,3 +1374,29 @@ Qed.
 Proof.
   refine (inj_countable of_val to_val _); auto using to_valｰof_val.
 Qed.
+
+Definition expr۰is_resolve e :=
+  if e is Resolve _ _ _ then
+    True
+  else
+ False.
+
+#[global] Instance expr۰is_resolveｰdec e :
+  Decision (expr۰is_resolve e).
+Proof.
+  refine (
+    if e is Resolve _ _ _ then
+      left _
+    else
+      right _
+  ).
+  all: abstract naive.
+Defined.
+
+Lemma expr۰is_resolveｰalt e :
+  expr۰is_resolve e →
+    ∃ e0 e1 e2,
+    e = Resolve e0 e1 e2.
+Proof.
+  destruct e; naive.
+Qed.
