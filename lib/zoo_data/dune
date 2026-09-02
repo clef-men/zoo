@@ -1,0 +1,8 @@
+(library
+  (name zoo_data)
+  (public_name zoo_data)
+  (libraries
+    zoo_std
+  )
+  (flags (:standard -open Zoo_std))
+)

@@ -28,8 +28,8 @@
 )
 
 (package
-  (name zoo_persistent)
-  (synopsis "Persistent and semi-persistent data structures")
+  (name zoo_data)
+  (synopsis "Collection of data structures")
   (depends
     zoo_std
   )
@@ -71,14 +71,6 @@
   (synopsis "Multi-word compare-and-set")
   (depends
     zoo
-    zoo_std
-  )
-)
-
-(package
-  (name zoo_partition)
-  (synopsis "Partition")
-  (depends
     zoo_std
   )
 )

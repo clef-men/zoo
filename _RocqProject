@@ -329,39 +329,43 @@ theories/zoo_std/string.v
 
 #END zoo-std
 
-#BEGIN zoo-persistent
--Q theories/zoo_persistent zoo_persistent
+#BEGIN zoo-data
+-Q theories/zoo_data zoo_data
 
-theories/zoo_persistent/pstack__types.v
-theories/zoo_persistent/pstack__code.v
-theories/zoo_persistent/pstack__opaque.v
-theories/zoo_persistent/pstack.v
-theories/zoo_persistent/pqueue__types.v
-theories/zoo_persistent/pqueue__code.v
-theories/zoo_persistent/pqueue__opaque.v
-theories/zoo_persistent/pqueue.v
-theories/zoo_persistent/parray__types.v
-theories/zoo_persistent/parray__code.v
-theories/zoo_persistent/parray__opaque.v
-theories/zoo_persistent/parray.v
-theories/zoo_persistent/sarray__types.v
-theories/zoo_persistent/sarray__code.v
-theories/zoo_persistent/sarray__opaque.v
-theories/zoo_persistent/sarray.v
-theories/zoo_persistent/sstore_1__types.v
-theories/zoo_persistent/sstore_1__code.v
-theories/zoo_persistent/sstore_1__opaque.v
-theories/zoo_persistent/sstore_1.v
-theories/zoo_persistent/sstore_2__types.v
-theories/zoo_persistent/sstore_2__code.v
-theories/zoo_persistent/sstore_2__opaque.v
-theories/zoo_persistent/sstore_2.v
-theories/zoo_persistent/suf__types.v
-theories/zoo_persistent/suf__code.v
-theories/zoo_persistent/suf__opaque.v
-theories/zoo_persistent/suf.v
+theories/zoo_data/parray__types.v
+theories/zoo_data/parray__code.v
+theories/zoo_data/parray__opaque.v
+theories/zoo_data/parray.v
+theories/zoo_data/partition__types.v
+theories/zoo_data/partition__code.v
+theories/zoo_data/partition__opaque.v
+theories/zoo_data/partition.v
+theories/zoo_data/pqueue__types.v
+theories/zoo_data/pqueue__code.v
+theories/zoo_data/pqueue__opaque.v
+theories/zoo_data/pqueue.v
+theories/zoo_data/pstack__types.v
+theories/zoo_data/pstack__code.v
+theories/zoo_data/pstack__opaque.v
+theories/zoo_data/pstack.v
+theories/zoo_data/sarray__types.v
+theories/zoo_data/sarray__code.v
+theories/zoo_data/sarray__opaque.v
+theories/zoo_data/sarray.v
+theories/zoo_data/sstore_1__types.v
+theories/zoo_data/sstore_1__code.v
+theories/zoo_data/sstore_1__opaque.v
+theories/zoo_data/sstore_1.v
+theories/zoo_data/sstore_2__types.v
+theories/zoo_data/sstore_2__code.v
+theories/zoo_data/sstore_2__opaque.v
+theories/zoo_data/sstore_2.v
+theories/zoo_data/suf__types.v
+theories/zoo_data/suf__code.v
+theories/zoo_data/suf__opaque.v
+theories/zoo_data/suf.v
 
-#END zoo-persistent
+#END zoo-data
 
 #BEGIN backoff
 -Q theories/backoff backoff
@@ -576,13 +580,3 @@ theories/zoo_mcas/mcas_2__opaque.v
 theories/zoo_mcas/mcas_2.v
 
 #END zoo-mcas
-
-#BEGIN zoo-partitition
--Q theories/zoo_partition zoo_partition
-
-theories/zoo_partition/partition__types.v
-theories/zoo_partition/partition__code.v
-theories/zoo_partition/partition__opaque.v
-theories/zoo_partition/partition.v
-
-#END zoo-partition
