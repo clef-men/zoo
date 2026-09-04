@@ -55,8 +55,9 @@ opam pin add ocaml-variants git+https://github.com/clef-men/ocaml#generative_con
 Then, install dependencies including [`ocaml2zoo`](https://github.com/clef-men/ocaml2zoo) with:
 
 ```
-opam pin add ocaml2zoo git+https://github.com/clef-men/ocaml2zoo#main --yes
-opam install $(find . -depth 1 -name '*.opam' ! -name 'rocq-*') ./rocq-zoo.opam --with-dev-setup --deps-only --yes
+opam pin add ocaml2zoo git+https://github.com/clef-men/ocaml2zoo#main --no-action --yes
+opam install ocaml2zoo $(find . -depth 1 -name '*.opam' ! -name 'rocq-*') ./rocq-zoo.opam --with-dev-setup --deps-only --yes
+opam install ocaml2zoo
 ```
 
 To compile OCaml libraries (see [`lib/`](lib/)), run:
