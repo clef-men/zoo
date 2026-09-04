@@ -81,18 +81,13 @@ Definition queue_mpmc_2٠rev : val :=
     𝗺𝗮𝘁𝗰𝗵 "back" 𝘄𝗶𝘁𝗵
     | queue_mpmc_2٠Snoc "i" "v" "pref" ->
         queue_mpmc_2٠rev₁
-          ‘queue_mpmc_2٠Cons[ "i",
-            "v",
-            ‘queue_mpmc_2٠Front[ "i" + 1 ]
-          ]
+          ‘queue_mpmc_2٠Cons[ "i", "v", ‘queue_mpmc_2٠Front[ "i" + 1 ] ]
           "pref"
     𝗲𝗻𝗱.
 
 Definition queue_mpmc_2٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
-    { ‘queue_mpmc_2٠Front[ 1 ],
-      ‘queue_mpmc_2٠Back{ 0, §queue_mpmc_2٠Used }
-    }.
+    { ‘queue_mpmc_2٠Front[ 1 ], ‘queue_mpmc_2٠Back{ 0, §queue_mpmc_2٠Used } }.
 
 Definition queue_mpmc_2٠size : val :=
   𝗿𝗲𝗰 "size" "t" ->
@@ -129,10 +124,7 @@ Definition queue_mpmc_2٠help : val :=
         𝗶𝗳
           "i_move" < "i_front"
           𝗼𝗿
-          𝗰𝗮𝘀
-            "t".[queue_mpmc_2٠front]
-            "front"
-            (queue_mpmc_2٠rev "move")
+          𝗰𝗮𝘀 "t".[queue_mpmc_2٠front] "front" (queue_mpmc_2٠rev "move")
         𝘁𝗵𝗲𝗻 (
           queue_mpmc_2٠finish "back"
         )
@@ -142,12 +134,8 @@ Definition queue_mpmc_2٠help : val :=
 
 #[local] Definition __zoo_recs_0 :=
   ( 𝗿𝗲𝗰𝘀 "push_aux" "t" "v" "i" "back" "backoff" ->
-      𝗹𝗲𝘁 "new_back" =
-        ‘queue_mpmc_2٠Snoc[ "i" + 1, "v", "back" ]
-      𝗶𝗻
-      𝗶𝗳
-        ~ 𝗰𝗮𝘀 "t".[queue_mpmc_2٠back] "back" "new_back"
-      𝘁𝗵𝗲𝗻 (
+      𝗹𝗲𝘁 "new_back" = ‘queue_mpmc_2٠Snoc[ "i" + 1, "v", "back" ] 𝗶𝗻
+      𝗶𝗳 ~ 𝗰𝗮𝘀 "t".[queue_mpmc_2٠back] "back" "new_back" 𝘁𝗵𝗲𝗻 (
         "push" "t" "v" (backoff٠once "backoff")
       )
     𝘄𝗶𝘁𝗵 "push" "t" "v" "backoff" ->
@@ -199,9 +187,7 @@ Definition queue_mpmc_2٠push : val :=
   ( 𝗿𝗲𝗰𝘀 "pop_1" "t" "front" "backoff" ->
       𝗺𝗮𝘁𝗰𝗵 "front" 𝘄𝗶𝘁𝗵
       | queue_mpmc_2٠Cons ⎽ "v" "new_front" ->
-          𝗶𝗳
-            𝗰𝗮𝘀 "t".[queue_mpmc_2٠front] "front" "new_front"
-          𝘁𝗵𝗲𝗻 (
+          𝗶𝗳 𝗰𝗮𝘀 "t".[queue_mpmc_2٠front] "front" "new_front" 𝘁𝗵𝗲𝗻 (
             ‘Some( "v" )
           ) 𝗲𝗹𝘀𝗲 (
             "pop" "t" (backoff٠once "backoff")
@@ -210,21 +196,15 @@ Definition queue_mpmc_2٠push : val :=
           𝗺𝗮𝘁𝗰𝗵 "t".{queue_mpmc_2٠back} 𝘄𝗶𝘁𝗵
           | queue_mpmc_2٠Snoc "i_move" "v" "move_pref" 𝗮𝘀 "move" ->
               𝗶𝗳 "i_front" == "i_move" 𝘁𝗵𝗲𝗻 (
-                𝗶𝗳
-                  𝗰𝗮𝘀 "t".[queue_mpmc_2٠back] "move" "move_pref"
-                𝘁𝗵𝗲𝗻 (
+                𝗶𝗳 𝗰𝗮𝘀 "t".[queue_mpmc_2٠back] "move" "move_pref" 𝘁𝗵𝗲𝗻 (
                   ‘Some( "v" )
                 ) 𝗲𝗹𝘀𝗲 (
                   "pop" "t" "backoff"
                 )
               ) 𝗲𝗹𝘀𝗲 (
-                𝗺𝗮𝘁𝗰𝗵
-                  ‘queue_mpmc_2٠Back{ "i_move", "move" }
-                𝘄𝗶𝘁𝗵
+                𝗺𝗮𝘁𝗰𝗵 ‘queue_mpmc_2٠Back{ "i_move", "move" } 𝘄𝗶𝘁𝗵
                 | queue_mpmc_2٠Back ⎽ ⎽ 𝗮𝘀 "back" ->
-                    𝗹𝗲𝘁 "front'" =
-                      "t".{queue_mpmc_2٠front}
-                    𝗶𝗻
+                    𝗹𝗲𝘁 "front'" = "t".{queue_mpmc_2٠front} 𝗶𝗻
                     𝗶𝗳 "front'" != "front" 𝘁𝗵𝗲𝗻 (
                       "pop_1" "t" "front'" "backoff"
                     ) 𝗲𝗹𝘀𝗲 𝗶𝗳
@@ -243,9 +223,7 @@ Definition queue_mpmc_2٠push : val :=
     𝘄𝗶𝘁𝗵 "pop_2" "t" "front" "back" "move" "backoff" ->
       𝗺𝗮𝘁𝗰𝗵 queue_mpmc_2٠rev "move" 𝘄𝗶𝘁𝗵
       | queue_mpmc_2٠Cons ⎽ "v" "new_front" ->
-          𝗶𝗳
-            𝗰𝗮𝘀 "t".[queue_mpmc_2٠front] "front" "new_front"
-          𝘁𝗵𝗲𝗻 (
+          𝗶𝗳 𝗰𝗮𝘀 "t".[queue_mpmc_2٠front] "front" "new_front" 𝘁𝗵𝗲𝗻 (
             queue_mpmc_2٠finish "back" ⍮
             ‘Some( "v" )
           ) 𝗲𝗹𝘀𝗲 (

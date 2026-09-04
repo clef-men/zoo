@@ -455,7 +455,7 @@ Notation "'𝗶𝗳' e0 '𝘁𝗵𝗲𝗻' e1 '𝗲𝗹𝘀𝗲' e2" := (
 ) : expr_scope.
 Notation "'𝗶𝗳' e0 '𝘁𝗵𝗲𝗻' ( e1 ) '𝗲𝗹𝘀𝗲' ( e2 )" := (
   If e0%E e1%E e2%E
-)(at level 1,
+)(at level 0,
   e0, e1, e2 at level 200,
   only printing,
   format "'[v' '[hv' '𝗶𝗳'  '/  ' '[' e0 ']'  '/' '𝘁𝗵𝗲𝗻'  ( ']' '/  ' '[' e1 ']' '/' )  '𝗲𝗹𝘀𝗲'  ( '/  ' '[' e2 ']' '/' ) ']'"
@@ -488,7 +488,7 @@ Notation "‘ tag { e1 , .. , en }" := (
     Mutable
     tag
     (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
-)(at level 2,
+)(at level 0,
   tag custom zoo_tag,
   e1, en at level 200,
   format "'[hv' ‘ tag {  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
@@ -526,7 +526,7 @@ Notation "‘ tag ( e1 , .. , en )" := (
     ImmutableNongenerative
     tag
     (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
-)(at level 2,
+)(at level 0,
   tag custom zoo_tag,
   e1, en at level 200,
   format "'[hv' ‘ tag (  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' ) ']'"
@@ -538,7 +538,7 @@ Notation "’ tag ( v1 , .. , vn )" := (
       tag
       (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
   )
-)(at level 2,
+)(at level 0,
   tag custom zoo_tag,
   v1, vn at level 200,
   format "'[hv' ’ tag (  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ) ']'"
@@ -548,7 +548,7 @@ Notation "‘ tag ( v1 , .. , vn )" := (
     Nongenerative
     tag
     (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
-)(at level 2,
+)(at level 0,
   tag custom zoo_tag,
   v1, vn at level 200,
   format "'[hv' ‘ tag (  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ) ']'"
@@ -559,7 +559,7 @@ Notation "‘ tag [ e1 , .. , en ]" := (
     ImmutableGenerativeWeak
     tag
     (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
-)(at level 2,
+)(at level 0,
   tag custom zoo_tag,
   e1, en at level 200,
   format "'[hv' ‘ tag [  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' ] ']'"
@@ -571,7 +571,7 @@ Notation "’ tag [ v1 , .. , vn ]" := (
       tag
       (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
   )
-)(at level 2,
+)(at level 0,
   tag custom zoo_tag,
   v1, vn at level 200,
   format "'[hv' ’ tag [  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ] ']'"
@@ -581,7 +581,7 @@ Notation "‘ tag [ v1 , .. , vn ]" := (
     (Generative None)
     tag
     (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
-)(at level 2,
+)(at level 0,
   tag custom zoo_tag,
   v1, vn at level 200,
   format "'[hv' ‘ tag [  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ] ']'"
@@ -592,7 +592,7 @@ Notation "‘ tag '@[' e1 , .. , en ]" := (
     ImmutableGenerativeStrong
     tag
     (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
-)(at level 2,
+)(at level 0,
   tag custom zoo_tag,
   e1, en at level 200,
   format "'[hv' ‘ tag @[  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' ] ']'"
@@ -604,7 +604,7 @@ Notation "’ tag @ bid [ v1 , .. , vn ]" := (
       tag
       (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
   )
-)(at level 2,
+)(at level 0,
   tag custom zoo_tag,
   bid at level 1,
   v1, vn at level 200,
@@ -615,7 +615,7 @@ Notation "‘ tag @ bid [ v1 , .. , vn ]" := (
     (Generative (Some bid))
     tag
     (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
-)(at level 2,
+)(at level 0,
   tag custom zoo_tag,
   bid at level 1,
   v1, vn at level 200,
@@ -935,7 +935,7 @@ Notation "'𝗹𝗲𝘁' x0 , x1 , .. , xn = e1 '𝗶𝗻' e2" := (
 
 Notation "e .{ fld }" := (
   Load e%E (Val (ValInt (Z.of_nat fld)))
-)(at level 2,
+)(at level 1,
   fld custom zoo_field,
   left associativity,
   format "e .{ fld }"
@@ -943,7 +943,7 @@ Notation "e .{ fld }" := (
 
 Notation "e .< proj >" := (
   Load e%E (Val (ValInt (Z.of_nat proj)))
-)(at level 2,
+)(at level 1,
   proj custom zoo_proj,
   format "e .< proj >"
 ) : expr_scope.
@@ -957,7 +957,7 @@ Notation "e1 <-{ fld } e2" := (
 
 Notation "l .[ fld ]" := (
   location۰add l (Z.of_nat fld)
-)(at level 2,
+)(at level 1,
   fld custom zoo_field,
   left associativity,
   format "l .[ fld ]"
@@ -973,7 +973,7 @@ Notation "v .[ fld ]" := (
             )
         )
     )
-)(at level 2,
+)(at level 1,
   fld custom zoo_field,
   only printing,
   left associativity,
@@ -988,7 +988,7 @@ Notation "e .[ fld ]" := (
             (@nil expr)
         )
     )
-)(at level 2,
+)(at level 1,
   fld custom zoo_field,
   left associativity,
   format "e .[ fld ]"
@@ -1002,7 +1002,7 @@ Notation "v .[ fld ]" := (
             (@nil val)
         )
     )
-)(at level 2,
+)(at level 1,
   fld custom zoo_field,
   left associativity,
   format "v .[ fld ]"

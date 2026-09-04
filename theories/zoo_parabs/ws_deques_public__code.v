@@ -43,12 +43,8 @@ Definition ws_deques_public٠steal_as₁ : val :=
     𝗶𝗳 "n" ≤ 0 𝘁𝗵𝗲𝗻 (
       §None
     ) 𝗲𝗹𝘀𝗲 (
-      𝗹𝗲𝘁 "j" =
-        ("i" + 1 + random٠round٠next "round") 𝗿𝗲𝗺 "sz"
-      𝗶𝗻
-      𝗺𝗮𝘁𝗰𝗵
-        ws_deques_public٠steal_to "t" "i" "j"
-      𝘄𝗶𝘁𝗵
+      𝗹𝗲𝘁 "j" = ("i" + 1 + random٠round٠next "round") 𝗿𝗲𝗺 "sz" 𝗶𝗻
+      𝗺𝗮𝘁𝗰𝗵 ws_deques_public٠steal_to "t" "i" "j" 𝘄𝗶𝘁𝗵
       | None ->
           "steal_as" "t" "sz" "i" "round" ("n" - 1)
       | ⎽ 𝗮𝘀 "res" ->

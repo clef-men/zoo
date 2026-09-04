@@ -33,23 +33,23 @@ Definition parray٠reroot₁ : val :=
   𝗿𝗲𝗰 "reroot" "t" ->
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
     | parray٠Root ⎽ ⎽ 𝗮𝘀 "root_r" ->
-        ("root_r".<parray٠equal>, "root_r".<parray٠data>)
+        ( "root_r".<parray٠equal>, "root_r".<parray٠data> )
     | parray٠Diff "i" "v" "t'" ->
         𝗹𝗲𝘁 "equal", "data" = "reroot" "t'" 𝗶𝗻
         "t'" <- ‘parray٠Diff( "i", array٠unsafe_get "data" "i", "t" ) ⍮
         array٠unsafe_set "data" "i" "v" ⍮
-        ("equal", "data")
+        ( "equal", "data" )
     𝗲𝗻𝗱.
 
 Definition parray٠reroot : val :=
   𝗳𝘂𝗻 "t" ->
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
     | parray٠Root ⎽ ⎽ 𝗮𝘀 "root_r" ->
-        ("root_r".<parray٠equal>, "root_r".<parray٠data>)
+        ( "root_r".<parray٠equal>, "root_r".<parray٠data> )
     | parray٠Diff ⎽ ⎽ ⎽ ->
         𝗹𝗲𝘁 "equal", "data" = parray٠reroot₁ "t" 𝗶𝗻
         "t" <- ‘parray٠Root( "equal", "data" ) ⍮
-        ("equal", "data")
+        ( "equal", "data" )
     𝗲𝗻𝗱.
 
 Definition parray٠get : val :=

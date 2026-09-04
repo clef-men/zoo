@@ -43,9 +43,7 @@ Definition queue_2٠is_empty : val :=
 
 Definition queue_2٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
-    𝗺𝗮𝘁𝗰𝗵
-      ‘queue_2٠Node{ §queue_2٠Null, () }
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 ‘queue_2٠Node{ §queue_2٠Null, () } 𝘄𝗶𝘁𝗵
     | queue_2٠Node ⎽ ⎽ 𝗮𝘀 "new_back" ->
         𝗺𝗮𝘁𝗰𝗵 "t".{queue_2٠back} 𝘄𝗶𝘁𝗵
         | queue_2٠Node ⎽ ⎽ 𝗮𝘀 "back_r" ->

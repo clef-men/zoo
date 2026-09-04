@@ -11,19 +11,12 @@ Require Import zoo.options.
 Definition vertex_simple٠main : val :=
   𝗳𝘂𝗻 "num_worker" "a" "b" "c" "d" ->
     𝗹𝗲𝘁 "ivar" = ivar_4٠create () 𝗶𝗻
-    𝗹𝗲𝘁 "vtx_a" =
-      vertex٠create' (𝗳𝘂𝗻 "_ctx" -> "a" ())
-    𝗶𝗻
-    𝗹𝗲𝘁 "vtx_b" =
-      vertex٠create' (𝗳𝘂𝗻 "_ctx" -> "b" ())
-    𝗶𝗻
-    𝗹𝗲𝘁 "vtx_c" =
-      vertex٠create' (𝗳𝘂𝗻 "_ctx" -> "c" ())
-    𝗶𝗻
+    𝗹𝗲𝘁 "vtx_a" = vertex٠create' (𝗳𝘂𝗻 "_ctx" -> "a" ()) 𝗶𝗻
+    𝗹𝗲𝘁 "vtx_b" = vertex٠create' (𝗳𝘂𝗻 "_ctx" -> "b" ()) 𝗶𝗻
+    𝗹𝗲𝘁 "vtx_c" = vertex٠create' (𝗳𝘂𝗻 "_ctx" -> "c" ()) 𝗶𝗻
     𝗹𝗲𝘁 "vtx_d" =
-      vertex٠create'
-        (𝗳𝘂𝗻 "ctx" -> "d" () ⍮
-                               ivar_4٠notify "ivar" "ctx" ())
+      vertex٠create' (𝗳𝘂𝗻 "ctx" -> "d" () ⍮
+                                   ivar_4٠notify "ivar" "ctx" ())
     𝗶𝗻
     vertex٠precede "vtx_a" "vtx_b" ⍮
     vertex٠precede "vtx_a" "vtx_c" ⍮

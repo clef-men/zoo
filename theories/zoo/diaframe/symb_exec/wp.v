@@ -139,7 +139,7 @@ Notation "'DIASPEC' {{ P } } e E {{ 'RET' v ; Q } }" := (
     E
     v%V
     Q%I
-)(at level 20,
+)(at level 0,
   P at level 200,
   e at level 200,
   E custom dia_spec_mask at level 200,
@@ -155,7 +155,7 @@ Notation "'DIASPEC' x1 .. xn {{ P } } e E {{ 'RET' v ; Q } }" := (
     E
     (λ x1, .. (λ xn, v%V) ..)
     (λ x1, .. (λ xn, Q%I) ..)
-)(at level 20,
+)(at level 0,
   x1 binder,
   xn binder,
   P at level 200,
@@ -173,7 +173,7 @@ Notation "'DIASPEC' {{ P } } e E {{ y1 .. yn , 'RET' v ; Q } }" := (
     E
     (λ y1, .. (λ yn, v%V) ..)
     (λ y1, .. (λ yn, Q%I) ..)
-)(at level 20,
+)(at level 0,
   P at level 200,
   e at level 200,
   E custom dia_spec_mask at level 200,
@@ -191,7 +191,7 @@ Notation "'DIASPEC' x1 .. xn {{ P } } e E {{ y1 .. yn , 'RET' v ; Q } }" := (
     E
     (λ x1, .. (λ xn, λ y1, .. (λ yn, v%V) ..) ..)
     (λ x1, .. (λ xn, λ y1, .. (λ yn, Q%I) ..) ..)
-)(at level 20,
+)(at level 0,
   x1 binder,
   xn binder,
   P at level 200,

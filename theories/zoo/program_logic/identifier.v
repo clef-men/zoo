@@ -15,7 +15,7 @@ Coercion LitIdentifier : identifier >-> literal.
 
 Definition Id :=
   Proph.
-Notation ValId id := (
+Abbreviation ValId id := (
   ValProph id
 )(only parsing
 ).

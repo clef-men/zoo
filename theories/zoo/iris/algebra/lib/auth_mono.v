@@ -15,7 +15,7 @@ Section relation.
 
   Implicit Type a b : A.
 
-  Notation Rs := (
+  Abbreviation Rs := (
     rtc R
   ).
 

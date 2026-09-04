@@ -31,19 +31,12 @@ Definition queue_mpsc_2٠is_empty : val :=
 
 Definition queue_mpsc_2٠push_front : val :=
   𝗳𝘂𝗻 "t" "v" ->
-    "t" <-{queue_mpsc_2٠front}
-      ‘glist٠Cons[ "v", "t".{queue_mpsc_2٠front} ].
+    "t" <-{queue_mpsc_2٠front} ‘glist٠Cons[ "v", "t".{queue_mpsc_2٠front} ].
 
 Definition queue_mpsc_2٠push_back₁ : val :=
   𝗿𝗲𝗰 "push_back" "t" "v" "backoff" ->
     𝗹𝗲𝘁 "back" = "t".{queue_mpsc_2٠back} 𝗶𝗻
-    𝗶𝗳
-      ~
-      𝗰𝗮𝘀
-        "t".[queue_mpsc_2٠back]
-        "back"
-        ‘glist٠Cons[ "v", "back" ]
-    𝘁𝗵𝗲𝗻 (
+    𝗶𝗳 ~ 𝗰𝗮𝘀 "t".[queue_mpsc_2٠back] "back" ‘glist٠Cons[ "v", "back" ] 𝘁𝗵𝗲𝗻 (
       "push_back" "t" "v" (backoff٠once "backoff")
     ).
 
@@ -55,9 +48,7 @@ Definition queue_mpsc_2٠pop : val :=
   𝗳𝘂𝗻 "t" ->
     𝗺𝗮𝘁𝗰𝗵 "t".{queue_mpsc_2٠front} 𝘄𝗶𝘁𝗵
     | glist٠Nil ->
-        𝗺𝗮𝘁𝗰𝗵
-          glist٠rev (𝘅𝗰𝗵𝗴 "t".[queue_mpsc_2٠back] §glist٠Nil)
-        𝘄𝗶𝘁𝗵
+        𝗺𝗮𝘁𝗰𝗵 glist٠rev (𝘅𝗰𝗵𝗴 "t".[queue_mpsc_2٠back] §glist٠Nil) 𝘄𝗶𝘁𝗵
         | glist٠Nil ->
             §None
         | glist٠Cons "v" "front" ->

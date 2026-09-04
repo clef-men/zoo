@@ -56,16 +56,11 @@ Definition inf_queue_mpmc_1٠is_empty_weak : val :=
 Definition inf_queue_mpmc_1٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
     𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[inf_queue_mpmc_1٠back] 1 𝗶𝗻
-    inf_array٠set
-      "t".{inf_queue_mpmc_1٠data}
-      "i"
-      ‘optional٠Something( "v" ).
+    inf_array٠set "t".{inf_queue_mpmc_1٠data} "i" ‘optional٠Something( "v" ).
 
 Definition inf_queue_mpmc_1٠pop₁ : val :=
   𝗿𝗲𝗰 "pop" "t" "i" "backoff" ->
-    𝗺𝗮𝘁𝗰𝗵
-      inf_array٠get "t".{inf_queue_mpmc_1٠data} "i"
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 inf_array٠get "t".{inf_queue_mpmc_1٠data} "i" 𝘄𝗶𝘁𝗵
     | optional٠Nothing ->
         "pop" "t" "i" (backoff٠once "backoff")
     | optional٠Anything ->

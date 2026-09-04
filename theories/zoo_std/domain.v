@@ -165,7 +165,7 @@ Section domain۰G.
   Implicit Type Ψ : val → iProp Σ.
 
   #[local] Definition dls۰auth γ :=
-    ghost_map_auth γ 1.
+    ghost_map_auth γ (DfracOwn 1).
   #[local] Definition dls۰at :=
     ghost_map_elem.
 

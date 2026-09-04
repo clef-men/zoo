@@ -169,9 +169,7 @@ Definition partition٠cardinal : val :=
 Definition partition٠record₁ : val :=
   𝗳𝘂𝗻 "split_list" "elt" ->
     𝗹𝗲𝘁 "class_" = "elt".{partition٠class_} 𝗶𝗻
-    𝗶𝗳
-      partition٠class_is_singleton "class_" 𝗼𝗿 "elt".{partition٠seen}
-    𝘁𝗵𝗲𝗻 (
+    𝗶𝗳 partition٠class_is_singleton "class_" 𝗼𝗿 "elt".{partition٠seen} 𝘁𝗵𝗲𝗻 (
       "split_list"
     ) 𝗲𝗹𝘀𝗲 (
       "elt" <-{partition٠seen} true ⍮
@@ -181,9 +179,7 @@ Definition partition٠record₁ : val :=
         "class_" <-{partition٠split_len} 0 ⍮
         "split_list"
       ) 𝗲𝗹𝘀𝗲 (
-        𝗹𝗲𝘁 "record_class" =
-          "split" == "class_".{partition٠first}
-        𝗶𝗻
+        𝗹𝗲𝘁 "record_class" = "split" == "class_".{partition٠first} 𝗶𝗻
         partition٠class_swap "class_" "split" "elt" ⍮
         "class_" <-{partition٠split} "elt".{partition٠next} ⍮
         "class_" <-{partition٠split_len} "class_".{partition٠split_len} + 1 ⍮
@@ -214,9 +210,7 @@ Definition partition٠split₁ : val :=
       "class_" <-{partition٠split_len} 0 ⍮
       "class_" <-{partition٠len} "class_".{partition٠len} - "split_len" ⍮
       𝗹𝗲𝘁 "prev" = "split".{partition٠prev} 𝗶𝗻
-      𝗹𝗲𝘁 "class'" =
-        { "first", "prev", "split_len", "first", 0 }
-      𝗶𝗻
+      𝗹𝗲𝘁 "class'" = { "first", "prev", "split_len", "first", 0 } 𝗶𝗻
       partition٠dllist٠iter
         (𝗳𝘂𝗻 "elt" ->
            "elt" <-{partition٠class_} "class'" ⍮

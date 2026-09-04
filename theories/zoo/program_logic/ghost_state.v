@@ -232,7 +232,7 @@ Section zoo۰G₀.
   Context `{zoo۰G₀ : !ZooG₀ Σ}.
 
   #[local] Definition heap۰auth' γ_heap h :=
-    ghost_map_auth (V := val) γ_heap 1 h.
+    ghost_map_auth (V := val) γ_heap (DfracOwn 1) h.
   #[local] Definition pointsto' γ_heap l dq v :=
     ghost_map_elem (V := val) γ_heap l dq v.
 
@@ -263,7 +263,7 @@ Notation "l ↦ dq v" := (
 ) : bi_scope.
 Notation "l ↦-" := (
   (∃ v, l ↦ v)%I
-)(at level 20,
+)(at level 1,
   format "l  ↦-"
 ) : bi_scope.
 
@@ -275,7 +275,7 @@ Notation "l ↦∗ dq vs" :=
 ) : bi_scope.
 Notation "l ↦∗-" :=
   (∃ vs, l ↦∗ vs)%I
-( at level 20,
+( at level 1,
   format "l  ↦∗-"
 ) : bi_scope.
 
@@ -287,7 +287,7 @@ Notation "l ↦ᵣ dq v" := (
 ) : bi_scope.
 Notation "l ↦ᵣ-" := (
   (∃ v, l ↦ᵣ v)%I
-)(at level 20,
+)(at level 1,
   format "l  ↦ᵣ-"
 ) : bi_scope.
 
@@ -531,7 +531,7 @@ Section zoo۰G₀.
     ∃ prophets,
     ⌜resolve_prophets prophets κs⌝ ∗
     ⌜dom prophets ⊆ pids⌝ ∗
-    ghost_map_auth γ_prophets 1 prophets.
+    ghost_map_auth γ_prophets (DfracOwn 1) prophets.
   #[local] Definition prophet۰model' γ_prophets pid prophs :=
     ghost_map_elem γ_prophets pid (DfracOwn 1) prophs.
 
@@ -775,7 +775,7 @@ Notation "tid ↦ₗ dq v" := (
 ) : bi_scope.
 Notation "tid ↦ₗ-" := (
   (∃ v, tid ↦ₗ v)%I
-)(at level 20,
+)(at level 1,
   format "tid  ↦ₗ-"
 ) : bi_scope.
 

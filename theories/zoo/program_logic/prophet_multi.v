@@ -40,7 +40,7 @@ Section prophet_multi۰G.
   Context (prophet : prophet_typed).
   Context `{prophet_multi۰G : ProphetMultiG Σ prophet}.
 
-  Notation prophetx := (
+  Abbreviation prophetx := (
     prophetx prophet
   ).
 

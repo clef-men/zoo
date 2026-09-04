@@ -20,9 +20,9 @@ opam update --all --repositories
 Then, create a new local `opam` switch and install dependencies with:
 
 ```
-opam switch create . --empty --repos default,coq-released=https://coq.inria.fr/opam/released,iris-dev=git+https://gitlab.mpi-sws.org/iris/opam.git --yes
-opam install ./rocq-*.opam --deps-only --yes
+opam switch create . --empty --repos default,rocq-released=https://rocq-prover.github.io/opam/released,iris-dev=git+https://gitlab.mpi-sws.org/iris/opam.git --yes
 eval $(opam env --switch=. --set-switch)
+opam install ./rocq-zoo.opam --deps-only --yes
 ```
 
 Finally, to compile Rocq proofs, run:
@@ -41,13 +41,13 @@ To make sure it is up-to-date, run:
 opam update --all --repositories
 ```
 
-Then, you need to install [this custom version of the OCaml compiler](https://github.com/clef-men/ocaml/tree/generative_constructors) featuring atomic record fields, atomic arrays and generative constructors.
+Then, you need to install [this custom version of the OCaml compiler](https://github.com/clef-men/ocaml/tree/generative_constructors) featuring generative constructors.
 Hopefully, it should be merged into the OCaml compiler one day.
 
 The following commands take care of this:
 
 ```
-opam switch create . --empty --repos default,coq-released=https://coq.inria.fr/opam/released,iris-dev=git+https://gitlab.mpi-sws.org/iris/opam.git --yes
+opam switch create . --empty --repos default,rocq-released=https://rocq-prover.github.io/opam/released,iris-dev=git+https://gitlab.mpi-sws.org/iris/opam.git --yes
 eval $(opam env --switch=. --set-switch)
 opam pin add ocaml-variants git+https://github.com/clef-men/ocaml#generative_constructors --yes
 ```
@@ -56,7 +56,7 @@ Then, install dependencies including [`ocaml2zoo`](https://github.com/clef-men/o
 
 ```
 opam pin add ocaml2zoo git+https://github.com/clef-men/ocaml2zoo#main --yes
-opam install . --with-dev-setup --deps-only --yes
+opam install $(find . -depth 1 -name '*.opam' ! -name 'rocq-*') ./rocq-zoo.opam --with-dev-setup --deps-only --yes
 ```
 
 To compile OCaml libraries (see [`lib/`](lib/)), run:
@@ -93,13 +93,13 @@ To make sure it is up-to-date, run:
 opam update --all --repositories
 ```
 
-Then, you need to install [this custom version of the OCaml compiler](https://github.com/clef-men/ocaml/tree/generative_constructors) featuring atomic record fields, atomic arrays and generative constructors.
+Then, you need to install [this custom version of the OCaml compiler](https://github.com/clef-men/ocaml/tree/generative_constructors) featuring generative constructors.
 Hopefully, it should be merged into the OCaml compiler one day.
 
 The following commands take care of this:
 
 ```
-opam switch create . --empty --repos default,coq-released=https://coq.inria.fr/opam/released,iris-dev=git+https://gitlab.mpi-sws.org/iris/opam.git --yes
+opam switch create . --empty --repos default,rocq-released=https://rocq-prover.github.io/opam/released,iris-dev=git+https://gitlab.mpi-sws.org/iris/opam.git --yes
 eval $(opam env --switch=. --set-switch)
 opam pin add ocaml-variants git+https://github.com/clef-men/ocaml#generative_constructors --yes
 ```

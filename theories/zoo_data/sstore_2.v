@@ -23,13 +23,13 @@ Module base.
 
   #[local] Notation "data '.(gen)'" := (
     fst data
-  )(at level 2,
+  )(at level 1,
     left associativity,
     format "data .(gen)"
   ) : stdpp_scope.
   #[local] Notation "data '.(val)'" := (
     snd data
-  )(at level 2,
+  )(at level 1,
     left associativity,
     format "data .(val)"
   ) : stdpp_scope.
@@ -90,7 +90,7 @@ Module base.
 
     #[local] Notation "δ '.(delta۰data)'" := (
       pair δ.(delta۰gen) δ.(delta۰val)
-    )(at level 2,
+    )(at level 1,
       left associativity,
       format "δ .(delta۰data)"
     ) : stdpp_scope.
@@ -115,7 +115,7 @@ Module base.
     Implicit Type ϵs : gmap location edge.
 
     #[local] Definition cnodes۰auth γ cnodes :=
-      ghost_map_auth γ 1 cnodes.
+      ghost_map_auth γ (DfracOwn 1) cnodes.
     #[local] Definition cnodes۰elem γ cnode descr :=
       ghost_map_elem γ cnode DfracDiscarded descr.
 

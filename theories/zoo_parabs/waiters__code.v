@@ -19,21 +19,17 @@ Notation "'waiters٠queue'" := (
 
 Definition waiters٠create : val :=
   𝗳𝘂𝗻 "sz" ->
-    (array٠unsafe_init "sz" waiter٠create, queue_mpmc_1٠create ()).
+    ( array٠unsafe_init "sz" waiter٠create, queue_mpmc_1٠create () ).
 
 Definition waiters٠notify : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    𝗹𝗲𝘁 "waiter" =
-      array٠unsafe_get "t".<waiters٠waiters> "i"
-    𝗶𝗻
+    𝗹𝗲𝘁 "waiter" = array٠unsafe_get "t".<waiters٠waiters> "i" 𝗶𝗻
     waiter٠notify "waiter" ⍮
     ().
 
 Definition waiters٠notify_one : val :=
   𝗿𝗲𝗰 "notify_one" "t" ->
-    𝗺𝗮𝘁𝗰𝗵
-      queue_mpmc_1٠pop "t".<waiters٠queue>
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 queue_mpmc_1٠pop "t".<waiters٠queue> 𝘄𝗶𝘁𝗵
     | None ->
         ()
     | Some "waiter" ->
@@ -44,9 +40,7 @@ Definition waiters٠notify_one : val :=
 
 Definition waiters٠notify_all : val :=
   𝗿𝗲𝗰 "notify_all" "t" ->
-    𝗺𝗮𝘁𝗰𝗵
-      queue_mpmc_1٠pop "t".<waiters٠queue>
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 queue_mpmc_1٠pop "t".<waiters٠queue> 𝘄𝗶𝘁𝗵
     | None ->
         ()
     | Some "waiter" ->
@@ -56,22 +50,16 @@ Definition waiters٠notify_all : val :=
 
 Definition waiters٠prepare_wait : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    𝗹𝗲𝘁 "waiter" =
-      array٠unsafe_get "t".<waiters٠waiters> "i"
-    𝗶𝗻
+    𝗹𝗲𝘁 "waiter" = array٠unsafe_get "t".<waiters٠waiters> "i" 𝗶𝗻
     waiter٠prepare_wait "waiter" ⍮
     queue_mpmc_1٠push "t".<waiters٠queue> "waiter".
 
 Definition waiters٠cancel_wait : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    𝗹𝗲𝘁 "waiter" =
-      array٠unsafe_get "t".<waiters٠waiters> "i"
-    𝗶𝗻
+    𝗹𝗲𝘁 "waiter" = array٠unsafe_get "t".<waiters٠waiters> "i" 𝗶𝗻
     waiter٠cancel_wait "waiter".
 
 Definition waiters٠commit_wait : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    𝗹𝗲𝘁 "waiter" =
-      array٠unsafe_get "t".<waiters٠waiters> "i"
-    𝗶𝗻
+    𝗹𝗲𝘁 "waiter" = array٠unsafe_get "t".<waiters٠waiters> "i" 𝗶𝗻
     waiter٠commit_wait "waiter".

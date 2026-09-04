@@ -13,13 +13,13 @@ Definition format۰env :=
 Implicit Type env : format۰env.
 
 Module parse.
-  Notation assign :=
+  Abbreviation assign :=
     "="%char.
-  Notation sep :=
+  Abbreviation sep :=
     ";"%char.
-  Notation hole_beg :=
+  Abbreviation hole_beg :=
     "{"%char.
-  Notation hole_end :=
+  Abbreviation hole_end :=
     "}"%char.
 
   Definition binding str :=

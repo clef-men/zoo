@@ -23,27 +23,18 @@ Notation "'bag_1٠back'" := (
 
 Definition bag_1٠create : val :=
   𝗳𝘂𝗻 "sz" ->
-    { array٠unsafe_init
-        "sz"
-        (𝗳𝘂𝗻 ⎽ -> 𝗿𝗲𝗳 §goption٠None),
-      0,
-      0
-    }.
+    { array٠unsafe_init "sz" (𝗳𝘂𝗻 ⎽ -> 𝗿𝗲𝗳 §goption٠None), 0, 0 }.
 
 Definition bag_1٠push₁ : val :=
   𝗿𝗲𝗰 "push" "slot" "o" "backoff" ->
-    𝗶𝗳
-      ~ 𝗰𝗮𝘀 "slot".[contents] §goption٠None "o"
-    𝘁𝗵𝗲𝗻 (
+    𝗶𝗳 ~ 𝗰𝗮𝘀 "slot".[contents] §goption٠None "o" 𝘁𝗵𝗲𝗻 (
       "push" "slot" "o" (backoff٠once "backoff")
     ).
 
 Definition bag_1٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
     𝗹𝗲𝘁 "data" = "t".{bag_1٠data} 𝗶𝗻
-    𝗹𝗲𝘁 "i" =
-      𝗳𝗮𝗮 "t".[bag_1٠back] 1 𝗿𝗲𝗺 array٠size "data"
-    𝗶𝗻
+    𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[bag_1٠back] 1 𝗿𝗲𝗺 array٠size "data" 𝗶𝗻
     bag_1٠push₁
       (array٠unsafe_get "data" "i")
       ‘goption٠Some[ "v" ]
@@ -55,9 +46,7 @@ Definition bag_1٠pop₁ : val :=
     | goption٠None ->
         "pop" "slot" (backoff٠once "backoff")
     | goption٠Some "v" 𝗮𝘀 "o" ->
-        𝗶𝗳
-          𝗰𝗮𝘀 "slot".[contents] "o" §goption٠None
-        𝘁𝗵𝗲𝗻 (
+        𝗶𝗳 𝗰𝗮𝘀 "slot".[contents] "o" §goption٠None 𝘁𝗵𝗲𝗻 (
           "v"
         ) 𝗲𝗹𝘀𝗲 (
           "pop" "slot" backoff٠default
@@ -67,7 +56,5 @@ Definition bag_1٠pop₁ : val :=
 Definition bag_1٠pop : val :=
   𝗳𝘂𝗻 "t" ->
     𝗹𝗲𝘁 "data" = "t".{bag_1٠data} 𝗶𝗻
-    𝗹𝗲𝘁 "i" =
-      𝗳𝗮𝗮 "t".[bag_1٠front] 1 𝗿𝗲𝗺 array٠size "data"
-    𝗶𝗻
+    𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[bag_1٠front] 1 𝗿𝗲𝗺 array٠size "data" 𝗶𝗻
     bag_1٠pop₁ (array٠unsafe_get "data" "i") backoff٠default.

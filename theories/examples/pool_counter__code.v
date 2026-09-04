@@ -14,9 +14,7 @@ Definition pool_counter٠main : val :=
       "num_worker"
       (𝗳𝘂𝗻 "ctx" ->
          𝗳𝗼𝗿 ⎽ = 0 𝘁𝗼 "n" 𝗱𝗼
-           pool٠async
-             "ctx"
-             (𝗳𝘂𝗻 "_ctx" -> 𝗳𝗮𝗮 "cnt".[contents] 1 ⍮
-                                     ())
+           pool٠async "ctx" (𝗳𝘂𝗻 "_ctx" -> 𝗳𝗮𝗮 "cnt".[contents] 1 ⍮
+                                           ())
          𝗱𝗼𝗻𝗲) ⍮
     !"cnt".

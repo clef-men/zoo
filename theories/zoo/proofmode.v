@@ -1,4 +1,4 @@
-Require Import iris.proofmode.coq_tactics.
+Require Import iris.proofmode.rocq_tactics.
 Require Import iris.proofmode.reduction.
 Require Import iris.proofmode.spec_patterns.
 

@@ -47,7 +47,7 @@ Definition pool٠max_round_yield : val :=
 
 Definition pool٠context : val :=
   𝗳𝘂𝗻 "sz" "hub" "id" ->
-    ("sz", "hub", "id").
+    ( "sz", "hub", "id" ).
 
 Definition pool٠context_main : val :=
   𝗳𝘂𝗻 "t" ->
@@ -82,17 +82,14 @@ Definition pool٠create : val :=
         "sz"
         (𝗳𝘂𝗻 "i" ->
            domain٠spawn
-             (𝗳𝘂𝗻 ⎽ ->
-                pool٠worker (pool٠context "sz" "hub" ("i" + 1))))
+             (𝗳𝘂𝗻 ⎽ -> pool٠worker (pool٠context "sz" "hub" ("i" + 1))))
     𝗶𝗻
     { "sz", "hub", "domains", () }.
 
 Definition pool٠run_on : val :=
   𝗳𝘂𝗻 "t" "task" ->
     ws_hub_std٠unblock "t".{pool٠hub} 0 ⍮
-    𝗹𝗲𝘁 "res" =
-      pool٠execute (pool٠context_main "t") "task"
-    𝗶𝗻
+    𝗹𝗲𝘁 "res" = pool٠execute (pool٠context_main "t") "task" 𝗶𝗻
     ws_hub_std٠block "t".{pool٠hub} 0 ⍮
     "res".
 
@@ -116,10 +113,7 @@ Definition pool٠size : val :=
 
 Definition pool٠async : val :=
   𝗳𝘂𝗻 "ctx" "task" ->
-    ws_hub_std٠push
-      "ctx".<pool٠context_hub>
-      "ctx".<pool٠context_id>
-      "task".
+    ws_hub_std٠push "ctx".<pool٠context_hub> "ctx".<pool٠context_id> "task".
 
 Definition pool٠wait₁ : val :=
   𝗿𝗲𝗰 "wait" "ctx" "notification" "pred" ->

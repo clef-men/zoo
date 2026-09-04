@@ -1,10 +1,15 @@
 -docroot zoo
 
+-arg -w -arg +default
+
 -arg -w -arg -uniform-inheritance
 -arg -w -arg -redundant-canonical-projection
 -arg -w -arg -masking-absolute-name
 -arg -w -arg -notation-incompatible-prefix
 -arg -w -arg -notation-overridden
+-arg -w -arg -level-tolerance
+-arg -w -arg -missing-scheme
+-arg -w -arg -register-all
 
 #BEGIN zoo
 -Q theories/zoo zoo

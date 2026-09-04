@@ -50,22 +50,18 @@ Definition dynarray_1٠set : val :=
 
 Definition dynarray_1٠next_capacity : val :=
   𝗳𝘂𝗻 "n" ->
-    int٠max
-      8
-      𝗶𝗳 "n" ≤ 512 𝘁𝗵𝗲𝗻 (
-        2 * "n"
-      ) 𝗲𝗹𝘀𝗲 (
-        "n" + "n" 𝗾𝘂𝗼𝘁 2
-      ).
+    int٠max 8 𝗶𝗳 "n" ≤ 512 𝘁𝗵𝗲𝗻 (
+                2 * "n"
+              ) 𝗲𝗹𝘀𝗲 (
+                "n" + "n" 𝗾𝘂𝗼𝘁 2
+              ).
 
 Definition dynarray_1٠reserve : val :=
   𝗳𝘂𝗻 "t" "n" ->
     𝗹𝗲𝘁 "data" = "t".{dynarray_1٠data} 𝗶𝗻
     𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
     𝗶𝗳 "cap" < "n" 𝘁𝗵𝗲𝗻 (
-      𝗹𝗲𝘁 "new_cap" =
-        int٠max "n" (dynarray_1٠next_capacity "cap")
-      𝗶𝗻
+      𝗹𝗲𝘁 "new_cap" = int٠max "n" (dynarray_1٠next_capacity "cap") 𝗶𝗻
       𝗹𝗲𝘁 "new_data" = array٠unsafe_alloc "new_cap" 𝗶𝗻
       array٠unsafe_copy_slice "data" 0 "new_data" 0 "t".{dynarray_1٠size} ⍮
       "t" <-{dynarray_1٠data} "new_data"

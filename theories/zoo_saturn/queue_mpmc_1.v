@@ -91,7 +91,7 @@ Module base.
       model₂' γ.(queue_mpmc_1۰name۰model) vs.
 
     #[local] Definition waiters۰auth' γ_waiters waiters :=
-      ghost_map_auth γ_waiters 1 waiters.
+      ghost_map_auth γ_waiters (DfracOwn 1) waiters.
     #[local] Definition waiters۰auth γ waiters :=
       waiters۰auth' γ.(queue_mpmc_1۰name۰waiters) waiters.
     #[local] Definition waiters۰at γ waiter i :=

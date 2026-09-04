@@ -72,6 +72,7 @@ Notation "'WP' e tid E {{ v , Q } }" := (
   format "'[hv' WP  '/  ' '[' e ']'  tid E '/' {{  '[' v ,  '/' Q ']'  '/' } } ']'"
 ) : bi_scope.
 
+Set Warnings "-closed-notation-not-level-0".
 Notation "'{{{' P } } } e tid E {{{ x1 .. xn , 'RET' v ; Q } } }" :=
   ( □ ∀ Φ,
       P -∗
@@ -102,6 +103,7 @@ Notation "'{{{' P } } } e tid E {{{ 'RET' v ; Q } } }" :=
   Q at level 200,
   format "'[hv' {{{  '/  ' '[' P ']'  '/' } } }  '/  ' '[' e ']'  tid E '/' {{{  '/  ' RET  v ;  '/  ' '[' Q ']'  '/' } } } ']'"
 ) : bi_scope.
+Set Warnings "+closed-notation-not-level-0".
 
 Notation "'{{{' P } } } e tid E {{{ x1 .. xn , 'RET' v ; Q } } }" := (
   ∀ Φ,

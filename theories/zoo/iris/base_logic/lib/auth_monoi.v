@@ -25,7 +25,7 @@ Section auth_monoi۰G.
 
   Implicit Type a : A.
 
-  Notation Rs := (
+  Abbreviation Rs := (
     rtc R
   ).
 

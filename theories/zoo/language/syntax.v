@@ -158,12 +158,12 @@ Implicit Type es : list expr.
 Implicit Type v : val.
 Implicit Type vs : list val.
 
-Notation branch :=
+Abbreviation branch :=
   (pattern * expr)%type.
 Implicit Type br : branch.
 Implicit Type brs : list branch.
 
-Notation recursive :=
+Abbreviation recursive :=
   (binder * binder * expr)%type.
 Implicit Type rec : recursive.
 Implicit Type recs : list recursive.
@@ -385,6 +385,8 @@ Section expr_ind.
     end.
 End expr_ind.
 
+Register Scheme expr_ind as ind_dep for expr.
+
 Section val_ind.
   Variable P : val → Prop.
 
@@ -413,6 +415,8 @@ Section val_ind.
           vs (Forall_true P vs val_ind)
     end.
 End val_ind.
+
+Register Scheme val_ind as ind_dep for val.
 
 Section exprｰvalｰmutind.
   Variable Pexpr : expr → Prop.
@@ -668,11 +672,11 @@ Canonical val_O {SI : sidx} :=
 Canonical expr_O {SI : sidx} :=
   leibnizO expr.
 
-Notation Fun x e := (
+Abbreviation Fun x e := (
   Rec BAnon x e
 )(only parsing
 ).
-Notation ValRec f x e := (
+Abbreviation ValRec f x e := (
   ValRecs 0
     ( @cons recursive
         ( @pair (prod binder binder) expr
@@ -683,7 +687,7 @@ Notation ValRec f x e := (
     )
 )(only parsing
 ).
-Notation ValFun x e := (
+Abbreviation ValFun x e := (
   ValRecs 0
     ( @cons recursive
         ( @pair (prod binder binder) expr
@@ -695,66 +699,66 @@ Notation ValFun x e := (
 )(only parsing
 ).
 
-Notation Seq e1 e2 := (
+Abbreviation Seq e1 e2 := (
   Let BAnon e1 e2
 )(only parsing
 ).
 
-Notation ValBool b := (
+Abbreviation ValBool b := (
   ValLit (LitBool b)
 )(only parsing
 ).
-Notation ValChar chr := (
+Abbreviation ValChar chr := (
   ValLit (LitChar chr)
 )(only parsing
 ).
-Notation ValInt n := (
+Abbreviation ValInt n := (
   ValLit (LitInt n)
 )(only parsing
 ).
-Notation ValNat i := (
+Abbreviation ValNat i := (
   ValLit (LitInt (Z.of_nat i))
 )(only parsing
 ).
-Notation ValString str := (
+Abbreviation ValString str := (
   ValLit (LitString str)
 )(only parsing
 ).
-Notation ValLoc l := (
+Abbreviation ValLoc l := (
   ValLit (LitLoc l)
 )(only parsing
 ).
-Notation ValProph pid := (
+Abbreviation ValProph pid := (
   ValLit (LitProph pid)
 )(only parsing
 ).
 
-Notation Tuple := (
+Abbreviation Tuple := (
   Block ImmutableNongenerative Tag0
 )(only parsing
 ).
-Notation ValTuple := (
+Abbreviation ValTuple := (
   ValBlock Nongenerative Tag0
 )(only parsing
 ).
 
-Notation ValUnit := (
+Abbreviation ValUnit := (
   ValTuple []
 )(only parsing
 ).
-Notation Unit := (
+Abbreviation Unit := (
   Val ValUnit
 )(only parsing
 ).
 
-Notation Fail := (
+Abbreviation Fail := (
   App Unit Unit
 ).
-Notation Skip := (
+Abbreviation Skip := (
   App (Val (ValFun BAnon Unit)) Unit
 ).
 
-Notation IsImmediate := (
+Abbreviation IsImmediate := (
   Unop UnopIsImmediate
 ).
 
@@ -773,7 +777,7 @@ Definition val۰to_int' :=
 Definition val۰to_nat' :=
   Z.to_nat ∘ val۰to_int'.
 
-Notation of_val :=
+Abbreviation of_val :=
   Val
 ( only parsing
 ).
@@ -1107,69 +1111,69 @@ Variant encode_leaf :=
 Proof.
   solve_countable.
 Qed.
-Notation EncodeString str := (
+Abbreviation EncodeString str := (
   EncodeBinder (BNamed str)
 ).
 #[global] Instance exprｰcountable :
   Countable expr.
 Proof.
-  #[local] Notation code_Val :=
+  #[local] Abbreviation code_Val :=
     0.
-  #[local] Notation code_Rec :=
+  #[local] Abbreviation code_Rec :=
     1.
-  #[local] Notation code_App :=
+  #[local] Abbreviation code_App :=
     2.
-  #[local] Notation code_Let :=
+  #[local] Abbreviation code_Let :=
     3.
-  #[local] Notation code_Unop :=
+  #[local] Abbreviation code_Unop :=
     4.
-  #[local] Notation code_Binop :=
+  #[local] Abbreviation code_Binop :=
     5.
-  #[local] Notation code_Equal :=
+  #[local] Abbreviation code_Equal :=
     6.
-  #[local] Notation code_If :=
+  #[local] Abbreviation code_If :=
     7.
-  #[local] Notation code_For :=
+  #[local] Abbreviation code_For :=
     8.
-  #[local] Notation code_Alloc :=
+  #[local] Abbreviation code_Alloc :=
     9.
-  #[local] Notation code_Block :=
+  #[local] Abbreviation code_Block :=
     10.
-  #[local] Notation code_Match :=
+  #[local] Abbreviation code_Match :=
     11.
-  #[local] Notation code_branch :=
+  #[local] Abbreviation code_branch :=
     12.
-  #[local] Notation code_GetTag :=
+  #[local] Abbreviation code_GetTag :=
     13.
-  #[local] Notation code_GetSize :=
+  #[local] Abbreviation code_GetSize :=
     14.
-  #[local] Notation code_Load :=
+  #[local] Abbreviation code_Load :=
     15.
-  #[local] Notation code_Store :=
+  #[local] Abbreviation code_Store :=
     16.
-  #[local] Notation code_Xchg :=
+  #[local] Abbreviation code_Xchg :=
     17.
-  #[local] Notation code_CAS :=
+  #[local] Abbreviation code_CAS :=
     18.
-  #[local] Notation code_FAA :=
+  #[local] Abbreviation code_FAA :=
     19.
-  #[local] Notation code_Fork :=
+  #[local] Abbreviation code_Fork :=
     20.
-  #[local] Notation code_LocalGet :=
+  #[local] Abbreviation code_LocalGet :=
     21.
-  #[local] Notation code_LocalSet :=
+  #[local] Abbreviation code_LocalSet :=
     22.
-  #[local] Notation code_Proph :=
+  #[local] Abbreviation code_Proph :=
     23.
-  #[local] Notation code_Resolve :=
+  #[local] Abbreviation code_Resolve :=
     24.
-  #[local] Notation code_ResolveErasure :=
+  #[local] Abbreviation code_ResolveErasure :=
     25.
-  #[local] Notation code_ValRecs :=
+  #[local] Abbreviation code_ValRecs :=
     0.
-  #[local] Notation code_recursive :=
+  #[local] Abbreviation code_recursive :=
     1.
-  #[local] Notation code_ValBlock :=
+  #[local] Abbreviation code_ValBlock :=
     2.
   pose encode :=
     fix go e :=

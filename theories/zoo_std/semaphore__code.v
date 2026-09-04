@@ -50,6 +50,5 @@ Definition semaphore٠unlock : val :=
   𝗳𝘂𝗻 "t" ->
     mutex٠protect
       "t".{semaphore٠mutex}
-      (𝗳𝘂𝗻 ⎽ ->
-         "t" <-{semaphore٠count} "t".{semaphore٠count} + 1) ⍮
+      (𝗳𝘂𝗻 ⎽ -> "t" <-{semaphore٠count} "t".{semaphore٠count} + 1) ⍮
     condition٠notify "t".{semaphore٠condition}.

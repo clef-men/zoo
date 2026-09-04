@@ -93,8 +93,7 @@ Definition mcas_2٠finish : val :=
             §mcas_2٠Before
           ) 𝗲𝗹𝘀𝗲 𝗶𝗳
              list٠forall
-               (𝗳𝘂𝗻 "cmp" ->
-                  !"cmp".<mcas_2٠loc> == "cmp".<mcas_2٠state>)
+               (𝗳𝘂𝗻 "cmp" -> !"cmp".<mcas_2٠loc> == "cmp".<mcas_2٠state>)
                "cmps"
            𝘁𝗵𝗲𝗻 (
             §mcas_2٠After
@@ -107,7 +106,7 @@ Definition mcas_2٠finish : val :=
           𝗿𝗲𝘀𝗼𝗹𝘃𝗲
             (𝗰𝗮𝘀 "casn".[mcas_2٠status] "old_status" "status")
             "casn".{mcas_2٠proph}
-            ("gid", "is_after")
+            ( "gid", "is_after" )
         𝘁𝗵𝗲𝗻 (
           mcas_2٠clear "cass" "is_after"
         ) 𝗲𝗹𝘀𝗲 (
@@ -129,9 +128,7 @@ Definition mcas_2٠finish : val :=
           𝗶𝗳 "state" == "old_state" 𝘁𝗵𝗲𝗻 (
             "determine_as" "casn" "continue"
           ) 𝗲𝗹𝘀𝗲 𝗶𝗳
-             𝗹𝗲𝘁 "@tmp" =
-               "state".{mcas_2٠before} == "eval" "old_state"
-             𝗶𝗻
+             𝗹𝗲𝘁 "@tmp" = "state".{mcas_2٠before} == "eval" "old_state" 𝗶𝗻
              𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "@tmp" ⍮
              "@tmp"
            𝘁𝗵𝗲𝗻 (
@@ -147,9 +144,7 @@ Definition mcas_2٠finish : val :=
       | mcas_2٠After ->
           true
       | mcas_2٠Undetermined ⎽ ⎽ ->
-          𝗶𝗳
-            𝗰𝗮𝘀 "loc".[contents] "old_state" "state"
-          𝘁𝗵𝗲𝗻 (
+          𝗶𝗳 𝗰𝗮𝘀 "loc".[contents] "old_state" "state" 𝘁𝗵𝗲𝗻 (
             "determine_as" "casn" "continue"
           ) 𝗲𝗹𝘀𝗲 (
             "determine_as" "casn" "retry"
@@ -239,7 +234,7 @@ Definition mcas_2٠mcas_2 : val :=
         (𝗳𝘂𝗻 "cas" ->
            𝗹𝗲𝘁 "loc", "before", "after" = "cas" 𝗶𝗻
            𝗹𝗲𝘁 "state" = { "casn", "before", "after" } 𝗶𝗻
-           ("loc", "state"))
+           ( "loc", "state" ))
         "cass"
     𝗶𝗻
     "casn" <-{mcas_2٠status} ‘mcas_2٠Undetermined@[ "cmps", "cass" ] ⍮
@@ -254,7 +249,7 @@ Definition mcas_2٠mcas_1 : val :=
         𝗹𝗲𝘁 "loc", "expected" = "cmp" 𝗶𝗻
         𝗹𝗲𝘁 "state" = !"loc" 𝗶𝗻
         𝗶𝗳 mcas_2٠eval "state" == "expected" 𝘁𝗵𝗲𝗻 (
-          "mcas_1" (("loc", "state") :: "acc") "cmps" "cass"
+          "mcas_1" (( "loc", "state" ) :: "acc") "cmps" "cass"
         ) 𝗲𝗹𝘀𝗲 (
           false
         )

@@ -84,7 +84,7 @@ Definition mcas_1٠finish : val :=
           𝗿𝗲𝘀𝗼𝗹𝘃𝗲
             (𝗰𝗮𝘀 "casn".[mcas_1٠status] "old_status" "status")
             "casn".{mcas_1٠proph}
-            ("gid", "is_after")
+            ( "gid", "is_after" )
         𝘁𝗵𝗲𝗻 (
           mcas_1٠clear "cass" "is_after"
         ) 𝗲𝗹𝘀𝗲 (
@@ -106,9 +106,7 @@ Definition mcas_1٠finish : val :=
           𝗶𝗳 "state" == "old_state" 𝘁𝗵𝗲𝗻 (
             "determine_as" "casn" "continue"
           ) 𝗲𝗹𝘀𝗲 𝗶𝗳
-             𝗹𝗲𝘁 "@tmp" =
-               "state".{mcas_1٠before} == "eval" "old_state"
-             𝗶𝗻
+             𝗹𝗲𝘁 "@tmp" = "state".{mcas_1٠before} == "eval" "old_state" 𝗶𝗻
              𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "@tmp" ⍮
              "@tmp"
            𝘁𝗵𝗲𝗻 (
@@ -124,9 +122,7 @@ Definition mcas_1٠finish : val :=
       | mcas_1٠After ->
           true
       | mcas_1٠Undetermined ⎽ ->
-          𝗶𝗳
-            𝗰𝗮𝘀 "loc".[contents] "old_state" "state"
-          𝘁𝗵𝗲𝗻 (
+          𝗶𝗳 𝗰𝗮𝘀 "loc".[contents] "old_state" "state" 𝘁𝗵𝗲𝗻 (
             "determine_as" "casn" "continue"
           ) 𝗲𝗹𝘀𝗲 (
             "determine_as" "casn" "retry"
@@ -216,7 +212,7 @@ Definition mcas_1٠mcas : val :=
         (𝗳𝘂𝗻 "cas" ->
            𝗹𝗲𝘁 "loc", "before", "after" = "cas" 𝗶𝗻
            𝗹𝗲𝘁 "state" = { "casn", "before", "after" } 𝗶𝗻
-           ("loc", "state"))
+           ( "loc", "state" ))
         "cass"
     𝗶𝗻
     "casn" <-{mcas_1٠status} ‘mcas_1٠Undetermined@[ "cass" ] ⍮

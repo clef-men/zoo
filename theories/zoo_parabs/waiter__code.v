@@ -39,8 +39,7 @@ Definition waiter٠notify : val :=
 
 Definition waiter٠prepare_wait : val :=
   𝗳𝘂𝗻 "t" ->
-    mutex٠protect "t".{waiter٠mutex}
-      (𝗳𝘂𝗻 ⎽ -> "t" <-{waiter٠flag} false).
+    mutex٠protect "t".{waiter٠mutex} (𝗳𝘂𝗻 ⎽ -> "t" <-{waiter٠flag} false).
 
 Definition waiter٠cancel_wait : val :=
   𝗳𝘂𝗻 "t" ->

@@ -320,7 +320,7 @@ Section mcas_1۰G.
     lock' η_lock.
 
   #[local] Definition helpers۰auth' η_helpers helpers :=
-    ghost_map_auth η_helpers 1 helpers.
+    ghost_map_auth η_helpers (DfracOwn 1) helpers.
   #[local] Definition helpers۰auth η helpers :=
     helpers۰auth' η.(metadata۰helpers) helpers.
   #[local] Definition helpers۰elem η helper i :=

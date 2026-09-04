@@ -42,7 +42,7 @@ Module intro_pat.
     | StSpatial : stack_item
     | StModalElim : stack_item.
 
-  Notation stack := (
+  Abbreviation stack := (
     list stack_item
   ).
 

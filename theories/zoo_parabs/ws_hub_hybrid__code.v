@@ -36,14 +36,13 @@ Notation "'ws_hub_hybrid٠num_active'" := (
 
 Definition ws_hub_hybrid٠create : val :=
   𝗳𝘂𝗻 "sz" ->
-    { ws_bdeques_public٠create "sz",
-      array٠unsafe_init
+    { ws_bdeques_public٠create "sz"
+    , array٠unsafe_init
         "sz"
-        (𝗳𝘂𝗻 ⎽ ->
-           random٠round٠create (int٠positive_part ("sz" - 1))),
-      queue_mpmc_1٠create (),
-      waiters٠create "sz",
-      "sz" + 1
+        (𝗳𝘂𝗻 ⎽ -> random٠round٠create (int٠positive_part ("sz" - 1)))
+    , queue_mpmc_1٠create ()
+    , waiters٠create "sz"
+    , "sz" + 1
     }.
 
 Definition ws_hub_hybrid٠size : val :=
@@ -92,9 +91,7 @@ Definition ws_hub_hybrid٠notify_all : val :=
 
 Definition ws_hub_hybrid٠push : val :=
   𝗳𝘂𝗻 "t" "i" "v" ->
-    𝗶𝗳
-      ~ ws_bdeques_public٠push "t".{ws_hub_hybrid٠deques} "i" "v"
-    𝘁𝗵𝗲𝗻 (
+    𝗶𝗳 ~ ws_bdeques_public٠push "t".{ws_hub_hybrid٠deques} "i" "v" 𝘁𝗵𝗲𝗻 (
       queue_mpmc_1٠push "t".{ws_hub_hybrid٠queue} "v"
     ) 𝗲𝗹𝘀𝗲 (
       ()
@@ -103,9 +100,7 @@ Definition ws_hub_hybrid٠push : val :=
 
 Definition ws_hub_hybrid٠pop : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    𝗺𝗮𝘁𝗰𝗵
-      ws_bdeques_public٠pop "t".{ws_hub_hybrid٠deques} "i"
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 ws_bdeques_public٠pop "t".{ws_hub_hybrid٠deques} "i" 𝘄𝗶𝘁𝗵
     | Some ⎽ 𝗮𝘀 "res" ->
         "res"
     | None ->
@@ -114,9 +109,7 @@ Definition ws_hub_hybrid٠pop : val :=
 
 Definition ws_hub_hybrid٠try_steal_once : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    𝗹𝗲𝘁 "round" =
-      array٠unsafe_get "t".{ws_hub_hybrid٠rounds} "i"
-    𝗶𝗻
+    𝗹𝗲𝘁 "round" = array٠unsafe_get "t".{ws_hub_hybrid٠rounds} "i" 𝗶𝗻
     random٠round٠reset "round" ⍮
     ws_bdeques_public٠steal_as "t".{ws_hub_hybrid٠deques} "i" "round".
 
@@ -125,9 +118,7 @@ Definition ws_hub_hybrid٠try_steal₁ : val :=
     𝗶𝗳 "max_round" ≤ 0 𝘁𝗵𝗲𝗻 (
       §optional٠Nothing
     ) 𝗲𝗹𝘀𝗲 (
-      𝗺𝗮𝘁𝗰𝗵
-        ws_hub_hybrid٠try_steal_once "t" "i"
-      𝘄𝗶𝘁𝗵
+      𝗺𝗮𝘁𝗰𝗵 ws_hub_hybrid٠try_steal_once "t" "i" 𝘄𝗶𝘁𝗵
       | Some "v" ->
           ‘optional٠Something( "v" )
       | None ->
@@ -173,20 +164,15 @@ Definition ws_hub_hybrid٠steal_aux : val :=
         §None
     | optional٠Nothing ->
         waiters٠prepare_wait "t".{ws_hub_hybrid٠waiters} "i" ⍮
-        𝗺𝗮𝘁𝗰𝗵
-          ws_hub_hybrid٠try_steal_once "t" "i"
-        𝘄𝗶𝘁𝗵
+        𝗺𝗮𝘁𝗰𝗵 ws_hub_hybrid٠try_steal_once "t" "i" 𝘄𝗶𝘁𝗵
         | Some ⎽ 𝗮𝘀 "res" ->
             waiters٠cancel_wait "t".{ws_hub_hybrid٠waiters} "i" ⍮
             "res"
         | None ->
             "notification"
-              (𝗳𝘂𝗻 ⎽ ->
-                 waiters٠notify "t".{ws_hub_hybrid٠waiters} "i") ⍮
+              (𝗳𝘂𝗻 ⎽ -> waiters٠notify "t".{ws_hub_hybrid٠waiters} "i") ⍮
             𝗶𝗳 "pred" () 𝘁𝗵𝗲𝗻 (
-              𝗶𝗳
-                ~ waiters٠cancel_wait "t".{ws_hub_hybrid٠waiters} "i"
-              𝘁𝗵𝗲𝗻 (
+              𝗶𝗳 ~ waiters٠cancel_wait "t".{ws_hub_hybrid٠waiters} "i" 𝘁𝗵𝗲𝗻 (
                 waiters٠notify_one "t".{ws_hub_hybrid٠waiters}
               ) 𝗲𝗹𝘀𝗲 (
                 ()

@@ -58,10 +58,7 @@ Definition ivar_3٠wait : val :=
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
     | ivar_3٠Unset "waiters" 𝗮𝘀 "state" ->
         𝗶𝗳
-          𝗰𝗮𝘀
-            "t".[contents]
-            "state"
-            ‘ivar_3٠Unset[ "waiter" :: "waiters" ]
+          𝗰𝗮𝘀 "t".[contents] "state" ‘ivar_3٠Unset[ "waiter" :: "waiters" ]
         𝘁𝗵𝗲𝗻 (
           §None
         ) 𝗲𝗹𝘀𝗲 (
@@ -73,9 +70,7 @@ Definition ivar_3٠wait : val :=
 
 Definition ivar_3٠set : val :=
   𝗳𝘂𝗻 "t" "v" ->
-    𝗺𝗮𝘁𝗰𝗵
-      𝘅𝗰𝗵𝗴 "t".[contents] ‘ivar_3٠Set( "v" )
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 𝘅𝗰𝗵𝗴 "t".[contents] ‘ivar_3٠Set( "v" ) 𝘄𝗶𝘁𝗵
     | ivar_3٠Set ⎽ ->
         𝗳𝗮𝗶𝗹
     | ivar_3٠Unset "waiters" ->

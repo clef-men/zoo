@@ -47,9 +47,7 @@ Notation "'bqueue_mpmc٠back'" := (
 
 Definition bqueue_mpmc٠create : val :=
   𝗳𝘂𝗻 "cap" ->
-    𝗹𝗲𝘁 "front" =
-      ‘bqueue_mpmc٠Node{ §bqueue_mpmc٠Null, (), 0, "cap" }
-    𝗶𝗻
+    𝗹𝗲𝘁 "front" = ‘bqueue_mpmc٠Node{ §bqueue_mpmc٠Null, (), 0, "cap" } 𝗶𝗻
     { "cap", "front", "front" }.
 
 Definition bqueue_mpmc٠capacity : val :=
@@ -65,20 +63,13 @@ Definition bqueue_mpmc٠size : val :=
         𝗺𝗮𝘁𝗰𝗵 "t".{bqueue_mpmc٠back} 𝘄𝗶𝘁𝗵
         | bqueue_mpmc٠Node ⎽ ⎽ ⎽ ⎽ 𝗮𝘀 "back" ->
             𝗹𝗲𝘁 "back_r" = "back" 𝗶𝗻
-            𝗺𝗮𝘁𝗰𝗵
-              "back_r".{bqueue_mpmc٠next}
-            𝘄𝗶𝘁𝗵
+            𝗺𝗮𝘁𝗰𝗵 "back_r".{bqueue_mpmc٠next} 𝘄𝗶𝘁𝗵
             | bqueue_mpmc٠Node ⎽ ⎽ ⎽ ⎽ 𝗮𝘀 "node" ->
                 𝗰𝗮𝘀 "t".[bqueue_mpmc٠back] "back" "node" ⍮
                 "size" "t"
             | bqueue_mpmc٠Null ->
                 𝗶𝗳
-                  𝗿𝗲𝘀𝗼𝗹𝘃𝗲
-                    "t".{bqueue_mpmc٠front}
-                    "proph"
-                    ()
-                  ==
-                  "front"
+                  𝗿𝗲𝘀𝗼𝗹𝘃𝗲 "t".{bqueue_mpmc٠front} "proph" () == "front"
                 𝘁𝗵𝗲𝗻 (
                   "back_r".{bqueue_mpmc٠index}
                   -
@@ -126,9 +117,7 @@ Definition bqueue_mpmc٠fix_back : val :=
           | bqueue_mpmc٠Node ⎽ ⎽ ⎽ ⎽ 𝗮𝘀 "new_back" ->
               𝗹𝗲𝘁 "new_back_r" = "new_back" 𝗶𝗻
               𝗶𝗳 "cap" == 0 𝘁𝗵𝗲𝗻 (
-                𝗺𝗮𝘁𝗰𝗵
-                  "t".{bqueue_mpmc٠front}
-                𝘄𝗶𝘁𝗵
+                𝗺𝗮𝘁𝗰𝗵 "t".{bqueue_mpmc٠front} 𝘄𝗶𝘁𝗵
                 | bqueue_mpmc٠Node ⎽ ⎽ ⎽ ⎽ 𝗮𝘀 "front_r" ->
                     𝗹𝗲𝘁 "cap" =
                       "t".{bqueue_mpmc٠capacity}
@@ -157,9 +146,7 @@ Definition bqueue_mpmc٠fix_back : val :=
                   bqueue_mpmc٠fix_back "t" "back" "new_back" ⍮
                   true
                 ) 𝗲𝗹𝘀𝗲 (
-                  𝗺𝗮𝘁𝗰𝗵
-                    "back_r".{bqueue_mpmc٠next}
-                  𝘄𝗶𝘁𝗵
+                  𝗺𝗮𝘁𝗰𝗵 "back_r".{bqueue_mpmc٠next} 𝘄𝗶𝘁𝗵
                   | bqueue_mpmc٠Null ->
                       𝗳𝗮𝗶𝗹
                   | bqueue_mpmc٠Node ⎽ ⎽ ⎽ ⎽ 𝗮𝘀 "back" ->
@@ -203,9 +190,7 @@ Qed.
 
 Definition bqueue_mpmc٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
-    𝗹𝗲𝘁 "new_back" =
-      ‘bqueue_mpmc٠Node{ §bqueue_mpmc٠Null, "v", 0, 0 }
-    𝗶𝗻
+    𝗹𝗲𝘁 "new_back" = ‘bqueue_mpmc٠Node{ §bqueue_mpmc٠Null, "v", 0, 0 } 𝗶𝗻
     bqueue_mpmc٠push_2 "t" "t".{bqueue_mpmc٠back} "new_back".
 
 Definition bqueue_mpmc٠pop₁ : val :=
@@ -218,9 +203,7 @@ Definition bqueue_mpmc٠pop₁ : val :=
             §None
         | bqueue_mpmc٠Node ⎽ ⎽ ⎽ ⎽ 𝗮𝘀 "new_front" ->
             𝗹𝗲𝘁 "new_front_r" = "new_front" 𝗶𝗻
-            𝗶𝗳
-              𝗰𝗮𝘀 "t".[bqueue_mpmc٠front] "front" "new_front"
-            𝘁𝗵𝗲𝗻 (
+            𝗶𝗳 𝗰𝗮𝘀 "t".[bqueue_mpmc٠front] "front" "new_front" 𝘁𝗵𝗲𝗻 (
               𝗹𝗲𝘁 "v" = "new_front_r".{bqueue_mpmc٠data} 𝗶𝗻
               "new_front_r" <-{bqueue_mpmc٠data} () ⍮
               ‘Some( "v" )

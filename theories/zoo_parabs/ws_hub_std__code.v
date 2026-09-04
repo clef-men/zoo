@@ -31,13 +31,12 @@ Notation "'ws_hub_std٠num_active'" := (
 
 Definition ws_hub_std٠create : val :=
   𝗳𝘂𝗻 "sz" ->
-    { ws_deques_public٠create "sz",
-      array٠unsafe_init
+    { ws_deques_public٠create "sz"
+    , array٠unsafe_init
         "sz"
-        (𝗳𝘂𝗻 ⎽ ->
-           random٠round٠create (int٠positive_part ("sz" - 1))),
-      waiters٠create "sz",
-      "sz" + 1
+        (𝗳𝘂𝗻 ⎽ -> random٠round٠create (int٠positive_part ("sz" - 1)))
+    , waiters٠create "sz"
+    , "sz" + 1
     }.
 
 Definition ws_hub_std٠size : val :=
@@ -95,9 +94,7 @@ Definition ws_hub_std٠pop : val :=
 
 Definition ws_hub_std٠try_steal_once : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    𝗹𝗲𝘁 "round" =
-      array٠unsafe_get "t".{ws_hub_std٠rounds} "i"
-    𝗶𝗻
+    𝗹𝗲𝘁 "round" = array٠unsafe_get "t".{ws_hub_std٠rounds} "i" 𝗶𝗻
     random٠round٠reset "round" ⍮
     ws_deques_public٠steal_as "t".{ws_hub_std٠deques} "i" "round".
 
@@ -106,9 +103,7 @@ Definition ws_hub_std٠try_steal₁ : val :=
     𝗶𝗳 "max_round" ≤ 0 𝘁𝗵𝗲𝗻 (
       §optional٠Nothing
     ) 𝗲𝗹𝘀𝗲 (
-      𝗺𝗮𝘁𝗰𝗵
-        ws_hub_std٠try_steal_once "t" "i"
-      𝘄𝗶𝘁𝗵
+      𝗺𝗮𝘁𝗰𝗵 ws_hub_std٠try_steal_once "t" "i" 𝘄𝗶𝘁𝗵
       | Some "v" ->
           ‘optional٠Something( "v" )
       | None ->
@@ -127,9 +122,7 @@ Definition ws_hub_std٠try_steal₁ : val :=
 
 Definition ws_hub_std٠try_steal : val :=
   𝗳𝘂𝗻 "t" "i" "max_round_noyield" "max_round_yield" "pred" ->
-    𝗺𝗮𝘁𝗰𝗵
-      ws_hub_std٠try_steal₁ "t" "i" false "max_round_noyield" "pred"
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 ws_hub_std٠try_steal₁ "t" "i" false "max_round_noyield" "pred" 𝘄𝗶𝘁𝗵
     | optional٠Something ⎽ 𝗮𝘀 "res" ->
         "res"
     | optional٠Anything ->
@@ -154,20 +147,15 @@ Definition ws_hub_std٠steal_aux : val :=
         §None
     | optional٠Nothing ->
         waiters٠prepare_wait "t".{ws_hub_std٠waiters} "i" ⍮
-        𝗺𝗮𝘁𝗰𝗵
-          ws_hub_std٠try_steal_once "t" "i"
-        𝘄𝗶𝘁𝗵
+        𝗺𝗮𝘁𝗰𝗵 ws_hub_std٠try_steal_once "t" "i" 𝘄𝗶𝘁𝗵
         | Some ⎽ 𝗮𝘀 "res" ->
             waiters٠cancel_wait "t".{ws_hub_std٠waiters} "i" ⍮
             "res"
         | None ->
             "notification"
-              (𝗳𝘂𝗻 ⎽ ->
-                 waiters٠notify "t".{ws_hub_std٠waiters} "i") ⍮
+              (𝗳𝘂𝗻 ⎽ -> waiters٠notify "t".{ws_hub_std٠waiters} "i") ⍮
             𝗶𝗳 "pred" () 𝘁𝗵𝗲𝗻 (
-              𝗶𝗳
-                ~ waiters٠cancel_wait "t".{ws_hub_std٠waiters} "i"
-              𝘁𝗵𝗲𝗻 (
+              𝗶𝗳 ~ waiters٠cancel_wait "t".{ws_hub_std٠waiters} "i" 𝘁𝗵𝗲𝗻 (
                 waiters٠notify_one "t".{ws_hub_std٠waiters}
               ) 𝗲𝗹𝘀𝗲 (
                 ()

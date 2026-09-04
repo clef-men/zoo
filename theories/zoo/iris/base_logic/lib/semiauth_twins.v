@@ -26,7 +26,7 @@ Section semiauth_twins۰G.
   Context {A : ofe} (R : relation A) (F : oFunctor).
   Context `{semiauth_twins۰G : !SemiauthTwinsG Σ A R F}.
 
-  Notation Rs := (
+  Abbreviation Rs := (
     rtc R
   ).
 

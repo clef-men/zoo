@@ -235,6 +235,7 @@ Notation "@ E" :=
   format "'/  ' @  E "
 ).
 
+Set Warnings "-closed-notation-not-level-0".
 Notation "'<<<' P | ∀∀ x1 .. xn , α '>>>' e tid E '<<<' ∃∃ y1 .. yn , β | z1 .. zn , 'RET' v ; Q '>>>'" := (
   atomic_triple
     (TA := TeleS (λ x1, .. (TeleS (λ xn, TeleO)) ..))
@@ -411,6 +412,7 @@ Notation "'<<<' P | α '>>>' e tid E '<<<' β | 'RET' v ; Q '>>>'" := (
   E custom atomic_triple_mask at level 200,
   format "'[hv' <<<  '/  ' '[' P ']'  '/' |  '[' α ']'  '/' >>>  '/  ' '[' e ']'  tid E '/' <<<  '/  ' '[' β ']'  '/' |  RET  v ;  '/  ' '[' Q ']'  '/' >>> ']'"
 ) : bi_scope.
+Set Warnings "+closed-notation-not-level-0".
 
 Notation "'<<<' P | ∀∀ x1 .. xn , α '>>>' e tid E '<<<' ∃∃ y1 .. yn , β | z1 .. zn , 'RET' v ; Q '>>>'" := (
   ⊢ atomic_triple

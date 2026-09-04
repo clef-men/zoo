@@ -22,5 +22,5 @@ Definition pstack٠pop : val :=
     | [] ->
         §None
     | "v" :: "t" ->
-        ‘Some( ("v", "t") )
+        ‘Some( ( "v", "t" ) )
     𝗲𝗻𝗱.

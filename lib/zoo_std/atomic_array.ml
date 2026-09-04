@@ -1,47 +1,47 @@
 [@@@zoo.transparent]
 
 type 'a t =
-  'a Stdlib.Atomic_array.t
+  'a Stdlib.Atomic.Array.t
 
 let make =
-  Stdlib.Atomic_array.make
+  Stdlib.Atomic.Array.make
 [@@zoo.overwrite_raw "zoo_std.array.make"]
 
 let init sz fn =
-  Stdlib.Atomic_array.init sz (fun _i -> fn ())
+  Stdlib.Atomic.Array.init sz (fun _i -> fn ())
 [@@zoo.overwrite_raw "zoo_std.array.init"]
 let initi =
-  Stdlib.Atomic_array.init
+  Stdlib.Atomic.Array.init
 [@@zoo.overwrite_raw "zoo_std.array.initi"]
 
 let size =
-  Stdlib.Atomic_array.length
+  Stdlib.Atomic.Array.length
 [@@zoo.overwrite_raw "zoo_std.array.size"]
 
 let unsafe_get =
-  Stdlib.Atomic_array.unsafe_get
+  Stdlib.Atomic.Array.unsafe_get
 [@@zoo.overwrite_raw "zoo_std.array.unsafe_get"]
 let get =
-  Stdlib.Atomic_array.get
+  Stdlib.Atomic.Array.get
 [@@zoo.overwrite_raw "zoo_std.array.get"]
 
 let unsafe_set =
-  Stdlib.Atomic_array.unsafe_set
+  Stdlib.Atomic.Array.unsafe_set
 [@@zoo.overwrite_raw "zoo_std.array.unsafe_set"]
 let set =
-  Stdlib.Atomic_array.set
+  Stdlib.Atomic.Array.set
 [@@zoo.overwrite_raw "zoo_std.array.set"]
 
 let unsafe_xchg =
-  Stdlib.Atomic_array.unsafe_exchange
+  Stdlib.Atomic.Array.unsafe_exchange
 [@@zoo.overwrite_raw "zoo_std.array.unsafe_xchg"]
 
 let unsafe_cas =
-  Stdlib.Atomic_array.unsafe_compare_and_set
+  Stdlib.Atomic.Array.unsafe_compare_and_set
 [@@zoo.overwrite_raw "zoo_std.array.unsafe_cas"]
 
 let unsafe_faa =
-  Stdlib.Atomic_array.unsafe_fetch_and_add
+  Stdlib.Atomic.Array.unsafe_fetch_and_add
 [@@zoo.overwrite_raw "zoo_std.array.unsafe_faa"]
 
 let[@zoo.ignore] rec foldli_aux fn t sz i acc =

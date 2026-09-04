@@ -266,7 +266,7 @@ Section kmap.
   Context `{FinMap K1 M1} `{FinMap K2 M2}.
   Context (f : K1 → K2) `{!Inj (=) (=) f}.
 
-  Notation kmap := (
+  Abbreviation kmap := (
     kmap (M1 := M1) (M2 := M2)
   ).
 

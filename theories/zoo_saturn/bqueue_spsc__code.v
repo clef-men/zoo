@@ -48,9 +48,7 @@ Definition bqueue_spsc٠is_empty : val :=
 Definition bqueue_spsc٠push₁ : val :=
   𝗳𝘂𝗻 "t" "data" "back" ->
     𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
-    𝗶𝗳
-      "back" < "t".{bqueue_spsc٠front_cache} + "cap"
-    𝘁𝗵𝗲𝗻 (
+    𝗶𝗳 "back" < "t".{bqueue_spsc٠front_cache} + "cap" 𝘁𝗵𝗲𝗻 (
       true
     ) 𝗲𝗹𝘀𝗲 (
       𝗹𝗲𝘁 "front" = "t".{bqueue_spsc٠front} 𝗶𝗻

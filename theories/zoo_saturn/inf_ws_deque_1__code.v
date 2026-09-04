@@ -54,7 +54,7 @@ Definition inf_ws_deque_1٠steal₁ : val :=
        𝗿𝗲𝘀𝗼𝗹𝘃𝗲
          (𝗰𝗮𝘀 "t".[inf_ws_deque_1٠front] "front" ("front" + 1))
          "t".{inf_ws_deque_1٠proph}
-         ("front", "id")
+         ( "front", "id" )
      𝘁𝗵𝗲𝗻 (
       ‘Some( inf_array٠get "t".{inf_ws_deque_1٠data} "front" )
     ) 𝗲𝗹𝘀𝗲 (
@@ -78,7 +78,7 @@ Definition inf_ws_deque_1٠pop₁ : val :=
         𝗿𝗲𝘀𝗼𝗹𝘃𝗲
           (𝗰𝗮𝘀 "t".[inf_ws_deque_1٠front] "front" ("front" + 1))
           "t".{inf_ws_deque_1٠proph}
-          ("front", "id")
+          ( "front", "id" )
       𝗶𝗻
       "t" <-{inf_ws_deque_1٠back} "front" + 1 ⍮
       𝗶𝗳 "won" 𝘁𝗵𝗲𝗻 (

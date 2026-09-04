@@ -78,12 +78,9 @@ Definition ws_hub_fifo٠pop : val :=
 Definition ws_hub_fifo٠steal_aux : val :=
   𝗿𝗲𝗰 "steal_aux" "t" "i" "notification" "pred" ->
     waiters٠prepare_wait "t".{ws_hub_fifo٠waiters} "i" ⍮
-    "notification"
-      (𝗳𝘂𝗻 ⎽ -> waiters٠notify "t".{ws_hub_fifo٠waiters} "i") ⍮
+    "notification" (𝗳𝘂𝗻 ⎽ -> waiters٠notify "t".{ws_hub_fifo٠waiters} "i") ⍮
     𝗶𝗳 "pred" () 𝘁𝗵𝗲𝗻 (
-      𝗶𝗳
-        ~ waiters٠cancel_wait "t".{ws_hub_fifo٠waiters} "i"
-      𝘁𝗵𝗲𝗻 (
+      𝗶𝗳 ~ waiters٠cancel_wait "t".{ws_hub_fifo٠waiters} "i" 𝘁𝗵𝗲𝗻 (
         waiters٠notify_one "t".{ws_hub_fifo٠waiters}
       ) 𝗲𝗹𝘀𝗲 (
         ()

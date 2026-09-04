@@ -432,7 +432,7 @@ End graph.
 (* Define apply_diffl, a function applying a list of diff. *)
 
 Section adiffl.
-  Notation diff := (
+  Abbreviation diff := (
     (* location and its old value *)
     location*val
   )%type.
@@ -503,14 +503,14 @@ Qed.
 Section sstore_1۰G.
   Context `{sstore_1۰G : Sstore1G Σ}.
 
-  Notation diff := (
+  Abbreviation diff := (
     (* location and its old value. *)
     location*val
   )%type.
-  Notation graph_store := (
+  Abbreviation graph_store := (
     graph location diff
   ).
-  Notation map_model := (
+  Abbreviation map_model := (
     gmap location (gmap location val)
   ).
 

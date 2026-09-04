@@ -23,7 +23,7 @@ RUN chmod +x /usr/local/bin/build-package
 # Initialize opam and set up local switch
 RUN opam init --disable-sandboxing --yes && \
     eval $(opam env --switch=. --set-switch) && \
-    opam repo add coq-released https://coq.inria.fr/opam/released && \
+    opam repo add rocq-released https://rocq-prover.github.io/opam/released && \
     opam repo add iris-dev git+https://gitlab.mpi-sws.org/iris/opam.git && \
     opam install ./rocq-zoo.opam --deps-only --yes
 

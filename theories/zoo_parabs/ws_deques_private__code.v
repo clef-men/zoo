@@ -72,12 +72,12 @@ Notation "'ws_deques_private٠force_mutable'" := (
 
 Definition ws_deques_private٠create : val :=
   𝗳𝘂𝗻 "sz" ->
-    { "sz",
-      array٠unsafe_init "sz" queue_3٠create,
-      array٠unsafe_make "sz" §ws_deques_private٠Nonblocked,
-      atomic_array٠make "sz" §ws_deques_private٠RequestNone,
-      array٠unsafe_make "sz" §ws_deques_private٠ResponseWaiting,
-      ()
+    { "sz"
+    , array٠unsafe_init "sz" queue_3٠create
+    , array٠unsafe_make "sz" §ws_deques_private٠Nonblocked
+    , atomic_array٠make "sz" §ws_deques_private٠RequestNone
+    , array٠unsafe_make "sz" §ws_deques_private٠ResponseWaiting
+    , ()
     }.
 
 Definition ws_deques_private٠size : val :=
@@ -118,9 +118,7 @@ Definition ws_deques_private٠unblock : val :=
 
 Definition ws_deques_private٠respond : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    𝗺𝗮𝘁𝗰𝗵
-      atomic_array٠unsafe_get "t".{ws_deques_private٠requests} "i"
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 atomic_array٠unsafe_get "t".{ws_deques_private٠requests} "i" 𝘄𝗶𝘁𝗵
     | ws_deques_private٠RequestSome "j" ->
         𝗹𝗲𝘁 "response" =
           𝗺𝗮𝘁𝗰𝗵
@@ -150,17 +148,14 @@ Definition ws_deques_private٠push : val :=
 Definition ws_deques_private٠pop : val :=
   𝗳𝘂𝗻 "t" "i" ->
     𝗹𝗲𝘁 "res" =
-      queue_3٠pop_back
-        (array٠unsafe_get "t".{ws_deques_private٠queues} "i")
+      queue_3٠pop_back (array٠unsafe_get "t".{ws_deques_private٠queues} "i")
     𝗶𝗻
     ws_deques_private٠respond "t" "i" ⍮
     "res".
 
 Definition ws_deques_private٠steal_to₂ : val :=
   𝗿𝗲𝗰 "steal_to" "t" "i" "backoff" ->
-    𝗺𝗮𝘁𝗰𝗵
-      array٠unsafe_get "t".{ws_deques_private٠responses} "i"
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 array٠unsafe_get "t".{ws_deques_private٠responses} "i" 𝘄𝗶𝘁𝗵
     | ws_deques_private٠ResponseWaiting ->
         "steal_to" "t" "i" (backoff٠once "backoff")
     | ws_deques_private٠ResponseNone ->
@@ -204,12 +199,8 @@ Definition ws_deques_private٠steal_as₁ : val :=
     𝗶𝗳 "n" ≤ 0 𝘁𝗵𝗲𝗻 (
       §None
     ) 𝗲𝗹𝘀𝗲 (
-      𝗹𝗲𝘁 "j" =
-        ("i" + 1 + random٠round٠next "round") 𝗿𝗲𝗺 "sz"
-      𝗶𝗻
-      𝗺𝗮𝘁𝗰𝗵
-        ws_deques_private٠steal_to "t" "i" "j"
-      𝘄𝗶𝘁𝗵
+      𝗹𝗲𝘁 "j" = ("i" + 1 + random٠round٠next "round") 𝗿𝗲𝗺 "sz" 𝗶𝗻
+      𝗺𝗮𝘁𝗰𝗵 ws_deques_private٠steal_to "t" "i" "j" 𝘄𝗶𝘁𝗵
       | None ->
           "steal_as" "t" "sz" "i" "round" ("n" - 1)
       | ⎽ 𝗮𝘀 "res" ->

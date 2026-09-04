@@ -35,9 +35,7 @@ Notation "'queue_mpsc_1٠back'" := (
 
 Definition queue_mpsc_1٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
-    𝗹𝗲𝘁 "front" =
-      ‘queue_mpsc_1٠Node{ §queue_mpsc_1٠Null, () }
-    𝗶𝗻
+    𝗹𝗲𝘁 "front" = ‘queue_mpsc_1٠Node{ §queue_mpsc_1٠Null, () } 𝗶𝗻
     { "front", "front" }.
 
 Definition queue_mpsc_1٠is_empty : val :=
@@ -57,10 +55,7 @@ Definition queue_mpsc_1٠push₂ : val :=
         | queue_mpsc_1٠Null ->
             𝗶𝗳
               ~
-              𝗰𝗮𝘀
-                "node_r".[queue_mpsc_1٠next]
-                §queue_mpsc_1٠Null
-                "new_back"
+              𝗰𝗮𝘀 "node_r".[queue_mpsc_1٠next] §queue_mpsc_1٠Null "new_back"
             𝘁𝗵𝗲𝗻 (
               "push" "node" "new_back" (backoff٠once "backoff")
             )
@@ -94,9 +89,7 @@ Definition queue_mpsc_1٠fix_back : val :=
 
 Definition queue_mpsc_1٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
-    𝗺𝗮𝘁𝗰𝗵
-      ‘queue_mpsc_1٠Node{ §queue_mpsc_1٠Null, "v" }
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 ‘queue_mpsc_1٠Node{ §queue_mpsc_1٠Null, "v" } 𝘄𝗶𝘁𝗵
     | queue_mpsc_1٠Node ⎽ ⎽ 𝗮𝘀 "new_back" ->
         𝗹𝗲𝘁 "back" = "t".{queue_mpsc_1٠back} 𝗶𝗻
         queue_mpsc_1٠push₁ "back" "new_back" ⍮

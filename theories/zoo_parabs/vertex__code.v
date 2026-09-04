@@ -36,7 +36,7 @@ Definition vertex٠create : val :=
 Definition vertex٠create' : val :=
   𝗳𝘂𝗻 "task" ->
     vertex٠create ‘Some( 𝗳𝘂𝗻 "ctx" -> "task" "ctx" ⍮
-                                                  true ).
+                                      true ).
 
 Definition vertex٠task : val :=
   𝗳𝘂𝗻 "t" ->
@@ -67,12 +67,8 @@ Definition vertex٠precede : val :=
         (𝗳𝘂𝗻 "ctx" ->
            "t" <-{vertex٠preds} 1 ⍮
            𝗶𝗳 "t".{vertex٠task} "ctx" 𝘁𝗵𝗲𝗻 (
-             𝗹𝗲𝘁 "succs" =
-               stack_mpmc_2٠close "t".{vertex٠succs}
-             𝗶𝗻
-             clist٠iter
-               (𝗳𝘂𝗻 "succ" -> "release" "ctx" "succ")
-               "succs"
+             𝗹𝗲𝘁 "succs" = stack_mpmc_2٠close "t".{vertex٠succs} 𝗶𝗻
+             clist٠iter (𝗳𝘂𝗻 "succ" -> "release" "ctx" "succ") "succs"
            ) 𝗲𝗹𝘀𝗲 (
              "release" "ctx" "t"
            ))

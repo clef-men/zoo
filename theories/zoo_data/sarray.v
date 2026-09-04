@@ -49,7 +49,7 @@ Section sarray۰G.
   Qed.
 
   #[local] Definition nodes۰auth' γ_nodes :=
-    @ghost_map_auth _ _ _ _ _ sarray۰G۰nodes۰G γ_nodes 1.
+    @ghost_map_auth _ _ _ _ _ sarray۰G۰nodes۰G γ_nodes (DfracOwn 1).
   #[local] Definition nodes۰auth γ :=
     nodes۰auth' γ.(metadata۰nodes).
   #[local] Definition nodes۰elem' γ_nodes node :=

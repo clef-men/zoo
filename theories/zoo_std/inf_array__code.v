@@ -29,25 +29,19 @@ Definition inf_array٠create : val :=
 
 Definition inf_array٠next_capacity : val :=
   𝗳𝘂𝗻 "n" ->
-    int٠max
-      8
-      𝗶𝗳 "n" ≤ 512 𝘁𝗵𝗲𝗻 (
-        2 * "n"
-      ) 𝗲𝗹𝘀𝗲 (
-        "n" + "n" 𝗾𝘂𝗼𝘁 2
-      ).
+    int٠max 8 𝗶𝗳 "n" ≤ 512 𝘁𝗵𝗲𝗻 (
+                2 * "n"
+              ) 𝗲𝗹𝘀𝗲 (
+                "n" + "n" 𝗾𝘂𝗼𝘁 2
+              ).
 
 Definition inf_array٠reserve : val :=
   𝗳𝘂𝗻 "t" "n" ->
     𝗹𝗲𝘁 "data" = "t".{inf_array٠data} 𝗶𝗻
     𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
     𝗶𝗳 "cap" < "n" 𝘁𝗵𝗲𝗻 (
-      𝗹𝗲𝘁 "cap" =
-        int٠max "n" (inf_array٠next_capacity "cap")
-      𝗶𝗻
-      𝗹𝗲𝘁 "data" =
-        array٠unsafe_grow "data" "cap" "t".{inf_array٠default}
-      𝗶𝗻
+      𝗹𝗲𝘁 "cap" = int٠max "n" (inf_array٠next_capacity "cap") 𝗶𝗻
+      𝗹𝗲𝘁 "data" = array٠unsafe_grow "data" "cap" "t".{inf_array٠default} 𝗶𝗻
       "t" <-{inf_array٠data} "data"
     ).
 
@@ -67,9 +61,7 @@ Definition inf_array٠update : val :=
     mutex٠protect "t".{inf_array٠mutex}
       (𝗳𝘂𝗻 ⎽ ->
          inf_array٠reserve "t" ("i" + 1) ⍮
-         𝗹𝗲𝘁 "v" =
-           array٠unsafe_get "t".{inf_array٠data} "i"
-         𝗶𝗻
+         𝗹𝗲𝘁 "v" = array٠unsafe_get "t".{inf_array٠data} "i" 𝗶𝗻
          array٠unsafe_set "t".{inf_array٠data} "i" ("fn" "v") ⍮
          "v").
 
@@ -82,9 +74,7 @@ Definition inf_array٠xchg_resolve : val :=
     mutex٠protect "t".{inf_array٠mutex}
       (𝗳𝘂𝗻 ⎽ ->
          inf_array٠reserve "t" ("i" + 1) ⍮
-         𝗹𝗲𝘁 "old_v" =
-           array٠unsafe_get "t".{inf_array٠data} "i"
-         𝗶𝗻
+         𝗹𝗲𝘁 "old_v" = array٠unsafe_get "t".{inf_array٠data} "i" 𝗶𝗻
          array٠unsafe_set "t".{inf_array٠data} "i" "v" ⍮
          𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "v_resolve" ⍮
          "old_v").
@@ -99,9 +89,7 @@ Definition inf_array٠cas : val :=
     mutex٠protect "t".{inf_array٠mutex}
       (𝗳𝘂𝗻 ⎽ ->
          inf_array٠reserve "t" ("i" + 1) ⍮
-         𝗹𝗲𝘁 "res" =
-           array٠unsafe_get "t".{inf_array٠data} "i" == "v1"
-         𝗶𝗻
+         𝗹𝗲𝘁 "res" = array٠unsafe_get "t".{inf_array٠data} "i" == "v1" 𝗶𝗻
          𝗶𝗳 "res" 𝘁𝗵𝗲𝗻 (
            array٠unsafe_set "t".{inf_array٠data} "i" "v2"
          ) 𝗲𝗹𝘀𝗲 (
@@ -114,9 +102,7 @@ Definition inf_array٠cas_resolve : val :=
     mutex٠protect "t".{inf_array٠mutex}
       (𝗳𝘂𝗻 ⎽ ->
          inf_array٠reserve "t" ("i" + 1) ⍮
-         𝗹𝗲𝘁 "res" =
-           array٠unsafe_get "t".{inf_array٠data} "i" == "v1"
-         𝗶𝗻
+         𝗹𝗲𝘁 "res" = array٠unsafe_get "t".{inf_array٠data} "i" == "v1" 𝗶𝗻
          𝗶𝗳 "res" 𝘁𝗵𝗲𝗻 (
            array٠unsafe_set "t".{inf_array٠data} "i" "v2"
          ) 𝗲𝗹𝘀𝗲 (

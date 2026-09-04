@@ -64,7 +64,7 @@ Definition inf_queue_mpmc_2٠push : val :=
         §optional٠Nothing
         ‘optional٠Something( "v" )
         "t".{inf_queue_mpmc_2٠proph}
-        ("i", "id")
+        ( "i", "id" )
     𝘁𝗵𝗲𝗻 (
       "push" "t" "v"
     ).
@@ -79,7 +79,7 @@ Definition inf_queue_mpmc_2٠pop₁ : val :=
         "i"
         §optional٠Anything
         "t".{inf_queue_mpmc_2٠proph}
-        ("i", "id")
+        ( "i", "id" )
     𝘄𝗶𝘁𝗵
     | optional٠Nothing ->
         "pop" "t" (backoff٠once "backoff")

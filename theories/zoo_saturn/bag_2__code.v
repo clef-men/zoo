@@ -51,13 +51,9 @@ Definition bag_2٠create : val :=
 Definition bag_2٠add_producer₁ : val :=
   𝗿𝗲𝗰 "add_producer" "t" "queue" "backoff" ->
     𝗹𝗲𝘁 "producers" = "t".{bag_2٠producers} 𝗶𝗻
-    𝗺𝗮𝘁𝗰𝗵
-      ‘bag_2٠Node{ "producers", "queue" }
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 ‘bag_2٠Node{ "producers", "queue" } 𝘄𝗶𝘁𝗵
     | bag_2٠Node ⎽ ⎽ 𝗮𝘀 "new_producers" ->
-        𝗶𝗳
-          𝗰𝗮𝘀 "t".[bag_2٠producers] "producers" "new_producers"
-        𝘁𝗵𝗲𝗻 (
+        𝗶𝗳 𝗰𝗮𝘀 "t".[bag_2٠producers] "producers" "new_producers" 𝘁𝗵𝗲𝗻 (
           "new_producers"
         ) 𝗲𝗹𝘀𝗲 (
           "add_producer" "t" "queue" (backoff٠once "backoff")
@@ -72,7 +68,7 @@ Definition bag_2٠create_producer : val :=
   𝗳𝘂𝗻 "t" ->
     𝗹𝗲𝘁 "queue" = queue_spmc٠create () 𝗶𝗻
     𝗹𝗲𝘁 "node" = bag_2٠add_producer "t" "queue" 𝗶𝗻
-    ("queue", "node").
+    ( "queue", "node" ).
 
 Definition bag_2٠close_producer : val :=
   𝗳𝘂𝗻 "producer" ->

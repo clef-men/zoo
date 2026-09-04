@@ -35,9 +35,7 @@ Definition rcfd٠closed : val :=
 Definition rcfd٠finish : val :=
   𝗳𝘂𝗻 "t" "close" "state" ->
     𝗶𝗳
-      "t".{rcfd٠ops} == 0
-      𝗮𝗻𝗱
-      𝗰𝗮𝘀 "t".[rcfd٠state] "state" rcfd٠closed
+      "t".{rcfd٠ops} == 0 𝗮𝗻𝗱 𝗰𝗮𝘀 "t".[rcfd٠state] "state" rcfd٠closed
     𝘁𝗵𝗲𝗻 (
       "close" ()
     ).
@@ -84,9 +82,7 @@ Definition rcfd٠close : val :=
     | rcfd٠Open "fd" 𝗮𝘀 "state" ->
         𝗹𝗲𝘁 "close" ⎽ = unix٠close "fd" 𝗶𝗻
         𝗹𝗲𝘁 "new_state" = ‘rcfd٠Closing[ "close" ] 𝗶𝗻
-        𝗶𝗳
-          𝗰𝗮𝘀 "t".[rcfd٠state] "state" "new_state"
-        𝘁𝗵𝗲𝗻 (
+        𝗶𝗳 𝗰𝗮𝘀 "t".[rcfd٠state] "state" "new_state" 𝘁𝗵𝗲𝗻 (
           rcfd٠finish "t" "close" "new_state" ⍮
           true
         ) 𝗲𝗹𝘀𝗲 (
@@ -102,12 +98,9 @@ Definition rcfd٠remove : val :=
     | rcfd٠Open "fd" 𝗮𝘀 "state" ->
         𝗹𝗲𝘁 "waiter" = waiter_spsc٠create () 𝗶𝗻
         𝗹𝗲𝘁 "new_state" =
-          ‘rcfd٠Closing[ 𝗳𝘂𝗻 ⎽ -> waiter_spsc٠notify "waiter"
-          ]
+          ‘rcfd٠Closing[ 𝗳𝘂𝗻 ⎽ -> waiter_spsc٠notify "waiter" ]
         𝗶𝗻
-        𝗶𝗳
-          𝗰𝗮𝘀 "t".[rcfd٠state] "state" "new_state"
-        𝘁𝗵𝗲𝗻 (
+        𝗶𝗳 𝗰𝗮𝘀 "t".[rcfd٠state] "state" "new_state" 𝘁𝗵𝗲𝗻 (
           waiter_spsc٠wait "waiter" ⍮
           ‘Some( "fd" )
         ) 𝗲𝗹𝘀𝗲 (

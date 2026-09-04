@@ -10,7 +10,7 @@ Require Import zoo.options.
 Export stdpp.list.
 Export stdpp.sorting.
 
-Create HintDb simp_length.
+Create Rewrite HintDb simp_length.
 
 #[global] Hint Rewrite
   @length_reverse
@@ -1491,7 +1491,7 @@ Section Sorted.
   Qed.
 End Sorted.
 
-Create HintDb simp_Forall۰1.
+Create Rewrite HintDb simp_Forall۰1.
 
 #[global] Hint Rewrite
   @Forall'ｰForall
@@ -1528,7 +1528,7 @@ Tactic Notation "simp_Forall" "/=" "in" "*" :=
   simpl in *;
   simp_Forall in *.
 
-Create HintDb simp_Forall۰2.
+Create Rewrite HintDb simp_Forall۰2.
 
 #[global] Hint Rewrite
   @Forall_lookup

@@ -29,7 +29,7 @@ Section auth_twins۰G.
   Context {A : ofe} (R : relation A).
   Context `{auth_twins۰G : !AuthTwinsG Σ A R}.
 
-  Notation Rs := (
+  Abbreviation Rs := (
     rtc R
   ).
 

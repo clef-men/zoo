@@ -158,8 +158,7 @@ Definition array٠iter : val :=
 Definition array٠unsafe_applyi_slice : val :=
   𝗳𝘂𝗻 "fn" "t" "i" "n" ->
     array٠unsafe_iteri_slice
-      (𝗳𝘂𝗻 "k" "v" ->
-         array٠unsafe_set "t" ("i" + "k") ("fn" "k" "v"))
+      (𝗳𝘂𝗻 "k" "v" -> array٠unsafe_set "t" ("i" + "k") ("fn" "k" "v"))
       "t"
       "i"
       "n".

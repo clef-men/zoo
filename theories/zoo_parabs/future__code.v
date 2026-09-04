@@ -17,9 +17,7 @@ Definition future٠set : val :=
 Definition future٠async : val :=
   𝗳𝘂𝗻 "ctx" "task" ->
     𝗹𝗲𝘁 "t" = ivar_4٠create () 𝗶𝗻
-    pool٠async
-      "ctx"
-      (𝗳𝘂𝗻 "ctx" -> future٠set "ctx" "t" ("task" "ctx")) ⍮
+    pool٠async "ctx" (𝗳𝘂𝗻 "ctx" -> future٠set "ctx" "t" ("task" "ctx")) ⍮
     "t".
 
 Definition future٠wait : val :=
@@ -44,6 +42,5 @@ Definition future٠map : val :=
       "t1"
       (𝗳𝘂𝗻 "ctx" "res1" ->
          pool٠async "ctx"
-           (𝗳𝘂𝗻 "ctx" ->
-              future٠set "ctx" "t2" ("task" "ctx" "res1"))) ⍮
+           (𝗳𝘂𝗻 "ctx" -> future٠set "ctx" "t2" ("task" "ctx" "res1"))) ⍮
     "t2".

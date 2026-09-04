@@ -41,9 +41,9 @@ Notation "'random٠round٠index'" := (
 
 Definition random٠round٠create : val :=
   𝗳𝘂𝗻 "sz" ->
-    { random٠state٠create (),
-      array٠unsafe_initi "sz" (𝗳𝘂𝗻 "i" -> "i"),
-      "sz"
+    { random٠state٠create ()
+    , array٠unsafe_initi "sz" (𝗳𝘂𝗻 "i" -> "i")
+    , "sz"
     }.
 
 Definition random٠round٠reset : val :=
@@ -54,9 +54,7 @@ Definition random٠round٠next : val :=
   𝗳𝘂𝗻 "t" ->
     𝗹𝗲𝘁 "arr" = "t".{random٠round٠array} 𝗶𝗻
     𝗹𝗲𝘁 "i" = "t".{random٠round٠index} 𝗶𝗻
-    𝗹𝗲𝘁 "j" =
-      random٠state٠int "t".{random٠round٠random} "i"
-    𝗶𝗻
+    𝗹𝗲𝘁 "j" = random٠state٠int "t".{random٠round٠random} "i" 𝗶𝗻
     𝗹𝗲𝘁 "res" = array٠unsafe_get "arr" "j" 𝗶𝗻
     𝗹𝗲𝘁 "i" = "i" - 1 𝗶𝗻
     array٠unsafe_set "arr" "j" (array٠unsafe_get "arr" "i") ⍮

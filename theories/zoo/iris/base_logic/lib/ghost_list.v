@@ -28,7 +28,7 @@ Section ghost_list۰G.
   Implicit Type xs : list A.
 
   Definition ghost_list۰auth γ xs :=
-    ghost_map_auth γ 1 (map_seq 0 xs).
+    ghost_map_auth γ (DfracOwn 1) (map_seq 0 xs).
   Definition ghost_list۰at γ :=
     ghost_map_elem γ.
 

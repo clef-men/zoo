@@ -35,9 +35,7 @@ Notation "'queue_spmc٠back'" := (
 
 Definition queue_spmc٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
-    𝗹𝗲𝘁 "front" =
-      ‘queue_spmc٠Node{ §queue_spmc٠Null, () }
-    𝗶𝗻
+    𝗹𝗲𝘁 "front" = ‘queue_spmc٠Node{ §queue_spmc٠Null, () } 𝗶𝗻
     { "front", "front" }.
 
 Definition queue_spmc٠is_empty : val :=
@@ -49,9 +47,7 @@ Definition queue_spmc٠is_empty : val :=
 
 Definition queue_spmc٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
-    𝗺𝗮𝘁𝗰𝗵
-      ‘queue_spmc٠Node{ §queue_spmc٠Null, "v" }
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 ‘queue_spmc٠Node{ §queue_spmc٠Null, "v" } 𝘄𝗶𝘁𝗵
     | queue_spmc٠Node ⎽ ⎽ 𝗮𝘀 "new_back" ->
         𝗺𝗮𝘁𝗰𝗵 "t".{queue_spmc٠back} 𝘄𝗶𝘁𝗵
         | queue_spmc٠Node ⎽ ⎽ 𝗮𝘀 "back_r" ->
@@ -70,9 +66,7 @@ Definition queue_spmc٠pop₁ : val :=
             §None
         | queue_spmc٠Node ⎽ ⎽ 𝗮𝘀 "new_front" ->
             𝗹𝗲𝘁 "new_front_r" = "new_front" 𝗶𝗻
-            𝗶𝗳
-              𝗰𝗮𝘀 "t".[queue_spmc٠front] "front" "new_front"
-            𝘁𝗵𝗲𝗻 (
+            𝗶𝗳 𝗰𝗮𝘀 "t".[queue_spmc٠front] "front" "new_front" 𝘁𝗵𝗲𝗻 (
               𝗹𝗲𝘁 "v" = "new_front_r".{queue_spmc٠data} 𝗶𝗻
               "new_front_r" <-{queue_spmc٠data} () ⍮
               ‘Some( "v" )

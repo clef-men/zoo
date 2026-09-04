@@ -62,9 +62,7 @@ Definition ws_bdeque_1٠push : val :=
     𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
     𝗹𝗲𝘁 "front" = "t".{ws_bdeque_1٠front_cache} 𝗶𝗻
     𝗶𝗳
-      "back" < "front" + "cap"
-      𝗼𝗿
-      "front" < ws_bdeque_1٠front_cached "t"
+      "back" < "front" + "cap" 𝗼𝗿 "front" < ws_bdeque_1٠front_cached "t"
     𝘁𝗵𝗲𝗻 (
       array٠unsafe_cset "data" "back" "v" ⍮
       "t" <-{ws_bdeque_1٠back} "back" + 1 ⍮
@@ -87,7 +85,7 @@ Definition ws_bdeque_1٠steal₁ : val :=
         𝗿𝗲𝘀𝗼𝗹𝘃𝗲
           (𝗰𝗮𝘀 "t".[ws_bdeque_1٠front] "front" ("front" + 1))
           "t".{ws_bdeque_1٠proph}
-          ("front", "id")
+          ( "front", "id" )
       𝘁𝗵𝗲𝗻 (
         ‘Some( "v" )
       ) 𝗲𝗹𝘀𝗲 (
@@ -113,7 +111,7 @@ Definition ws_bdeque_1٠pop₁ : val :=
         𝗿𝗲𝘀𝗼𝗹𝘃𝗲
           (𝗰𝗮𝘀 "t".[ws_bdeque_1٠front] "front" ("front" + 1))
           "t".{ws_bdeque_1٠proph}
-          ("front", "id")
+          ( "front", "id" )
       𝗶𝗻
       "t" <-{ws_bdeque_1٠back} "front" + 1 ⍮
       𝗶𝗳 "won" 𝘁𝗵𝗲𝗻 (

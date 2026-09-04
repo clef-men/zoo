@@ -11,9 +11,7 @@ Definition pool_quicksort٠main₂ : val :=
   𝗿𝗲𝗰 "main" "ctx" "arr" "i" "sz" ->
     𝗶𝗳 1 < "sz" 𝘁𝗵𝗲𝗻 (
       𝗹𝗲𝘁 "pivot" = array٠partition "arr" "i" "sz" 𝗶𝗻
-      pool٠async
-        "ctx"
-        (𝗳𝘂𝗻 "ctx" -> "main" "ctx" "arr" "i" ("pivot" - "i")) ⍮
+      pool٠async "ctx" (𝗳𝘂𝗻 "ctx" -> "main" "ctx" "arr" "i" ("pivot" - "i")) ⍮
       pool٠async
         "ctx"
         (𝗳𝘂𝗻 "ctx" ->
@@ -26,6 +24,4 @@ Definition pool_quicksort٠main₁ : val :=
 
 Definition pool_quicksort٠main : val :=
   𝗳𝘂𝗻 "num_worker" "arr" ->
-    pool٠run
-      "num_worker"
-      (𝗳𝘂𝗻 "ctx" -> pool_quicksort٠main₁ "ctx" "arr").
+    pool٠run "num_worker" (𝗳𝘂𝗻 "ctx" -> pool_quicksort٠main₁ "ctx" "arr").

@@ -53,10 +53,7 @@ Definition queue_mpsc_3٠push_back₁ : val :=
         true
     | ⎽ 𝗮𝘀 "back" ->
         𝗶𝗳
-          𝗰𝗮𝘀
-            "t".[queue_mpsc_3٠back]
-            "back"
-            ‘clist٠Cons[ "v", "back" ]
+          𝗰𝗮𝘀 "t".[queue_mpsc_3٠back] "back" ‘clist٠Cons[ "v", "back" ]
         𝘁𝗵𝗲𝗻 (
           false
         ) 𝗲𝗹𝘀𝗲 (
@@ -77,15 +74,11 @@ Definition queue_mpsc_3٠pop : val :=
         "t" <-{queue_mpsc_3٠front} "front" ⍮
         ‘Some( "v" )
     | clist٠Open ->
-        𝗺𝗮𝘁𝗰𝗵
-          𝘅𝗰𝗵𝗴 "t".[queue_mpsc_3٠back] §clist٠Open
-        𝘄𝗶𝘁𝗵
+        𝗺𝗮𝘁𝗰𝗵 𝘅𝗰𝗵𝗴 "t".[queue_mpsc_3٠back] §clist٠Open 𝘄𝗶𝘁𝗵
         | clist٠Open ->
             §None
         | ⎽ 𝗮𝘀 "back" ->
-            𝗺𝗮𝘁𝗰𝗵
-              clist٠rev_app "back" §clist٠Open
-            𝘄𝗶𝘁𝗵
+            𝗺𝗮𝘁𝗰𝗵 clist٠rev_app "back" §clist٠Open 𝘄𝗶𝘁𝗵
             | clist٠Cons "v" "front" ->
                 "t" <-{queue_mpsc_3٠front} "front" ⍮
                 ‘Some( "v" )
@@ -97,9 +90,7 @@ Definition queue_mpsc_3٠pop : val :=
 
 Definition queue_mpsc_3٠close : val :=
   𝗳𝘂𝗻 "t" ->
-    𝗺𝗮𝘁𝗰𝗵
-      𝘅𝗰𝗵𝗴 "t".[queue_mpsc_3٠back] §clist٠Closed
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 𝘅𝗰𝗵𝗴 "t".[queue_mpsc_3٠back] §clist٠Closed 𝘄𝗶𝘁𝗵
     | clist٠Closed ->
         true
     | ⎽ 𝗮𝘀 "back" ->

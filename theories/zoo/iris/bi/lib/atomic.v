@@ -6,7 +6,7 @@ Require Import stdpp.namespaces.
 Require Export iris.bi.bi.
 Require Export iris.bi.updates.
 Require Import iris.bi.lib.fixpoint_mono.
-Require Import iris.proofmode.coq_tactics.
+Require Import iris.proofmode.rocq_tactics.
 Require Import iris.proofmode.proofmode.
 Require Import iris.proofmode.reduction.
 Require Import iris.prelude.options.

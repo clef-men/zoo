@@ -42,9 +42,7 @@ Definition algo٠for_₁ : val :=
 
 Definition algo٠for_ : val :=
   𝗳𝘂𝗻 "ctx" "beg" "end_" "chunk" "task" ->
-    𝗹𝗲𝘁 "chunk" =
-      algo٠adjust_chunk "ctx" "beg" "end_" "chunk"
-    𝗶𝗻
+    𝗹𝗲𝘁 "chunk" = algo٠adjust_chunk "ctx" "beg" "end_" "chunk" 𝗶𝗻
     algo٠for_₁ "ctx" "beg" "end_" "chunk" "task".
 
 Definition algo٠for_each : val :=
@@ -75,28 +73,21 @@ Definition algo٠fold₁ : val :=
       𝗹𝗲𝘁 "mid" = "beg" + "num_task" 𝗾𝘂𝗼𝘁 2 𝗶𝗻
       𝗹𝗲𝘁 "left" =
         future٠async "ctx"
-          (𝗳𝘂𝗻 "ctx" ->
-             "fold" "ctx" "beg" "mid" "chunk" "body" "op" "zero")
+          (𝗳𝘂𝗻 "ctx" -> "fold" "ctx" "beg" "mid" "chunk" "body" "op" "zero")
       𝗶𝗻
-      𝗹𝗲𝘁 "right" =
-        "fold" "ctx" "mid" "end_" "chunk" "body" "op" "zero"
-      𝗶𝗻
+      𝗹𝗲𝘁 "right" = "fold" "ctx" "mid" "end_" "chunk" "body" "op" "zero" 𝗶𝗻
       𝗹𝗲𝘁 "left" = future٠wait "ctx" "left" 𝗶𝗻
       "op" "left" "right"
     ).
 
 Definition algo٠fold : val :=
   𝗳𝘂𝗻 "ctx" "beg" "end_" "chunk" "body" "op" "zero" ->
-    𝗹𝗲𝘁 "chunk" =
-      algo٠adjust_chunk "ctx" "beg" "end_" "chunk"
-    𝗶𝗻
+    𝗹𝗲𝘁 "chunk" = algo٠adjust_chunk "ctx" "beg" "end_" "chunk" 𝗶𝗻
     algo٠fold₁ "ctx" "beg" "end_" "chunk" "body" "op" "zero".
 
 Definition algo٠find_seq : val :=
   𝗿𝗲𝗰 "find_seq" "ctx" "beg" "end_" "pred" "found" ->
-    𝗶𝗳
-      "beg" != "end_" 𝗮𝗻𝗱 mvar٠is_unset "found"
-    𝘁𝗵𝗲𝗻 (
+    𝗶𝗳 "beg" != "end_" 𝗮𝗻𝗱 mvar٠is_unset "found" 𝘁𝗵𝗲𝗻 (
       𝗶𝗳 "pred" "ctx" "beg" 𝘁𝗵𝗲𝗻 (
         mvar٠set "found" "beg"
       ) 𝗲𝗹𝘀𝗲 (
@@ -114,8 +105,7 @@ Definition algo٠find₁ : val :=
       𝗹𝗲𝘁 "mid" = "beg" + "num_task" 𝗾𝘂𝗼𝘁 2 𝗶𝗻
       𝗹𝗲𝘁 "left" =
         future٠async "ctx"
-          (𝗳𝘂𝗻 "ctx" ->
-             "find" "ctx" "beg" "mid" "chunk" "pred" "found")
+          (𝗳𝘂𝗻 "ctx" -> "find" "ctx" "beg" "mid" "chunk" "pred" "found")
       𝗶𝗻
       "find" "ctx" "mid" "end_" "chunk" "pred" "found" ⍮
       future٠wait "ctx" "left"
@@ -123,9 +113,7 @@ Definition algo٠find₁ : val :=
 
 Definition algo٠find : val :=
   𝗳𝘂𝗻 "ctx" "beg" "end_" "chunk" "pred" ->
-    𝗹𝗲𝘁 "chunk" =
-      algo٠adjust_chunk "ctx" "beg" "end_" "chunk"
-    𝗶𝗻
+    𝗹𝗲𝘁 "chunk" = algo٠adjust_chunk "ctx" "beg" "end_" "chunk" 𝗶𝗻
     𝗹𝗲𝘁 "found" = mvar٠create () 𝗶𝗻
     algo٠find₁ "ctx" "beg" "end_" "chunk" "pred" "found" ⍮
     mvar٠try_get "found".

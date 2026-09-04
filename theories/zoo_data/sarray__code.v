@@ -59,8 +59,7 @@ Definition sarray٠restore₁ : val :=
         ()
     | sarray٠Diff "i" "v" "node'" ->
         "restore" "data" "node'" ⍮
-        "node'" <-
-          ‘sarray٠Diff( "i", array٠unsafe_get "data" "i", "node" ) ⍮
+        "node'" <- ‘sarray٠Diff( "i", array٠unsafe_get "data" "i", "node" ) ⍮
         array٠unsafe_set "data" "i" "v"
     𝗲𝗻𝗱.
 

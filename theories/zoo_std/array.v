@@ -1137,7 +1137,7 @@ Section zoo۰G.
     array۰model
     array۰cslice.
 
-  Notation au_load t i Φ := (
+  Abbreviation au_load t i Φ := (
     AU <{
       ∃∃ dq v,
       array۰slice t i dq [v]
@@ -1147,7 +1147,7 @@ Section zoo۰G.
       Φ v
     }>
   )%I.
-  Notation au_store t i v P := (
+  Abbreviation au_store t i v P := (
     AU <{
       ∃∃ w,
       array۰slice t i (DfracOwn 1) [w]

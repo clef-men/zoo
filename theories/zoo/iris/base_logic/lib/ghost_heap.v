@@ -56,8 +56,8 @@ Section ghost_heap۰G.
   Definition ghost_heap۰auth γ σ : iProp Σ :=
     ∃ m,
     ⌜dom m ⊆ dom σ⌝ ∗
-    ghost_map_auth γ.(ghost_heap۰name۰heap) 1 σ ∗
-    ghost_map_auth γ.(ghost_heap۰name۰meta) 1 m.
+    ghost_map_auth γ.(ghost_heap۰name۰heap) (DfracOwn 1) σ ∗
+    ghost_map_auth γ.(ghost_heap۰name۰meta) (DfracOwn 1) m.
   #[local] Instance : CustomIpat "auth" :=
     " ( %m
       & %Hdom

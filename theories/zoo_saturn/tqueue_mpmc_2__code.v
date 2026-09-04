@@ -26,16 +26,12 @@ Notation "'tqueue_mpmc_2٠back'" := (
 
 Definition tqueue_mpmc_2٠create : val :=
   𝗳𝘂𝗻 "cap" ->
-    𝗹𝗲𝘁 "data" =
-      atomic_array٠make "cap" §optional٠Nothing
-    𝗶𝗻
+    𝗹𝗲𝘁 "data" = atomic_array٠make "cap" §optional٠Nothing 𝗶𝗻
     { "cap", "data", 0, 0 }.
 
 Definition tqueue_mpmc_2٠make : val :=
   𝗳𝘂𝗻 "cap" "v" ->
-    𝗹𝗲𝘁 "data" =
-      atomic_array٠make "cap" §optional٠Nothing
-    𝗶𝗻
+    𝗹𝗲𝘁 "data" = atomic_array٠make "cap" §optional٠Nothing 𝗶𝗻
     atomic_array٠unsafe_set "data" 0 ‘optional٠Something( "v" ) ⍮
     { "cap", "data", 0, 1 }.
 
@@ -64,9 +60,7 @@ Definition tqueue_mpmc_2٠push₁ : val :=
 
 Definition tqueue_mpmc_2٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
-    𝗶𝗳
-      "t".{tqueue_mpmc_2٠capacity} ≤ "t".{tqueue_mpmc_2٠back}
-    𝘁𝗵𝗲𝗻 (
+    𝗶𝗳 "t".{tqueue_mpmc_2٠capacity} ≤ "t".{tqueue_mpmc_2٠back} 𝘁𝗵𝗲𝗻 (
       false
     ) 𝗲𝗹𝘀𝗲 (
       tqueue_mpmc_2٠push₁ "t" "v"
@@ -74,9 +68,7 @@ Definition tqueue_mpmc_2٠push : val :=
 
 Definition tqueue_mpmc_2٠pop : val :=
   𝗳𝘂𝗻 "t" ->
-    𝗶𝗳
-      "t".{tqueue_mpmc_2٠capacity} ≤ "t".{tqueue_mpmc_2٠front}
-    𝘁𝗵𝗲𝗻 (
+    𝗶𝗳 "t".{tqueue_mpmc_2٠capacity} ≤ "t".{tqueue_mpmc_2٠front} 𝘁𝗵𝗲𝗻 (
       §optional٠Anything
     ) 𝗲𝗹𝘀𝗲 (
       𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[tqueue_mpmc_2٠front] 1 𝗶𝗻

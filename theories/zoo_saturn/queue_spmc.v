@@ -109,7 +109,7 @@ Module base.
       model₂' γ.(metadata۰model).
 
     #[local] Definition waiters۰auth' γ_waiters waiters :=
-      ghost_map_auth γ_waiters 1 waiters.
+      ghost_map_auth γ_waiters (DfracOwn 1) waiters.
     #[local] Definition waiters۰auth γ waiters :=
       waiters۰auth' γ.(metadata۰waiters) waiters.
     #[local] Definition waiters۰at γ waiter i :=

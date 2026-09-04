@@ -45,13 +45,11 @@ Definition queue_3٠unsafe_set : val :=
 
 Definition queue_3٠next_capacity : val :=
   𝗳𝘂𝗻 "n" ->
-    int٠max
-      8
-      𝗶𝗳 "n" ≤ 512 𝘁𝗵𝗲𝗻 (
-        2 * "n"
-      ) 𝗲𝗹𝘀𝗲 (
-        "n" + "n" 𝗾𝘂𝗼𝘁 2
-      ).
+    int٠max 8 𝗶𝗳 "n" ≤ 512 𝘁𝗵𝗲𝗻 (
+                2 * "n"
+              ) 𝗲𝗹𝘀𝗲 (
+                "n" + "n" 𝗾𝘂𝗼𝘁 2
+              ).
 
 Definition queue_3٠grow : val :=
   𝗳𝘂𝗻 "t" ->
@@ -60,12 +58,8 @@ Definition queue_3٠grow : val :=
     𝗹𝗲𝘁 "data" = "t".{queue_3٠data} 𝗶𝗻
     𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
     𝗶𝗳 "front" + "cap" == "back" 𝘁𝗵𝗲𝗻 (
-      𝗹𝗲𝘁 "new_cap" =
-        int٠max ("cap" + 1) (queue_3٠next_capacity "cap")
-      𝗶𝗻
-      𝗹𝗲𝘁 "new_data" =
-        array٠unsafe_cgrow "data" "front" "new_cap" ()
-      𝗶𝗻
+      𝗹𝗲𝘁 "new_cap" = int٠max ("cap" + 1) (queue_3٠next_capacity "cap") 𝗶𝗻
+      𝗹𝗲𝘁 "new_data" = array٠unsafe_cgrow "data" "front" "new_cap" () 𝗶𝗻
       "t" <-{queue_3٠data} "new_data"
     ).
 
@@ -85,9 +79,7 @@ Definition queue_3٠shrink : val :=
     𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
     𝗶𝗳 queue_3٠min_capacity + 3 * "sz" ≤ "cap" 𝘁𝗵𝗲𝗻 (
       𝗹𝗲𝘁 "new_cap" = "cap" 𝗹𝘀𝗿 1 + 1 𝗶𝗻
-      𝗹𝗲𝘁 "new_data" =
-        array٠unsafe_cshrink_slice "data" "front" "new_cap"
-      𝗶𝗻
+      𝗹𝗲𝘁 "new_data" = array٠unsafe_cshrink_slice "data" "front" "new_cap" 𝗶𝗻
       "t" <-{queue_3٠data} "new_data"
     ).
 

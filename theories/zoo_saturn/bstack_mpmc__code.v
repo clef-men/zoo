@@ -43,12 +43,8 @@ Definition bstack_mpmc٠is_empty : val :=
 
 #[local] Definition __zoo_recs_0 :=
   ( 𝗿𝗲𝗰𝘀 "push_aux" "t" "sz" "v" "front" "backoff" ->
-      𝗹𝗲𝘁 "new_front" =
-        ‘bstack_mpmc٠Cons[ "sz" + 1, "v", "front" ]
-      𝗶𝗻
-      𝗶𝗳
-        𝗰𝗮𝘀 "t".[bstack_mpmc٠front] "front" "new_front"
-      𝘁𝗵𝗲𝗻 (
+      𝗹𝗲𝘁 "new_front" = ‘bstack_mpmc٠Cons[ "sz" + 1, "v", "front" ] 𝗶𝗻
+      𝗶𝗳 𝗰𝗮𝘀 "t".[bstack_mpmc٠front] "front" "new_front" 𝘁𝗵𝗲𝗻 (
         true
       ) 𝗲𝗹𝘀𝗲 (
         "push" "t" "v" (backoff٠once "backoff")
@@ -96,9 +92,7 @@ Definition bstack_mpmc٠pop₁ : val :=
     | bstack_mpmc٠Nil ->
         §None
     | bstack_mpmc٠Cons ⎽ "v" "new_front" 𝗮𝘀 "front" ->
-        𝗶𝗳
-          𝗰𝗮𝘀 "t".[bstack_mpmc٠front] "front" "new_front"
-        𝘁𝗵𝗲𝗻 (
+        𝗶𝗳 𝗰𝗮𝘀 "t".[bstack_mpmc٠front] "front" "new_front" 𝘁𝗵𝗲𝗻 (
           ‘Some( "v" )
         ) 𝗲𝗹𝘀𝗲 (
           "pop" "t" (backoff٠once "backoff")

@@ -30,11 +30,7 @@ Definition ws_deque_1٠min_capacity : val :=
 
 Definition ws_deque_1٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
-    { 1,
-      1,
-      array٠unsafe_make ws_deque_1٠min_capacity (),
-      𝗽𝗿𝗼𝗽𝗵
-    }.
+    { 1, 1, array٠unsafe_make ws_deque_1٠min_capacity (), 𝗽𝗿𝗼𝗽𝗵 }.
 
 Definition ws_deque_1٠size : val :=
   𝗳𝘂𝗻 "t" ->
@@ -54,9 +50,7 @@ Definition ws_deque_1٠push : val :=
       array٠unsafe_cset "data" "back" "v"
     ) 𝗲𝗹𝘀𝗲 (
       𝗹𝗲𝘁 "new_cap" = "cap" 𝗹𝘀𝗹 1 𝗶𝗻
-      𝗹𝗲𝘁 "new_data" =
-        array٠unsafe_cgrow "data" "front" "new_cap" ()
-      𝗶𝗻
+      𝗹𝗲𝘁 "new_data" = array٠unsafe_cgrow "data" "front" "new_cap" () 𝗶𝗻
       array٠unsafe_cset "new_data" "back" "v" ⍮
       "t" <-{ws_deque_1٠data} "new_data"
     ) ⍮
@@ -76,7 +70,7 @@ Definition ws_deque_1٠steal₁ : val :=
         𝗿𝗲𝘀𝗼𝗹𝘃𝗲
           (𝗰𝗮𝘀 "t".[ws_deque_1٠front] "front" ("front" + 1))
           "t".{ws_deque_1٠proph}
-          ("front", "id")
+          ( "front", "id" )
       𝘁𝗵𝗲𝗻 (
         ‘Some( "v" )
       ) 𝗲𝗹𝘀𝗲 (
@@ -97,9 +91,7 @@ Definition ws_deque_1٠pop₁ : val :=
     ) 𝗲𝗹𝘀𝗲 𝗶𝗳 "front" < "back" 𝘁𝗵𝗲𝗻 (
       𝗹𝗲𝘁 "data" = "t".{ws_deque_1٠data} 𝗶𝗻
       𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
-      𝗶𝗳
-        ws_deque_1٠min_capacity + 3 * ("back" - "front") ≤ "cap"
-      𝘁𝗵𝗲𝗻 (
+      𝗶𝗳 ws_deque_1٠min_capacity + 3 * ("back" - "front") ≤ "cap" 𝘁𝗵𝗲𝗻 (
         𝗹𝗲𝘁 "new_cap" = "cap" 𝗹𝘀𝗿 1 𝗶𝗻
         𝗹𝗲𝘁 "new_data" =
           array٠unsafe_cshrink_slice "data" "front" "new_cap"
@@ -114,7 +106,7 @@ Definition ws_deque_1٠pop₁ : val :=
         𝗿𝗲𝘀𝗼𝗹𝘃𝗲
           (𝗰𝗮𝘀 "t".[ws_deque_1٠front] "front" ("front" + 1))
           "t".{ws_deque_1٠proph}
-          ("front", "id")
+          ( "front", "id" )
       𝗶𝗻
       "t" <-{ws_deque_1٠back} "front" + 1 ⍮
       𝗶𝗳 "won" 𝘁𝗵𝗲𝗻 (

@@ -17,22 +17,17 @@ Definition vertex_fibonacci٠main₁ : val :=
       𝗹𝗲𝘁 "r1" = 𝗿𝗲𝗳 0 𝗶𝗻
       𝗹𝗲𝘁 "vtx1" = vertex٠create §None 𝗶𝗻
       𝗹𝗲𝘁 "n1" = "n" - 1 𝗶𝗻
-      vertex٠set_task
-        "vtx1"
-        (𝗳𝘂𝗻 "ctx" -> "main" "ctx" "vtx1" "r1" "n1") ⍮
+      vertex٠set_task "vtx1" (𝗳𝘂𝗻 "ctx" -> "main" "ctx" "vtx1" "r1" "n1") ⍮
       vertex٠release "ctx" "vtx1" ⍮
       𝗹𝗲𝘁 "r2" = 𝗿𝗲𝗳 0 𝗶𝗻
       𝗹𝗲𝘁 "vtx2" = vertex٠create §None 𝗶𝗻
       𝗹𝗲𝘁 "n2" = "n" - 2 𝗶𝗻
-      vertex٠set_task
-        "vtx2"
-        (𝗳𝘂𝗻 "ctx" -> "main" "ctx" "vtx2" "r2" "n2") ⍮
+      vertex٠set_task "vtx2" (𝗳𝘂𝗻 "ctx" -> "main" "ctx" "vtx2" "r2" "n2") ⍮
       vertex٠release "ctx" "vtx2" ⍮
       vertex٠precede "vtx1" "vtx" ⍮
       vertex٠precede "vtx2" "vtx" ⍮
-      vertex٠yield "vtx"
-        (𝗳𝘂𝗻 "_ctx" -> "r" <- !"r1" + !"r2" ⍮
-                                true)
+      vertex٠yield "vtx" (𝗳𝘂𝗻 "_ctx" -> "r" <- !"r1" + !"r2" ⍮
+                                        true)
     ).
 
 Definition vertex_fibonacci٠main : val :=
@@ -44,13 +39,11 @@ Definition vertex_fibonacci٠main : val :=
          𝗹𝗲𝘁 "vtx1" = vertex٠create §None 𝗶𝗻
          vertex٠set_task
            "vtx1"
-           (𝗳𝘂𝗻 "ctx" ->
-              vertex_fibonacci٠main₁ "ctx" "vtx1" "r" "n") ⍮
+           (𝗳𝘂𝗻 "ctx" -> vertex_fibonacci٠main₁ "ctx" "vtx1" "r" "n") ⍮
          vertex٠release "ctx" "vtx1" ⍮
          𝗹𝗲𝘁 "ivar" = ivar_4٠create () 𝗶𝗻
          𝗹𝗲𝘁 "vtx2" =
-           vertex٠create'
-             (𝗳𝘂𝗻 "ctx" -> ivar_4٠notify "ivar" "ctx" ())
+           vertex٠create' (𝗳𝘂𝗻 "ctx" -> ivar_4٠notify "ivar" "ctx" ())
          𝗶𝗻
          vertex٠precede "vtx1" "vtx2" ⍮
          vertex٠release "ctx" "vtx2" ⍮

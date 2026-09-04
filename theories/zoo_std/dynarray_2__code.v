@@ -46,9 +46,7 @@ Definition dynarray_2٠make : val :=
 
 Definition dynarray_2٠initi : val :=
   𝗳𝘂𝗻 "sz" "fn" ->
-    { "sz",
-      array٠initi "sz" (𝗳𝘂𝗻 "i" -> dynarray_2٠element ("fn" "i"))
-    }.
+    { "sz", array٠initi "sz" (𝗳𝘂𝗻 "i" -> dynarray_2٠element ("fn" "i")) }.
 
 Definition dynarray_2٠size : val :=
   𝗳𝘂𝗻 "t" ->
@@ -76,9 +74,7 @@ Definition dynarray_2٠is_empty : val :=
 
 Definition dynarray_2٠get : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    𝗺𝗮𝘁𝗰𝗵
-      array٠get (dynarray_2٠data "t") "i"
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 array٠get (dynarray_2٠data "t") "i" 𝘄𝗶𝘁𝗵
     | dynarray_2٠Empty ->
         𝗱𝗶𝘃𝗲𝗿𝗴𝗲 ()
     | dynarray_2٠Element ⎽ 𝗮𝘀 "slot_r" ->
@@ -87,9 +83,7 @@ Definition dynarray_2٠get : val :=
 
 Definition dynarray_2٠set : val :=
   𝗳𝘂𝗻 "t" "i" "v" ->
-    𝗺𝗮𝘁𝗰𝗵
-      array٠get (dynarray_2٠data "t") "i"
-    𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 array٠get (dynarray_2٠data "t") "i" 𝘄𝗶𝘁𝗵
     | dynarray_2٠Empty ->
         𝗱𝗶𝘃𝗲𝗿𝗴𝗲 ()
     | dynarray_2٠Element ⎽ 𝗮𝘀 "slot_r" ->
@@ -98,13 +92,11 @@ Definition dynarray_2٠set : val :=
 
 Definition dynarray_2٠next_capacity : val :=
   𝗳𝘂𝗻 "n" ->
-    int٠max
-      8
-      𝗶𝗳 "n" ≤ 512 𝘁𝗵𝗲𝗻 (
-        2 * "n"
-      ) 𝗲𝗹𝘀𝗲 (
-        "n" + "n" 𝗾𝘂𝗼𝘁 2
-      ).
+    int٠max 8 𝗶𝗳 "n" ≤ 512 𝘁𝗵𝗲𝗻 (
+                2 * "n"
+              ) 𝗲𝗹𝘀𝗲 (
+                "n" + "n" 𝗾𝘂𝗼𝘁 2
+              ).
 
 Definition dynarray_2٠reserve : val :=
   𝗳𝘂𝗻 "t" "n" ->
@@ -112,12 +104,8 @@ Definition dynarray_2٠reserve : val :=
     𝗹𝗲𝘁 "data" = dynarray_2٠data "t" 𝗶𝗻
     𝗹𝗲𝘁 "cap" = array٠size "data" 𝗶𝗻
     𝗶𝗳 "cap" < "n" 𝘁𝗵𝗲𝗻 (
-      𝗹𝗲𝘁 "cap" =
-        int٠max "n" (dynarray_2٠next_capacity "cap")
-      𝗶𝗻
-      𝗹𝗲𝘁 "data" =
-        array٠unsafe_grow "data" "cap" §dynarray_2٠Empty
-      𝗶𝗻
+      𝗹𝗲𝘁 "cap" = int٠max "n" (dynarray_2٠next_capacity "cap") 𝗶𝗻
+      𝗹𝗲𝘁 "data" = array٠unsafe_grow "data" "cap" §dynarray_2٠Empty 𝗶𝗻
       dynarray_2٠set_data "t" "data"
     ).
 

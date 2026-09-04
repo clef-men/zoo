@@ -77,13 +77,13 @@ Definition sstore_2٠capture : val :=
   𝗳𝘂𝗻 "t" ->
     𝗹𝗲𝘁 "g" = "t".{sstore_2٠gen} 𝗶𝗻
     "t" <-{sstore_2٠gen} "g" + 1 ⍮
-    ("t", "g", "t".{sstore_2٠root}).
+    ( "t", "g", "t".{sstore_2٠root} ).
 
 Definition sstore_2٠collect : val :=
   𝗿𝗲𝗰 "collect" "node" "path" ->
     𝗺𝗮𝘁𝗰𝗵 !"node" 𝘄𝗶𝘁𝗵
     | sstore_2٠Root ->
-        ("node", "path")
+        ( "node", "path" )
     | sstore_2٠Diff ⎽ ⎽ ⎽ "node'" ->
         "collect" "node'" ("node" :: "path")
     𝗲𝗻𝗱.
@@ -100,10 +100,11 @@ Definition sstore_2٠revert : val :=
         | sstore_2٠Diff "r" "g" "v" "node_" ->
             𝗮𝘀𝘀𝗲𝗿𝘁 ("node_" == "node") ⍮
             "node" <-
-              ‘sstore_2٠Diff( "r",
-                "r".{sstore_2٠ref_gen},
-                "r".{sstore_2٠ref_value},
-                "node'"
+              ‘sstore_2٠Diff(
+                "r"
+              , "r".{sstore_2٠ref_gen}
+              , "r".{sstore_2٠ref_value}
+              , "node'"
               ) ⍮
             "r" <-{sstore_2٠ref_gen} "g" ⍮
             "r" <-{sstore_2٠ref_value} "v" ⍮

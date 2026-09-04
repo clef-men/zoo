@@ -8,7 +8,7 @@ Require Import zoo.prelude.
 Require Import zoo.options.
 
 Ltac2 of_rocq_string :=
-  StringToIdent.coq_string_to_ident.
+  StringToIdent.rocq_string_to_ident.
 Ltac2 rec of_rocq_strings idents :=
   lazy_match! idents with
   | nil =>

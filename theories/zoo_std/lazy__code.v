@@ -50,9 +50,7 @@ Definition lazy٠get : val :=
         "get" "t"
     | lazy٠Unset "fn" 𝗮𝘀 "state" ->
         𝗹𝗲𝘁 "mtx" = mutex٠create_lock () 𝗶𝗻
-        𝗶𝗳
-          𝗰𝗮𝘀 "t".[contents] "state" ‘lazy٠Setting( "mtx" )
-        𝘁𝗵𝗲𝗻 (
+        𝗶𝗳 𝗰𝗮𝘀 "t".[contents] "state" ‘lazy٠Setting( "mtx" ) 𝘁𝗵𝗲𝗻 (
           𝗹𝗲𝘁 "res" = "fn" () 𝗶𝗻
           "t" <- ‘lazy٠Set( "res" ) ⍮
           mutex٠unlock "mtx" ⍮

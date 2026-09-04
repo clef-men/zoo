@@ -23,6 +23,4 @@ Definition future_fibonacci٠main₁ : val :=
 
 Definition future_fibonacci٠main : val :=
   𝗳𝘂𝗻 "num_worker" "n" ->
-    pool٠run
-      "num_worker"
-      (𝗳𝘂𝗻 "ctx" -> future_fibonacci٠main₁ "ctx" "n").
+    pool٠run "num_worker" (𝗳𝘂𝗻 "ctx" -> future_fibonacci٠main₁ "ctx" "n").

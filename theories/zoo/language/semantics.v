@@ -624,11 +624,11 @@ Inductive ectxi :=
   | CtxResolveErasure2 e0 e1.
 Implicit Type k : ectxi.
 
-Notation CtxSeq := (
+Abbreviation CtxSeq := (
   CtxLet BAnon
 )(only parsing
 ).
-Notation CtxTuple := (
+Abbreviation CtxTuple := (
   CtxBlock ImmutableNongenerative Tag0
 )(only parsing
 ).

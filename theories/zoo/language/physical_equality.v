@@ -114,15 +114,15 @@ Section lowval۰ind.
     end.
 End lowval۰ind.
 
-Notation LowvalInt n := (
+Abbreviation LowvalInt n := (
   LowvalLit (LowlitInt n)
 )(only parsing
 ).
-Notation LowvalLoc l := (
+Abbreviation LowvalLoc l := (
   LowvalLit (LowlitLoc l)
 )(only parsing
 ).
-Notation LowvalProph := (
+Abbreviation LowvalProph := (
   LowvalLit LowlitProph
 )(only parsing
 ).

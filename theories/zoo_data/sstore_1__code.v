@@ -45,13 +45,13 @@ Definition sstore_1٠set : val :=
 
 Definition sstore_1٠capture : val :=
   𝗳𝘂𝗻 "t" ->
-    ("t", !"t").
+    ( "t", !"t" ).
 
 Definition sstore_1٠collect : val :=
   𝗿𝗲𝗰 "collect" "node" "acc" ->
     𝗺𝗮𝘁𝗰𝗵 !"node" 𝘄𝗶𝘁𝗵
     | sstore_1٠Root ->
-        ("node", "acc")
+        ( "node", "acc" )
     | sstore_1٠Diff ⎽ ⎽ "node'" ->
         "collect" "node'" ("node" :: "acc")
     𝗲𝗻𝗱.
