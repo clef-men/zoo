@@ -10,7 +10,7 @@ dev-repo: "git+https://github.com/clef-men/zoo.git"
 depends: [
   "rocq-core" {= "9.2.0"}
   "rocq-stdlib" {= "9.2.0"}
-  "rocq-stdpp" {= "dev.2026-07-16.0.dec47225"}
+  "rocq-stdpp"
   "rocq-iris" {= "dev.2026-07-19.0.5b67fadf"}
   "rocq-diaframe" {= "dev.2026-08-13.0.c7a7406d"}
 ]
