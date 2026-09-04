@@ -1,4 +1,4 @@
-FROM rocq/rocq-prover:9.0-ocaml-4.14-flambda
+FROM rocq/rocq-prover:9.2-ocaml-4.14-flambda
 
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
