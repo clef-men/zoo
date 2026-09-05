@@ -199,7 +199,11 @@ Section pure_exec.
     { lia. }
   Qed.
   #[global] Instance pureｰappｰrec f x v1 v2 :
-    PureExec True 1 (App (Val $ ValRec f x (Val v1)) (Val v2)) (Val v1).
+    PureExec
+      True
+      1
+      (App (Val $ ValRec f x (Val v1)) (Val v2))
+      (Val v1).
   Proof.
     pose proof (pureｰapp (ValRec f x (Val v1)) 0 [(f, x, Val v1)] (f, x, Val v1) [ValRec f x (Val v1)] v2) as H.
     rewrite /= !subst'ｰval in H.
