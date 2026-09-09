@@ -105,6 +105,16 @@ Section Z.
     - rewrite Z.mod_0_r_ext // Z.rem_0_r_ext //.
     - rewrite Z.rem_mod_nonneg //. lia.
   Qed.
+
+  Definition Z۰to_nat n :=
+    match n with
+    | 0 =>
+        Some 0%nat
+    | Z.pos n =>
+        Some $ Pos.to_nat n
+    | Z.neg _ =>
+        None
+    end.
 End Z.
 
 Section Qp۰of_nat.

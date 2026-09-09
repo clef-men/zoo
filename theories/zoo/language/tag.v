@@ -1,5 +1,6 @@
 Require Import zoo.prelude.
 Require Import zoo.common.countable.
+Require Import zoo.common.math.
 Require Import zoo.common.typeclasses.
 Require Import zoo.options.
 
@@ -114,17 +115,8 @@ Definition tag۰of_nat i :=
   | _ =>
       None
   end.
-Definition tag۰of_positive pos :=
-  tag۰of_nat $ Pos.to_nat pos.
 Definition tag۰of_Z n :=
-  match n with
-  | 0%Z =>
-      Some Tag0
-  | Z.pos n =>
-      tag۰of_positive n
-  | Z.neg _ =>
-      None
-  end.
+  Z۰to_nat n ≫= tag۰of_nat.
 
 Coercion tag۰to_nat tag :=
   match tag with
