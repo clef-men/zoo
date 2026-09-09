@@ -446,7 +446,7 @@ Section pure_exec.
       (0 < length vs)
       1
       (GetTag $ Val $ ValBlock gen tag vs)
-      (Val $ ValNat tag).
+      (Val $ ValTag tag).
   Proof.
     solve_pure_exec.
   Qed.

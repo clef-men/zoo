@@ -346,7 +346,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (GetTag $ Val $ ValLoc l)
         σ
         []
-        (Val $ ValNat hdr.(header۰tag))
+        (Val $ ValTag hdr.(header۰tag))
         σ
         []
   | base_stepｰget_tagｰblock gen tag vs σ :
@@ -356,7 +356,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (GetTag $ Val $ ValBlock gen tag vs)
         σ
         []
-        (Val $ ValNat tag)
+        (Val $ ValTag tag)
         σ
         []
   | base_stepｰget_sizeｰlocation l hdr σ :

@@ -720,6 +720,10 @@ Abbreviation ValNat i := (
   ValLit (LitInt (Z.of_nat i))
 )(only parsing
 ).
+Abbreviation ValTag tag := (
+  ValNat (tag۰to_nat tag)
+)(only parsing
+).
 Abbreviation ValString str := (
   ValLit (LitString str)
 )(only parsing
