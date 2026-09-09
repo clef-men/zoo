@@ -49,6 +49,9 @@ Inductive nsteps : nat → config → list observation → config → Prop :=
 Definition silent_step ρ1 ρ2 :=
   ∃ κ,
   step ρ1 κ ρ2.
+Abbreviation silent_steps := (
+  rtc silent_step
+).
 
 Definition base_reducible tid e σ :=
   ∃ κ e' σ' es,
@@ -99,7 +102,7 @@ Class Atomic e :=
     is_Some (to_val e').
 Definition safe ρ :=
   ∀ ρ',
-  rtc silent_step ρ ρ' →
+  silent_steps ρ ρ' →
   Foralli (λ tid e, not_stuck tid e ρ'.2) ρ'.1.
 
 Record pure_step e1 e2 :=
@@ -112,6 +115,9 @@ Record pure_step e1 e2 :=
         e2' = e2 ∧
         es = []
   }.
+Abbreviation pure_steps := (
+  rtc pure_step
+).
 
 Class Context (K : expr → expr) :=
   { contextｰfillｰnotｰval e :
@@ -491,8 +497,8 @@ Proof.
   intros _ => //.
 Qed.
 Lemma pure_stepsｰfill {e1 e2} K :
-  rtc pure_step e1 e2 →
-  rtc pure_step (fill K e1) (fill K e2).
+  pure_steps e1 e2 →
+  pure_steps (fill K e1) (fill K e2).
 Proof.
   rewrite !rtc_nsteps.
   intros (n & Hsteps%(pure_nstepsｰfill K)).
@@ -542,7 +548,7 @@ Proof.
 Qed.
 
 Lemma silent_stepsｰnsteps ρ1 ρ2 :
-  rtc silent_step ρ1 ρ2 ↔
+  silent_steps ρ1 ρ2 ↔
     ∃ n κs,
     nsteps n ρ1 κs ρ2.
 Proof.

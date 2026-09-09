@@ -703,7 +703,7 @@ Lemma eraseｰbase_stepｰinv tid e σ 𝑒 𝜎 𝜅 𝑒' 𝜎' 𝑒s :
   state۰wf σ →
     ∃ κ e' σ' es,
     base_step tid e σ κ e' σ' es ∧
-    rtc pure_step 𝑒' (erase۰expr e') ∧
+    pure_steps 𝑒' (erase۰expr e') ∧
     𝜎' = erase۰state σ' ∧
     𝑒s = erase۰expr <$> es.
 Proof.
@@ -817,8 +817,8 @@ Proof.
   eauto.
 Qed.
 #[local] Lemma eraseｰfillｰinvｰresolveｰauxｰ2 e v1 pid v2 :
-  rtc pure_step e (Val v1) →
-  rtc pure_step
+  pure_steps e (Val v1) →
+  pure_steps
     (fill [CtxResolveErasure0 (ValProph pid) v2] e)
     (Val v1).
 Proof.
@@ -837,7 +837,7 @@ Lemma eraseｰfillｰinvｰresolve tid e σ 𝐾 𝑒ᵣ 𝜎 𝜅 𝑒ᵣ' 𝜎
   𝜎 = erase۰state σ →
     ∃ κ v σ' es,
     base_step tid e σ κ (Val v) σ' es ∧
-    rtc pure_step (fill 𝐾 𝑒ᵣ') (Val $ erase۰val v) ∧
+    pure_steps (fill 𝐾 𝑒ᵣ') (Val $ erase۰val v) ∧
     𝜎' = erase۰state σ' ∧
     𝑒s = erase۰expr <$> es.
 Proof.
@@ -878,7 +878,7 @@ Lemma eraseｰprim_stepｰinv tid e σ 𝑒 𝜎 𝜅 𝑒' 𝜎' 𝑒s :
   not_stuck tid e σ →
     ∃ κ e' σ' es,
     prim_step tid e σ κ e' σ' es ∧
-    rtc pure_step 𝑒' (erase۰expr e') ∧
+    pure_steps 𝑒' (erase۰expr e') ∧
     𝜎' = erase۰state σ' ∧
     𝑒s = erase۰expr <$> es.
 Proof.
@@ -915,7 +915,7 @@ Record erase۰relation ρ 𝜌 :=
   ; erase۰relationｰsafe :
       safe ρ
   ; erase۰relationｰexprs :
-      Forall2 (λ e 𝑒, rtc pure_step 𝑒 (erase۰expr e)) ρ.1 𝜌.1
+      Forall2 (λ e 𝑒, pure_steps 𝑒 (erase۰expr e)) ρ.1 𝜌.1
   ; erase۰relationｰstate :
       𝜌.2 = erase۰state ρ.2
   }.
@@ -974,7 +974,7 @@ Lemma erase۰relationｰstep ρ1 𝜌1 𝜌2 :
   silent_step 𝜌1 𝜌2 →
     ∃ ρ2,
     erase۰relation ρ2 𝜌2 ∧
-    rtc silent_step ρ1 ρ2.
+    silent_steps ρ1 ρ2.
 Proof.
   destruct ρ1 as (es1, σ1), 𝜌1 as (𝑒s1, 𝜎1).
   intros Hrelation (𝜅 & (tid & 𝑒1 & 𝑒2 & 𝜎2 & 𝑒s & H𝑠𝑡𝑒𝑝 & H𝑒s1_lookup & ->)).
@@ -1011,10 +1011,10 @@ Proof.
 Qed.
 Lemma erase۰relationｰsteps ρ1 𝜌1 𝜌2 :
   erase۰relation ρ1 𝜌1 →
-  rtc silent_step 𝜌1 𝜌2 →
+  silent_steps 𝜌1 𝜌2 →
     ∃ ρ2,
     erase۰relation ρ2 𝜌2 ∧
-    rtc silent_step ρ1 ρ2.
+    silent_steps ρ1 ρ2.
 Proof.
   intros Hrelation1 H𝑠𝑡𝑒𝑝s.
   move: ρ1 Hrelation1. induction H𝑠𝑡𝑒𝑝s as [| 𝜌1 𝜌2 𝜌3 H𝑠𝑡𝑒𝑝 H𝑠𝑡𝑒𝑝s IH] => ρ1 Hrelation1.
