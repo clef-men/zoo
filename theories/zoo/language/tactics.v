@@ -7,7 +7,7 @@ Ltac reshape_expr e tac :=
     match e with
     | _ =>
         lazymatch resolves with
-        | nil =>
+        | [] =>
             tac K e
         | _ =>
             fail
@@ -78,7 +78,7 @@ Ltac reshape_expr e tac :=
     | LocalSet ?e =>
         add_ectxi CtxLocalSet K resolves e
     | Resolve ?e0 (Val ?v1) (Val ?v2) =>
-        go K (cons (v1, v2) resolves) e0
+        go K ((v1, v2) :: resolves) e0
     | Resolve ?e0 ?e1 (Val ?v2) =>
         add_ectxi (CtxResolve1 e0 v2) K resolves e1
     | Resolve ?e0 ?e1 ?e2 =>
@@ -92,7 +92,7 @@ Ltac reshape_expr e tac :=
     end
   with add_ectxi k K resolves e :=
     let k := eval simpl in (ectxi۰make_resolves resolves k) in
-    go (cons k K) (@nil (val * val)) e
+    go (k :: K) (@nil (val * val)) e
   in
   go (@nil ectxi) (@nil (val * val)) e.
 
@@ -139,7 +139,7 @@ Tactic Notation "zoo۰simp" "in" hyp(H) :=
       apply valｰnonsimilarｰint in H
   | @nonsimilar val _ (ValLit (LitLoc _)) (ValLit (LitLoc _)) =>
       apply valｰnonsimilarｰlocation in H
-  | @nonsimilar val _ (ValBlock _ _ nil) (ValBlock _ _ nil) =>
+  | @nonsimilar val _ (ValBlock _ _ []) (ValBlock _ _ []) =>
       apply valｰnonsimilarｰblockｰempty in H
   | @nonsimilar val _ (ValBlock (Generative (Some _)) _ _) (ValBlock (Generative (Some _)) _ _) =>
       apply valｰnonsimilarｰblockｰgenerative in H; try done
@@ -156,11 +156,11 @@ Tactic Notation "zoo۰simp" "in" hyp(H) :=
       apply valｰsimilarｰstring in H
   | @similar val _ (ValLit (LitLoc _)) (ValLit (LitLoc _)) =>
       apply valｰsimilarｰlocation in H
-  | @similar val _ (ValBlock _ _ nil) (ValBlock _ _ nil) =>
+  | @similar val _ (ValBlock _ _ []) (ValBlock _ _ []) =>
       apply valｰsimilarｰblockｰempty in H
-  | @similar val _ (ValBlock _ _ nil) (ValBlock _ _ (cons _ _)) =>
+  | @similar val _ (ValBlock _ _ []) (ValBlock _ _ (_ :: _)) =>
       apply valｰsimilarｰblockｰempty₁ in H as []
-  | @similar val _ (ValBlock _ _ (cons _ _)) (ValBlock _ _ nil) =>
+  | @similar val _ (ValBlock _ _ (_ :: _)) (ValBlock _ _ []) =>
       apply valｰsimilarｰblockｰempty₂ in H as []
   | @similar val _ (ValBlock (Generative _) _ _) (ValBlock (Generative _) _ _) =>
       let H1 := fresh in
