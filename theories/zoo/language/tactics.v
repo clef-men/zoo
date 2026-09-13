@@ -3,109 +3,109 @@ Require Export zoo.language.language.
 Require Import zoo.options.
 
 Ltac reshape_expr e tac :=
-  let rec go K prophs e :=
+  let rec go K resolves e :=
     match e with
     | _ =>
-        lazymatch prophs with
+        lazymatch resolves with
         | nil =>
             tac K e
         | _ =>
             fail
         end
     | App ?e1 (Val ?v2) =>
-        add_ectxi (CtxApp1 v2) K prophs e1
+        add_ectxi (CtxApp1 v2) K resolves e1
     | App ?e1 ?e2 =>
-        add_ectxi (CtxApp2 e1) K prophs e2
+        add_ectxi (CtxApp2 e1) K resolves e2
     | Let ?x ?e1 ?e2 =>
-        add_ectxi (CtxLet x e2) K prophs e1
+        add_ectxi (CtxLet x e2) K resolves e1
     | Unop ?op ?e =>
-        add_ectxi (CtxUnop op) K prophs e
+        add_ectxi (CtxUnop op) K resolves e
     | Binop ?op ?e1 (Val ?v2) =>
-        add_ectxi (CtxBinop1 op v2) K prophs e1
+        add_ectxi (CtxBinop1 op v2) K resolves e1
     | Binop ?op ?e1 ?e2 =>
-        add_ectxi (CtxBinop2 op e1) K prophs e2
+        add_ectxi (CtxBinop2 op e1) K resolves e2
     | Equal ?e1 (Val ?v2) =>
-        add_ectxi (CtxEqual1 v2) K prophs e1
+        add_ectxi (CtxEqual1 v2) K resolves e1
     | Equal ?e1 ?e2 =>
-        add_ectxi (CtxEqual2 e1) K prophs e2
+        add_ectxi (CtxEqual2 e1) K resolves e2
     | If ?e0 ?e1 ?e2 =>
-        add_ectxi (CtxIf e1 e2) K prophs e0
+        add_ectxi (CtxIf e1 e2) K resolves e0
     | For (Val ?v1) ?e2 ?e3 =>
-        add_ectxi (CtxFor2 v1 e3) K prophs e2
+        add_ectxi (CtxFor2 v1 e3) K resolves e2
     | For ?e1 ?e2 ?e3 =>
-        add_ectxi (CtxFor1 e2 e3) K prophs e1
+        add_ectxi (CtxFor1 e2 e3) K resolves e1
     | Alloc ?e1 (Val ?v2) =>
-        add_ectxi (CtxAlloc1 v2) K prophs e1
+        add_ectxi (CtxAlloc1 v2) K resolves e1
     | Alloc ?e1 ?e2 =>
-        add_ectxi (CtxAlloc2 e1) K prophs e2
+        add_ectxi (CtxAlloc2 e1) K resolves e2
     | Block ?mut ?tag ?es =>
-        go_list K prophs (CtxBlock mut tag) es
+        go_list K resolves (CtxBlock mut tag) es
     | Match ?e0 ?x ?e1 ?brs =>
-        add_ectxi (CtxMatch x e1 brs) K prophs e0
+        add_ectxi (CtxMatch x e1 brs) K resolves e0
     | GetTag ?e =>
-        add_ectxi CtxGetTag K prophs e
+        add_ectxi CtxGetTag K resolves e
     | GetSize ?e =>
-        add_ectxi CtxGetSize K prophs e
+        add_ectxi CtxGetSize K resolves e
     | Load ?e1 (Val ?v2) =>
-        add_ectxi (CtxLoad1 v2) K prophs e1
+        add_ectxi (CtxLoad1 v2) K resolves e1
     | Load ?e1 ?e2 =>
-        add_ectxi (CtxLoad2 e1) K prophs e2
+        add_ectxi (CtxLoad2 e1) K resolves e2
     | Store ?e1 (Val ?v2) (Val ?v3) =>
-        add_ectxi (CtxStore1 v2 v3) K prophs e1
+        add_ectxi (CtxStore1 v2 v3) K resolves e1
     | Store ?e1 ?e2 (Val ?v3) =>
-        add_ectxi (CtxStore2 e1 v3) K prophs e2
+        add_ectxi (CtxStore2 e1 v3) K resolves e2
     | Store ?e1 ?e2 ?e3 =>
-        add_ectxi (CtxStore3 e1 e2) K prophs e3
+        add_ectxi (CtxStore3 e1 e2) K resolves e3
     | Xchg ?e1 (Val ?v2) =>
-        add_ectxi (CtxXchg1 v2) K prophs e1
+        add_ectxi (CtxXchg1 v2) K resolves e1
     | Xchg ?e1 ?e2 =>
-        add_ectxi (CtxXchg2 e1) K prophs e2
+        add_ectxi (CtxXchg2 e1) K resolves e2
     | CAS ?e0 (Val ?v1) (Val ?v2) =>
-        add_ectxi (CtxCAS0 v1 v2) K prophs e0
+        add_ectxi (CtxCAS0 v1 v2) K resolves e0
     | CAS ?e0 ?e1 (Val ?v2) =>
-        add_ectxi (CtxCAS1 e0 v2) K prophs e1
+        add_ectxi (CtxCAS1 e0 v2) K resolves e1
     | CAS ?e0 ?e1 ?e2 =>
-        add_ectxi (CtxCAS2 e0 e1) K prophs e2
+        add_ectxi (CtxCAS2 e0 e1) K resolves e2
     | FAA ?e1 (Val ?v2) =>
-        add_ectxi (CtxFAA1 v2) K prophs e1
+        add_ectxi (CtxFAA1 v2) K resolves e1
     | FAA ?e1 ?e2 =>
-        add_ectxi (CtxFAA2 e1) K prophs e2
+        add_ectxi (CtxFAA2 e1) K resolves e2
     | LocalSet ?e =>
-        add_ectxi CtxLocalSet K prophs e
+        add_ectxi CtxLocalSet K resolves e
     | Resolve ?e0 (Val ?v1) (Val ?v2) =>
-        go K (cons (v1, v2) prophs) e0
+        go K (cons (v1, v2) resolves) e0
     | Resolve ?e0 ?e1 (Val ?v2) =>
-        add_ectxi (CtxResolve1 e0 v2) K prophs e1
+        add_ectxi (CtxResolve1 e0 v2) K resolves e1
     | Resolve ?e0 ?e1 ?e2 =>
-        add_ectxi (CtxResolve2 e0 e1) K prophs e2
+        add_ectxi (CtxResolve2 e0 e1) K resolves e2
     | ResolveErasure ?e0 (Val ?v1) (Val ?v2) =>
-        add_ectxi (CtxResolveErasure0 v1 v2) K prophs e0
+        add_ectxi (CtxResolveErasure0 v1 v2) K resolves e0
     | ResolveErasure ?e0 ?e1 (Val ?v2) =>
-        add_ectxi (CtxResolveErasure1 e0 v2) K prophs e1
+        add_ectxi (CtxResolveErasure1 e0 v2) K resolves e1
     | ResolveErasure ?e0 ?e1 ?e2 =>
-        add_ectxi (CtxResolveErasure2 e0 e1) K prophs e2
+        add_ectxi (CtxResolveErasure2 e0 e1) K resolves e2
     end
-  with go_list K prophs ctx es :=
+  with go_list K resolves ctx es :=
     let es := eval simpl in (rev es) in
-    go_list' K prophs ctx es (@nil val)
-  with go_list' K prophs ctx es vs :=
+    go_list' K resolves ctx es (@nil val)
+  with go_list' K resolves ctx es vs :=
     lazymatch es with
     | cons ?e ?es =>
         lazymatch e with
         | Val ?v =>
-            go_list' K prophs ctx es (cons v vs)
+            go_list' K resolves ctx es (cons v vs)
         | _ =>
-            add_ectxi (ctx (rev es) vs) K prophs e
+            add_ectxi (ctx (rev es) vs) K resolves e
         end
     | _ =>
         fail
     end
-  with add_ectxi k K prophs e :=
-    lazymatch prophs with
+  with add_ectxi k K resolves e :=
+    lazymatch resolves with
     | nil =>
         go (cons k K) (@nil (val * val)) e
-    | cons (?v1, ?v2) ?prophs =>
-        add_ectxi (CtxResolve0 k v1 v2) K prophs e
+    | cons (?v1, ?v2) ?resolves =>
+        add_ectxi (CtxResolve0 k v1 v2) K resolves e
     end
   in
   go (@nil ectxi) (@nil (val * val)) e.
