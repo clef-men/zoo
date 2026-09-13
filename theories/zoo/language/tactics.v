@@ -101,12 +101,8 @@ Ltac reshape_expr e tac :=
         fail
     end
   with add_ectxi k K resolves e :=
-    lazymatch resolves with
-    | nil =>
-        go (cons k K) (@nil (val * val)) e
-    | cons (?v1, ?v2) ?resolves =>
-        add_ectxi (CtxResolve0 k v1 v2) K resolves e
-    end
+    let k := eval simpl in (ectxi۰make_resolves resolves k) in
+    go (cons k K) (@nil (val * val)) e
   in
   go (@nil ectxi) (@nil (val * val)) e.
 

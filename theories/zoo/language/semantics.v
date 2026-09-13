@@ -25,6 +25,8 @@ Implicit Type brs : list branch.
 Implicit Type rec : recursive.
 Implicit Type recs : list recursive.
 Implicit Type hdr : header.
+Implicit Type resolve : val * val.
+Implicit Type resolves : list (val * val).
 
 Definition thread_id :=
   nat.
@@ -632,6 +634,15 @@ Abbreviation CtxTuple := (
   CtxBlock ImmutableNongenerative Tag0
 )(only parsing
 ).
+
+Fixpoint ectxi۰make_resolves resolves k :=
+  match resolves with
+  | [] =>
+      k
+  | resolve :: resolves =>
+      ectxi۰make_resolves resolves (CtxResolve0 k resolve.1 resolve.2)
+  end.
+#[global] Arguments ectxi۰make_resolves !_ _ / : assert.
 
 Fixpoint filli k e : expr :=
   match k with
