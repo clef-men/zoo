@@ -277,9 +277,9 @@ Proof.
   destruct e; naive.
 Qed.
 Lemma erase۰exprsｰvals {es 𝑣s} vs :
-  es = of_vals vs →
+  es = expr۰of_vals vs →
   𝑣s = erase۰val <$> vs →
-  erase۰expr <$> es = of_vals 𝑣s.
+  erase۰expr <$> es = expr۰of_vals 𝑣s.
 Proof.
   intros -> ->.
   induction vs as [| v vs IH].
@@ -287,9 +287,9 @@ Proof.
   - simpl. f_equal => //.
 Qed.
 Lemma erase۰exprsｰvalsｰinv es 𝑣s :
-  erase۰expr <$> es = of_vals 𝑣s →
+  erase۰expr <$> es = expr۰of_vals 𝑣s →
     ∃ vs,
-    es = of_vals vs ∧
+    es = expr۰of_vals vs ∧
     𝑣s = erase۰val <$> vs.
 Proof.
   move: 𝑣s. induction es as [| e es IH] => 𝑣s H.
@@ -310,7 +310,7 @@ Lemma eraseｰfilli k e :
 Proof.
   induction k.
   all: rewrite //=.
-  - rewrite fmap_app fmap_cons /of_vals -!list_fmap_compose //.
+  - rewrite fmap_app fmap_cons /expr۰of_vals -!list_fmap_compose //.
   - rewrite fillｰapp IHk //.
 Qed.
 Lemma eraseｰfill K e :
@@ -651,7 +651,7 @@ Lemma eraseｰnot_stuck tid e σ 𝑒 𝜎 :
   𝜎 = erase۰state σ →
   not_stuck tid 𝑒 𝜎.
 Proof.
-  intros [(v & <-%of_valｰto_val) | Hstep] -> ->.
+  intros [(v & <-%expr۰of_valｰto_val) | Hstep] -> ->.
   - apply valｰnot_stuck => //.
   - apply reducibleｰnot_stuck, eraseｰreducible => //.
 Qed.
@@ -677,7 +677,7 @@ Qed.
         destruct v => //
     | _: erase۰val ?v = ValLit (LitInt _) |- _ =>
         destruct v as [[] | |] => //
-    | H: of_vals _ = erase۰expr <$> _ |- _ =>
+    | H: expr۰of_vals _ = erase۰expr <$> _ |- _ =>
         apply symmetry, erase۰exprsｰvalsｰinv in H
     | _: _ :: _ = erase۰val <$> ?vs |- _ =>
         destruct vs; first done
@@ -862,7 +862,7 @@ Proof.
     { eauto with zoo. }
     simpl.
     eapply eraseｰbase_stepｰinv in H𝑠𝑡𝑒𝑝 as (κ & e' & σ'_ & es_ & Hstep & Hpures & -> & ->) => //.
-    destruct (base_stepｰtoｰval tid e1 σ κ0 (Val w) σ' es κ e' σ'_ es_) as (w_ & <-%of_valｰto_val) => //.
+    destruct (base_stepｰtoｰval tid e1 σ κ0 (Val w) σ' es κ e' σ'_ es_) as (w_ & <-%expr۰of_valｰto_val) => //.
     exists (κ ++ [(pid, (w_, v))]), w_, σ'_, es_. split_and! => //.
     + constructor => //.
     + apply eraseｰfillｰinvｰresolveｰauxｰ2 => //.
@@ -882,15 +882,15 @@ Lemma eraseｰprim_stepｰinv tid e σ 𝑒 𝜎 𝜅 𝑒' 𝜎' 𝑒s :
     𝜎' = erase۰state σ' ∧
     𝑒s = erase۰expr <$> es.
 Proof.
-  intros [𝐾 𝑒ᵣ 𝑒ᵣ' Heq -> H𝑠𝑡𝑒𝑝] -> -> Hwf_e Hwf_σ [(v & <-%of_valｰto_val) | (K & eᵣ & -> & Hreducible)%reducibleｰfillｰbase_reducible].
-  - destruct (to_valｰfillｰSome 𝐾 𝑒ᵣ (erase۰val v)) as (-> & ->).
+  intros [𝐾 𝑒ᵣ 𝑒ᵣ' Heq -> H𝑠𝑡𝑒𝑝] -> -> Hwf_e Hwf_σ [(v & <-%expr۰of_valｰto_val) | (K & eᵣ & -> & Hreducible)%reducibleｰfillｰbase_reducible].
+  - destruct (expr۰to_valｰfillｰSome 𝐾 𝑒ᵣ (erase۰val v)) as (-> & ->).
     { rewrite -Heq //. }
     apply base_stepｰnotｰval in H𝑠𝑡𝑒𝑝 => //.
   - rewrite eraseｰfill in Heq.
     apply fillｰwf in Hwf_e as (Hwf_K & Hwf_eᵣ).
     destruct_decide (expr۰is_resolve eᵣ) as Heᵣ.
     + destruct (stepｰbyｰval tid (erase۰ectx K) 𝐾 (erase۰expr eᵣ) 𝑒ᵣ (erase۰state σ) 𝜅 𝑒ᵣ' 𝜎' 𝑒s) as (𝐾' & ->) => //.
-      { apply eq_None_ne_Some. intros 𝑣 (v & -> & ->)%of_valｰto_val%symmetry%erase۰exprｰvalｰinv => //.
+      { apply eq_None_ne_Some. intros 𝑣 (v & -> & ->)%expr۰of_valｰto_val%symmetry%erase۰exprｰvalｰinv => //.
       }
       rewrite fillｰapp in Heq. apply (inj _) in Heq.
       destruct (eraseｰfillｰinvｰresolve tid eᵣ σ 𝐾' 𝑒ᵣ (erase۰state σ) 𝜅 𝑒ᵣ' 𝜎' 𝑒s) as (κ & v & σ' & es & Hstep & Hpures & -> & ->) => //.

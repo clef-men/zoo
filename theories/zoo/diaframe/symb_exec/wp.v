@@ -43,7 +43,7 @@ Section zoo۰G.
     ✱ [
       ∀ v2,
       Φ2 v2 -∗
-      WP K (of_val v2) ∷ tid @ E {{ Φ1 }}
+      WP K (expr۰of_val v2) ∷ tid @ E {{ Φ1 }}
     ] ⊫ [id];
       WP e1 ∷ tid @ E {{ Φ1 }}.
   Proof.
@@ -101,7 +101,7 @@ Section zoo۰G.
       tele_app P tt1 ∗
       ▷ ∀.. tt2,
         tele_app (tele_app Q tt1) tt2 ={E2,E1}=∗
-        WP K $ of_val $ tele_app (tele_app ret tt1) tt2 ∷ tid @ E1 {{ Φ }}
+        WP K $ expr۰of_val $ tele_app (tele_app ret tt1) tt2 ∷ tid @ E1 {{ Φ }}
     ] ⊫ [id];
       WP e ∷ tid @ E1 {{ Φ }}.
   Proof.

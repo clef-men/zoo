@@ -258,7 +258,7 @@ Lemma filliｰwf₁ k e :
     expr۰wf e.
 Proof.
   induction k; try naive.
-  rewrite /= /of_vals. simp_Forall. naive.
+  rewrite /= /expr۰of_vals. simp_Forall. naive.
 Qed.
 Lemma filliｰwf₂ k e :
   ectxi۰wf k →
@@ -266,7 +266,7 @@ Lemma filliｰwf₂ k e :
   expr۰wf (filli k e).
 Proof.
   induction k; try naive.
-  rewrite /= /of_vals. simp_Forall. naive.
+  rewrite /= /expr۰of_vals. simp_Forall. naive.
 Qed.
 Lemma filliｰwf k e :
   expr۰wf (filli k e) ↔
@@ -520,13 +520,13 @@ Proof.
   - apply state۰allocｰwf => //.
     apply Forall_replicate => //.
   - apply state۰allocｰwf => //.
-    subst. rewrite /of_vals in Hwf_e.
+    subst. rewrite /expr۰of_vals in Hwf_e.
     simp_Forall+ in *.
-  - subst. rewrite /of_vals in Hwf_e.
+  - subst. rewrite /expr۰of_vals in Hwf_e.
     simp_Forall+ in *.
-  - subst. rewrite /of_vals in Hwf_e.
+  - subst. rewrite /expr۰of_vals in Hwf_e.
     simp_Forall+ in *.
-  - subst. rewrite /of_vals in Hwf_e.
+  - subst. rewrite /expr۰of_vals in Hwf_e.
     simp_Forall+ in *.
   - eapply eval_matchｰwf; try naive.
     simp_Forall in *. naive.

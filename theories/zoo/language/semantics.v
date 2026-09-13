@@ -271,7 +271,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         []
   | base_stepｰblockｰmutable tag es vs σ l :
       0 < length es →
-      es = of_vals vs →
+      es = expr۰of_vals vs →
       state۰alloc_condition l (length es) σ →
       base_step
         tid
@@ -282,7 +282,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (state۰alloc l (Header tag (length es)) vs σ)
         []
   | base_stepｰblockｰimmutableｰnongenerative tag es vs σ :
-      es = of_vals vs →
+      es = expr۰of_vals vs →
       base_step
         tid
         (Block ImmutableNongenerative tag es)
@@ -292,7 +292,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
   | base_stepｰblockｰimmutableｰgenerativeｰweak tag es vs σ :
-      es = of_vals vs →
+      es = expr۰of_vals vs →
       base_step
         tid
         (Block ImmutableGenerativeWeak tag es)
@@ -302,7 +302,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
   | base_stepｰblockｰimmutableｰgenerativeｰstrong tag es vs σ bid :
-      es = of_vals vs →
+      es = expr۰of_vals vs →
       base_step
         tid
         (Block ImmutableGenerativeStrong tag es)
@@ -534,7 +534,7 @@ Qed.
 Lemma base_stepｰblockｰmutable' tid tag es vs σ :
   let l := state۰fresh σ in
   0 < length es →
-  es = of_vals vs →
+  es = expr۰of_vals vs →
   base_step
     tid
     (Block Mutable tag es)
@@ -549,7 +549,7 @@ Proof.
   apply state۰alloc_conditionｰfresh.
 Qed.
 Lemma base_stepｰblockｰimmutableｰgenerativeｰstrong' tid tag es vs σ :
-  es = of_vals vs →
+  es = expr۰of_vals vs →
   base_step
     tid
     (Block ImmutableGenerativeStrong tag es)
@@ -673,7 +673,7 @@ Fixpoint filli k e : expr :=
   | CtxAlloc2 e1 =>
       Alloc e1 e
   | CtxBlock mut tag es vs =>
-      Block mut tag (es ++ e :: of_vals vs)
+      Block mut tag (es ++ e :: expr۰of_vals vs)
   | CtxMatch x e1 brs =>
       Match e x e1 brs
   | CtxGetTag =>

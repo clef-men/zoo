@@ -70,7 +70,7 @@ Section zoo۰G.
     λ e tid E Φ,
       ∀ ns nt σ κs,
       state_interp ns nt σ κs ={E}=∗
-      match to_val e with
+      match expr۰to_val e with
       | Some v =>
           state_interp ns nt σ κs ∗
           Φ v
@@ -191,7 +191,7 @@ Section zoo۰G.
     apply equiv_dist. done.
   Qed.
   #[global] Instance bwpｰcontractive e tid E n :
-    TCEq (to_val e) None →
+    TCEq (expr۰to_val e) None →
     Proper (pointwise_relation _ (dist_later n) ==> (≡{n}≡)) (bwp e tid E).
   Proof.
     intros He Φ1 Φ2 HΦ.
@@ -216,7 +216,7 @@ Section zoo۰G.
 
   Lemma bwpｰvalueｰfupd' v tid E Φ :
     (|={E}=> Φ v) ⊢
-    BWP of_val v ∶ tid @ E {{ Φ }}.
+    BWP expr۰of_val v ∶ tid @ E {{ Φ }}.
   Proof.
     rewrite bwpｰunfold.
     iSteps.
@@ -230,7 +230,7 @@ Section zoo۰G.
   Qed.
   Lemma bwpｰvalue' v tid E Φ :
     Φ v ⊢
-    BWP of_val v ∶ tid @ E {{ Φ }}.
+    BWP expr۰of_val v ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "HΦ".
     iApply (bwpｰvalueｰfupd' with "HΦ").
@@ -244,9 +244,9 @@ Section zoo۰G.
   Qed.
 
   Lemma bwpｰvalueｰmono v tid E Φ1 Φ2 :
-    BWP of_val v ∶ tid @ E {{ Φ1 }} -∗
+    BWP expr۰of_val v ∶ tid @ E {{ Φ1 }} -∗
     (Φ1 v ={E}=∗ Φ2 v) -∗
-    BWP of_val v ∶ tid @ E {{ Φ2 }}.
+    BWP expr۰of_val v ∶ tid @ E {{ Φ2 }}.
   Proof.
     rewrite !bwpｰunfold.
     iIntros "H HΦ %ns %nt %σ %κs Hinterp".
@@ -264,7 +264,7 @@ Section zoo۰G.
     iLöb as "HLöb" forall (e).
     rewrite !bwpｰunfold /bwp۰pre.
     iIntros "%ns %nt %σ1 %κs Hinterp".
-    destruct (to_val e) as [v |] eqn:He.
+    destruct (expr۰to_val e) as [v |] eqn:He.
     - iMod (fupd_mask_subseteq E1) as "Hclose"; first done.
       iMod ("H" with "Hinterp") as "(Hinterp & HΦ1)".
       iSteps.
@@ -360,7 +360,7 @@ Section zoo۰G.
   Proof.
     rewrite !bwpｰunfold /bwp۰pre.
     iIntros "H %ns %nt %σ %κs Hinterp".
-    destruct (to_val e) as [v |] eqn:He.
+    destruct (expr۰to_val e) as [v |] eqn:He.
     - iMod ("H" with "Hinterp") as ">($ & $)".
     - iModIntro.
       iMod ("H" with "Hinterp") as ">>(%Hreducible & H)".
@@ -369,7 +369,7 @@ Section zoo۰G.
       do 2 iModIntro.
       iMod "H" as "(Hinterp & H & $)".
       rewrite !bwpｰunfold /bwp۰pre.
-      destruct (to_val e2) as [v2 |] eqn:He2.
+      destruct (expr۰to_val e2) as [v2 |] eqn:He2.
       + iMod ("H" with "Hinterp") as "($ & >H)".
         iFrameSteps.
       + iMod ("H" with "Hinterp") as ">(%Hreducible2 & _)".
@@ -378,14 +378,14 @@ Section zoo۰G.
   Qed.
 
   Lemma bwpｰbind K `{!Context K} e tid E Φ :
-    BWP e ∶ tid @ E {{ v, BWP K (of_val v) ∶ tid @ E {{ Φ }} }} ⊢
+    BWP e ∶ tid @ E {{ v, BWP K (expr۰of_val v) ∶ tid @ E {{ Φ }} }} ⊢
     BWP K e ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "H".
     iLöb as "IH" forall (e).
     rewrite bwpｰunfold /bwp۰pre.
-    destruct (to_val e) as [v |] eqn:He.
-    - apply of_valｰto_val in He as <-.
+    destruct (expr۰to_val e) as [v |] eqn:He.
+    - apply expr۰of_valｰto_val in He as <-.
       iApply (bwpｰstate_interp with "H").
     - rewrite bwpｰunfold /bwp۰pre contextｰfillｰnotｰval //.
       iIntros "%ns %nt %σ1 %κs Hinterp !>".
@@ -399,12 +399,12 @@ Section zoo۰G.
 
   Lemma bwpｰbindｰinv K `{!Context K} e tid E Φ :
     BWP K e ∶ tid @ E {{ Φ }} ⊢
-    BWP e ∶ tid @ E {{ v, BWP K (of_val v) ∶ tid @ E {{ Φ }} }}.
+    BWP e ∶ tid @ E {{ v, BWP K (expr۰of_val v) ∶ tid @ E {{ Φ }} }}.
   Proof.
     iIntros "H".
     iLöb as "IH" forall (e).
-    destruct (to_val e) as [v |] eqn:He.
-    - apply of_valｰto_val in He as <-.
+    destruct (expr۰to_val e) as [v |] eqn:He.
+    - apply expr۰of_valｰto_val in He as <-.
       iApply bwpｰvalue'.
       iApply "H".
     - rewrite !bwpｰunfold /bwp۰pre contextｰfillｰnotｰval He //.
@@ -557,7 +557,7 @@ Section zoo۰G.
   Implicit Type Φ : val → iProp Σ.
 
   Lemma bwpｰliftｰstep e tid E Φ :
-    to_val e = None →
+    expr۰to_val e = None →
     ( ∀ ns nt σ κs,
       state_interp ns nt σ κs -∗
         |={E, ∅}=>
@@ -588,7 +588,7 @@ Section zoo۰G.
     iFrameSteps.
   Qed.
   Lemma bwpｰliftｰstepｰnofork e tid E Φ :
-    to_val e = None →
+    expr۰to_val e = None →
     ( ∀ ns nt σ κs,
       state_interp ns nt σ κs -∗
         |={E, ∅}=>
@@ -617,7 +617,7 @@ Section zoo۰G.
   Qed.
 
   Lemma bwpｰliftｰatomicｰstep e tid E1 E2 Φ :
-    to_val e = None →
+    expr۰to_val e = None →
     ( ∀ ns nt σ κs,
       state_interp ns nt σ κs ={E1}=∗
         ⌜reducible tid e σ⌝ ∗
@@ -628,7 +628,7 @@ Section zoo۰G.
             |={E1}[E2]▷=>
             state_interp ns (nt + length es) σ' κs' ∗
             ( ⧖ (˖ns) -∗
-                from_option Φ False (to_val e') ∗
+                from_option Φ False (expr۰to_val e') ∗
                 [∗ list] i ↦ e ∈ es,
                   BWP e ∶ nt + i {{ fork_post }}
             )
@@ -645,12 +645,12 @@ Section zoo۰G.
     iMod "Hclose" as "_".
     iMod "H" as "($ & H)". iIntros "!> H⧖".
     iDestruct ("H" with "H⧖") as "(HΦ & $)".
-    destruct (to_val e') eqn:He'; last by iExFalso.
+    destruct (expr۰to_val e') eqn:He'; last by iExFalso.
     iApply (bwpｰvalue with "HΦ").
-    apply of_valｰto_val. done.
+    apply expr۰of_valｰto_val. done.
   Qed.
   Lemma bwpｰliftｰatomicｰstepｰnofork e tid E1 E2 Φ :
-    to_val e = None →
+    expr۰to_val e = None →
     ( ∀ ns nt σ κs,
       state_interp ns nt σ κs ={E1}=∗
         ⌜reducible tid e σ⌝ ∗
@@ -662,7 +662,7 @@ Section zoo۰G.
             ⌜es = []⌝ ∗
             state_interp ns nt σ' κs' ∗
             ( ⧖ (˖ns) -∗
-              from_option Φ False (to_val e')
+              from_option Φ False (expr۰to_val e')
             )
     ) ⊢
     BWP e ∶ tid @ E1 {{ Φ }}.
@@ -773,7 +773,7 @@ Section zoo۰G.
   : core.
 
   Lemma bwpｰliftｰbaseｰstep e tid E Φ :
-    to_val e = None →
+    expr۰to_val e = None →
     ( ∀ ns nt σ κs,
       state_interp ns nt σ κs -∗
         |={E, ∅}=>
@@ -799,7 +799,7 @@ Section zoo۰G.
     iApply ("H" with "[//] [%]"); first auto.
   Qed.
   Lemma bwpｰliftｰbaseｰstepｰnofork e tid E Φ :
-    to_val e = None →
+    expr۰to_val e = None →
     ( ∀ ns nt σ κs,
       state_interp ns nt σ κs -∗
         |={E, ∅}=>
@@ -828,7 +828,7 @@ Section zoo۰G.
   Qed.
 
   Lemma bwpｰliftｰatomicｰbaseｰstep e tid E1 E2 Φ :
-    to_val e = None →
+    expr۰to_val e = None →
     ( ∀ ns nt σ κs,
       state_interp ns nt σ κs -∗
         |={E1}=>
@@ -840,7 +840,7 @@ Section zoo۰G.
             |={E1}[E2]▷=>
             state_interp ns (nt + length es) σ' κs' ∗
             ( ⧖ (˖ns) -∗
-                from_option Φ False (to_val e') ∗
+                from_option Φ False (expr۰to_val e') ∗
                 [∗ list] i ↦ e ∈ es,
                   BWP e ∶ nt + i {{ fork_post }}
             )
@@ -854,7 +854,7 @@ Section zoo۰G.
     iApply ("H" with "[//] [%]"); first auto.
   Qed.
   Lemma bwpｰliftｰatomicｰbaseｰstepｰnofork e tid E1 E2 Φ :
-    to_val e = None →
+    expr۰to_val e = None →
     ( ∀ ns nt σ κs,
       state_interp ns nt σ κs -∗
         |={E1}=>
@@ -867,7 +867,7 @@ Section zoo۰G.
             ⌜es = []⌝ ∗
             state_interp ns nt σ' κs' ∗
             ( ⧖ (˖ns) -∗
-              from_option Φ False (to_val e')
+              from_option Φ False (expr۰to_val e')
             )
     ) ⊢
     BWP e ∶ tid @ E1 {{ Φ }}.
@@ -914,7 +914,7 @@ Section zoo۰G.
 
   Lemma bwpｰresolve e pid v prophs tid E Φ :
     Atomic e →
-    to_val e = None →
+    expr۰to_val e = None →
     prophet۰model pid prophs -∗
     BWP e ∶ tid @ E {{ res,
       ∀ prophs',

@@ -136,8 +136,8 @@ Tactic Notation "zoo۰simpl" :=
 Tactic Notation "zoo۰simp" "in" hyp(H) :=
   zoo۰simpl in H;
   try match type of H with
-  | to_val _ = Some _ =>
-      apply of_valｰto_val in H
+  | expr۰to_val _ = Some _ =>
+      apply expr۰of_valｰto_val in H
 
   | @nonsimilar val _ (ValLit (LitBool _)) (ValLit (LitBool _)) =>
       apply valｰnonsimilarｰbool in H

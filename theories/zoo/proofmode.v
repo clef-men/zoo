@@ -290,7 +290,7 @@ Section zoo۰G.
 
   Lemma tacｰwpｰblockｰmutable Δ1 Δ2 id1 id2 id3 K tag es vs tid E Φ :
     0 < length es →
-    to_vals es = Some vs →
+    expr۰to_vals es = Some vs →
     MaybeIntoLaterNEnvs 1 Δ1 Δ2 →
     ( ∀ l,
       let* Δ3 :=
@@ -337,7 +337,7 @@ Section zoo۰G.
   Qed.
 
   Lemma tacｰwpｰblockｰgenerative Δ1 Δ2 K tag es vs tid E Φ :
-    to_vals es = Some vs →
+    expr۰to_vals es = Some vs →
     MaybeIntoLaterNEnvs 1 Δ1 Δ2 →
     ( ∀ bid,
       envs_entails Δ2 (WP fill K (ValBlock (Generative (Some bid)) tag vs) ∷ tid @ E {{ Φ }})

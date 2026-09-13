@@ -220,7 +220,7 @@ Section prophet_wise۰G.
 
   Lemma prophet_wiseｰwpｰresolve e pid v γ past prophs E Φ :
     Atomic e →
-    to_val e = None →
+    expr۰to_val e = None →
     prophet_wise۰model pid γ past prophs -∗
     WP e @ E {{ w,
       ∃ oproph,

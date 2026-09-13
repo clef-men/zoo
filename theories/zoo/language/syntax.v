@@ -781,11 +781,11 @@ Definition val۰to_int' :=
 Definition val۰to_nat' :=
   Z.to_nat ∘ val۰to_int'.
 
-Abbreviation of_val :=
+Abbreviation expr۰of_val :=
   Val
 ( only parsing
 ).
-Definition to_val e :=
+Definition expr۰to_val e :=
   match e with
   | Val v =>
       Some v
@@ -793,63 +793,63 @@ Definition to_val e :=
       None
   end.
 
-Lemma to_valｰof_val v :
-  to_val (of_val v) = Some v.
+Lemma expr۰to_valｰof_val v :
+  expr۰to_val (expr۰of_val v) = Some v.
 Proof.
   by destruct v.
 Qed.
-Lemma of_valｰto_val e v :
-  to_val e = Some v →
-  of_val v = e.
+Lemma expr۰of_valｰto_val e v :
+  expr۰to_val e = Some v →
+  expr۰of_val v = e.
 Proof.
   destruct e => //=. by intros [= <-].
 Qed.
-#[global] Instance of_valｰinj :
-  Inj (=) (=) of_val.
+#[global] Instance expr۰of_valｰinj :
+  Inj (=) (=) expr۰of_val.
 Proof.
   intros ?*. congruence.
 Qed.
 
-Definition of_vals vs :=
-  of_val <$> vs.
-Fixpoint to_vals es :=
+Definition expr۰of_vals vs :=
+  expr۰of_val <$> vs.
+Fixpoint expr۰to_vals es :=
   match es with
   | [] =>
       Some []
   | e :: es =>
-      v ← to_val e ;
-      es ← to_vals es ;
-      mret $ v :: es
+      v ← expr۰to_val e ;
+      es ← expr۰to_vals es ;
+      Some $ v :: es
   end.
 
-Lemma to_valsｰof_vals vs :
-  to_vals (of_vals vs) = Some vs.
+Lemma expr۰to_valsｰof_vals vs :
+  expr۰to_vals (expr۰of_vals vs) = Some vs.
 Proof.
   induction vs as [| v vs IH]; first done.
   rewrite /= IH. naive.
 Qed.
-Lemma of_valsｰto_vals es vs :
-  to_vals es = Some vs →
-  of_vals vs = es.
+Lemma expr۰of_valsｰto_vals es vs :
+  expr۰to_vals es = Some vs →
+  expr۰of_vals vs = es.
 Proof.
   revert vs. induction es as [| e es IH]; first naive. move=> [| v vs] /= H.
-  all: destruct (to_val e) eqn:Heq, (to_vals es); try done.
+  all: destruct (expr۰to_val e) eqn:Heq, (expr۰to_vals es); try done.
   inv H.
   f_equal; last naive.
   destruct e; naive.
 Qed.
-#[global] Instance of_valsｰinj :
-  Inj (=) (=) of_vals.
+#[global] Instance expr۰of_valsｰinj :
+  Inj (=) (=) expr۰of_vals.
 Proof.
   apply _.
 Qed.
-Lemma lengthｰof_vals vs :
-  length (of_vals vs) = length vs.
+Lemma lengthｰexpr۰of_vals vs :
+  length (expr۰of_vals vs) = length vs.
 Proof.
   apply length_fmap.
 Qed.
 Hint Rewrite
-  @lengthｰof_vals
+  @lengthｰexpr۰of_vals
 : simp_length.
 
 #[global] Instance valｰinhabited : Inhabited val :=
@@ -1380,7 +1380,7 @@ Qed.
 #[global] Instance valｰcountable :
   Countable val.
 Proof.
-  refine (inj_countable of_val to_val _); auto using to_valｰof_val.
+  refine (inj_countable expr۰of_val expr۰to_val _); auto using expr۰to_valｰof_val.
 Qed.
 
 Definition expr۰is_resolve e :=

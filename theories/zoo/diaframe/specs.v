@@ -100,7 +100,7 @@ Section zoo۰G.
     DIASPEC vs
     {{
       ⌜0 < length es⌝%nat ∗
-      ⌜to_vals es = Some vs⌝
+      ⌜expr۰to_vals es = Some vs⌝
     }}
       Block Mutable tag es
       @ E
@@ -141,7 +141,7 @@ Section zoo۰G.
   #[global] Instance blockｰgenerativeｰdiaspec tag es E :
     DIASPEC vs
     {{
-      ⌜to_vals es = Some vs⌝
+      ⌜expr۰to_vals es = Some vs⌝
     }}
       Block ImmutableGenerativeStrong tag es
       @ E

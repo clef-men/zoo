@@ -301,7 +301,7 @@ Section prophet_multi۰G.
 
   Lemma prophet_multiｰwpｰresolve e pid i v γ pasts prophss E Φ :
     Atomic e →
-    to_val e = None →
+    expr۰to_val e = None →
     (0 ≤ i)%Z →
     prophet_multi۰model pid γ pasts prophss -∗
     WP e @ E {{ w,
@@ -339,7 +339,7 @@ Section prophet_multi۰G.
   Qed.
   Lemma prophet_multiｰwpｰresolve' e pid i v γ pasts prophss E Φ :
     Atomic e →
-    to_val e = None →
+    expr۰to_val e = None →
     prophet_multi۰model pid γ pasts prophss -∗
     WP e @ E {{ w,
       ∃ oproph,

@@ -78,8 +78,8 @@ Section atomic.
     - rewrite fillｰapp. rewrite fillｰapp in Hfill.
       assert (∀ v, Val v = fill K e1' → False) as Hfill_absurd.
       { intros v Hv.
-        assert (to_val (fill K e1') = Some v) as Htv by by rewrite -Hv.
-        apply to_valｰfillｰSome in Htv. destruct Htv as [-> ->]. inversion Hstep.
+        assert (expr۰to_val (fill K e1') = Some v) as Htv by by rewrite -Hv.
+        apply expr۰to_valｰfillｰSome in Htv. destruct Htv as [-> ->]. inversion Hstep.
       }
       destruct k; (
         inversion Hfill; clear Hfill; subst;
@@ -89,7 +89,7 @@ Section atomic.
       ).
       refine (_ (H tid σ1 (fill (K ++ [_]) e2') _ σ2 es _)).
       + intro Hs. simpl in *.
-        destruct Hs as [v Hs]. apply to_valｰfillｰSome in Hs. destruct Hs, K; done.
+        destruct Hs as [v Hs]. apply expr۰to_valｰfillｰSome in Hs. destruct Hs, K; done.
       + econstructor; try done. simpl. by rewrite fillｰapp.
   Qed.
 End atomic.
@@ -401,23 +401,23 @@ Section pure_exec.
 
   #[global] Instance pureｰblockｰimmutableｰnongenerative tag es vs :
     PureExec
-      (to_vals es = Some vs)
+      (expr۰to_vals es = Some vs)
       1
       (Block ImmutableNongenerative tag es)
       (Val $ ValBlock Nongenerative tag vs).
   Proof.
-    intros <-%of_valsｰto_vals.
+    intros <-%expr۰of_valsｰto_vals.
     apply nsteps_once, pure_base_stepｰpure_step.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.
   #[global] Instance pureｰblockｰimmutableｰgenerative tag es vs :
     PureExec
-      (to_vals es = Some vs)
+      (expr۰to_vals es = Some vs)
       1
       (Block ImmutableGenerativeWeak tag es)
       (Val $ ValBlock (Generative None) tag vs).
   Proof.
-    intros <-%of_valsｰto_vals.
+    intros <-%expr۰of_valsｰto_vals.
     apply nsteps_once, pure_base_stepｰpure_step.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.

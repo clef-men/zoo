@@ -96,7 +96,7 @@ Section zoo۰G.
   Proof.
     iIntros "Hinterp H".
     rewrite bwpｰunfold /bwp۰pre /not_stuck.
-    destruct (to_val e) as [v |] eqn:He.
+    destruct (expr۰to_val e) as [v |] eqn:He.
     - iMod (fupd_mask_subseteq ∅); first done.
       iSteps.
     - iMod ("H" with "Hinterp") as ">(%Hreducible & _)".

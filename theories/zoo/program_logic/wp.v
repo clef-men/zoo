@@ -144,7 +144,7 @@ Section zoo۰G.
     rewrite wpｰunseal. solve_proper.
   Qed.
   #[global] Instance wpｰcontractive e tid E n :
-    TCEq (to_val e) None →
+    TCEq (expr۰to_val e) None →
     Proper (pointwise_relation _ (dist_later n) ==> (≡{n}≡)) (wp e tid E).
   Proof.
     wpｰunseal.
@@ -200,7 +200,7 @@ Section zoo۰G.
 
   Lemma wpｰvalueｰfupd' v tid E Φ :
     (|={E}=> Φ v) ⊢
-    WP of_val v ∷ tid @ E {{ Φ }}.
+    WP expr۰of_val v ∷ tid @ E {{ Φ }}.
   Proof.
     wpｰunseal.
     - apply bwpｰvalueｰfupd'.
@@ -216,7 +216,7 @@ Section zoo۰G.
   Qed.
   Lemma wpｰvalue' v tid E Φ :
     Φ v ⊢
-    WP of_val v ∷ tid @ E {{ Φ }}.
+    WP expr۰of_val v ∷ tid @ E {{ Φ }}.
   Proof.
     iIntros "HΦ".
     iApply (wpｰvalueｰfupd' with "HΦ").
@@ -230,9 +230,9 @@ Section zoo۰G.
   Qed.
 
   Lemma wpｰvalueｰmono v tid E Φ1 Φ2 :
-    WP of_val v ∷ tid @ E {{ Φ1 }} -∗
+    WP expr۰of_val v ∷ tid @ E {{ Φ1 }} -∗
     (Φ1 v ={E}=∗ Φ2 v) -∗
-    WP of_val v ∷ tid @ E {{ Φ2 }}.
+    WP expr۰of_val v ∷ tid @ E {{ Φ2 }}.
   Proof.
     wpｰunseal.
     - apply bwpｰvalueｰmono.
@@ -347,7 +347,7 @@ Section zoo۰G.
       else
         True
     ) →
-    WP e ∷ tid2 @ E {{ v, WP K (of_val v) ∷ tid1 @ E {{ Φ }} }} ⊢
+    WP e ∷ tid2 @ E {{ v, WP K (expr۰of_val v) ∷ tid1 @ E {{ Φ }} }} ⊢
     WP K e ∷ tid1 @ E {{ Φ }}.
   Proof.
     wpｰunseal; destruct tid1 as [tid1 |].
@@ -362,7 +362,7 @@ Section zoo۰G.
       iSteps.
   Qed.
   Lemma wpｰbind' K `{!Context K} e tid E Φ :
-    WP e ∷ tid @ E {{ v, WP K (of_val v) ∷ tid @ E {{ Φ }} }} ⊢
+    WP e ∷ tid @ E {{ v, WP K (expr۰of_val v) ∷ tid @ E {{ Φ }} }} ⊢
     WP K e ∷ tid @ E {{ Φ }}.
   Proof.
     apply: wpｰbind.
@@ -609,7 +609,7 @@ Section zoo۰G.
 
   Lemma wpｰblockｰmutable {es tag} vs tid E :
     0 < length es →
-    to_vals es = Some vs →
+    expr۰to_vals es = Some vs →
     {{{
       True
     }}}
@@ -623,7 +623,7 @@ Section zoo۰G.
       l ↦∗ vs
     }}}.
   Proof.
-    iIntros (Hlen <-%of_valsｰto_vals) "%Φ _ HΦ".
+    iIntros (Hlen <-%expr۰of_valsｰto_vals) "%Φ _ HΦ".
     iApply bwpｰwpｰweak. iIntros.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
@@ -636,7 +636,7 @@ Section zoo۰G.
   Qed.
 
   Lemma wpｰblockｰgenerative {es tag} vs tid E :
-    to_vals es = Some vs →
+    expr۰to_vals es = Some vs →
     {{{
       True
     }}}
@@ -648,7 +648,7 @@ Section zoo۰G.
       True
     }}}.
   Proof.
-    iIntros (<-%of_valsｰto_vals) "%Φ _ HΦ".
+    iIntros (<-%expr۰of_valsｰto_vals) "%Φ _ HΦ".
     iApply bwpｰwpｰweak. iIntros.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
@@ -963,7 +963,7 @@ Section zoo۰G.
 
   Lemma wpｰresolve e pid v prophs tid E Φ :
     Atomic e →
-    to_val e = None →
+    expr۰to_val e = None →
     prophet۰model pid prophs -∗
     WP e ∷ tid @ E {{ res,
       ∀ prophs',

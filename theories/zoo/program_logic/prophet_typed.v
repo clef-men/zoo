@@ -76,7 +76,7 @@ Section prophet_typed.
 
   Lemma prophet_typedｰwpｰresolve e pid v prophs E Φ :
     Atomic e →
-    to_val e = None →
+    expr۰to_val e = None →
     prophet_typed۰model pid prophs -∗
     WP e @ E {{ w,
       ∃ oproph,
@@ -175,7 +175,7 @@ Section prophet_typed₁.
 
   Lemma prophet_typed₁ｰwpｰresolve e pid v proph E Φ :
     Atomic e →
-    to_val e = None →
+    expr۰to_val e = None →
     prophet_typed₁۰model pid proph -∗
     WP e @ E {{ w,
       ∃ oproph,

@@ -20,7 +20,7 @@ Delimit Scope val_scope with V.
 Bind Scope val_scope with val.
 
 Class AsVal e v :=
-  as_val : of_val v = e.
+  as_val : expr۰of_val v = e.
 
 Variant prim_step tid e1 σ1 κ e2 σ2 es : Prop :=
   | base_stepｰfillｰprim_step' K eᵣ1 eᵣ2 :
@@ -63,12 +63,12 @@ Definition base_irreducible tid e σ :=
   ∀ κ e' σ' es,
   ¬ base_step tid e σ κ e' σ' es.
 Definition base_stuck tid e σ :=
-  to_val e = None ∧
+  expr۰to_val e = None ∧
   base_irreducible tid e σ.
 Definition base_atomic e :=
   ∀ tid σ κ e' σ' es,
   base_step tid e σ κ e' σ' es →
-  is_Some (to_val e').
+  is_Some (expr۰to_val e').
 
 Record pure_base_step e1 e2 :=
   { pure_base_stepｰsafe tid σ1 :
@@ -91,15 +91,15 @@ Definition irreducible tid e σ :=
   ∀ κ e' σ' es,
   ¬ prim_step tid e σ κ e' σ' es.
 Definition stuck tid e σ :=
-  to_val e = None ∧
+  expr۰to_val e = None ∧
   irreducible tid e σ.
 Definition not_stuck tid e σ :=
-  is_Some (to_val e) ∨
+  is_Some (expr۰to_val e) ∨
   reducible tid e σ.
 Class Atomic e :=
   atomic tid σ e' κ σ' es :
     prim_step tid e σ κ e' σ' es →
-    is_Some (to_val e').
+    is_Some (expr۰to_val e').
 Definition safe ρ :=
   ∀ ρ',
   silent_steps ρ ρ' →
@@ -121,13 +121,13 @@ Abbreviation pure_steps := (
 
 Class Context (K : expr → expr) :=
   { contextｰfillｰnotｰval e :
-      to_val e = None →
-      to_val (K e) = None
+      expr۰to_val e = None →
+      expr۰to_val (K e) = None
   ; contextｰfillｰstep tid e1 σ1 κ e2 σ2 es :
       prim_step tid e1 σ1 κ e2 σ2 es →
       prim_step tid (K e1) σ1 κ (K e2) σ2 es
   ; contextｰfillｰstepｰinv tid e1' σ1 κ e2 σ2 es :
-      to_val e1' = None →
+      expr۰to_val e1' = None →
       prim_step tid (K e1') σ1 κ e2 σ2 es →
         ∃ e2',
         e2 = K e2' ∧
@@ -141,7 +141,7 @@ Class PureExec (ϕ : Prop) n e1 e2 :=
 
 Definition sub_redexes_are_values e :=
   ∀ K e', e = fill K e' →
-  to_val e' = None →
+  expr۰to_val e' = None →
   K = [].
 
 #[global] Instance filliｰinj k :
@@ -150,14 +150,14 @@ Proof.
   induction k; intros ?*; naive.
 Qed.
 Lemma filliｰval k e :
-  is_Some (to_val (filli k e)) →
-  is_Some (to_val e).
+  is_Some (expr۰to_val (filli k e)) →
+  is_Some (expr۰to_val e).
 Proof.
   intros (v & ?). destruct k; done.
 Qed.
 Lemma filliｰno_valｰinj k1 e1 k2 e2 :
-  to_val e1 = None →
-  to_val e2 = None →
+  expr۰to_val e1 = None →
+  expr۰to_val e2 = None →
   filli k1 e1 = filli k2 e2 →
   k1 = k2.
 Proof.
@@ -176,13 +176,13 @@ Proof.
 Qed.
 Lemma base_stepｰfilliｰval tid k e σ1 κ e2 σ2 es :
   base_step tid (filli k e) σ1 κ e2 σ2 es →
-  is_Some (to_val e).
+  is_Some (expr۰to_val e).
 Proof.
   move: κ e2.
   induction k; try (inversion_clear 1; eauto || done).
   all: inversion_clear 1.
   all:
-    match goal with H: _ ++ _ :: of_vals ?vs1 = of_vals ?vs2 |- _ =>
+    match goal with H: _ ++ _ :: expr۰of_vals ?vs1 = expr۰of_vals ?vs2 |- _ =>
       apply (f_equal reverse) in H;
       rewrite reverse_app reverse_cons -!fmap_reverse /= in H;
       remember (reverse vs1) as vs1';
@@ -209,15 +209,15 @@ Proof.
   apply foldl_app.
 Qed.
 Lemma fillｰval K e :
-  is_Some (to_val (fill K e)) →
-  is_Some (to_val e).
+  is_Some (expr۰to_val (fill K e)) →
+  is_Some (expr۰to_val e).
 Proof.
   move: e. induction K as [| k K IH] => e //=.
   intros ?%IH%filliｰval => //.
 Qed.
 Lemma fillｰnotｰval K e :
-  to_val e = None →
-  to_val (fill K e) = None.
+  expr۰to_val e = None →
+  expr۰to_val (fill K e) = None.
 Proof.
   rewrite !eq_None_not_Some.
   eauto using fillｰval.
@@ -241,22 +241,22 @@ Qed.
 
 Lemma base_stepｰnotｰval tid e1 σ1 κ e2 σ2 es :
   base_step tid e1 σ1 κ e2 σ2 es →
-  to_val e1 = None.
+  expr۰to_val e1 = None.
 Proof.
   destruct 1; naive.
 Qed.
 Lemma base_stepｰtoｰval tid e σ κ1 e1 σ1' es1 κ2 e2 σ2' es2 :
   base_step tid e σ κ1 e1 σ1' es1 →
   base_step tid e σ κ2 e2 σ2' es2 →
-  is_Some (to_val e1) →
-  is_Some (to_val e2).
+  is_Some (expr۰to_val e1) →
+  is_Some (expr۰to_val e2).
 Proof.
   intros Hstep1 Hstep2 He1.
   inv Hstep1; inv Hstep2 => //.
 Qed.
 Lemma stepｰbyｰval tid K1 K2 e1 e2 σ1 κ e2' σ2 es :
   fill K1 e1 = fill K2 e2 →
-  to_val e1 = None →
+  expr۰to_val e1 = None →
   base_step tid e2 σ1 κ e2' σ2 es →
     ∃ K,
     K2 = K ++ K1.
@@ -278,7 +278,7 @@ Proof.
 Qed.
 Lemma base_stepｰfillｰval tid K e σ1 κ e2 σ2 es :
   base_step tid (fill K e) σ1 κ e2 σ2 es →
-    is_Some (to_val e) ∨
+    is_Some (expr۰to_val e) ∨
     K = [].
 Proof.
   destruct K as [| k K _] using rev_ind; simpl; first by auto.
@@ -327,7 +327,7 @@ Qed.
 
 Lemma prim_stepｰnotｰval tid e σ κ e' σ' es :
   prim_step tid e σ κ e' σ' es →
-  to_val e = None.
+  expr۰to_val e = None.
 Proof.
   intros [K eᵣ1 eᵣ2 -> -> ?%base_stepｰnotｰval].
   apply eq_None_not_Some. intros ?%fillｰval%eq_None_not_Some; done.
@@ -335,7 +335,7 @@ Qed.
 
 Lemma reducibleｰnotｰval tid e σ :
   reducible tid e σ →
-  to_val e = None.
+  expr۰to_val e = None.
 Proof.
   intros (κ & e' & σ' & es & Hstep).
   eauto using prim_stepｰnotｰval.
@@ -449,7 +449,7 @@ Proof.
   naive eauto using contextｰfillｰstep.
 Qed.
 Lemma reducibleｰcontextｰinv (K : expr → expr) `{!Context K} tid e σ :
-  to_val e = None →
+  expr۰to_val e = None →
   reducible tid (K e) σ →
   reducible tid e σ.
 Proof.
@@ -515,7 +515,7 @@ Qed.
 Lemma sub_redexes_are_valuesｰalt e :
   ( ∀ k e',
     e = filli k e' →
-    is_Some (to_val e')
+    is_Some (expr۰to_val e')
   ) →
   sub_redexes_are_values e.
 Proof.
@@ -525,26 +525,26 @@ Proof.
   eapply fillｰval, H. rewrite fillｰapp //.
 Qed.
 
-Lemma to_valｰfillｰSome K e v :
-  to_val (fill K e) = Some v →
+Lemma expr۰to_valｰfillｰSome K e v :
+  expr۰to_val (fill K e) = Some v →
   K = [] ∧ e = Val v.
 Proof.
-  intro H. destruct K as [| k K]; first by apply of_valｰto_val in H. exfalso.
-  assert (to_val e ≠ None) as He.
+  intro H. destruct K as [| k K]; first by apply expr۰of_valｰto_val in H. exfalso.
+  assert (expr۰to_val e ≠ None) as He.
   { intro A. rewrite fillｰnotｰval // in H. }
   assert (∃ w, e = Val w) as [w ->].
   { destruct e; try done; eauto. }
-  assert (to_val (fill (k :: K) (Val w)) = None).
+  assert (expr۰to_val (fill (k :: K) (Val w)) = None).
   { destruct k; simpl; apply fillｰnotｰval; done. }
   simp.
 Qed.
-Lemma prim_stepｰto_valｰisｰbase_step tid e σ1 κ v σ2 es :
+Lemma prim_stepｰtoｰvalｰisｰbase_step tid e σ1 κ v σ2 es :
   prim_step tid e σ1 κ (Val v) σ2 es →
   base_step tid e σ1 κ (Val v) σ2 es.
 Proof.
   intro H. destruct H as [K e1 e2 H1 H2].
-  assert (to_val (fill K e2) = Some v) as H3; first rewrite -H2 //.
-  apply to_valｰfillｰSome in H3 as [-> ->]. subst e. done.
+  assert (expr۰to_val (fill K e2) = Some v) as H3; first rewrite -H2 //.
+  apply expr۰to_valｰfillｰSome in H3 as [-> ->]. subst e. done.
 Qed.
 
 Lemma silent_stepsｰnsteps ρ1 ρ2 :
@@ -573,7 +573,7 @@ Proof.
 Qed.
 
 Lemma valｰnot_stuck tid e σ :
-  is_Some (to_val e) →
+  is_Some (expr۰to_val e) →
   not_stuck tid e σ.
 Proof.
   intros (v & ?). left => //.
@@ -655,14 +655,14 @@ Lemma reducibleｰresolve tid e σ pid v :
   reducible tid (Resolve e (Val $ ValProph pid) (Val v)) σ.
 Proof.
   intros Hatomic (κ & e' & σ' & es & H).
-  exists (κ ++ [(pid, (default v (to_val e'), v))]), e', σ', es.
+  exists (κ ++ [(pid, (default v (expr۰to_val e'), v))]), e', σ', es.
   eapply (base_stepｰfillｰprim_step' []); try done.
   assert (∃ w, Val w = e') as (w & <-).
   { apply (Hatomic tid σ e' κ σ' es) in H as (w & H).
-    exists w. apply (of_valｰto_val _ _ H).
+    exists w. apply (expr۰of_valｰto_val _ _ H).
   }
   econstructor.
-  apply prim_stepｰto_valｰisｰbase_step. done.
+  apply prim_stepｰtoｰvalｰisｰbase_step. done.
 Qed.
 Lemma prim_stepｰresolveｰinv tid e v1 v2 σ1 κ e2 σ2 es :
   Atomic e →
@@ -677,15 +677,15 @@ Proof.
     + assert (filli k (fill K e1') = fill (K ++ [k]) e1') as Heq1; first by rewrite fillｰapp.
       assert (filli k (fill K e2') = fill (K ++ [k]) e2') as Heq2; first by rewrite fillｰapp.
       rewrite fillｰapp /=. rewrite Heq1 in Hatomic.
-      assert (is_Some (to_val (fill (K ++ [k]) e2'))) as H.
+      assert (is_Some (expr۰to_val (fill (K ++ [k]) e2'))) as H.
       { eapply (Hatomic tid σ1 _ κ σ2 es), (base_stepｰfillｰprim_step' (K ++ [k])); done. }
-      destruct H as [v H]. apply to_valｰfillｰSome in H. destruct H, K; done.
-    + rename select (of_val v1 = _) into Hv1.
-      assert (to_val (fill K e1') = Some v1) as Hfill_v1 by rewrite -Hv1 //.
-      apply to_valｰfillｰSome in Hfill_v1 as (-> & ->).
+      destruct H as [v H]. apply expr۰to_valｰfillｰSome in H. destruct H, K; done.
+    + rename select (expr۰of_val v1 = _) into Hv1.
+      assert (expr۰to_val (fill K e1') = Some v1) as Hfill_v1 by rewrite -Hv1 //.
+      apply expr۰to_valｰfillｰSome in Hfill_v1 as (-> & ->).
       inv Hstep.
-    + rename select (of_val v2 = _) into Hv2.
-      assert (to_val (fill K e1') = Some v2) as Hfill_v2 by rewrite -Hv2 //.
-      apply to_valｰfillｰSome in Hfill_v2 as (-> & ->).
+    + rename select (expr۰of_val v2 = _) into Hv2.
+      assert (expr۰to_val (fill K e1') = Some v2) as Hfill_v2 by rewrite -Hv2 //.
+      apply expr۰to_valｰfillｰSome in Hfill_v2 as (-> & ->).
       inv Hstep.
 Qed.
