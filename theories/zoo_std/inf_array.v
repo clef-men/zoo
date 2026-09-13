@@ -491,7 +491,7 @@ Section inf_array۰G.
       inf_array۰model t vs ∗
       ( ∀ e,
         ⌜PureExec True 1 e ()⌝ -∗
-        ⌜to_val e = None⌝ -∗
+        ⌜expr۰to_val e = None⌝ -∗
         inf_array۰model t (<[₊i := v]> vs) -∗
         WP Resolve e #pid v_resolve @ E {{ _,
           |={E,⊤}=>
@@ -679,7 +679,7 @@ Section inf_array۰G.
       inf_array۰model t vs ∗
       ( ∀ e b,
         ⌜PureExec True 1 e ()⌝ -∗
-        ⌜to_val e = None⌝ -∗
+        ⌜expr۰to_val e = None⌝ -∗
         ⌜(if b then (≈) else (≉)) (vs ₊i) v1⌝ -∗
         inf_array۰model t (if b then <[₊i := v2]> vs else vs) -∗
         WP Resolve e #pid v_resolve @ E {{ _,
