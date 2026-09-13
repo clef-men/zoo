@@ -468,33 +468,23 @@ Proof.
     + destruct (Hred tid σ1) as (? & ? & ? & ?); eauto using prim_stepｰnotｰval.
     + edestruct (Hstep tid σ1 κ e2'' σ2 es) as (? & -> & -> & ->); done.
 Qed.
-Lemma pure_stepｰnstepsｰcontext (K : expr → expr) `{!Context K} n e1 e2 :
+Lemma pure_stepｰfill {e1 e2} K :
+  pure_step e1 e2 →
+  pure_step (fill K e1) (fill K e2).
+Proof.
+  apply: pure_stepｰcontext.
+Qed.
+Lemma pure_nstepsｰcontext (K : expr → expr) `{!Context K} n e1 e2 :
   relations.nsteps pure_step n e1 e2 →
   relations.nsteps pure_step n (K e1) (K e2).
 Proof.
   eauto using nsteps_congruence, pure_stepｰcontext.
 Qed.
-
-Lemma pure_execｰcontext (K : expr → expr) `{!Context K} ϕ n e1 e2 :
-  PureExec ϕ n e1 e2 →
-  PureExec ϕ n (K e1) (K e2).
-Proof.
-  rewrite /PureExec; auto using pure_stepｰnstepsｰcontext.
-Qed.
-Lemma pure_execｰfill K ϕ n e1 e2 :
-  PureExec ϕ n e1 e2 →
-  PureExec ϕ n (fill K e1) (fill K e2).
-Proof.
-  apply: pure_execｰcontext.
-Qed.
-
 Lemma pure_nstepsｰfill {n e1 e2} K :
   relations.nsteps pure_step n e1 e2 →
   relations.nsteps pure_step n (fill K e1) (fill K e2).
 Proof.
-  intros Hsteps.
-  eapply pure_execｰfill. 2: done.
-  intros _ => //.
+  apply: pure_nstepsｰcontext.
 Qed.
 Lemma pure_stepsｰfill {e1 e2} K :
   pure_steps e1 e2 →
@@ -504,12 +494,19 @@ Proof.
   intros (n & Hsteps%(pure_nstepsｰfill K)).
   eauto.
 Qed.
-Lemma pure_stepｰfill {e1 e2} K :
-  pure_step e1 e2 →
-  pure_step (fill K e1) (fill K e2).
+
+Lemma pure_execｰcontext (K : expr → expr) `{!Context K} ϕ n e1 e2 :
+  PureExec ϕ n e1 e2 →
+  PureExec ϕ n (K e1) (K e2).
 Proof.
-  intros Hstep%nsteps_once%(pure_nstepsｰfill K).
-  apply nsteps_once_inv => //.
+  rewrite /PureExec.
+  auto using pure_nstepsｰcontext.
+Qed.
+Lemma pure_execｰfill K ϕ n e1 e2 :
+  PureExec ϕ n e1 e2 →
+  PureExec ϕ n (fill K e1) (fill K e2).
+Proof.
+  apply: pure_execｰcontext.
 Qed.
 
 Lemma sub_redexes_are_valuesｰalt e :
