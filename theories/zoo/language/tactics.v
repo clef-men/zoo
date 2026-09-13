@@ -39,7 +39,12 @@ Ltac reshape_expr e tac :=
     | Alloc ?e1 ?e2 =>
         add_ectxi (CtxAlloc2 e1) K resolves e2
     | Block ?mut ?tag ?es =>
-        go_list K resolves (CtxBlock mut tag) es
+        lazymatch eval simpl in (expr۰to_vals_suffix es) with
+        | Ok _ =>
+            fail
+        | Error (?es, ?e, ?vs) =>
+            add_ectxi (CtxBlock mut tag es vs) K resolves e
+        end
     | Match ?e0 ?x ?e1 ?brs =>
         add_ectxi (CtxMatch x e1 brs) K resolves e0
     | GetTag ?e =>
@@ -84,21 +89,6 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxResolveErasure1 e0 v2) K resolves e1
     | ResolveErasure ?e0 ?e1 ?e2 =>
         add_ectxi (CtxResolveErasure2 e0 e1) K resolves e2
-    end
-  with go_list K resolves ctx es :=
-    let es := eval simpl in (rev es) in
-    go_list' K resolves ctx es (@nil val)
-  with go_list' K resolves ctx es vs :=
-    lazymatch es with
-    | cons ?e ?es =>
-        lazymatch e with
-        | Val ?v =>
-            go_list' K resolves ctx es (cons v vs)
-        | _ =>
-            add_ectxi (ctx (rev es) vs) K resolves e
-        end
-    | _ =>
-        fail
     end
   with add_ectxi k K resolves e :=
     let k := eval simpl in (ectxi۰make_resolves resolves k) in

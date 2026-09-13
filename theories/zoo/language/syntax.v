@@ -785,6 +785,7 @@ Abbreviation expr۰of_val :=
   Val
 ( only parsing
 ).
+
 Definition expr۰to_val e :=
   match e with
   | Val v =>
@@ -812,6 +813,7 @@ Qed.
 
 Definition expr۰of_vals vs :=
   expr۰of_val <$> vs.
+
 Fixpoint expr۰to_vals es :=
   match es with
   | [] =>
@@ -851,6 +853,57 @@ Qed.
 Hint Rewrite
   @lengthｰexpr۰of_vals
 : simp_length.
+
+Fixpoint expr۰to_vals_suffix es :=
+  match es with
+  | [] =>
+      Ok []
+  | e :: es =>
+      match expr۰to_vals_suffix es with
+      | Ok vs =>
+          if expr۰to_val e is Some v then
+            Ok (v :: vs)
+          else
+            Error ([], e, vs)
+      | Error (es, eᵣ, vs) =>
+          Error (e :: es, eᵣ, vs)
+      end
+  end.
+#[global] Arguments expr۰to_vals_suffix !_ / : assert.
+
+Lemma expr۰to_vals_suffixｰspec es :
+  es =
+    match expr۰to_vals_suffix es with
+    | Ok vs =>
+        expr۰of_vals vs
+    | Error (es, e, vs) =>
+        es ++ e :: expr۰of_vals vs
+    end.
+Proof.
+  induction es as [| e es IH] => //=.
+  destruct (expr۰to_vals_suffix es) as [vs | ((es', eᵣ), vs)] => /=.
+  - destruct (expr۰to_val e) as [v |] eqn:He => /=.
+    + apply expr۰of_valｰto_val in He.
+      naive.
+    + naive.
+  - naive.
+Qed.
+Lemma expr۰to_vals_suffixｰOk es vs :
+  expr۰to_vals_suffix es = Ok vs →
+  es = expr۰of_vals vs.
+Proof.
+  intros Heq.
+  have H := expr۰to_vals_suffixｰspec es.
+  rewrite Heq // in H.
+Qed.
+Lemma expr۰to_vals_suffixｰError es es' e vs :
+  expr۰to_vals_suffix es = Error (es', e, vs) →
+  es = es' ++ e :: expr۰of_vals vs.
+Proof.
+  intros Heq.
+  have H := expr۰to_vals_suffixｰspec es.
+  rewrite Heq // in H.
+Qed.
 
 #[global] Instance valｰinhabited : Inhabited val :=
   populate ValUnit.
