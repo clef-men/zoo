@@ -1,9 +1,9 @@
 (library
-  (name bench)
-  (libraries
-    zoo_parabs
-    domainslib
-    moonpool
-    moonpool.forkjoin
-  )
+ (name bench)
+ (libraries
+  zoo_parabs
+  domainslib
+  moonpool
+  moonpool.forkjoin
+ )
 )

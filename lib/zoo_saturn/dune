@@ -1,10 +1,10 @@
 (library
-  (name zoo_saturn)
-  (public_name zoo-saturn)
-  (libraries
-    backoff
-    zoo
-    zoo_std
-  )
-  (flags (:standard -open Zoo_std))
+ (name zoo_saturn)
+ (public_name zoo-saturn)
+ (libraries
+  backoff
+  zoo
+  zoo_std
+ )
+ (flags (:standard -open Zoo_std))
 )

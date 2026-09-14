@@ -5,84 +5,84 @@
 (generate_opam_files)
 
 (authors
-  "Clément Allain"
+ "Clément Allain"
 )
 (maintainers
-  "clement.allain@inria.fr"
+ "clement.allain@inria.fr"
 )
 
 (source (github clef-men/zoo))
 (license ISC)
 
 (package
-  (name zoo)
-  (synopsis "Zoo")
+ (name zoo)
+ (synopsis "Zoo")
 )
 
 (package
-  (name zoo-std)
-  (synopsis "Zoo standard library")
-  (depends
-    zoo
-  )
+ (name zoo-std)
+ (synopsis "Zoo standard library")
+ (depends
+  zoo
+ )
 )
 
 (package
-  (name zoo-data)
-  (synopsis "Collection of data structures")
-  (depends
-    zoo-std
-  )
+ (name zoo-data)
+ (synopsis "Collection of data structures")
+ (depends
+  zoo-std
+ )
 )
 
 (package
-  (name zoo-saturn)
-  (synopsis "Saturn")
-  (depends
-    backoff
-    zoo
-    zoo-std
-  )
+ (name zoo-saturn)
+ (synopsis "Saturn")
+ (depends
+  backoff
+  zoo
+  zoo-std
+ )
 )
 
 (package
-  (name zoo-parabs)
-  (synopsis "Parabs")
-  (depends
-    zoo
-    zoo-std
-    zoo-saturn
-    ; benchmark dependencies
-    (domainslib :with-dev-setup)
-    (moonpool :with-dev-setup)
-  )
+ (name zoo-parabs)
+ (synopsis "Parabs")
+ (depends
+  zoo
+  zoo-std
+  zoo-saturn
+  ; benchmark dependencies
+  (domainslib :with-dev-setup)
+  (moonpool :with-dev-setup)
+ )
 )
 
 (package
-  (name zoo-eio)
-  (synopsis "Eio")
-  (depends
-    zoo-std
-  )
+ (name zoo-eio)
+ (synopsis "Eio")
+ (depends
+  zoo-std
+ )
 )
 
 (package
-  (name zoo-mcas)
-  (synopsis "Multi-word compare-and-set")
-  (depends
-    zoo
-    zoo-std
-  )
+ (name zoo-mcas)
+ (synopsis "Multi-word compare-and-set")
+ (depends
+  zoo
+  zoo-std
+ )
 )
 
 (package
-  (name rocq-zoo)
-  (synopsis "Zoo")
-  (allow_empty)
+ (name rocq-zoo)
+ (synopsis "Zoo")
+ (allow_empty)
 )
 
 (package
-  (name rocq-zoo-std)
-  (synopsis "Zoo standard library")
-  (allow_empty)
+ (name rocq-zoo-std)
+ (synopsis "Zoo standard library")
+ (allow_empty)
 )

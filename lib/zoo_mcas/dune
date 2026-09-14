@@ -1,9 +1,9 @@
 (library
-  (name zoo_mcas)
-  (public_name zoo-mcas)
-  (libraries
-    zoo
-    zoo_std
-  )
-  (flags (:standard -open Zoo_std))
+ (name zoo_mcas)
+ (public_name zoo-mcas)
+ (libraries
+  zoo
+  zoo_std
+ )
+ (flags (:standard -open Zoo_std))
 )

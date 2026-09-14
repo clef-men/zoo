@@ -1,4 +1,4 @@
 (library
-  (name zoo)
-  (public_name zoo)
+ (name zoo)
+ (public_name zoo)
 )

@@ -1,8 +1,8 @@
 (library
-  (name zoo_data)
-  (public_name zoo-data)
-  (libraries
-    zoo_std
-  )
-  (flags (:standard -open Zoo_std))
+ (name zoo_data)
+ (public_name zoo-data)
+ (libraries
+  zoo_std
+ )
+ (flags (:standard -open Zoo_std))
 )
