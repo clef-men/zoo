@@ -2,7 +2,7 @@ Require Import zoo.prelude.
 Require Export zoo.language.language.
 Require Import zoo.options.
 
-Ltac reshape_expr e tac :=
+Ltac expr۰reshape_apply e tac :=
   let rec go K resolves e :=
     match e with
     | _ =>

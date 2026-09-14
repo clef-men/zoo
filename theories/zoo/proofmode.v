@@ -559,7 +559,7 @@ Ltac wp۰expr۰simpl :=
 Tactic Notation "wp۰pure" open_constr(e_foc) :=
   wp۰start ltac:(fun e =>
     let e := eval simpl in e in
-    reshape_expr e ltac:(fun K e' =>
+    expr۰reshape_apply e ltac:(fun K e' =>
       unify e' e_foc;
       eapply (tacｰwpｰpure _ _ K e');
       [ tc_solve
@@ -582,7 +582,7 @@ Tactic Notation "wp۰pure" open_constr(e_foc) "credits:" constr(Hcredits) :=
   wp۰start ltac:(fun e =>
     let Htmp := iFresh in
     let e := eval simpl in e in
-    reshape_expr e ltac:(fun K e' =>
+    expr۰reshape_apply e ltac:(fun K e' =>
       unify e' e_foc;
       eapply (tacｰwpｰpureｰcredits _ _ Htmp K e');
       [ tc_solve
@@ -608,7 +608,7 @@ Tactic Notation "wp۰pure" open_constr(e_foc) "credit:" constr(Hcredit) :=
   wp۰start ltac:(fun e =>
     let Htmp := iFresh in
     let e := eval simpl in e in
-    reshape_expr e ltac:(fun K e' =>
+    expr۰reshape_apply e ltac:(fun K e' =>
       unify e' e_foc;
       eapply (tacｰwpｰpureｰcredit _ _ Htmp K e');
       [ tc_solve
@@ -634,7 +634,7 @@ Tactic Notation "wp۰pure" open_constr(e_foc) "steps:" constr(Hsteps_lb) :=
   wp۰start ltac:(fun e =>
     let e := eval simpl in e in
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         unify e' e_foc;
         eapply (tacｰwpｰpureｰsteps۰lb _ _ (INamed Hsteps_lb) _ _ K e');
         [ tc_solve
@@ -662,7 +662,7 @@ Tactic Notation "wp۰pure" open_constr(e_foc) "steps:" constr(Hsteps_lb) "credit
     let Htmp := iFresh in
     let e := eval simpl in e in
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         unify e' e_foc;
         eapply (tacｰwpｰpureｰsteps۰lbｰcredits _ _ (INamed Hsteps_lb) _ _ Htmp K e');
         [ tc_solve
@@ -694,7 +694,7 @@ Tactic Notation "wp۰pure" open_constr(e_foc) "steps:" constr(Hsteps_lb) "credit
     let Htmp := iFresh in
     let e := eval simpl in e in
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         unify e' e_foc;
         eapply (tacｰwpｰpureｰsteps۰lbｰcredit _ _ (INamed Hsteps_lb) _ _ Htmp K e');
         [ tc_solve
@@ -782,7 +782,7 @@ Ltac wp۰bind۰core K :=
 Tactic Notation "wp۰bind" open_constr(e_foc) :=
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         unify e' e_foc;
         wp۰bind۰core K
       )
@@ -794,7 +794,7 @@ Tactic Notation "wp۰equal" "as" simple_intropattern(Hfail) "|" simple_intropatt
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰequal _ _ K)
       )
     | fail 1 "wp۰equal: cannot find 'Equal' in" e
@@ -818,7 +818,7 @@ Tactic Notation "wp۰alloc" ident(l) "as" constr(Hheader) constr(Hmeta) constr(H
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰalloc _ _ Hheader' Hmeta' Hl' K)
       )
     | fail 1 "wp۰alloc: cannot find 'Alloc' in" e
@@ -910,7 +910,7 @@ Tactic Notation "wp۰block" ident(l) "as" constr(Hheader) constr(Hmeta) constr(H
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰblockｰmutable _ _ Hheader' Hmeta' Hl' K);
         [ simpl; lia
         | fast_done
@@ -952,7 +952,7 @@ Tactic Notation "wp۰ref" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl)
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰref _ _ Hheader' Hmeta' Hl' K)
       )
     | fail 1 "wp۰ref: cannot find '𝗿𝗲𝗳' in" e
@@ -989,7 +989,7 @@ Tactic Notation "wp۰block۰generative" simple_intropattern(bid) :=
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰblockｰgenerative _ _ K);
         [ fast_done
         | idtac..
@@ -1009,7 +1009,7 @@ Tactic Notation "wp۰match" :=
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰmatch _ _ _ _ K)
       )
     | fail 1 "wp۰match: cannot find 'Match' on location in" e
@@ -1029,7 +1029,7 @@ Ltac wp۰tag :=
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰtag _ _ _ _ K)
       )
     | fail 1 "wp۰tag: cannot find 'GetTag' in" e
@@ -1048,7 +1048,7 @@ Ltac wp۰size :=
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰsize _ _ _ _ K)
       )
     | fail 1 "wp۰size: cannot find 'GetSize' in" e
@@ -1067,7 +1067,7 @@ Ltac wp۰load :=
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰload _ _ _ _ K)
       )
     | fail 1 "wp۰load: cannot find 'Load' in" e
@@ -1086,7 +1086,7 @@ Ltac wp۰store :=
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰstore _ _ _ K)
       )
     | fail 1 "wp۰store: cannot find 'Store' in" e
@@ -1106,7 +1106,7 @@ Ltac wp۰xchg :=
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰxchg _ _ _ K)
       )
     | fail 1 "wp۰xchg: cannot find 'Xchg in" e
@@ -1126,7 +1126,7 @@ Tactic Notation "wp۰cas" "as" simple_intropattern(Hfail) "|" simple_intropatter
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰcas _ _ _ _ _ K)
       )
     | fail 1 "wp۰cas: cannot find 'CAS' with literal arguments in" e
@@ -1155,7 +1155,7 @@ Ltac wp۰faa :=
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' =>
+    [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰfaa _ _ _ K)
       )
     | fail 1 "wp۰faa: cannot find 'FAA' in" e
@@ -1175,7 +1175,7 @@ Ltac wp۰faa :=
   first
   [ iPoseProofCore lemma as false (fun H =>
       wp۰start ltac:(fun e =>
-       reshape_expr e ltac:(fun K e' =>
+       expr۰reshape_apply e ltac:(fun K e' =>
          wp۰bind۰core K;
          tac_suc H
        )

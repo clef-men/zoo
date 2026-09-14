@@ -391,17 +391,17 @@ Section zoo۰G.
   Qed.
 End zoo۰G.
 
-Ltac find_reshape e K e' :=
+#[local] Ltac expr۰reshape e K e' :=
   lazymatch e with
   | fill ?Kabs ?e_inner =>
-      reshape_expr e_inner ltac:(fun K' e'' =>
+      expr۰reshape_apply e_inner ltac:(fun K' e'' =>
         unify K (fill Kabs ∘ fill K');
         unify e' e'';
         notypeclasses refine (ConstructReshape e (fill Kabs ∘ fill K') e'' _ eq_refl _);
         tc_solve
       )
   | _ =>
-      reshape_expr e ltac:(fun K' e'' =>
+      expr۰reshape_apply e ltac:(fun K' e'' =>
         unify K (fill K');
         unify e' e'';
         notypeclasses refine (ConstructReshape e (fill K') e'' _ eq_refl _);
@@ -412,12 +412,12 @@ Ltac find_reshape e K e' :=
 #[global] Hint Extern 4 (
   ReshapeExprAnd expr ?e ?K ?e' _
 ) =>
-  find_reshape e K e'
+  expr۰reshape e K e'
 : typeclass_instances.
 #[global] Hint Extern 4 (
   ReshapeExprAnd expr ?e ?K ?e' _
 ) =>
-  find_reshape e K e'
+  expr۰reshape e K e'
 : typeclass_instances.
 
 #[global] Hint Extern 4 (
