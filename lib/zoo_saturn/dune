@@ -1,6 +1,6 @@
 (library
   (name zoo_saturn)
-  (public_name zoo_saturn)
+  (public_name zoo-saturn)
   (libraries
     backoff
     zoo

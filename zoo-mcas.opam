@@ -9,7 +9,7 @@ bug-reports: "https://github.com/clef-men/zoo/issues"
 depends: [
   "dune" {>= "3.0"}
   "zoo"
-  "zoo_std"
+  "zoo-std"
   "odoc" {with-doc}
 ]
 build: [

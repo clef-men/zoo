@@ -1,6 +1,6 @@
 (library
   (name zoo_data)
-  (public_name zoo_data)
+  (public_name zoo-data)
   (libraries
     zoo_std
   )

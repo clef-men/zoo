@@ -1,6 +1,6 @@
 (library
   (name zoo_eio)
-  (public_name zoo_eio)
+  (public_name zoo-eio)
   (libraries
     zoo_std
     unix

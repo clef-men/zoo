@@ -20,7 +20,7 @@
 )
 
 (package
-  (name zoo_std)
+  (name zoo-std)
   (synopsis "Zoo standard library")
   (depends
     zoo
@@ -28,30 +28,30 @@
 )
 
 (package
-  (name zoo_data)
+  (name zoo-data)
   (synopsis "Collection of data structures")
   (depends
-    zoo_std
+    zoo-std
   )
 )
 
 (package
-  (name zoo_saturn)
+  (name zoo-saturn)
   (synopsis "Saturn")
   (depends
     backoff
     zoo
-    zoo_std
+    zoo-std
   )
 )
 
 (package
-  (name zoo_parabs)
+  (name zoo-parabs)
   (synopsis "Parabs")
   (depends
     zoo
-    zoo_std
-    zoo_saturn
+    zoo-std
+    zoo-saturn
     ; benchmark dependencies
     (domainslib :with-dev-setup)
     (moonpool :with-dev-setup)
@@ -59,19 +59,19 @@
 )
 
 (package
-  (name zoo_eio)
+  (name zoo-eio)
   (synopsis "Eio")
   (depends
-    zoo_std
+    zoo-std
   )
 )
 
 (package
-  (name zoo_mcas)
+  (name zoo-mcas)
   (synopsis "Multi-word compare-and-set")
   (depends
     zoo
-    zoo_std
+    zoo-std
   )
 )
 
