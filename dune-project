@@ -8,7 +8,7 @@
  "Clément Allain"
 )
 (maintainers
- "clement.allain@inria.fr"
+ "clement.allain@cs.au.dk"
 )
 
 (source (github clef-men/zoo))
