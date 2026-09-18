@@ -1,7 +1,6 @@
 Require Import iris.base_logic.lib.ghost_map.
 
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.list.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.twins.
@@ -47,18 +46,9 @@ Record loc۰metadata :=
   }.
 Implicit Type γ : loc۰metadata.
 
-#[local] Instance loc۰metadataｰinhabited : Inhabited loc۰metadata :=
-  populate
-    {|loc۰metadata۰model := inhabitant
-    ; loc۰metadata۰history := inhabitant
-    |}.
-#[local] Instance loc۰metadataｰeq_dec : EqDecision loc۰metadata :=
-  ltac:(solve_decision).
-#[local] Instance loc۰metadataｰcountable :
-  Countable loc۰metadata.
-Proof.
-  solve_countable.
-Qed.
+#[local] Please derive Inhabited for loc۰metadata.
+#[local] Please derive EqDecision for loc۰metadata.
+#[local] Please derive Countable for loc۰metadata.
 
 Record descriptor :=
   { descriptor۰loc : location
@@ -73,21 +63,9 @@ Implicit Type descrs : list descriptor.
 #[local] Definition descriptor۰cas descr : val :=
   (#descr.(descriptor۰loc), #descr.(descriptor۰state)).
 
-#[local] Instance descriptorｰinhabited : Inhabited descriptor :=
-  populate
-    {|descriptor۰loc := inhabitant
-    ; descriptor۰meta := inhabitant
-    ; descriptor۰before := inhabitant
-    ; descriptor۰after := inhabitant
-    ; descriptor۰state := inhabitant
-    |}.
-#[local] Instance descriptorｰeq_dec : EqDecision descriptor :=
-  ltac:(solve_decision).
-#[local] Instance descriptorｰcountable :
-  Countable descriptor.
-Proof.
-  solve_countable.
-Qed.
+#[local] Please derive Inhabited for descriptor.
+#[local] Please derive EqDecision for descriptor.
+#[local] Please derive Countable for descriptor.
 
 Variant status :=
   | Undetermined
@@ -140,26 +118,9 @@ Record metadata :=
   }.
 Implicit Type η : metadata.
 
-#[local] Instance metadataｰinhabited : Inhabited metadata :=
-  populate
-    {|metadata۰descrs := inhabitant
-    ; metadata۰prophet := inhabitant
-    ; metadata۰prophs := inhabitant
-    ; metadata۰undetermined := inhabitant
-    ; metadata۰post := inhabitant
-    ; metadata۰lstatus := inhabitant
-    ; metadata۰locks := inhabitant
-    ; metadata۰helpers := inhabitant
-    ; metadata۰winning := inhabitant
-    ; metadata۰owner := inhabitant
-    |}.
-#[local] Instance metadataｰeq_dec : EqDecision metadata :=
-  ltac:(solve_decision).
-#[local] Instance metadataｰcountable :
-  Countable metadata.
-Proof.
-  solve_countable.
-Qed.
+#[local] Please derive Inhabited for metadata.
+#[local] Please derive EqDecision for metadata.
+#[local] Please derive Countable for metadata.
 
 #[local] Definition metadata۰size η :=
   length η.(metadata۰descrs).
@@ -176,8 +137,7 @@ Qed.
 #[local] Definition metadata۰final η :=
   final_status۰to_val $ final_status۰of_bool $ metadata۰success η.
 
-#[local] Instance statusｰinhabited : Inhabited status :=
-  populate Undetermined.
+#[local] Please derive Inhabited for status.
 
 #[local] Definition status۰to_val η status : val :=
   match status with
@@ -194,8 +154,7 @@ Variant lstatus :=
   | Finished.
 Implicit Type lstatus : lstatus.
 
-#[local] Instance lstatusｰinhabited : Inhabited lstatus :=
-  populate Finished.
+#[local] Please derive Inhabited for lstatus.
 
 Variant lstep : lstatus → lstatus → Prop :=
   | lstepｰincr i :

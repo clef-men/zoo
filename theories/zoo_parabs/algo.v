@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.ghost_var.
 Require Import zoo.base.

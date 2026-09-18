@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Export zoo.iris.base_logic.lib.base.
 Require Import zoo.iris.base_logic.lib.ghost_var.
 Require Import zoo.iris.base_logic.lib.auth_mono.
@@ -41,13 +40,8 @@ Section auth_twins۰G.
     }.
   Implicit Type γ : auth_twins۰name.
 
-  #[global] Instance auth_twins۰nameｰeq_dec : EqDecision auth_twins۰name :=
-    ltac:(solve_decision).
-  #[global] Instance auth_twins۰nameｰcountable :
-    Countable auth_twins۰name.
-  Proof.
-    solve_countable.
-  Qed.
+  Please derive EqDecision for auth_twins۰name.
+  Please derive Countable for auth_twins۰name.
 
   Definition auth_twins۰auth γ a : iProp Σ :=
     ∃ η,

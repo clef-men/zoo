@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.gmultiset.
 Require Import zoo.common.list.
 Require Import zoo.iris.bi.big_op.
@@ -176,16 +175,8 @@ Section ws_hub_hybrid۰G.
     }.
   Implicit Type γ : metadata.
 
-  #[local] Instance metadataｰeq_dec :
-    EqDecision metadata.
-  Proof.
-    solve_decision.
-  Qed.
-  #[local] Instance metadataｰcountable :
-    Countable metadata.
-  Proof.
-    solve_countable.
-  Qed.
+  #[local] Please derive EqDecision for metadata.
+  #[local] Please derive Countable for metadata.
 
   #[local] Definition emptiness۰auth' γ_emptiness sz vs_queue : iProp Σ :=
     ∃ emptys,

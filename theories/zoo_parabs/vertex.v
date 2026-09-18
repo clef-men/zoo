@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.gmultiset.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.auth_gmultiset.
@@ -26,10 +25,8 @@ Variant state :=
   | Finished.
 Implicit Type state : state.
 
-#[local] Instance stateｰinhabited : Inhabited state :=
-  populate Init.
-#[local] Instance stateｰeq_dec : EqDecision state :=
-  ltac:(solve_decision).
+#[local] Please derive Inhabited for state.
+#[local] Please derive EqDecision for state.
 
 Record vertex۰name :=
   { vertex۰name۰successors : val
@@ -39,15 +36,10 @@ Record vertex۰name :=
   ; vertex۰name۰output : gname
   }.
 Implicit Type γ δ π : vertex۰name.
-
-#[local] Instance vertex۰nameｰeq_dec : EqDecision vertex۰name :=
-  ltac:(solve_decision).
-#[local] Instance vertex۰nameｰcountable :
-  Countable vertex۰name.
-Proof.
-  solve_countable.
-Qed.
 Implicit Type Δ Π : gmultiset vertex۰name.
+
+#[local] Please derive EqDecision for vertex۰name.
+#[local] Please derive Countable for vertex۰name.
 
 Definition vertex۰iteration :=
   gname.

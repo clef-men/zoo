@@ -1,7 +1,6 @@
 Require Import iris.base_logic.lib.ghost_map.
 
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Export zoo_data.sarray__code.
@@ -40,13 +39,8 @@ Section sarray۰G.
     }.
   Implicit Type γ : metadata.
 
-  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
-    ltac:(solve_decision).
-  #[local] Instance metadataｰcountable :
-    Countable metadata.
-  Proof.
-    solve_countable.
-  Qed.
+  #[local] Please derive EqDecision for metadata.
+  #[local] Please derive Countable for metadata.
 
   #[local] Definition nodes۰auth' γ_nodes :=
     @ghost_map_auth _ _ _ _ _ sarray۰G۰nodes۰G γ_nodes (DfracOwn 1).

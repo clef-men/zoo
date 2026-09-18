@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.iris.base_logic.lib.agree.
 Require Import zoo.iris.base_logic.lib.mono_list.
 Require Import zoo.base.
@@ -35,13 +34,8 @@ Section prophet_wise۰G.
     ; prophet_wise۰name۰past : gname
     }.
 
-  #[global] Instance prophet_wise۰nameｰeq_dec : EqDecision prophet_wise۰name :=
-    ltac:(solve_decision).
-  #[global] Instance prophet_wise۰nameｰcountable :
-    Countable prophet_wise۰name.
-  Proof.
-    solve_countable.
-  Qed.
+  Please derive EqDecision for prophet_wise۰name.
+  Please derive Countable for prophet_wise۰name.
 
   Definition prophet_wise۰full γ prophs :=
     agree۰on γ.(prophet_wise۰name۰full) prophs.

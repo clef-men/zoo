@@ -29,6 +29,9 @@ build: [
 dev-repo: "git+https://github.com/clef-men/zoo.git"
 x-maintenance-intent: ["(latest)"]
 pin-depends: [
+  ["rocq-please.dev" "git+https://github.com/clef-men/rocq-please.git#main"]
+  ["rocq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
   ["rocq-zoo-std.dev" "git+https://github.com/clef-men/zoo.git#main"]
+  ["rocq-zoo-backoff.dev" "git+https://github.com/clef-men/zoo.git#main"]
   ["rocq-zoo-saturn.dev" "git+https://github.com/clef-men/zoo.git#main"]
 ]

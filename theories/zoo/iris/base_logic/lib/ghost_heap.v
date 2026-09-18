@@ -6,7 +6,6 @@ Require Import iris.algebra.frac.
 Require Import iris.base_logic.lib.ghost_map.
 
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Export zoo.iris.base_logic.lib.base.
 Require Import zoo.iris.diaframe.
 Require Import zoo.options.
@@ -45,13 +44,8 @@ Section ghost_heap۰G.
     }.
   Implicit Type γ : ghost_heap۰name.
 
-  #[global] Instance ghost_heap۰nameｰeq_dec : EqDecision ghost_heap۰name :=
-    ltac:(solve_decision).
-  #[global] Instance ghost_heap۰nameｰcountable :
-    Countable ghost_heap۰name.
-  Proof.
-    solve_countable.
-  Qed.
+  Please derive EqDecision for ghost_heap۰name.
+  Please derive Countable for ghost_heap۰name.
 
   Definition ghost_heap۰auth γ σ : iProp Σ :=
     ∃ m,

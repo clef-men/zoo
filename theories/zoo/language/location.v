@@ -3,7 +3,6 @@ Require Import stdpp.gmap.
 Require Import iris.algebra.ofe.
 
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.options.
 
 #[local] Open Scope Z_scope.
@@ -23,15 +22,9 @@ Proof.
   destruct l1, l2; naive.
 Qed.
 
-#[global] Instance locationｰinhabited : Inhabited location :=
-  populate {| location۰car := 0 |}.
-#[global] Instance locationｰeq_dec : EqDecision location :=
-  ltac:(solve_decision).
-#[global] Instance locationｰcountable :
-  Countable location.
-Proof.
-  solve_countable.
-Qed.
+Please derive Inhabited for location.
+Please derive EqDecision for location.
+Please derive Countable for location.
 
 #[global] Program Instance locationｰinfinite : Infinite location :=
   inj_infinite (λ p, {| location۰car := p |}) (λ l, Some (location۰car l)) _.

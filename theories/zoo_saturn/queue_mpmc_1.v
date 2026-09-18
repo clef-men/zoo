@@ -1,7 +1,6 @@
 Require Import iris.base_logic.lib.ghost_map.
 
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.mono_list.
 Require Import zoo.iris.base_logic.lib.auth_nat_max.
@@ -59,13 +58,8 @@ Module base.
       }.
     Implicit Type γ : queue_mpmc_1۰name.
 
-    #[global] Instance queue_mpmc_1۰nameｰeq_dec : EqDecision queue_mpmc_1۰name :=
-      ltac:(solve_decision).
-    #[global] Instance queue_mpmc_1۰nameｰcountable :
-      Countable queue_mpmc_1۰name.
-    Proof.
-      solve_countable.
-    Qed.
+    Please derive EqDecision for queue_mpmc_1۰name.
+    Please derive Countable for queue_mpmc_1۰name.
 
     #[local] Definition history۰auth' γ_history hist :=
       mono_list۰auth γ_history (DfracOwn 1) hist.
@@ -445,8 +439,7 @@ Module base.
       | IsEmpty'
       | Pop'
       | Other'.
-    #[local] Instance operation'ｰeq_dec : EqDecision operation' :=
-      ltac:(solve_decision).
+    #[local] Please derive EqDecision for operation'.
     #[local] Coercion operation۰to_operation' op :=
       match op with
       | IsEmpty _ _ =>

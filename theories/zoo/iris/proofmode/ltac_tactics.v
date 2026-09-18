@@ -2,6 +2,8 @@ Require Import stdpp.namespaces.
 Require Import stdpp.hlist.
 Require Import stdpp.pretty.
 
+Require please.ltac2.Ident.
+
 Require Export iris.bi.bi.
 Require Export iris.bi.telescopes.
 Require Import iris.proofmode.base.
@@ -11,7 +13,6 @@ Require Import iris.proofmode.string_ident.
 Require Export iris.proofmode.classes.
 Require Export iris.proofmode.notation.
 
-Require zoo.ltac2.Ident.
 Require Import zoo.common.format.
 Require Import zoo.iris.proofmode.rocq_tactics.
 Require Import zoo.iris.proofmode.intro_patterns.
@@ -256,14 +257,14 @@ Ltac _iClearHyp H :=
   | ESelPure ?xs :: ?Hs =>
       let go := ltac2:(xs |-
         let xs := Option.get (Ltac1.to_constr xs) in
-        Std.clear (Ident.of_rocq_strings xs)
+        Std.clear (Ident.list_of_rocq xs)
       ) in
       go xs;
       iClear_go Hs
   | ESelPureInv ?xs :: ?Hs =>
       let go := ltac2:(xs |-
         let xs := Option.get (Ltac1.to_constr xs) in
-        Std.keep (Ident.of_rocq_strings xs)
+        Std.keep (Ident.list_of_rocq xs)
       ) in
       go xs;
       iClear_go Hs
@@ -785,7 +786,7 @@ Ltac _iRevert_go Hs :=
   | ESelPure ?xs :: ?Hs =>
       let go := ltac2:(xs |-
         let xs := Option.get (Ltac1.to_constr xs) in
-        Std.revert (Ident.of_rocq_strings xs)
+        Std.revert (Ident.list_of_rocq xs)
       ) in
       go xs;
      _iRevert_go Hs

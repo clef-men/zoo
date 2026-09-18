@@ -23,8 +23,7 @@ Variant lowliteral :=
   | LowlitProph.
 Implicit Type llit : lowliteral.
 
-#[global] Instance lowliteralｰeq_dec : EqDecision lowliteral :=
-  ltac:(solve_decision).
+Please derive EqDecision for lowliteral.
 
 Definition literal۰to_low lit :=
   match lit with

@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.gmultiset.
 Require Import zoo.common.relations.
 Require Import zoo.iris.base_logic.lib.auth_gmultiset.
@@ -27,23 +26,16 @@ Record metadata :=
   }.
 Implicit Type γ : metadata.
 
-#[local] Instance metadataｰeq_dec : EqDecision metadata :=
-  ltac:(solve_decision).
-#[local] Instance metadataｰcountable :
-  Countable metadata.
-Proof.
-  solve_countable.
-Qed.
+#[local] Please derive EqDecision for metadata.
+#[local] Please derive Countable for metadata.
 
 Variant state :=
   | Open
   | Closing fn.
 Implicit Type state : state.
 
-#[local] Instance stateｰinhabited : Inhabited state :=
-  populate Open.
-#[local] Instance stateｰeq_dec : EqDecision state :=
-  ltac:(solve_decision).
+#[local] Please derive Inhabited for state.
+#[local] Please derive EqDecision for state.
 
 #[local] Definition state۰to_val γ state :=
   match state with
@@ -70,10 +62,8 @@ Implicit Type lstate : lstate.
       2
   end.
 
-#[global] Instance lstateｰinhabited : Inhabited lstate :=
-  populate LOpen.
-#[global] Instance lstateｰeq_dec : EqDecision lstate :=
-  ltac:(solve_decision).
+#[local] Please derive Inhabited for lstate.
+#[local] Please derive EqDecision for lstate.
 
 Variant lstep : relation lstate :=
   | lstepｰcloseｰusers :
@@ -778,8 +768,7 @@ Section rcfd۰G.
     | SpecNormal.
   Implicit Type spec : specification.
 
-  #[local] Instance specificationｰeq_dec : EqDecision specification :=
-    ltac:(solve_decision).
+  #[local] Please derive EqDecision for specification.
 
   #[local] Definition specification۰pre₁ t spec : iProp Σ :=
     match spec with

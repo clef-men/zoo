@@ -55,13 +55,8 @@ Section prophet_multi۰G.
     prophet_wise۰name.
   Implicit Type γ : prophet_multi۰name.
 
-  #[global] Instance prophet_multi۰nameｰeq_dec : EqDecision prophet_wise۰name :=
-    ltac:(apply _).
-  #[global] Instance prophet_multi۰nameｰcountable :
-    Countable prophet_wise۰name.
-  Proof.
-    apply _.
-  Qed.
+  Please derive EqDecision for prophet_wise۰name.
+  Please derive Countable for prophet_wise۰name.
 
   #[local] Definition untangle iprophs i :=
     (filter (λ iproph, iproph.1 = i) iprophs).*2.

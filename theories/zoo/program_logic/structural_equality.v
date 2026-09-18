@@ -82,11 +82,7 @@ Record structeq۰field := StructeqField
 Add Printing Constructor structeq۰field.
 Implicit Type fld : structeq۰field.
 
-#[global] Instance structeq۰fieldｰinhabited : Inhabited structeq۰field :=
-  populate
-    {|structeq۰field۰dfrac := inhabitant
-    ; structeq۰field۰val := inhabitant
-    |}.
+Please derive Inhabited for structeq۰field.
 
 Record structeq۰block := StructeqBlock
   { structeq۰block۰tag : tag
@@ -96,11 +92,7 @@ Add Printing Constructor structeq۰block.
 Implicit Type blk : structeq۰block.
 Implicit Type footprint : gmap location structeq۰block.
 
-#[global] Instance structeq۰blockｰinhabited : Inhabited structeq۰block :=
-  populate
-    {|structeq۰block۰tag := inhabitant
-    ; structeq۰block۰fields := inhabitant
-    |}.
+Please derive Inhabited for structeq۰block.
 
 Definition literal۰traversable footprint lit :=
   match lit with

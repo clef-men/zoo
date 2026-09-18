@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.relations.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.auth_twins.
@@ -46,13 +45,8 @@ Module base.
       }.
     Implicit Type γ : ws_bdeque_2۰name.
 
-    #[global] Instance ws_bdeque_2۰nameｰeq_dec : EqDecision ws_bdeque_2۰name :=
-      ltac:(solve_decision).
-    #[global] Instance ws_bdeque_2۰nameｰcountable :
-      Countable ws_bdeque_2۰name.
-    Proof.
-      solve_countable.
-    Qed.
+    Please derive EqDecision for ws_bdeque_2۰name.
+    Please derive Countable for ws_bdeque_2۰name.
 
     #[local] Definition model₁' γ_model vs :=
       auth_twins۰twin₁ _ γ_model vs.

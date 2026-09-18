@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.gset.
 Require Import zoo.iris.algebra.big_op.
 Require Import zoo.iris.base_logic.lib.mono_gset.
@@ -22,19 +21,9 @@ Record descriptor :=
   ; descriptor۰next : location
   }.
 
-#[local] Instance descriptorｰinhabited : Inhabited descriptor :=
-  populate
-    {|descriptor۰elts := inhabitant
-    ; descriptor۰prev := inhabitant
-    ; descriptor۰next := inhabitant
-    |}.
-#[local] Instance descriptorｰeq_dec : EqDecision descriptor :=
-  ltac:(solve_decision).
-#[local] Instance descriptorｰcountable :
-  Countable descriptor.
-Proof.
-  solve_countable.
-Qed.
+Please derive Inhabited for descriptor.
+Please derive EqDecision for descriptor.
+Please derive Countable for descriptor.
 
 Implicit Type descr : descriptor.
 Implicit Type descrs : gmap location descriptor.

@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.excl.
 Require Import zoo.iris.base_logic.lib.ghost_list.
@@ -86,13 +85,8 @@ Section ws_hub_fifo۰G.
   Implicit Type γ : metadata.
   Implicit Type γ_owners : list gname.
 
-  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
-    ltac:(solve_decision).
-  #[local] Instance metadataｰcountable :
-    Countable metadata.
-  Proof.
-    solve_countable.
-  Qed.
+  #[local] Please derive EqDecision for metadata.
+  #[local] Please derive Countable for metadata.
 
   #[local] Definition owner' γ_owners sz i : iProp Σ :=
     ∃ γ_owner,

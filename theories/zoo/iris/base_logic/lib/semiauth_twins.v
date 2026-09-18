@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Export zoo.iris.base_logic.lib.base.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.iris.base_logic.lib.auth_twins.
@@ -39,13 +38,8 @@ Section semiauth_twins۰G.
     }.
   Implicit Type γ : semiauth_twins۰name.
 
-  #[global] Instance semiauth_twins۰nameｰeq_dec : EqDecision semiauth_twins۰name :=
-    ltac:(solve_decision).
-  #[global] Instance semiauth_twins۰nameｰcountable :
-    Countable semiauth_twins۰name.
-  Proof.
-    solve_countable.
-  Qed.
+  Please derive EqDecision for semiauth_twins۰name.
+  Please derive Countable for semiauth_twins۰name.
 
   Definition semiauth_twins۰auth γ :=
     auth_twins۰auth R γ.(semiauth_twins۰name۰left_twins).
