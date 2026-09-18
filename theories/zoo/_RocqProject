@@ -1,0 +1,33 @@
+-arg -w
+-arg +default
+-arg -w
+-arg -uniform-inheritance
+-arg -w
+-arg -redundant-canonical-projection
+-arg -w
+-arg -masking-absolute-name
+-arg -w
+-arg -notation-incompatible-prefix
+-arg -w
+-arg -notation-overridden
+-arg -w
+-arg -level-tolerance
+-arg -w
+-arg -missing-scheme
+-arg -w
+-arg -register-all
+-arg -w
+-arg -deprecated-native-compiler-option
+-arg -w
+-arg -native-compiler-disabled
+-arg -native-compiler
+-arg ondemand
+-arg -boot
+-R /Users/clement/.opam/zoo/lib/coq/theories Corelib
+-Q /Users/clement/.opam/zoo/lib/coq/user-contrib/Stdlib Stdlib
+-Q /Users/clement/.opam/zoo/lib/coq/user-contrib/Ltac2 Ltac2
+-Q /Users/clement/.opam/zoo/lib/coq/user-contrib/stdpp stdpp
+-Q /Users/clement/.opam/zoo/lib/coq/user-contrib/iris iris
+-Q /Users/clement/.opam/zoo/lib/coq/user-contrib/diaframe diaframe
+-R . zoo
+-R ../../_build/default/theories/zoo zoo

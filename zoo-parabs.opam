@@ -7,7 +7,7 @@ license: "ISC"
 homepage: "https://github.com/clef-men/zoo"
 bug-reports: "https://github.com/clef-men/zoo/issues"
 depends: [
-  "dune" {>= "3.0"}
+  "dune" {>= "3.21"}
   "zoo"
   "zoo-std"
   "zoo-saturn"
@@ -30,3 +30,4 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/clef-men/zoo.git"
+x-maintenance-intent: ["(latest)"]

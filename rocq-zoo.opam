@@ -6,18 +6,28 @@ authors: ["Clément Allain"]
 license: "ISC"
 homepage: "https://github.com/clef-men/zoo"
 bug-reports: "https://github.com/clef-men/zoo/issues"
-dev-repo: "git+https://github.com/clef-men/zoo.git"
 depends: [
+  "dune" {>= "3.21"}
   "rocq-core" {= "9.2.0"}
   "rocq-stdlib" {= "9.2.0"}
   "rocq-stdpp"
   "rocq-iris" {= "dev.2026-07-19.0.5b67fadf"}
   "rocq-diaframe" {= "dev.2026-08-13.0.c7a7406d"}
+  "odoc" {with-doc}
 ]
-
 build: [
-  make "-j%{jobs}%" "build-zoo"
+  ["dune" "subst"] {dev}
+  [
+    "dune"
+    "build"
+    "-p"
+    name
+    "-j"
+    jobs
+    "@install"
+    "@runtest" {with-test}
+    "@doc" {with-doc}
+  ]
 ]
-install: [
-  make "install-zoo"
-]
+dev-repo: "git+https://github.com/clef-men/zoo.git"
+x-maintenance-intent: ["(latest)"]

@@ -1,0 +1,10 @@
+(include_subdirs qualified)
+
+(rocq.theory
+ (name unix)
+ (package rocq-zoo-unix)
+ (generate_project_file)
+ (theories
+  zoo
+ )
+)

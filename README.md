@@ -1,4 +1,4 @@
-# Zoo [[rocqdoc](https://clef-men.github.io/doc/zoo/toc.html)]
+# Zoo [[rocqdoc](https://clef-men.github.io/doc/rocq-zoo/index.html)]
 
 ## Synopsis
 
@@ -28,7 +28,7 @@ opam install ./rocq-zoo.opam --deps-only --yes
 Finally, to compile Rocq proofs, run:
 
 ```
-make -j
+make
 ```
 
 ### OCaml libraries and Rocq proofs
@@ -81,7 +81,7 @@ make ocaml2zoo
 Finally, to compile Rocq proofs, run:
 
 ```
-make -j
+make
 ```
 
 ### OCaml libraries only

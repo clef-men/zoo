@@ -1,19 +1,30 @@
-targets_norocq :=
-
 .PHONY : all
-all :
+all : theories
 
-.PHONY : phony
-phony :
+.PHONY : theories
+theories :
+	@ dune build theories --display=short
 
-.PHONY : clean
-clean ::
+.PHONY : lib
+lib :
+	@ dune build @lib/check @lib/all
+
+.PHONY : bench
+bench :
+	@ dune build bench
+
+.PHONY : ocaml2zoo
+ocaml2zoo :
+	@ ocaml2zoo . theories
+
+.PHONY : install
+install :
+	@ dune install
 
 .PHONY : doc
 doc :
-	@ rm -rf html
-	@ COQDOCEXTRAFLAGS="--external https://plv.mpi-sws.org/rocqdoc/stdpp/ stdpp --external https://plv.mpi-sws.org/rocqdoc/iris/ iris" $(MAKE) gallinahtml
+	@ dune build @theories/doc
 
-include Makefile.ocaml
-
-include Makefile.theories
+.PHONY : clean
+clean :
+	@ dune clean

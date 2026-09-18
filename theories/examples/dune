@@ -1,0 +1,10 @@
+(include_subdirs qualified)
+
+(rocq.theory
+ (name examples)
+ (package rocq-zoo-examples)
+ (generate_project_file)
+ (theories
+  zoo_parabs
+ )
+)

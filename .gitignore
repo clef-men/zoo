@@ -1,10 +1,5 @@
-Makefile.rocq
-Makefile.rocq.conf
-
 _opam
 _build/
-
-html/
 
 # Vim
 [._]*.s[a-v][a-z]
@@ -13,42 +8,11 @@ html/
 [._]ss[a-gi-z]
 [._]sw[a-p]
 
+# Visual Studio Code
+.vscode/
+
 # Rocq
-.*.aux
-.*.d
-*.a
-*.cma
-*.cmi
-*.cmo
-*.cmx
-*.cmxa
-*.cmxs
-*.glob
-*.ml.d
-*.ml4.d
-*.mlg.d
-*.mli.d
-*.mllib.d
-*.mlpack.d
-*.native
-*.o
-*.v.d
-*.vio
-*.vo
-*.vok
-*.vos
-.rocq-native
-.csdp.cache
 .lia.cache
 .nia.cache
 .nlia.cache
 .nra.cache
-csdp.cache
-lia.cache
-nia.cache
-nlia.cache
-nra.cache
-native_compute_profile_*.data
-
-# Visual Studio Code
-.vscode/

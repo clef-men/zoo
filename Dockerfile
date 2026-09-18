@@ -16,10 +16,6 @@ WORKDIR /root
 RUN git clone https://github.com/clef-men/zoo
 WORKDIR /root/zoo
 
-# Copy build script into image
-COPY make_package.sh /usr/local/bin/build-package
-RUN chmod +x /usr/local/bin/build-package
-
 # Initialize opam and set up local switch
 RUN opam init --disable-sandboxing --yes && \
     eval $(opam env --switch=. --set-switch) && \
@@ -28,4 +24,4 @@ RUN opam init --disable-sandboxing --yes && \
     opam install ./rocq-zoo.opam --deps-only --yes
 
 # Default command (can be overridden at runtime)
-CMD ["/usr/local/bin/build-package", "zoo"]
+CMD ["dune", "build", "theories/zoo"]

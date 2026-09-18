@@ -1,0 +1,11 @@
+(include_subdirs qualified)
+
+(rocq.theory
+ (name zoo_saturn)
+ (package rocq-zoo-saturn)
+ (generate_project_file)
+ (theories
+  zoo_std
+  backoff
+ )
+)

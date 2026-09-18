@@ -1,0 +1,10 @@
+(include_subdirs qualified)
+
+(rocq.theory
+ (name backoff)
+ (package rocq-zoo-backoff)
+ (generate_project_file)
+ (theories
+  zoo
+ )
+)

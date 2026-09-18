@@ -1,0 +1,14 @@
+(include_subdirs qualified)
+
+(rocq.theory
+ (name zoo)
+ (package rocq-zoo)
+ (generate_project_file)
+ (theories
+  Stdlib
+  Ltac2
+  stdpp
+  iris
+  diaframe
+ )
+)
