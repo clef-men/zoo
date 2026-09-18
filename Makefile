@@ -1,10 +1,6 @@
 .PHONY : all
 all : theories
 
-.PHONY : theories
-theories :
-	@ dune build theories --display=short
-
 .PHONY : lib
 lib :
 	@ dune build @lib/check @lib/all
@@ -16,6 +12,10 @@ bench :
 .PHONY : ocaml2zoo
 ocaml2zoo :
 	@ ocaml2zoo . theories
+
+.PHONY : theories
+theories :
+	@ dune build theories --display=short
 
 .PHONY : install
 install :
