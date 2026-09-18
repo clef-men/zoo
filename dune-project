@@ -84,6 +84,7 @@
   (rocq-core (= 9.2.0))
   (rocq-stdlib (= 9.2.0))
   rocq-stdpp
+  rocq-please
   (rocq-iris (= dev.2026-07-19.0.5b67fadf))
   (rocq-diaframe (= dev.2026-08-13.0.c7a7406d))
  )

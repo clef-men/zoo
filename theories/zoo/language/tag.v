@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.math.
 Require Import zoo.common.typeclasses.
 Require Import zoo.options.
@@ -38,15 +37,9 @@ Variant tag :=
   | Tag30.
 Implicit Types tag : tag.
 
-#[global] Instance tagｰinhabited : Inhabited tag :=
-  populate Tag0.
-#[global] Instance tagｰeq_dec : EqDecision tag :=
-  ltac:(solve_decision).
-#[global] Instance tagｰcountable :
-  Countable tag.
-Proof.
-  solve_countable.
-Qed.
+Please derive Inhabited for tag.
+Please derive EqDecision for tag.
+Please derive Countable for tag.
 
 Definition tag۰of_nat i :=
   match i with

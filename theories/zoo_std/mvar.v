@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.iris.base_logic.lib.excl.
 Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.base.
@@ -41,13 +40,8 @@ Module base.
       }.
     Implicit Type γ : mvar۰name.
 
-    #[global] Instance mvar۰nameｰeq_dec : EqDecision mvar۰name :=
-      ltac:(solve_decision).
-    #[global] Instance mvar۰nameｰcountable :
-      Countable mvar۰name.
-    Proof.
-      solve_countable.
-    Qed.
+    Please derive EqDecision for mvar۰name.
+    Please derive Countable for mvar۰name.
 
     #[local] Definition lstate۰unset' γ_lstate :=
       oneshot۰pending γ_lstate Own ().

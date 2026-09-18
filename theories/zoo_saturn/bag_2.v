@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.fin_maps.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.mono_gmap.
@@ -94,13 +93,8 @@ Section bag_2۰G.
     }.
   Implicit Type γ : metadata.
 
-  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
-    ltac:(solve_decision).
-  #[local] Instance metadataｰcountable :
-    Countable metadata.
-  Proof.
-    solve_countable.
-  Qed.
+  #[local] Please derive EqDecision for metadata.
+  #[local] Please derive Countable for metadata.
 
   #[local] Definition queues۰auth' γ_queues nodes descrs wss : iProp Σ :=
     mono_gmap۰auth γ_queues (DfracOwn 1) (descriptor۰queue <$> descrs) ∗

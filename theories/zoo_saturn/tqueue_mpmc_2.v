@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.base.
 Require Export zoo_saturn.tqueue_mpmc_2__code.
 Require Import zoo_saturn.tqueue_mpmc_2__types.
@@ -34,13 +33,8 @@ Module base.
       }.
     Implicit Type γ : tqueue_mpmc_2۰name.
 
-    #[global] Instance tqueue_mpmc_2۰nameｰeq_dec : EqDecision tqueue_mpmc_2۰name :=
-      ltac:(solve_decision).
-    #[global] Instance tqueue_mpmc_2۰nameｰcountable :
-      Countable tqueue_mpmc_2۰name.
-    Proof.
-      solve_countable.
-    Qed.
+    Please derive EqDecision for tqueue_mpmc_2۰name.
+    Please derive Countable for tqueue_mpmc_2۰name.
 
     Definition tqueue_mpmc_2۰inv t γ (ι : namespace) : iProp Σ.
     Admitted.

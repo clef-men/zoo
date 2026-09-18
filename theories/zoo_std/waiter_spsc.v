@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.iris.base_logic.lib.excl.
 Require Import zoo.base.
@@ -39,13 +38,8 @@ Section waiter_spsc۰G.
     }.
   Implicit Type γ : metadata.
 
-  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
-    ltac:(solve_decision).
-  #[local] Instance metadataｰcountable :
-    Countable metadata.
-  Proof.
-    solve_countable.
-  Qed.
+  #[local] Please derive EqDecision for metadata.
+  #[local] Please derive Countable for metadata.
 
   #[local] Definition inv۰inner 𝑡 γ P : iProp Σ :=
     ∃ b,

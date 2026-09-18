@@ -14,6 +14,7 @@ Variant goptional {A} :=
 
 #[global] Instance goptionalｰinhabited A : Inhabited (goptional A) :=
   populate Nothing.
+
 #[global] Instance Somethingｰinj A :
   Inj (=) (=) (@Something A).
 Proof.

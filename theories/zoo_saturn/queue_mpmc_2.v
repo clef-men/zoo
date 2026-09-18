@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.relations.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.iris.base_logic.lib.auth_mono.
@@ -23,20 +22,16 @@ Variant emptiness :=
   | Nonempty.
 Implicit Type empty : emptiness.
 
-#[local] Instance emptinessｰinhabited : Inhabited emptiness :=
-  populate Empty.
-#[local] Instance emptinessｰeq_dec : EqDecision emptiness :=
-  ltac:(solve_decision).
+#[local] Please derive Inhabited for emptiness.
+#[local] Please derive EqDecision for emptiness.
 
 Variant status :=
   | Stable empty
   | Unstable back move.
 Implicit Type status : status.
 
-#[local] Instance statusｰinhabited : Inhabited status :=
-  populate (Stable inhabitant).
-#[local] Instance statusｰeq_dec : EqDecision status :=
-  ltac:(solve_decision).
+#[local] Please derive Inhabited for status.
+#[local] Please derive EqDecision for status.
 
 Record state :=
   { state۰backs : gmap location nat
@@ -58,12 +53,7 @@ Definition state۰wf backs i :=
   state1.(state۰backs) ⊆ state2.(state۰backs) ∧
   state1.(state۰index) ≤ state2.(state۰index).
 
-#[local] Instance stateｰinhabited : Inhabited state :=
-  populate
-    {|state۰backs := inhabitant
-    ; state۰index := inhabitant
-    ; state۰status := inhabitant
-    |}.
+#[local] Please derive Inhabited for state.
 
 #[local] Instance state۰leｰreflexive :
   Reflexive state۰le.
@@ -219,13 +209,8 @@ Section queue_mpmc_2۰G.
     }.
   Implicit Type γ : metadata.
 
-  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
-    ltac:(solve_decision).
-  #[local] Instance metadataｰcountable :
-    Countable metadata.
-  Proof.
-    solve_countable.
-  Qed.
+  #[local] Please derive EqDecision for metadata.
+  #[local] Please derive Countable for metadata.
 
   #[local] Definition model₁' γ_model vs :=
     twins۰twin₁ γ_model (DfracOwn 1) vs.

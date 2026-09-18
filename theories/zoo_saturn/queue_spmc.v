@@ -2,7 +2,6 @@ Require Import iris.base_logic.lib.ghost_map.
 
 Require Import zoo.prelude.
 Require Import zoo.common.relations.
-Require Import zoo.common.countable.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.mono_list.
 Require Import zoo.iris.base_logic.lib.auth_nat_max.
@@ -60,13 +59,8 @@ Module base.
       }.
     Implicit Type γ : metadata.
 
-    #[global] Instance metadataｰeq_dec : EqDecision metadata :=
-      ltac:(solve_decision).
-    #[global] Instance metadataｰcountable :
-      Countable metadata.
-    Proof.
-      solve_countable.
-    Qed.
+    Please derive EqDecision for metadata.
+    Please derive Countable for metadata.
 
     #[local] Definition history۰auth' γ_history hist :=
       mono_list۰auth γ_history (DfracOwn (1/2)) hist.
@@ -514,8 +508,7 @@ Module base.
       | IsEmpty'
       | Pop'
       | Other'.
-    #[local] Instance operation'ｰeq_dec : EqDecision operation' :=
-      ltac:(solve_decision).
+    #[local] Please derive EqDecision for operation'.
     #[local] Coercion operation۰to_operation' op :=
       match op with
       | IsEmpty _ _ =>

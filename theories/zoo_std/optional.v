@@ -15,6 +15,7 @@ Implicit Type o : optional val.
 
 #[global] Instance optionalｰinhabited A : Inhabited (optional A) :=
   populate Nothing.
+
 #[global] Instance Somethingｰinj A :
   Inj (=) (=) (@Something A).
 Proof.

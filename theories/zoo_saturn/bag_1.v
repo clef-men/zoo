@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.gmultiset.
 Require Import zoo.common.list.
 Require Import zoo.iris.base_logic.lib.twins.
@@ -82,13 +81,8 @@ Section bag_1۰G.
     }.
   Implicit Type γ : metadata.
 
-  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
-    ltac:(solve_decision).
-  #[local] Instance metadataｰcountable :
-    Countable metadata.
-  Proof.
-    solve_countable.
-  Qed.
+  #[local] Please derive EqDecision for metadata.
+  #[local] Please derive Countable for metadata.
 
   #[local] Definition model₁' γ_model vs :=
     twins۰twin₁ γ_model (DfracOwn 1) vs.

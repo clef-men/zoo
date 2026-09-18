@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.ghost_var.
 Require Import zoo.iris.base_logic.lib.ghost_pred.
@@ -113,13 +112,8 @@ Section ws_deques_private۰G.
   Implicit Type γ_owners : list gname.
   Implicit Type γ_channels : list (gname * gname).
 
-  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
-    ltac:(solve_decision).
-  #[local] Instance metadataｰcountable :
-    Countable metadata.
-  Proof.
-    solve_countable.
-  Qed.
+  #[local] Please derive EqDecision for metadata.
+  #[local] Please derive Countable for metadata.
 
   #[local] Definition models۰auth' γ_models sz vss : iProp Σ :=
     ghost_list۰auth γ_models vss ∗

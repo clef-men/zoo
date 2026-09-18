@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.function.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.twins.
@@ -65,13 +64,8 @@ Module base.
       }.
     Implicit Type γ : inf_queue_mpmc_1۰name.
 
-    #[global] Instance inf_queue_mpmc_1۰nameｰeq_dec : EqDecision inf_queue_mpmc_1۰name :=
-      ltac:(solve_decision).
-    #[global] Instance inf_queue_mpmc_1۰nameｰcountable :
-      Countable inf_queue_mpmc_1۰name.
-    Proof.
-      solve_countable.
-    Qed.
+    Please derive EqDecision for inf_queue_mpmc_1۰name.
+    Please derive Countable for inf_queue_mpmc_1۰name.
 
     #[local] Definition model₁' γ_model vs :=
       twins۰twin₁ γ_model (DfracOwn 1) vs.

@@ -20,6 +20,7 @@
      --no-lib-name
      --external https://plv.mpi-sws.org/rocqdoc/stdpp/ stdpp
      --external https://plv.mpi-sws.org/rocqdoc/iris/ iris
+     --external https://clef-men.github.io/doc/rocq-please/ please
     )
    )
   )

@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.relations.
 Require Import zoo.common.list.
 Require Import zoo.iris.base_logic.lib.twins.
@@ -23,8 +22,7 @@ Variant stability :=
   | Unstable.
 Implicit Type stable : stability.
 
-#[local] Instance stabilityｰinhabited : Inhabited stability :=
-  populate Stable.
+#[local] Please derive Inhabited for stability.
 
 Class BqueueSpscG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] bqueue_spsc۰G۰model۰G :: AuthTwinsG Σ (leibnizO (list val)) suffix
@@ -62,13 +60,8 @@ Section bqueue_spsc۰G.
     }.
   Implicit Type γ : metadata.
 
-  #[local] Instance metadataｰeq_dec : EqDecision metadata :=
-    ltac:(solve_decision).
-  #[local] Instance metadataｰcountable :
-    Countable metadata.
-  Proof.
-    solve_countable.
-  Qed.
+  #[local] Please derive EqDecision for metadata.
+  #[local] Please derive Countable for metadata.
 
   #[local] Definition model₁' γ_model vs :=
     auth_twins۰twin₁ (auth_twins۰G := bqueue_spsc۰G۰model۰G) _ γ_model vs.

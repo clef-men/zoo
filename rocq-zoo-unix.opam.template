@@ -1,3 +1,4 @@
 pin-depends: [
+  ["rocq-please.dev" "git+https://github.com/clef-men/rocq-please.git#main"]
   ["rocq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
 ]

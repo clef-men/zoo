@@ -5,7 +5,6 @@ Require Import iris.algebra.ofe.
 Require Import zoo.prelude.
 Require Export zoo.common.ascii.
 Require Export zoo.common.binder.
-Require Import zoo.common.countable.
 Require Import zoo.common.list.
 Require Export zoo.language.location.
 Require Export zoo.language.tag.
@@ -35,26 +34,16 @@ Variant mutability :=
   | ImmutableGenerativeStrong.
 Implicit Type mut : mutability.
 
-#[global] Instance mutabilityｰeq_dec : EqDecision mutability :=
-  ltac:(solve_decision).
-#[global] Instance mutabilityｰcountable :
-  Countable mutability.
-Proof.
-  solve_countable.
-Qed.
+Please derive EqDecision for mutability.
+Please derive Countable for mutability.
 
 Variant generativity :=
   | Generative bid
   | Nongenerative.
 Implicit Type gen : generativity.
 
-#[global] Instance generativityｰeq_dec : EqDecision generativity :=
-  ltac:(solve_decision).
-#[global] Instance generativityｰcountable :
-  Countable generativity.
-Proof.
-  solve_countable.
-Qed.
+Please derive EqDecision for generativity.
+Please derive Countable for generativity.
 
 Variant literal :=
   | LitBool b
@@ -65,26 +54,16 @@ Variant literal :=
   | LitProph pid.
 Implicit Type lit : literal.
 
-#[global] Instance literalｰeq_dec : EqDecision literal :=
-  ltac:(solve_decision).
-#[global] Instance literalｰcountable :
-  Countable literal.
-Proof.
-  solve_countable.
-Qed.
+Please derive EqDecision for literal.
+Please derive Countable for literal.
 
 Variant unop :=
   | UnopNeg
   | UnopMinus
   | UnopIsImmediate.
 
-#[global] Instance unopｰeq_dec : EqDecision unop :=
-  ltac:(solve_decision).
-#[global] Instance unopｰcountable :
-  Countable unop.
-Proof.
-  solve_countable.
-Qed.
+Please derive EqDecision for unop.
+Please derive Countable for unop.
 
 Variant binop :=
   | BinopPlus | BinopMinus | BinopMult | BinopQuot | BinopRem
@@ -92,13 +71,8 @@ Variant binop :=
   | BinopLe | BinopLt | BinopGe | BinopGt
   | BinopStringGet | BinopStringEqual.
 
-#[global] Instance binopｰeq_dec : EqDecision binop :=
-  ltac:(solve_decision).
-#[global] Instance binopｰcountable :
-  Countable binop.
-Proof.
-  solve_countable.
-Qed.
+Please derive EqDecision for binop.
+Please derive Countable for binop.
 
 Record pattern :=
   { pattern۰tag : tag
@@ -106,19 +80,9 @@ Record pattern :=
   ; pattern۰as : binder
   }.
 
-#[global] Instance patternｰinhabited : Inhabited pattern :=
-  populate
-    {|pattern۰tag := inhabitant
-    ; pattern۰fields := inhabitant
-    ; pattern۰as := inhabitant
-    |}.
-#[global] Instance patternｰeq_dec : EqDecision pattern :=
-  ltac:(solve_decision).
-#[global] Instance patternｰcountable :
-  Countable pattern.
-Proof.
-  solve_countable.
-Qed.
+Please derive Inhabited for pattern.
+Please derive EqDecision for pattern.
+Please derive Countable for pattern.
 
 Unset Elimination Schemes.
 Inductive expr :=
@@ -907,8 +871,7 @@ Qed.
 
 #[global] Instance valｰinhabited : Inhabited val :=
   populate ValUnit.
-#[global] Instance exprｰinhabited : Inhabited expr :=
-  populate (Val inhabitant).
+Please derive Inhabited for expr.
 #[global] Instance exprｰeq_dec :
   EqDecision expr.
 Proof.
@@ -1161,13 +1124,8 @@ Variant encode_leaf :=
   | EncodeUnop (op : unop)
   | EncodeBinop (op : binop)
   | EncodePattern (pat : pattern).
-#[local] Instance encode_leafｰeq_dec : EqDecision encode_leaf :=
-  ltac:(solve_decision).
-#[local] Instance encode_leafｰcountable :
-  Countable encode_leaf.
-Proof.
-  solve_countable.
-Qed.
+#[local] Please derive EqDecision for encode_leaf.
+#[local] Please derive Countable for encode_leaf.
 Abbreviation EncodeString str := (
   EncodeBinder (BNamed str)
 ).

@@ -27,6 +27,7 @@
 -Q /Users/clement/.opam/zoo/lib/coq/user-contrib/Stdlib Stdlib
 -Q /Users/clement/.opam/zoo/lib/coq/user-contrib/Ltac2 Ltac2
 -Q /Users/clement/.opam/zoo/lib/coq/user-contrib/stdpp stdpp
+-Q /Users/clement/.opam/zoo/lib/coq/user-contrib/please please
 -Q /Users/clement/.opam/zoo/lib/coq/user-contrib/iris iris
 -Q /Users/clement/.opam/zoo/lib/coq/user-contrib/diaframe diaframe
 -R . zoo

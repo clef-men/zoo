@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.function.
 Require Import zoo.common.relations.
 Require Import zoo.iris.base_logic.lib.excl.
@@ -30,16 +29,14 @@ Variant state :=
   | Superempty.
 Implicit Type state : state.
 
-#[local] Instance stateｰinhabited : Inhabited state :=
-  populate Empty.
+#[local] Please derive Inhabited for state.
 
 Variant stability :=
   | Stable
   | Unstable.
 Implicit Type stable : stability.
 
-#[local] Instance stabilityｰinhabited : Inhabited stability :=
-  populate Stable.
+#[local] Please derive Inhabited for stability.
 
 Class InfWsDeque1G Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] inf_ws_deque_1۰G۰inf_array۰G :: InfArrayG Σ
@@ -87,13 +84,8 @@ Module base.
       }.
     Implicit Type γ : inf_ws_deque_1۰name.
 
-    #[global] Instance inf_ws_deque_1۰nameｰeq_dec : EqDecision inf_ws_deque_1۰name :=
-      ltac:(solve_decision).
-    #[global] Instance inf_ws_deque_1۰nameｰcountable :
-      Countable inf_ws_deque_1۰name.
-    Proof.
-      solve_countable.
-    Qed.
+    Please derive EqDecision for inf_ws_deque_1۰name.
+    Please derive Countable for inf_ws_deque_1۰name.
 
     #[local] Definition model₁' γ_model vs :=
       auth_twins۰twin₁ _ γ_model vs.

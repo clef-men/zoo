@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.common.gmultiset.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.ghost_list.
@@ -45,18 +44,9 @@ Record job :=
   }.
 Implicit Type job local global : job.
 
-#[local] Instance jobｰinhabited : Inhabited job :=
-  populate
-  {|job۰val := inhabitant
-  ; job۰name := inhabitant
-  |}.
-#[local] Instance jobｰeq_dec : EqDecision job :=
-  ltac:(solve_decision).
-#[local] Instance jobｰcountable :
-  Countable job.
-Proof.
-  solve_countable.
-Qed.
+#[local] Please derive Inhabited for job.
+#[local] Please derive EqDecision for job.
+#[local] Please derive Countable for job.
 
 Implicit Type jobs locals ulocals globals : gmultiset job.
 Implicit Type localss : list $ gmultiset job.
@@ -64,13 +54,8 @@ Implicit Type localss : list $ gmultiset job.
 Definition pool۰scope :=
   gmultiset job.
 
-#[global] Instance pool۰scopeｰeq_dec : EqDecision pool۰scope :=
-  _.
-#[global] Instance pool۰scopeｰcountable :
-  Countable pool۰scope.
-Proof.
-  apply _.
-Qed.
+Please derive EqDecision for pool۰scope.
+Please derive Countable for pool۰scope.
 
 Class PoolG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] pool۰G۰domain۰G :: DomainG Σ
@@ -114,13 +99,8 @@ Module base.
     Implicit Type γ : pool۰name.
     Implicit Type γ_tokens : list gname.
 
-    #[global] Instance pool۰nameｰeq_dec : EqDecision pool۰name :=
-      ltac:(solve_decision).
-    #[global] Instance pool۰nameｰcountable :
-      Countable pool۰name.
-    Proof.
-      solve_countable.
-    Qed.
+    Please derive EqDecision for pool۰name.
+    Please derive Countable for pool۰name.
 
     #[local] Definition pool۰name۰context γ (i : nat) :=
       ( #γ.(pool۰name۰size),

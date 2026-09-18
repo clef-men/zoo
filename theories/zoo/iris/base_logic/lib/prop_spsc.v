@@ -1,7 +1,6 @@
 Require Import iris.base_logic.lib.invariants.
 
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Export zoo.iris.base_logic.lib.base.
 Require Import zoo.iris.base_logic.lib.excl.
 Require Import zoo.iris.base_logic.lib.oneshot.
@@ -35,13 +34,8 @@ Section prop_spsc۰G.
     }.
   Implicit Type γ : prop_spsc۰name.
 
-  #[global] Instance prop_spsc۰nameｰeq_dec : EqDecision prop_spsc۰name :=
-    ltac:(solve_decision).
-  #[global] Instance prop_spsc۰nameｰcountable :
-    Countable prop_spsc۰name.
-  Proof.
-    solve_countable.
-  Qed.
+  Please derive EqDecision for prop_spsc۰name.
+  Please derive Countable for prop_spsc۰name.
 
   #[local] Definition state۰unset₁' γ_state :=
     oneshot۰pending γ_state (DfracOwn (2/3)) ().

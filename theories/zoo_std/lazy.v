@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.common.countable.
 Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.iris.base_logic.lib.subpreds.
 Require Import zoo.base.
@@ -42,13 +41,8 @@ Module base.
       }.
     Implicit Type γ : lazy۰name.
 
-    #[global] Instance lazy۰nameｰeq_dec : EqDecision lazy۰name :=
-      ltac:(solve_decision).
-    #[global] Instance lazy۰nameｰcountable :
-      Countable lazy۰name.
-    Proof.
-      solve_countable.
-    Qed.
+    Please derive EqDecision for lazy۰name.
+    Please derive Countable for lazy۰name.
 
     Variant state :=
       | Unset
@@ -56,8 +50,7 @@ Module base.
       | Set_ v.
     Implicit Type state : state.
 
-    #[local] Instance stateｰinhabited : Inhabited state :=
-      populate Unset.
+    #[local] Please derive Inhabited for state.
 
     #[local] Definition state۰to_bool state :=
       match state with

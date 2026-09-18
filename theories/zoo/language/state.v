@@ -29,13 +29,7 @@ Implicit Type σ : state.
 Canonical state۰O {SI : sidx} :=
   leibnizO state.
 
-#[global] Instance stateｰinhabited : Inhabited state :=
-  populate
-    {|state۰headers := inhabitant
-    ; state۰heap := inhabitant
-    ; state۰locals := inhabitant
-    ; state۰prophets := inhabitant
-    |}.
+Please derive Inhabited for state.
 
 Definition state۰update_heap f σ :=
   {|state۰headers := σ.(state۰headers)
