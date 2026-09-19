@@ -1,0 +1,30 @@
+DECLARE PLUGIN "rocq-zoo.plugin"
+
+{
+
+open Procq.Constr
+open Procq.Prim
+open Stdarg
+
+}
+
+VERNAC ARGUMENT EXTEND global_kind
+| [ "iris" ] ->
+    { Zoo_global.Iris }
+| [ "zoo" ] ->
+    { Zoo_global.Zoo }
+END
+VERNAC ARGUMENT EXTEND global_field
+| [ preident(name) ":" qualid(theory) constr_list(arguments) ":" global_kind(kind) ] ->
+    { Zoo_global.{ name; theory; arguments; kind } }
+END
+VERNAC ARGUMENT EXTEND global_spec
+| [ "{" global_field_list_sep(fields, ";") "}" ] ->
+    { fields }
+END
+
+VERNAC COMMAND EXTEND Zoo
+  CLASSIFIED AS SIDEFF
+| [ "Zoo" "global" global_spec(spec) ] ->
+    { Zoo_global.main spec }
+END

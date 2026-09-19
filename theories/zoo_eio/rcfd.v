@@ -102,23 +102,11 @@ Proof.
   lia.
 Qed.
 
-Class RcfdG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] rcfd۰G۰waiter_spsc۰G :: WaiterSpscG Σ
-  ; #[local] rcfd۰G۰tokens۰G :: AuthGmultisetG Σ Qp
-  ; #[local] rcfd۰G۰lstate۰G :: AuthMonoG Σ (A := leibnizO lstate) lstep
+Zoo global
+  { waiter_spsc : waiter_spsc : zoo
+  ; tokens : auth_gmultiset Qp : zoo
+  ; lstate : auth_mono (lstep : relation $ leibnizO lstate) : zoo
   }.
-
-Definition rcfd۰Σ :=
-  #[waiter_spsc۰Σ
-  ; auth_gmultiset۰Σ Qp
-  ; auth_mono۰Σ (A := leibnizO lstate) lstep
-  ].
-#[global] Instance subGｰrcfd۰Σ `{zoo۰G : !ZooG Σ} :
-  subG rcfd۰Σ Σ →
-  RcfdG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section rcfd۰G.
   Context `{rcfd۰G : RcfdG Σ}.

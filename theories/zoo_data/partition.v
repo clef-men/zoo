@@ -28,19 +28,9 @@ Please derive Countable for descriptor.
 Implicit Type descr : descriptor.
 Implicit Type descrs : gmap location descriptor.
 
-Class PartitionG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] partition۰G۰elts۰G :: MonoGsetG Σ location
+Zoo global
+  { elts : mono_gset location : zoo
   }.
-
-Definition partition۰Σ :=
-  #[mono_gset۰Σ location
-  ].
-#[global] Instance subGｰpartition۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG partition۰Σ Σ →
-  PartitionG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section partition۰G.
   Context `{partition۰G : PartitionG Σ}.

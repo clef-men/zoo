@@ -17,23 +17,11 @@ Implicit Type o : option val.
 Implicit Type vs ws : list val.
 Implicit Type vss wss : gmap val (list val).
 
-Class Bag2G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] bag_2۰G۰queue_spmc۰G :: QueueSpmcG Σ
-  ; #[local] bag_2۰G۰queues۰G :: MonoGmapG Σ location val
-  ; #[local] bag_2۰G۰model۰G :: TwinsG Σ (leibnizO (gmap val (list val)))
+Zoo global
+  { queue_spmc : queue_spmc : zoo
+  ; queues : mono_gmap location val : zoo
+  ; model : twins (leibnizO (gmap val (list val))) : zoo
   }.
-
-Definition bag_2۰Σ :=
-  #[queue_spmc۰Σ
-  ; mono_gmap۰Σ location val
-  ; twins۰Σ (leibnizO (gmap val (list val)))
-  ].
-#[global] Instance subGｰbag_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG bag_2۰Σ Σ →
-  Bag2G Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Record producer :=
   { producer۰queue : val

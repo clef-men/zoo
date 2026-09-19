@@ -486,19 +486,9 @@ End adiffl.
 (* ------------------------------------------------------------------------ *)
 (* Proof. *)
 
-Class Sstore1G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] sstore_1۰G۰set۰G :: MonoGsetG Σ (location * gmap location val)%type
+Zoo global
+  { set : mono_gset (location * gmap location val)%type : zoo
   }.
-
-Definition sstore_1۰Σ :=
-  #[mono_gset۰Σ (location * gmap location val)%type
-  ].
-#[global] Instance subGｰsstore_1۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG sstore_1۰Σ Σ →
-  Sstore1G Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section sstore_1۰G.
   Context `{sstore_1۰G : Sstore1G Σ}.

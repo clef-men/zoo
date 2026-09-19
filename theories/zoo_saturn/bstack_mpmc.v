@@ -12,19 +12,9 @@ Implicit Type l : location.
 Implicit Type v t front backoff : val.
 Implicit Type vs : list val.
 
-Class BstackMpmcG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] bstack_mpmc۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
+Zoo global
+  { model : twins (leibnizO (list val)) : zoo
   }.
-
-Definition bstack_mpmc۰Σ :=
-  #[twins۰Σ (leibnizO (list val))
-  ].
-#[global] Instance subGｰbstack_mpmc۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG bstack_mpmc۰Σ Σ →
-  BstackMpmcG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section bstack_mpmc۰G.
   Context `{bstack_mpmc۰G : BstackMpmcG Σ}.

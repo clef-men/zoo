@@ -4,6 +4,9 @@
  (name zoo)
  (package rocq-zoo)
  (generate_project_file)
+ (plugins
+  rocq-zoo.plugin
+ )
  (theories
   Stdlib
   Ltac2

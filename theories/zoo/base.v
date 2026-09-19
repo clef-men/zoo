@@ -4,4 +4,5 @@ Require Import zoo.prelude.
 Require Export zoo.language.notations.
 Require Export zoo.program_logic.itype.
 Require Export zoo.diaframe.
+Require Export zoo.plugin.
 Require Import zoo.options.

@@ -13,19 +13,9 @@ Implicit Type v t s equal : val.
 Implicit Type vs : list val.
 Implicit Type nodes : gmap location (list val).
 
-Class SarrayG Σ `{zoo۰G : !ZooG Σ} :=
-  { sarray۰G۰nodes۰G : ghost_mapG Σ location (list val)
+Zoo global
+  { nodes : ghost_map location (list val) : iris
   }.
-
-Definition sarray۰Σ :=
-  #[ghost_mapΣ location (list val)
-  ].
-#[global] Instance subGｰsarray۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG sarray۰Σ Σ →
-  SarrayG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section sarray۰G.
   Context `{sarray۰G : SarrayG Σ}.

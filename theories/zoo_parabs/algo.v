@@ -12,23 +12,11 @@ Implicit Type b : bool.
 Implicit Type v pool ctx task pred found body op zero acc : val.
 Implicit Type o : option val.
 
-Class AlgoG Σ `{pool۰G : PoolG Σ} :=
-  { #[local] algo۰G۰future۰G :: FutureG Σ
-  ; #[local] algo۰G۰mvar۰G :: MvarG Σ
-  ; #[local] algo۰G۰find۰G :: GhostVarG Σ unitO
+Zoo global
+  { future : future : zoo
+  ; mvar : mvar : zoo
+  ; find : ghost_var unitO : zoo
   }.
-
-Definition algo۰Σ :=
-  #[future۰Σ
-  ; mvar۰Σ
-  ; ghost_var۰Σ unitO
-  ].
-#[global] Instance subGｰalgo۰Σ Σ `{pool۰G : PoolG Σ} :
-  subG algo۰Σ Σ →
-  AlgoG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section algo۰G.
   Context `{algo۰G : AlgoG Σ}.

@@ -20,27 +20,13 @@ Implicit Type vss wss : list (list val).
 Implicit Type status : status.
 Implicit Type statuses : list status.
 
-Class WsDequesPrivateG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] ws_deques_private۰G۰models۰G :: GhostListG Σ (list val)
-  ; #[local] ws_deques_private۰G۰owner۰G :: TwinsG Σ (leibnizO status)
-  ; #[local] ws_deques_private۰G۰channel۰pred۰G :: GhostPredG Σ (option val)
-  ; #[local] ws_deques_private۰G۰channel۰generation۰G :: GhostVarG Σ (leibnizO gname)
-  ; #[local] ws_deques_private۰G۰channel۰state۰G :: OneshotG Σ () (option val)
+Zoo global
+  { models : ghost_list (list val) : zoo
+  ; owner : twins (leibnizO status) : zoo
+  ; channel۰pred : ghost_pred (option val) : zoo
+  ; channel۰generation : ghost_var (leibnizO gname) : zoo
+  ; channel۰state : oneshot () (option val) : zoo
   }.
-
-Definition ws_deques_private۰Σ :=
-  #[ghost_list۰Σ (list val)
-  ; twins۰Σ (leibnizO status)
-  ; ghost_pred۰Σ (option val)
-  ; ghost_var۰Σ (leibnizO gname)
-  ; oneshot۰Σ () (option val)
-  ].
-#[global] Instance subGｰws_deques_private۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG ws_deques_private۰Σ Σ →
-  WsDequesPrivateG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 #[local] Coercion status۰to_val status : val :=
   match status with

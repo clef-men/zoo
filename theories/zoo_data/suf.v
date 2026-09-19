@@ -11,19 +11,9 @@ Implicit Type t s descr : val.
 Implicit Type reprs : gmap location location.
 Implicit Type descrs : gmap location val.
 
-Class SufG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] suf۰G۰sstore۰G :: Sstore2G Σ
+Zoo global
+  { sstore : sstore_2 : zoo
   }.
-
-Definition suf۰Σ :=
-  #[sstore_2۰Σ
-  ].
-#[global] Instance subGｰsuf۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG suf۰Σ Σ →
-  SufG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section unify.
   #[local] Definition unify_at repr1 repr2 repr :=

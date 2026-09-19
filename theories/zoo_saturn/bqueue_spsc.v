@@ -24,25 +24,12 @@ Implicit Type stable : stability.
 
 #[local] Please derive Inhabited for stability.
 
-Class BqueueSpscG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] bqueue_spsc۰G۰model۰G :: AuthTwinsG Σ (leibnizO (list val)) suffix
-  ; #[local] bqueue_spsc۰G۰history۰G :: MonoListG Σ val
-  ; #[local] bqueue_spsc۰G۰stability۰G :: TwinsG Σ (leibnizO stability)
-  ; #[local] bqueue_spsc۰G۰mono_nat۰G :: AuthNatMaxG Σ
+Zoo global
+  { model : auth_twins (leibnizO (list val)) suffix : zoo
+  ; history : mono_list val : zoo
+  ; stability : twins (leibnizO stability) : zoo
+  ; mono_nat : auth_nat_max : zoo
   }.
-
-Definition bqueue_spsc۰Σ :=
-  #[auth_twins۰Σ (leibnizO (list val)) suffix
-  ; mono_list۰Σ val
-  ; twins۰Σ (leibnizO stability)
-  ; auth_nat_max۰Σ
-  ].
-#[global] Instance subGｰbqueue_spsc۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG bqueue_spsc۰Σ Σ →
-  BqueueSpscG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section bqueue_spsc۰G.
   Context `{bqueue_spsc۰G : BqueueSpscG Σ}.

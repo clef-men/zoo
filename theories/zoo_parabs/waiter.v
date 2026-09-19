@@ -9,19 +9,9 @@ Implicit Type b : bool.
 Implicit Type 𝑡 : location.
 Implicit Type v t mtx cond : val.
 
-Class WaiterG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] waiter۰G۰mutex۰G :: MutexG Σ
+Zoo global
+  { mutex : mutex : zoo
   }.
-
-Definition waiter۰Σ :=
-  #[mutex۰Σ
-  ].
-#[global] Instance subGｰws_hub_Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG waiter۰Σ Σ →
-  WaiterG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section waiter۰G.
   Context `{waiter۰G : WaiterG Σ}.

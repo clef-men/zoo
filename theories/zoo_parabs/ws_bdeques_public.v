@@ -23,19 +23,9 @@ Qed.
 Opaque ws_bdeques_public٠capacity.
 Opaque capacity.
 
-Class WsBdequesPublicG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] ws_bdeques_public۰G۰ws_bdeque۰G :: WsBdeque2G Σ
+Zoo global
+  { ws_bdeque : ws_bdeque_2 : zoo
   }.
-
-Definition ws_bdeques_public۰Σ :=
-  #[ws_bdeque_2۰Σ
-  ].
-#[global] Instance subGｰws_bdeques_public۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG ws_bdeques_public۰Σ Σ →
-  WsBdequesPublicG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section ws_bdeques_public۰G.
   Context `{ws_bdeques_public۰G : WsBdequesPublicG Σ}.

@@ -13,23 +13,11 @@ Implicit Type n cnt contrib : nat.
 Implicit Type r : location.
 Implicit Type γ η : gname.
 
-Class PoolCounterG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] pool_counter۰G۰pool۰G :: PoolG Σ
-  ; #[local] pool_counter۰G۰cinv۰G :: cinvG Σ
-  ; #[local] pool_counter۰G۰tokens۰G :: AuthFracG Σ natUR
+Zoo global
+  { pool : pool : zoo
+  ; cinv : cinv : iris
+  ; tokens : auth_frac natUR : zoo
   }.
-
-Definition pool_counter۰Σ :=
-  #[pool۰Σ
-  ; cinvΣ
-  ; auth_frac۰Σ natUR
-  ].
-#[global] Instance subGｰpool_counter۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG pool_counter۰Σ Σ →
-  PoolCounterG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section pool_counter۰G.
   Context `{pool_counter۰G : PoolCounterG Σ}.

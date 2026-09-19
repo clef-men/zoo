@@ -10,25 +10,12 @@ Require Import zoo.options.
 Implicit Type r : location.
 Implicit Type v ctx vtx : val.
 
-Class VertexFibonacciG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] vertex_fibonacci۰G۰pool۰G :: PoolG Σ
-  ; #[local] vertex_fibonacci۰G۰vertex۰G :: VertexG Σ
-  ; #[local] vertex_fibonacci۰G۰ivar۰G :: Ivar4G Σ
-  ; #[local] vertex_fibonacci۰G۰saved_prop۰G :: SavedPropG Σ
+Zoo global
+  { pool : pool : zoo
+  ; vertex : vertex : zoo
+  ; ivar : ivar_4 : zoo
+  ; saved_prop : saved_prop : zoo
   }.
-
-Definition vertex_fibonacci۰Σ :=
-  #[pool۰Σ
-  ; vertex۰Σ
-  ; ivar_4۰Σ
-  ; saved_prop۰Σ
-  ].
-#[global] Instance subGｰvertex_fibonacci۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG vertex_fibonacci۰Σ Σ →
-  VertexFibonacciG Σ.
-Proof.
-  base.solve_inG.
-Qed.
 
 Section vertex_fibonacci۰G.
   Context `{vertex_fibonacci۰G : VertexFibonacciG Σ}.

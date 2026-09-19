@@ -47,19 +47,9 @@ Module base.
   Implicit Type descr : descriptor.
   Implicit Type cnodes : gmap location descriptor.
 
-  Class Sstore2G Σ `{zoo۰G : !ZooG Σ} :=
-    { #[local] sstore_2۰G۰nodes۰G :: ghost_mapG Σ location descriptor
+  Zoo global
+    { nodes : ghost_map location descriptor : iris
     }.
-
-  Definition sstore_2۰Σ :=
-    #[ghost_mapΣ location descriptor
-    ].
-  #[global] Instance subGｰsstore_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
-    subG sstore_2۰Σ Σ →
-    Sstore2G Σ.
-  Proof.
-    solve_inG.
-  Qed.
 
   Section sstore_2۰G.
     Context `{sstore_2۰G : Sstore2G Σ}.
@@ -1499,21 +1489,10 @@ End base.
 
 Require zoo_data.sstore_2__opaque.
 
-Class Sstore2G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] sstore_2۰G۰raw۰G :: base.Sstore2G Σ
-  ; #[local] sstore_2۰G۰support۰G :: MonoGmapG Σ location val
+Zoo global
+  { raw : base.sstore_2 : zoo
+  ; support : mono_gmap location val : zoo
   }.
-
-Definition sstore_2۰Σ :=
-  #[base.sstore_2۰Σ
-  ; mono_gmap۰Σ location val
-  ].
-#[global] Instance subGｰsstore_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG sstore_2۰Σ Σ →
-  Sstore2G Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section sstore_2۰G.
   Context `{sstore_2۰G : Sstore2G Σ}.

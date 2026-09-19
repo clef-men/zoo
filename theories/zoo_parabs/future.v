@@ -14,19 +14,9 @@ Implicit Type scope : pool۰scope.
 Implicit Type ω : gname.
 Implicit Type ωs : list gname.
 
-Class FutureG Σ `{pool۰G : PoolG Σ} :=
-  { #[local] future۰G۰ivar۰G :: Ivar4G Σ
+Zoo global
+  { ivar : ivar_4 : zoo
   }.
-
-Definition future۰Σ :=
-  #[ivar_4۰Σ
-  ].
-#[global] Instance subGｰfuture۰Σ Σ `{pool۰G : PoolG Σ} :
-  subG future۰Σ Σ →
-  FutureG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section future۰G.
   Context `{future۰G : FutureG Σ}.
