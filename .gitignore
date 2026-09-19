@@ -12,6 +12,7 @@ _build/
 .vscode/
 
 # Rocq
+_RocqProject
 .lia.cache
 .nia.cache
 .nlia.cache
