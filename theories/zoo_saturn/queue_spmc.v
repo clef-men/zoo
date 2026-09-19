@@ -22,27 +22,13 @@ Implicit Type vs ws : list val.
 Implicit Type waiter : gname.
 Implicit Type waiters : gmap gname nat.
 
-Class QueueSpmcG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] queue_spmc۰G۰history۰G :: MonoListG Σ location
-  ; #[local] queue_spmc۰G۰front۰G :: AuthNatMaxG Σ
-  ; #[local] queue_spmc۰G۰model۰G :: AuthTwinsG Σ (leibnizO (list val)) suffix
-  ; #[local] queue_spmc۰G۰waiters۰G :: ghost_mapG Σ gname nat
-  ; #[local] queue_spmc۰G۰saved_pred۰G :: SavedPredG Σ bool
+Zoo global
+  { history : mono_list location : zoo
+  ; front : auth_nat_max : zoo
+  ; model : auth_twins (leibnizO (list val)) suffix : zoo
+  ; waiters : ghost_map gname nat : iris
+  ; saved_pred : saved_pred bool : zoo
   }.
-
-Definition queue_spmc۰Σ :=
-  #[mono_list۰Σ location
-  ; auth_nat_max۰Σ
-  ; auth_twins۰Σ (leibnizO (list val)) suffix
-  ; ghost_mapΣ gname nat
-  ; saved_pred۰Σ bool
-  ].
-#[global] Instance subGｰqueue_spmc۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG queue_spmc۰Σ Σ →
-  QueueSpmcG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Module base.
   Section queue_spmc۰G.

@@ -9,21 +9,10 @@ Implicit Type b : bool.
 Implicit Type v t waiters queue : val.
 Implicit Type 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 𝑞𝑢𝑒𝑢𝑒 : list val.
 
-Class WaitersG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] waiters۰G۰queue۰G :: QueueMpmc1G Σ
-  ; #[local] waiters۰G۰waiter۰G :: WaiterG Σ
+Zoo global
+  { queue : queue_mpmc_1 : zoo
+  ; waiter : waiter : zoo
   }.
-
-Definition waiters۰Σ :=
-  #[queue_mpmc_1۰Σ
-  ; waiter۰Σ
-  ].
-#[global] Instance subGｰws_hub_Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG waiters۰Σ Σ →
-  WaitersG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section waiters۰G.
   Context `{waiters۰G : WaitersG Σ}.

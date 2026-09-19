@@ -15,19 +15,9 @@ Implicit Type vs : gmultiset val.
 Implicit Type o : option val.
 Implicit Type os : list (option val).
 
-Class Bag1G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] bag_1۰G۰model۰G :: TwinsG Σ (leibnizO (gmultiset val))
+Zoo global
+  { model : twins (leibnizO (gmultiset val)) : zoo
   }.
-
-Definition bag_1۰Σ :=
-  #[twins۰Σ (leibnizO (gmultiset val))
-  ].
-#[global] Instance subGｰbag_1۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG bag_1۰Σ Σ →
-  Bag1G Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section consistent.
   #[local] Definition consistent vs os :=

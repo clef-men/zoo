@@ -12,19 +12,9 @@ Implicit Type vs ws queues : list val.
 Implicit Type vss : list (list val).
 Implicit Type status : status.
 
-Class WsDequesPublicG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] ws_deques_public۰G۰ws_deque۰G :: WsDeque2G Σ
+Zoo global
+  { ws_deque : ws_deque_2 : zoo
   }.
-
-Definition ws_deques_public۰Σ :=
-  #[ws_deque_2۰Σ
-  ].
-#[global] Instance subGｰws_deques_public۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG ws_deques_public۰Σ Σ →
-  WsDequesPublicG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section ws_deques_public۰G.
   Context `{ws_deques_public۰G : WsDequesPublicG Σ}.

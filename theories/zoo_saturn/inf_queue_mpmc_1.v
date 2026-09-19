@@ -21,31 +21,15 @@ Implicit Type slots : nat → optional val.
 Implicit Type η : gname.
 Implicit Type ηs : list gname.
 
-Class InfQueueMpmc1G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] inf_queue_mpmc_1۰G۰inf_array۰G :: InfArrayG Σ
-  ; #[local] inf_queue_mpmc_1۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
-  ; #[local] inf_queue_mpmc_1۰G۰history۰G :: MonoListG Σ val
-  ; #[local] inf_queue_mpmc_1۰G۰consumer۰G :: SavedPredG Σ val
-  ; #[local] inf_queue_mpmc_1۰G۰consumers۰G :: MonoListG Σ gname
-  ; #[local] inf_queue_mpmc_1۰G۰token۰G :: OneshotG Σ () ()
-  ; #[local] inf_queue_mpmc_1۰G۰tokens۰G :: MonoListG Σ gname
+Zoo global
+  { inf_array : inf_array : zoo
+  ; model : twins (leibnizO (list val)) : zoo
+  ; history : mono_list val : zoo
+  ; consumer : saved_pred val : zoo
+  ; consumers : mono_list gname : zoo
+  ; token : oneshot () () : zoo
+  ; tokens : mono_list gname : zoo
   }.
-
-Definition inf_queue_mpmc_1۰Σ :=
-  #[inf_array۰Σ
-  ; twins۰Σ (leibnizO (list val))
-  ; mono_list۰Σ val
-  ; saved_pred۰Σ val
-  ; mono_list۰Σ gname
-  ; oneshot۰Σ () ()
-  ; mono_list۰Σ gname
-  ].
-#[global] Instance subGｰinf_queue_mpmc_1۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG inf_queue_mpmc_1۰Σ Σ →
-  InfQueueMpmc1G Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Module base.
   Section inf_queue_mpmc_1۰G.

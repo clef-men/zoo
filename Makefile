@@ -13,6 +13,10 @@ bench :
 ocaml2zoo :
 	@ ocaml2zoo . theories
 
+.PHONY : plugin
+plugin :
+	@ dune build plugin
+
 .PHONY : theories
 theories :
 	@ dune build theories --display=short

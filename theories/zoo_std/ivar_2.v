@@ -11,23 +11,11 @@ Implicit Type b : bool.
 Implicit Type v : val.
 Implicit Type o state : option val.
 
-Class Ivar2G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] ivar_2۰G۰mutex۰G :: MutexG Σ
-  ; #[local] ivar_2۰G۰lstate۰G :: OneshotG Σ unit val
-  ; #[local] ivar_2۰G۰consumer۰G :: SubpredsG Σ val
+Zoo global
+  { mutex : mutex : zoo
+  ; lstate : oneshot unit val : zoo
+  ; consumer : subpreds val : zoo
   }.
-
-Definition ivar_2۰Σ :=
-  #[mutex۰Σ
-  ; oneshot۰Σ unit val
-  ; subpreds۰Σ val
-  ].
-#[global] Instance subGｰivar_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG ivar_2۰Σ Σ →
-  Ivar2G Σ .
-Proof.
-  solve_inG.
-Qed.
 
 Module base.
   Section ivar_2۰G.

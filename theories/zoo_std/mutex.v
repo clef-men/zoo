@@ -9,19 +9,9 @@ Implicit Type b : bool.
 Implicit Type l : location.
 Implicit Type t fn : val.
 
-Class MutexG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] mutex۰G۰excl۰G :: ExclG Σ unitO
+Zoo global
+  { excl : excl unitO : zoo
   }.
-
-Definition mutex۰Σ :=
-  #[excl۰Σ unitO
-  ].
-#[global] Instance subGｰmutex۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG mutex۰Σ Σ →
-  MutexG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section mutex۰G.
   Context `{mutex۰G : MutexG Σ}.

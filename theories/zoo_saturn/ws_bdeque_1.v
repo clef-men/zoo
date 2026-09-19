@@ -38,29 +38,14 @@ Implicit Type stable : stability.
 
 #[local] Please derive Inhabited for stability.
 
-Class WsBdeque1G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] ws_bdeque_1۰G۰prophet۰G :: ProphetMultiG Σ prophet_identifier
-  ; #[local] ws_bdeque_1۰G۰model۰G :: AuthTwinsG Σ (leibnizO (list val)) suffix
-  ; #[local] ws_bdeque_1۰G۰owner۰G :: TwinsG Σ (leibnizO (stability * nat))
-  ; #[local] ws_bdeque_1۰G۰front۰G :: AuthNatMaxG Σ
-  ; #[local] ws_bdeque_1۰G۰history۰G :: MonoListG Σ val
-  ; #[local] ws_bdeque_1۰G۰winner۰G :: TwinsG Σ (natO * ▶ ∙)
+Zoo global
+  { prophet : prophet_multi prophet_identifier : zoo
+  ; model : auth_twins (leibnizO (list val)) suffix : zoo
+  ; owner : twins (leibnizO (stability * nat)) : zoo
+  ; front : auth_nat_max : zoo
+  ; history : mono_list val : zoo
+  ; winner : twins (natO * ▶ ∙) : zoo
   }.
-
-Definition ws_bdeque_1۰Σ :=
-  #[prophet_multi۰Σ prophet_identifier
-  ; auth_twins۰Σ (leibnizO (list val)) suffix
-  ; twins۰Σ (leibnizO (stability * nat))
-  ; auth_nat_max۰Σ
-  ; mono_list۰Σ val
-  ; twins۰Σ (natO * ▶ ∙)
-  ].
-#[global] Instance subGｰws_bdeque_1۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG ws_bdeque_1۰Σ Σ →
-  WsBdeque1G Σ .
-Proof.
-  solve_inG.
-Qed.
 
 Module base.
   Section ws_bdeque_1۰G.

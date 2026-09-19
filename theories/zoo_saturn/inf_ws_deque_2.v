@@ -15,21 +15,10 @@ Implicit Type slots : list location.
 Implicit Type v : val.
 Implicit Type vs ws : list val.
 
-Class InfWsDeque2G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] inf_ws_deque_2۰G۰base۰G :: InfWsDeque1G Σ
-  ; #[local] inf_ws_deque_2۰G۰model۰G :: AuthTwinsG Σ (leibnizO (list val)) suffix
+Zoo global
+  { base : inf_ws_deque_1 : zoo
+  ; model : auth_twins (leibnizO (list val)) suffix : zoo
   }.
-
-Definition inf_ws_deque_2۰Σ :=
-  #[inf_ws_deque_1۰Σ
-  ; auth_twins۰Σ (leibnizO (list val)) suffix
-  ].
-#[global] Instance subGｰinf_ws_deque_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG inf_ws_deque_2۰Σ Σ →
-  InfWsDeque2G Σ .
-Proof.
-  solve_inG.
-Qed.
 
 Module base.
   Section inf_ws_deque_2۰G.
@@ -261,7 +250,8 @@ Module base.
         |}.
 
       iApply ("HΦ" $! t γ).
-      iFrame "#∗". iSplitR "Hbase_owner".
+      (* FIXME: For some reason, [iFrame "#∗"] is very slow. *)
+      iFrame "# Hmeta Hmodel₁ Howner". iSplitR "Hbase_owner".
       - iApply inv_alloc.
         iExists [], []. iFrameSteps.
       - iExists []. iFrameSteps.

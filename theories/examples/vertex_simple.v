@@ -8,25 +8,12 @@ Require Import zoo.options.
 
 Implicit Type v ctx a b c d : val.
 
-Class VertexSimpleG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] vertex_simple۰G۰pool۰G :: PoolG Σ
-  ; #[local] vertex_simple۰G۰vertex۰G :: VertexG Σ
-  ; #[local] vertex_simple۰G۰ivar۰G :: Ivar4G Σ
-  ; #[local] vertex_simple۰G۰saved_prop۰G :: SavedPropG Σ
+Zoo global
+  { pool : pool : zoo
+  ; vertex : vertex : zoo
+  ; ivar : ivar_4 : zoo
+  ; saved_prop : saved_prop : zoo
   }.
-
-Definition vertex_simple۰Σ :=
-  #[pool۰Σ
-  ; vertex۰Σ
-  ; ivar_4۰Σ
-  ; saved_prop۰Σ
-  ].
-#[global] Instance subGｰvertex_simple۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG vertex_simple۰Σ Σ →
-  VertexSimpleG Σ.
-Proof.
-  base.solve_inG.
-Qed.
 
 Section vertex_simple۰G.
   Context `{vertex_simple۰G : VertexSimpleG Σ}.

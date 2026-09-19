@@ -35,27 +35,13 @@ Implicit Type waiters : gmap gname nat.
       end
   |}.
 
-Class BqueueMpmcG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] bqueue_mpmc۰G۰history۰G :: MonoListG Σ location
-  ; #[local] bqueue_mpmc۰G۰front۰G :: AuthNatMaxG Σ
-  ; #[local] bqueue_mpmc۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
-  ; #[local] bqueue_mpmc۰G۰waiters۰G :: ghost_mapG Σ gname nat
-  ; #[local] bqueue_mpmc۰G۰saved_pred۰G :: SavedPredG Σ bool;
+Zoo global
+  { history : mono_list location : zoo
+  ; front : auth_nat_max : zoo
+  ; model : twins (leibnizO (list val)) : zoo
+  ; waiters : ghost_map gname nat : iris
+  ; saved_pred : saved_pred bool : zoo
   }.
-
-Definition bqueue_mpmc۰Σ :=
-  #[mono_list۰Σ location
-  ; auth_nat_max۰Σ
-  ; twins۰Σ (leibnizO (list val))
-  ; ghost_mapΣ gname nat
-  ; saved_pred۰Σ bool
-  ].
-#[global] Instance subGｰbqueue_mpmc۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG bqueue_mpmc۰Σ Σ →
-  BqueueMpmcG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Module base.
   Section bqueue_mpmc۰G.

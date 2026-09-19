@@ -15,21 +15,10 @@ Implicit Type v v_resolve t fn : val.
 Implicit Type us : list val.
 Implicit Type vs : nat → val.
 
-Class InfArrayG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] inf_array۰G۰mutex۰G :: MutexG Σ
-  ; #[local] inf_array۰G۰model۰G :: TwinsG Σ (nat -d> val_O)
+Zoo global
+  { mutex : mutex : zoo
+  ; model : twins (nat -d> val_O) : zoo
   }.
-
-Definition inf_array۰Σ :=
-  #[mutex۰Σ
-  ; twins۰Σ (nat -d> val_O)
-  ].
-#[global] Instance subGｰinf_array۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG inf_array۰Σ Σ →
-  InfArrayG Σ .
-Proof.
-  solve_inG.
-Qed.
 
 Section inf_array۰G.
   Context `{inf_array۰G : InfArrayG Σ}.

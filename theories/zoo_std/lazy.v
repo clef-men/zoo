@@ -9,23 +9,11 @@ Require Import zoo.options.
 Implicit Type b : bool.
 Implicit Type v fn mtx : val.
 
-Class LazyG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] lazy۰G۰mutex۰G :: MutexG Σ
-  ; #[local] lazy۰G۰lstate۰G :: OneshotG Σ unit val
-  ; #[local] lazy۰G۰consumer۰G :: SubpredsG Σ val
+Zoo global
+  { mutex : mutex : zoo
+  ; lstate : oneshot unit val : zoo
+  ; consumer : subpreds val : zoo
   }.
-
-Definition lazy۰Σ :=
-  #[mutex۰Σ
-  ; oneshot۰Σ unit val
-  ; subpreds۰Σ val
-  ].
-#[global] Instance subGｰlazy۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG lazy۰Σ Σ →
-  LazyG Σ .
-Proof.
-  solve_inG.
-Qed.
 
 Module base.
   Section lazy۰G.

@@ -201,35 +201,17 @@ Qed.
   else
     descr.(descriptor۰before).
 
-Class Mcas1G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] mcas_1۰G۰model۰G :: TwinsG Σ val_O
-  ; #[local] mcas_1۰G۰helper۰G :: SavedPropG Σ
-  ; #[local] mcas_1۰G۰post۰G :: SavedPredG Σ bool
-  ; #[local] mcas_1۰G۰lstatus۰G :: AuthMonoG (A := leibnizO lstatus) Σ lstep
-  ; #[local] mcas_1۰G۰history۰G :: MonoListG Σ location
-  ; #[local] mcas_1۰G۰lock۰G :: ExclG Σ unitO
-  ; #[local] mcas_1۰G۰helpers۰G :: ghost_mapG Σ gname nat
-  ; #[local] mcas_1۰G۰winning۰G :: ExclG Σ unitO
-  ; #[local] mcas_1۰G۰owner۰G :: ExclG Σ unitO
+Zoo global
+  { model : twins val_O : zoo
+  ; helper : saved_prop : zoo
+  ; post : saved_pred bool : zoo
+  ; lstatus : auth_mono (lstep : relation $ leibnizO lstatus) : zoo
+  ; history : mono_list location : zoo
+  ; lock : excl unitO : zoo
+  ; helpers : ghost_map gname nat : iris
+  ; winning : excl unitO : zoo
+  ; owner : excl unitO : zoo
   }.
-
-Definition mcas_1۰Σ :=
-  #[twins۰Σ val_O
-  ; saved_prop۰Σ
-  ; saved_pred۰Σ bool
-  ; auth_mono۰Σ (A := leibnizO lstatus) lstep
-  ; mono_list۰Σ location
-  ; excl۰Σ unitO
-  ; ghost_mapΣ gname nat
-  ; excl۰Σ unitO
-  ; excl۰Σ unitO
-  ].
-#[global] Instance subGｰmcas_1۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG mcas_1۰Σ Σ →
-  Mcas1G Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section mcas_1۰G.
   Context `{mcas_1۰G : Mcas1G Σ}.

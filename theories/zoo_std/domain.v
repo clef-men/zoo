@@ -75,21 +75,10 @@ Definition domain٠dls٠set : val :=
     dynarray_1٠grow "local" ("id" + 1) §None ⍮
     dynarray_1٠set "local" "id" ‘Some( "v" ).
 
-Class DomainG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] domain۰G۰ivar۰G :: Ivar2G Σ
-  ; #[local] domain۰G۰dls۰G :: ghost_mapG Σ nat (option val)
+Zoo global
+  { ivar : ivar_2 : zoo
+  ; dls : ghost_map nat (option val) : iris
   }.
-
-Definition domain۰Σ :=
-  #[ivar_2۰Σ
-  ; ghost_mapΣ nat (option val)
-  ].
-#[global] Instance subGｰdomain۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG domain۰Σ Σ →
-  DomainG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section consistent.
   #[local] Definition consistent vs ws :=

@@ -13,21 +13,10 @@ Implicit Type cnt : nat.
 Implicit Type l : location.
 Implicit Type t : val.
 
-Class SemaphoreG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] semaphore۰G۰mutex۰G :: MutexG Σ
-  ; #[local] semaphore۰G۰tokens۰G :: ExclG Σ unitO
+Zoo global
+  { mutex : mutex : zoo
+  ; tokens : excl unitO : zoo
   }.
-
-Definition semaphore۰Σ :=
-  #[mutex۰Σ
-  ; excl۰Σ unitO
-  ].
-#[global] Instance subGｰsemaphore۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG semaphore۰Σ Σ →
-  SemaphoreG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section semaphore۰G.
   Context `{semaphore۰G : SemaphoreG Σ}.

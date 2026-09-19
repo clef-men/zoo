@@ -42,31 +42,15 @@ Implicit Type stable : stability.
 
 #[local] Please derive Inhabited for stability.
 
-Class WsDeque1G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] ws_deque_1۰G۰prophet۰G :: ProphetMultiG Σ prophet_identifier
-  ; #[local] ws_deque_1۰G۰model۰G :: AuthTwinsG Σ (leibnizO (list val)) suffix
-  ; #[local] ws_deque_1۰G۰owner۰G :: TwinsG Σ (leibnizO (stability * nat * val * nat))
-  ; #[local] ws_deque_1۰G۰front۰G :: AuthNatMaxG Σ
-  ; #[local] ws_deque_1۰G۰history۰G :: MonoListG Σ val
-  ; #[local] ws_deque_1۰G۰winner۰G :: TwinsG Σ (natO * leibnizO (option val) * ▶ ∙)
-  ; #[local] ws_deque_1۰G۰datas۰G :: MonoGmultisetG Σ val
+Zoo global
+  { prophet : prophet_multi prophet_identifier : zoo
+  ; model : auth_twins (leibnizO (list val)) suffix : zoo
+  ; owner : twins (leibnizO (stability * nat * val * nat)) : zoo
+  ; front : auth_nat_max : zoo
+  ; history : mono_list val : zoo
+  ; winner : twins (natO * leibnizO (option val) * ▶ ∙) : zoo
+  ; datas : mono_gmultiset val : zoo
   }.
-
-Definition ws_deque_1۰Σ :=
-  #[prophet_multi۰Σ prophet_identifier
-  ; auth_twins۰Σ (leibnizO (list val)) suffix
-  ; twins۰Σ (leibnizO (stability * nat * val * nat))
-  ; auth_nat_max۰Σ
-  ; mono_list۰Σ val
-  ; twins۰Σ (natO * leibnizO (option val) * ▶ ∙)
-  ; mono_gmultiset۰Σ val
-  ].
-#[global] Instance subGｰws_deque_1۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG ws_deque_1۰Σ Σ →
-  WsDeque1G Σ .
-Proof.
-  solve_inG.
-Qed.
 
 #[local] Definition min_capacity :=
   val۰to_nat' ws_deque_1٠min_capacity.

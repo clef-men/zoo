@@ -130,39 +130,19 @@ Proof.
   apply lstepｰwinner.
 Qed.
 
-Class InfQueueMpmc2G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] inf_queue_mpmc_2۰G۰inf_array۰G :: InfArrayG Σ
-  ; #[local] inf_queue_mpmc_2۰G۰prophet۰G :: ProphetMultiG Σ prophet_identifier
-  ; #[local] inf_queue_mpmc_2۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
-  ; #[local] inf_queue_mpmc_2۰G۰history۰G :: MonoListG Σ (option val)
-  ; #[local] inf_queue_mpmc_2۰G۰lstate۰G :: AuthMonoG Σ lstep
-  ; #[local] inf_queue_mpmc_2۰G۰lstates۰G :: MonoListG Σ gname
-  ; #[local] inf_queue_mpmc_2۰G۰saved_pred۰G :: SavedPredG Σ val
-  ; #[local] inf_queue_mpmc_2۰G۰producer۰G :: OneshotG Σ () ()
-  ; #[local] inf_queue_mpmc_2۰G۰producers۰G :: MonoListG Σ gname
-  ; #[local] inf_queue_mpmc_2۰G۰consumer۰G :: OneshotG Σ () ()
-  ; #[local] inf_queue_mpmc_2۰G۰consumers۰G :: MonoListG Σ gname
+Zoo global
+  { inf_array : inf_array : zoo
+  ; prophet : prophet_multi prophet_identifier : zoo
+  ; model : twins (leibnizO (list val)) : zoo
+  ; history : mono_list (option val) : zoo
+  ; lstate : auth_mono lstep : zoo
+  ; lstates : mono_list gname : zoo
+  ; saved_pred : saved_pred val : zoo
+  ; producer : oneshot () () : zoo
+  ; producers : mono_list gname : zoo
+  ; consumer : oneshot () () : zoo
+  ; consumers : mono_list gname : zoo
   }.
-
-Definition inf_queue_mpmc_2۰Σ :=
-  #[inf_array۰Σ
-  ; prophet_multi۰Σ prophet_identifier
-  ; twins۰Σ (leibnizO (list val))
-  ; mono_list۰Σ (option val)
-  ; mono_list۰Σ gname
-  ; auth_mono۰Σ lstep
-  ; saved_pred۰Σ val
-  ; oneshot۰Σ () ()
-  ; mono_list۰Σ gname
-  ; oneshot۰Σ () ()
-  ; mono_list۰Σ gname
-  ].
-#[global] Instance subGｰinf_queue_mpmc_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG inf_queue_mpmc_2۰Σ Σ →
-  InfQueueMpmc2G Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Module base.
   Section inf_queue_mpmc_2۰G.

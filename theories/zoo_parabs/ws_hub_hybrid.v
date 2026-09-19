@@ -20,25 +20,12 @@ Implicit Type vss : list $ list val.
 Implicit Type status : status.
 Implicit Type empty : emptiness.
 
-Class WsHubHybridG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] ws_hub_hybrid۰G۰deques۰G :: WsBdequesPublicG Σ
-  ; #[local] ws_hub_hybrid۰G۰queue۰G :: QueueMpmc1G Σ
-  ; #[local] ws_hub_hybrid۰G۰waiters۰G :: WaitersG Σ
-  ; #[local] ws_hub_hybrid۰G۰emptiness۰G :: GhostListG Σ emptiness
+Zoo global
+  { deques : ws_bdeques_public : zoo
+  ; queue : queue_mpmc_1 : zoo
+  ; waiters : waiters : zoo
+  ; emptiness : ghost_list emptiness : zoo
   }.
-
-Definition ws_hub_hybrid۰Σ :=
-  #[ws_bdeques_public۰Σ
-  ; queue_mpmc_1۰Σ
-  ; waiters۰Σ
-  ; ghost_list۰Σ emptiness
-  ].
-#[global] Instance subGｰws_hub_hybrid۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG ws_hub_hybrid۰Σ Σ →
-  WsHubHybridG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section consistent.
   #[local] Definition consistent vs vss vs_queue :=

@@ -14,21 +14,10 @@ Implicit Type v t backoff : val.
 Implicit Type vs front back : list val.
 Implicit Type ws : option (list val).
 
-Class QueueMpsc3G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] queue_mpsc_3۰G۰twins۰G :: TwinsG Σ (leibnizO (list val))
-  ; #[local] queue_mpsc_3۰G۰lstate۰G :: OneshotG Σ () ()
+Zoo global
+  { twins : twins (leibnizO (list val)) : zoo
+  ; lstate : oneshot () () : zoo
   }.
-
-Definition queue_mpsc_3۰Σ :=
-  #[twins۰Σ (leibnizO (list val))
-  ; oneshot۰Σ () ()
-  ].
-#[global] Instance subGｰqueue_mpsc_3۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG queue_mpsc_3۰Σ Σ →
-  QueueMpsc3G Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section queue_mpsc_3۰G.
   Context `{queue_mpsc_3۰G : QueueMpsc3G Σ}.

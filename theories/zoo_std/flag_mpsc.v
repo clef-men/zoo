@@ -8,21 +8,10 @@ Require Import zoo.options.
 
 Implicit Type b : bool.
 
-Class FlagMpscG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] flag_mpsc۰G۰state۰G :: OneshotG Σ () ()
-  ; #[local] flag_mpsc۰G۰consumer۰G :: ExclG Σ unitO
+Zoo global
+  { state : oneshot () () : zoo
+  ; consumer : excl unitO : zoo
   }.
-
-Definition flag_mpsc۰Σ :=
-  #[oneshot۰Σ () ()
-  ; excl۰Σ unitO
-  ].
-#[global] Instance subGｰflag_mpsc۰Σ `{zoo۰G : !ZooG Σ} :
-  subG flag_mpsc۰Σ Σ →
-  FlagMpscG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Module base.
   Section flag_mpsc۰G.

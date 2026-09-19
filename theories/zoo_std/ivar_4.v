@@ -13,21 +13,10 @@ Implicit Type waiters : list val.
 Implicit Type ω : gname.
 Implicit Type ωs : list gname.
 
-Class Ivar4G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] ivar_4۰G۰ivar_3۰G :: Ivar3G Σ gname
-  ; #[local] ivar_4۰G۰saved_prop۰G :: SavedPropG Σ
+Zoo global
+  { ivar_3 : ivar_3 gname : zoo
+  ; saved_prop : saved_prop : zoo
   }.
-
-Definition ivar_4۰Σ :=
-  #[ivar_3۰Σ gname
-  ; saved_prop۰Σ
-  ].
-#[global] Instance subGｰivar_4۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG ivar_4۰Σ Σ →
-  Ivar4G Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section ivar_4۰G.
   Context `{ivar_4۰G : Ivar4G Σ}.

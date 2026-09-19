@@ -19,25 +19,12 @@ Implicit Type status : status.
 Implicit Type empty : emptiness.
 Implicit Type emptys : list emptiness.
 
-Class WsHubFifoG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] ws_hub_fifo۰G۰queue۰G :: QueueMpmc1G Σ
-  ; #[local] ws_hub_fifo۰G۰waiters۰G :: WaitersG Σ
-  ; #[local] ws_hub_fifo۰G۰owner۰G :: ExclG Σ unitO
-  ; #[local] ws_hub_fifo۰G۰emptiness۰G :: GhostListG Σ emptiness
+Zoo global
+  { queue : queue_mpmc_1 : zoo
+  ; waiters : waiters : zoo
+  ; owner : excl unitO : zoo
+  ; emptiness : ghost_list emptiness : zoo
   }.
-
-Definition ws_hub_fifo۰Σ :=
-  #[queue_mpmc_1۰Σ
-  ; waiters۰Σ
-  ; excl۰Σ unitO
-  ; ghost_list۰Σ emptiness
-  ].
-#[global] Instance subGｰws_hub_fifo۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG ws_hub_fifo۰Σ Σ →
-  WsHubFifoG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Section consistent.
   #[local] Definition consistent vs ws :=

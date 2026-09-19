@@ -9,23 +9,11 @@ Require Import zoo.options.
 Implicit Type b : bool.
 Implicit Type 𝑡 : location.
 
-Class WaiterMpscG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] waiter_mpsc۰G۰mutex۰G :: MutexG Σ
-  ; #[local] waiter_mpsc۰G۰lstate۰G :: OneshotG Σ unit unit
-  ; #[local] waiter_mpsc۰G۰consumer۰G :: ExclG Σ unitO
+Zoo global
+  { mutex : mutex : zoo
+  ; lstate : oneshot unit unit : zoo
+  ; consumer : excl unitO : zoo
   }.
-
-Definition waiter_mpsc۰Σ :=
-  #[mutex۰Σ
-  ; oneshot۰Σ unit unit
-  ; excl۰Σ unitO
-  ].
-#[global] Instance subGｰwaiter_mpsc۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG waiter_mpsc۰Σ Σ →
-  WaiterMpscG Σ .
-Proof.
-  solve_inG.
-Qed.
 
 Section waiter_mpsc۰G.
   Context `{waiter_mpsc۰G : WaiterMpscG Σ}.

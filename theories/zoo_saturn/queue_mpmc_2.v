@@ -111,23 +111,11 @@ Proof.
   apply stepｰmono.
 Qed.
 
-Class QueueMpmc2G Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] queue_mpmc_2۰G۰model۰G :: TwinsG Σ (leibnizO (list val))
-  ; #[local] queue_mpmc_2۰G۰state۰G :: AuthMonoG (A := leibnizO state) Σ step
-  ; #[local] queue_mpmc_2۰G۰front۰G :: AuthNatMaxG Σ
+Zoo global
+  { model : twins (leibnizO (list val)) : zoo
+  ; state : auth_mono (step : relation $ leibnizO state) : zoo
+  ; front : auth_nat_max : zoo
   }.
-
-Definition queue_mpmc_2۰Σ :=
-  #[twins۰Σ (leibnizO (list val))
-  ; auth_mono۰Σ (A := leibnizO state) step
-  ; auth_nat_max۰Σ
-  ].
-#[global] Instance subGｰqueue_mpmc_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG queue_mpmc_2۰Σ Σ →
-  QueueMpmc2G Σ.
-Proof.
-  solve_inG.
-Qed.
 
 #[local] Fixpoint suffix۰to_val (i : nat) vs : val :=
   match vs with

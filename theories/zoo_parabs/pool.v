@@ -57,29 +57,14 @@ Definition pool۰scope :=
 Please derive EqDecision for pool۰scope.
 Please derive Countable for pool۰scope.
 
-Class PoolG Σ `{zoo۰G : !ZooG Σ} :=
-  { #[local] pool۰G۰domain۰G :: DomainG Σ
-  ; #[local] pool۰G۰ws_hub۰G :: WsHubStdG Σ
-  ; #[local] pool۰G۰saved_prop۰G :: SavedPropG Σ
-  ; #[local] pool۰G۰jobs۰G :: MonoGmultisetG Σ job
-  ; #[local] pool۰G۰locals۰G :: GhostListG Σ (gmultiset job)
-  ; #[local] pool۰G۰consumer۰G :: PropSpscG Σ
+Zoo global
+  { domain : domain : zoo
+  ; ws_hub : ws_hub_std : zoo
+  ; saved_prop : saved_prop : zoo
+  ; jobs : mono_gmultiset job : zoo
+  ; locals : ghost_list (gmultiset job) : zoo
+  ; consumer : prop_spsc : zoo
   }.
-
-Definition pool۰Σ :=
-  #[domain۰Σ
-  ; ws_hub_std۰Σ
-  ; saved_prop۰Σ
-  ; mono_gmultiset۰Σ job
-  ; ghost_list۰Σ (gmultiset job)
-  ; prop_spsc۰Σ
-  ].
-#[global] Instance subGｰpool۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG pool۰Σ Σ →
-  PoolG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Module base.
   Section pool۰G.
