@@ -17,6 +17,11 @@ ocaml2zoo :
 theories :
 	@ dune build theories --display=short
 
+.PHONY : rocq-zoo
+rocq-zoo :
+	@ dune build theories/zoo --display=short
+	@ dune install rocq-zoo
+
 .PHONY : install
 install :
 	@ dune install
