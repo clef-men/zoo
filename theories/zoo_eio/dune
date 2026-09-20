@@ -5,6 +5,13 @@
  (package rocq-zoo-eio)
  (generate_project_file)
  (theories
+  Stdlib
+  Ltac2
+  stdpp
+  please
+  iris
+  diaframe
+  zoo
   zoo_std
   unix
  )

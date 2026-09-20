@@ -5,6 +5,16 @@
  (package rocq-zoo-examples)
  (generate_project_file)
  (theories
+  Stdlib
+  Ltac2
+  stdpp
+  please
+  iris
+  diaframe
+  zoo
+  zoo_std
+  backoff
+  zoo_saturn
   zoo_parabs
  )
 )
