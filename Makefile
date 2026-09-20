@@ -26,6 +26,9 @@ rocq-zoo :
 	@ dune build theories/zoo --display=short
 	@ dune install rocq-zoo
 
+%.vo :
+	@ dune build $@ --display=short
+
 .PHONY : install
 install :
 	@ dune install
