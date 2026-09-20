@@ -8,6 +8,13 @@ open Stdarg
 
 }
 
+VERNAC ARGUMENT EXTEND global_base
+| [ ] ->
+    { Zoo_global.default_base }
+| [ "⟨" qualid(theory) "⟩" ] ->
+    { theory }
+END
+
 VERNAC ARGUMENT EXTEND global_kind'
 | [ "iris" ] ->
     { Zoo_global.Iris }
@@ -27,8 +34,10 @@ VERNAC ARGUMENT EXTEND global_field
 END
 
 VERNAC ARGUMENT EXTEND global_spec
-| [ binders(parameters) ":=" "{" global_field_list_sep(fields, ";") "}" ] ->
-    { Zoo_global.{ parameters; fields } }
+| [ global_base(base) binders(parameters) ":="
+    "{" global_field_list_sep(fields, ";") "}"
+  ] ->
+    { Zoo_global.{ base; parameters; fields } }
 END
 
 VERNAC COMMAND EXTEND Zoo

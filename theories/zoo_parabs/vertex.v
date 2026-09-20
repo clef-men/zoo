@@ -46,29 +46,14 @@ Definition vertex۰iteration :=
   gname.
 Implicit Type iter : vertex۰iteration.
 
-Class VertexG Σ `{pool۰G : PoolG Σ} :=
-  { #[local] vertex۰G۰stack۰G :: StackMpmc2G Σ
-  ; #[local] vertex۰G۰state۰G :: TwinsG Σ (leibnizO state)
-  ; #[local] vertex۰G۰iteration۰G :: TwinsG Σ (leibnizO vertex۰iteration)
-  ; #[local] vertex۰G۰dependencies۰G :: MonoGmultisetG Σ vertex۰name
-  ; #[local] vertex۰G۰predecessors۰G :: AuthGmultisetG Σ vertex۰name
-  ; #[local] vertex۰G۰output۰G :: SubpropsG Σ
+Zoo global ⟨pool⟩ :=
+  { stack : stack_mpmc_2
+  ; state : twins (leibnizO state)
+  ; iteration : twins (leibnizO vertex۰iteration)
+  ; dependencies : mono_gmultiset vertex۰name
+  ; predecessors : auth_gmultiset vertex۰name
+  ; output : subprops
   }.
-
-Definition vertex۰Σ :=
-  #[stack_mpmc_2۰Σ
-  ; twins۰Σ (leibnizO state)
-  ; twins۰Σ (leibnizO vertex۰iteration)
-  ; mono_gmultiset۰Σ vertex۰name
-  ; auth_gmultiset۰Σ vertex۰name
-  ; subprops۰Σ
-  ].
-#[global] Instance subGｰvertex۰Σ Σ `{pool۰G : PoolG Σ}:
-  subG vertex۰Σ Σ →
-  VertexG Σ.
-Proof.
-  solve_inG.
-Qed.
 
 Module base.
   Section vertex۰G.

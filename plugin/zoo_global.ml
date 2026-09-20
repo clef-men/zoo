@@ -12,9 +12,18 @@ type field =
   }
 
 type spec =
-  { parameters: Constrexpr.local_binder_expr list
+  { base: Libnames.qualid
+  ; parameters: Constrexpr.local_binder_expr list
   ; fields: field list
   }
+
+let default_base =
+  Printf.sprintf "%s.%s"
+    Zoo.ghost_state
+    "zoo"
+let default_base =
+  default_base
+  |> Libnames.qualid_of_string
 
 module Error = struct
   module Illegal_parameter = struct
@@ -60,43 +69,69 @@ let class_name ?(kind = Zoo) (theory : string) : string =
         theory |> snake_to_camel
   in
   name ^ "G"
-let class_id ?kind (theory : Names.Id.t) : Names.Id.t =
+let class_ident ?kind (theory : Names.Id.t) : Names.Id.t =
   theory
   |> Names.Id.to_string
   |> class_name ?kind
   |> Names.Id.of_string
 let class_qualid ?kind (theory : Libnames.qualid) : Libnames.qualid =
   let path, id = theory |> Libnames.repr_qualid in
-  let id = id |> class_id ?kind in
-  Libnames.make_qualid path id
-
-let field_name ~theory (fld : string) : string =
-  Printf.sprintf "%s۰G۰%s۰G"
-    theory
-    fld
-
-let functors_name ?(kind = Zoo) (theory : string) : string =
-  let theory =
-    match kind with
-    | Iris ->
-        theory
-    | Zoo ->
-        theory ^ "۰"
-  in
-  theory ^ "Σ"
-let functors_id ?kind (theory : Names.Id.t) : Names.Id.t =
-  theory
-  |> Names.Id.to_string
-  |> functors_name ?kind
-  |> Names.Id.of_string
-let functors_qualid ?kind (theory : Libnames.qualid) : Libnames.qualid =
-  let path, id = theory |> Libnames.repr_qualid in
-  let id = id |> functors_id ?kind in
+  let id = id |> class_ident ?kind in
   Libnames.make_qualid path id
 
 let instance_name (theory : string) : string =
-  Printf.sprintf "subGｰ%s۰Σ"
+  Printf.sprintf "%s%sG"
     theory
+    Separator.cdot
+
+let field_name ~theory (fld : string) : string =
+  Printf.sprintf "%s%s%s"
+    (instance_name theory)
+    Separator.cdot
+    (instance_name fld)
+
+let gFunctors_name ?(kind = Zoo) (theory : string) : string =
+  match kind with
+  | Iris ->
+      Printf.sprintf "%s%s"
+        theory
+        Iris.sigma
+  | Zoo ->
+      Printf.sprintf "%s%s%s"
+        theory
+        Separator.cdot
+        Iris.sigma
+let gFunctors_ident ?kind (theory : Names.Id.t) : Names.Id.t =
+  theory
+  |> Names.Id.to_string
+  |> gFunctors_name ?kind
+  |> Names.Id.of_string
+let gFunctors_qualid ?kind (theory : Libnames.qualid) : Libnames.qualid =
+  let path, id = theory |> Libnames.repr_qualid in
+  let id = id |> gFunctors_ident ?kind in
+  Libnames.make_qualid path id
+
+let subG_name (theory : string) : string =
+  Printf.sprintf "subG%s%s"
+    Separator.hyphen
+    (gFunctors_name theory)
+
+let base spec =
+  let open Constrexpr in
+  let open Constrexpr_ in
+  CLocalAssum
+  ( [ spec.base
+      |> Libnames.qualid_basename
+      |> Names.Id.to_string
+      |> instance_name
+      |> Names_.lname_of_string
+    ]
+  , None
+  , Generalized (MaxImplicit, false)
+  , mk_app
+      (spec.base |> class_qualid |> Constrexpr_.mk_ref)
+      [Iris.sigma_ref]
+  )
 
 let fields ~theory spec =
   spec.fields |> List.map @@ fun (fld : field) ->
@@ -118,12 +153,12 @@ let fields ~theory spec =
     )
 
 let class_ ~theory spec =
-  let name = theory |> class_name |> Names.Id.of_string |> CAst.make in
+  let name = theory |> class_name |> Names_.lident_of_string in
   let open Vernacexpr in
   VernacInductive
   ( Class false
   , [ ( ( (NoCoercion, (name, None))
-        , (Iris.sigma_binder :: Zoo.zoo_G_binder:: spec.parameters, None)
+        , (Iris.sigma_binder :: base spec :: spec.parameters, None)
         , None
         , RecordDecl (None, fields ~theory spec, None)
         )
@@ -132,31 +167,31 @@ let class_ ~theory spec =
     ]
   )
 
-let functors spec =
+let gFunctors spec =
   List.fold_right (fun fld acc ->
     let open Constrexpr_ in
     mk_app
       Iris.gFunctors_app_ref
       [ mk_app
-          (fld.theory |> functors_qualid ~kind:fld.kind |> mk_ref)
+          (fld.theory |> gFunctors_qualid ~kind:fld.kind |> mk_ref)
           fld.arguments
       ; acc
       ]
   ) spec.fields Iris.gFunctors_nil_ref
-let functors ~theory spec =
+let gFunctors ~theory spec =
   let open Vernacexpr in
   VernacDefinition
   ( (NoDischarge, Definition)
-  , (theory |> functors_name |> Names_.lname_of_string, None)
+  , (theory |> gFunctors_name |> Names_.lname_of_string, None)
   , DefineBody
     ( spec.parameters
     , None
-    , functors spec
+    , gFunctors spec
     , None
     )
   )
 
-let instance ~theory spec =
+let subG ~theory spec =
   let params =
     let open Constrexpr_ in
     spec.parameters |> List.concat_map @@ fun (param : Constrexpr.local_binder_expr) ->
@@ -188,13 +223,13 @@ let instance ~theory spec =
     Classes.new_instance_interactive
       ~locality:SuperGlobal
       ~poly:PolyFlags.default
-      (theory |> instance_name |> Names_.lname_of_string, None)
-      (Iris.sigma_binder :: Zoo.zoo_G_binder :: spec.parameters)
+      (theory |> subG_name |> Names_.lname_of_string, None)
+      (Iris.sigma_binder :: base spec :: spec.parameters)
       ( mk_arrow
           ( mk_app
               Iris.subG_ref
               [ mk_app
-                  (theory |> functors_name |> mk_ref_string)
+                  (theory |> gFunctors_name |> mk_ref_string)
                   params
               ; Iris.sigma_ref
               ]
@@ -245,9 +280,9 @@ let interp ~state vernac =
 let main ~state spec =
   let theory = Utils.current_unit () in
   let state = interp ~state @@ class_ ~theory spec in
-  let state = interp ~state @@ functors ~theory spec in
+  let state = interp ~state @@ gFunctors ~theory spec in
   Vernacstate.unfreeze_full_state state ;
-  instance ~theory spec
+  subG ~theory spec
 let main spec =
   let state = Vernacstate.freeze_full_state () in
   try

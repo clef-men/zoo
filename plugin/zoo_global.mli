@@ -10,9 +10,13 @@ type field =
   }
 
 type spec =
-  { parameters: Constrexpr.local_binder_expr list
+  { base: Libnames.qualid
+  ; parameters: Constrexpr.local_binder_expr list
   ; fields: field list
   }
+
+val default_base :
+  Libnames.qualid
 
 val main :
   spec -> unit
