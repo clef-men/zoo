@@ -729,7 +729,7 @@ Section ivar_2۰G.
     𝑡 ↪ γ ∗
     base.ivar_2۰inv 𝑡 γ Ψ Ξ.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l{}
+    " ( %𝑡{}
       & %γ{}
       & {%Heq{};->}
       & #Hmeta{_{}}
@@ -743,7 +743,7 @@ Section ivar_2۰G.
     𝑡 ↪ γ ∗
     base.ivar_2۰producer γ.
   #[local] Instance : CustomIpat "producer" :=
-    " ( %l{;_}
+    " ( %𝑡{;_}
       & %γ{;_}
       & {%Heq{};->}
       & #Hmeta{_{}}
@@ -757,7 +757,7 @@ Section ivar_2۰G.
     𝑡 ↪ γ ∗
     base.ivar_2۰consumer γ Χ.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %l{;_}
+    " ( %𝑡{;_}
       & %γ{;_}
       & {%Heq{};->}
       & #Hmeta{_{}}
@@ -771,7 +771,7 @@ Section ivar_2۰G.
     𝑡 ↪ γ ∗
     base.ivar_2۰result γ v.
   #[local] Instance : CustomIpat "result" :=
-    " ( %l{;_}
+    " ( %𝑡{;_}
       & %γ{;_}
       & {%Heq{};->}
       & #Hmeta{_{}}
@@ -788,7 +788,7 @@ Section ivar_2۰G.
     𝑡 ↪ γ ∗
     base.ivar_2۰synchronized γ.
   #[local] Instance : CustomIpat "synchronized" :=
-    " ( %l{;_}
+    " ( %𝑡{;_}
       & %γ{;_}
       & {%Heq{};->}
       & #Hmeta{_{}}

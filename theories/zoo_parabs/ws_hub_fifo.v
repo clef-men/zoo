@@ -154,7 +154,7 @@ Section ws_hub_fifo۰G.
     ⌜consistent vs ws⌝ ∗
     emptiness۰auth γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l_
+    " ( %𝑡_
       & %γ_
       & %ws
       & %Heq

@@ -276,7 +276,7 @@ Section flag_mpsc۰G.
     𝑡 ↪ γ ∗
     base.flag_mpsc۰inv 𝑡 γ P.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l{}
+    " ( %𝑡{}
       & %γ{}
       & {%Heq{};->}
       & #Hmeta{_{}}
@@ -290,7 +290,7 @@ Section flag_mpsc۰G.
     𝑡 ↪ γ ∗
     base.flag_mpsc۰consumer γ.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %l{;_}
+    " ( %𝑡{;_}
       & %γ{;_}
       & {%Heq{};->}
       & #Hmeta{_{}}
@@ -304,7 +304,7 @@ Section flag_mpsc۰G.
     𝑡 ↪ γ ∗
     base.flag_mpsc۰resolved γ.
   #[local] Instance : CustomIpat "resolved" :=
-    " ( %l{;_}
+    " ( %𝑡{;_}
       & %γ{;_}
       & {%Heq{};->}
       & #Hmeta{_{}}

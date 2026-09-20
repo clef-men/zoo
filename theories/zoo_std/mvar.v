@@ -513,7 +513,7 @@ Section mvar۰G.
     𝑡 ↪ γ ∗
     base.mvar۰inv 𝑡 γ Ψ.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l{}
+    " ( %𝑡{}
       & %γ{}
       & {%Heq{};->}
       & #Hmeta{_{}}
@@ -527,7 +527,7 @@ Section mvar۰G.
     𝑡 ↪ γ ∗
     base.mvar۰consumer γ.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %l{;_}
+    " ( %𝑡{;_}
       & %γ{;_}
       & {%Heq{};->}
       & #Hmeta{_{}}
@@ -541,7 +541,7 @@ Section mvar۰G.
     𝑡 ↪ γ ∗
     base.mvar۰resolved γ.
   #[local] Instance : CustomIpat "resolved" :=
-    " ( %l{;_}
+    " ( %𝑡{;_}
       & %γ{;_}
       & {%Heq{};->}
       & #Hmeta{_{}}
