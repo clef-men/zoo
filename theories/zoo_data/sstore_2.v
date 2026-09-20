@@ -1489,7 +1489,7 @@ End base.
 
 Require zoo_data.sstore_2__opaque.
 
-Zoo global
+Zoo global :=
   { raw : base.sstore_2 : zoo
   ; support : mono_gmap location val : zoo
   }.
