@@ -16,7 +16,7 @@ Implicit Type o : option val.
 Implicit Type os : list (option val).
 
 Zoo global :=
-  { model : twins (leibnizO (gmultiset val)) : zoo
+  { model : twins (leibnizO (gmultiset val))
   }.
 
 Section consistent.

@@ -20,10 +20,10 @@ Implicit Type empty : emptiness.
 Implicit Type emptys : list emptiness.
 
 Zoo global :=
-  { queue : queue_mpmc_1 : zoo
-  ; waiters : waiters : zoo
-  ; owner : excl unitO : zoo
-  ; emptiness : ghost_list emptiness : zoo
+  { queue : queue_mpmc_1
+  ; waiters : waiters
+  ; owner : excl unitO
+  ; emptiness : ghost_list emptiness
   }.
 
 Section consistent.

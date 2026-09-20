@@ -16,8 +16,8 @@ Implicit Type v : val.
 Implicit Type vs ws : list val.
 
 Zoo global :=
-  { base : inf_ws_deque_1 : zoo
-  ; model : auth_twins (leibnizO (list val)) suffix : zoo
+  { base : inf_ws_deque_1
+  ; model : auth_twins (leibnizO (list val)) suffix
   }.
 
 Module base.

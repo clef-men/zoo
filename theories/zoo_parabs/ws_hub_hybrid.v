@@ -21,10 +21,10 @@ Implicit Type status : status.
 Implicit Type empty : emptiness.
 
 Zoo global :=
-  { deques : ws_bdeques_public : zoo
-  ; queue : queue_mpmc_1 : zoo
-  ; waiters : waiters : zoo
-  ; emptiness : ghost_list emptiness : zoo
+  { deques : ws_bdeques_public
+  ; queue : queue_mpmc_1
+  ; waiters : waiters
+  ; emptiness : ghost_list emptiness
   }.
 
 Section consistent.

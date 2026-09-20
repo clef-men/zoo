@@ -10,7 +10,7 @@ Implicit Type l : location.
 Implicit Type t fn : val.
 
 Zoo global :=
-  { excl : excl unitO : zoo
+  { excl : excl unitO
   }.
 
 Section mutex۰G.

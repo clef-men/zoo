@@ -29,7 +29,7 @@ Implicit Type descr : descriptor.
 Implicit Type descrs : gmap location descriptor.
 
 Zoo global :=
-  { elts : mono_gset location : zoo
+  { elts : mono_gset location
   }.
 
 Section partition۰G.

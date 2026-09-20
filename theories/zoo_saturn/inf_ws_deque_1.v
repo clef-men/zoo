@@ -39,13 +39,13 @@ Implicit Type stable : stability.
 #[local] Please derive Inhabited for stability.
 
 Zoo global :=
-  { inf_array : inf_array : zoo
-  ; prophet : prophet_multi prophet_identifier : zoo
-  ; model : auth_twins (leibnizO (list val)) suffix : zoo
-  ; owner : twins (leibnizO (stability * nat * (nat → val))) : zoo
-  ; front : auth_nat_max : zoo
-  ; history : mono_list val : zoo
-  ; winner : twins (natO * ▶ ∙) : zoo
+  { inf_array : inf_array
+  ; prophet : prophet_multi prophet_identifier
+  ; model : auth_twins (leibnizO (list val)) suffix
+  ; owner : twins (leibnizO (stability * nat * (nat → val)))
+  ; front : auth_nat_max
+  ; history : mono_list val
+  ; winner : twins (natO * ▶ ∙)
   }.
 
 Module base.

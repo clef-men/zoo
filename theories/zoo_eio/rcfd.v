@@ -103,9 +103,9 @@ Proof.
 Qed.
 
 Zoo global :=
-  { waiter_spsc : waiter_spsc : zoo
-  ; tokens : auth_gmultiset Qp : zoo
-  ; lstate : auth_mono (lstep : relation $ leibnizO lstate) : zoo
+  { waiter_spsc : waiter_spsc
+  ; tokens : auth_gmultiset Qp
+  ; lstate : auth_mono (lstep : relation $ leibnizO lstate)
   }.
 
 Section rcfd۰G.

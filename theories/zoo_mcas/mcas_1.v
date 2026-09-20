@@ -202,15 +202,15 @@ Qed.
     descr.(descriptor۰before).
 
 Zoo global :=
-  { model : twins val_O : zoo
-  ; helper : saved_prop : zoo
-  ; post : saved_pred bool : zoo
-  ; lstatus : auth_mono (lstep : relation $ leibnizO lstatus) : zoo
-  ; history : mono_list location : zoo
-  ; lock : excl unitO : zoo
+  { model : twins val_O
+  ; helper : saved_prop
+  ; post : saved_pred bool
+  ; lstatus : auth_mono (lstep : relation $ leibnizO lstatus)
+  ; history : mono_list location
+  ; lock : excl unitO
   ; helpers : ghost_map gname nat : iris
-  ; winning : excl unitO : zoo
-  ; owner : excl unitO : zoo
+  ; winning : excl unitO
+  ; owner : excl unitO
   }.
 
 Section mcas_1۰G.

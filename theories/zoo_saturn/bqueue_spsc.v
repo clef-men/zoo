@@ -25,10 +25,10 @@ Implicit Type stable : stability.
 #[local] Please derive Inhabited for stability.
 
 Zoo global :=
-  { model : auth_twins (leibnizO (list val)) suffix : zoo
-  ; history : mono_list val : zoo
-  ; stability : twins (leibnizO stability) : zoo
-  ; mono_nat : auth_nat_max : zoo
+  { model : auth_twins (leibnizO (list val)) suffix
+  ; history : mono_list val
+  ; stability : twins (leibnizO stability)
+  ; mono_nat : auth_nat_max
   }.
 
 Section bqueue_spsc۰G.

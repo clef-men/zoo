@@ -76,7 +76,7 @@ Definition domain٠dls٠set : val :=
     dynarray_1٠set "local" "id" ‘Some( "v" ).
 
 Zoo global :=
-  { ivar : ivar_2 : zoo
+  { ivar : ivar_2
   ; dls : ghost_map nat (option val) : iris
   }.
 

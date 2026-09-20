@@ -9,10 +9,10 @@ Require Import zoo.options.
 Implicit Type v ctx a b c d : val.
 
 Zoo global :=
-  { pool : pool : zoo
-  ; vertex : vertex : zoo
-  ; ivar : ivar_4 : zoo
-  ; saved_prop : saved_prop : zoo
+  { pool : pool
+  ; vertex : vertex
+  ; ivar : ivar_4
+  ; saved_prop : saved_prop
   }.
 
 Section vertex_simple۰G.

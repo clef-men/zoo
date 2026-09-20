@@ -14,9 +14,9 @@ Implicit Type r : location.
 Implicit Type γ η : gname.
 
 Zoo global :=
-  { pool : pool : zoo
+  { pool : pool
   ; cinv : cinv : iris
-  ; tokens : auth_frac natUR : zoo
+  ; tokens : auth_frac natUR
   }.
 
 Section pool_counter۰G.

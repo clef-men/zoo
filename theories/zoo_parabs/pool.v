@@ -58,12 +58,12 @@ Please derive EqDecision for pool۰scope.
 Please derive Countable for pool۰scope.
 
 Zoo global :=
-  { domain : domain : zoo
-  ; ws_hub : ws_hub_std : zoo
-  ; saved_prop : saved_prop : zoo
-  ; jobs : mono_gmultiset job : zoo
-  ; locals : ghost_list (gmultiset job) : zoo
-  ; consumer : prop_spsc : zoo
+  { domain : domain
+  ; ws_hub : ws_hub_std
+  ; saved_prop : saved_prop
+  ; jobs : mono_gmultiset job
+  ; locals : ghost_list (gmultiset job)
+  ; consumer : prop_spsc
   }.
 
 Module base.

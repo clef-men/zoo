@@ -11,10 +11,10 @@ Implicit Type r : location.
 Implicit Type v ctx vtx : val.
 
 Zoo global :=
-  { pool : pool : zoo
-  ; vertex : vertex : zoo
-  ; ivar : ivar_4 : zoo
-  ; saved_prop : saved_prop : zoo
+  { pool : pool
+  ; vertex : vertex
+  ; ivar : ivar_4
+  ; saved_prop : saved_prop
   }.
 
 Section vertex_fibonacci۰G.

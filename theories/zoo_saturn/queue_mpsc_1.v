@@ -17,8 +17,8 @@ Implicit Type o : option val.
 Implicit Type vs : list val.
 
 Zoo global :=
-  { history : mono_list location : zoo
-  ; model : twins (leibnizO (list val)) : zoo
+  { history : mono_list location
+  ; model : twins (leibnizO (list val))
   }.
 
 Module base.

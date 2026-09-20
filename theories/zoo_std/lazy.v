@@ -10,9 +10,9 @@ Implicit Type b : bool.
 Implicit Type v fn mtx : val.
 
 Zoo global :=
-  { mutex : mutex : zoo
-  ; lstate : oneshot unit val : zoo
-  ; consumer : subpreds val : zoo
+  { mutex : mutex
+  ; lstate : oneshot unit val
+  ; consumer : subpreds val
   }.
 
 Module base.

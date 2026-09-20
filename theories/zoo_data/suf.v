@@ -12,7 +12,7 @@ Implicit Type reprs : gmap location location.
 Implicit Type descrs : gmap location val.
 
 Zoo global :=
-  { sstore : sstore_2 : zoo
+  { sstore : sstore_2
   }.
 
 Section unify.

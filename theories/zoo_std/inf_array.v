@@ -16,8 +16,8 @@ Implicit Type us : list val.
 Implicit Type vs : nat → val.
 
 Zoo global :=
-  { mutex : mutex : zoo
-  ; model : twins (nat -d> val_O) : zoo
+  { mutex : mutex
+  ; model : twins (nat -d> val_O)
   }.
 
 Section inf_array۰G.

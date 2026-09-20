@@ -8,16 +8,24 @@ open Stdarg
 
 }
 
-VERNAC ARGUMENT EXTEND global_kind
+VERNAC ARGUMENT EXTEND global_kind'
 | [ "iris" ] ->
     { Zoo_global.Iris }
 | [ "zoo" ] ->
     { Zoo_global.Zoo }
 END
+VERNAC ARGUMENT EXTEND global_kind
+| [ ] ->
+    { Zoo_global.Zoo }
+| [ ":" global_kind'(kind) ] ->
+    { kind }
+END
+
 VERNAC ARGUMENT EXTEND global_field
-| [ preident(name) ":" qualid(theory) constr_list(arguments) ":" global_kind(kind) ] ->
+| [ preident(name) ":" qualid(theory) constr_list(arguments) global_kind(kind) ] ->
     { Zoo_global.{ name; theory; arguments; kind } }
 END
+
 VERNAC ARGUMENT EXTEND global_spec
 | [ binders(parameters) ":=" "{" global_field_list_sep(fields, ";") "}" ] ->
     { Zoo_global.{ parameters; fields } }

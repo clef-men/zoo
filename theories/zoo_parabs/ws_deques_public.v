@@ -13,7 +13,7 @@ Implicit Type vss : list (list val).
 Implicit Type status : status.
 
 Zoo global :=
-  { ws_deque : ws_deque_2 : zoo
+  { ws_deque : ws_deque_2
   }.
 
 Section ws_deques_public۰G.

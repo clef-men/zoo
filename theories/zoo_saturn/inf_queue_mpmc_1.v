@@ -22,13 +22,13 @@ Implicit Type η : gname.
 Implicit Type ηs : list gname.
 
 Zoo global :=
-  { inf_array : inf_array : zoo
-  ; model : twins (leibnizO (list val)) : zoo
-  ; history : mono_list val : zoo
-  ; consumer : saved_pred val : zoo
-  ; consumers : mono_list gname : zoo
-  ; token : oneshot () () : zoo
-  ; tokens : mono_list gname : zoo
+  { inf_array : inf_array
+  ; model : twins (leibnizO (list val))
+  ; history : mono_list val
+  ; consumer : saved_pred val
+  ; consumers : mono_list gname
+  ; token : oneshot () ()
+  ; tokens : mono_list gname
   }.
 
 Module base.

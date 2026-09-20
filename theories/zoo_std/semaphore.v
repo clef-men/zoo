@@ -14,8 +14,8 @@ Implicit Type l : location.
 Implicit Type t : val.
 
 Zoo global :=
-  { mutex : mutex : zoo
-  ; tokens : excl unitO : zoo
+  { mutex : mutex
+  ; tokens : excl unitO
   }.
 
 Section semaphore۰G.

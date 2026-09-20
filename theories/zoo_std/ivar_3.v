@@ -16,9 +16,9 @@ Implicit Type waiters : list val.
 Implicit Type own : ownership.
 
 Zoo global waiter۰name `{Countable waiter۰name} :=
-  { lstate : oneshot unit val : zoo
-  ; consumer : subpreds val : zoo
-  ; waiters : mono_gmultiset (val * waiter۰name) : zoo
+  { lstate : oneshot unit val
+  ; consumer : subpreds val
+  ; waiters : mono_gmultiset (val * waiter۰name)
   }.
 
 Module base.

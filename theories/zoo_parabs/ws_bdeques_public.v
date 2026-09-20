@@ -24,7 +24,7 @@ Opaque ws_bdeques_public٠capacity.
 Opaque capacity.
 
 Zoo global :=
-  { ws_bdeque : ws_bdeque_2 : zoo
+  { ws_bdeque : ws_bdeque_2
   }.
 
 Section ws_bdeques_public۰G.

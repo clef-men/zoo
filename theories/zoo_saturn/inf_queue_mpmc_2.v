@@ -131,17 +131,17 @@ Proof.
 Qed.
 
 Zoo global :=
-  { inf_array : inf_array : zoo
-  ; prophet : prophet_multi prophet_identifier : zoo
-  ; model : twins (leibnizO (list val)) : zoo
-  ; history : mono_list (option val) : zoo
-  ; lstate : auth_mono lstep : zoo
-  ; lstates : mono_list gname : zoo
-  ; saved_pred : saved_pred val : zoo
-  ; producer : oneshot () () : zoo
-  ; producers : mono_list gname : zoo
-  ; consumer : oneshot () () : zoo
-  ; consumers : mono_list gname : zoo
+  { inf_array : inf_array
+  ; prophet : prophet_multi prophet_identifier
+  ; model : twins (leibnizO (list val))
+  ; history : mono_list (option val)
+  ; lstate : auth_mono lstep
+  ; lstates : mono_list gname
+  ; saved_pred : saved_pred val
+  ; producer : oneshot () ()
+  ; producers : mono_list gname
+  ; consumer : oneshot () ()
+  ; consumers : mono_list gname
   }.
 
 Module base.

@@ -21,11 +21,11 @@ Implicit Type status : status.
 Implicit Type statuses : list status.
 
 Zoo global :=
-  { models : ghost_list (list val) : zoo
-  ; owner : twins (leibnizO status) : zoo
-  ; channel۰pred : ghost_pred (option val) : zoo
-  ; channel۰generation : ghost_var (leibnizO gname) : zoo
-  ; channel۰state : oneshot () (option val) : zoo
+  { models : ghost_list (list val)
+  ; owner : twins (leibnizO status)
+  ; channel۰pred : ghost_pred (option val)
+  ; channel۰generation : ghost_var (leibnizO gname)
+  ; channel۰state : oneshot () (option val)
   }.
 
 #[local] Coercion status۰to_val status : val :=

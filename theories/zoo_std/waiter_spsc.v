@@ -10,9 +10,9 @@ Implicit Type b : bool.
 Implicit Type 𝑡 : location.
 
 Zoo global :=
-  { mutex : mutex : zoo
-  ; lstate : oneshot unit unit : zoo
-  ; excl : excl unitO : zoo
+  { mutex : mutex
+  ; lstate : oneshot unit unit
+  ; excl : excl unitO
   }.
 
 Section waiter_spsc۰G.

@@ -11,7 +11,7 @@ Implicit Type v t backoff : val.
 Implicit Type ws : list val.
 
 Zoo global :=
-  { model : twins (leibnizO (option $ list val)) : zoo
+  { model : twins (leibnizO (option $ list val))
   }.
 
 Section zoo۰G.

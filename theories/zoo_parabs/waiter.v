@@ -10,7 +10,7 @@ Implicit Type 𝑡 : location.
 Implicit Type v t mtx cond : val.
 
 Zoo global :=
-  { mutex : mutex : zoo
+  { mutex : mutex
   }.
 
 Section waiter۰G.

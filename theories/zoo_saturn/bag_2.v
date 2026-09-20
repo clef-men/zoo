@@ -18,9 +18,9 @@ Implicit Type vs ws : list val.
 Implicit Type vss wss : gmap val (list val).
 
 Zoo global :=
-  { queue_spmc : queue_spmc : zoo
-  ; queues : mono_gmap location val : zoo
-  ; model : twins (leibnizO (gmap val (list val))) : zoo
+  { queue_spmc : queue_spmc
+  ; queues : mono_gmap location val
+  ; model : twins (leibnizO (gmap val (list val)))
   }.
 
 Record producer :=

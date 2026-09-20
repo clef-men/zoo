@@ -15,8 +15,8 @@ Implicit Type vs front back : list val.
 Implicit Type ws : option (list val).
 
 Zoo global :=
-  { twins : twins (leibnizO (list val)) : zoo
-  ; lstate : oneshot () () : zoo
+  { twins : twins (leibnizO (list val))
+  ; lstate : oneshot () ()
   }.
 
 Section queue_mpsc_3۰G.

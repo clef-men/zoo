@@ -487,7 +487,7 @@ End adiffl.
 (* Proof. *)
 
 Zoo global :=
-  { set : mono_gset (location * gmap location val)%type : zoo
+  { set : mono_gset (location * gmap location val)%type
   }.
 
 Section sstore_1۰G.

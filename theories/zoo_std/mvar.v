@@ -12,8 +12,8 @@ Implicit Type v : val.
 Implicit Type o state : option val.
 
 Zoo global :=
-  { lstate : oneshot unit unit : zoo
-  ; consumer : excl unitO : zoo
+  { lstate : oneshot unit unit
+  ; consumer : excl unitO
   }.
 
 Module base.

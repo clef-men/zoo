@@ -112,9 +112,9 @@ Proof.
 Qed.
 
 Zoo global :=
-  { model : twins (leibnizO (list val)) : zoo
-  ; state : auth_mono (step : relation $ leibnizO state) : zoo
-  ; front : auth_nat_max : zoo
+  { model : twins (leibnizO (list val))
+  ; state : auth_mono (step : relation $ leibnizO state)
+  ; front : auth_nat_max
   }.
 
 #[local] Fixpoint suffix۰to_val (i : nat) vs : val :=

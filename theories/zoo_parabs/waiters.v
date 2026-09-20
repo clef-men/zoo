@@ -10,8 +10,8 @@ Implicit Type v t waiters queue : val.
 Implicit Type 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 𝑞𝑢𝑒𝑢𝑒 : list val.
 
 Zoo global :=
-  { queue : queue_mpmc_1 : zoo
-  ; waiter : waiter : zoo
+  { queue : queue_mpmc_1
+  ; waiter : waiter
   }.
 
 Section waiters۰G.

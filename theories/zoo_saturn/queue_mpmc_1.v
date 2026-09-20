@@ -22,11 +22,11 @@ Implicit Type waiter : gname.
 Implicit Type waiters : gmap gname nat.
 
 Zoo global :=
-  { history : mono_list location : zoo
-  ; front : auth_nat_max : zoo
-  ; model : twins (leibnizO (list val)) : zoo
+  { history : mono_list location
+  ; front : auth_nat_max
+  ; model : twins (leibnizO (list val))
   ; waiters : ghost_map gname nat : iris
-  ; saved_pred : saved_pred bool : zoo
+  ; saved_pred : saved_pred bool
   }.
 
 Module base.

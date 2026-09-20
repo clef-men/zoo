@@ -14,8 +14,8 @@ Implicit Type ω : gname.
 Implicit Type ωs : list gname.
 
 Zoo global :=
-  { ivar_3 : ivar_3 gname : zoo
-  ; saved_prop : saved_prop : zoo
+  { ivar_3 : ivar_3 gname
+  ; saved_prop : saved_prop
   }.
 
 Section ivar_4۰G.
