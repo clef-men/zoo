@@ -12,7 +12,7 @@ Implicit Type v t backoff : val.
 Implicit Type vs front back : list val.
 Implicit Type o : option val.
 
-Zoo global
+Zoo global :=
   { twins : twins (leibnizO (list val)) : zoo
   }.
 

@@ -4,9 +4,9 @@ let _ZooG_ref =
   _ZooG
   |> Constrexpr_.mk_ref_string
 let _ZooG_sigma =
-  _ZooG_ref
-  |> Constrexpr.(fun expr -> CApp (expr, [Iris.sigma_ref, None]))
-  |> CAst.make
+  Constrexpr_.mk_app
+    _ZooG_ref
+    [Iris.sigma_ref]
 
 let zoo_G =
   "zoo۰G"

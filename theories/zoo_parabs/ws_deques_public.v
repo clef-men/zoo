@@ -12,7 +12,7 @@ Implicit Type vs ws queues : list val.
 Implicit Type vss : list (list val).
 Implicit Type status : status.
 
-Zoo global
+Zoo global :=
   { ws_deque : ws_deque_2 : zoo
   }.
 

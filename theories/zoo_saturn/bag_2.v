@@ -17,7 +17,7 @@ Implicit Type o : option val.
 Implicit Type vs ws : list val.
 Implicit Type vss wss : gmap val (list val).
 
-Zoo global
+Zoo global :=
   { queue_spmc : queue_spmc : zoo
   ; queues : mono_gmap location val : zoo
   ; model : twins (leibnizO (gmap val (list val))) : zoo

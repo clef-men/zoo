@@ -9,7 +9,7 @@ Implicit Type b : bool.
 Implicit Type 𝑡 : location.
 Implicit Type v t mtx cond : val.
 
-Zoo global
+Zoo global :=
   { mutex : mutex : zoo
   }.
 

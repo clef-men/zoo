@@ -12,7 +12,7 @@ Implicit Type l : location.
 Implicit Type v t front backoff : val.
 Implicit Type vs : list val.
 
-Zoo global
+Zoo global :=
   { model : twins (leibnizO (list val)) : zoo
   }.
 

@@ -13,7 +13,7 @@ Implicit Type waiters : list val.
 Implicit Type ω : gname.
 Implicit Type ωs : list gname.
 
-Zoo global
+Zoo global :=
   { ivar_3 : ivar_3 gname : zoo
   ; saved_prop : saved_prop : zoo
   }.

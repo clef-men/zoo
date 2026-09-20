@@ -38,7 +38,7 @@ Implicit Type stable : stability.
 
 #[local] Please derive Inhabited for stability.
 
-Zoo global
+Zoo global :=
   { inf_array : inf_array : zoo
   ; prophet : prophet_multi prophet_identifier : zoo
   ; model : auth_twins (leibnizO (list val)) suffix : zoo

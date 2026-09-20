@@ -16,7 +16,7 @@ Implicit Type slots : list location.
 Implicit Type v : val.
 Implicit Type vs ws : list val.
 
-Zoo global
+Zoo global :=
   { base : ws_bdeque_1 : zoo
   ; model : auth_twins (leibnizO (list val)) suffix : zoo
   }.

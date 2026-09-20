@@ -13,7 +13,7 @@ Implicit Type v t equal : val.
 Implicit Type vs : list val.
 Implicit Type nodes : gmap location (list val).
 
-Zoo global
+Zoo global :=
   { nodes : ghost_map location (list val) : iris
   }.
 

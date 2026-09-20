@@ -22,7 +22,7 @@ Implicit Type vs ws : list val.
 Implicit Type waiter : gname.
 Implicit Type waiters : gmap gname nat.
 
-Zoo global
+Zoo global :=
   { history : mono_list location : zoo
   ; front : auth_nat_max : zoo
   ; model : auth_twins (leibnizO (list val)) suffix : zoo

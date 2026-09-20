@@ -102,7 +102,7 @@ Proof.
   lia.
 Qed.
 
-Zoo global
+Zoo global :=
   { waiter_spsc : waiter_spsc : zoo
   ; tokens : auth_gmultiset Qp : zoo
   ; lstate : auth_mono (lstep : relation $ leibnizO lstate) : zoo

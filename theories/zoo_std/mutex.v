@@ -9,7 +9,7 @@ Implicit Type b : bool.
 Implicit Type l : location.
 Implicit Type t fn : val.
 
-Zoo global
+Zoo global :=
   { excl : excl unitO : zoo
   }.
 

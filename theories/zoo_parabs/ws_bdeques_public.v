@@ -23,7 +23,7 @@ Qed.
 Opaque ws_bdeques_public٠capacity.
 Opaque capacity.
 
-Zoo global
+Zoo global :=
   { ws_bdeque : ws_bdeque_2 : zoo
   }.
 

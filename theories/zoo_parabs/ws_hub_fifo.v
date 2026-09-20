@@ -19,7 +19,7 @@ Implicit Type status : status.
 Implicit Type empty : emptiness.
 Implicit Type emptys : list emptiness.
 
-Zoo global
+Zoo global :=
   { queue : queue_mpmc_1 : zoo
   ; waiters : waiters : zoo
   ; owner : excl unitO : zoo

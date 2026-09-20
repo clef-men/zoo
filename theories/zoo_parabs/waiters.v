@@ -9,7 +9,7 @@ Implicit Type b : bool.
 Implicit Type v t waiters queue : val.
 Implicit Type 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 𝑞𝑢𝑒𝑢𝑒 : list val.
 
-Zoo global
+Zoo global :=
   { queue : queue_mpmc_1 : zoo
   ; waiter : waiter : zoo
   }.

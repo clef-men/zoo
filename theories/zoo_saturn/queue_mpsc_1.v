@@ -16,7 +16,7 @@ Implicit Type v backoff : val.
 Implicit Type o : option val.
 Implicit Type vs : list val.
 
-Zoo global
+Zoo global :=
   { history : mono_list location : zoo
   ; model : twins (leibnizO (list val)) : zoo
   }.

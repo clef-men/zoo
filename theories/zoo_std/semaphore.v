@@ -13,7 +13,7 @@ Implicit Type cnt : nat.
 Implicit Type l : location.
 Implicit Type t : val.
 
-Zoo global
+Zoo global :=
   { mutex : mutex : zoo
   ; tokens : excl unitO : zoo
   }.

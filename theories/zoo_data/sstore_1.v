@@ -486,7 +486,7 @@ End adiffl.
 (* ------------------------------------------------------------------------ *)
 (* Proof. *)
 
-Zoo global
+Zoo global :=
   { set : mono_gset (location * gmap location val)%type : zoo
   }.
 

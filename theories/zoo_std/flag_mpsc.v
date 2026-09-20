@@ -8,7 +8,7 @@ Require Import zoo.options.
 
 Implicit Type b : bool.
 
-Zoo global
+Zoo global :=
   { state : oneshot () () : zoo
   ; consumer : excl unitO : zoo
   }.

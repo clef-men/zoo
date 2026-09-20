@@ -28,7 +28,7 @@ Please derive Countable for descriptor.
 Implicit Type descr : descriptor.
 Implicit Type descrs : gmap location descriptor.
 
-Zoo global
+Zoo global :=
   { elts : mono_gset location : zoo
   }.
 

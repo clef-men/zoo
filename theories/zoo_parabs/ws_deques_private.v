@@ -20,7 +20,7 @@ Implicit Type vss wss : list (list val).
 Implicit Type status : status.
 Implicit Type statuses : list status.
 
-Zoo global
+Zoo global :=
   { models : ghost_list (list val) : zoo
   ; owner : twins (leibnizO status) : zoo
   ; channel۰pred : ghost_pred (option val) : zoo

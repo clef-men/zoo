@@ -20,7 +20,7 @@ Implicit Type vss : list $ list val.
 Implicit Type status : status.
 Implicit Type empty : emptiness.
 
-Zoo global
+Zoo global :=
   { deques : ws_bdeques_public : zoo
   ; queue : queue_mpmc_1 : zoo
   ; waiters : waiters : zoo

@@ -111,7 +111,7 @@ Proof.
   apply stepｰmono.
 Qed.
 
-Zoo global
+Zoo global :=
   { model : twins (leibnizO (list val)) : zoo
   ; state : auth_mono (step : relation $ leibnizO state) : zoo
   ; front : auth_nat_max : zoo

@@ -11,7 +11,7 @@ Implicit Type t s descr : val.
 Implicit Type reprs : gmap location location.
 Implicit Type descrs : gmap location val.
 
-Zoo global
+Zoo global :=
   { sstore : sstore_2 : zoo
   }.
 

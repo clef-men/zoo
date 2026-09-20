@@ -35,7 +35,7 @@ Implicit Type waiters : gmap gname nat.
       end
   |}.
 
-Zoo global
+Zoo global :=
   { history : mono_list location : zoo
   ; front : auth_nat_max : zoo
   ; model : twins (leibnizO (list val)) : zoo

@@ -15,23 +15,11 @@ Implicit Type v waiter ctx : val.
 Implicit Type waiters : list val.
 Implicit Type own : ownership.
 
-Class Ivar3G Σ `{zoo۰G : !ZooG Σ} waiter۰name `{Countable waiter۰name} :=
-  { #[local] ivar_3۰G۰lstate۰G :: OneshotG Σ unit val
-  ; #[local] ivar_3۰G۰consumer۰G :: SubpredsG Σ val
-  ; #[local] ivar_3۰G۰waiters۰G :: MonoGmultisetG Σ (val * waiter۰name)
+Zoo global waiter۰name `{Countable waiter۰name} :=
+  { lstate : oneshot unit val : zoo
+  ; consumer : subpreds val : zoo
+  ; waiters : mono_gmultiset (val * waiter۰name) : zoo
   }.
-
-Definition ivar_3۰Σ waiter۰name `{Countable waiter۰name} :=
-  #[oneshot۰Σ unit val
-  ; subpreds۰Σ val
-  ; mono_gmultiset۰Σ (val * waiter۰name)
-  ].
-#[global] Instance subGｰivar_3۰Σ Σ `{zoo۰G : !ZooG Σ} waiter۰name `{Countable waiter۰name} :
-  subG (ivar_3۰Σ waiter۰name) Σ →
-  Ivar3G Σ waiter۰name.
-Proof.
-  solve_inG.
-Qed.
 
 Module base.
   Variant state :=

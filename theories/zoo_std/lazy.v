@@ -9,7 +9,7 @@ Require Import zoo.options.
 Implicit Type b : bool.
 Implicit Type v fn mtx : val.
 
-Zoo global
+Zoo global :=
   { mutex : mutex : zoo
   ; lstate : oneshot unit val : zoo
   ; consumer : subpreds val : zoo

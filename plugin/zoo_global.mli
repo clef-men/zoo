@@ -10,7 +10,9 @@ type field =
   }
 
 type spec =
-  field list
+  { parameters: Constrexpr.local_binder_expr list
+  ; fields: field list
+  }
 
 val main :
   spec -> unit

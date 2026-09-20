@@ -47,7 +47,7 @@ Module base.
   Implicit Type descr : descriptor.
   Implicit Type cnodes : gmap location descriptor.
 
-  Zoo global
+  Zoo global :=
     { nodes : ghost_map location descriptor : iris
     }.
 

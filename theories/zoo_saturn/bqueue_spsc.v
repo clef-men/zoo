@@ -24,7 +24,7 @@ Implicit Type stable : stability.
 
 #[local] Please derive Inhabited for stability.
 
-Zoo global
+Zoo global :=
   { model : auth_twins (leibnizO (list val)) suffix : zoo
   ; history : mono_list val : zoo
   ; stability : twins (leibnizO stability) : zoo

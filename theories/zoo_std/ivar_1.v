@@ -11,7 +11,7 @@ Implicit Type b : bool.
 Implicit Type v : val.
 Implicit Type o state : option val.
 
-Zoo global
+Zoo global :=
   { state : oneshot unit val : zoo
   ; consumer : subpreds val : zoo
   }.

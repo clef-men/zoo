@@ -15,7 +15,7 @@ Implicit Type vs : gmultiset val.
 Implicit Type o : option val.
 Implicit Type os : list (option val).
 
-Zoo global
+Zoo global :=
   { model : twins (leibnizO (gmultiset val)) : zoo
   }.
 

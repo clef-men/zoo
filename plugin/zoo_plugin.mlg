@@ -19,8 +19,8 @@ VERNAC ARGUMENT EXTEND global_field
     { Zoo_global.{ name; theory; arguments; kind } }
 END
 VERNAC ARGUMENT EXTEND global_spec
-| [ "{" global_field_list_sep(fields, ";") "}" ] ->
-    { fields }
+| [ binders(parameters) ":=" "{" global_field_list_sep(fields, ";") "}" ] ->
+    { Zoo_global.{ parameters; fields } }
 END
 
 VERNAC COMMAND EXTEND Zoo

@@ -21,7 +21,7 @@ Implicit Type slots : nat → optional val.
 Implicit Type η : gname.
 Implicit Type ηs : list gname.
 
-Zoo global
+Zoo global :=
   { inf_array : inf_array : zoo
   ; model : twins (leibnizO (list val)) : zoo
   ; history : mono_list val : zoo

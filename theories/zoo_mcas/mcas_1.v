@@ -201,7 +201,7 @@ Qed.
   else
     descr.(descriptor۰before).
 
-Zoo global
+Zoo global :=
   { model : twins val_O : zoo
   ; helper : saved_prop : zoo
   ; post : saved_pred bool : zoo

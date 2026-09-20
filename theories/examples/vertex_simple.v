@@ -8,7 +8,7 @@ Require Import zoo.options.
 
 Implicit Type v ctx a b c d : val.
 
-Zoo global
+Zoo global :=
   { pool : pool : zoo
   ; vertex : vertex : zoo
   ; ivar : ivar_4 : zoo

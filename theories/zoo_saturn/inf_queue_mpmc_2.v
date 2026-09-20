@@ -130,7 +130,7 @@ Proof.
   apply lstepｰwinner.
 Qed.
 
-Zoo global
+Zoo global :=
   { inf_array : inf_array : zoo
   ; prophet : prophet_multi prophet_identifier : zoo
   ; model : twins (leibnizO (list val)) : zoo

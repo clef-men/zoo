@@ -57,7 +57,7 @@ Definition pool۰scope :=
 Please derive EqDecision for pool۰scope.
 Please derive Countable for pool۰scope.
 
-Zoo global
+Zoo global :=
   { domain : domain : zoo
   ; ws_hub : ws_hub_std : zoo
   ; saved_prop : saved_prop : zoo

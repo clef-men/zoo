@@ -15,7 +15,7 @@ Implicit Type v v_resolve t fn : val.
 Implicit Type us : list val.
 Implicit Type vs : nat → val.
 
-Zoo global
+Zoo global :=
   { mutex : mutex : zoo
   ; model : twins (nat -d> val_O) : zoo
   }.

@@ -9,7 +9,7 @@ Require Import zoo.options.
 Implicit Type b : bool.
 Implicit Type 𝑡 : location.
 
-Zoo global
+Zoo global :=
   { mutex : mutex : zoo
   ; lstate : oneshot unit unit : zoo
   ; excl : excl unitO : zoo

@@ -12,7 +12,38 @@ type field =
   }
 
 type spec =
-  field list
+  { parameters: Constrexpr.local_binder_expr list
+  ; fields: field list
+  }
+
+module Error = struct
+  module Illegal_parameter = struct
+    type t =
+      | Pattern
+      | Anonymous_explicit
+
+    let to_string = function
+      | Pattern ->
+          "pattern parameter"
+      | Anonymous_explicit ->
+          "anonymous explicit parameter"
+  end
+
+  type t =
+    | Illegal_parameter of Illegal_parameter.t
+
+  let to_string = function
+    | Illegal_parameter kind ->
+        "illegal parameter: " ^ Illegal_parameter.to_string kind
+
+  let pp t =
+    t |> to_string |> Pp.str
+end
+
+let error err =
+  CErrors.user_err @@ Error.pp err
+let illegal_parameter kind =
+  error @@ Illegal_parameter kind
 
 let snake_to_camel str =
   str
@@ -68,7 +99,7 @@ let instance_name (theory : string) : string =
     theory
 
 let fields ~theory spec =
-  spec |> List.map @@ fun (fld : field) ->
+  spec.fields |> List.map @@ fun (fld : field) ->
     let open Vernacexpr in
     let open Constrexpr_ in
     ( AssumExpr
@@ -92,7 +123,7 @@ let class_ ~theory spec =
   VernacInductive
   ( Class false
   , [ ( ( (NoCoercion, (name, None))
-        , ([Iris.sigma_binder; Zoo.zoo_G_binder], None)
+        , (Iris.sigma_binder :: Zoo.zoo_G_binder:: spec.parameters, None)
         , None
         , RecordDecl (None, fields ~theory spec, None)
         )
@@ -111,38 +142,67 @@ let functors spec =
           fld.arguments
       ; acc
       ]
-  ) spec Iris.gFunctors_nil_ref
+  ) spec.fields Iris.gFunctors_nil_ref
 let functors ~theory spec =
   let open Vernacexpr in
   VernacDefinition
   ( (NoDischarge, Definition)
   , (theory |> functors_name |> Names_.lname_of_string, None)
-  , DefineBody ([], None, functors spec, None)
+  , DefineBody
+    ( spec.parameters
+    , None
+    , functors spec
+    , None
+    )
   )
 
-let instance ~theory =
+let instance ~theory spec =
+  let params =
+    let open Constrexpr_ in
+    spec.parameters |> List.concat_map @@ fun (param : Constrexpr.local_binder_expr) ->
+      match param with
+      | CLocalDef _ ->
+          []
+      | CLocalPattern _ ->
+          illegal_parameter Pattern
+      | CLocalAssum (names, _relevance, kind, _ty) ->
+          names |> List.filter_map @@ fun name ->
+            let kind =
+              match kind with
+              | Default kind ->
+                  kind
+              | Generalized (kind, _) ->
+                  kind
+            in
+            if kind <> Explicit then
+              None
+            else
+              match name.CAst.v with
+              | Names.Name.Anonymous ->
+                  illegal_parameter Anonymous_explicit
+              | Name id ->
+                  Some (id |> mk_ref_ident)
+  in
   let _id, proof =
     let open Constrexpr_ in
     Classes.new_instance_interactive
       ~locality:SuperGlobal
       ~poly:PolyFlags.default
       (theory |> instance_name |> Names_.lname_of_string, None)
-      [ Iris.sigma_binder
-      ; Zoo.zoo_G_binder
-      ; CLocalAssum
-        ( [Names.Name.Anonymous |> CAst.make]
-        , None
-        , Default Explicit
-        , mk_app
-            Iris.subG_ref
-            [ theory |> functors_name |> mk_ref_string
-            ; Iris.sigma_ref
-            ]
-        )
-      ]
-      ( mk_app
-          (theory |> class_name |> mk_ref_string)
-          [Iris.sigma_ref]
+      (Iris.sigma_binder :: Zoo.zoo_G_binder :: spec.parameters)
+      ( mk_arrow
+          ( mk_app
+              Iris.subG_ref
+              [ mk_app
+                  (theory |> functors_name |> mk_ref_string)
+                  params
+              ; Iris.sigma_ref
+              ]
+          )
+          ( mk_app
+              (theory |> class_name |> mk_ref_string)
+              (Iris.sigma_ref :: params)
+          )
       )
       Hints.empty_hint_info
       None
@@ -181,7 +241,7 @@ let main ~state spec =
   let state = interp ~state @@ class_ ~theory spec in
   let state = interp ~state @@ functors ~theory spec in
   Vernacstate.unfreeze_full_state state ;
-  instance ~theory
+  instance ~theory spec
 let main spec =
   let state = Vernacstate.freeze_full_state () in
   try

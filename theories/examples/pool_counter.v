@@ -13,7 +13,7 @@ Implicit Type n cnt contrib : nat.
 Implicit Type r : location.
 Implicit Type γ η : gname.
 
-Zoo global
+Zoo global :=
   { pool : pool : zoo
   ; cinv : cinv : iris
   ; tokens : auth_frac natUR : zoo
