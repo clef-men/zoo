@@ -192,8 +192,8 @@ Module base.
     Qed.
     #[global] Instance ivar_3۰invｰproper t γ :
       Proper (
-        (pointwise_relation _ (≡)) ==>
-        (pointwise_relation _ (≡)) ==>
+        pointwise_relation _ (≡) ==>
+        pointwise_relation _ (≡) ==>
         (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ (≡)) ==>
         (≡)
       ) (ivar_3۰inv t γ).
@@ -218,7 +218,7 @@ Module base.
     Qed.
     #[global] Instance ivar_3۰consumerｰproper γ :
       Proper (
-        (pointwise_relation _ (≡)) ==>
+        pointwise_relation _ (≡) ==>
         (≡)
       ) (ivar_3۰consumer γ).
     Proof.
@@ -971,8 +971,8 @@ Section ivar_3۰G.
   Qed.
   #[global] Instance ivar_3۰invｰproper t :
     Proper (
-      (pointwise_relation _ (≡)) ==>
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
+      pointwise_relation _ (≡) ==>
       (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ (≡)) ==>
       (≡)
     ) (ivar_3۰inv t).
@@ -989,7 +989,7 @@ Section ivar_3۰G.
   Qed.
   #[global] Instance ivar_3۰consumerｰproper t :
     Proper (
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
       (≡)
     ) (ivar_3۰consumer t).
   Proof.

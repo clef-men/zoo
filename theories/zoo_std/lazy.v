@@ -160,8 +160,8 @@ Module base.
 
     #[global] Instance lazy۰invｰcontractive t γ n :
       Proper (
-        (pointwise_relation _ (dist_later n)) ==>
-        (pointwise_relation _ (dist_later n)) ==>
+        (pointwise_relation _ $ dist_later n) ==>
+        (pointwise_relation _ $ dist_later n) ==>
         (≡{n}≡)
       ) (lazy۰inv t γ).
     Proof.
@@ -173,8 +173,8 @@ Module base.
     Qed.
     #[global] Instance lazy۰invｰproper t γ :
       Proper (
-        (pointwise_relation _ (≡)) ==>
-        (pointwise_relation _ (≡)) ==>
+        pointwise_relation _ (≡) ==>
+        pointwise_relation _ (≡) ==>
         (≡)
       ) (lazy۰inv t γ).
     Proof.
@@ -183,7 +183,7 @@ Module base.
     Qed.
     #[global] Instance lazy۰consumerｰcontractive γ n :
       Proper (
-        (pointwise_relation _ (dist_later n)) ==>
+        (pointwise_relation _ $ dist_later n) ==>
         (≡{n}≡)
       ) (lazy۰consumer γ).
     Proof.
@@ -191,7 +191,7 @@ Module base.
     Qed.
     #[global] Instance lazy۰consumerｰproper γ :
       Proper (
-        (pointwise_relation _ (≡)) ==>
+        pointwise_relation _ (≡) ==>
         (≡)
       ) (lazy۰consumer γ).
     Proof.
@@ -721,8 +721,8 @@ Section lazy۰G.
 
   #[global] Instance lazy۰invｰcontractive t n :
     Proper (
-      (pointwise_relation _ (dist_later n)) ==>
-      (pointwise_relation _ (dist_later n)) ==>
+      (pointwise_relation _ $ dist_later n) ==>
+      (pointwise_relation _ $ dist_later n) ==>
       (≡{n}≡)
     ) (lazy۰inv t).
   Proof.
@@ -730,8 +730,8 @@ Section lazy۰G.
   Qed.
   #[global] Instance lazy۰invｰproper t :
     Proper (
-      (pointwise_relation _ (≡)) ==>
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
+      pointwise_relation _ (≡) ==>
       (≡)
     ) (lazy۰inv t).
   Proof.
@@ -739,7 +739,7 @@ Section lazy۰G.
   Qed.
   #[global] Instance lazy۰consumerｰcontractive t n :
     Proper (
-      (pointwise_relation _ (dist_later n)) ==>
+      (pointwise_relation _ $ dist_later n) ==>
       (≡{n}≡)
     ) (lazy۰consumer t).
   Proof.
@@ -747,7 +747,7 @@ Section lazy۰G.
   Qed.
   #[global] Instance lazy۰consumerｰproper t :
     Proper (
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
       (≡)
     ) (lazy۰consumer t).
   Proof.

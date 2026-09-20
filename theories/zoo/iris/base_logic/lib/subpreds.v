@@ -59,7 +59,7 @@ Section subpreds۰G.
 
   #[global] Instance subpreds۰authｰne γ n :
     Proper (
-      (pointwise_relation _ (≡{n}≡)) ==>
+      pointwise_relation _ (≡{n}≡) ==>
       (=) ==>
       (≡{n}≡)
     ) (subpreds۰auth γ).
@@ -68,7 +68,7 @@ Section subpreds۰G.
   Qed.
   #[global] Instance subpreds۰authｰproper γ :
     Proper (
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
       (=) ==>
       (≡)
     ) (subpreds۰auth γ).
@@ -77,7 +77,7 @@ Section subpreds۰G.
   Qed.
   #[global] Instance subpreds۰fragｰcontractive γ n :
     Proper (
-      (pointwise_relation _ (dist_later n)) ==>
+      (pointwise_relation _ $ dist_later n) ==>
       (≡{n}≡)
     ) (subpreds۰frag γ).
   Proof.
@@ -85,7 +85,7 @@ Section subpreds۰G.
   Qed.
   #[global] Instance subpreds۰fragｰproper γ :
     Proper (
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
       (≡)
     ) (subpreds۰frag γ).
   Proof.

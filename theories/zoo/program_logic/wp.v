@@ -134,18 +134,27 @@ Section zoo۰G.
   Implicit Type Φ : val → iProp Σ.
 
   #[global] Instance wpｰne e tid E n :
-    Proper (pointwise_relation _ (≡{n}≡) ==> (≡{n}≡)) (wp e tid E).
+    Proper (
+      pointwise_relation _ (≡{n}≡) ==>
+      (≡{n}≡)
+    ) (wp e tid E).
   Proof.
     rewrite wpｰunseal. solve_proper.
   Qed.
   #[global] Instance wpｰproper e tid E :
-    Proper (pointwise_relation _ (≡) ==> (≡)) (wp e tid E).
+    Proper (
+      pointwise_relation _ (≡) ==>
+      (≡)
+    ) (wp e tid E).
   Proof.
     rewrite wpｰunseal. solve_proper.
   Qed.
   #[global] Instance wpｰcontractive e tid E n :
     TCEq (expr۰to_val e) None →
-    Proper (pointwise_relation _ (dist_later n) ==> (≡{n}≡)) (wp e tid E).
+    Proper (
+      (pointwise_relation _ $ dist_later n) ==>
+      (≡{n}≡)
+    ) (wp e tid E).
   Proof.
     wpｰunseal.
     - apply bwpｰcontractive.
@@ -261,13 +270,19 @@ Section zoo۰G.
     iApply (HΦ with "HΦ").
   Qed.
   #[global] Instance wpｰmono' e tid E :
-    Proper (pointwise_relation _ (⊢) ==> (⊢)) (wp e tid E).
+    Proper (
+      pointwise_relation _ (⊢) ==>
+      (⊢)
+    ) (wp e tid E).
   Proof.
     intros Φ1 Φ2 HΦ.
     apply wpｰmono. done.
   Qed.
   #[global] Instance wpｰflipｰmono' e tid E :
-    Proper (pointwise_relation _ (flip (⊢)) ==> (flip (⊢))) (wp e tid E).
+    Proper (
+      (pointwise_relation _ $ flip (⊢)) ==>
+      flip (⊢)
+    ) (wp e tid E).
   Proof.
     solve_proper.
   Qed.

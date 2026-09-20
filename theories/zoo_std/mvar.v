@@ -105,7 +105,7 @@ Module base.
 
     #[global] Instance mvar۰invｰcontractive t γ n :
       Proper (
-        (pointwise_relation _ (dist_later n)) ==>
+        (pointwise_relation _ $ dist_later n) ==>
         (≡{n}≡)
       ) (mvar۰inv t γ).
     Proof.
@@ -114,7 +114,7 @@ Module base.
     Qed.
     #[global] Instance mvar۰invｰproper t γ :
       Proper (
-        (pointwise_relation _ (≡)) ==>
+        pointwise_relation _ (≡) ==>
         (≡)
       ) (mvar۰inv t γ).
     Proof.
@@ -551,7 +551,7 @@ Section mvar۰G.
 
   #[global] Instance mvar۰inv_contractive t n :
     Proper (
-      (pointwise_relation _ (dist_later n)) ==>
+      (pointwise_relation _ $ dist_later n) ==>
       (≡{n}≡)
     ) (mvar۰inv t).
   Proof.
@@ -559,7 +559,7 @@ Section mvar۰G.
   Qed.
   #[global] Instance mvar۰invｰproper t :
     Proper (
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
       (≡)
     ) (mvar۰inv t).
   Proof.

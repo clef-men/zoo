@@ -109,12 +109,18 @@ Section inf_array۰G.
   Qed.
 
   #[global] Instance inf_array۰modelｰne t n :
-    Proper (pointwise_relation nat (=) ==> (≡{n}≡)) (inf_array۰model t).
+    Proper (
+      pointwise_relation nat (=) ==>
+      (≡{n}≡)
+    ) (inf_array۰model t).
   Proof.
     intros vs1 vs2 ->%functional_extensionality. done.
   Qed.
   #[global] Instance inf_array۰modelｰproper t :
-    Proper (pointwise_relation nat (=) ==> (≡)) (inf_array۰model t).
+    Proper (
+      pointwise_relation nat (=) ==>
+      (≡)
+    ) (inf_array۰model t).
   Proof.
     intros vs1 vs2 Hvs. rewrite equiv_dist. solve_proper.
   Qed.
@@ -126,12 +132,20 @@ Section inf_array۰G.
   Qed.
 
   #[global] Instance inf_array۰model'ｰne t n :
-    Proper ((=) ==> pointwise_relation nat (=) ==> (≡{n}≡)) (inf_array۰model' t).
+    Proper (
+      (=) ==>
+      pointwise_relation nat (=) ==>
+      (≡{n}≡)
+    ) (inf_array۰model' t).
   Proof.
     solve_proper.
   Qed.
   #[global] Instance inf_array۰model'ｰproper t :
-    Proper ((=) ==> pointwise_relation nat (=) ==> (≡)) (inf_array۰model' t).
+    Proper (
+      (=) ==>
+      pointwise_relation nat (=) ==>
+      (≡)
+    ) (inf_array۰model' t).
   Proof.
     solve_proper.
   Qed.

@@ -79,8 +79,8 @@ Section future۰G.
 
   #[global] Instance future۰invｰproper pool t :
     Proper (
-      (pointwise_relation _ (≡)) ==>
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
+      pointwise_relation _ (≡) ==>
       (≡)
     ) (future۰inv pool t).
   Proof.
@@ -96,7 +96,7 @@ Section future۰G.
   Qed.
   #[global] Instance future۰consumerｰproper t :
     Proper (
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
       (≡)
     ) (future۰consumer t).
   Proof.

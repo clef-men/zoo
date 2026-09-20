@@ -172,7 +172,10 @@ Section zoo۰G.
   Qed.
 
   #[global] Instance bwpｰne e tid E n :
-    Proper (pointwise_relation _ (≡{n}≡) ==> (≡{n}≡)) (bwp e tid E).
+    Proper (
+      pointwise_relation _ (≡{n}≡) ==>
+      (≡{n}≡)
+    ) (bwp e tid E).
   Proof.
     move: e. induction (lt_wf n) as [n _ IH] => e Φ1 Φ2 HΦ.
     rewrite !bwpｰunfold /bwp۰pre.
@@ -183,7 +186,10 @@ Section zoo۰G.
     apply HΦ.
   Qed.
   #[global] Instance bwpｰproper e tid E :
-    Proper (pointwise_relation _ (≡) ==> (≡)) (bwp e tid E).
+    Proper (
+      pointwise_relation _ (≡) ==>
+      (≡)
+    ) (bwp e tid E).
   Proof.
     intros Φ1 Φ2 HΦ.
     apply equiv_dist => n.
@@ -192,7 +198,10 @@ Section zoo۰G.
   Qed.
   #[global] Instance bwpｰcontractive e tid E n :
     TCEq (expr۰to_val e) None →
-    Proper (pointwise_relation _ (dist_later n) ==> (≡{n}≡)) (bwp e tid E).
+    Proper (
+      (pointwise_relation _ $ dist_later n) ==>
+      (≡{n}≡)
+    ) (bwp e tid E).
   Proof.
     intros He Φ1 Φ2 HΦ.
     rewrite !bwpｰunfold /bwp۰pre He.
@@ -288,13 +297,19 @@ Section zoo۰G.
     iApply (HΦ with "HΦ").
   Qed.
   #[global] Instance bwpｰmono' e tid E :
-    Proper (pointwise_relation _ (⊢) ==> (⊢)) (bwp e tid E).
+    Proper (
+      pointwise_relation _ (⊢) ==>
+      (⊢)
+    ) (bwp e tid E).
   Proof.
     intros Φ1 Φ2 HΦ.
     apply bwpｰmono. done.
   Qed.
   #[global] Instance bwpｰflipｰmono' e tid E :
-    Proper (pointwise_relation _ (flip (⊢)) ==> (flip (⊢))) (bwp e tid E).
+    Proper (
+      (pointwise_relation _ $ flip (⊢)) ==>
+      (flip (⊢))
+    ) (bwp e tid E).
   Proof.
     solve_proper.
   Qed.

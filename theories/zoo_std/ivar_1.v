@@ -116,8 +116,8 @@ Module base.
 
     #[global] Instance ivar_1۰invｰcontractive t γ n :
       Proper (
-        (pointwise_relation _ (dist_later n)) ==>
-        (pointwise_relation _ (dist_later n)) ==>
+        (pointwise_relation _ $ dist_later n) ==>
+        (pointwise_relation _ $ dist_later n) ==>
         (≡{n}≡)
       ) (ivar_1۰inv t γ).
     Proof.
@@ -126,8 +126,8 @@ Module base.
     Qed.
     #[global] Instance ivar_1۰invｰproper t γ :
       Proper (
-        (pointwise_relation _ (≡)) ==>
-        (pointwise_relation _ (≡)) ==>
+        pointwise_relation _ (≡) ==>
+        pointwise_relation _ (≡) ==>
         (≡)
       ) (ivar_1۰inv t γ).
     Proof.
@@ -136,7 +136,7 @@ Module base.
     Qed.
     #[global] Instance ivar_1۰consumerｰcontractive γ n :
       Proper (
-        (pointwise_relation _ (dist_later n)) ==>
+        (pointwise_relation _ $ dist_later n) ==>
         (≡{n}≡)
       ) (ivar_1۰consumer γ).
     Proof.
@@ -144,7 +144,7 @@ Module base.
     Qed.
     #[global] Instance ivar_1۰consumerｰproper γ :
       Proper (
-        (pointwise_relation _ (≡)) ==>
+        pointwise_relation _ (≡) ==>
         (≡)
       ) (ivar_1۰consumer γ).
     Proof.
@@ -674,8 +674,8 @@ Section ivar_1۰G.
 
   #[global] Instance ivar_1۰invｰcontractive t n :
     Proper (
-      (pointwise_relation _ (dist_later n)) ==>
-      (pointwise_relation _ (dist_later n)) ==>
+      (pointwise_relation _ $ dist_later n) ==>
+      (pointwise_relation _ $ dist_later n) ==>
       (≡{n}≡)
     ) (ivar_1۰inv t).
   Proof.
@@ -683,8 +683,8 @@ Section ivar_1۰G.
   Qed.
   #[global] Instance ivar_1۰invｰproper t :
     Proper (
-      (pointwise_relation _ (≡)) ==>
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
+      pointwise_relation _ (≡) ==>
       (≡)
     ) (ivar_1۰inv t).
   Proof.
@@ -692,7 +692,7 @@ Section ivar_1۰G.
   Qed.
   #[global] Instance ivar_1۰consumerｰcontractive t n :
     Proper (
-      (pointwise_relation _ (dist_later n)) ==>
+      (pointwise_relation _ $ dist_later n) ==>
       (≡{n}≡)
     ) (ivar_1۰consumer t).
   Proof.
@@ -700,7 +700,7 @@ Section ivar_1۰G.
   Qed.
   #[global] Instance ivar_1۰consumerｰproper t :
     Proper (
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
       (≡)
     ) (ivar_1۰consumer t).
   Proof.

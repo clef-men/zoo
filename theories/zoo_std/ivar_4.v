@@ -83,7 +83,7 @@ Section ivar_4۰G.
     Proper (
       (pointwise_relation _ $ dist_later n) ==>
       (pointwise_relation _ $ dist_later n) ==>
-      (pointwise_relation _ $ pointwise_relation _ $ (≡{n}≡)) ==>
+      (pointwise_relation _ $ pointwise_relation _ (≡{n}≡)) ==>
       (≡{n}≡)
     ) (ivar_4۰inv t).
   Proof.
@@ -96,8 +96,8 @@ Section ivar_4۰G.
   Qed.
   #[global] Instance ivar_4۰invｰproper t :
     Proper (
-      (pointwise_relation _ (≡)) ==>
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
+      pointwise_relation _ (≡) ==>
       (pointwise_relation _ $ pointwise_relation _ (≡)) ==>
       (≡)
     ) (ivar_4۰inv t).
@@ -115,7 +115,7 @@ Section ivar_4۰G.
   Qed.
   #[global] Instance ivar_4۰consumerｰproper t :
     Proper (
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
       (≡)
     ) (ivar_4۰consumer t).
   Proof.

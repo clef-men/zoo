@@ -27,12 +27,18 @@ Section ghost_pred۰G.
     ghost_var γ dq (Next ∘ Ψ).
 
   #[global] Instance ghost_predｰcontractive γ dq n :
-    Proper ((pointwise_relation _ (dist_later n)) ==> (≡{n}≡)) (ghost_pred γ dq).
+    Proper (
+      (pointwise_relation _ $ dist_later n) ==>
+      (≡{n}≡)
+    ) (ghost_pred γ dq).
   Proof.
     solve_contractive.
   Qed.
   #[global] Instance ghost_predｰproper γ dq :
-    Proper ((≡) ==> (≡)) (ghost_pred γ dq : (A -d> iProp Σ) → _).
+    Proper (
+      (≡) ==>
+      (≡)
+    ) (ghost_pred γ dq : (A -d> iProp Σ) → _).
   Proof.
     solve_proper.
   Qed.

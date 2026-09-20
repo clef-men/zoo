@@ -145,7 +145,7 @@ Module base.
     Qed.
     #[global] Instance exchanger_1۰invｰproper t γ ι :
       Proper (
-        (pointwise_relation _ (≡)) ==>
+        pointwise_relation _ (≡) ==>
         (pointwise_relation _ $ pointwise_relation _ (≡)) ==>
         (≡)
       ) (exchanger_1۰inv t γ ι).
@@ -397,7 +397,7 @@ Section exchanger_1۰G.
   Qed.
   #[global] Instance exchanger_1۰invｰproper t ι :
     Proper (
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
       (pointwise_relation _ $ pointwise_relation _ (≡)) ==>
       (≡)
     ) (exchanger_1۰inv t ι).

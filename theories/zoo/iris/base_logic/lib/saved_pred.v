@@ -27,12 +27,18 @@ Section saved_pred۰G.
     agree۰on γ (Next ∘ Ψ).
 
   #[global] Instance saved_predｰcontractive γ n :
-    Proper ((pointwise_relation _ (dist_later n)) ==> (≡{n}≡)) (saved_pred γ).
+    Proper (
+      (pointwise_relation _ $ dist_later n) ==>
+      (≡{n}≡)
+    ) (saved_pred γ).
   Proof.
     solve_contractive.
   Qed.
   #[global] Instance saved_predｰproper γ :
-    Proper ((≡) ==> (≡)) (saved_pred γ : (A -d> iProp Σ) → _).
+    Proper (
+      (≡) ==>
+      (≡)
+    ) (saved_pred γ : (A -d> iProp Σ) → _).
   Proof.
     solve_proper.
   Qed.

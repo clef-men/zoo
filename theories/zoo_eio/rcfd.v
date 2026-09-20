@@ -260,7 +260,7 @@ Section rcfd۰G.
 
   #[local] Instance tokens۰auth'ｰne γ_tokens n :
     Proper (
-      (pointwise_relation _ (≡{n}≡)) ==>
+      pointwise_relation _ (≡{n}≡) ==>
       (=) ==>
       (≡{n}≡)
     ) (tokens۰auth' γ_tokens).
@@ -269,7 +269,7 @@ Section rcfd۰G.
   Qed.
   #[local] Instance tokens۰auth'ｰproper γ_tokens :
     Proper (
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
       (=) ==>
       (≡)
     ) (tokens۰auth' γ_tokens).
@@ -279,7 +279,7 @@ Section rcfd۰G.
 
   #[global] Instance rcfd۰invｰcontractive t owned fd n :
     Proper (
-      (pointwise_relation _ (dist_later n)) ==>
+      (pointwise_relation _ $ dist_later n) ==>
       (≡{n}≡)
     ) (rcfd۰inv t owned fd).
   Proof.
@@ -288,7 +288,7 @@ Section rcfd۰G.
   Qed.
   #[global] Instance rcfd۰invｰproper t owned fd :
     Proper (
-      (pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
       (≡)
     ) (rcfd۰inv t owned fd).
   Proof.

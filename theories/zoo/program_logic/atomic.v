@@ -15,8 +15,8 @@ Section atomic_acc.
     Proper (
       pointwise_relation TA (≡) ==>
       (≡) ==>
-      pointwise_relation TA (pointwise_relation TB (≡)) ==>
-      pointwise_relation TA (pointwise_relation TB (≡)) ==>
+      (pointwise_relation TA $ pointwise_relation TB (≡)) ==>
+      (pointwise_relation TA $ pointwise_relation TB (≡)) ==>
       (≡)
     ) (atomic_acc (PROP := PROP) Eo Ei).
   Proof.
@@ -70,8 +70,8 @@ Section atomic_update.
   #[global] Instance atomic_updateｰproper Eo Ei :
     Proper (
       pointwise_relation TA (≡) ==>
-      pointwise_relation TA (pointwise_relation TB (≡)) ==>
-      pointwise_relation TA (pointwise_relation TB (≡)) ==>
+      (pointwise_relation TA $ pointwise_relation TB (≡)) ==>
+      (pointwise_relation TA $ pointwise_relation TB (≡)) ==>
       (≡)
     ) (atomic_update (PROP := PROP) Eo Ei).
   Proof.
@@ -160,9 +160,9 @@ Section atomic_triple.
     Proper (
       (≡{n}≡) ==>
       pointwise_relation TA (≡{n}≡) ==>
-      pointwise_relation TA (pointwise_relation TB (≡{n}≡)) ==>
-      pointwise_relation TA (pointwise_relation TB (pointwise_relation TP (≡{n}≡))) ==>
-      pointwise_relation TA (pointwise_relation TB (pointwise_relation TP (=))) ==>
+      (pointwise_relation TA $ pointwise_relation TB (≡{n}≡)) ==>
+      (pointwise_relation TA $ pointwise_relation TB $ pointwise_relation TP (≡{n}≡)) ==>
+      (pointwise_relation TA $ pointwise_relation TB $ pointwise_relation TP (=)) ==>
       (≡{n}≡)
     ) (atomic_triple e tid E).
   Proof.
@@ -177,9 +177,9 @@ Section atomic_triple.
     Proper (
       (≡) ==>
       pointwise_relation TA (≡) ==>
-      pointwise_relation TA (pointwise_relation TB (≡)) ==>
-      pointwise_relation TA (pointwise_relation TB (pointwise_relation TP (≡))) ==>
-      pointwise_relation TA (pointwise_relation TB (pointwise_relation TP (=))) ==>
+      (pointwise_relation TA $ pointwise_relation TB (≡)) ==>
+      (pointwise_relation TA $ pointwise_relation TB $ pointwise_relation TP (≡)) ==>
+      (pointwise_relation TA $ pointwise_relation TB $ pointwise_relation TP (=)) ==>
       (≡)
     ) (atomic_triple e tid E).
   Proof.
