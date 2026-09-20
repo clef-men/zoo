@@ -8,19 +8,9 @@ Implicit Type b : bool.
 Implicit Type v : val.
 Implicit Type vs : list val.
 
-Class TqueueMpmc2G Σ `{zoo۰G : !ZooG Σ} :=
+Zoo global :=
   {
   }.
-
-Definition tqueue_mpmc_2۰Σ :=
-  #[
-  ].
-#[global] Instance subGｰtqueue_mpmc_2۰Σ Σ `{zoo۰G : !ZooG Σ} :
-  subG tqueue_mpmc_2۰Σ Σ →
-  TqueueMpmc2G Σ.
-Proof.
-  (* solve_inG. *)
-Qed.
 
 Module base.
   Section tqueue_mpmc_2۰G.

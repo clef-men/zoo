@@ -212,15 +212,21 @@ let instance ~theory spec =
       proof
       (Proof_using.using_from_string "Type*")
   in
-  let proof, _safe =
-    Declare.Proof.by
-      (Global.env ())
-      ( Zoo.solve_inG_tactic ()
-        |> Loc.tag
-        |> Tacexpr.(fun id -> TacArg (Reference (Locus.ArgArg id)))
-        |> CAst.make
-        |> Tacinterp.eval_tactic
-      )
+  let proof =
+    if Declare.Proof.get_open_goals proof = 0 then
+      proof
+    else
+      let proof, _safe =
+        Declare.Proof.by
+          (Global.env ())
+          ( Zoo.solve_inG_tactic ()
+            |> Loc.tag
+            |> Tacexpr.(fun id -> TacArg (Reference (Locus.ArgArg id)))
+            |> CAst.make
+            |> Tacinterp.eval_tactic
+          )
+          proof
+      in
       proof
   in
   let _refs =
