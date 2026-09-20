@@ -1065,7 +1065,7 @@ Section algo۰G.
       algo٠find ctx #beg #end_ chunk pred
     {{{
       (o : option Z)
-    , RET #*@{Z} o : option val;
+    , RET #*ᶻ o : option val;
       pool۰context pool ctx scope ∗
       if o is Some i then
         ⌜beg ≤ i < end_⌝%Z ∗
@@ -1120,7 +1120,7 @@ Section algo۰G.
       algo٠find ctx #beg #end_ chunk pred
     {{{
       (o : option nat)
-    , RET #*@{nat} o : option val;
+    , RET #*ⁿ o : option val;
       pool۰context pool ctx scope ∗
       if o is Some i then
         ⌜beg ≤ i < end_⌝%Z ∗
@@ -1174,7 +1174,7 @@ Section algo۰G.
       algo٠find ctx #beg #end_ chunk pred
     {{{
       (o : option Z)
-    , RET #*@{Z} o : option val;
+    , RET #*ᶻ o : option val;
       pool۰context pool ctx scope ∗
       if o is Some i then
         ⌜beg ≤ i < end_⌝%Z ∗
@@ -1215,7 +1215,7 @@ Section algo۰G.
       algo٠find ctx #beg #end_ chunk pred
     {{{
       (o : option nat)
-    , RET #*@{nat} o : option val;
+    , RET #*ⁿ o : option val;
       pool۰context pool ctx scope ∗
       if o is Some i then
         ⌜beg ≤ i < end_⌝%Z ∗

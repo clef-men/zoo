@@ -67,14 +67,14 @@ Section zoo۰G.
   Lemma xchainｰcons {dq} nodes node nodes' dst :
     nodes = node :: nodes' →
     xchain dq nodes dst ⊣⊢
-      node.[next] ↦{dq} from_option #@{location} dst (head nodes') ∗
+      node.[next] ↦{dq} from_option #ˡ dst (head nodes') ∗
       xchain dq nodes' dst.
   Proof.
     destruct nodes'; iSteps.
   Qed.
   Lemma xchainｰcons' {dq} node nodes dst :
     xchain dq (node :: nodes) dst ⊣⊢
-      node.[next] ↦{dq} from_option #@{location} dst (head nodes) ∗
+      node.[next] ↦{dq} from_option #ˡ dst (head nodes) ∗
       xchain dq nodes dst.
   Proof.
     rewrite xchainｰcons //.
@@ -82,7 +82,7 @@ Section zoo۰G.
   Lemma xchainｰcons₁ {dq} nodes node nodes' dst :
     nodes = node :: nodes' →
     xchain dq nodes dst ⊢
-      node.[next] ↦{dq} from_option #@{location} dst (head nodes') ∗
+      node.[next] ↦{dq} from_option #ˡ dst (head nodes') ∗
       xchain dq nodes' dst.
   Proof.
     intros.
@@ -90,13 +90,13 @@ Section zoo۰G.
   Qed.
   Lemma xchainｰcons₁' {dq} node nodes dst :
     xchain dq (node :: nodes) dst ⊢
-      node.[next] ↦{dq} from_option #@{location} dst (head nodes) ∗
+      node.[next] ↦{dq} from_option #ˡ dst (head nodes) ∗
       xchain dq nodes dst.
   Proof.
     rewrite xchainｰcons //.
   Qed.
   Lemma xchainｰcons₂ dq node nodes dst :
-    node.[next] ↦{dq} from_option #@{location} dst (head nodes) -∗
+    node.[next] ↦{dq} from_option #ˡ dst (head nodes) -∗
     xchain dq nodes dst -∗
     xchain dq (node :: nodes) dst.
   Proof.
@@ -106,7 +106,7 @@ Section zoo۰G.
   Lemma xchainｰapp {dq} nodes nodes1 nodes2 dst :
     nodes = nodes1 ++ nodes2 →
     xchain dq nodes dst ⊣⊢
-      xchain dq nodes1 (from_option #@{location} dst (head nodes2)) ∗
+      xchain dq nodes1 (from_option #ˡ dst (head nodes2)) ∗
       xchain dq nodes2 dst.
   Proof.
     intros ->.
@@ -121,7 +121,7 @@ Section zoo۰G.
   Qed.
   Lemma xchainｰapp' {dq} nodes1 nodes2 dst :
     xchain dq (nodes1 ++ nodes2) dst ⊣⊢
-      xchain dq nodes1 (from_option #@{location} dst (head nodes2)) ∗
+      xchain dq nodes1 (from_option #ˡ dst (head nodes2)) ∗
       xchain dq nodes2 dst.
   Proof.
     rewrite xchainｰapp //.
@@ -129,7 +129,7 @@ Section zoo۰G.
   Lemma xchainｰapp₁ {dq} nodes nodes1 nodes2 dst :
     nodes = nodes1 ++ nodes2 →
     xchain dq nodes dst ⊢
-      xchain dq nodes1 (from_option #@{location} dst (head nodes2)) ∗
+      xchain dq nodes1 (from_option #ˡ dst (head nodes2)) ∗
       xchain dq nodes2 dst.
   Proof.
     intros.
@@ -137,13 +137,13 @@ Section zoo۰G.
   Qed.
   Lemma xchainｰapp₁' {dq} nodes1 nodes2 dst :
     xchain dq (nodes1 ++ nodes2) dst ⊢
-      xchain dq nodes1 (from_option #@{location} dst (head nodes2)) ∗
+      xchain dq nodes1 (from_option #ˡ dst (head nodes2)) ∗
       xchain dq nodes2 dst.
   Proof.
     rewrite xchainｰapp //.
   Qed.
   Lemma xchainｰapp₂ dq nodes1 nodes2 dst :
-    xchain dq nodes1 (from_option #@{location} dst (head nodes2)) -∗
+    xchain dq nodes1 (from_option #ˡ dst (head nodes2)) -∗
     xchain dq nodes2 dst -∗
     xchain dq (nodes1 ++ nodes2) dst.
   Proof.
@@ -194,7 +194,7 @@ Section zoo۰G.
     nodes !! i = Some node →
     xchain dq nodes dst ⊣⊢
       xchain dq (take i nodes) #node ∗
-      node.[next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
+      node.[next] ↦{dq} from_option #ˡ dst (nodes !! ˖i) ∗
       xchain dq (drop ˖i nodes) dst.
   Proof.
     intros Hlookup.
@@ -205,7 +205,7 @@ Section zoo۰G.
     nodes !! i = Some node →
     xchain dq nodes dst ⊢
       xchain dq (take i nodes) #node ∗
-      node.[next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
+      node.[next] ↦{dq} from_option #ˡ dst (nodes !! ˖i) ∗
       xchain dq (drop ˖i nodes) dst.
   Proof.
     intros.
@@ -213,7 +213,7 @@ Section zoo۰G.
   Qed.
   Lemma xchainｰlookup₂ {dq nodes} i node next dst :
     nodes !! i = Some node →
-    next = from_option #@{location} dst (nodes !! ˖i) →
+    next = from_option #ˡ dst (nodes !! ˖i) →
     xchain dq (take i nodes) #node -∗
     node.[next] ↦{dq} next -∗
     xchain dq (drop ˖i nodes) dst -∗
@@ -225,8 +225,8 @@ Section zoo۰G.
   Lemma xchainｰlookupｰacc {dq nodes} i node dst :
     nodes !! i = Some node →
     xchain dq nodes dst ⊢
-      node.[next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
-      ( node.[next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) -∗
+      node.[next] ↦{dq} from_option #ˡ dst (nodes !! ˖i) ∗
+      ( node.[next] ↦{dq} from_option #ˡ dst (nodes !! ˖i) -∗
         xchain dq nodes dst
       ).
   Proof.
@@ -372,7 +372,7 @@ Section zoo۰G.
       (#node).{next}
       @ E
     {{{
-      RET from_option #@{location} dst (head nodes');
+      RET from_option #ˡ dst (head nodes');
       xchain dq nodes dst
     }}}.
   Proof.
@@ -387,7 +387,7 @@ Section zoo۰G.
       (#node).{next}
       @ E
     {{{
-      RET from_option #@{location} dst (nodes !! ˖i);
+      RET from_option #ˡ dst (nodes !! ˖i);
       xchain dq nodes dst
     }}}.
   Proof.

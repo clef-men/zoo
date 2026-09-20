@@ -525,7 +525,7 @@ Section partition۰G.
   Qed.
 
   Lemma partition٠refineｰspec {γ part v_elts} elts :
-    list۰model' v_elts (#*@{location} elts) →
+    list۰model' v_elts (#*ˡ elts) →
     {{{
       partition۰model γ part
     }}}

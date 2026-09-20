@@ -145,7 +145,7 @@ Section bag_2۰G.
 
   #[local] Definition inv۰inner l γ : iProp Σ :=
     ∃ nodes descrs wss,
-    l.[producers] ↦ from_option #@{location} §Null (head nodes) ∗
+    l.[producers] ↦ from_option #ˡ §Null (head nodes) ∗
     xtchain (Header §Node 2) DfracDiscarded nodes §Null ∗
     queues۰auth γ nodes descrs wss ∗
     model₂ γ wss ∗
@@ -707,7 +707,7 @@ Section bag_2۰G.
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2٠pop₂ #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (from_option #@{location} §Null%V $ head nodes)
+      bag_2٠pop₂ #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (from_option #ˡ §Null%V $ head nodes)
       @ ↑γ.(metadata۰inv)
     <<<
       ∃∃ o,

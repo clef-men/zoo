@@ -285,7 +285,7 @@ Module base.
         stack_mpmc_2۰model γ.(vertex۰name۰successors) None
       ) else (
         ∃ succs,
-        stack_mpmc_2۰model γ.(vertex۰name۰successors) (Some $ #*@{location} succs) ∗
+        stack_mpmc_2۰model γ.(vertex۰name۰successors) (Some $ #*ˡ succs) ∗
         [∗ list] succ ∈ succs, inv۰successor inv γ succ
       )%I.
     #[local] Instance : CustomIpat "inv۰successors۰finished" :=

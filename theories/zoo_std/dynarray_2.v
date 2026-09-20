@@ -29,7 +29,7 @@ Section zoo۰G.
     ⌜t = #l⌝ ∗
     l.[size] ↦ #(length vs) ∗
     l.[data] ↦ data ∗
-    array۰model data (DfracOwn 1) ((#*@{location} elems) ++ replicate extra §Empty%V) ∗
+    array۰model data (DfracOwn 1) ((#*ˡ elems) ++ replicate extra §Empty%V) ∗
     [∗ list] elem; v ∈ elems; vs, element۰model elem v.
   #[local] Instance : CustomIpat "model" :=
     " ( %l
@@ -116,7 +116,7 @@ Section zoo۰G.
     wp۰rec.
     pose (Ψ data i slots := (
       ∃ elems,
-      ⌜slots = #*@{location} elems⌝ ∗
+      ⌜slots = #*ˡ elems⌝ ∗
       [∗ list] elem ∈ elems, element۰model elem v
     )%I).
     wp۰apply+ (array٠initｰspec Ψ) as "%data %slots (%Hsz & %Helems & Hmodel & (%elems & -> & Helems))".
@@ -160,7 +160,7 @@ Section zoo۰G.
     wp۰rec.
     pose (Ψ' data i slots := (
       ∃ elems vs,
-      ⌜slots = #*@{location} elems⌝ ∗
+      ⌜slots = #*ˡ elems⌝ ∗
       Ψ i vs ∗
       [∗ list] elem; v ∈ elems; vs, element۰model elem v
     )%I).

@@ -80,7 +80,7 @@ Section zoo۰G.
     nodes = node :: nodes' →
     xdlchain src nodes dst ⊣⊢
       node.[prev] ↦ src ∗
-      node.[next] ↦ from_option #@{location} dst (head nodes') ∗
+      node.[next] ↦ from_option #ˡ dst (head nodes') ∗
       xdlchain #node nodes' dst.
   Proof.
     destruct nodes'; iSteps.
@@ -89,14 +89,14 @@ Section zoo۰G.
     nodes = node :: nodes' →
     xdlchain src nodes dst ⊢
       node.[prev] ↦ src ∗
-      node.[next] ↦ from_option #@{location} dst (head nodes') ∗
+      node.[next] ↦ from_option #ˡ dst (head nodes') ∗
       xdlchain #node nodes' dst.
   Proof.
     intros. rewrite xdlchainｰcons //.
   Qed.
   Lemma xdlchainｰcons₂ src node nodes dst :
     node.[prev] ↦ src -∗
-    node.[next] ↦ from_option #@{location} dst (head nodes) -∗
+    node.[next] ↦ from_option #ˡ dst (head nodes) -∗
     xdlchain #node nodes dst -∗
     xdlchain src (node :: nodes) dst.
   Proof.
@@ -106,8 +106,8 @@ Section zoo۰G.
   Lemma xdlchainｰapp {src} nodes nodes1 nodes2 dst :
     nodes = nodes1 ++ nodes2 →
     xdlchain src nodes dst ⊣⊢
-      xdlchain src nodes1 (from_option #@{location} dst (head nodes2)) ∗
-      xdlchain (from_option #@{location} src (last nodes1)) nodes2 dst.
+      xdlchain src nodes1 (from_option #ˡ dst (head nodes2)) ∗
+      xdlchain (from_option #ˡ src (last nodes1)) nodes2 dst.
   Proof.
     intros ->.
     iInduction nodes1 as [| node1 [| node1' nodes1]] "IH" forall (src).
@@ -124,14 +124,14 @@ Section zoo۰G.
   Lemma xdlchainｰapp₁ {src} nodes nodes1 nodes2 dst :
     nodes = nodes1 ++ nodes2 →
     xdlchain src nodes dst ⊢
-      xdlchain src nodes1 (from_option #@{location} dst (head nodes2)) ∗
-      xdlchain (from_option #@{location} src (last nodes1)) nodes2 dst.
+      xdlchain src nodes1 (from_option #ˡ dst (head nodes2)) ∗
+      xdlchain (from_option #ˡ src (last nodes1)) nodes2 dst.
   Proof.
     intros. rewrite xdlchainｰapp //.
   Qed.
   Lemma xdlchainｰapp₂ src nodes1 nodes2 dst :
-    xdlchain src nodes1 (from_option #@{location} dst (head nodes2)) -∗
-    xdlchain (from_option #@{location} src (last nodes1)) nodes2 dst -∗
+    xdlchain src nodes1 (from_option #ˡ dst (head nodes2)) -∗
+    xdlchain (from_option #ˡ src (last nodes1)) nodes2 dst -∗
     xdlchain src (nodes1 ++ nodes2) dst.
   Proof.
     rewrite (xdlchainｰapp (nodes1 ++ nodes2)) //. iSteps.
@@ -141,7 +141,7 @@ Section zoo۰G.
     nodes = nodes' ++ [node] →
     xdlchain src nodes dst ⊣⊢
       xdlchain src nodes' #node ∗
-      node.[prev] ↦ from_option #@{location} src (last nodes') ∗
+      node.[prev] ↦ from_option #ˡ src (last nodes') ∗
       node.[next] ↦ dst.
   Proof.
     intros. rewrite xdlchainｰapp //.
@@ -150,14 +150,14 @@ Section zoo۰G.
     nodes = nodes' ++ [node] →
     xdlchain src nodes dst ⊢
       xdlchain src nodes' #node ∗
-      node.[prev] ↦ from_option #@{location} src (last nodes') ∗
+      node.[prev] ↦ from_option #ˡ src (last nodes') ∗
       node.[next] ↦ dst.
   Proof.
     intros. rewrite xdlchainｰsnoc //.
   Qed.
   Lemma xdlchainｰsnoc₂ src nodes node dst :
     xdlchain src nodes #node -∗
-    node.[prev] ↦ from_option #@{location} src (last nodes) -∗
+    node.[prev] ↦ from_option #ˡ src (last nodes) -∗
     node.[next] ↦ dst -∗
     xdlchain src (nodes ++ [node]) dst.
   Proof.
@@ -170,7 +170,7 @@ Section zoo۰G.
       ∃ nodes',
       ⌜nodes = nodes' ++ [node]⌝ ∗
       xdlchain src nodes' #node ∗
-      node.[prev] ↦ from_option #@{location} src (last nodes') ∗
+      node.[prev] ↦ from_option #ˡ src (last nodes') ∗
       node.[next] ↦ dst.
   Proof.
     iIntros ((nodes' & ->)%last_Some) "H".
@@ -182,8 +182,8 @@ Section zoo۰G.
     nodes !! i = Some node →
     xdlchain src nodes dst ⊣⊢
       xdlchain src (take i nodes) #node ∗
-      node.[prev] ↦ from_option #@{location} src (last $ take i nodes) ∗
-      node.[next] ↦ from_option #@{location} dst (head $ drop ˖i nodes) ∗
+      node.[prev] ↦ from_option #ˡ src (last $ take i nodes) ∗
+      node.[next] ↦ from_option #ˡ dst (head $ drop ˖i nodes) ∗
       xdlchain #node (drop ˖i nodes) dst.
   Proof.
     intros Hlookup.
@@ -194,16 +194,16 @@ Section zoo۰G.
     nodes !! i = Some node →
     xdlchain src nodes dst ⊢
       xdlchain src (take i nodes) #node ∗
-      node.[prev] ↦ from_option #@{location} src (last $ take i nodes) ∗
-      node.[next] ↦ from_option #@{location} dst (head $ drop ˖i nodes) ∗
+      node.[prev] ↦ from_option #ˡ src (last $ take i nodes) ∗
+      node.[next] ↦ from_option #ˡ dst (head $ drop ˖i nodes) ∗
       xdlchain #node (drop ˖i nodes) dst.
   Proof.
     intros. rewrite xdlchainｰlookup //.
   Qed.
   Lemma xdlchainｰlookup₂ {src nodes} i node prev next dst :
     nodes !! i = Some node →
-    prev = from_option #@{location} src (last $ take i nodes) →
-    next = from_option #@{location} dst (head $ drop ˖i nodes) →
+    prev = from_option #ˡ src (last $ take i nodes) →
+    next = from_option #ˡ dst (head $ drop ˖i nodes) →
     xdlchain src (take i nodes) #node -∗
     node.[prev] ↦ prev -∗
     node.[next] ↦ next -∗
@@ -216,10 +216,10 @@ Section zoo۰G.
   Lemma xdlchainｰlookupｰacc {src nodes} i node dst :
     nodes !! i = Some node →
     xdlchain src nodes dst ⊢
-      node.[prev] ↦ from_option #@{location} src (last $ take i nodes) ∗
-      node.[next] ↦ from_option #@{location} dst (head $ drop ˖i nodes) ∗
-      ( node.[prev] ↦ from_option #@{location} src (last $ take i nodes) -∗
-        node.[next] ↦ from_option #@{location} dst (head $ drop ˖i nodes) -∗
+      node.[prev] ↦ from_option #ˡ src (last $ take i nodes) ∗
+      node.[next] ↦ from_option #ˡ dst (head $ drop ˖i nodes) ∗
+      ( node.[prev] ↦ from_option #ˡ src (last $ take i nodes) -∗
+        node.[next] ↦ from_option #ˡ dst (head $ drop ˖i nodes) -∗
         xdlchain src nodes dst
       ).
   Proof.
@@ -280,7 +280,7 @@ Section zoo۰G.
       (#node).{prev}
       @ E
     {{{
-      RET from_option #@{location} src (last $ take i nodes);
+      RET from_option #ˡ src (last $ take i nodes);
       xdlchain src nodes dst
     }}}.
   Proof.
@@ -312,7 +312,7 @@ Section zoo۰G.
       (#node).{next}
       @ E
     {{{
-      RET from_option #@{location} dst (head nodes');
+      RET from_option #ˡ dst (head nodes');
       xdlchain src nodes dst
     }}}.
   Proof.
@@ -327,7 +327,7 @@ Section zoo۰G.
       (#node).{next}
       @ E
     {{{
-      RET from_option #@{location} dst (head $ drop ˖i nodes);
+      RET from_option #ˡ dst (head $ drop ˖i nodes);
       xdlchain src nodes dst
     }}}.
   Proof.

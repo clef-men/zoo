@@ -7788,7 +7788,7 @@ Section zoo۰G.
     (1 < sz)%Z →
     length xs = ₊sz →
     {{{
-      array۰slice t i_ (DfracOwn 1) (#*@{Z} xs)
+      array۰slice t i_ (DfracOwn 1) (#*ᶻ xs)
     }}}
       array٠partition t #i #sz
     {{{
@@ -7798,7 +7798,7 @@ Section zoo۰G.
       ⌜xs ≡ₚ xs1 ++ pivot :: xs2⌝ ∗
       ⌜Forall ((≥)%Z pivot) xs1⌝ ∗
       ⌜Forall ((≤)%Z pivot) xs2⌝ ∗
-      array۰slice t i_ (DfracOwn 1) (#*@{Z} xs1 ++ #@{Z} pivot :: #*@{Z} xs2)
+      array۰slice t i_ (DfracOwn 1) (#*ᶻ xs1 ++ #ᶻ pivot :: #*ᶻ xs2)
     }}}.
   Proof.
     iIntros (Hi -> Hsz Hxs) "%Φ Hslice HΦ".
@@ -7813,7 +7813,7 @@ Section zoo۰G.
 
     wp۰apply+ (forｰspecｰstrong (λ (j : Z) _,
       ∃ xs' (i1 : Z),
-      array۰slice t ˖(₊i) (DfracOwn 1) (#*@{Z} xs') ∗
+      array۰slice t ˖(₊i) (DfracOwn 1) (#*ᶻ xs') ∗
       r ↦ᵣ #i1 ∗
       ⌜xs ≡ₚ xs'⌝ ∗
       ⌜i < i1 ≤ j⌝%Z ∗
@@ -7951,7 +7951,7 @@ Section zoo۰G.
     i_ = ₊i →
     length xs = ₊sz →
     {{{
-      array۰slice t i_ (DfracOwn 1) (#*@{Z} xs)
+      array۰slice t i_ (DfracOwn 1) (#*ᶻ xs)
     }}}
       array٠sort₁ t #i #sz
     {{{
@@ -7959,7 +7959,7 @@ Section zoo۰G.
     , RET ();
       ⌜xs ≡ₚ xs'⌝ ∗
       ⌜StronglySorted (≤)%Z xs'⌝ ∗
-      array۰slice t i_ (DfracOwn 1) (#*@{Z} xs')
+      array۰slice t i_ (DfracOwn 1) (#*ᶻ xs')
     }}}.
   Proof.
     iIntros "%Hi %Hi_ %Hsz %Φ Hslice HΦ".
@@ -8001,7 +8001,7 @@ Section zoo۰G.
   Qed.
   #[local] Lemma array٠sortｰspec t xs :
     {{{
-      array۰model t (DfracOwn 1) (#*@{Z} xs)
+      array۰model t (DfracOwn 1) (#*ᶻ xs)
     }}}
       array٠sort t
     {{{
@@ -8009,7 +8009,7 @@ Section zoo۰G.
     , RET ();
       ⌜xs ≡ₚ xs'⌝ ∗
       ⌜StronglySorted (≤)%Z xs'⌝ ∗
-      array۰model t (DfracOwn 1) (#*@{Z} xs')
+      array۰model t (DfracOwn 1) (#*ᶻ xs')
     }}}.
   Proof.
     iIntros "%Φ Hmodel HΦ".

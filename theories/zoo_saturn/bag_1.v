@@ -112,7 +112,7 @@ Section bag_1۰G.
     ⌜0 < length γ.(metadata۰slots)⌝ ∗
     l ↪ γ ∗
     l.[data] ↦□ γ.(metadata۰data) ∗
-    array۰model γ.(metadata۰data) DfracDiscarded (#*@{location} γ.(metadata۰slots)) ∗
+    array۰model γ.(metadata۰data) DfracDiscarded (#*ˡ γ.(metadata۰slots)) ∗
     inv' l γ.
   #[local] Instance : CustomIpat "inv" :=
     " ( %l
@@ -213,7 +213,7 @@ Section bag_1۰G.
 
     pose (Ψ := λ data (_ : nat) (vs : list val), (
       ∃ slots,
-      ⌜vs = #*@{location} slots⌝ ∗
+      ⌜vs = #*ˡ slots⌝ ∗
       [∗ list] slot ∈ slots,
         slot ↦ᵣ None
     )%I).

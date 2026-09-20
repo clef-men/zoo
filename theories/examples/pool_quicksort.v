@@ -14,7 +14,7 @@ Section pool۰G.
     length xs = ₊sz →
     {{{
       pool۰context pool ctx scope ∗
-      array۰slice arr i_ (DfracOwn 1) (#*@{Z} xs)
+      array۰slice arr i_ (DfracOwn 1) (#*ᶻ xs)
     }}}
       pool_quicksort٠main₂ ctx arr #i #sz
     {{{
@@ -24,7 +24,7 @@ Section pool۰G.
         ∃ xs',
         ⌜xs ≡ₚ xs'⌝ ∗
         ⌜StronglySorted (≤)%Z xs'⌝ ∗
-        array۰slice arr i_ (DfracOwn 1) (#*@{Z} xs')
+        array۰slice arr i_ (DfracOwn 1) (#*ᶻ xs')
       )
     }}}.
   Proof.
@@ -43,7 +43,7 @@ Section pool۰G.
             ∃ xs1',
             ⌜xs1 ≡ₚ xs1'⌝ ∗
             ⌜StronglySorted (≤)%Z xs1'⌝ ∗
-            array۰slice arr i_ (DfracOwn 1) (#*@{Z} xs1')
+            array۰slice arr i_ (DfracOwn 1) (#*ᶻ xs1')
           )
         )
         True
@@ -57,7 +57,7 @@ Section pool۰G.
             ∃ xs2',
             ⌜xs2 ≡ₚ xs2'⌝ ∗
             ⌜StronglySorted (≤)%Z xs2'⌝ ∗
-            array۰slice arr ˖p (DfracOwn 1) (#*@{Z} xs2')
+            array۰slice arr ˖p (DfracOwn 1) (#*ᶻ xs2')
           )
         )
         True
@@ -96,7 +96,7 @@ Section pool۰G.
   #[local] Lemma pool_quicksort٠main₁ｰspec pool ctx scope arr xs :
     {{{
       pool۰context pool ctx scope ∗
-      array۰model arr (DfracOwn 1) (#*@{Z} xs)
+      array۰model arr (DfracOwn 1) (#*ᶻ xs)
     }}}
       pool_quicksort٠main₁ ctx arr
     {{{
@@ -106,7 +106,7 @@ Section pool۰G.
         ∃ xs',
         ⌜xs ≡ₚ xs'⌝ ∗
         ⌜StronglySorted (≤)%Z xs'⌝ ∗
-        array۰model arr (DfracOwn 1) (#*@{Z} xs')
+        array۰model arr (DfracOwn 1) (#*ᶻ xs')
       )
     }}}.
   Proof.
@@ -127,7 +127,7 @@ Section pool۰G.
 
   Lemma pool_quicksort٠mainｰspec (num_dom : nat) arr xs :
     {{{
-      array۰model arr (DfracOwn 1) (#*@{Z} xs)
+      array۰model arr (DfracOwn 1) (#*ᶻ xs)
     }}}
       pool_quicksort٠main #num_dom arr
     {{{
@@ -135,7 +135,7 @@ Section pool۰G.
     , RET ();
       ⌜xs ≡ₚ xs'⌝ ∗
       ⌜StronglySorted (≤)%Z xs'⌝ ∗
-      array۰model arr (DfracOwn 1) (#*@{Z} xs')
+      array۰model arr (DfracOwn 1) (#*ᶻ xs')
     }}}.
   Proof.
     iIntros "%Φ Harr HΦ".
@@ -149,7 +149,7 @@ Section pool۰G.
         ∃ xs',
         ⌜xs ≡ₚ xs'⌝ ∗
         ⌜StronglySorted (≤)%Z xs'⌝ ∗
-        array۰model arr (DfracOwn 1) (#*@{Z} xs')
+        array۰model arr (DfracOwn 1) (#*ᶻ xs')
       )
     )%I with "[Harr]") as (pool ?) "(#Hpool_finished & -> & Hpool_consumer)". 1: lia.
     { iIntros "%pool %ctx %scope _ Hctx".

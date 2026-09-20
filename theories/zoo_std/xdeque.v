@@ -18,8 +18,8 @@ Section zoo۰G.
   Definition xdeque۰model t nodes : iProp Σ :=
     ∃ l,
     ⌜t = #l⌝ ∗
-    l.[prev] ↦ from_option #@{location} t (last nodes) ∗
-    l.[next] ↦ from_option #@{location} t (head nodes) ∗
+    l.[prev] ↦ from_option #ˡ t (last nodes) ∗
+    l.[next] ↦ from_option #ˡ t (head nodes) ∗
     xdlchain t nodes t.
 
   #[global] Instance xdeque۰modelｰtimeless t nodes :
@@ -160,7 +160,7 @@ Section zoo۰G.
     }}}
       xdeque٠pop_front t
     {{{
-      RET #*@{location} $ head nodes : option val;
+      RET #*ˡ $ head nodes : option val;
       xdeque۰model t (tail nodes)
     }}}.
   Proof.
@@ -189,7 +189,7 @@ Section zoo۰G.
       xdeque٠pop_back t
     {{{
       o
-    , RET #*@{location} o : option val;
+    , RET #*ˡ o : option val;
       match o with
       | None =>
           ⌜nodes = []⌝ ∗
@@ -254,8 +254,8 @@ Section zoo۰G.
     wp۰bind (_ <-{next} _)%E.
     wp۰apply (wpｰwand (λ res,
       ⌜res = ()%V⌝ ∗
-      l.[next] ↦ from_option #@{location} #l (head nodes') ∗
-      xdlchain #l nodes1 (from_option #@{location} #l $ head nodes2)
+      l.[next] ↦ from_option #ˡ #l (head nodes') ∗
+      xdlchain #l nodes1 (from_option #ˡ #l $ head nodes2)
     )%I with "[Hnext Hnodes1]") as (res) "(-> & Hnext & Hnodes1)".
     { destruct nodes1 as [| node1 nodes1' _] eqn:Hnodes1 using rev_ind => /=; first iSteps.
       rewrite last_snoc /=.
@@ -268,8 +268,8 @@ Section zoo۰G.
 
     wp۰apply+ (wpｰwand (λ res,
       ⌜res = ()%V⌝ ∗
-      l.[prev] ↦ from_option #@{location} #l (last nodes') ∗
-      xdlchain (from_option #@{location} #l $ last nodes1) nodes2 #l
+      l.[prev] ↦ from_option #ˡ #l (last nodes') ∗
+      xdlchain (from_option #ˡ #l $ last nodes1) nodes2 #l
     )%I with "[Hprev Hnodes2]") as (res) "(-> & Hprev & Hnodes2)".
     { destruct nodes2 as [| node2 nodes2'] eqn:Hnodes2 => /=.
       - rewrite right_id in nodes' |- *. iSteps.

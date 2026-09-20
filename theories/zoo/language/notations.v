@@ -193,18 +193,92 @@ Notation "9" :=
 ( in custom zoo_proj
 ).
 
-Notation "# l" := (
-  ValLit l%Z%V%stdpp
+Notation "# x" := (
+  ValLit x%Z%V%stdpp
 )(at level 8,
-  format "# l"
+  format "# x"
 ).
+
 Notation "'#@{' X }" := (
   λ x : X, ValLit x
 )(only parsing
 ).
+Notation "'#ᵇ'" := (
+  λ b, ValLit $ LitBool b
+).
+Notation "'#ᶜ'" := (
+  λ chr, ValLit $ LitChar chr
+).
+Notation "'#ᶻ'" := (
+  λ n, ValLit $ LitInt n
+).
+Notation "'#ⁿ'" := (
+  λ n, ValLit $ LitInt $ Z.of_nat n
+).
+Notation "'#ˢ'" := (
+  λ str, ValLit $ LitString str
+).
+Notation "'#ˡ'" := (
+  λ l, ValLit $ LitLoc l
+).
+
 Notation "'#*@{' X }" := (
-  @fmap _ _ X val (λ x : X, ValLit x)
+  @fmap _ _ X val #@{X}
 )(only parsing
+).
+Notation "'#*ᵇ'" := (
+  @fmap _ _ bool val #ᵇ
+).
+Notation "'#*ᵇ' bs" := (
+  @fmap _ _ bool val #ᵇ bs
+)(at level 8,
+  only printing,
+  format "#*ᵇ  bs"
+).
+Notation "'#*ᶜ'" := (
+  @fmap _ _ ascii val #ᶜ
+).
+Notation "'#*ᶜ' chrs" := (
+  @fmap _ _ ascii val #ᶜ chrs
+)(at level 8,
+  only printing,
+  format "#*ᶜ  chrs"
+).
+Notation "'#*ᶻ'" := (
+  @fmap _ _ Z val #ᶻ
+).
+Notation "'#*ᶻ' ns" := (
+  @fmap _ _ Z val #ᶻ ns
+)(at level 8,
+  only printing,
+  format "#*ᶻ  ns"
+).
+Notation "'#*ⁿ'" := (
+  @fmap _ _ nat val #ⁿ
+).
+Notation "'#*ⁿ' ns" := (
+  @fmap _ _ nat val #ⁿ ns
+)(at level 8,
+  only printing,
+  format "#*ⁿ  ns"
+).
+Notation "'#*ˢ'" := (
+  @fmap _ _ string val #ˢ
+).
+Notation "'#*ˢ' strs" := (
+  @fmap _ _ string val #ˢ strs
+)(at level 8,
+  only printing,
+  format "#*ˢ  strs"
+).
+Notation "'#*ˡ'" := (
+  @fmap _ _ location val #ˡ
+).
+Notation "'#*ˡ' ls" := (
+  @fmap _ _ location val #ˡ ls
+)(at level 8,
+  only printing,
+  format "#*ˡ  ls"
 ).
 
 Notation "f x -> e" := (

@@ -185,7 +185,7 @@ Section random۰round.
       l.[round٠array] ↦ arr ∗
       l.[round٠index] ↦ #(length nexts) ∗
       random۰state۰model rand ∗
-      array۰model arr (DfracOwn 1) (#*@{nat} $ nexts ++ reverse prevs).
+      array۰model arr (DfracOwn 1) (#*ⁿ $ nexts ++ reverse prevs).
     #[local] Instance : CustomIpat "model" :=
       " ( %l
         & %rand
@@ -218,7 +218,7 @@ Section random۰round.
       wp۰rec.
 
       pose (Ψ := λ arr i vs, (
-        ⌜vs = #*@{nat} $ seq 0 i⌝
+        ⌜vs = #*ⁿ $ seq 0 i⌝
       )%I : iProp Σ).
       wp۰apply+ (array٠unsafe_initiｰspec Ψ) as (arr vs) "(_ & Harr & ->)"; first done.
       { iStep 2. iIntros "%arr %i %vs _ _ ->".
