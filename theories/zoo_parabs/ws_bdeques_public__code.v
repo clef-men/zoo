@@ -52,7 +52,7 @@ Definition ws_bdeques_public٠steal_as₁ : val :=
       𝗺𝗮𝘁𝗰𝗵 ws_bdeques_public٠steal_to "t" "i" "j" 𝘄𝗶𝘁𝗵
       | None ->
           "steal_as" "t" "sz" "i" "round" ("n" - 1)
-      | ⎽ 𝗮𝘀 "res" ->
+      |⎽ 𝗮𝘀 "res" ->
           "res"
       𝗲𝗻𝗱
     ).

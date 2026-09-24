@@ -101,7 +101,7 @@ Definition ws_deques_private٠block : val :=
           "t".{ws_deques_private٠responses}
           "j"
           §ws_deques_private٠ResponseNone
-    | ⎽ ->
+    |⎽ ->
         ()
     𝗲𝗻𝗱.
 
@@ -127,7 +127,7 @@ Definition ws_deques_private٠respond : val :=
           𝘄𝗶𝘁𝗵
           | Some "v" ->
               ‘ws_deques_private٠ResponseSome( "v" )
-          | ⎽ ->
+          |⎽ ->
               §ws_deques_private٠ResponseNone
           𝗲𝗻𝗱
         𝗶𝗻
@@ -136,7 +136,7 @@ Definition ws_deques_private٠respond : val :=
           "t".{ws_deques_private٠requests}
           "i"
           §ws_deques_private٠RequestNone
-    | ⎽ ->
+    |⎽ ->
         ()
     𝗲𝗻𝗱.
 
@@ -203,7 +203,7 @@ Definition ws_deques_private٠steal_as₁ : val :=
       𝗺𝗮𝘁𝗰𝗵 ws_deques_private٠steal_to "t" "i" "j" 𝘄𝗶𝘁𝗵
       | None ->
           "steal_as" "t" "sz" "i" "round" ("n" - 1)
-      | ⎽ 𝗮𝘀 "res" ->
+      |⎽ 𝗮𝘀 "res" ->
           "res"
       𝗲𝗻𝗱
     ).

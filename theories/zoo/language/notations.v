@@ -892,7 +892,7 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e '𝘄𝗶𝘁𝗵' br_1 | .. | br_n '𝗲𝗻
   br_n custom zoo_branch at level 200,
   only parsing
 ) : expr_scope.
-Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n | ⎽ -> e1 '𝗲𝗻𝗱'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n |⎽ -> e1 '𝗲𝗻𝗱'" := (
   Match
     e0%E
     BAnon
@@ -901,9 +901,9 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n | ⎽ 
 )(e0, e1 at level 200,
   br_1 custom zoo_branch at level 200,
   br_n custom zoo_branch at level 200,
-  format "'[v' '[hv' 𝗺𝗮𝘁𝗰𝗵  '/  ' '[' e0 ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |  ⎽  ->  '/    ' '[' e1 ']'  '/' '𝗲𝗻𝗱' ']'"
+  format "'[v' '[hv' 𝗺𝗮𝘁𝗰𝗵  '/  ' '[' e0 ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |⎽  ->  '/    ' '[' e1 ']'  '/' '𝗲𝗻𝗱' ']'"
 ) : expr_scope.
-Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n | ⎽ -> e1 '𝗲𝗻𝗱'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n |⎽ -> e1 '𝗲𝗻𝗱'" := (
   Match
     e0%E
     BAnon
@@ -914,7 +914,7 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n | ⎽ ->
   br_n custom zoo_branch at level 200,
   only parsing
 ) : expr_scope.
-Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n | ⎽ '𝗮𝘀' x -> e1 '𝗲𝗻𝗱'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n |⎽ '𝗮𝘀' x -> e1 '𝗲𝗻𝗱'" := (
   Match
     e0%E
     (BNamed x%string)
@@ -924,9 +924,9 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n | ⎽ 
   br_1 custom zoo_branch at level 200,
   br_n custom zoo_branch at level 200,
   x at level 1,
-  format "'[v' '[hv' 𝗺𝗮𝘁𝗰𝗵  '/  ' '[' e0 ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |  ⎽  '𝗮𝘀'  x  ->  '/    ' '[' e1 ']'  '/' '𝗲𝗻𝗱' ']'"
+  format "'[v' '[hv' 𝗺𝗮𝘁𝗰𝗵  '/  ' '[' e0 ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |⎽  '𝗮𝘀'  x  ->  '/    ' '[' e1 ']'  '/' '𝗲𝗻𝗱' ']'"
 ) : expr_scope.
-Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n | ⎽ 'as' x -> e1 '𝗲𝗻𝗱'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n |⎽ 'as' x -> e1 '𝗲𝗻𝗱'" := (
   Match
     e0%E
     (BNamed x%string)
@@ -938,7 +938,7 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n | ⎽ 'a
   x at level 1,
   only parsing
 ) : expr_scope.
-Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n | ⎽ '𝗮𝘀:' x -> e1 '𝗲𝗻𝗱'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n |⎽ '𝗮𝘀:' x -> e1 '𝗲𝗻𝗱'" := (
   Match
     e0%E
     x%binder
@@ -948,9 +948,9 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n | ⎽ 
   br_1 custom zoo_branch at level 200,
   br_n custom zoo_branch at level 200,
   x at level 1,
-  format "'[v' '[hv' 𝗺𝗮𝘁𝗰𝗵  '/  ' '[' e0 ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |  ⎽  '𝗮𝘀:'  x  ->  '/    ' '[' e1 ']'  '/' '𝗲𝗻𝗱' ']'"
+  format "'[v' '[hv' 𝗺𝗮𝘁𝗰𝗵  '/  ' '[' e0 ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |⎽  '𝗮𝘀:'  x  ->  '/    ' '[' e1 ']'  '/' '𝗲𝗻𝗱' ']'"
 ) : expr_scope.
-Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n | ⎽ '𝗮𝘀:' x -> e1 '𝗲𝗻𝗱'" := (
+Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n |⎽ '𝗮𝘀:' x -> e1 '𝗲𝗻𝗱'" := (
   Match
     e0%E
     x%binder

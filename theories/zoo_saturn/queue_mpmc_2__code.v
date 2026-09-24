@@ -128,7 +128,7 @@ Definition queue_mpmc_2٠help : val :=
         𝘁𝗵𝗲𝗻 (
           queue_mpmc_2٠finish "back"
         )
-    | ⎽ ->
+    |⎽ ->
         queue_mpmc_2٠finish "back"
     𝗲𝗻𝗱.
 

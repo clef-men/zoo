@@ -32,7 +32,7 @@ Definition lazy٠is_set : val :=
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
     | lazy٠Set ⎽ ->
         true
-    | ⎽ ->
+    |⎽ ->
         false
     𝗲𝗻𝗱.
 

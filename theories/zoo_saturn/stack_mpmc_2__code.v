@@ -17,7 +17,7 @@ Definition stack_mpmc_2٠push₁ : val :=
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
     | clist٠Closed ->
         true
-    | ⎽ 𝗮𝘀 "old" ->
+    |⎽ 𝗮𝘀 "old" ->
         𝗹𝗲𝘁 "new_" = ‘clist٠Cons[ "v", "old" ] 𝗶𝗻
         𝗶𝗳 𝗰𝗮𝘀 "t".[contents] "old" "new_" 𝘁𝗵𝗲𝗻 (
           false
