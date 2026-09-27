@@ -87,7 +87,7 @@ Notation "'{{{' P } } } e tid E {{{ x1 .. xn , 'RET' v ; Q } } }" :=
   x1 closed binder,
   xn closed binder,
   Q at level 200,
-  format "'[hv' {{{  '/  ' '[' P ']'  '/' } } }  '/  ' '[' e ']'  tid E '/' {{{  x1  ..  xn ,  '/  ' RET  v ;  '/  ' '[' Q ']'  '/' } } } ']'"
+  format "'[v' {{{  '/  ' '[' P ']'  '/' } } }  '/  ' '[' e ']'  tid E '/' {{{  '/  ' x1  ..  xn '/' ,  RET  '[' v ']' ;  '/  ' '[' Q ']'  '/' } } } ']'"
 ) : bi_scope.
 Notation "'{{{' P } } } e tid E {{{ 'RET' v ; Q } } }" :=
   ( □ ∀ Φ,
@@ -101,7 +101,7 @@ Notation "'{{{' P } } } e tid E {{{ 'RET' v ; Q } } }" :=
   tid custom wp۰thread_id at level 200,
   E custom wp۰mask at level 200,
   Q at level 200,
-  format "'[hv' {{{  '/  ' '[' P ']'  '/' } } }  '/  ' '[' e ']'  tid E '/' {{{  '/  ' RET  v ;  '/  ' '[' Q ']'  '/' } } } ']'"
+  format "'[v' {{{  '/  ' '[' P ']'  '/' } } }  '/  ' '[' e ']'  tid E '/' {{{  '/  ' RET  '[' v ']' ;  '/  ' '[' Q ']'  '/' } } } ']'"
 ) : bi_scope.
 Set Warnings "+closed-notation-not-level-0".
 
