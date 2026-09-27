@@ -38,6 +38,9 @@ Fixpoint occurs x e :=
       occurs x e0 ||
       occurs x e1 ||
       occurs x e2
+  | While e0 e1 =>
+      occurs x e0 ||
+      occurs x e1
   | For e1 e2 e3 =>
       occurs x e1 ||
       occurs x e2 ||
@@ -161,6 +164,10 @@ Fixpoint subst (x : string) v e :=
         (subst x v e0)
         (subst x v e1)
         (subst x v e2)
+  | While e0 e1 =>
+      While
+        (subst x v e0)
+        (subst x v e1)
   | For e1 e2 e3 =>
       For
         (subst x v e1)

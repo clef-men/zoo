@@ -541,6 +541,12 @@ Notation "'𝗶𝗳' e0 '𝘁𝗵𝗲𝗻' e1" := (
   only parsing
 ) : expr_scope.
 
+Notation "'𝘄𝗵𝗶𝗹𝗲' e0 '𝗱𝗼' e1 '𝗱𝗼𝗻𝗲'" := (
+  While e0%E e1%E
+)(e0, e1 at level 200,
+  format "'[v' '[hv' '𝘄𝗵𝗶𝗹𝗲'  '/  ' '[' e0 ']'  '/' '𝗱𝗼'  ']' '/  ' '[' e1 ']'  '/' '𝗱𝗼𝗻𝗲' ']'"
+) : expr_scope.
+
 Notation "'𝗳𝗼𝗿' x = e1 '𝘁𝗼' e2 '𝗱𝗼' e3 '𝗱𝗼𝗻𝗲'" := (
   For e1%E e2%E (Fun x%binder e3%E)
 )(x at level 1,

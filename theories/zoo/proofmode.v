@@ -753,6 +753,22 @@ Tactic Notation "wp۰rec" "steps:" constr(Hsteps_lb) "credit:" constr(Hcredit) :
     wp۰pure (App _ _) steps:Hsteps_lb credit:Hcredit
   ).
 
+Tactic Notation "wp۰while" :=
+  let H := fresh in
+  assert (H := pureｰwhile);
+  wp۰pure (While _ _);
+  clear H.
+Tactic Notation "wp۰while" "credits:" constr(Hcredit) :=
+  let H := fresh in
+  assert (H := pureｰwhile);
+  wp۰pure (While _ _) credits:Hcredit;
+  clear H.
+Tactic Notation "wp۰while" "credit:" constr(Hcredit) :=
+  let H := fresh in
+  assert (H := pureｰwhile);
+  wp۰pure (While _ _) credit:Hcredit;
+  clear H.
+
 Tactic Notation "wp۰for" :=
   let H := fresh in
   assert (H := pureｰfor);

@@ -389,6 +389,16 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
+  Lemma pureｰwhile e0 e1 :
+    PureExec
+      True
+      1
+      (While e0 e1)
+      (If e0 (Seq e1 (While e0 e1)) Unit).
+  Proof.
+    solve_pure_exec.
+  Qed.
+
   Lemma pureｰfor n1 n2 e :
     PureExec
       True

@@ -73,6 +73,10 @@ Fixpoint erase۰expr e :=
         (erase۰expr e0)
         (erase۰expr e1)
         (erase۰expr e2)
+  | While e0 e1 =>
+      While
+        (erase۰expr e0)
+        (erase۰expr e1)
   | For e1 e2 e3 =>
       For
         (erase۰expr e1)
@@ -490,7 +494,7 @@ Qed.
   ).
 Proof.
   apply exprｰvalｰmutind.
-  1-11,14-16,17-24,26:
+  1-12,15-17,18-25,27:
     intros;
     select expr (fun e2 => destruct e2);
     naive.

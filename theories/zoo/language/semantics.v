@@ -248,6 +248,15 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (if b then e1 else e2)
         σ
         []
+  | base_stepｰwhile e0 e1 σ :
+      base_step
+        tid
+        (While e0 e1)
+        σ
+        []
+        (If e0 (Seq e1 (While e0 e1)) Unit)
+        σ
+        []
   | base_stepｰfor n1 n2 e σ :
       base_step
         tid

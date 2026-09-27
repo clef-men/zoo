@@ -95,6 +95,7 @@ Inductive expr :=
   | Binop (op : binop) (e1 e2 : expr)
   | Equal (e1 e2 : expr)
   | If (e0 e1 e2 : expr)
+  | While (e0 e1 : expr)
   | For (e1 e2 e3 : expr)
   | Alloc (e1 e2 : expr)
   | Block mut tag (es : list expr)
@@ -172,6 +173,10 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (If e0 e1 e2).
+  Variable HWhile :
+    ∀ e0, P e0 →
+    ∀ e1, P e1 →
+    P (While e0 e1).
   Variable HFor :
     ∀ e1, P e1 →
     ∀ e2, P e2 →
@@ -279,6 +284,10 @@ Section expr_ind.
           e0 (expr_ind e0)
           e1 (expr_ind e1)
           e2 (expr_ind e2)
+    | While e0 e1 =>
+        HWhile
+          e0 (expr_ind e0)
+          e1 (expr_ind e1)
     | For e1 e2 e3 =>
         HFor
           e1 (expr_ind e1)
@@ -423,6 +432,10 @@ Section exprｰvalｰmutind.
     ∀ e1, Pexpr e1 →
     ∀ e2, Pexpr e2 →
     Pexpr (If e0 e1 e2).
+  Variable HWhile :
+    ∀ e0, Pexpr e0 →
+    ∀ e1, Pexpr e1 →
+    Pexpr (While e0 e1).
   Variable HFor :
     ∀ e1, Pexpr e1 →
     ∀ e2, Pexpr e2 →
@@ -542,6 +555,10 @@ Section exprｰvalｰmutind.
           e0 (exprｰvalｰind e0)
           e1 (exprｰvalｰind e1)
           e2 (exprｰvalｰind e2)
+    | While e0 e1 =>
+        HWhile
+          e0 (exprｰvalｰind e0)
+          e1 (exprｰvalｰind e1)
     | For e1 e2 e3 =>
         HFor
           e1 (exprｰvalｰind e1)
@@ -941,6 +958,10 @@ Proof.
            (decide (e10 = e20))
            (decide (e11 = e21))
            (decide (e12 = e22))
+      | While e10 e11, While e20 e21 =>
+          cast_if_and
+            (decide (e10 = e20))
+            (decide (e11 = e21))
       | For e11 e12 e13, For e21 e22 e23 =>
           cast_if_and3
             (decide (e11 = e21))
@@ -1148,42 +1169,44 @@ Proof.
     6.
   #[local] Abbreviation code_If :=
     7.
-  #[local] Abbreviation code_For :=
+  #[local] Abbreviation code_While :=
     8.
-  #[local] Abbreviation code_Alloc :=
+  #[local] Abbreviation code_For :=
     9.
-  #[local] Abbreviation code_Block :=
+  #[local] Abbreviation code_Alloc :=
     10.
-  #[local] Abbreviation code_Match :=
+  #[local] Abbreviation code_Block :=
     11.
-  #[local] Abbreviation code_branch :=
+  #[local] Abbreviation code_Match :=
     12.
-  #[local] Abbreviation code_GetTag :=
+  #[local] Abbreviation code_branch :=
     13.
-  #[local] Abbreviation code_GetSize :=
+  #[local] Abbreviation code_GetTag :=
     14.
-  #[local] Abbreviation code_Load :=
+  #[local] Abbreviation code_GetSize :=
     15.
-  #[local] Abbreviation code_Store :=
+  #[local] Abbreviation code_Load :=
     16.
-  #[local] Abbreviation code_Xchg :=
+  #[local] Abbreviation code_Store :=
     17.
-  #[local] Abbreviation code_CAS :=
+  #[local] Abbreviation code_Xchg :=
     18.
-  #[local] Abbreviation code_FAA :=
+  #[local] Abbreviation code_CAS :=
     19.
-  #[local] Abbreviation code_Fork :=
+  #[local] Abbreviation code_FAA :=
     20.
-  #[local] Abbreviation code_LocalGet :=
+  #[local] Abbreviation code_Fork :=
     21.
-  #[local] Abbreviation code_LocalSet :=
+  #[local] Abbreviation code_LocalGet :=
     22.
-  #[local] Abbreviation code_Proph :=
+  #[local] Abbreviation code_LocalSet :=
     23.
-  #[local] Abbreviation code_Resolve :=
+  #[local] Abbreviation code_Proph :=
     24.
-  #[local] Abbreviation code_ResolveErasure :=
+  #[local] Abbreviation code_Resolve :=
     25.
+  #[local] Abbreviation code_ResolveErasure :=
+    26.
   #[local] Abbreviation code_ValRecs :=
     0.
   #[local] Abbreviation code_recursive :=
@@ -1220,6 +1243,8 @@ Proof.
           GenNode code_Equal [go e1; go e2]
       | If e0 e1 e2 =>
           GenNode code_If [go e0; go e1; go e2]
+      | While e0 e1 =>
+          GenNode code_While [go e0; go e1]
       | For e1 e2 e3 =>
           GenNode code_For [go e1; go e2; go e3]
       | Alloc e1 e2 =>
@@ -1309,6 +1334,8 @@ Proof.
           Equal (go e1) (go e2)
       | GenNode code_If [e0; e1; e2] =>
           If (go e0) (go e1) (go e2)
+      | GenNode code_While [e0; e1] =>
+          While (go e0) (go e1)
       | GenNode code_For [e1; e2; e3] =>
           For (go e1) (go e2) (go e3)
       | GenNode code_Alloc [e1; e2] =>

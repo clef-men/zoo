@@ -57,6 +57,9 @@ Fixpoint expr۰wf e :=
       expr۰wf e0 ∧
       expr۰wf e1 ∧
       expr۰wf e2
+  | While e0 e1 =>
+      expr۰wf e0 ∧
+      expr۰wf e1
   | For e1 e2 e3 =>
       expr۰wf e1 ∧
       expr۰wf e2 ∧
@@ -516,6 +519,7 @@ Proof.
     + simp_Forall+ in *. naive.
   - apply subst'ｰwf; naive.
   - case_match; naive.
+  - naive.
   - case_match; naive.
   - apply state۰allocｰwf => //.
     apply Forall_replicate => //.
