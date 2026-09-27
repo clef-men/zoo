@@ -527,7 +527,7 @@ Section domain۰G.
     wp۰apply+ (wpｰfork with "[Hfn Hivar_producer]"); last iSteps. iIntros "!> %tid %dls Hlocal".
     wp۰bind (dynarray_1٠create ())%E. iApply wpｰthread_id_mono.
     wp۰apply (dynarray_1٠createｰspec' with "[//]") as (l) "(Hl & Hl_meta)".
-    wp۰apply+ (wpｰset_local with "Hlocal") as "Hlocal".
+    wp۰apply+ (wpｰlocal_set with "Hlocal") as "Hlocal".
 
     iMod (local_pointstoｰpersist with "Hlocal") as "#Hlocal".
     iMod dlsｰalloc as "(%γ & Hdls_auth)".
@@ -619,7 +619,7 @@ Section domain۰G.
     iDestruct (dls۰atｰvalid with "Hdls_auth Hdls_at") as %Hws_lookup.
 
     wp۰rec.
-    wp۰apply (wpｰget_local with "Hlocal") as "_".
+    wp۰apply (wpｰlocal_get with "Hlocal") as "_".
     iApply wpｰthread_id_mono.
     wp۰apply+ (domain٠dls٠key۰idｰspec with "Hid") as "_".
     wp۰apply+ (dynarray_1٠growｰspec with "Hl") as "Hl"; first lia.
@@ -668,7 +668,7 @@ Section domain۰G.
     iDestruct (dls۰atｰvalid with "Hdls_auth Hdls_at") as %Hws_lookup.
 
     wp۰rec.
-    wp۰apply (wpｰget_local with "Hlocal") as "_".
+    wp۰apply (wpｰlocal_get with "Hlocal") as "_".
     iApply wpｰthread_id_mono.
     wp۰apply+ (domain٠dls٠key۰idｰspec with "Hid") as "_".
     wp۰apply+ (dynarray_1٠growｰspec with "Hl") as "Hl"; first lia.
@@ -728,7 +728,7 @@ Section domain۰G.
     iDestruct (dls۰atｰvalid with "Hdls_auth Hdls_at") as %Hws_lookup.
 
     wp۰rec.
-    wp۰apply+ (wpｰget_local with "Hlocal") as "_".
+    wp۰apply+ (wpｰlocal_get with "Hlocal") as "_".
     iApply wpｰthread_id_mono.
     wp۰apply+ (domain٠dls٠key۰idｰspec with "Hid") as "_".
     wp۰apply+ (dynarray_1٠growｰspec with "Hl") as "Hl"; first lia.
@@ -767,7 +767,7 @@ Section domain۰G.
     iDestruct (dls۰atｰvalid with "Hdls_auth Hdls_at") as %Hws_lookup.
 
     wp۰rec.
-    wp۰apply+ (wpｰget_local with "Hlocal") as "_".
+    wp۰apply+ (wpｰlocal_get with "Hlocal") as "_".
     iApply wpｰthread_id_mono.
     wp۰apply+ (domain٠dls٠key۰idｰspec with "Hid") as "_".
     wp۰apply+ (dynarray_1٠growｰspec with "Hl") as "Hl"; first lia.

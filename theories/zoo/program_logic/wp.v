@@ -914,7 +914,7 @@ Section zoo۰G.
     iApply (wpｰbwp with "(H Htid)").
   Qed.
 
-  Lemma wpｰget_local tid dq v E :
+  Lemma wpｰlocal_get tid dq v E :
     {{{
       ▷ tid ↦ₗ{dq} v
     }}}
@@ -934,7 +934,7 @@ Section zoo۰G.
     iFrameSteps.
   Qed.
 
-  Lemma wpｰset_local tid w v E :
+  Lemma wpｰlocal_set tid w v E :
     {{{
       ▷ tid ↦ₗ w
     }}}

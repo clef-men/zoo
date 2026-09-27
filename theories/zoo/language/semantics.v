@@ -463,7 +463,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         Unit
         (state۰add_local v σ)
         [e]
-  | base_stepｰget_local v σ :
+  | base_stepｰlocal_get v σ :
       σ.(state۰locals) !! tid = Some v →
       base_step
         tid
@@ -473,7 +473,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val v)
         σ
         []
-  | base_stepｰset_local v σ :
+  | base_stepｰlocal_set v σ :
       is_Some (σ.(state۰locals) !! tid) →
       base_step
         tid
