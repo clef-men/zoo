@@ -109,8 +109,8 @@ End zoo۰G.
 Definition bwp :=
   bwp۰aux.(unseal).
 #[global] Arguments bwp {_ _} e%_E tid E Φ%_I : rename.
-#[local] Lemma bwpｰunseal `{zoo۰G : !ZooG Σ} :
-  bwp = bwp۰def.
+#[local] Lemma bwpｰunseal :
+  @bwp = @bwp۰def.
 Proof.
   rewrite -bwp۰aux.(seal_eq) //.
 Qed.

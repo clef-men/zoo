@@ -24,8 +24,8 @@ End zoo۰G.
 Definition wp :=
   wp۰aux.(unseal).
 #[global] Arguments wp {_ _} _ _%_E _ _%_I : assert.
-#[local] Lemma wpｰunseal `{zoo۰G : !ZooG Σ} :
-  wp = wp۰def.
+#[local] Lemma wpｰunseal :
+  @wp = @wp۰def.
 Proof.
   rewrite -wp۰aux.(seal_eq) //.
 Qed.
