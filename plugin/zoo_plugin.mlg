@@ -40,7 +40,7 @@ VERNAC ARGUMENT EXTEND global_spec
     { Zoo_global.{ base; parameters; fields } }
 END
 
-VERNAC COMMAND EXTEND Zoo
+VERNAC COMMAND EXTEND global
   CLASSIFIED AS SIDEFF
 | [ "Zoo" "global" global_spec(spec) ] ->
     { Zoo_global.main spec }

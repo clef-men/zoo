@@ -155,16 +155,18 @@ let fields ~theory spec =
 let class_ ~theory spec =
   let name = theory |> class_name |> Names_.lident_of_string in
   let open Vernacexpr in
-  VernacInductive
-  ( Class false
-  , [ ( ( (NoCoercion, (name, None))
-        , (Iris.sigma_binder :: base spec :: spec.parameters, None)
-        , None
-        , RecordDecl (None, fields ~theory spec, None)
+  ( None
+  , VernacInductive
+    ( Class false
+    , [ ( ( (NoCoercion, (name, None))
+          , (Iris.sigma_binder :: base spec :: spec.parameters, None)
+          , None
+          , RecordDecl (None, fields ~theory spec, None)
+          )
+        , []
         )
-      , []
-      )
-    ]
+      ]
+    )
   )
 
 let gFunctors spec =
@@ -180,14 +182,16 @@ let gFunctors spec =
   ) spec.fields Iris.gFunctors_nil_ref
 let gFunctors ~theory spec =
   let open Vernacexpr in
-  VernacDefinition
-  ( (NoDischarge, Definition)
-  , (theory |> gFunctors_name |> Names_.lname_of_string, None)
-  , DefineBody
-    ( spec.parameters
-    , None
-    , gFunctors spec
-    , None
+  ( None
+  , VernacDefinition
+    ( (NoDischarge, Definition)
+    , (theory |> gFunctors_name |> Names_.lname_of_string, None)
+    , DefineBody
+      ( spec.parameters
+      , None
+      , gFunctors spec
+      , None
+      )
     )
   )
 
@@ -272,21 +276,16 @@ let subG ~theory spec =
   in
   ()
 
-let interp ~state vernac =
-  let vernac = Vernacexpr.VernacSynPure vernac in
-  let vernac = Vernacexpr.{ control= []; attrs= []; expr= vernac } in
-  let vernac = vernac |> CAst.make in
-  Vernacinterp_.interp ~state vernac
 let main ~state spec =
   let theory = Utils.current_unit () in
-  let state = interp ~state @@ class_ ~theory spec in
-  let state = interp ~state @@ gFunctors ~theory spec in
-  Vernacstate.unfreeze_full_state state ;
+  let state =
+    Vernacinterp_.interp ~state
+      [ class_ ~theory spec
+      ; gFunctors ~theory spec
+      ]
+  in
+  Vernacstate_.unfreeze_full_state state ;
   subG ~theory spec
 let main spec =
-  let state = Vernacstate.freeze_full_state () in
-  try
+  Vernacstate_.freeze_full_state_and_try @@ fun state ->
     main ~state spec
-  with exn ->
-    Vernacstate.unfreeze_full_state state ;
-    raise exn

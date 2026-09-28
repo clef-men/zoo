@@ -3,4 +3,6 @@ include module type of struct
 end
 
 val interp :
-  state:Vernacstate.t -> Vernacexpr.vernac_control -> Vernacstate.t
+  state:Vernacstate.t ->
+  (Libobject.locality option * Vernacexpr.synpure_vernac_expr) list ->
+  Vernacstate.t
