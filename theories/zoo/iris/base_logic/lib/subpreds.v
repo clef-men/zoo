@@ -30,7 +30,7 @@ Section subpreds۰G.
   Implicit Type η : gname.
   Implicit Type Ψ Χ : A → iProp Σ.
 
-  Definition subpreds۰auth γ Ψ state : iProp Σ :=
+  Please Definition subpreds۰auth γ Ψ state : iProp Σ :=
     ∃ ηs,
     auth_dgset۰auth γ (DfracOwn 1) ηs ∗
       ∀ x,
@@ -46,7 +46,7 @@ Section subpreds۰G.
       )
     ".
 
-  Definition subpreds۰frag γ Χ : iProp Σ :=
+  Please Definition subpreds۰frag γ Χ : iProp Σ :=
     ∃ η,
     auth_dgset۰frag γ {[η]} ∗
     saved_pred η Χ.
@@ -191,5 +191,4 @@ Section subpreds۰G.
   Qed.
 End subpreds۰G.
 
-#[global] Opaque subpreds۰auth.
-#[global] Opaque subpreds۰frag.
+Please opacify.

@@ -27,9 +27,9 @@ Section ghost_list۰G.
   Implicit Type x : A.
   Implicit Type xs : list A.
 
-  Definition ghost_list۰auth γ xs :=
+  Please Definition ghost_list۰auth γ xs :=
     ghost_map_auth γ (DfracOwn 1) (map_seq 0 xs).
-  Definition ghost_list۰at γ :=
+  Please Definition ghost_list۰at γ :=
     ghost_map_elem γ.
 
   #[global] Instance ghost_list۰authｰtimeless γ vs :
@@ -191,5 +191,4 @@ Section ghost_list۰G.
   Qed.
 End ghost_list۰G.
 
-#[global] Opaque ghost_list۰auth.
-#[global] Opaque ghost_list۰at.
+Please opacify.

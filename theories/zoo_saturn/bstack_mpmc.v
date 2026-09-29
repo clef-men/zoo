@@ -75,7 +75,7 @@ Section bstack_mpmc۰G.
       & Hmodel₂
       )
     ".
-  Definition bstack_mpmc۰inv t ι cap : iProp Σ :=
+  Please Definition bstack_mpmc۰inv t ι cap : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -95,7 +95,7 @@ Section bstack_mpmc۰G.
       )
     ".
 
-  Definition bstack_mpmc۰model t vs : iProp Σ :=
+  Please Definition bstack_mpmc۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -486,5 +486,4 @@ End bstack_mpmc۰G.
 
 Require zoo_saturn.bstack_mpmc__opaque.
 
-#[global] Opaque bstack_mpmc۰inv.
-#[global] Opaque bstack_mpmc۰model.
+Please opacify.

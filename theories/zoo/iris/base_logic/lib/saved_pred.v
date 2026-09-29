@@ -23,7 +23,7 @@ Section saved_pred۰G.
 
   Implicit Type Ψ : A → iProp Σ.
 
-  Definition saved_pred γ Ψ :=
+  Please Definition saved_pred γ Ψ :=
     agree۰on γ (Next ∘ Ψ).
 
   #[global] Instance saved_predｰcontractive γ n :
@@ -76,4 +76,4 @@ Section saved_pred۰G.
   Qed.
 End saved_pred۰G.
 
-#[global] Opaque saved_pred.
+Please opacify.

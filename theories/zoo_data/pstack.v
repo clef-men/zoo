@@ -10,7 +10,7 @@ Implicit Type v t : val.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition pstack۰model t vs : iProp Σ :=
+  Please Definition pstack۰model t vs : iProp Σ :=
     list۰model t vs.
 
   #[global] Instance pstack۰modelｰtimeless t vs :
@@ -89,4 +89,4 @@ End zoo۰G.
 
 Require zoo_data.pstack__opaque.
 
-#[global] Opaque pstack۰model.
+Please opacify.

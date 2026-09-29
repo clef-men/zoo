@@ -29,7 +29,7 @@ Implicit Type ids : gmap val nat.
 )(in custom zoo_proj
 ).
 
-Definition domain٠spawn : val :=
+Please Definition domain٠spawn : val :=
   𝗳𝘂𝗻 "fn" ->
     𝗹𝗲𝘁 "t" = ivar_2٠create () 𝗶𝗻
     𝗳𝗼𝗿𝗸 (
@@ -39,10 +39,10 @@ Definition domain٠spawn : val :=
     ) ⍮
     "t".
 
-Definition domain٠join : val :=
+Please Definition domain٠join : val :=
   ivar_2٠get.
 
-Definition domain٠dls٠new_key : val :=
+Please Definition domain٠dls٠new_key : val :=
   𝗳𝘂𝗻 "fn" ->
     𝗹𝗲𝘁 "id" = zoo_counter٠incr () 𝗶𝗻
     ("id", "fn").
@@ -54,7 +54,7 @@ Definition domain٠dls٠key٠init : val :=
   𝗳𝘂𝗻 "key" ->
     "key".<dls٠init> ().
 
-Definition domain٠dls٠get : val :=
+Please Definition domain٠dls٠get : val :=
   𝗳𝘂𝗻 "key" ->
     𝗹𝗲𝘁 "local" = 𝗹𝗼𝗰𝗮𝗹 𝗶𝗻
     𝗹𝗲𝘁 "id" = domain٠dls٠key۰id "key" 𝗶𝗻
@@ -68,7 +68,7 @@ Definition domain٠dls٠get : val :=
         "v"
     𝗲𝗻𝗱.
 
-Definition domain٠dls٠set : val :=
+Please Definition domain٠dls٠set : val :=
   𝗳𝘂𝗻 "key" "v" ->
     𝗹𝗲𝘁 "local" = 𝗹𝗼𝗰𝗮𝗹 𝗶𝗻
     𝗹𝗲𝘁 "id" = domain٠dls٠key۰id "key" 𝗶𝗻
@@ -80,8 +80,10 @@ Zoo global :=
   ; dls : ghost_map nat (option val) : iris
   }.
 
+Please begin.
+
 Section consistent.
-  #[local] Definition consistent vs ws :=
+  #[local] Please Definition consistent vs ws :=
     map۰oflatten (map_seq 0 vs) = map۰oflatten ws.
 
   #[local] Lemma consistentｰappｰNone vs ws n :
@@ -146,7 +148,9 @@ Section consistent.
   Qed.
 End consistent.
 
-Opaque consistent.
+Please opacify.
+
+Please end.
 
 Section domain۰G.
   Context `{domain۰G : DomainG Σ}.
@@ -158,7 +162,7 @@ Section domain۰G.
   #[local] Definition dls۰at :=
     ghost_map_elem.
 
-  Definition domain۰model t Ψ : iProp Σ :=
+  Please Definition domain۰model t Ψ : iProp Σ :=
     ivar_2۰inv t Ψ (λ _, True)%I ∗
     ivar_2۰consumer t Ψ.
   #[local] Instance : CustomIpat "model" :=
@@ -178,7 +182,7 @@ Section domain۰G.
       )
     ".
 
-  Definition domain۰dls۰key key Ψ : iProp Σ :=
+  Please Definition domain۰dls۰key key Ψ : iProp Σ :=
     ∃ id fn,
     ⌜key = (#id, fn)%V⌝ ∗
     zoo_counter۰at id fn ∗
@@ -195,7 +199,7 @@ Section domain۰G.
     ∃ Ψ,
     domain۰dls۰key key Ψ.
 
-  Definition domain۰dls tid keys : iProp Σ :=
+  Please Definition domain۰dls tid keys : iProp Σ :=
     ∃ l γ vs ws ids,
     tid ↦ₗ□ #l ∗
     l ↪[nroot.@"user"] γ ∗
@@ -222,7 +226,7 @@ Section domain۰G.
       )
     ".
 
-  Definition domain۰dls۰init tid key : iProp Σ :=
+  Please Definition domain۰dls۰init tid key : iProp Σ :=
     ∃ l γ id,
     tid ↦ₗ□ #l ∗
     l ↪[nroot.@"user"] γ ∗
@@ -239,7 +243,7 @@ Section domain۰G.
       )
     ".
 
-  Definition domain۰dls۰pointsto tid key dq v : iProp Σ :=
+  Please Definition domain۰dls۰pointsto tid key dq v : iProp Σ :=
     ∃ l γ id,
     tid ↦ₗ□ #l ∗
     l ↪[nroot.@"user"] γ ∗
@@ -871,14 +875,5 @@ Section zoo۰G.
 End zoo۰G.
 
 Require zoo_std.domain__opaque.
-#[global] Opaque domain٠spawn.
-#[global] Opaque domain٠join.
-#[global] Opaque domain٠dls٠new_key.
-#[global] Opaque domain٠dls٠get.
-#[global] Opaque domain٠dls٠set.
 
-#[global] Opaque domain۰model.
-#[global] Opaque domain۰dls۰key.
-#[global] Opaque domain۰dls.
-#[global] Opaque domain۰dls۰init.
-#[global] Opaque domain۰dls۰pointsto.
+Please opacify.

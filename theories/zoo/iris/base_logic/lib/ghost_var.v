@@ -22,7 +22,7 @@ Qed.
 Section ghost_var۰G.
   Context `{ghost_var۰G : !GhostVarG Σ F}.
 
-  Definition ghost_var γ dq a :=
+  Please Definition ghost_var γ dq a :=
     own γ (to_dfrac_agree dq a).
 
   #[global] Instance ghost_varｰnonexpansive γ dq :
@@ -218,4 +218,4 @@ Section ghost_var۰G.
   Qed.
 End ghost_var۰G.
 
-#[global] Opaque ghost_var.
+Please opacify.

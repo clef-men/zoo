@@ -173,7 +173,7 @@ Section bqueue_spsc۰G.
       & #Hinv
       )
     ".
-  Definition bqueue_spsc۰inv t ι cap : iProp Σ :=
+  Please Definition bqueue_spsc۰inv t ι cap : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata۰inv)⌝ ∗
@@ -189,7 +189,7 @@ Section bqueue_spsc۰G.
       )
     ".
 
-  Definition bqueue_spsc۰model t vs : iProp Σ :=
+  Please Definition bqueue_spsc۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -205,7 +205,7 @@ Section bqueue_spsc۰G.
       )
     ".
 
-  Definition bqueue_spsc۰producer t ws : iProp Σ :=
+  Please Definition bqueue_spsc۰producer t ws : iProp Σ :=
     ∃ l γ front_cache back,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -225,7 +225,7 @@ Section bqueue_spsc۰G.
       )
     ".
 
-  Definition bqueue_spsc۰consumer t : iProp Σ :=
+  Please Definition bqueue_spsc۰consumer t : iProp Σ :=
     ∃ l γ front back_cache,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -1094,7 +1094,4 @@ End bqueue_spsc۰G.
 
 Require zoo_saturn.bqueue_spsc__opaque.
 
-#[global] Opaque bqueue_spsc۰inv.
-#[global] Opaque bqueue_spsc۰model.
-#[global] Opaque bqueue_spsc۰producer.
-#[global] Opaque bqueue_spsc۰consumer.
+Please opacify.

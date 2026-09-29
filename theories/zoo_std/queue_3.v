@@ -52,7 +52,7 @@ Section zoo۰G.
       & %
       )
     ".
-  Definition queue_3۰model t vs : iProp Σ :=
+  Please Definition queue_3۰model t vs : iProp Σ :=
     ∃ extra,
     model' t vs extra.
   #[local] Instance : CustomIpat "model" :=
@@ -347,4 +347,4 @@ End zoo۰G.
 
 Require zoo_std.queue_3__opaque.
 
-#[global] Opaque queue_3۰model.
+Please opacify.

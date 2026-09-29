@@ -24,9 +24,9 @@ Section auth_nat_max۰G.
 
   Implicit Type n m p : nat.
 
-  Definition auth_nat_max۰auth γ dq n :=
+  Please Definition auth_nat_max۰auth γ dq n :=
     auth_monoi۰auth (≤) γ dq n.
-  Definition auth_nat_max۰lb γ n :=
+  Please Definition auth_nat_max۰lb γ n :=
     auth_monoi۰lb (≤) γ n.
 
   #[global] Instance auth_nat_max۰authｰtimeless γ dq n :
@@ -175,5 +175,4 @@ Section auth_nat_max۰G.
   Qed.
 End auth_nat_max۰G.
 
-#[global] Opaque auth_nat_max۰auth.
-#[global] Opaque auth_nat_max۰lb.
+Please opacify.

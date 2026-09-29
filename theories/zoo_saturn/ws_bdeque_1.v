@@ -379,7 +379,7 @@ Module base.
         & #Hinv
         )
       ".
-    Definition ws_bdeque_1۰inv t γ ι cap : iProp Σ :=
+    Please Definition ws_bdeque_1۰inv t γ ι cap : iProp Σ :=
       ⌜ι = γ.(ws_bdeque_1۰name۰inv)⌝ ∗
       ⌜cap = γ.(ws_bdeque_1۰name۰capacity)⌝ ∗
       inv' t γ.
@@ -390,7 +390,7 @@ Module base.
         )
       ".
 
-    Definition ws_bdeque_1۰model γ vs : iProp Σ :=
+    Please Definition ws_bdeque_1۰model γ vs : iProp Σ :=
       model₁ γ vs ∗
       ⌜length vs ≤ γ.(ws_bdeque_1۰name۰capacity)⌝.
     #[local] Instance : CustomIpat "model" :=
@@ -432,7 +432,7 @@ Module base.
     #[local] Instance : CustomIpat "owner۰2" :=
       " (:owner۰1)
       ".
-    Definition ws_bdeque_1۰owner t γ ws : iProp Σ :=
+    Please Definition ws_bdeque_1۰owner t γ ws : iProp Σ :=
       ∃ back front_cache i us,
       owner۰2 t γ Stable back ws front_cache i us.
     #[local] Instance : CustomIpat "owner" :=
@@ -2138,9 +2138,7 @@ Module base.
     Qed.
   End ws_bdeque_1۰G.
 
-  #[global] Opaque ws_bdeque_1۰inv.
-  #[global] Opaque ws_bdeque_1۰model.
-  #[global] Opaque ws_bdeque_1۰owner.
+  Please opacify.
 End base.
 
 Require zoo_saturn.ws_bdeque_1__opaque.
@@ -2151,7 +2149,7 @@ Section ws_bdeque_1۰G.
   Implicit Type 𝑡 : location.
   Implicit Type t : val.
 
-  Definition ws_bdeque_1۰inv t ι cap : iProp Σ :=
+  Please Definition ws_bdeque_1۰inv t ι cap : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -2165,7 +2163,7 @@ Section ws_bdeque_1۰G.
       )
     ".
 
-  Definition ws_bdeque_1۰model t vs : iProp Σ :=
+  Please Definition ws_bdeque_1۰model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -2179,7 +2177,7 @@ Section ws_bdeque_1۰G.
       )
     ".
 
-  Definition ws_bdeque_1۰owner t ws : iProp Σ :=
+  Please Definition ws_bdeque_1۰owner t ws : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -2429,6 +2427,4 @@ Section ws_bdeque_1۰G.
   Qed.
 End ws_bdeque_1۰G.
 
-#[global] Opaque ws_bdeque_1۰inv.
-#[global] Opaque ws_bdeque_1۰model.
-#[global] Opaque ws_bdeque_1۰owner.
+Please opacify.

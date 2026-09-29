@@ -36,7 +36,7 @@ Section zoo۰G.
       & Hmodel₂
       )
     ".
-  Definition stack_mpmc_1۰inv t ι : iProp Σ :=
+  Please Definition stack_mpmc_1۰inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -50,7 +50,7 @@ Section zoo۰G.
       )
     ".
 
-  Definition stack_mpmc_1۰model t vs : iProp Σ :=
+  Please Definition stack_mpmc_1۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -304,5 +304,4 @@ End zoo۰G.
 
 Require zoo_saturn.stack_mpmc_1__opaque.
 
-#[global] Opaque stack_mpmc_1۰inv.
-#[global] Opaque stack_mpmc_1۰model.
+Please opacify.

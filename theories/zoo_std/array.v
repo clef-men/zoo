@@ -16,15 +16,15 @@ Implicit Type l : location.
 Implicit Type v t fn acc : val.
 Implicit Type vs vs_left vs_right ws : list val.
 
-Definition array٠unsafe_xchg : val :=
+Please Definition array٠unsafe_xchg : val :=
   𝗳𝘂𝗻 "t" "i" "v" ->
     Xchg ("t", "i") "v".
 
-Definition array٠unsafe_cas : val :=
+Please Definition array٠unsafe_cas : val :=
   𝗳𝘂𝗻 "t" "i" "v1" "v2" ->
     CAS ("t", "i") "v1" "v2".
 
-Definition array٠unsafe_faa : val :=
+Please Definition array٠unsafe_faa : val :=
   𝗳𝘂𝗻 "t" "i" "incr" ->
     FAA ("t", "i") "incr".
 
@@ -32,7 +32,7 @@ Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
   Section array۰inv.
-    Definition array۰inv t (sz : nat) : iProp Σ :=
+    Please Definition array۰inv t (sz : nat) : iProp Σ :=
       ∃ l,
       ⌜t = #l⌝ ∗
       l ↦ₕ Header Tag0 sz.
@@ -60,7 +60,7 @@ Section zoo۰G.
   End array۰inv.
 
   Section array۰slice.
-    Definition array۰slice t i dq vs : iProp Σ :=
+    Please Definition array۰slice t i dq vs : iProp Σ :=
       ∃ l,
       ⌜t = #l⌝ ∗
       chunk۰model (l +ₗ i) dq vs.
@@ -331,7 +331,7 @@ Section zoo۰G.
   End array۰slice.
 
   Section array۰model.
-    Definition array۰model t dq vs : iProp Σ :=
+    Please Definition array۰model t dq vs : iProp Σ :=
       ∃ l,
       ⌜t = #l⌝ ∗
       l ↦ₕ Header Tag0 (length vs) ∗
@@ -535,7 +535,7 @@ Section zoo۰G.
   End array۰model.
 
   Section array۰cslice.
-    Definition array۰cslice t (sz : nat) i dq vs : iProp Σ :=
+    Please Definition array۰cslice t (sz : nat) i dq vs : iProp Σ :=
       ∃ l,
       ⌜t = #l⌝ ∗
       l ↦ₕ Header Tag0 sz ∗
@@ -1131,11 +1131,10 @@ Section zoo۰G.
     Qed.
   End array۰cslice.
 
-  #[local] Typeclasses Opaque
-    array۰inv
-    array۰slice
-    array۰model
-    array۰cslice.
+  #[local] Typeclasses Opaque array۰inv.
+  #[local] Typeclasses Opaque array۰slice.
+  #[local] Typeclasses Opaque array۰model.
+  #[local] Typeclasses Opaque array۰cslice.
 
   Abbreviation au_load t i Φ := (
     AU <{
@@ -8022,7 +8021,7 @@ Section zoo۰G.
     iSteps. iPureIntro. lengths.
   Qed.
 
-  Definition itype۰array τ `{!iType _ τ} (sz : nat) t : iProp Σ :=
+  Please Definition itype۰array τ `{!iType _ τ} (sz : nat) t : iProp Σ :=
     ∃ l,
     ⌜t = #l⌝ ∗
     l ↦ₕ Header Tag0 sz ∗
@@ -9538,12 +9537,5 @@ Section zoo۰G.
 End zoo۰G.
 
 Require zoo_std.array__opaque.
-#[global] Opaque array٠unsafe_xchg.
-#[global] Opaque array٠unsafe_cas.
-#[global] Opaque array٠unsafe_faa.
 
-#[global] Opaque array۰inv.
-#[global] Opaque array۰slice.
-#[global] Opaque array۰model.
-#[global] Opaque array۰cslice.
-#[global] Opaque itype۰array.
+Please opacify.

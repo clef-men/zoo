@@ -87,25 +87,25 @@ Module base.
         & Hstate
         )
       ".
-    Definition ivar_1۰inv t γ Ψ Ξ : iProp Σ :=
+    Please Definition ivar_1۰inv t γ Ψ Ξ : iProp Σ :=
       inv nroot (inv۰inner t γ Ψ Ξ).
     #[local] Instance : CustomIpat "inv" :=
       " #Hinv
       ".
 
-    Definition ivar_1۰producer :=
+    Please Definition ivar_1۰producer :=
       lstate۰unset₂.
     #[local] Instance : CustomIpat "producer" :=
       " Hlstate_unset₂{_{}}
       ".
 
-    Definition ivar_1۰consumer :=
+    Please Definition ivar_1۰consumer :=
       consumer۰frag.
     #[local] Instance : CustomIpat "consumer" :=
       " Hconsumer{}_frag
       ".
 
-    Definition ivar_1۰result :=
+    Please Definition ivar_1۰result :=
       lstate۰set.
     #[local] Instance : CustomIpat "result" :=
       " #Hlstate_set{_{}}
@@ -597,10 +597,7 @@ Module base.
     Qed.
   End ivar_1۰G.
 
-  #[global] Opaque ivar_1۰inv.
-  #[global] Opaque ivar_1۰producer.
-  #[global] Opaque ivar_1۰consumer.
-  #[global] Opaque ivar_1۰result.
+  Please opacify.
 End base.
 
 Require zoo_std.ivar_1__opaque.
@@ -613,7 +610,7 @@ Section ivar_1۰G.
   Implicit Type γ : base.ivar_1۰name.
   Implicit Type Ψ Χ Ξ : val → iProp Σ.
 
-  Definition ivar_1۰inv t Ψ Ξ : iProp Σ :=
+  Please Definition ivar_1۰inv t Ψ Ξ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -627,7 +624,7 @@ Section ivar_1۰G.
       )
     ".
 
-  Definition ivar_1۰producer t : iProp Σ :=
+  Please Definition ivar_1۰producer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -641,7 +638,7 @@ Section ivar_1۰G.
       )
     ".
 
-  Definition ivar_1۰consumer t Χ : iProp Σ :=
+  Please Definition ivar_1۰consumer t Χ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -655,7 +652,7 @@ Section ivar_1۰G.
       )
     ".
 
-  Definition ivar_1۰result t v : iProp Σ :=
+  Please Definition ivar_1۰result t v : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1031,7 +1028,4 @@ Section ivar_1۰G.
   Qed.
 End ivar_1۰G.
 
-#[global] Opaque ivar_1۰inv.
-#[global] Opaque ivar_1۰producer.
-#[global] Opaque ivar_1۰consumer.
-#[global] Opaque ivar_1۰result.
+Please opacify.

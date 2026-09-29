@@ -37,7 +37,7 @@ Section waiter_spsc۰G.
       (P ∨ excl γ.(metadata۰consumer) ())
     else
       oneshot۰pending γ.(metadata۰lstate) (DfracOwn (1/3)) ().
-  Definition waiter_spsc۰inv t P : iProp Σ :=
+  Please Definition waiter_spsc۰inv t P : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -47,19 +47,19 @@ Section waiter_spsc۰G.
     condition۰inv γ.(metadata۰condition) ∗
     inv nroot (inv۰inner 𝑡 γ P).
 
-  Definition waiter_spsc۰producer t : iProp Σ :=
+  Please Definition waiter_spsc۰producer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
     oneshot۰pending γ.(metadata۰lstate) (DfracOwn (2/3)) ().
 
-  Definition waiter_spsc۰consumer t : iProp Σ :=
+  Please Definition waiter_spsc۰consumer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
     excl γ.(metadata۰consumer) ().
 
-  Definition waiter_spsc۰notified t : iProp Σ :=
+  Please Definition waiter_spsc۰notified t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -307,7 +307,4 @@ End waiter_spsc۰G.
 
 Require zoo_std.waiter_spsc__opaque.
 
-#[global] Opaque waiter_spsc۰inv.
-#[global] Opaque waiter_spsc۰producer.
-#[global] Opaque waiter_spsc۰consumer.
-#[global] Opaque waiter_spsc۰notified.
+Please opacify.

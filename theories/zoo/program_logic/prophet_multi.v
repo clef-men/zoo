@@ -51,7 +51,7 @@ Section prophet_multi۰G.
   Implicit Type iproph : nat * prophet.(prophet_typed۰type).
   Implicit Type ipast iprophs : list (nat * prophet.(prophet_typed۰type)).
 
-  Definition prophet_multi۰name :=
+  Please Definition prophet_multi۰name :=
     prophet_wise۰name.
   Implicit Type γ : prophet_multi۰name.
 
@@ -107,7 +107,7 @@ Section prophet_multi۰G.
     rewrite untangleｰsnoc decide_False //.
   Qed.
 
-  Definition prophet_multi۰full γ i prophs : iProp Σ :=
+  Please Definition prophet_multi۰full γ i prophs : iProp Σ :=
     ∃ iprophs,
     ⌜prophs = untangle iprophs i⌝ ∗
     prophet_wise۰full prophetx γ iprophs.
@@ -118,7 +118,7 @@ Section prophet_multi۰G.
       )
     ".
 
-  Definition prophet_multi۰model pid γ pasts prophss : iProp Σ :=
+  Please Definition prophet_multi۰model pid γ pasts prophss : iProp Σ :=
     ∃ ipast iprophs,
     ⌜pasts ≡ᶠ untangle ipast⌝ ∗
     ⌜prophss ≡ᶠ untangle iprophs⌝ ∗
@@ -132,7 +132,7 @@ Section prophet_multi۰G.
       )
     ".
 
-  Definition prophet_multi۰snapshot γ i past prophs : iProp Σ :=
+  Please Definition prophet_multi۰snapshot γ i past prophs : iProp Σ :=
     ∃ ipast iprophs,
     ⌜past = untangle ipast i⌝ ∗
     ⌜prophs = untangle iprophs i⌝ ∗
@@ -146,7 +146,7 @@ Section prophet_multi۰G.
       )
     ".
 
-  Definition prophet_multi۰lb γ i lb : iProp Σ :=
+  Please Definition prophet_multi۰lb γ i lb : iProp Σ :=
     ∃ past,
     prophet_multi۰snapshot γ i past lb.
   #[local] Instance : CustomIpat "lb" :=
@@ -358,8 +358,4 @@ Section prophet_multi۰G.
   Qed.
 End prophet_multi۰G.
 
-#[global] Opaque prophet_multi۰name.
-#[global] Opaque prophet_multi۰full.
-#[global] Opaque prophet_multi۰model.
-#[global] Opaque prophet_multi۰snapshot.
-#[global] Opaque prophet_multi۰lb.
+Please opacify.

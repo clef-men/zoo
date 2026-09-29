@@ -23,7 +23,7 @@ Section treemap۰rooted.
         treemap۰path tree dst node1 (edge :: path).
   #[local] Hint Constructors treemap۰path : core.
 
-  Definition treemap۰rooted tree root :=
+  Please Definition treemap۰rooted tree root :=
     tree !! root = None ∧
       ∀ node,
       is_Some (tree !! node) →
@@ -233,4 +233,4 @@ Section treemap۰rooted.
   Qed.
 End treemap۰rooted.
 
-#[global] Opaque treemap۰rooted.
+Please opacify.

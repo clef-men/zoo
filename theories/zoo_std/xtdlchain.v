@@ -12,7 +12,7 @@ Implicit Type v next prev src dst : val.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition xtdlchain hdr src nodes dst : iProp Σ :=
+  Please Definition xtdlchain hdr src nodes dst : iProp Σ :=
     xdlchain src nodes dst ∗
     [∗ list] node ∈ nodes, headers۰at node hdr.
 
@@ -445,4 +445,4 @@ End zoo۰G.
 
 Require zoo_std.xtdlchain__opaque.
 
-#[global] Opaque xtdlchain.
+Please opacify.

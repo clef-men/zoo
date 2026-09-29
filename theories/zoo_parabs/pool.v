@@ -51,7 +51,7 @@ Implicit Type job local global : job.
 Implicit Type jobs locals ulocals globals : gmultiset job.
 Implicit Type localss : list $ gmultiset job.
 
-Definition pool۰scope :=
+Please Definition pool۰scope :=
   gmultiset job.
 
 Please derive EqDecision for pool۰scope.
@@ -231,7 +231,7 @@ Module base.
         & #Hinv{_{}}
         )
       ".
-    Definition pool۰inv γ sz : iProp Σ :=
+    Please Definition pool۰inv γ sz : iProp Σ :=
       ⌜sz = γ.(pool۰name۰size)⌝ ∗
       inv₂ γ.
     #[local] Instance : CustomIpat "inv" :=
@@ -262,7 +262,7 @@ Module base.
           }
         )
       ".
-    Definition pool۰context γ ctx scope : iProp Σ :=
+    Please Definition pool۰context γ ctx scope : iProp Σ :=
       ∃ i,
       ⌜ctx = pool۰name۰context γ i⌝ ∗
       context₂ γ i scope.
@@ -282,7 +282,7 @@ Module base.
         )
       ".
 
-    Definition pool۰model t γ : iProp Σ :=
+    Please Definition pool۰model t γ : iProp Σ :=
       ∃ empty doms,
       ⌜length doms = γ.(pool۰name۰size)⌝ ∗
       t.[size] ↦□ #γ.(pool۰name۰size) ∗
@@ -310,7 +310,7 @@ Module base.
         )
       ".
 
-    Definition pool۰finished γ : iProp Σ :=
+    Please Definition pool۰finished γ : iProp Σ :=
       ∃ jobs,
       jobs۰auth γ Discard jobs ∗
       jobs۰finished jobs.
@@ -321,11 +321,11 @@ Module base.
         )
       ".
 
-    Definition pool۰consumer γ P : iProp Σ :=
+    Please Definition pool۰consumer γ P : iProp Σ :=
       pool۰finished γ ={⊤}=∗
       P.
 
-    Definition pool۰obligation γ P : iProp Σ :=
+    Please Definition pool۰obligation γ P : iProp Σ :=
       □ (
         pool۰finished γ -∗
         ▷ □ P
@@ -1172,13 +1172,7 @@ Module base.
     Qed.
   End pool۰G.
 
-  #[global] Opaque pool۰scope.
-  #[global] Opaque pool۰inv.
-  #[global] Opaque pool۰model.
-  #[global] Opaque pool۰context.
-  #[global] Opaque pool۰consumer.
-  #[global] Opaque pool۰obligation.
-  #[global] Opaque pool۰finished.
+  Please opacify.
 End base.
 
 Require zoo_parabs.pool__opaque.
@@ -1192,7 +1186,7 @@ Section pool۰G.
   Implicit Type P P_notification P_pred Q Q_pred : iProp Σ.
   Implicit Type Ψ : val → iProp Σ.
 
-  Definition pool۰inv t sz : iProp Σ :=
+  Please Definition pool۰inv t sz : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1206,7 +1200,7 @@ Section pool۰G.
       )
     ".
 
-  Definition pool۰context t ctx scope : iProp Σ :=
+  Please Definition pool۰context t ctx scope : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1220,7 +1214,7 @@ Section pool۰G.
       )
     ".
 
-  Definition pool۰model t : iProp Σ :=
+  Please Definition pool۰model t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1234,7 +1228,7 @@ Section pool۰G.
       )
     ".
 
-  Definition pool۰finished t : iProp Σ :=
+  Please Definition pool۰finished t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1248,11 +1242,11 @@ Section pool۰G.
       )
     ".
 
-  Definition pool۰consumer t P : iProp Σ :=
+  Please Definition pool۰consumer t P : iProp Σ :=
     pool۰finished t ={⊤}=∗
     P.
 
-  Definition pool۰obligation t P : iProp Σ :=
+  Please Definition pool۰obligation t P : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1612,13 +1606,7 @@ Section pool۰G.
   Qed.
 End pool۰G.
 
-#[global] Opaque pool۰scope.
-#[global] Opaque pool۰inv.
-#[global] Opaque pool۰model.
-#[global] Opaque pool۰context.
-#[global] Opaque pool۰obligation.
-#[global] Opaque pool۰consumer.
-#[global] Opaque pool۰finished.
+Please opacify.
 
 Section pool۰G.
   Context `{pool۰G : PoolG Σ}.

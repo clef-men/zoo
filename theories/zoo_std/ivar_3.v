@@ -145,25 +145,25 @@ Module base.
         & Hstate
         )
       ".
-    Definition ivar_3۰inv t γ Ψ Ξ Ω : iProp Σ :=
+    Please Definition ivar_3۰inv t γ Ψ Ξ Ω : iProp Σ :=
       inv nroot (inv۰inner t γ Ψ Ξ Ω).
     #[local] Instance : CustomIpat "inv" :=
       " #Hinv
       ".
 
-    Definition ivar_3۰producer :=
+    Please Definition ivar_3۰producer :=
       lstate۰unset₂.
     #[local] Instance : CustomIpat "producer" :=
       " Hlstate_unset₂{_{}}
       ".
 
-    Definition ivar_3۰consumer :=
+    Please Definition ivar_3۰consumer :=
       consumer۰frag.
     #[local] Instance : CustomIpat "consumer" :=
       " Hconsumer{}_frag
       ".
 
-    Definition ivar_3۰result :=
+    Please Definition ivar_3۰result :=
       lstate۰set.
     #[local] Instance : CustomIpat "result" :=
       " #Hlstate_set{_{}}
@@ -172,10 +172,10 @@ Module base.
       ∃ v,
       ivar_3۰result γ v.
 
-    Definition ivar_3۰waiters γ :=
+    Please Definition ivar_3۰waiters γ :=
       waiters۰auth γ Discard.
 
-    Definition ivar_3۰waiter :=
+    Please Definition ivar_3۰waiter :=
       waiters۰elem.
 
     #[global] Instance ivar_3۰invｰcontractive t γ n :
@@ -854,12 +854,7 @@ Module base.
     Qed.
   End ivar_3۰G.
 
-  #[global] Opaque ivar_3۰inv.
-  #[global] Opaque ivar_3۰producer.
-  #[global] Opaque ivar_3۰consumer.
-  #[global] Opaque ivar_3۰result.
-  #[global] Opaque ivar_3۰waiter.
-  #[global] Opaque ivar_3۰waiters.
+  Please opacify.
 End base.
 
 Require zoo_std.ivar_3__opaque.
@@ -872,7 +867,7 @@ Section ivar_3۰G.
   Implicit Type Ψ Χ Ξ : val → iProp Σ.
   Implicit Type Ω : val → val → waiter۰name → iProp Σ.
 
-  Definition ivar_3۰inv t Ψ Ξ Ω : iProp Σ :=
+  Please Definition ivar_3۰inv t Ψ Ξ Ω : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -886,7 +881,7 @@ Section ivar_3۰G.
       )
     ".
 
-  Definition ivar_3۰producer t : iProp Σ :=
+  Please Definition ivar_3۰producer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -900,7 +895,7 @@ Section ivar_3۰G.
       )
     ".
 
-  Definition ivar_3۰consumer t Χ : iProp Σ :=
+  Please Definition ivar_3۰consumer t Χ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -914,7 +909,7 @@ Section ivar_3۰G.
       )
     ".
 
-  Definition ivar_3۰result t v : iProp Σ :=
+  Please Definition ivar_3۰result t v : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -931,7 +926,7 @@ Section ivar_3۰G.
     ∃ v,
     ivar_3۰result t v.
 
-  Definition ivar_3۰waiters t waiters ωs : iProp Σ :=
+  Please Definition ivar_3۰waiters t waiters ωs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -945,7 +940,7 @@ Section ivar_3۰G.
       )
     ".
 
-  Definition ivar_3۰waiter t waiter ω : iProp Σ :=
+  Please Definition ivar_3۰waiter t waiter ω : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1381,9 +1376,4 @@ Section ivar_3۰G.
   Qed.
 End ivar_3۰G.
 
-#[global] Opaque ivar_3۰inv.
-#[global] Opaque ivar_3۰producer.
-#[global] Opaque ivar_3۰consumer.
-#[global] Opaque ivar_3۰result.
-#[global] Opaque ivar_3۰waiter.
-#[global] Opaque ivar_3۰waiters.
+Please opacify.

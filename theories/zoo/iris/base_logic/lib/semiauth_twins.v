@@ -41,9 +41,9 @@ Section semiauth_twins۰G.
   Please derive EqDecision for semiauth_twins۰name.
   Please derive Countable for semiauth_twins۰name.
 
-  Definition semiauth_twins۰auth γ :=
+  Please Definition semiauth_twins۰auth γ :=
     auth_twins۰auth R γ.(semiauth_twins۰name۰left_twins).
-  Definition semiauth_twins۰twin₁ γ a 𝑎 : iProp Σ :=
+  Please Definition semiauth_twins۰twin₁ γ a 𝑎 : iProp Σ :=
     auth_twins۰twin₁ R γ.(semiauth_twins۰name۰left_twins) a ∗
     twins۰twin₁ γ.(semiauth_twins۰name۰right_twins) (DfracOwn 1) 𝑎.
   #[local] Instance : CustomIpat "twin₁" :=
@@ -51,7 +51,7 @@ Section semiauth_twins۰G.
       & Hrtwin₁{_{}}
       )
     ".
-  Definition semiauth_twins۰twin₂ γ a 𝑎 : iProp Σ :=
+  Please Definition semiauth_twins۰twin₂ γ a 𝑎 : iProp Σ :=
     auth_twins۰twin₂ R γ.(semiauth_twins۰name۰left_twins) a ∗
     twins۰twin₂ γ.(semiauth_twins۰name۰right_twins) 𝑎.
   #[local] Instance : CustomIpat "twin₂" :=
@@ -244,6 +244,4 @@ Section semiauth_twins۰G.
   Qed.
 End semiauth_twins۰G.
 
-#[global] Opaque semiauth_twins۰auth.
-#[global] Opaque semiauth_twins۰twin₁.
-#[global] Opaque semiauth_twins۰twin₂.
+Please opacify.

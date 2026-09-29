@@ -111,13 +111,13 @@ Module base.
         & Hiteration{which;}₁{_{}}
         )
       ".
-    Definition vertex۰model t γ task iter : iProp Σ :=
+    Please Definition vertex۰model t γ task iter : iProp Σ :=
       model' t γ task Init iter.
     #[local] Instance : CustomIpat "model" :=
       " (:model')
       ".
 
-    Definition vertex۰ready iter : iProp Σ :=
+    Please Definition vertex۰ready iter : iProp Σ :=
       ∃ Δ,
       dependencies۰auth iter Discard Δ ∗
       [∗ mset] δ ∈ Δ, state₁ δ Discard Finished.
@@ -128,7 +128,7 @@ Module base.
         )
       ".
 
-    Definition vertex۰finished γ :=
+    Please Definition vertex۰finished γ :=
       state₁ γ Discard Finished.
     #[local] Instance : CustomIpat "finished" :=
       " #Hstate{which;}₁{_{}}
@@ -328,7 +328,7 @@ Module base.
       intros n Ψ1 Ψ2 HΨ t γ P R.
       repeat (apply HΨ || f_contractive || f_equiv).
     Qed.
-    Definition vertex۰inv : location → vertex۰name → iProp Σ → iProp Σ → iProp Σ :=
+    Please Definition vertex۰inv : location → vertex۰name → iProp Σ → iProp Σ → iProp Σ :=
       fixpoint inv۰pre.
 
     #[local] Lemma vertex۰invｰunfold t γ P R :
@@ -371,7 +371,7 @@ Module base.
       apply vertex۰invｰne; done.
     Qed.
 
-    Definition vertex۰output γ Q :=
+    Please Definition vertex۰output γ Q :=
       output۰frag γ Q.
     #[local] Instance : CustomIpat "output" :=
       " Houtput{which;}_frag{_{}}
@@ -388,7 +388,7 @@ Module base.
       solve_proper.
     Qed.
 
-    Definition vertex۰predecessor γ iter :=
+    Please Definition vertex۰predecessor γ iter :=
       dependencies۰elem iter γ.
     #[local] Instance : CustomIpat "predecessor" :=
       " #Hdependencies{which;}_elem{_{}}
@@ -1138,12 +1138,7 @@ Module base.
     Qed.
   End vertex۰G.
 
-  #[global] Opaque vertex۰inv.
-  #[global] Opaque vertex۰model.
-  #[global] Opaque vertex۰output.
-  #[global] Opaque vertex۰ready.
-  #[global] Opaque vertex۰finished.
-  #[global] Opaque vertex۰predecessor.
+  Please opacify.
 End base.
 
 Require zoo_parabs.vertex__opaque.
@@ -1153,7 +1148,7 @@ Section vertex۰G.
 
   Implicit Type 𝑡 : location.
 
-  Definition vertex۰inv t P R : iProp Σ :=
+  Please Definition vertex۰inv t P R : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1186,7 +1181,7 @@ Section vertex۰G.
     solve_proper.
   Qed.
 
-  Definition vertex۰model t task iter : iProp Σ :=
+  Please Definition vertex۰model t task iter : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1200,7 +1195,7 @@ Section vertex۰G.
       )
     ".
 
-  Definition vertex۰output t Q : iProp Σ :=
+  Please Definition vertex۰output t Q : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1214,10 +1209,10 @@ Section vertex۰G.
       )
     ".
 
-  Definition vertex۰ready :=
+  Please Definition vertex۰ready :=
     base.vertex۰ready.
 
-  Definition vertex۰finished t : iProp Σ :=
+  Please Definition vertex۰finished t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1231,7 +1226,7 @@ Section vertex۰G.
       )
     ".
 
-  Definition vertex۰predecessor t iter : iProp Σ :=
+  Please Definition vertex۰predecessor t iter : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1641,9 +1636,4 @@ Section vertex۰G.
   Qed.
 End vertex۰G.
 
-#[global] Opaque vertex۰inv.
-#[global] Opaque vertex۰model.
-#[global] Opaque vertex۰output.
-#[global] Opaque vertex۰ready.
-#[global] Opaque vertex۰finished.
-#[global] Opaque vertex۰predecessor.
+Please opacify.

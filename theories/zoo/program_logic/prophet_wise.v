@@ -37,13 +37,13 @@ Section prophet_wise۰G.
   Please derive EqDecision for prophet_wise۰name.
   Please derive Countable for prophet_wise۰name.
 
-  Definition prophet_wise۰full γ prophs :=
+  Please Definition prophet_wise۰full γ prophs :=
     agree۰on γ.(prophet_wise۰name۰full) prophs.
   #[local] Instance : CustomIpat "full" :=
     " #Hfull{}
     ".
 
-  Definition prophet_wise۰model pid γ past prophs : iProp Σ :=
+  Please Definition prophet_wise۰model pid γ past prophs : iProp Σ :=
     prophet_wise۰full γ (past ++ prophs) ∗
     mono_list۰auth γ.(prophet_wise۰name۰past) (DfracOwn 1) past ∗
     prophet_typed۰model prophet pid prophs.
@@ -54,7 +54,7 @@ Section prophet_wise۰G.
       )
     ".
 
-  Definition prophet_wise۰snapshot γ past prophs : iProp Σ :=
+  Please Definition prophet_wise۰snapshot γ past prophs : iProp Σ :=
     prophet_wise۰full γ (past ++ prophs) ∗
     mono_list۰lb γ.(prophet_wise۰name۰past) past.
   #[local] Instance : CustomIpat "snapshot" :=
@@ -63,7 +63,7 @@ Section prophet_wise۰G.
       )
     ".
 
-  Definition prophet_wise۰lb γ lb : iProp Σ :=
+  Please Definition prophet_wise۰lb γ lb : iProp Σ :=
     ∃ past,
     prophet_wise۰snapshot γ past lb.
   #[local] Instance : CustomIpat "lb" :=
@@ -244,7 +244,4 @@ Section prophet_wise۰G.
   Qed.
 End prophet_wise۰G.
 
-#[global] Opaque prophet_wise۰full.
-#[global] Opaque prophet_wise۰model.
-#[global] Opaque prophet_wise۰snapshot.
-#[global] Opaque prophet_wise۰lb.
+Please opacify.

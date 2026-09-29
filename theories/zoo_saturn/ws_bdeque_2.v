@@ -64,7 +64,7 @@ Module base.
         & >Hslots
         )
       ".
-    Definition ws_bdeque_2۰inv t γ ι cap : iProp Σ :=
+    Please Definition ws_bdeque_2۰inv t γ ι cap : iProp Σ :=
       ⌜cap = γ.(ws_bdeque_2۰name۰capacity)⌝ ∗
       ws_bdeque_1۰inv t γ.(ws_bdeque_2۰name۰base) (ι.@"base") cap ∗
       inv (ι.@"inv") (inv۰inner γ).
@@ -75,7 +75,7 @@ Module base.
         )
       ".
 
-    Definition ws_bdeque_2۰model γ vs : iProp Σ :=
+    Please Definition ws_bdeque_2۰model γ vs : iProp Σ :=
       model₁ γ vs ∗
       ⌜length vs ≤ γ.(ws_bdeque_2۰name۰capacity)⌝.
     #[local] Instance : CustomIpat "model" :=
@@ -84,7 +84,7 @@ Module base.
         )
       ".
 
-    Definition ws_bdeque_2۰owner t γ ws : iProp Σ :=
+    Please Definition ws_bdeque_2۰owner t γ ws : iProp Σ :=
       ∃ slots_owner,
       ws_bdeque_1۰owner t γ.(ws_bdeque_2۰name۰base) (#*ˡ slots_owner) ∗
       owner γ ws.
@@ -460,9 +460,7 @@ Module base.
     Qed.
   End ws_bdeque_2۰G.
 
-  #[global] Opaque ws_bdeque_2۰inv.
-  #[global] Opaque ws_bdeque_2۰model.
-  #[global] Opaque ws_bdeque_2۰owner.
+  Please opacify.
 End base.
 
 Require zoo_saturn.ws_bdeque_2__opaque.
@@ -473,7 +471,7 @@ Section ws_bdeque_2۰G.
   Implicit Type 𝑡 : location.
   Implicit Type t : val.
 
-  Definition ws_bdeque_2۰inv t ι cap : iProp Σ :=
+  Please Definition ws_bdeque_2۰inv t ι cap : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -487,7 +485,7 @@ Section ws_bdeque_2۰G.
       )
     ".
 
-  Definition ws_bdeque_2۰model t vs : iProp Σ :=
+  Please Definition ws_bdeque_2۰model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -501,7 +499,7 @@ Section ws_bdeque_2۰G.
       )
     ".
 
-  Definition ws_bdeque_2۰owner t ws : iProp Σ :=
+  Please Definition ws_bdeque_2۰owner t ws : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -736,6 +734,4 @@ Section ws_bdeque_2۰G.
   Qed.
 End ws_bdeque_2۰G.
 
-#[global] Opaque ws_bdeque_2۰inv.
-#[global] Opaque ws_bdeque_2۰model.
-#[global] Opaque ws_bdeque_2۰owner.
+Please opacify.

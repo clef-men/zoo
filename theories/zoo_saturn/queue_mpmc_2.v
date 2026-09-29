@@ -404,7 +404,7 @@ Section queue_mpmc_2۰G.
     ".
   #[local] Definition inv' l γ : iProp Σ :=
     inv γ.(metadata۰inv) (inv۰inner false l γ).
-  Definition queue_mpmc_2۰inv t ι : iProp Σ :=
+  Please Definition queue_mpmc_2۰inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata۰inv)⌝ ∗
@@ -420,7 +420,7 @@ Section queue_mpmc_2۰G.
       )
     ".
 
-  Definition queue_mpmc_2۰model t vs : iProp Σ :=
+  Please Definition queue_mpmc_2۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -1825,5 +1825,4 @@ End queue_mpmc_2۰G.
 
 Require zoo_saturn.queue_mpmc_2__opaque.
 
-#[global] Opaque queue_mpmc_2۰inv.
-#[global] Opaque queue_mpmc_2۰model.
+Please opacify.

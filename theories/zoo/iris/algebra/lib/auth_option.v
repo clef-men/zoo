@@ -14,9 +14,9 @@ Definition auth_option۰R {SI : sidx} A :=
 Definition auth_option۰UR {SI : sidx} A :=
   authUR (optionUR A).
 
-Definition auth_option۰auth {SI : sidx} {A : cmra} dq (a : A) : auth_option۰UR A :=
+Please Definition auth_option۰auth {SI : sidx} {A : cmra} dq (a : A) : auth_option۰UR A :=
   ●{dq} (Some a).
-Definition auth_option۰frag {SI : sidx} {A : cmra} (a : A) : auth_option۰UR A :=
+Please Definition auth_option۰frag {SI : sidx} {A : cmra} (a : A) : auth_option۰UR A :=
   ◯ (Some a).
 
 Notation "●O dq a" := (
@@ -467,8 +467,7 @@ Section cmra.
   Qed.
 End cmra.
 
-#[global] Opaque auth_option۰auth.
-#[global] Opaque auth_option۰frag.
+Please opacify.
 
 Definition auth_option۰URF {SI : sidx} F :=
   authURF $ optionURF F.

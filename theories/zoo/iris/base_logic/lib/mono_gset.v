@@ -25,9 +25,9 @@ Section mono_gset۰G.
   Implicit Type a : A.
   Implicit Type s : gset A.
 
-  Definition mono_gset۰auth γ dq s :=
+  Please Definition mono_gset۰auth γ dq s :=
     auth_mono۰auth subseteq γ dq s.
-  Definition mono_gset۰lb γ s :=
+  Please Definition mono_gset۰lb γ s :=
     auth_mono۰lb subseteq γ s.
   Definition mono_gset۰elem γ a :=
     mono_gset۰lb γ {[a]}.
@@ -210,5 +210,4 @@ Section mono_gset۰G.
   Qed.
 End mono_gset۰G.
 
-#[global] Opaque mono_gset۰auth.
-#[global] Opaque mono_gset۰lb.
+Please opacify.

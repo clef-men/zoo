@@ -106,14 +106,14 @@ End zoo۰G₀.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition headers۰auth :=
+  Please Definition headers۰auth :=
     headers۰auth' zoo۰G۰headers۰name.
-  Definition headers۰at :=
+  Please Definition headers۰at :=
     headers۰at' zoo۰G۰headers۰name.
 
-  Definition meta_token :=
+  Please Definition meta_token :=
     meta_token' zoo۰G۰headers۰name.
-  Definition meta `{Countable A} :=
+  Please Definition meta `{Countable A} :=
     meta' (A := A) zoo۰G۰headers۰name.
 End zoo۰G.
 
@@ -249,9 +249,9 @@ End zoo۰G₀.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition heap۰auth :=
+  Please Definition heap۰auth :=
     heap۰auth' zoo۰G۰heap۰name.
-  Definition pointsto :=
+  Please Definition pointsto :=
     pointsto' zoo۰G۰heap۰name.
 End zoo۰G.
 
@@ -547,9 +547,9 @@ End zoo۰G₀.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition prophets۰auth :=
+  Please Definition prophets۰auth :=
     prophets۰auth' zoo۰G۰prophets۰name.
-  Definition prophet۰model :=
+  Please Definition prophet۰model :=
     prophet۰model' zoo۰G۰prophets۰name.
 
   #[global] Instance prophet۰modelｰtimeless pid prophs :
@@ -629,9 +629,9 @@ End zoo۰G₀.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition steps۰auth :=
+  Please Definition steps۰auth :=
     steps۰auth' zoo۰G۰steps۰name.
-  Definition steps۰lb :=
+  Please Definition steps۰lb :=
     auth_nat_max۰lb zoo۰G۰steps۰name.
 End zoo۰G.
 
@@ -761,9 +761,9 @@ End zoo۰G₀.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition locals۰auth :=
+  Please Definition locals۰auth :=
     locals۰auth' zoo۰G۰locals۰name.
-  Definition local_pointsto :=
+  Please Definition local_pointsto :=
     local_pointsto' zoo۰G۰locals۰name.
 End zoo۰G.
 
@@ -913,9 +913,9 @@ End zoo۰G₀.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition zoo_counter۰auth :=
+  Please Definition zoo_counter۰auth :=
     zoo_counter۰auth' zoo۰G۰counter۰name.
-  Definition zoo_counter۰at :=
+  Please Definition zoo_counter۰at :=
     zoo_counter۰at' zoo۰G۰counter۰name.
 
   #[global] Instance zoo_counter۰authｰtimeless vs :
@@ -1025,20 +1025,7 @@ Proof.
   iExists 0. iFrameSteps.
 Qed.
 
-#[global] Opaque headers۰auth.
-#[global] Opaque headers۰at.
-#[global] Opaque meta_token.
-#[global] Opaque meta.
-#[global] Opaque heap۰auth.
-#[global] Opaque pointsto.
-#[global] Opaque prophets۰auth.
-#[global] Opaque prophet۰model.
-#[global] Opaque steps۰auth.
-#[global] Opaque steps۰lb.
-#[global] Opaque locals۰auth.
-#[global] Opaque local_pointsto.
-#[global] Opaque zoo_counter۰auth.
-#[global] Opaque zoo_counter۰at.
+Please opacify.
 
 Variant ownership :=
   | Own

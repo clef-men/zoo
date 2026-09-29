@@ -31,13 +31,13 @@ Section mono_gmap۰G.
     apply _.
   Qed.
 
-  Definition mono_gmap۰auth γ dq m :=
+  Please Definition mono_gmap۰auth γ dq m :=
     auth_mono۰auth subseteq γ dq m.
-  Definition mono_gmap۰lb γ m :=
+  Please Definition mono_gmap۰lb γ m :=
     auth_mono۰lb subseteq γ m.
   Definition mono_gmap۰at γ i v :=
     mono_gmap۰lb γ {[i := v]}.
-  Definition mono_gmap۰elem γ i : iProp Σ :=
+  Please Definition mono_gmap۰elem γ i : iProp Σ :=
     ∃ v,
     mono_gmap۰at γ i v.
 
@@ -244,6 +244,4 @@ Section mono_gmap۰G.
   Qed.
 End mono_gmap۰G.
 
-#[global] Opaque mono_gmap۰auth.
-#[global] Opaque mono_gmap۰lb.
-#[global] Opaque mono_gmap۰elem.
+Please opacify.

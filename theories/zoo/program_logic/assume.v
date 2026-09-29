@@ -3,7 +3,7 @@ Require Import zoo.base.
 Require Import zoo.program_logic.diverge.
 Require Import zoo.options.
 
-Definition assume : val :=
+Please Definition assume : val :=
   𝗳𝘂𝗻 "b" ->
     𝗶𝗳 ~ "b" 𝘁𝗵𝗲𝗻
       𝗱𝗶𝘃𝗲𝗿𝗴𝗲 ().
@@ -33,4 +33,4 @@ Section zoo۰G.
   Qed.
 End zoo۰G.
 
-#[global] Opaque assume.
+Please opacify.

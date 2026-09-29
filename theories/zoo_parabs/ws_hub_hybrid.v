@@ -28,7 +28,7 @@ Zoo global :=
   }.
 
 Section consistent.
-  #[local] Definition consistent vs vss vs_queue :=
+  #[local] Please Definition consistent vs vss vs_queue :=
     vs =
       ⋃+ (list_to_set_disj <$> vss) ⊎
       list_to_set_disj vs_queue.
@@ -145,7 +145,7 @@ Section consistent.
   Qed.
 End consistent.
 
-Opaque consistent.
+Please opacify.
 
 Section ws_hub_hybrid۰G.
   Context `{ws_hub_hybrid۰G : WsHubHybridG Σ}.
@@ -195,7 +195,7 @@ Section ws_hub_hybrid۰G.
       & H𝑡_num_active
       )
     ".
-  Definition ws_hub_hybrid۰inv t ι sz : iProp Σ :=
+  Please Definition ws_hub_hybrid۰inv t ι sz : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -227,7 +227,7 @@ Section ws_hub_hybrid۰G.
       )
     ".
 
-  Definition ws_hub_hybrid۰model t vs : iProp Σ :=
+  Please Definition ws_hub_hybrid۰model t vs : iProp Σ :=
     ∃ 𝑡 γ vss vs_queue,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -249,7 +249,7 @@ Section ws_hub_hybrid۰G.
       )
     ".
 
-  Definition ws_hub_hybrid۰owner t i status empty : iProp Σ :=
+  Please Definition ws_hub_hybrid۰owner t i status empty : iProp Σ :=
     ∃ 𝑡 γ ws round n,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1202,9 +1202,7 @@ Section ws_hub_hybrid۰G.
   Qed.
 End ws_hub_hybrid۰G.
 
-#[global] Opaque ws_hub_hybrid۰inv.
-#[global] Opaque ws_hub_hybrid۰model.
-#[global] Opaque ws_hub_hybrid۰owner.
+Please opacify.
 
 Section ws_hub_hybrid۰G.
   Context `{ws_hub_hybrid۰G : WsHubHybridG Σ}.

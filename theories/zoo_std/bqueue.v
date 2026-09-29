@@ -14,7 +14,7 @@ Implicit Type o : option val.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition bqueue۰model t (cap : nat) vs : iProp Σ :=
+  Please Definition bqueue۰model t (cap : nat) vs : iProp Σ :=
     ∃ l data front back extra,
     ⌜t = #l⌝ ∗
     l.[capacity] ↦□ #cap ∗
@@ -263,4 +263,4 @@ End zoo۰G.
 
 Require zoo_std.bqueue__opaque.
 
-#[global] Opaque bqueue۰model.
+Please opacify.

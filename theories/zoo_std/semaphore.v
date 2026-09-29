@@ -67,7 +67,7 @@ Section semaphore۰G.
       & H
       )
     ".
-  Definition semaphore۰inv t cap P : iProp Σ :=
+  Please Definition semaphore۰inv t cap P : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -89,7 +89,7 @@ Section semaphore۰G.
       )
     ".
 
-  Definition semaphore۰locked t : iProp Σ :=
+  Please Definition semaphore۰locked t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -332,5 +332,4 @@ End semaphore۰G.
 
 Require zoo_std.semaphore__opaque.
 
-#[global] Opaque semaphore۰inv.
-#[global] Opaque semaphore۰locked.
+Please opacify.

@@ -123,7 +123,7 @@ Module base.
         & Hstate
         )
       ".
-    Definition exchanger_1۰inv t γ ι Ψ Χ : iProp Σ :=
+    Please Definition exchanger_1۰inv t γ ι Ψ Χ : iProp Σ :=
       exchanger_1۰valid ι Ψ Χ ∗
       inv ι (inv۰inner t γ Ψ Χ).
     #[local] Instance : CustomIpat "inv" :=
@@ -358,7 +358,7 @@ Module base.
     Qed.
   End exchanger_1۰G.
 
-  #[global] Opaque exchanger_1۰inv.
+  Please opacify.
 End base.
 
 Require zoo_saturn.exchanger_1__opaque.
@@ -372,7 +372,7 @@ Section exchanger_1۰G.
   Implicit Type Ψ : val → iProp Σ.
   Implicit Type Χ : val → val → iProp Σ.
 
-  Definition exchanger_1۰inv t ι Ψ Χ : iProp Σ :=
+  Please Definition exchanger_1۰inv t ι Ψ Χ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -451,4 +451,4 @@ Section exchanger_1۰G.
   Qed.
 End exchanger_1۰G.
 
-#[global] Opaque exchanger_1۰inv.
+Please opacify.

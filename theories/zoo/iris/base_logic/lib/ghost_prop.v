@@ -23,7 +23,7 @@ Section ghost_prop۰G.
 
   Implicit Type P : iProp Σ.
 
-  Definition ghost_prop γ dq P :=
+  Please Definition ghost_prop γ dq P :=
     ghost_var γ dq (Next P).
 
   #[global] Instance ghost_propｰcontractive γ dq :
@@ -139,4 +139,4 @@ Section ghost_prop۰G.
   Qed.
 End ghost_prop۰G.
 
-#[global] Opaque ghost_prop.
+Please opacify.

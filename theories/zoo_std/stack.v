@@ -9,7 +9,7 @@ Implicit Type v t : val.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition stack۰model t vs :=
+  Please Definition stack۰model t vs :=
     dynarray_1۰model t (reverse vs).
 
   #[global] Instance stack۰modelｰtimeless t vs :
@@ -81,4 +81,4 @@ End zoo۰G.
 
 Require zoo_std.stack__opaque.
 
-#[global] Opaque stack۰model.
+Please opacify.

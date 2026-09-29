@@ -22,9 +22,9 @@ Qed.
 Section twins۰G.
   Context `{twins۰G : !TwinsG Σ F}.
 
-  Definition twins۰twin₁ γ dq a :=
+  Please Definition twins۰twin₁ γ dq a :=
     own γ (twins۰twin₁ dq a).
-  Definition twins۰twin₂ γ a :=
+  Please Definition twins۰twin₂ γ a :=
     own γ (twins۰twin₂ a).
 
   #[global] Instance twins۰twin₁ｰproper γ dq :
@@ -280,5 +280,4 @@ Section twins۰G.
   Qed.
 End twins۰G.
 
-#[global] Opaque twins۰twin₁.
-#[global] Opaque twins۰twin₂.
+Please opacify.

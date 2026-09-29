@@ -27,10 +27,10 @@ Section subprops۰G.
 
   Implicit Type P Q : iProp Σ.
 
-  Definition subprops۰auth γ P state :=
+  Please Definition subprops۰auth γ P state :=
     subpreds۰auth γ (λ _, P) (if state then Some () else None).
 
-  Definition subprops۰frag γ Q :=
+  Please Definition subprops۰frag γ Q :=
     subpreds۰frag γ (λ _, Q).
 
   #[global] Instance subprops۰authｰne γ n :
@@ -113,5 +113,4 @@ Section subprops۰G.
   Qed.
 End subprops۰G.
 
-#[global] Opaque subprops۰auth.
-#[global] Opaque subprops۰frag.
+Please opacify.

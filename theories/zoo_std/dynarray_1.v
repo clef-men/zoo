@@ -28,7 +28,7 @@ Section zoo۰G.
       & Hmodel
       )
     ".
-  Definition dynarray_1۰model t vs : iProp Σ :=
+  Please Definition dynarray_1۰model t vs : iProp Σ :=
     ∃ extra,
     model' t vs extra.
   #[local] Instance : CustomIpat "model" :=
@@ -765,4 +765,4 @@ End zoo۰G.
 
 Require zoo_std.dynarray_1__opaque.
 
-#[global] Opaque dynarray_1۰model.
+Please opacify.

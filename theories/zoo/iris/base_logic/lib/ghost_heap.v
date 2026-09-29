@@ -47,7 +47,7 @@ Section ghost_heap۰G.
   Please derive EqDecision for ghost_heap۰name.
   Please derive Countable for ghost_heap۰name.
 
-  Definition ghost_heap۰auth γ σ : iProp Σ :=
+  Please Definition ghost_heap۰auth γ σ : iProp Σ :=
     ∃ m,
     ⌜dom m ⊆ dom σ⌝ ∗
     ghost_map_auth γ.(ghost_heap۰name۰heap) (DfracOwn 1) σ ∗
@@ -60,10 +60,10 @@ Section ghost_heap۰G.
       )
     ".
 
-  Definition ghost_heap۰at γ l dq v :=
+  Please Definition ghost_heap۰at γ l dq v :=
     ghost_map_elem γ.(ghost_heap۰name۰heap) l dq v.
 
-  Definition ghost_heap۰meta_token γ l E : iProp Σ :=
+  Please Definition ghost_heap۰meta_token γ l E : iProp Σ :=
     ∃ η,
     ghost_map_elem γ.(ghost_heap۰name۰meta) l DfracDiscarded η ∗
     own η (reservation_map_token E).
@@ -74,7 +74,7 @@ Section ghost_heap۰G.
       )
     ".
 
-  Definition ghost_heap۰meta `{Countable A} γ l ι (x : A) : iProp Σ :=
+  Please Definition ghost_heap۰meta `{Countable A} γ l ι (x : A) : iProp Σ :=
     ∃ η,
     ghost_map_elem γ.(ghost_heap۰name۰meta) l DfracDiscarded η ∗
     own η (reservation_map_data (coPpick (↑ι)) $ to_agree $ encode x).
@@ -401,7 +401,4 @@ Section ghost_heap۰G.
   Qed.
 End ghost_heap۰G.
 
-#[global] Opaque ghost_heap۰auth.
-#[global] Opaque ghost_heap۰at.
-#[global] Opaque ghost_heap۰meta_token.
-#[global] Opaque ghost_heap۰meta.
+Please opacify.

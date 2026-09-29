@@ -496,12 +496,12 @@ Section mcas_1۰G.
     fixpoint_B (casn۰inv۰pre ι) (loc۰inv۰pre ι).
   #[local] Definition loc۰inv۰inner loc γ ι : iProp Σ :=
     loc۰inv۰inner'' true (casn۰inv'' ι) loc γ.
-  Definition mcas_1۰loc۰inv loc ι : iProp Σ :=
+  Please Definition mcas_1۰loc۰inv loc ι : iProp Σ :=
     ∃ γ,
     loc ↪ γ ∗
     loc۰inv' ι (loc, γ).
 
-  Definition mcas_1۰loc۰model loc v : iProp Σ :=
+  Please Definition mcas_1۰loc۰model loc v : iProp Σ :=
     ∃ γ,
     loc ↪ γ ∗
     model₁ γ v.
@@ -2303,5 +2303,4 @@ End mcas_1۰G.
 
 Require zoo_mcas.mcas_1__opaque.
 
-#[global] Opaque mcas_1۰loc۰inv.
-#[global] Opaque mcas_1۰loc۰model.
+Please opacify.

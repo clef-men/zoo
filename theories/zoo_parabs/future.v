@@ -38,7 +38,7 @@ Section future۰G.
       )
     ".
 
-  Definition future۰inv pool t Ψ Ξ : iProp Σ :=
+  Please Definition future۰inv pool t Ψ Ξ : iProp Σ :=
     ∃ depth,
     ivar_4۰inv t Ψ Ξ (pool۰context pool) ∗
     ⧖ depth ∗
@@ -54,7 +54,7 @@ Section future۰G.
       )
     ".
 
-  Definition future۰obligation pool P : iProp Σ :=
+  Please Definition future۰obligation pool P : iProp Σ :=
     ∃ depth,
     ⧖ depth ∗
     □ (
@@ -68,10 +68,10 @@ Section future۰G.
       )
     ".
 
-  Definition future۰consumer :=
+  Please Definition future۰consumer :=
     ivar_4۰consumer.
 
-  Definition future۰result :=
+  Please Definition future۰result :=
     ivar_4۰result.
   Definition future۰resolved t : iProp Σ :=
     ∃ v,
@@ -463,7 +463,4 @@ End future۰G.
 
 Require zoo_parabs.future__opaque.
 
-#[global] Opaque future۰inv.
-#[global] Opaque future۰obligation.
-#[global] Opaque future۰consumer.
-#[global] Opaque future۰result.
+Please opacify.

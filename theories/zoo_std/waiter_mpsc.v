@@ -37,7 +37,7 @@ Section waiter_mpsc۰G.
       (P ∨ excl γ.(metadata۰consumer) ())
     else
       oneshot۰pending γ.(metadata۰lstate) (DfracOwn 1) ().
-  Definition waiter_mpsc۰inv t P : iProp Σ :=
+  Please Definition waiter_mpsc۰inv t P : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -47,13 +47,13 @@ Section waiter_mpsc۰G.
     condition۰inv γ.(metadata۰condition) ∗
     inv nroot (inv۰inner 𝑡 γ P).
 
-  Definition waiter_mpsc۰consumer t : iProp Σ :=
+  Please Definition waiter_mpsc۰consumer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
     excl γ.(metadata۰consumer) ().
 
-  Definition waiter_mpsc۰notified t : iProp Σ :=
+  Please Definition waiter_mpsc۰notified t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -294,6 +294,4 @@ End waiter_mpsc۰G.
 
 Require zoo_std.waiter_mpsc__opaque.
 
-#[global] Opaque waiter_mpsc۰inv.
-#[global] Opaque waiter_mpsc۰consumer.
-#[global] Opaque waiter_mpsc۰notified.
+Please opacify.

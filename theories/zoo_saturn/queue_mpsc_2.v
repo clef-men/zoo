@@ -59,7 +59,7 @@ Section queue_mpsc_2۰G.
       & >Hmodel₂
       )
     ".
-  Definition queue_mpsc_2۰inv t ι : iProp Σ :=
+  Please Definition queue_mpsc_2۰inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -73,7 +73,7 @@ Section queue_mpsc_2۰G.
       )
     ".
 
-  Definition queue_mpsc_2۰model t vs : iProp Σ :=
+  Please Definition queue_mpsc_2۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -87,7 +87,7 @@ Section queue_mpsc_2۰G.
       )
     ".
 
-  Definition queue_mpsc_2۰consumer t : iProp Σ :=
+  Please Definition queue_mpsc_2۰consumer t : iProp Σ :=
     ∃ l γ front,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -445,6 +445,4 @@ End queue_mpsc_2۰G.
 
 Require zoo_saturn.queue_mpsc_2__opaque.
 
-#[global] Opaque queue_mpsc_2۰inv.
-#[global] Opaque queue_mpsc_2۰model.
-#[global] Opaque queue_mpsc_2۰consumer.
+Please opacify.

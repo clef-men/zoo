@@ -208,7 +208,7 @@ Module base.
         & #Hinv
         )
       ".
-    Definition inf_queue_mpmc_1۰inv t γ ι : iProp Σ :=
+    Please Definition inf_queue_mpmc_1۰inv t γ ι : iProp Σ :=
       ⌜ι = γ.(inf_queue_mpmc_1۰name۰inv)⌝ ∗
       inv' t γ.
     #[local] Instance : CustomIpat "inv" :=
@@ -217,7 +217,7 @@ Module base.
         )
       ".
 
-    Definition inf_queue_mpmc_1۰model :=
+    Please Definition inf_queue_mpmc_1۰model :=
       model₁.
     #[local] Instance : CustomIpat "model" :=
       " Hmodel₁{_{}}
@@ -931,8 +931,7 @@ Module base.
     Qed.
   End inf_queue_mpmc_1۰G.
 
-  #[global] Opaque inf_queue_mpmc_1۰inv.
-  #[global] Opaque inf_queue_mpmc_1۰model.
+  Please opacify.
 End base.
 
 Require zoo_saturn.inf_queue_mpmc_1__opaque.
@@ -943,7 +942,7 @@ Section inf_queue_mpmc_1۰G.
   Implicit Type 𝑡 : location.
   Implicit Type t : val.
 
-  Definition inf_queue_mpmc_1۰inv t ι : iProp Σ :=
+  Please Definition inf_queue_mpmc_1۰inv t ι : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -957,7 +956,7 @@ Section inf_queue_mpmc_1۰G.
       )
     ".
 
-  Definition inf_queue_mpmc_1۰model t vs : iProp Σ :=
+  Please Definition inf_queue_mpmc_1۰model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1156,5 +1155,4 @@ Section inf_queue_mpmc_1۰G.
   Qed.
 End inf_queue_mpmc_1۰G.
 
-#[global] Opaque inf_queue_mpmc_1۰inv.
-#[global] Opaque inf_queue_mpmc_1۰model.
+Please opacify.

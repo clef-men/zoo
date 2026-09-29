@@ -71,19 +71,19 @@ Module base.
         & Hb
         )
       ".
-    Definition flag_mpsc۰inv t γ P :=
+    Please Definition flag_mpsc۰inv t γ P :=
       inv nroot (inv۰inner t γ P).
     #[local] Instance : CustomIpat "inv" :=
       " #Hinv
       ".
 
-    Definition flag_mpsc۰consumer :=
+    Please Definition flag_mpsc۰consumer :=
       consumer.
     #[local] Instance : CustomIpat "consumer" :=
       " Hconsumer
       ".
 
-    Definition flag_mpsc۰resolved :=
+    Please Definition flag_mpsc۰resolved :=
       state۰set.
     #[local] Instance : CustomIpat "resolved" :=
       " #Hstate_set
@@ -256,9 +256,7 @@ Module base.
     Qed.
   End flag_mpsc۰G.
 
-  #[global] Opaque flag_mpsc۰inv.
-  #[global] Opaque flag_mpsc۰consumer.
-  #[global] Opaque flag_mpsc۰resolved.
+  Please opacify.
 End base.
 
 Require zoo_std.flag_mpsc__opaque.
@@ -270,7 +268,7 @@ Section flag_mpsc۰G.
   Implicit Type t : val.
   Implicit Type P : iProp Σ.
 
-  Definition flag_mpsc۰inv t P : iProp Σ :=
+  Please Definition flag_mpsc۰inv t P : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -284,7 +282,7 @@ Section flag_mpsc۰G.
       )
     ".
 
-  Definition flag_mpsc۰consumer t : iProp Σ :=
+  Please Definition flag_mpsc۰consumer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -298,7 +296,7 @@ Section flag_mpsc۰G.
       )
     ".
 
-  Definition flag_mpsc۰resolved t : iProp Σ :=
+  Please Definition flag_mpsc۰resolved t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -420,6 +418,4 @@ Section flag_mpsc۰G.
   Qed.
 End flag_mpsc۰G.
 
-#[global] Opaque flag_mpsc۰inv.
-#[global] Opaque flag_mpsc۰consumer.
-#[global] Opaque flag_mpsc۰resolved.
+Please opacify.

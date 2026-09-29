@@ -25,9 +25,9 @@ Section mono_gmultiset۰G.
   Implicit Type a : A.
   Implicit Type s : gmultiset A.
 
-  Definition mono_gmultiset۰auth γ dq s :=
+  Please Definition mono_gmultiset۰auth γ dq s :=
     auth_mono۰auth subseteq γ dq s.
-  Definition mono_gmultiset۰lb γ s :=
+  Please Definition mono_gmultiset۰lb γ s :=
     auth_mono۰lb subseteq γ s.
   Definition mono_gmultiset۰elem γ a :=
     mono_gmultiset۰lb γ {[+a+]}.
@@ -210,5 +210,4 @@ Section mono_gmultiset۰G.
   Qed.
 End mono_gmultiset۰G.
 
-#[global] Opaque mono_gmultiset۰auth.
-#[global] Opaque mono_gmultiset۰lb.
+Please opacify.

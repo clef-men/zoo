@@ -6,11 +6,11 @@ Require Import zoo.options.
 
 Implicit Type str : string.
 
-Definition string٠unsafe_get : val :=
+Please Definition string٠unsafe_get : val :=
   𝗳𝘂𝗻 "t" "i" ->
     Binop BinopStringGet "t" "i".
 
-Definition string٠equal : val :=
+Please Definition string٠equal : val :=
   𝗳𝘂𝗻 "t1" "t2" ->
     "t1" =ₛ "t2".
 
@@ -37,5 +37,5 @@ Section zoo۰G.
 End zoo۰G.
 
 Require zoo_std.string__opaque.
-#[global] Opaque string٠unsafe_get.
-#[global] Opaque string٠equal.
+
+Please opacify.

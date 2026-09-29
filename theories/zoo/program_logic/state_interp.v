@@ -30,7 +30,7 @@ Record state۰wf σ v :=
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition state_interp ns nt σ κs : iProp Σ :=
+  Please Definition state_interp ns nt σ κs : iProp Σ :=
     headers۰auth σ.(state۰headers) ∗
     heap۰auth σ.(state۰heap) ∗
     prophets۰auth κs σ.(state۰prophets) ∗
@@ -86,8 +86,8 @@ Section zoo۰G.
     rewrite big_sepM_insert.
     { clear.
       apply eq_None_ne_Some. intros x (k & Hk & Hl & _)%chunkｰlookup.
-      rewrite -{1}(location۰addｰ0 l) in Hl.
-      naive lia.
+      rewrite -{1}(location۰addｰ0 l) location۰addｰassoc in Hl.
+      apply (inj _) in Hl. lia.
     }
     iEval (rewrite location۰addｰ0).
     iSteps.
@@ -246,4 +246,4 @@ Proof.
   iDestruct "Hlocals" as "($ & _)" => //.
 Qed.
 
-#[global] Opaque state_interp.
+Please opacify.

@@ -154,7 +154,7 @@ Module base.
       ".
     #[local] Definition inv' t γ :=
       inv γ.(metadata۰inv) (inv۰inner t γ).
-    Definition queue_spmc۰inv t γ ι : iProp Σ :=
+    Please Definition queue_spmc۰inv t γ ι : iProp Σ :=
       ⌜ι = γ.(metadata۰inv)⌝ ∗
       inv' t γ.
     #[local] Instance : CustomIpat "inv" :=
@@ -163,7 +163,7 @@ Module base.
         )
       ".
 
-    Definition queue_spmc۰producer t γ ws : iProp Σ :=
+    Please Definition queue_spmc۰producer t γ ws : iProp Σ :=
       ∃ back,
       t.[back] ↦ #back ∗
       back ↦ₕ Header §Node 2 ∗
@@ -178,7 +178,7 @@ Module base.
         )
       ".
 
-    Definition queue_spmc۰model :=
+    Please Definition queue_spmc۰model :=
       model₁.
     #[local] Instance : CustomIpat "model" :=
       " Hmodel₁{_{}}
@@ -866,9 +866,7 @@ Module base.
     Qed.
   End queue_spmc۰G.
 
-  #[global] Opaque queue_spmc۰inv.
-  #[global] Opaque queue_spmc۰producer.
-  #[global] Opaque queue_spmc۰model.
+  Please opacify.
 End base.
 
 Require zoo_saturn.queue_spmc__opaque.
@@ -879,7 +877,7 @@ Section queue_spmc۰G.
   Implicit Type 𝑡 : location.
   Implicit Type t : val.
 
-  Definition queue_spmc۰inv t ι : iProp Σ :=
+  Please Definition queue_spmc۰inv t ι : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -893,7 +891,7 @@ Section queue_spmc۰G.
       )
     ".
 
-  Definition queue_spmc۰producer t ws : iProp Σ :=
+  Please Definition queue_spmc۰producer t ws : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -907,7 +905,7 @@ Section queue_spmc۰G.
       )
     ".
 
-  Definition queue_spmc۰model t vs : iProp Σ :=
+  Please Definition queue_spmc۰model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1060,6 +1058,4 @@ Section queue_spmc۰G.
   Qed.
 End queue_spmc۰G.
 
-#[global] Opaque queue_spmc۰inv.
-#[global] Opaque queue_spmc۰producer.
-#[global] Opaque queue_spmc۰model.
+Please opacify.

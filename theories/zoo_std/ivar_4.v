@@ -42,22 +42,22 @@ Section ivar_4۰G.
     saved_prop ω P ∗
     waiter۰model₁ Γ t waiter P.
 
-  Definition ivar_4۰inv t Ψ Ξ Γ :=
+  Please Definition ivar_4۰inv t Ψ Ξ Γ :=
     ivar_3۰inv t Ψ Ξ (waiter۰model₂ Γ).
 
-  Definition ivar_4۰producer :=
+  Please Definition ivar_4۰producer :=
     ivar_3۰producer.
 
-  Definition ivar_4۰consumer :=
+  Please Definition ivar_4۰consumer :=
     ivar_3۰consumer.
 
-  Definition ivar_4۰result :=
+  Please Definition ivar_4۰result :=
     ivar_3۰result.
   Definition ivar_4۰resolved t : iProp Σ :=
     ∃ v,
     ivar_4۰result t v.
 
-  Definition ivar_4۰waiters t waiters Ps : iProp Σ :=
+  Please Definition ivar_4۰waiters t waiters Ps : iProp Σ :=
     ∃ ωs,
     ivar_3۰waiters t waiters ωs ∗
     [∗ list] ω; P ∈ ωs; Ps, saved_prop ω P.
@@ -68,7 +68,7 @@ Section ivar_4۰G.
       )
     ".
 
-  Definition ivar_4۰waiter t waiter P : iProp Σ :=
+  Please Definition ivar_4۰waiter t waiter P : iProp Σ :=
     ∃ ω,
     ivar_3۰waiter t waiter ω ∗
     saved_prop ω P.
@@ -522,9 +522,4 @@ End ivar_4۰G.
 
 Require zoo_std.ivar_4__opaque.
 
-#[global] Opaque ivar_4۰inv.
-#[global] Opaque ivar_4۰producer.
-#[global] Opaque ivar_4۰consumer.
-#[global] Opaque ivar_4۰result.
-#[global] Opaque ivar_4۰waiter.
-#[global] Opaque ivar_4۰waiters.
+Please opacify.

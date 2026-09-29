@@ -12,7 +12,7 @@ Implicit Type v next dst : val.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition xtchain hdr dq nodes dst : iProp Σ :=
+  Please Definition xtchain hdr dq nodes dst : iProp Σ :=
     xchain dq nodes dst ∗
     [∗ list] node ∈ nodes, node ↦ₕ hdr.
 
@@ -477,4 +477,4 @@ End zoo۰G.
 
 Require zoo_std.xtchain__opaque.
 
-#[global] Opaque xtchain.
+Please opacify.

@@ -177,7 +177,7 @@ Section random۰round.
   Section zoo۰G.
     Context `{zoo۰G : !ZooG Σ}.
 
-    Definition random۰round۰model t sz prevs : iProp Σ :=
+    Please Definition random۰round۰model t sz prevs : iProp Σ :=
       ∃ l rand arr nexts,
       ⌜t = #l⌝ ∗
       ⌜nexts ++ reverse prevs ≡ₚ seq 0 sz⌝ ∗
@@ -330,12 +330,12 @@ Section random۰round.
     Qed.
   End zoo۰G.
 
-  #[global] Opaque random۰round۰model.
+  Please opacify.
 
   Section zoo۰G.
     Context `{zoo۰G : !ZooG Σ}.
 
-    Definition random۰round۰model' t sz cnt : iProp Σ :=
+    Please Definition random۰round۰model' t sz cnt : iProp Σ :=
       ∃ prevs,
       ⌜(cnt + length prevs)%nat = sz⌝ ∗
       random۰round۰model t sz prevs.
@@ -400,7 +400,7 @@ Section random۰round.
     Qed.
   End zoo۰G.
 
-  #[global] Opaque random۰round۰model'.
+  Please opacify.
 End random۰round.
 
 Require zoo_std.random__opaque.

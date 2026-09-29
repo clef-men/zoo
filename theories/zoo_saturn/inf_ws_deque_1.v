@@ -380,7 +380,7 @@ Module base.
         & #Hinv
         )
       ".
-    Definition inf_ws_deque_1۰inv t γ ι : iProp Σ :=
+    Please Definition inf_ws_deque_1۰inv t γ ι : iProp Σ :=
       ⌜ι = γ.(inf_ws_deque_1۰name۰inv)⌝ ∗
       inv' t γ.
     #[local] Instance : CustomIpat "inv" :=
@@ -389,13 +389,13 @@ Module base.
         )
       ".
 
-    Definition inf_ws_deque_1۰model :=
+    Please Definition inf_ws_deque_1۰model :=
       model₁.
     #[local] Instance : CustomIpat "model" :=
       " Hmodel₁{_{}}
       ".
 
-    Definition inf_ws_deque_1۰owner γ ws : iProp Σ :=
+    Please Definition inf_ws_deque_1۰owner γ ws : iProp Σ :=
       ∃ back priv,
       owner₁ γ Stable back priv ws.
     #[local] Instance : CustomIpat "owner" :=
@@ -1883,9 +1883,7 @@ Module base.
     Qed.
   End inf_ws_deque_1۰G.
 
-  #[global] Opaque inf_ws_deque_1۰inv.
-  #[global] Opaque inf_ws_deque_1۰model.
-  #[global] Opaque inf_ws_deque_1۰owner.
+  Please opacify.
 End base.
 
 Require zoo_saturn.inf_ws_deque_1__opaque.
@@ -1896,7 +1894,7 @@ Section inf_ws_deque_1۰G.
   Implicit Type 𝑡 : location.
   Implicit Type t : val.
 
-  Definition inf_ws_deque_1۰inv t ι : iProp Σ :=
+  Please Definition inf_ws_deque_1۰inv t ι : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1910,7 +1908,7 @@ Section inf_ws_deque_1۰G.
       )
     ".
 
-  Definition inf_ws_deque_1۰model t vs : iProp Σ :=
+  Please Definition inf_ws_deque_1۰model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1924,7 +1922,7 @@ Section inf_ws_deque_1۰G.
       )
     ".
 
-  Definition inf_ws_deque_1۰owner t ws : iProp Σ :=
+  Please Definition inf_ws_deque_1۰owner t ws : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -2147,6 +2145,4 @@ Section inf_ws_deque_1۰G.
   Qed.
 End inf_ws_deque_1۰G.
 
-#[global] Opaque inf_ws_deque_1۰inv.
-#[global] Opaque inf_ws_deque_1۰model.
-#[global] Opaque inf_ws_deque_1۰owner.
+Please opacify.

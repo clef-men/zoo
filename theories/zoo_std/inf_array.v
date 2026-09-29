@@ -64,7 +64,7 @@ Section inf_array۰G.
       & {{lazy}Hinv;(:inv₂)}
       )
     ".
-  Definition inf_array۰inv t : iProp Σ :=
+  Please Definition inf_array۰inv t : iProp Σ :=
     ∃ l γ mtx,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -83,7 +83,7 @@ Section inf_array۰G.
       )
     ".
 
-  Definition inf_array۰model t vs : iProp Σ :=
+  Please Definition inf_array۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -96,7 +96,7 @@ Section inf_array۰G.
       & Hmodel₁
       )
     ".
-  Definition inf_array۰model' t vsₗ vsᵣ :=
+  Please Definition inf_array۰model' t vsₗ vsᵣ :=
     inf_array۰model t (
       λ i,
         if decide (i < length vsₗ) then vsₗ !!! i else vsᵣ (i - length vsₗ)
@@ -772,6 +772,4 @@ End inf_array۰G.
 
 Require zoo_std.inf_array__opaque.
 
-#[global] Opaque inf_array۰inv.
-#[global] Opaque inf_array۰model.
-#[global] Opaque inf_array۰model'.
+Please opacify.

@@ -22,7 +22,7 @@ Qed.
 Section excl۰G.
   Context `{excl۰G : !ExclG Σ F}.
 
-  Definition excl γ a :=
+  Please Definition excl γ a :=
     own γ (Excl a).
 
   #[global] Instance exclｰproper γ :
@@ -64,4 +64,4 @@ Section excl۰G.
   Qed.
 End excl۰G.
 
-#[global] Opaque excl.
+Please opacify.

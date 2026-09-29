@@ -30,7 +30,7 @@ Zoo global :=
 Section ws_bdeques_public۰G.
   Context `{ws_bdeques_public۰G : WsBdequesPublicG Σ}.
 
-  Definition ws_bdeques_public۰inv t ι sz : iProp Σ :=
+  Please Definition ws_bdeques_public۰inv t ι sz : iProp Σ :=
     ∃ queues,
     ⌜sz = length queues⌝ ∗
     array۰model t DfracDiscarded queues ∗
@@ -44,7 +44,7 @@ Section ws_bdeques_public۰G.
       )
     ".
 
-  Definition ws_bdeques_public۰model t vss : iProp Σ :=
+  Please Definition ws_bdeques_public۰model t vss : iProp Σ :=
     ∃ queues,
     array۰model t DfracDiscarded queues ∗
     [∗ list] i ↦ queue; vs ∈ queues; vss,
@@ -56,7 +56,7 @@ Section ws_bdeques_public۰G.
       )
     ".
 
-  Definition ws_bdeques_public۰owner t i status ws : iProp Σ :=
+  Please Definition ws_bdeques_public۰owner t i status ws : iProp Σ :=
     ∃ queues queue,
     ⌜queues !! i = Some queue⌝ ∗
     array۰model t DfracDiscarded queues ∗
@@ -394,9 +394,7 @@ Section ws_bdeques_public۰G.
   Qed.
 End ws_bdeques_public۰G.
 
-#[global] Opaque ws_bdeques_public۰inv.
-#[global] Opaque ws_bdeques_public۰model.
-#[global] Opaque ws_bdeques_public۰owner.
+Please opacify.
 
 Section ws_bdeques_public۰G.
   Context `{ws_bdeques_public۰G : WsBdequesPublicG Σ}.

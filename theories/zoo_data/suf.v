@@ -16,7 +16,7 @@ Zoo global :=
   }.
 
 Section unify.
-  #[local] Definition unify_at repr1 repr2 repr :=
+  #[local] Please Definition unify_at repr1 repr2 repr :=
     if decide (repr = repr1) then
       repr2
     else
@@ -35,7 +35,7 @@ Section unify.
     rewrite /unify_at decide_False //.
   Qed.
 
-  #[local] Definition unify repr1 repr2 reprs :=
+  #[local] Please Definition unify repr1 repr2 reprs :=
     unify_at repr1 repr2 <$> reprs.
 
   #[local] Lemma unifyｰlookup₁ reprs repr1 repr2 elt :
@@ -68,11 +68,10 @@ Section unify.
   Qed.
 End unify.
 
-Opaque unify_at.
-Opaque unify.
+Please opacify.
 
 Section consistent.
-  #[local] Definition consistent_at reprs elt repr descr :=
+  #[local] Please Definition consistent_at reprs elt repr descr :=
     ( ∃ rank,
       repr = elt ∧
       descr = ‘Root( #rank )%V
@@ -83,7 +82,7 @@ Section consistent.
       reprs !! parent = Some repr ∧
       reprs !! repr = Some repr
     ).
-  #[local] Definition consistent reprs descrs :=
+  #[local] Please Definition consistent reprs descrs :=
     map_Forall2 (consistent_at reprs) reprs descrs.
 
   #[local] Lemma consistentｰempty :
@@ -184,13 +183,12 @@ Section consistent.
   Qed.
 End consistent.
 
-Opaque consistent_at.
-Opaque consistent.
+Please opacify.
 
 Section suf۰G.
   Context `{suf۰G : SufG Σ}.
 
-  Definition suf۰model t reprs : iProp Σ :=
+  Please Definition suf۰model t reprs : iProp Σ :=
     ∃ descrs,
     sstore_2۰model t descrs ∗
     ⌜consistent reprs descrs⌝.
@@ -201,7 +199,7 @@ Section suf۰G.
       )
     ".
 
-  Definition suf۰snapshot s t reprs : iProp Σ :=
+  Please Definition suf۰snapshot s t reprs : iProp Σ :=
     ∃ descrs,
     sstore_2۰snapshot s t descrs ∗
     ⌜consistent reprs descrs⌝.
@@ -503,5 +501,4 @@ End suf۰G.
 
 Require zoo_data.suf__opaque.
 
-#[global] Opaque suf۰model.
-#[global] Opaque suf۰snapshot.
+Please opacify.

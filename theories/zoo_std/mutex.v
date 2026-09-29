@@ -23,7 +23,7 @@ Section mutex۰G.
   #[local] Definition locked γ :=
     excl γ ().
 
-  Definition mutex۰init t b : iProp Σ :=
+  Please Definition mutex۰init t b : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -40,13 +40,13 @@ Section mutex۰G.
         locked γ ∗
         P
     end.
-  Definition mutex۰inv t P : iProp Σ :=
+  Please Definition mutex۰inv t P : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
     inv nroot (inv۰inner l γ P).
 
-  Definition mutex۰locked t : iProp Σ :=
+  Please Definition mutex۰locked t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -326,6 +326,4 @@ End mutex۰G.
 
 Require zoo_std.mutex__opaque.
 
-#[global] Opaque mutex۰init.
-#[global] Opaque mutex۰inv.
-#[global] Opaque mutex۰locked.
+Please opacify.

@@ -25,9 +25,9 @@ Section auth_nat_min۰G.
 
   Implicit Type n m p : nat.
 
-  Definition auth_nat_min۰auth γ dq n :=
+  Please Definition auth_nat_min۰auth γ dq n :=
     auth_mono۰auth ge γ dq n.
-  Definition auth_nat_min۰ub γ n :=
+  Please Definition auth_nat_min۰ub γ n :=
     auth_mono۰lb ge γ n.
 
   #[global] Instance auth_nat_min۰authｰtimeless γ dq n :
@@ -162,5 +162,4 @@ Section auth_nat_min۰G.
   Qed.
 End auth_nat_min۰G.
 
-#[global] Opaque auth_nat_min۰auth.
-#[global] Opaque auth_nat_min۰ub.
+Please opacify.

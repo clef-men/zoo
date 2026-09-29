@@ -12,7 +12,7 @@ Implicit Type vs : list val.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition queue_1۰model t vs : iProp Σ :=
+  Please Definition queue_1۰model t vs : iProp Σ :=
     ∃ l front back,
     ⌜t = #l⌝ ∗
     l.[front] ↦ front ∗
@@ -124,4 +124,4 @@ End zoo۰G.
 
 Require zoo_std.queue_1__opaque.
 
-#[global] Opaque queue_1۰model.
+Please opacify.

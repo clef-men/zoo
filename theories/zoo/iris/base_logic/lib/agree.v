@@ -22,7 +22,7 @@ Qed.
 Section agree۰G.
   Context `{agree۰G : !AgreeG Σ F}.
 
-  Definition agree۰on γ a :=
+  Please Definition agree۰on γ a :=
     own γ (to_agree a).
 
   #[global] Instance agree۰onｰne γ :
@@ -97,4 +97,4 @@ Section agree۰G.
   End discrete.
 End agree۰G.
 
-#[global] Opaque agree۰on.
+Please opacify.

@@ -26,9 +26,9 @@ Section mono_list۰G.
   Implicit Type a : A.
   Implicit Type l : list A.
 
-  Definition mono_list۰auth γ dq l :=
+  Please Definition mono_list۰auth γ dq l :=
     auth_mono۰auth (A := leibnizO (list A)) prefix γ dq l.
-  Definition mono_list۰lb γ l :=
+  Please Definition mono_list۰lb γ l :=
     auth_mono۰lb (A := leibnizO (list A)) prefix γ l.
   Definition mono_list۰at γ i a : iProp Σ :=
     ∃ l,
@@ -254,7 +254,6 @@ Section mono_list۰G.
   Qed.
 End mono_list۰G.
 
-#[global] Opaque mono_list۰auth.
-#[global] Opaque mono_list۰lb.
+Please opacify.
 #[global] Typeclasses Opaque mono_list۰at.
 #[global] Typeclasses Opaque mono_list۰elem.

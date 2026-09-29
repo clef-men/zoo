@@ -302,7 +302,7 @@ Section ws_deques_private۰G.
       & Hresponses
       )
     ".
-  Definition ws_deques_private۰inv t ι (sz : nat) : iProp Σ :=
+  Please Definition ws_deques_private۰inv t ι (sz : nat) : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata۰inv)⌝ ∗
@@ -340,7 +340,7 @@ Section ws_deques_private۰G.
       )
     ".
 
-  Definition ws_deques_private۰model t vss : iProp Σ :=
+  Please Definition ws_deques_private۰model t vss : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -354,7 +354,7 @@ Section ws_deques_private۰G.
       )
     ".
 
-  Definition ws_deques_private۰owner t i status ws : iProp Σ :=
+  Please Definition ws_deques_private۰owner t i status ws : iProp Σ :=
     ∃ l γ queue vs Ψ_sender Ψ_receiver,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -1371,9 +1371,7 @@ Section ws_deques_private۰G.
   Qed.
 End ws_deques_private۰G.
 
-#[global] Opaque ws_deques_private۰inv.
-#[global] Opaque ws_deques_private۰model.
-#[global] Opaque ws_deques_private۰owner.
+Please opacify.
 
 Section ws_deques_private۰G.
   Context `{ws_deques_private۰G : WsDequesPrivateG Σ}.

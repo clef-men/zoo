@@ -117,7 +117,7 @@ Module base.
       ⌜NoDup $ delta۰ref <$> δs⌝ ∗
       ⌜store۰on σ₀ descr.(descriptor۰store) = store۰on σ₀ $ deltas۰apply δs ς⌝ ∗
       deltas۰chain cnode δs cnode'.
-    Definition sstore_2۰model t σ₀ σ : iProp Σ :=
+    Please Definition sstore_2۰model t σ₀ σ : iProp Σ :=
       ∃ l γ g root ς,
       ⌜t = #l⌝ ∗
       ⌜σ = snd <$> ς⌝ ∗
@@ -148,7 +148,7 @@ Module base.
           ⌜cnodes !! ϵ.1 = Some descr'⌝ ∗
           cnode۰model γ σ₀ cnode descr ϵ descr'.(descriptor۰store).
 
-    Definition sstore_2۰snapshot s t σ : iProp Σ :=
+    Please Definition sstore_2۰snapshot s t σ : iProp Σ :=
       ∃ l γ g cnode descr,
       ⌜t = #l⌝ ∗
       ⌜s = (t, #g, #cnode)%V⌝ ∗
@@ -1483,8 +1483,7 @@ Module base.
     Qed.
   End sstore_2۰G.
 
-  #[global] Opaque sstore_2۰model.
-  #[global] Opaque sstore_2۰snapshot.
+  Please opacify.
 End base.
 
 Require zoo_data.sstore_2__opaque.
@@ -1501,7 +1500,7 @@ Section sstore_2۰G.
     gname.
   Implicit Type γ : metadata.
 
-  Definition sstore_2۰model t σ : iProp Σ :=
+  Please Definition sstore_2۰model t σ : iProp Σ :=
     ∃ l γ σ₀ ς,
     ⌜t = #l⌝ ∗
     ⌜σ ⊆ ς ∪ σ₀⌝ ∗
@@ -1509,7 +1508,7 @@ Section sstore_2۰G.
     mono_gmap۰auth γ (DfracOwn 1) σ₀ ∗
     base.sstore_2۰model t σ₀ ς.
 
-  Definition sstore_2۰snapshot s t σ : iProp Σ :=
+  Please Definition sstore_2۰snapshot s t σ : iProp Σ :=
     ∃ l γ σ₀ ς,
     ⌜t = #l⌝ ∗
     ⌜σ ⊆ ς ∪ σ₀⌝ ∗
@@ -1659,5 +1658,4 @@ Section sstore_2۰G.
   Qed.
 End sstore_2۰G.
 
-#[global] Opaque sstore_2۰model.
-#[global] Opaque sstore_2۰snapshot.
+Please opacify.

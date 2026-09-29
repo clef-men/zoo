@@ -13,7 +13,7 @@ Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
   Section chunk۰model.
-    Definition chunk۰model l dq vs : iProp Σ :=
+    Please Definition chunk۰model l dq vs : iProp Σ :=
       l ↦∗{dq} vs.
 
     #[global] Instance chunk۰modelｰtimeless l dq vs :
@@ -322,7 +322,7 @@ Section zoo۰G.
   End chunk۰model.
 
   Section chunk۰span.
-    Definition chunk۰span l dq n : iProp Σ :=
+    Please Definition chunk۰span l dq n : iProp Σ :=
       ∃ vs,
       ⌜length vs = n⌝ ∗
       chunk۰model l dq vs.
@@ -634,7 +634,7 @@ Section zoo۰G.
   Section chunk۰cslice.
     Implicit Type sz : nat.
 
-    Definition chunk۰cslice l sz i dq vs : iProp Σ :=
+    Please Definition chunk۰cslice l sz i dq vs : iProp Σ :=
       [∗ list] k ↦ v ∈ vs, (l +ₗ (i + k) `mod` sz) ↦{dq} v.
 
     #[global] Instance chunk۰csliceｰtimeless l sz i dq vs :
@@ -1281,6 +1281,4 @@ Section zoo۰G.
   End itype۰chunk.
 End zoo۰G.
 
-#[global] Opaque chunk۰model.
-#[global] Opaque chunk۰span.
-#[global] Opaque chunk۰cslice.
+Please opacify.

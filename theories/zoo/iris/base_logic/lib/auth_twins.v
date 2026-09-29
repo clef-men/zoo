@@ -43,7 +43,7 @@ Section auth_twins۰G.
   Please derive EqDecision for auth_twins۰name.
   Please derive Countable for auth_twins۰name.
 
-  Definition auth_twins۰auth γ a : iProp Σ :=
+  Please Definition auth_twins۰auth γ a : iProp Σ :=
     ∃ η,
     ghost_var γ.(auth_twins۰name۰var) (DfracOwn (1/3)) η ∗
     auth_mono۰auth R η (DfracOwn 1) a.
@@ -53,7 +53,7 @@ Section auth_twins۰G.
       & {{pref}_}Hauth
       )
     ".
-  Definition auth_twins۰twin₁ γ a : iProp Σ :=
+  Please Definition auth_twins۰twin₁ γ a : iProp Σ :=
     ∃ η,
     ghost_var γ.(auth_twins۰name۰var) (DfracOwn (1/3)) η ∗
     auth_mono۰lb R η a ∗
@@ -65,7 +65,7 @@ Section auth_twins۰G.
       & Htwin₁{_{suff}}
       )
     ".
-  Definition auth_twins۰twin₂ γ a : iProp Σ :=
+  Please Definition auth_twins۰twin₂ γ a : iProp Σ :=
     ∃ η,
     ghost_var γ.(auth_twins۰name۰var) (DfracOwn (1/3)) η ∗
     auth_mono۰lb R η a ∗
@@ -242,6 +242,4 @@ Section auth_twins۰G.
   Qed.
 End auth_twins۰G.
 
-#[global] Opaque auth_twins۰auth.
-#[global] Opaque auth_twins۰twin₁.
-#[global] Opaque auth_twins۰twin₂.
+Please opacify.

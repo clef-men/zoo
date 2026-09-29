@@ -2,7 +2,7 @@ Require Import zoo.prelude.
 Require Import zoo.base.
 Require Import zoo.options.
 
-Definition assert : val :=
+Please Definition assert : val :=
   𝗳𝘂𝗻 "b" ->
     𝗶𝗳 ~ "b" 𝘁𝗵𝗲𝗻
       𝗳𝗮𝗶𝗹.
@@ -23,4 +23,4 @@ Section zoo۰G.
   Qed.
 End zoo۰G.
 
-#[global] Opaque assert.
+Please opacify.

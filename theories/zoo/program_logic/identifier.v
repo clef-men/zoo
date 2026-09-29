@@ -26,7 +26,7 @@ Notation "'𝗶𝗱'" :=
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition identifier۰model id : iProp Σ :=
+  Please Definition identifier۰model id : iProp Σ :=
     ∃ prophs,
     prophet۰model id prophs.
 
@@ -60,4 +60,4 @@ Section zoo۰G.
   Qed.
 End zoo۰G.
 
-#[global] Opaque identifier۰model.
+Please opacify.

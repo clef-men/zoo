@@ -43,7 +43,7 @@ Implicit Type lv : lowval.
       "structeq" (𝗹𝗼𝗮𝗱 "v1" "i") (𝗹𝗼𝗮𝗱 "v2" "i") 𝗮𝗻𝗱
       "structeq_aux" "v1" "v2" "i"
 )%zoo_recs.
-Definition structeq :=
+Please Definition structeq :=
   ValRecs 0 __zoo_recs.
 #[local] Definition structeq۰aux :=
   ValRecs 1 __zoo_recs.
@@ -956,7 +956,7 @@ Section zoo۰G.
   Qed.
 End zoo۰G.
 
-#[global] Opaque structeq.
+Please opacify.
 
 (* Abstract (tree-like) values *)
 

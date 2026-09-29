@@ -24,7 +24,7 @@ Section zoo۰G.
       & Helem_value
       )
     ".
-  Definition dynarray_2۰model t vs : iProp Σ :=
+  Please Definition dynarray_2۰model t vs : iProp Σ :=
     ∃ l data elems extra,
     ⌜t = #l⌝ ∗
     l.[size] ↦ #(length vs) ∗
@@ -985,7 +985,7 @@ Section zoo۰G.
     all: iSteps.
   Qed.
 
-  Definition itype۰dynarray_2 t : iProp Σ :=
+  Please Definition itype۰dynarray_2 t : iProp Σ :=
     ∃ l,
     ⌜t = #l⌝ ∗
     inv nroot (
@@ -1463,5 +1463,4 @@ End zoo۰G.
 
 Require zoo_std.dynarray_2__opaque.
 
-#[global] Opaque dynarray_2۰model.
-#[global] Opaque itype۰dynarray_2.
+Please opacify.

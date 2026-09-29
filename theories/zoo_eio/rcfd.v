@@ -212,7 +212,7 @@ Section rcfd۰G.
     ".
   #[local] Definition inv' l γ Ψ :=
     inv nroot (inv۰inner l γ Ψ).
-  Definition rcfd۰inv t owned fd Ψ : iProp Σ :=
+  Please Definition rcfd۰inv t owned fd Ψ : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜owned = γ.(metadata۰owned)⌝ ∗
@@ -230,7 +230,7 @@ Section rcfd۰G.
       )
     ".
 
-  Definition rcfd۰owner t : iProp Σ :=
+  Please Definition rcfd۰owner t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -244,7 +244,7 @@ Section rcfd۰G.
       )
     ".
 
-  Definition rcfd۰closing t : iProp Σ :=
+  Please Definition rcfd۰closing t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -1603,6 +1603,4 @@ End rcfd۰G.
 
 Require zoo_eio.rcfd__opaque.
 
-#[global] Opaque rcfd۰inv.
-#[global] Opaque rcfd۰owner.
-#[global] Opaque rcfd۰closing.
+Please opacify.

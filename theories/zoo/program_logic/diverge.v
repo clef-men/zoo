@@ -2,7 +2,7 @@ Require Import zoo.prelude.
 Require Import zoo.base.
 Require Import zoo.options.
 
-Definition diverge : val :=
+Please Definition diverge : val :=
   𝗿𝗲𝗰 "diverge" ⎽ ->
     "diverge" ().
 
@@ -38,4 +38,4 @@ Section zoo۰G.
   Qed.
 End zoo۰G.
 
-#[global] Opaque diverge.
+Please opacify.

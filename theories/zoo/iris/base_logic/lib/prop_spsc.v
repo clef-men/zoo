@@ -75,25 +75,25 @@ Section prop_spsc۰G.
         )
       ]
     ".
-  Definition prop_spsc۰inv γ ι P :=
+  Please Definition prop_spsc۰inv γ ι P :=
     inv ι (inv۰inner γ P).
   #[local] Instance : CustomIpat "inv" :=
     " #Hinv
     ".
 
-  Definition prop_spsc۰producer :=
+  Please Definition prop_spsc۰producer :=
     state۰unset₁.
   #[local] Instance : CustomIpat "producer" :=
     " Hstate_unset₁
     ".
 
-  Definition prop_spsc۰consumer :=
+  Please Definition prop_spsc۰consumer :=
     consumer.
   #[local] Instance : CustomIpat "consumer" :=
     " Hconsumer
     ".
 
-  Definition prop_spsc۰resolved :=
+  Please Definition prop_spsc۰resolved :=
     state۰set.
   #[local] Instance : CustomIpat "resolved" :=
     " #Hstate_set
@@ -271,7 +271,4 @@ Section prop_spsc۰G.
   Qed.
 End prop_spsc۰G.
 
-#[global] Opaque prop_spsc۰inv.
-#[global] Opaque prop_spsc۰producer.
-#[global] Opaque prop_spsc۰consumer.
-#[global] Opaque prop_spsc۰resolved.
+Please opacify.

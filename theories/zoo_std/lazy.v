@@ -86,7 +86,7 @@ Module base.
     #[local] Definition consumer۰frag γ :=
       consumer۰frag' γ.(lazy۰name۰consumer).
 
-    Definition lazy۰result :=
+    Please Definition lazy۰result :=
       lstate۰set.
     #[local] Instance : CustomIpat "result" :=
       " #Hlstate_set{_{}}
@@ -146,13 +146,13 @@ Module base.
         & Hstate
         )
       ".
-    Definition lazy۰inv t γ Ψ Ξ : iProp Σ :=
+    Please Definition lazy۰inv t γ Ψ Ξ : iProp Σ :=
       inv nroot (inv۰inner t γ Ψ Ξ).
     #[local] Instance : CustomIpat "inv" :=
       " #Hinv
       ".
 
-    Definition lazy۰consumer :=
+    Please Definition lazy۰consumer :=
       consumer۰frag.
     #[local] Instance : CustomIpat "consumer" :=
       " Hconsumer{}_frag
@@ -659,9 +659,7 @@ Module base.
     Qed.
   End lazy۰G.
 
-  #[global] Opaque lazy۰inv.
-  #[global] Opaque lazy۰consumer.
-  #[global] Opaque lazy۰result.
+  Please opacify.
 End base.
 
 Require zoo_std.lazy__opaque.
@@ -674,7 +672,7 @@ Section lazy۰G.
   Implicit Type γ : base.lazy۰name.
   Implicit Type Ψ Χ Ξ : val → iProp Σ.
 
-  Definition lazy۰inv t Ψ Ξ : iProp Σ :=
+  Please Definition lazy۰inv t Ψ Ξ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -688,7 +686,7 @@ Section lazy۰G.
       )
     ".
 
-  Definition lazy۰consumer t Χ : iProp Σ :=
+  Please Definition lazy۰consumer t Χ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -702,7 +700,7 @@ Section lazy۰G.
       )
     ".
 
-  Definition lazy۰result t v : iProp Σ :=
+  Please Definition lazy۰result t v : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1014,6 +1012,4 @@ Section lazy۰G.
   Qed.
 End lazy۰G.
 
-#[global] Opaque lazy۰inv.
-#[global] Opaque lazy۰consumer.
-#[global] Opaque lazy۰result.
+Please opacify.

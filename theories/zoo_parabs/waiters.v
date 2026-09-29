@@ -28,7 +28,7 @@ Section waiters۰G.
       & H𝑞𝑢𝑒𝑢𝑒
       )
     ".
-  Definition waiters۰inv t sz : iProp Σ :=
+  Please Definition waiters۰inv t sz : iProp Σ :=
     ∃ waiters 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 queue,
     ⌜t = (waiters, queue)%V⌝ ∗
     array۰model waiters Discard 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 ∗
@@ -235,4 +235,4 @@ End waiters۰G.
 
 Require zoo_parabs.waiters__opaque.
 
-#[global] Opaque waiters۰inv.
+Please opacify.

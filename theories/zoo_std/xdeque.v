@@ -15,7 +15,7 @@ Implicit Type fn : val.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition xdeque۰model t nodes : iProp Σ :=
+  Please Definition xdeque۰model t nodes : iProp Σ :=
     ∃ l,
     ⌜t = #l⌝ ∗
     l.[prev] ↦ from_option #ˡ t (last nodes) ∗
@@ -366,4 +366,4 @@ End zoo۰G.
 
 Require zoo_std.xdeque__opaque.
 
-#[global] Opaque xdeque۰model.
+Please opacify.

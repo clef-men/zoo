@@ -32,7 +32,7 @@ Next Obligation.
   done.
 Qed.
 
-Definition location۰add l i :=
+Please Definition location۰add l i :=
   {| location۰car := location۰car l + i |}.
 
 Notation "l +ₗ i" := (
@@ -62,7 +62,7 @@ Proof.
   rewrite locationｰeqｰspec /=; lia.
 Qed.
 
-Definition location۰fresh (ls : gset location) :=
+Please Definition location۰fresh (ls : gset location) :=
   {| location۰car := set_fold (λ k r, (1 + location۰car k) `max` r) 1 ls |}.
 
 Lemma location۰freshｰfresh ls i :
@@ -76,4 +76,4 @@ Proof.
   all: set_solver by eauto with lia.
 Qed.
 
-#[global] Opaque location۰fresh.
+Please opacify.

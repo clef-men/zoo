@@ -164,7 +164,7 @@ Section bag_2۰G.
     ".
   #[local] Definition inv' l γ :=
     inv (γ.(metadata۰inv).@"inv") (inv۰inner l γ).
-  Definition bag_2۰inv t ι : iProp Σ :=
+  Please Definition bag_2۰inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata۰inv)⌝ ∗
@@ -180,7 +180,7 @@ Section bag_2۰G.
       )
     ".
 
-  Definition bag_2۰model t vss : iProp Σ :=
+  Please Definition bag_2۰model t vss : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -194,7 +194,7 @@ Section bag_2۰G.
       )
     ".
 
-  Definition bag_2۰producer t producer ws : iProp Σ :=
+  Please Definition bag_2۰producer t producer ws : iProp Σ :=
     ∃ l γ 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟,
     ⌜t = #l⌝ ∗
     ⌜producer = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟⌝ ∗
@@ -217,7 +217,7 @@ Section bag_2۰G.
       )
     ".
 
-  Definition bag_2۰consumer t consumer : iProp Σ :=
+  Please Definition bag_2۰consumer t consumer : iProp Σ :=
     ∃ l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val),
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -920,7 +920,4 @@ End bag_2۰G.
 
 Require zoo_saturn.bag_2__opaque.
 
-#[global] Opaque bag_2۰inv.
-#[global] Opaque bag_2۰model.
-#[global] Opaque bag_2۰producer.
-#[global] Opaque bag_2۰consumer.
+Please opacify.

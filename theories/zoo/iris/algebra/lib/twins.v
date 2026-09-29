@@ -19,9 +19,9 @@ Section ofe.
 
   Implicit Type a b : A.
 
-  Definition twins۰twin₁ dq a : twins۰UR A :=
+  Please Definition twins۰twin₁ dq a : twins۰UR A :=
     ●O{dq} (Excl a).
-  Definition twins۰twin₂ a : twins۰UR A :=
+  Please Definition twins۰twin₂ a : twins۰UR A :=
     ◯O (Excl a).
 
   #[global] Instance twins۰twin₁ｰne dq :
@@ -225,8 +225,7 @@ Section ofe.
   Qed.
 End ofe.
 
-#[global] Opaque twins۰twin₁.
-#[global] Opaque twins۰twin₂.
+Please opacify.
 
 Definition twins۰URF {SI : sidx} F :=
   auth_option۰URF $ exclRF F.

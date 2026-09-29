@@ -93,7 +93,7 @@ Section parray۰G.
       & Hnodes{_{}}
       )
     ".
-  Definition parray۰inv γ : iProp Σ :=
+  Please Definition parray۰inv γ : iProp Σ :=
     ∃ nodes root,
     inv' γ nodes root.
   #[local] Instance : CustomIpat "inv" :=
@@ -103,7 +103,7 @@ Section parray۰G.
       )
     ".
 
-  Definition parray۰model t γ vs : iProp Σ :=
+  Please Definition parray۰model t γ vs : iProp Σ :=
     ∃ node,
     ⌜t = #node⌝ ∗
     nodes۰elem γ node vs.
@@ -400,5 +400,4 @@ End parray۰G.
 
 Require zoo_data.parray__opaque.
 
-#[global] Opaque parray۰inv.
-#[global] Opaque parray۰model.
+Please opacify.

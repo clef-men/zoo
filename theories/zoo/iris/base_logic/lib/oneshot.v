@@ -24,9 +24,9 @@ Section oneshot۰G.
   Implicit Type a : A.
   Implicit Type b : B.
 
-  Definition oneshot۰pending γ dq a :=
+  Please Definition oneshot۰pending γ dq a :=
     ghost_var γ dq (inl a).
-  Definition oneshot۰shot γ b :=
+  Please Definition oneshot۰shot γ b :=
     ghost_var γ DfracDiscarded (inr b).
 
   #[global] Instance oneshot۰pendingｰtimeless γ dq a :
@@ -164,5 +164,4 @@ Section oneshot۰G.
   Qed.
 End oneshot۰G.
 
-#[global] Opaque oneshot۰pending.
-#[global] Opaque oneshot۰shot.
+Please opacify.

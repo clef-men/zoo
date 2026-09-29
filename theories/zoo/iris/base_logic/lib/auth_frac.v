@@ -26,9 +26,9 @@ Section auth_frac۰G.
   Implicit Type q : frac.
   Implicit Type x y : A.
 
-  Definition auth_frac۰auth γ x :=
+  Please Definition auth_frac۰auth γ x :=
     own γ (frac_auth_auth (DfracOwn 1) x).
-  Definition auth_frac۰frag γ q y :=
+  Please Definition auth_frac۰frag γ q y :=
     own γ (frac_auth_frag q y).
 
   #[global] Instance auth_frac۰authｰproper γ :
@@ -188,8 +188,7 @@ Section auth_frac۰G.
   Qed.
 End auth_frac۰G.
 
-#[global] Opaque auth_frac۰auth.
-#[global] Opaque auth_frac۰frag.
+Please opacify.
 
 Section auth_frac۰G.
   Context {A : ucmra}.

@@ -32,7 +32,7 @@ Section prophet_typed.
         end
     end.
 
-  Definition prophet_typed۰model pid prophs : iProp Σ :=
+  Please Definition prophet_typed۰model pid prophs : iProp Σ :=
     ∃ uprophs,
     ⌜prophs = prophet_typed۰process uprophs⌝ ∗
     prophet۰model pid uprophs.
@@ -102,7 +102,7 @@ Section prophet_typed.
   Qed.
 End prophet_typed.
 
-#[global] Opaque prophet_typed۰model.
+Please opacify.
 
 Record prophet_typed₁ :=
   { prophet_typed₁۰type : Type
@@ -127,7 +127,7 @@ Section prophet_typed₁.
         prophet.(prophet_typed₁۰of_val)
     |}.
 
-  Definition prophet_typed₁۰model pid proph : iProp Σ :=
+  Please Definition prophet_typed₁۰model pid proph : iProp Σ :=
     ∃ prophs,
     prophet_typed۰model prophet_typed₁۰to_prophet pid prophs ∗
     ⌜if prophs is proph' :: _ then proph' = proph else True⌝.
@@ -197,6 +197,6 @@ Section prophet_typed₁.
   Qed.
 End prophet_typed₁.
 
-#[global] Opaque prophet_typed₁۰model.
+Please opacify.
 
 Coercion prophet_typed₁۰to_prophet : prophet_typed₁ >-> prophet_typed.

@@ -24,7 +24,7 @@ Section waiter۰G.
       & H𝑡_flag
       )
     ".
-  Definition waiter۰inv t : iProp Σ :=
+  Please Definition waiter۰inv t : iProp Σ :=
     ∃ 𝑡 mtx cond,
     ⌜t = #𝑡⌝ ∗
     𝑡.[mutex] ↦□ mtx ∗
@@ -160,4 +160,4 @@ End waiter۰G.
 
 Require zoo_parabs.waiter__opaque.
 
-#[global] Opaque waiter۰inv.
+Please opacify.

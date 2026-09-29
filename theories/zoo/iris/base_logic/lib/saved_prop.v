@@ -23,7 +23,7 @@ Section saved_prop۰G.
 
   Implicit Type P : iProp Σ.
 
-  Definition saved_prop γ P :=
+  Please Definition saved_prop γ P :=
     agree۰on γ (Next P).
 
   #[global] Instance saved_propｰcontractive γ :
@@ -68,4 +68,4 @@ Section saved_prop۰G.
   Qed.
 End saved_prop۰G.
 
-#[global] Opaque saved_prop.
+Please opacify.

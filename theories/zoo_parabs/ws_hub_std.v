@@ -25,7 +25,7 @@ Zoo global :=
   }.
 
 Section consistent.
-  #[local] Definition consistent vs vss :=
+  #[local] Please Definition consistent vs vss :=
     vs = ⋃+ (list_to_set_disj <$> vss).
 
   #[local] Lemma consistentｰalloc sz :
@@ -112,7 +112,7 @@ Section consistent.
   Qed.
 End consistent.
 
-Opaque consistent.
+Please opacify.
 
 Section ws_hub_std۰G.
   Context `{ws_hub_std۰G : WsHubStdG Σ}.
@@ -138,7 +138,7 @@ Section ws_hub_std۰G.
       & H𝑡_num_active
       )
     ".
-  Definition ws_hub_std۰inv t ι sz : iProp Σ :=
+  Please Definition ws_hub_std۰inv t ι sz : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -166,7 +166,7 @@ Section ws_hub_std۰G.
       )
     ".
 
-  Definition ws_hub_std۰model t vs : iProp Σ :=
+  Please Definition ws_hub_std۰model t vs : iProp Σ :=
     ∃ 𝑡 γ vss,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -183,7 +183,7 @@ Section ws_hub_std۰G.
       )
     ".
 
-  Definition ws_hub_std۰owner t i status empty : iProp Σ :=
+  Please Definition ws_hub_std۰owner t i status empty : iProp Σ :=
     ∃ 𝑡 γ ws round n,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1002,9 +1002,7 @@ Section ws_hub_std۰G.
   Qed.
 End ws_hub_std۰G.
 
-#[global] Opaque ws_hub_std۰inv.
-#[global] Opaque ws_hub_std۰model.
-#[global] Opaque ws_hub_std۰owner.
+Please opacify.
 
 Section ws_hub_std۰G.
   Context `{ws_hub_std۰G : WsHubStdG Σ}.

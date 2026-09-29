@@ -28,9 +28,9 @@ Section auth_mono۰G.
     rtc R
   ).
 
-  Definition auth_mono۰auth γ dq a :=
+  Please Definition auth_mono۰auth γ dq a :=
     own γ (auth_mono۰auth R dq a).
-  Definition auth_mono۰lb γ a :=
+  Please Definition auth_mono۰lb γ a :=
     own γ (auth_mono۰lb R a).
 
   #[global] Instance auth_mono۰authｰtimeless γ dq a :
@@ -262,5 +262,4 @@ Section auth_mono۰G.
   Qed.
 End auth_mono۰G.
 
-#[global] Opaque auth_mono۰auth.
-#[global] Opaque auth_mono۰lb.
+Please opacify.

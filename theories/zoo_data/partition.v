@@ -99,7 +99,7 @@ Section partition۰G.
       & Hdescrs
       )
     ".
-  Definition partition۰model γ part : iProp Σ :=
+  Please Definition partition۰model γ part : iProp Σ :=
     ∃ descrs,
     ⌜part = map_to_set (λ _, list_to_set ∘ descriptor۰elts) descrs⌝ ∗
     model' γ descrs.
@@ -110,7 +110,7 @@ Section partition۰G.
       )
     ".
 
-  Definition partition۰element γ elt v : iProp Σ :=
+  Please Definition partition۰element γ elt v : iProp Σ :=
     elements۰elem γ elt ∗
     elt.[data] ↦□ v.
   #[local] Instance : CustomIpat "element" :=
@@ -550,5 +550,4 @@ End partition۰G.
 
 Require zoo_data.partition__opaque.
 
-#[global] Opaque partition۰model.
-#[global] Opaque partition۰element.
+Please opacify.

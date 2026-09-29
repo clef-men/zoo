@@ -25,9 +25,9 @@ Section auth_dgset۰G.
 
   Implicit Type x y : gset A.
 
-  Definition auth_dgset۰auth γ dq x :=
+  Please Definition auth_dgset۰auth γ dq x :=
     own γ (●{dq} GSet x).
-  Definition auth_dgset۰frag γ y :=
+  Please Definition auth_dgset۰frag γ y :=
     own γ (◯ GSet y).
 
   #[global] Instance auth_dgset۰authｰproper γ dq :
@@ -245,5 +245,4 @@ Section auth_dgset۰G.
   Qed.
 End auth_dgset۰G.
 
-#[global] Opaque auth_dgset۰auth.
-#[global] Opaque auth_dgset۰frag.
+Please opacify.

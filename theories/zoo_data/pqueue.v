@@ -12,7 +12,7 @@ Implicit Type back front : list val.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition pqueue۰model t vs : iProp Σ :=
+  Please Definition pqueue۰model t vs : iProp Σ :=
     ∃ front back,
     ⌜t = (list۰to_val front, list۰to_val back)%V ∧ vs = front ++ reverse back⌝.
 
@@ -107,4 +107,4 @@ End zoo۰G.
 
 Require zoo_data.pqueue__opaque.
 
-#[global] Opaque pqueue۰model.
+Please opacify.

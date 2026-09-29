@@ -11,7 +11,7 @@ Implicit Type t pred : val.
 Section mutex۰G.
   Context `{mutex۰G : MutexG Σ}.
 
-  Definition condition۰inv t : iProp Σ :=
+  Please Definition condition۰inv t : iProp Σ :=
     True.
 
   #[global] Instance condition۰invｰpersistent t :
@@ -282,4 +282,4 @@ End mutex۰G.
 
 Require zoo_std.condition__opaque.
 
-#[global] Opaque condition۰inv.
+Please opacify.

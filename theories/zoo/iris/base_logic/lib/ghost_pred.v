@@ -23,7 +23,7 @@ Section ghost_pred۰G.
 
   Implicit Type Ψ : A → iProp Σ.
 
-  Definition ghost_pred γ dq Ψ :=
+  Please Definition ghost_pred γ dq Ψ :=
     ghost_var γ dq (Next ∘ Ψ).
 
   #[global] Instance ghost_predｰcontractive γ dq n :
@@ -147,4 +147,4 @@ Section ghost_pred۰G.
   Qed.
 End ghost_pred۰G.
 
-#[global] Opaque ghost_pred.
+Please opacify.

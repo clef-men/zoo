@@ -121,7 +121,7 @@ Section relation.
     - eexists. done.
   Qed.
 
-  Definition mono۰principal a : mono۰UR :=
+  Please Definition mono۰principal a : mono۰UR :=
     [a].
 
   #[local] Lemma belowｰprincipal a b :
@@ -302,4 +302,4 @@ Section ofe_relation.
   Qed.
 End ofe_relation.
 
-#[global] Opaque mono۰principal.
+Please opacify.

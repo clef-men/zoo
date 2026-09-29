@@ -32,9 +32,9 @@ Section relation.
   Definition auth_mono۰UR :=
     authUR (monopo۰UR Rs).
 
-  Definition auth_mono۰auth dq a : auth_mono۰UR :=
+  Please Definition auth_mono۰auth dq a : auth_mono۰UR :=
     ●{dq} monopo۰principal Rs a ⋅ ◯ monopo۰principal Rs a.
-  Definition auth_mono۰lb a : auth_mono۰UR :=
+  Please Definition auth_mono۰lb a : auth_mono۰UR :=
     ◯ monopo۰principal Rs a.
 
   #[global] Instance auth_mono۰authｰinj `{!AntiSymm (≡) Rs} :
@@ -260,5 +260,4 @@ Section relation.
   Qed.
 End relation.
 
-#[global] Opaque auth_mono۰auth.
-#[global] Opaque auth_mono۰lb.
+Please opacify.

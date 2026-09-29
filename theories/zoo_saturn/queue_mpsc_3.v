@@ -82,7 +82,7 @@ Section queue_mpsc_3۰G.
       & [(>Hopen₂ & %back{} & >-> & >Hmodel₂{_{suff}}) | (>Hclosed{_{suff}} & >->)]
       )
     ".
-  Definition queue_mpsc_3۰inv t ι : iProp Σ :=
+  Please Definition queue_mpsc_3۰inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -96,7 +96,7 @@ Section queue_mpsc_3۰G.
       )
     ".
 
-  Definition queue_mpsc_3۰model t vs : iProp Σ :=
+  Please Definition queue_mpsc_3۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -110,7 +110,7 @@ Section queue_mpsc_3۰G.
       )
     ".
 
-  Definition queue_mpsc_3۰consumer t ws : iProp Σ :=
+  Please Definition queue_mpsc_3۰consumer t ws : iProp Σ :=
     ∃ l γ v_front front,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -139,7 +139,7 @@ Section queue_mpsc_3۰G.
       )
     ".
 
-  Definition queue_mpsc_3۰closed t : iProp Σ :=
+  Please Definition queue_mpsc_3۰closed t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -773,7 +773,4 @@ End queue_mpsc_3۰G.
 
 Require zoo_saturn.queue_mpsc_3__opaque.
 
-#[global] Opaque queue_mpsc_3۰inv.
-#[global] Opaque queue_mpsc_3۰model.
-#[global] Opaque queue_mpsc_3۰consumer.
-#[global] Opaque queue_mpsc_3۰closed.
+Please opacify.

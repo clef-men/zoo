@@ -153,7 +153,7 @@ Section relation.
     - eexists. done.
   Qed.
 
-  Definition monopo۰principal a : monopo۰UR :=
+  Please Definition monopo۰principal a : monopo۰UR :=
     [a].
 
   #[local] Lemma belowｰprincipal a b :
@@ -353,4 +353,4 @@ Section ofe_relation.
   Qed.
 End ofe_relation.
 
-#[global] Opaque monopo۰principal.
+Please opacify.

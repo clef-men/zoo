@@ -88,7 +88,7 @@ Module base.
         & Hstate
         )
       ".
-    Definition ivar_2۰inv t γ Ψ Ξ : iProp Σ :=
+    Please Definition ivar_2۰inv t γ Ψ Ξ : iProp Σ :=
       t.[mutex] ↦□ γ.(ivar_2۰name۰mutex) ∗
       mutex۰inv γ.(ivar_2۰name۰mutex) True ∗
       t.[condition] ↦□ γ.(ivar_2۰name۰condition) ∗
@@ -103,19 +103,19 @@ Module base.
         )
       ".
 
-    Definition ivar_2۰producer :=
+    Please Definition ivar_2۰producer :=
       lstate۰unset₂.
     #[local] Instance : CustomIpat "producer" :=
       " Hlstate_unset₂{_{}}
       ".
 
-    Definition ivar_2۰consumer :=
+    Please Definition ivar_2۰consumer :=
       consumer۰frag.
     #[local] Instance : CustomIpat "consumer" :=
       " Hconsumer{}_frag
       ".
 
-    Definition ivar_2۰result :=
+    Please Definition ivar_2۰result :=
       lstate۰set.
     #[local] Instance : CustomIpat "result" :=
       " #Hlstate_set{_{}}
@@ -124,7 +124,7 @@ Module base.
       ∃ v,
       ivar_2۰result γ v.
 
-    Definition ivar_2۰synchronized γ : iProp Σ :=
+    Please Definition ivar_2۰synchronized γ : iProp Σ :=
       True.
 
     #[global] Instance ivar_2۰invｰcontractive t γ n :
@@ -706,11 +706,7 @@ Module base.
     Qed.
   End ivar_2۰G.
 
-  #[global] Opaque ivar_2۰inv.
-  #[global] Opaque ivar_2۰producer.
-  #[global] Opaque ivar_2۰consumer.
-  #[global] Opaque ivar_2۰result.
-  #[global] Opaque ivar_2۰synchronized.
+  Please opacify.
 End base.
 
 Require zoo_std.ivar_2__opaque.
@@ -723,7 +719,7 @@ Section ivar_2۰G.
   Implicit Type γ : base.ivar_2۰name.
   Implicit Type Ψ Χ Ξ : val → iProp Σ.
 
-  Definition ivar_2۰inv t Ψ Ξ : iProp Σ :=
+  Please Definition ivar_2۰inv t Ψ Ξ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -737,7 +733,7 @@ Section ivar_2۰G.
       )
     ".
 
-  Definition ivar_2۰producer t : iProp Σ :=
+  Please Definition ivar_2۰producer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -751,7 +747,7 @@ Section ivar_2۰G.
       )
     ".
 
-  Definition ivar_2۰consumer t Χ : iProp Σ :=
+  Please Definition ivar_2۰consumer t Χ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -765,7 +761,7 @@ Section ivar_2۰G.
       )
     ".
 
-  Definition ivar_2۰result t v : iProp Σ :=
+  Please Definition ivar_2۰result t v : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -782,7 +778,7 @@ Section ivar_2۰G.
     ∃ v,
     ivar_2۰result t v.
 
-  Definition ivar_2۰synchronized t : iProp Σ :=
+  Please Definition ivar_2۰synchronized t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1176,8 +1172,4 @@ Section ivar_2۰G.
   Qed.
 End ivar_2۰G.
 
-#[global] Opaque ivar_2۰inv.
-#[global] Opaque ivar_2۰producer.
-#[global] Opaque ivar_2۰consumer.
-#[global] Opaque ivar_2۰result.
-#[global] Opaque ivar_2۰synchronized.
+Please opacify.

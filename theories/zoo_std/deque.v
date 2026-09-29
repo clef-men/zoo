@@ -11,7 +11,7 @@ Implicit Type fn : val.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition deque۰model t vs : iProp Σ :=
+  Please Definition deque۰model t vs : iProp Σ :=
     ∃ nodes,
     xdeque۰model t nodes ∗
     [∗ list] node; v ∈ nodes; vs, node.[xdeque٠data] ↦ v.
@@ -197,4 +197,4 @@ End zoo۰G.
 
 Require zoo_std.deque__opaque.
 
-#[global] Opaque deque۰model.
+Please opacify.

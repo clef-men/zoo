@@ -92,7 +92,7 @@ Section sarray۰G.
       & Hnodes{_{}}
       )
     ".
-  Definition sarray۰model t vs : iProp Σ :=
+  Please Definition sarray۰model t vs : iProp Σ :=
     ∃ l γ nodes root,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -116,7 +116,7 @@ Section sarray۰G.
       )
     ".
 
-  Definition sarray۰snapshot s t vs : iProp Σ :=
+  Please Definition sarray۰snapshot s t vs : iProp Σ :=
     ∃ node l γ,
     ⌜s = #node⌝ ∗
     ⌜t = #l⌝ ∗
@@ -425,5 +425,4 @@ End sarray۰G.
 
 Require zoo_data.sarray__opaque.
 
-#[global] Opaque sarray۰model.
-#[global] Opaque sarray۰snapshot.
+Please opacify.

@@ -91,7 +91,7 @@ Module base.
       ".
     #[local] Definition inv' t γ :=
       inv γ.(queue_mpsc_1۰name۰inv) (inv۰inner t γ).
-    Definition queue_mpsc_1۰inv t γ ι : iProp Σ :=
+    Please Definition queue_mpsc_1۰inv t γ ι : iProp Σ :=
       ⌜ι = γ.(queue_mpsc_1۰name۰inv)⌝ ∗
       inv' t γ.
     #[local] Instance : CustomIpat "inv" :=
@@ -100,7 +100,7 @@ Module base.
         )
       ".
 
-    Definition queue_mpsc_1۰model :=
+    Please Definition queue_mpsc_1۰model :=
       model₁.
     #[local] Instance : CustomIpat "model" :=
       " Hmodel₁{_{}}
@@ -116,7 +116,7 @@ Module base.
         & Hconsumer{_{}}
         )
       ".
-    Definition queue_mpsc_1۰consumer :=
+    Please Definition queue_mpsc_1۰consumer :=
       consumer₂.
     #[local] Instance : CustomIpat "consumer" :=
       " (:consumer₂)
@@ -812,9 +812,7 @@ Module base.
     Qed.
   End queue_mpsc_1۰G.
 
-  #[global] Opaque queue_mpsc_1۰inv.
-  #[global] Opaque queue_mpsc_1۰model.
-  #[global] Opaque queue_mpsc_1۰consumer.
+  Please opacify.
 End base.
 
 Require zoo_saturn.queue_mpsc_1__opaque.
@@ -825,7 +823,7 @@ Section queue_mpsc_1۰G.
   Implicit Type 𝑡 : location.
   Implicit Type t : val.
 
-  Definition queue_mpsc_1۰inv t ι : iProp Σ :=
+  Please Definition queue_mpsc_1۰inv t ι : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -839,7 +837,7 @@ Section queue_mpsc_1۰G.
       )
     ".
 
-  Definition queue_mpsc_1۰model t vs : iProp Σ :=
+  Please Definition queue_mpsc_1۰model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -853,7 +851,7 @@ Section queue_mpsc_1۰G.
       )
     ".
 
-  Definition queue_mpsc_1۰consumer t : iProp Σ :=
+  Please Definition queue_mpsc_1۰consumer t : iProp Σ :=
     ∃ 𝑡,
     ⌜t = #𝑡⌝ ∗
     base.queue_mpsc_1۰consumer 𝑡.
@@ -993,6 +991,4 @@ Section queue_mpsc_1۰G.
   Qed.
 End queue_mpsc_1۰G.
 
-#[global] Opaque queue_mpsc_1۰inv.
-#[global] Opaque queue_mpsc_1۰model.
-#[global] Opaque queue_mpsc_1۰consumer.
+Please opacify.

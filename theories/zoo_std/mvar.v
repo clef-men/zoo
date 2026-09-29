@@ -85,19 +85,19 @@ Module base.
         & Hstate
         )
       ".
-    Definition mvar۰inv t γ Ψ : iProp Σ :=
+    Please Definition mvar۰inv t γ Ψ : iProp Σ :=
       inv nroot (inv۰inner t γ Ψ).
     #[local] Instance : CustomIpat "inv" :=
       " #Hinv
       ".
 
-    Definition mvar۰consumer :=
+    Please Definition mvar۰consumer :=
       consumer.
     #[local] Instance : CustomIpat "consumer" :=
       " Hconsumer{_{}}
       ".
 
-    Definition mvar۰resolved :=
+    Please Definition mvar۰resolved :=
       lstate۰set.
     #[local] Instance : CustomIpat "resolved" :=
       " #Hlstate_set{_{}}
@@ -492,9 +492,7 @@ Module base.
     Qed.
   End mvar۰G.
 
-  #[global] Opaque mvar۰inv.
-  #[global] Opaque mvar۰consumer.
-  #[global] Opaque mvar۰resolved.
+  Please opacify.
 End base.
 
 Require zoo_std.mvar__opaque.
@@ -507,7 +505,7 @@ Section mvar۰G.
   Implicit Type γ : base.mvar۰name.
   Implicit Type Ψ : val → iProp Σ.
 
-  Definition mvar۰inv t Ψ : iProp Σ :=
+  Please Definition mvar۰inv t Ψ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -521,7 +519,7 @@ Section mvar۰G.
       )
     ".
 
-  Definition mvar۰consumer t : iProp Σ :=
+  Please Definition mvar۰consumer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -535,7 +533,7 @@ Section mvar۰G.
       )
     ".
 
-  Definition mvar۰resolved t : iProp Σ :=
+  Please Definition mvar۰resolved t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -822,6 +820,4 @@ Section mvar۰G.
   Qed.
 End mvar۰G.
 
-#[global] Opaque mvar۰inv.
-#[global] Opaque mvar۰consumer.
-#[global] Opaque mvar۰resolved.
+Please opacify.

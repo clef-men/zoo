@@ -20,7 +20,7 @@ Zoo global :=
   }.
 
 Section consistent.
-  #[local] Definition consistent vs os :=
+  #[local] Please Definition consistent vs os :=
     vs = ⋃+ (singletonMS <$> oflatten os).
 
   #[local] Lemma consistentｰlookup vs os i v :
@@ -58,7 +58,7 @@ Section consistent.
   Qed.
 End consistent.
 
-Opaque consistent.
+Please opacify.
 
 Section bag_1۰G.
   Context `{bag_1۰G : Bag1G Σ}.
@@ -105,7 +105,7 @@ Section bag_1۰G.
     ".
   #[local] Definition inv' l γ :=
     inv γ.(metadata۰inv) (inv۰inner l γ).
-  Definition bag_1۰inv t ι : iProp Σ :=
+  Please Definition bag_1۰inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata۰inv)⌝ ∗
@@ -127,7 +127,7 @@ Section bag_1۰G.
       )
     ".
 
-  Definition bag_1۰model t vs : iProp Σ :=
+  Please Definition bag_1۰model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     l ↪ γ ∗
@@ -439,5 +439,4 @@ End bag_1۰G.
 
 Require zoo_saturn.bag_1__opaque.
 
-#[global] Opaque bag_1۰inv.
-#[global] Opaque bag_1۰model.
+Please opacify.

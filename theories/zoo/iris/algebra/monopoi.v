@@ -159,7 +159,7 @@ Section relation.
     - eexists. done.
   Qed.
 
-  Definition monopoi۰principal : A → monopoi۰UR :=
+  Please Definition monopoi۰principal : A → monopoi۰UR :=
     principal.
 
   #[local] Lemma belowｰprincipal a b :
@@ -360,4 +360,4 @@ Section ofe_relation.
   Qed.
 End ofe_relation.
 
-#[global] Opaque monopoi۰principal.
+Please opacify.

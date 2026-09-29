@@ -172,7 +172,7 @@ Module base.
       ".
     #[local] Definition inv' t γ :=
       inv γ.(bqueue_mpmc۰name۰inv) (inv۰inner t γ).
-    Definition bqueue_mpmc۰inv t γ ι cap : iProp Σ :=
+    Please Definition bqueue_mpmc۰inv t γ ι cap : iProp Σ :=
       ⌜ι = γ.(bqueue_mpmc۰name۰inv)⌝ ∗
       ⌜cap = γ.(bqueue_mpmc۰name۰capacity)⌝ ∗
       t.[capacity] ↦□ #cap ∗
@@ -185,7 +185,7 @@ Module base.
         )
       ".
 
-    Definition bqueue_mpmc۰model γ vs : iProp Σ :=
+    Please Definition bqueue_mpmc۰model γ vs : iProp Σ :=
       ⌜length vs ≤ γ.(bqueue_mpmc۰name۰capacity)⌝ ∗
       model₁ γ vs.
     #[local] Instance : CustomIpat "model" :=
@@ -1317,8 +1317,7 @@ Module base.
     Qed.
   End bqueue_mpmc۰G.
 
-  #[global] Opaque bqueue_mpmc۰inv.
-  #[global] Opaque bqueue_mpmc۰model.
+  Please opacify.
 End base.
 
 Require zoo_saturn.bqueue_mpmc__opaque.
@@ -1329,7 +1328,7 @@ Section bqueue_mpmc۰G.
   Implicit Type 𝑡 : location.
   Implicit Type t : val.
 
-  Definition bqueue_mpmc۰inv t ι cap : iProp Σ :=
+  Please Definition bqueue_mpmc۰inv t ι cap : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1343,7 +1342,7 @@ Section bqueue_mpmc۰G.
       )
     ".
 
-  Definition bqueue_mpmc۰model t vs : iProp Σ :=
+  Please Definition bqueue_mpmc۰model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
@@ -1519,5 +1518,4 @@ Section bqueue_mpmc۰G.
   Qed.
 End bqueue_mpmc۰G.
 
-#[global] Opaque bqueue_mpmc۰inv.
-#[global] Opaque bqueue_mpmc۰model.
+Please opacify.

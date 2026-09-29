@@ -25,9 +25,9 @@ Section auth_gmultiset۰G.
 
   Implicit Type x y : gmultiset A.
 
-  Definition auth_gmultiset۰auth γ dq x :=
+  Please Definition auth_gmultiset۰auth γ dq x :=
     own γ (●{dq} x).
-  Definition auth_gmultiset۰frag γ y :=
+  Please Definition auth_gmultiset۰frag γ y :=
     own γ (◯ y).
 
   #[global] Instance auth_gmultiset۰authｰproper γ dq :
@@ -200,5 +200,4 @@ Section auth_gmultiset۰G.
   Qed.
 End auth_gmultiset۰G.
 
-#[global] Opaque auth_gmultiset۰auth.
-#[global] Opaque auth_gmultiset۰frag.
+Please opacify.

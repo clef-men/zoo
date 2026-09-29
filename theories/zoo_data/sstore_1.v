@@ -553,7 +553,7 @@ Section sstore_1۰G.
     ∃ (γ:gname) (C:gset (location * gmap location val)), (* the model of snapshots *)
       ⌜snapshot_inv M C⌝ ∗ t0 ↪ γ ∗ sstore_1۰map۰auth γ C.
 
-  #[local] Definition sstore_1 (t:val) (σ:gmap location val) : iProp Σ :=
+  Please Definition sstore_1 (t:val) (σ:gmap location val) : iProp Σ :=
     ∃ (t0 r:location)
       (σ0:gmap location val) (* the global map, with all the points-to ever allocated *)
       (g:graph_store) (* the global graph *)
@@ -568,8 +568,11 @@ Section sstore_1۰G.
   Definition open_inv : string :=
     "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh&%Hgraph)&Ht0&Hr&HC&Hσ0&Hg)]]]]]".
 
-  Definition sstore_1۰snapshot t s σ : iProp Σ :=
-    ∃ γ (t0:location) l, ⌜t=#t0 ∧ s=ValTuple [t;#l]⌝ ∗ t0 ↪ γ ∗ sstore_1۰map۰elem γ l σ.
+  Please Definition sstore_1۰snapshot t s σ : iProp Σ :=
+    ∃ γ (t0:location) l,
+    ⌜t=#t0 ∧ s=ValTuple [t;#l]⌝ ∗
+    t0 ↪ γ ∗
+    sstore_1۰map۰elem γ l σ.
 
   #[global] Instance sstore_1۰snapshotｰtimeless t s σ :
     Timeless (sstore_1۰snapshot t s σ).
@@ -591,7 +594,7 @@ Section sstore_1۰G.
     {{{
       t
     , RET t;
-        sstore_1 t ∅
+      sstore_1 t ∅
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -1576,5 +1579,4 @@ End sstore_1۰G.
 
 Require zoo_data.sstore_1__opaque.
 
-#[global] Opaque sstore_1.
-#[global] Opaque sstore_1۰snapshot.
+Please opacify.
