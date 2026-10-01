@@ -31,15 +31,15 @@ Canonical state۰O {SI : sidx} :=
 
 Please derive Inhabited for state.
 
-Definition state۰update_heap f σ :=
-  {|state۰headers := σ.(state۰headers)
-  ; state۰heap := f σ.(state۰heap)
-  ; state۰locals := σ.(state۰locals)
-  ; state۰prophets := σ.(state۰prophets)
-  |}.
 Definition state۰update_headers f σ :=
   {|state۰headers := f σ.(state۰headers)
   ; state۰heap := σ.(state۰heap)
+  ; state۰locals := σ.(state۰locals)
+  ; state۰prophets := σ.(state۰prophets)
+  |}.
+Definition state۰update_heap f σ :=
+  {|state۰headers := σ.(state۰headers)
+  ; state۰heap := f σ.(state۰heap)
   ; state۰locals := σ.(state۰locals)
   ; state۰prophets := σ.(state۰prophets)
   |}.
@@ -56,10 +56,10 @@ Definition state۰update_prophets f σ :=
   ; state۰prophets := f σ.(state۰prophets)
   |}.
 
-Definition state۰set_location l v :=
-  state۰update_heap $ insert l v.
 Definition state۰set_header l hdr :=
   state۰update_headers $ insert l hdr.
+Definition state۰set_location l v :=
+  state۰update_heap $ insert l v.
 Definition state۰set_local tid v :=
   state۰update_locals $ insert tid v.
 Definition state۰add_local v :=
@@ -141,13 +141,19 @@ Definition state۰alloc l hdr vs σ :=
   ; state۰prophets := σ.(state۰prophets)
   |}.
 
-Definition state۰alloc_condition l sz σ :=
-  σ.(state۰headers) !! l = None ∧
-  σ.(state۰heap) !! l = None ∧
-    ∀ i,
-    i < sz →
-      σ.(state۰headers) !! (l +ₗ i) = None ∧
-      σ.(state۰heap) !! (l +ₗ i) = None.
+Record state۰alloc_condition۰at l σ :=
+  { state۰alloc_condition۰atｰheaders :
+      σ.(state۰headers) !! l = None
+  ; state۰alloc_condition۰atｰheap :
+      σ.(state۰heap) !! l = None
+  }.
+Record state۰alloc_condition l sz σ :=
+  { state۰alloc_conditionｰbase :
+      state۰alloc_condition۰at l σ
+  ; state۰alloc_conditionｰfields i :
+      i < sz →
+      state۰alloc_condition۰at (l +ₗ i) σ
+  }.
 
 Definition state۰fresh۰dom σ :=
   dom σ.(state۰headers) ∪
@@ -155,17 +161,21 @@ Definition state۰fresh۰dom σ :=
 Definition state۰fresh σ :=
   location۰fresh $ state۰fresh۰dom σ.
 
-Lemma state۰alloc_conditionｰfresh sz σ :
-  state۰alloc_condition (state۰fresh σ) sz σ.
+Lemma state۰alloc_condition۰atｰfresh σ i :
+  (0 ≤ i)%Z →
+  state۰alloc_condition۰at (state۰fresh σ +ₗ i) σ.
 Proof.
   pose proof (location۰freshｰfresh $ state۰fresh۰dom σ) as Hfresh.
   repeat setoid_rewrite not_elem_of_union in Hfresh.
-  split_and!.
-  - rewrite /state۰fresh -(location۰addｰ0 (location۰fresh _)) //.
-    apply not_elem_of_dom, Hfresh => //.
-  - rewrite /state۰fresh -(location۰addｰ0 (location۰fresh _)) //.
-    apply not_elem_of_dom, Hfresh => //.
+  intros Hi. split.
+  all: apply not_elem_of_dom, Hfresh => //.
+Qed.
+Lemma state۰alloc_conditionｰfresh sz σ :
+  state۰alloc_condition (state۰fresh σ) sz σ.
+Proof.
+  split.
+  - rewrite -(location۰addｰ0 (state۰fresh σ)).
+    apply state۰alloc_condition۰atｰfresh => //.
   - intros i Hi.
-    split_and!.
-    all: apply not_elem_of_dom, Hfresh; lia.
+    apply state۰alloc_condition۰atｰfresh. 1: lia.
 Qed.

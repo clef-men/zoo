@@ -472,11 +472,26 @@ Lemma eraseｰstate۰alloc l hdr vs σ :
 Proof.
   rewrite /erase۰state map_fmap_union eraseｰchunk //.
 Qed.
-Lemma eraseｰstate۰alloc_condition l sz σ :
-  state۰alloc_condition l sz (erase۰state σ) ↔ state۰alloc_condition l sz σ.
+
+Lemma eraseｰstate۰alloc_condition۰at l σ :
+  state۰alloc_condition۰at l (erase۰state σ) ↔
+  state۰alloc_condition۰at l σ.
 Proof.
-  rewrite /state۰alloc_condition /=.
-  setoid_rewrite lookupｰfmapｰNone => //.
+  split.
+  all: intros (Hheaders & Hheap).
+  all: split => //.
+  - rewrite lookupｰfmapｰNone // in Hheap.
+  - rewrite lookupｰfmapｰNone //.
+Qed.
+Lemma eraseｰstate۰alloc_condition l sz σ :
+  state۰alloc_condition l sz (erase۰state σ) ↔
+  state۰alloc_condition l sz σ.
+Proof.
+  split.
+  all: intros (Hbase & Hfields).
+  all: split.
+  1,2: setoid_rewrite <- eraseｰstate۰alloc_condition۰at => //.
+  all: setoid_rewrite eraseｰstate۰alloc_condition۰at => //.
 Qed.
 
 #[local] Lemma eraseｰexprｰvalｰinj :

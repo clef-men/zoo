@@ -615,10 +615,8 @@ Section zoo۰G.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     inv_base_step.
-    select (state۰alloc_condition _ _ _) ltac:(fun H =>
-      destruct H
-    ).
-    iMod (state_interpｰalloc _ _ (replicate ₊n ()%V) with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)". all: simp_length. 1: naive.
+    iMod (state_interpｰalloc l tag (replicate ₊n ()%V) with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)". 1: simp_length.
+    iEval (simp_length) in "Hinterp Hheader".
     iFrameSteps.
   Qed.
 
@@ -643,10 +641,8 @@ Section zoo۰G.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     inv_base_step.
-    select (state۰alloc_condition _ _ _) ltac:(fun H =>
-      destruct H
-    ).
-    iMod (state_interpｰalloc with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)". all: simp_length in *. 1: naive.
+    simp_length in *.
+    iMod (state_interpｰalloc with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)". 1: done.
     iFrameSteps.
   Qed.
 

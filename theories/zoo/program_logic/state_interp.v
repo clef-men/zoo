@@ -98,11 +98,7 @@ Section zoo۰G.
   Qed.
 
   Lemma state_interpｰalloc {ns nt σ κs} l tag vs :
-    σ.(state۰headers) !! l = None →
-    ( ∀ i,
-      i < length vs →
-      σ.(state۰heap) !! (l +ₗ i) = None
-    ) →
+    state۰alloc_condition l (length vs) σ →
     state_interp ns nt σ κs ⊢ |==>
       let hdr := Header tag (length vs) in
       state_interp ns nt (state۰alloc l hdr vs σ) κs ∗
@@ -110,11 +106,14 @@ Section zoo۰G.
       meta_token l ⊤ ∗
       l ↦∗ vs.
   Proof.
-    iIntros "%Hheadersｰlookup %Hheapｰlookup (:state_interp)".
-    iMod (headersｰinsert with "Hheaders_auth") as "($ & Hl_header & $)". 1: done.
+    iIntros "%H (:state_interp)".
+    iMod (headersｰinsert with "Hheaders_auth") as "($ & Hl_header & $)".
+    { eapply state۰alloc_condition۰atｰheaders, state۰alloc_conditionｰbase => //. }
     iMod (heapｰinsert (chunk _ _) with "Hheap_auth") as "($ & Hl)".
-    { apply chunkｰmapｰdisjoint => //. }
-    rewrite big_sepMｰchunk. iSteps.
+    { apply chunkｰmapｰdisjoint => //. intros i Hi.
+      eapply state۰alloc_condition۰atｰheap, state۰alloc_conditionｰfields => //.
+    }
+    rewrite big_sepMｰchunk. iFrameSteps.
   Qed.
 
   Lemma state_interpｰheaders۰atｰvalid ns nt σ κs l hdr :
