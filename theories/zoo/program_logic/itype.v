@@ -75,7 +75,7 @@ Section other.
   Implicit Type v fn : val.
 
   Definition itype۰fun τ1 `{!iType _ τ1} τ2 `{!iType _ τ2} fn : iProp Σ :=
-    □ (∀ v, τ1 v -∗ WP App (Val fn) (Val v) {{ τ2 }}).
+    □ (∀ v, τ1 v -∗ WP Apply (Val fn) (Val v) {{ τ2 }}).
   #[global] Instance itype۰funｰitype τ1 `{!iType _ τ1} τ2 `{!iType _ τ2} :
     iType _ (itype۰fun τ1 τ2).
   Proof.

@@ -561,6 +561,31 @@ End zoo۰G.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
+  Lemma wpｰmatch l hdr x_fb e_fb brs e tid E Φ :
+    eval۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
+    ▷ l ↦ₕ hdr -∗
+    ▷ WP e ∷ tid @ E {{ Φ }} -∗
+    WP Match #l x_fb e_fb brs ∷ tid @ E {{ Φ }}.
+  Proof.
+    wpｰunseal.
+    - apply bwpｰmatch.
+    - iIntros "%He >#Hl H %tid".
+      iSpecialize ("H" $! tid).
+      iApply (bwpｰmatch with "Hl H"); first done.
+  Qed.
+  Lemma wpｰmatchｰcontext K `{!Context K} l hdr x_fb e_fb brs e tid E Φ :
+    eval۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
+    ▷ l ↦ₕ hdr -∗
+    ▷ WP K e ∷ tid @ E {{ Φ }} -∗
+    WP K (Match #l x_fb e_fb brs) ∷ tid @ E {{ Φ }}.
+  Proof.
+    wpｰunseal.
+    - apply: bwpｰmatchｰcontext.
+    - iIntros "%He >#Hl H %tid".
+      iSpecialize ("H" $! tid).
+      iApply (bwpｰmatchｰcontext with "Hl H"); first done.
+  Qed.
+
   Lemma wpｰequalｰnobranch v1 v2 tid E Φ :
     ▷ (
       ∀ b,
@@ -592,32 +617,6 @@ Section zoo۰G.
     1: iDestruct "HΦ" as "(_ & HΦ)".
     2: iDestruct "HΦ" as "(HΦ & _)".
     all: iSteps.
-  Qed.
-
-  Lemma wpｰalloc 𝑡𝑎𝑔 tag n tid E :
-    tag۰of_Z 𝑡𝑎𝑔 = Some tag →
-    (0 ≤ n)%Z →
-    {{{
-      True
-    }}}
-      Alloc #𝑡𝑎𝑔 #n ∷ tid
-      @ E
-    {{{
-      l
-    , RET #l;
-      l ↦ₕ Header tag ₊n ∗
-      meta_token l ⊤ ∗
-      l ↦∗ replicate ₊n ()%V
-    }}}.
-  Proof.
-    iIntros "%Htag %Hn %Φ _ HΦ".
-    iApply bwpｰwpｰweak. iIntros.
-    iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
-    iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
-    inv_base_step.
-    iMod (state_interpｰalloc l tag (replicate ₊n ()%V) with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)". 1: simp_length.
-    iEval (simp_length) in "Hinterp Hheader".
-    iFrameSteps.
   Qed.
 
   Lemma wpｰblockｰmutable {es tag} vs tid E :
@@ -667,35 +666,36 @@ Section zoo۰G.
     iFrameSteps.
   Qed.
 
-  Lemma wpｰmatch l hdr x_fb e_fb brs e tid E Φ :
-    eval_match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
-    ▷ l ↦ₕ hdr -∗
-    ▷ WP e ∷ tid @ E {{ Φ }} -∗
-    WP Match #l x_fb e_fb brs ∷ tid @ E {{ Φ }}.
+  Lemma wpｰalloc 𝑡𝑎𝑔 tag n tid E :
+    tag۰of_Z 𝑡𝑎𝑔 = Some tag →
+    (0 ≤ n)%Z →
+    {{{
+      True
+    }}}
+      𝗮𝗹𝗹𝗼𝗰 #𝑡𝑎𝑔 #n ∷ tid
+      @ E
+    {{{
+      l
+    , RET #l;
+      l ↦ₕ Header tag ₊n ∗
+      meta_token l ⊤ ∗
+      l ↦∗ replicate ₊n ()%V
+    }}}.
   Proof.
-    wpｰunseal.
-    - apply bwpｰmatch.
-    - iIntros "%He >#Hl H %tid".
-      iSpecialize ("H" $! tid).
-      iApply (bwpｰmatch with "Hl H"); first done.
-  Qed.
-  Lemma wpｰmatchｰcontext K `{!Context K} l hdr x_fb e_fb brs e tid E Φ :
-    eval_match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
-    ▷ l ↦ₕ hdr -∗
-    ▷ WP K e ∷ tid @ E {{ Φ }} -∗
-    WP K (Match #l x_fb e_fb brs) ∷ tid @ E {{ Φ }}.
-  Proof.
-    wpｰunseal.
-    - apply: bwpｰmatchｰcontext.
-    - iIntros "%He >#Hl H %tid".
-      iSpecialize ("H" $! tid).
-      iApply (bwpｰmatchｰcontext with "Hl H"); first done.
+    iIntros "%Htag %Hn %Φ _ HΦ".
+    iApply bwpｰwpｰweak. iIntros.
+    iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
+    iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
+    inv_base_step.
+    iMod (state_interpｰalloc l tag (replicate ₊n ()%V) with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)". 1: simp_length.
+    iEval (simp_length) in "Hinterp Hheader".
+    iFrameSteps.
   Qed.
 
-  Lemma wpｰtag l hdr tid E Φ :
+  Lemma wpｰget_tag l hdr tid E Φ :
     ▷ l ↦ₕ hdr -∗
     ▷ Φ #hdr.(header۰tag) -∗
-    WP GetTag #l ∷ tid @ E {{ Φ }}.
+    WP 𝘁𝗮𝗴 #l ∷ tid @ E {{ Φ }}.
   Proof.
     iIntros ">Hheader HΦ".
     iApply bwpｰwpｰweak. iIntros.
@@ -707,10 +707,10 @@ Section zoo۰G.
     iFrameSteps.
   Qed.
 
-  Lemma wpｰsize l hdr tid E Φ :
+  Lemma wpｰget_size l hdr tid E Φ :
     ▷ l ↦ₕ hdr -∗
     ▷ Φ #hdr.(header۰size) -∗
-    WP GetSize #l ∷ tid @ E {{ Φ }}.
+    WP 𝘀𝗶𝘇𝗲 #l ∷ tid @ E {{ Φ }}.
   Proof.
     iIntros ">Hheader HΦ".
     iApply bwpｰwpｰweak. iIntros.
@@ -726,7 +726,7 @@ Section zoo۰G.
     {{{
       ▷ (l +ₗ fld) ↦{dq} v
     }}}
-      Load #l #fld ∷ tid
+      𝗹𝗼𝗮𝗱 #l #fld ∷ tid
       @ E
     {{{
       RET v;
@@ -746,7 +746,7 @@ Section zoo۰G.
     {{{
       ▷ (l +ₗ fld) ↦ w
     }}}
-      Store #l #fld v ∷ tid
+      𝘀𝘁𝗼𝗿𝗲 #l #fld v ∷ tid
       @ E
     {{{
       RET ();
@@ -767,7 +767,7 @@ Section zoo۰G.
     {{{
       ▷ (l +ₗ fld) ↦ w
     }}}
-      Xchg (#l, #fld)%V v ∷ tid
+      𝘅𝗰𝗵𝗴 (#l, #fld)%V v ∷ tid
       @ E
     {{{
       RET w;
@@ -796,7 +796,7 @@ Section zoo۰G.
           Φ #b
         )
     ) -∗
-    WP CAS (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.
+    WP 𝗰𝗮𝘀 (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.
   Proof.
     iIntros ">Hl HΦ".
     iApply bwpｰwpｰweak. iIntros.
@@ -817,7 +817,7 @@ Section zoo۰G.
       (l +ₗ fld) ↦ (if b then v2 else v) -∗
       Φ #b
     ) -∗
-    WP CAS (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.
+    WP 𝗰𝗮𝘀 (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.
   Proof.
     iIntros "Hl HΦ".
     iApply (wpｰcasｰnobranch with "Hl"). iIntros "!> %b".
@@ -839,7 +839,7 @@ Section zoo۰G.
           )
       )
     ) -∗
-    WP CAS (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.
+    WP 𝗰𝗮𝘀 (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.
   Proof.
     iIntros "Hl HΦ".
     iApply (wpｰcasｰnobranch with "Hl"). iIntros "!>" ([] ?) "Hl".
@@ -859,7 +859,7 @@ Section zoo۰G.
         Φ true%V
       )
     ) -∗
-    WP CAS (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.
+    WP 𝗰𝗮𝘀 (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.
   Proof.
     iIntros "Hl HΦ".
     iApply (wpｰcas with "Hl").
@@ -873,7 +873,7 @@ Section zoo۰G.
     {{{
       ▷ (l +ₗ fld) ↦ #i1
     }}}
-      FAA (#l, #fld)%V #i2 ∷ tid
+      𝗳𝗮𝗮 (#l, #fld)%V #i2 ∷ tid
       @ E
     {{{
       RET #i1;
@@ -897,7 +897,7 @@ Section zoo۰G.
       WP e ∶ tid {{ λ _, True }}
     ) -∗
     ▷ Φ ()%V -∗
-    WP Fork e ∷ tid @ E {{ Φ }}.
+    WP 𝗳𝗼𝗿𝗸 e ∷ tid @ E {{ Φ }}.
   Proof.
     iIntros "H HΦ".
     iApply bwpｰwpｰweak. iIntros.
@@ -914,7 +914,7 @@ Section zoo۰G.
     {{{
       ▷ tid ↦ₗ{dq} v
     }}}
-      LocalGet ∶ tid
+      𝗹𝗼𝗰𝗮𝗹 ∶ tid
       @ E
     {{{
       RET v;
@@ -934,7 +934,7 @@ Section zoo۰G.
     {{{
       ▷ tid ↦ₗ w
     }}}
-      LocalSet v ∶ tid
+      𝘀𝗲𝘁𝗹𝗼𝗰𝗮𝗹 v ∶ tid
       @ E
     {{{
       RET ();
@@ -955,7 +955,7 @@ Section zoo۰G.
     {{{
       True
     }}}
-      Proph ∷ tid
+      𝗽𝗿𝗼𝗽𝗵 ∷ tid
       @ E
     {{{
       prophs pid
@@ -982,7 +982,7 @@ Section zoo۰G.
       prophet۰model pid prophs' -∗
       Φ res
     }} -∗
-    WP Resolve e #pid v ∷ tid @ E {{ Φ }}.
+    WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e #pid v ∷ tid @ E {{ Φ }}.
   Proof.
     wpｰunseal.
     - apply bwpｰresolve.

@@ -54,13 +54,21 @@ Variant literal :=
   | LitProph pid.
 Implicit Type lit : literal.
 
+Abbreviation LitNat i := (
+  LitInt (Z.of_nat i)
+)(only parsing
+).
+Abbreviation LitTag tag := (
+  LitNat (tag۰to_nat tag)
+)(only parsing
+).
+
 Please derive EqDecision for literal.
 Please derive Countable for literal.
 
 Variant unop :=
   | UnopNeg
-  | UnopMinus
-  | UnopIsImmediate.
+  | UnopMinus.
 
 Please derive EqDecision for unop.
 Please derive Countable for unop.
@@ -68,11 +76,47 @@ Please derive Countable for unop.
 Variant binop :=
   | BinopPlus | BinopMinus | BinopMult | BinopQuot | BinopRem
   | BinopLand | BinopLor | BinopLsl | BinopLsr
-  | BinopLe | BinopLt | BinopGe | BinopGt
-  | BinopStringGet | BinopStringEqual.
+  | BinopLe | BinopLt | BinopGe | BinopGt.
 
 Please derive EqDecision for binop.
 Please derive Countable for binop.
+
+Variant primitive0 :=
+  | LocalGet
+  | Proph.
+
+Please derive EqDecision for primitive0.
+Please derive Countable for primitive0.
+
+Variant primitive1 :=
+  | Unop (op : unop)
+  | IsImmediate
+  | GetTag
+  | GetSize
+  | LocalSet.
+
+Please derive EqDecision for primitive1.
+Please derive Countable for primitive1.
+
+Variant primitive2 :=
+  | Binop (op : binop)
+  | StringGet | StringEqual
+  | Equal
+  | Alloc
+  | Load
+  | Xchg
+  | FAA.
+
+Please derive EqDecision for primitive2.
+Please derive Countable for primitive2.
+
+Variant primitive3 :=
+  | Store
+  | CAS
+  | ResolveErasure.
+
+Please derive EqDecision for primitive3.
+Please derive Countable for primitive3.
 
 Record pattern :=
   { pattern۰tag : tag
@@ -89,30 +133,19 @@ Inductive expr :=
   | Val (v : val)
   | Var (x : string)
   | Rec f x (e : expr)
-  | App (e1 e2 : expr)
+  | Apply (e1 e2 : expr)
   | Let x (e1 e2 : expr)
-  | Unop (op : unop) (e : expr)
-  | Binop (op : binop) (e1 e2 : expr)
-  | Equal (e1 e2 : expr)
   | If (e0 e1 e2 : expr)
   | While (e0 e1 : expr)
   | For (e1 e2 e3 : expr)
-  | Alloc (e1 e2 : expr)
-  | Block mut tag (es : list expr)
   | Match (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
-  | GetTag (e : expr)
-  | GetSize (e : expr)
-  | Load (e1 e2 : expr)
-  | Store (e1 e2 e3 : expr)
-  | Xchg (e1 e2 : expr)
-  | CAS (e0 e1 e2 : expr)
-  | FAA (e1 e2 : expr)
+  | Primitive0 (prim : primitive0)
+  | Primitive1 (prim : primitive1) (e : expr)
+  | Primitive2 (prim : primitive2) (e1 e2 : expr)
+  | Primitive3 (prim : primitive3) (e1 e2 e3 : expr)
+  | Block mut tag (es : list expr)
   | Fork (e : expr)
-  | LocalGet
-  | LocalSet (e : expr)
-  | Proph
   | Resolve (e0 e1 e2 : expr)
-  | ResolveErasure (e0 e1 e2 : expr)
 with val :=
   | ValLit lit
   | ValRecs i (recs : list (binder * binder * expr))
@@ -146,28 +179,15 @@ Section expr_ind.
     ∀ f x,
     ∀ e, P e →
     P (Rec f x e).
-  Variable HApp :
+  Variable HApply :
     ∀ e1, P e1 →
     ∀ e2, P e2 →
-    P (App e1 e2).
+    P (Apply e1 e2).
   Variable HLet :
     ∀ x,
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (Let x e1 e2).
-  Variable HUnop :
-    ∀ op,
-    ∀ e, P e →
-    P (Unop op e).
-  Variable HBinop :
-    ∀ op,
-    ∀ e1, P e1 →
-    ∀ e2, P e2 →
-    P (Binop op e1 e2).
-  Variable HEqual :
-    ∀ e1, P e1 →
-    ∀ e2, P e2 →
-    P (Equal e1 e2).
   Variable HIf :
     ∀ e0, P e0 →
     ∀ e1, P e1 →
@@ -182,68 +202,42 @@ Section expr_ind.
     ∀ e2, P e2 →
     ∀ e3, P e3 →
     P (For e1 e2 e3).
-  Variable HAlloc :
-    ∀ e1, P e1 →
-    ∀ e2, P e2 →
-    P (Alloc e1 e2).
-  Variable HBlock :
-    ∀ mut tag,
-    ∀ es, Forall P es →
-    P (Block mut tag es).
   Variable HMatch :
     ∀ e0, P e0 →
     ∀ x,
     ∀ e1, P e1 →
     ∀ brs, Forall (λ br, P br.2) brs →
     P (Match e0 x e1 brs).
-  Variable HGetTag :
+  Variable HPrimitive0 :
+    ∀ prim,
+    P (Primitive0 prim).
+  Variable HPrimitive1 :
+    ∀ prim,
     ∀ e, P e →
-    P (GetTag e).
-  Variable HGetSize :
-    ∀ e, P e →
-    P (GetSize e).
-  Variable HLoad :
+    P (Primitive1 prim e).
+  Variable HPrimitive2 :
+    ∀ prim,
     ∀ e1, P e1 →
     ∀ e2, P e2 →
-    P (Load e1 e2).
-  Variable HStore :
+    P (Primitive2 prim e1 e2).
+  Variable HPrimitive3 :
+    ∀ prim,
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     ∀ e3, P e3 →
-    P (Store e1 e2 e3).
-  Variable HXchg :
-    ∀ e1, P e1 →
-    ∀ e2, P e2 →
-    P (Xchg e1 e2).
-  Variable HCAS :
-    ∀ e0, P e0 →
-    ∀ e1, P e1 →
-    ∀ e2, P e2 →
-    P (CAS e0 e1 e2).
-  Variable HFAA :
-    ∀ e1, P e1 →
-    ∀ e2, P e2 →
-    P (FAA e1 e2).
+    P (Primitive3 prim e1 e2 e3).
+  Variable HBlock :
+    ∀ mut tag,
+    ∀ es, Forall P es →
+    P (Block mut tag es).
   Variable HFork :
     ∀ e, P e →
     P (Fork e).
-  Variable HLocalGet :
-    P LocalGet.
-  Variable HLocalSet :
-    ∀ e, P e →
-    P (LocalSet e).
-  Variable HProph :
-    P Proph.
   Variable HResolve :
     ∀ e0, P e0 →
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (Resolve e0 e1 e2).
-  Variable HResolveErasure :
-    ∀ e0, P e0 →
-    ∀ e1, P e1 →
-    ∀ e2, P e2 →
-    P (ResolveErasure e0 e1 e2).
 
   Fixpoint expr_ind e :=
     match e with
@@ -257,26 +251,13 @@ Section expr_ind.
         HRec
           f x
           e (expr_ind e)
-    | App e1 e2 =>
-        HApp
+    | Apply e1 e2 =>
+        HApply
           e1 (expr_ind e1)
           e2 (expr_ind e2)
     | Let x e1 e2 =>
         HLet
           x
-          e1 (expr_ind e1)
-          e2 (expr_ind e2)
-    | Unop op e =>
-        HUnop
-          op
-          e (expr_ind e)
-    | Binop op e1 e2 =>
-        HBinop
-          op
-          e1 (expr_ind e1)
-          e2 (expr_ind e2)
-    | Equal e1 e2 =>
-        HEqual
           e1 (expr_ind e1)
           e2 (expr_ind e2)
     | If e0 e1 e2 =>
@@ -293,65 +274,39 @@ Section expr_ind.
           e1 (expr_ind e1)
           e2 (expr_ind e2)
           e3 (expr_ind e3)
-    | Alloc e1 e2 =>
-        HAlloc
-          e1 (expr_ind e1)
-          e2 (expr_ind e2)
-    | Block mut tag es =>
-        HBlock
-          mut tag
-          es (Forall_true P es expr_ind)
     | Match e0 x e1 brs =>
         HMatch
           e0 (expr_ind e0)
           x
           e1 (expr_ind e1)
           brs (Forall_true (λ br, P br.2) brs (λ br, expr_ind br.2))
-    | GetTag e =>
-        HGetTag
+    | Primitive0 prim =>
+        HPrimitive0
+          prim
+    | Primitive1 prim e =>
+        HPrimitive1
+          prim
           e (expr_ind e)
-    | GetSize e =>
-        HGetSize
-          e (expr_ind e)
-    | Load e1 e2 =>
-        HLoad
+    | Primitive2 prim e1 e2 =>
+        HPrimitive2
+          prim
           e1 (expr_ind e1)
           e2 (expr_ind e2)
-    | Store e1 e2 e3 =>
-        HStore
+    | Primitive3 prim e1 e2 e3 =>
+        HPrimitive3
+          prim
           e1 (expr_ind e1)
           e2 (expr_ind e2)
           e3 (expr_ind e3)
-    | Xchg e1 e2 =>
-        HXchg
-          e1 (expr_ind e1)
-          e2 (expr_ind e2)
-    | CAS e0 e1 e2 =>
-        HCAS
-          e0 (expr_ind e0)
-          e1 (expr_ind e1)
-          e2 (expr_ind e2)
-    | FAA e1 e2 =>
-        HFAA
-          e1 (expr_ind e1)
-          e2 (expr_ind e2)
+    | Block mut tag es =>
+        HBlock
+          mut tag
+          es (Forall_true P es expr_ind)
     | Fork e =>
         HFork
           e (expr_ind e)
-    | LocalGet =>
-        HLocalGet
-    | LocalSet e =>
-        HLocalSet
-          e (expr_ind e)
-    | Proph =>
-        HProph
     | Resolve e0 e1 e2 =>
         HResolve
-          e0 (expr_ind e0)
-          e1 (expr_ind e1)
-          e2 (expr_ind e2)
-    | ResolveErasure e0 e1 e2 =>
-        HResolveErasure
           e0 (expr_ind e0)
           e1 (expr_ind e1)
           e2 (expr_ind e2)
@@ -405,28 +360,15 @@ Section exprｰvalｰmutind.
     ∀ f x,
     ∀ e, Pexpr e →
     Pexpr (Rec f x e).
-  Variable HApp :
+  Variable HApply :
     ∀ e1, Pexpr e1 →
     ∀ e2, Pexpr e2 →
-    Pexpr (App e1 e2).
+    Pexpr (Apply e1 e2).
   Variable HLet :
     ∀ x,
     ∀ e1, Pexpr e1 →
     ∀ e2, Pexpr e2 →
     Pexpr (Let x e1 e2).
-  Variable HUnop :
-    ∀ op,
-    ∀ e, Pexpr e →
-    Pexpr (Unop op e).
-  Variable HBinop :
-    ∀ op,
-    ∀ e1, Pexpr e1 →
-    ∀ e2, Pexpr e2 →
-    Pexpr (Binop op e1 e2).
-  Variable HEqual :
-    ∀ e1, Pexpr e1 →
-    ∀ e2, Pexpr e2 →
-    Pexpr (Equal e1 e2).
   Variable HIf :
     ∀ e0, Pexpr e0 →
     ∀ e1, Pexpr e1 →
@@ -441,68 +383,42 @@ Section exprｰvalｰmutind.
     ∀ e2, Pexpr e2 →
     ∀ e3, Pexpr e3 →
     Pexpr (For e1 e2 e3).
-  Variable HAlloc :
-    ∀ e1, Pexpr e1 →
-    ∀ e2, Pexpr e2 →
-    Pexpr (Alloc e1 e2).
-  Variable HBlock :
-    ∀ mut tag,
-    ∀ es, Forall Pexpr es →
-    Pexpr (Block mut tag es).
   Variable HMatch :
     ∀ e0, Pexpr e0 →
     ∀ x,
     ∀ e1, Pexpr e1 →
     ∀ brs, Forall (λ br, Pexpr br.2) brs →
     Pexpr (Match e0 x e1 brs).
-  Variable HGetTag :
+  Variable HPrimitive0 :
+    ∀ prim,
+    Pexpr (Primitive0 prim).
+  Variable HPrimitive1 :
+    ∀ prim,
     ∀ e, Pexpr e →
-    Pexpr (GetTag e).
-  Variable HGetSize :
-    ∀ e, Pexpr e →
-    Pexpr (GetSize e).
-  Variable HLoad :
+    Pexpr (Primitive1 prim e).
+  Variable HPrimitive2 :
+    ∀ prim,
     ∀ e1, Pexpr e1 →
     ∀ e2, Pexpr e2 →
-    Pexpr (Load e1 e2).
-  Variable HStore :
+    Pexpr (Primitive2 prim e1 e2).
+  Variable HPrimitive3 :
+    ∀ prim,
     ∀ e1, Pexpr e1 →
     ∀ e2, Pexpr e2 →
     ∀ e3, Pexpr e3 →
-    Pexpr (Store e1 e2 e3).
-  Variable HXchg :
-    ∀ e1, Pexpr e1 →
-    ∀ e2, Pexpr e2 →
-    Pexpr (Xchg e1 e2).
-  Variable HCAS :
-    ∀ e0, Pexpr e0 →
-    ∀ e1, Pexpr e1 →
-    ∀ e2, Pexpr e2 →
-    Pexpr (CAS e0 e1 e2).
-  Variable HFAA :
-    ∀ e1, Pexpr e1 →
-    ∀ e2, Pexpr e2 →
-    Pexpr (FAA e1 e2).
+    Pexpr (Primitive3 prim e1 e2 e3).
+  Variable HBlock :
+    ∀ mut tag,
+    ∀ es, Forall Pexpr es →
+    Pexpr (Block mut tag es).
   Variable HFork :
     ∀ e, Pexpr e →
     Pexpr (Fork e).
-  Variable HLocalGet :
-    Pexpr LocalGet.
-  Variable HLocalSet :
-    ∀ e, Pexpr e →
-    Pexpr (LocalSet e).
-  Variable HProph :
-    Pexpr Proph.
   Variable HResolve :
     ∀ e0, Pexpr e0 →
     ∀ e1, Pexpr e1 →
     ∀ e2, Pexpr e2 →
     Pexpr (Resolve e0 e1 e2).
-  Variable HResolveErasure :
-    ∀ e0, Pexpr e0 →
-    ∀ e1, Pexpr e1 →
-    ∀ e2, Pexpr e2 →
-    Pexpr (ResolveErasure e0 e1 e2).
 
   Variable HValLit :
     ∀ lit,
@@ -528,26 +444,13 @@ Section exprｰvalｰmutind.
         HRec
           f x
           e (exprｰvalｰind e)
-    | App e1 e2 =>
-        HApp
+    | Apply e1 e2 =>
+        HApply
           e1 (exprｰvalｰind e1)
           e2 (exprｰvalｰind e2)
     | Let x e1 e2 =>
         HLet
           x
-          e1 (exprｰvalｰind e1)
-          e2 (exprｰvalｰind e2)
-    | Unop op e =>
-        HUnop
-          op
-          e (exprｰvalｰind e)
-    | Binop op e1 e2 =>
-        HBinop
-          op
-          e1 (exprｰvalｰind e1)
-          e2 (exprｰvalｰind e2)
-    | Equal e1 e2 =>
-        HEqual
           e1 (exprｰvalｰind e1)
           e2 (exprｰvalｰind e2)
     | If e0 e1 e2 =>
@@ -564,65 +467,39 @@ Section exprｰvalｰmutind.
           e1 (exprｰvalｰind e1)
           e2 (exprｰvalｰind e2)
           e3 (exprｰvalｰind e3)
-    | Alloc e1 e2 =>
-        HAlloc
-          e1 (exprｰvalｰind e1)
-          e2 (exprｰvalｰind e2)
-    | Block mut tag es =>
-        HBlock
-          mut tag
-          es (Forall_true Pexpr es exprｰvalｰind)
     | Match e0 x e1 brs =>
         HMatch
           e0 (exprｰvalｰind e0)
           x
           e1 (exprｰvalｰind e1)
           brs (Forall_true (λ br, Pexpr br.2) brs (λ br, exprｰvalｰind br.2))
-    | GetTag e =>
-        HGetTag
+    | Primitive0 prim =>
+        HPrimitive0
+          prim
+    | Primitive1 prim e =>
+        HPrimitive1
+          prim
           e (exprｰvalｰind e)
-    | GetSize e =>
-        HGetSize
-          e (exprｰvalｰind e)
-    | Load e1 e2 =>
-        HLoad
+    | Primitive2 prim e1 e2 =>
+        HPrimitive2
+          prim
           e1 (exprｰvalｰind e1)
           e2 (exprｰvalｰind e2)
-    | Store e1 e2 e3 =>
-        HStore
+    | Primitive3 prim e1 e2 e3 =>
+        HPrimitive3
+          prim
           e1 (exprｰvalｰind e1)
           e2 (exprｰvalｰind e2)
           e3 (exprｰvalｰind e3)
-    | Xchg e1 e2 =>
-        HXchg
-          e1 (exprｰvalｰind e1)
-          e2 (exprｰvalｰind e2)
-    | CAS e0 e1 e2 =>
-        HCAS
-          e0 (exprｰvalｰind e0)
-          e1 (exprｰvalｰind e1)
-          e2 (exprｰvalｰind e2)
-    | FAA e1 e2 =>
-        HFAA
-          e1 (exprｰvalｰind e1)
-          e2 (exprｰvalｰind e2)
+    | Block mut tag es =>
+        HBlock
+          mut tag
+          es (Forall_true Pexpr es exprｰvalｰind)
     | Fork e =>
         HFork
           e (exprｰvalｰind e)
-    | LocalGet =>
-        HLocalGet
-    | LocalSet e =>
-        HLocalSet
-          e (exprｰvalｰind e)
-    | Proph =>
-        HProph
     | Resolve e0 e1 e2 =>
         HResolve
-          e0 (exprｰvalｰind e0)
-          e1 (exprｰvalｰind e1)
-          e2 (exprｰvalｰind e2)
-    | ResolveErasure e0 e1 e2 =>
-        HResolveErasure
           e0 (exprｰvalｰind e0)
           e1 (exprｰvalｰind e1)
           e2 (exprｰvalｰind e2)
@@ -698,11 +575,11 @@ Abbreviation ValInt n := (
 )(only parsing
 ).
 Abbreviation ValNat i := (
-  ValLit (LitInt (Z.of_nat i))
+  ValLit (LitNat i)
 )(only parsing
 ).
 Abbreviation ValTag tag := (
-  ValNat (tag۰to_nat tag)
+  ValLit (LitTag tag)
 )(only parsing
 ).
 Abbreviation ValString str := (
@@ -737,14 +614,10 @@ Abbreviation Unit := (
 ).
 
 Abbreviation Fail := (
-  App Unit Unit
+  Apply Unit Unit
 ).
 Abbreviation Skip := (
-  App (Val (ValFun BAnon Unit)) Unit
-).
-
-Abbreviation IsImmediate := (
-  Unop UnopIsImmediate
+  Apply (Val (ValFun BAnon Unit)) Unit
 ).
 
 Definition val۰of_int :=
@@ -931,7 +804,7 @@ Proof.
            (decide (f1 = f2))
            (decide (x1 = x2))
            (decide (e1 = e2))
-      | App e11 e12, App e21 e22 =>
+      | Apply e11 e12, Apply e21 e22 =>
           cast_if_and
             (decide (e11 = e21))
             (decide (e12 = e22))
@@ -940,19 +813,6 @@ Proof.
            (decide (x1 = x2))
            (decide (e11 = e21))
            (decide (e12 = e22))
-      | Unop op1 e1, Unop op2 e2 =>
-          cast_if_and
-            (decide (op1 = op2))
-            (decide (e1 = e2))
-      | Binop op1 e11 e12, Binop op2 e21 e22 =>
-         cast_if_and3
-           (decide (op1 = op2))
-           (decide (e11 = e21))
-           (decide (e12 = e22))
-      | Equal e11 e12, Equal e21 e22 =>
-          cast_if_and
-            (decide (e11 = e21))
-            (decide (e12 = e22))
       | If e10 e11 e12, If e20 e21 e22 =>
          cast_if_and3
            (decide (e10 = e20))
@@ -967,65 +827,39 @@ Proof.
             (decide (e11 = e21))
             (decide (e12 = e22))
             (decide (e13 = e23))
-      | Alloc e11 e12, Alloc e21 e22 =>
-         cast_if_and
-           (decide (e11 = e21))
-           (decide (e12 = e22))
-      | Block mut1 tag1 es1, Block mut2 tag2 es2 =>
-          cast_if_and3
-            (decide (mut1 = mut2))
-            (decide (tag1 = tag2))
-            (decide (es1 = es2))
       | Match e10 x1 e11 brs1, Match e20 x2 e21 brs2 =>
           cast_if_and4
             (decide (e10 = e20))
             (decide (x1 = x2))
             (decide (e11 = e21))
             (decide (brs1 = brs2))
-      | GetTag e1, GetTag e2 =>
+      | Primitive0 prim1, Primitive0 prim2 =>
           cast_if
-            (decide (e1 = e2))
-      | GetSize e1, GetSize e2 =>
-          cast_if
-            (decide (e1 = e2))
-      | Load e11 e12, Load e21 e22 =>
+            (decide (prim1 = prim2))
+      | Primitive1 prim1 e1, Primitive1 prim2 e2 =>
           cast_if_and
+            (decide (prim1 = prim2))
+            (decide (e1 = e2))
+      | Primitive2 prim1 e11 e12, Primitive2 prim2 e21 e22 =>
+          cast_if_and3
+            (decide (prim1 = prim2))
             (decide (e11 = e21))
             (decide (e12 = e22))
-      | Store e11 e12 e13, Store e21 e22 e23 =>
-         cast_if_and3
-           (decide (e11 = e21))
-           (decide (e12 = e22))
-           (decide (e13 = e23))
-      | Xchg e11 e12, Xchg e21 e22 =>
-          cast_if_and
+      | Primitive3 prim1 e11 e12 e13, Primitive3 prim2 e21 e22 e23 =>
+          cast_if_and4
+            (decide (prim1 = prim2))
             (decide (e11 = e21))
             (decide (e12 = e22))
-      | CAS e10 e11 e12, CAS e20 e21 e22 =>
-         cast_if_and3
-           (decide (e10 = e20))
-           (decide (e11 = e21))
-           (decide (e12 = e22))
-      | FAA e11 e12, FAA e21 e22 =>
-         cast_if_and
-           (decide (e11 = e21))
-           (decide (e12 = e22))
+            (decide (e13 = e23))
+      | Block mut1 tag1 es1, Block mut2 tag2 es2 =>
+          cast_if_and3
+            (decide (mut1 = mut2))
+            (decide (tag1 = tag2))
+            (decide (es1 = es2))
       | Fork e1, Fork e2 =>
           cast_if
             (decide (e1 = e2))
-      | LocalGet, LocalGet =>
-          left _
-      | LocalSet e1, LocalSet e2 =>
-          cast_if
-            (decide (e1 = e2))
-      | Proph, Proph =>
-          left _
       | Resolve e10 e11 e12, Resolve e20 e21 e22 =>
-         cast_if_and3
-           (decide (e10 = e20))
-           (decide (e11 = e21))
-           (decide (e12 = e22))
-      | ResolveErasure e10 e11 e12, ResolveErasure e20 e21 e22 =>
          cast_if_and3
            (decide (e10 = e20))
            (decide (e11 = e21))
@@ -1142,9 +976,11 @@ Variant encode_leaf :=
   | EncodeGenerativity gen
   | EncodeMutability mut
   | EncodeLit lit
-  | EncodeUnop (op : unop)
-  | EncodeBinop (op : binop)
-  | EncodePattern (pat : pattern).
+  | EncodePattern (pat : pattern)
+  | EncodePrimitive0 (prim : primitive0)
+  | EncodePrimitive1 (prim : primitive1)
+  | EncodePrimitive2 (prim : primitive2)
+  | EncodePrimitive3 (prim : primitive3).
 #[local] Please derive EqDecision for encode_leaf.
 #[local] Please derive Countable for encode_leaf.
 Abbreviation EncodeString str := (
@@ -1157,56 +993,34 @@ Proof.
     0.
   #[local] Abbreviation code_Rec :=
     1.
-  #[local] Abbreviation code_App :=
+  #[local] Abbreviation code_Apply :=
     2.
   #[local] Abbreviation code_Let :=
     3.
-  #[local] Abbreviation code_Unop :=
-    4.
-  #[local] Abbreviation code_Binop :=
-    5.
-  #[local] Abbreviation code_Equal :=
-    6.
   #[local] Abbreviation code_If :=
-    7.
+    4.
   #[local] Abbreviation code_While :=
-    8.
+    5.
   #[local] Abbreviation code_For :=
-    9.
-  #[local] Abbreviation code_Alloc :=
-    10.
-  #[local] Abbreviation code_Block :=
-    11.
+    6.
   #[local] Abbreviation code_Match :=
-    12.
+    7.
   #[local] Abbreviation code_branch :=
+    8.
+  #[local] Abbreviation code_Primitive0 :=
+    9.
+  #[local] Abbreviation code_Primitive1 :=
+    10.
+  #[local] Abbreviation code_Primitive2 :=
+    11.
+  #[local] Abbreviation code_Primitive3 :=
+    12.
+  #[local] Abbreviation code_Block :=
     13.
-  #[local] Abbreviation code_GetTag :=
-    14.
-  #[local] Abbreviation code_GetSize :=
-    15.
-  #[local] Abbreviation code_Load :=
-    16.
-  #[local] Abbreviation code_Store :=
-    17.
-  #[local] Abbreviation code_Xchg :=
-    18.
-  #[local] Abbreviation code_CAS :=
-    19.
-  #[local] Abbreviation code_FAA :=
-    20.
   #[local] Abbreviation code_Fork :=
-    21.
-  #[local] Abbreviation code_LocalGet :=
-    22.
-  #[local] Abbreviation code_LocalSet :=
-    23.
-  #[local] Abbreviation code_Proph :=
-    24.
+    14.
   #[local] Abbreviation code_Resolve :=
-    25.
-  #[local] Abbreviation code_ResolveErasure :=
-    26.
+    15.
   #[local] Abbreviation code_ValRecs :=
     0.
   #[local] Abbreviation code_recursive :=
@@ -1231,54 +1045,32 @@ Proof.
           GenLeaf (EncodeString x)
       | Rec f x e =>
           GenNode code_Rec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
-      | App e1 e2 =>
-          GenNode code_App [go e1; go e2]
+      | Apply e1 e2 =>
+          GenNode code_Apply [go e1; go e2]
       | Let x e1 e2 =>
           GenNode code_Let [GenLeaf (EncodeBinder x); go e1; go e2]
-      | Unop op e =>
-          GenNode code_Unop [GenLeaf (EncodeUnop op); go e]
-      | Binop op e1 e2 =>
-          GenNode code_Binop [GenLeaf (EncodeBinop op); go e1; go e2]
-      | Equal e1 e2 =>
-          GenNode code_Equal [go e1; go e2]
       | If e0 e1 e2 =>
           GenNode code_If [go e0; go e1; go e2]
       | While e0 e1 =>
           GenNode code_While [go e0; go e1]
       | For e1 e2 e3 =>
           GenNode code_For [go e1; go e2; go e3]
-      | Alloc e1 e2 =>
-          GenNode code_Alloc [go e1; go e2]
-      | Block mut tag es =>
-          GenNode code_Block $ GenLeaf (EncodeMutability mut) :: GenLeaf (EncodeTag tag) :: go_list es
       | Match e0 x e1 brs =>
           GenNode code_Match $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
-      | GetTag e =>
-          GenNode code_GetTag [go e]
-      | GetSize e =>
-          GenNode code_GetSize [go e]
-      | Load e1 e2 =>
-          GenNode code_Load [go e1; go e2]
-      | Store e1 e2 e3 =>
-          GenNode code_Store [go e1; go e2; go e3]
-      | Xchg e1 e2 =>
-          GenNode code_Xchg [go e1; go e2]
-      | CAS e0 e1 e2 =>
-          GenNode code_CAS [go e0; go e1; go e2]
-      | FAA e1 e2 =>
-          GenNode code_FAA [go e1; go e2]
+      | Primitive0 prim =>
+          GenNode code_Primitive0 [GenLeaf (EncodePrimitive0 prim)]
+      | Primitive1 prim e =>
+          GenNode code_Primitive1 [GenLeaf (EncodePrimitive1 prim); go e]
+      | Primitive2 prim e1 e2 =>
+          GenNode code_Primitive2 [GenLeaf (EncodePrimitive2 prim); go e1; go e2]
+      | Primitive3 prim e1 e2 e3 =>
+          GenNode code_Primitive3 [GenLeaf (EncodePrimitive3 prim); go e1; go e2; go e3]
+      | Block mut tag es =>
+          GenNode code_Block $ GenLeaf (EncodeMutability mut) :: GenLeaf (EncodeTag tag) :: go_list es
       | Fork e =>
           GenNode code_Fork [go e]
-      | LocalGet =>
-          GenNode code_LocalGet []
-      | LocalSet e =>
-          GenNode code_LocalSet [go e]
-      | Proph =>
-          GenNode code_Proph []
       | Resolve e0 e1 e2 =>
           GenNode code_Resolve [go e0; go e1; go e2]
-      | ResolveErasure e0 e1 e2 =>
-          GenNode code_ResolveErasure [go e0; go e1; go e2]
       end
     with go_val v :=
       let go_recursive '((f, x), e) :=
@@ -1322,54 +1114,32 @@ Proof.
           Var x
       | GenNode code_Rec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
           Rec f x $ go e
-      | GenNode code_App [e1; e2] =>
-          App (go e1) (go e2)
+      | GenNode code_Apply [e1; e2] =>
+          Apply (go e1) (go e2)
       | GenNode code_Let [GenLeaf (EncodeBinder x); e1; e2] =>
           Let x (go e1) (go e2)
-      | GenNode code_Unop [GenLeaf (EncodeUnop op); e] =>
-          Unop op $ go e
-      | GenNode code_Binop [GenLeaf (EncodeBinop op); e1; e2] =>
-          Binop op (go e1) (go e2)
-      | GenNode code_Equal [e1; e2] =>
-          Equal (go e1) (go e2)
       | GenNode code_If [e0; e1; e2] =>
           If (go e0) (go e1) (go e2)
       | GenNode code_While [e0; e1] =>
           While (go e0) (go e1)
       | GenNode code_For [e1; e2; e3] =>
           For (go e1) (go e2) (go e3)
-      | GenNode code_Alloc [e1; e2] =>
-          Alloc (go e1) (go e2)
-      | GenNode code_Block (GenLeaf (EncodeMutability mut) :: GenLeaf (EncodeTag tag) :: es) =>
-          Block mut tag $ go_list es
       | GenNode code_Match (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
           Match (go e0) x (go e1) (go_branches brs)
-      | GenNode code_GetTag [e] =>
-          GetTag (go e)
-      | GenNode code_GetSize [e] =>
-          GetSize (go e)
-      | GenNode code_Load [e1; e2] =>
-          Load (go e1) (go e2)
-      | GenNode code_Store [e1; e2; e3] =>
-          Store (go e1) (go e2) (go e3)
-      | GenNode code_Xchg [e1; e2] =>
-          Xchg (go e1) (go e2)
-      | GenNode code_CAS [e0; e1; e2] =>
-          CAS (go e0) (go e1) (go e2)
-      | GenNode code_FAA [e1; e2] =>
-          FAA (go e1) (go e2)
+      | GenNode code_Primitive0 [GenLeaf (EncodePrimitive0 prim)] =>
+          Primitive0 prim
+      | GenNode code_Primitive1 [GenLeaf (EncodePrimitive1 prim); e] =>
+          Primitive1 prim (go e)
+      | GenNode code_Primitive2 [GenLeaf (EncodePrimitive2 prim); e1; e2] =>
+          Primitive2 prim (go e1) (go e2)
+      | GenNode code_Primitive3 [GenLeaf (EncodePrimitive3 prim); e1; e2; e3] =>
+          Primitive3 prim (go e1) (go e2) (go e3)
+      | GenNode code_Block (GenLeaf (EncodeMutability mut) :: GenLeaf (EncodeTag tag) :: es) =>
+          Block mut tag $ go_list es
       | GenNode code_Fork [e] =>
           Fork $ go e
-      | GenNode code_LocalGet [] =>
-          LocalGet
-      | GenNode code_LocalSet [e] =>
-          LocalSet (go e)
-      | GenNode code_Proph [] =>
-          Proph
       | GenNode code_Resolve [e0; e1; e2] =>
           Resolve (go e0) (go e1) (go e2)
-      | GenNode code_ResolveErasure [e0; e1; e2] =>
-          ResolveErasure (go e0) (go e1) (go e2)
       | _ =>
           @inhabitant _ exprｰinhabited
       end
@@ -1405,10 +1175,10 @@ Proof.
     + match goal with |- _ = ?v =>
         exact (go_val v)
       end.
+    + induction brs as [| (? & ?) ?] => //=. repeat f_equal; done.
     + match goal with |- _ = ?es =>
         rewrite /map; induction es as [| ? ? ->] => /=; f_equal; done
       end.
-    + induction brs as [| (? & ?) ?] => //=. repeat f_equal; done.
   - destruct v; simpl; f_equal; try done.
     + induction recs as [| ((? & ?) & ?) ?] => //=. repeat f_equal; done.
     + match goal with |- _ = ?vs =>

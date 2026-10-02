@@ -902,7 +902,7 @@ Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
   Lemma bwpｰmatch l hdr x_fb e_fb brs e tid E Φ :
-    eval_match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
+    eval۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
     ▷ l ↦ₕ hdr -∗
     ▷ BWP e ∶ tid @ E {{ Φ }} -∗
     BWP Match #l x_fb e_fb brs ∶ tid @ E {{ Φ }}.
@@ -916,7 +916,7 @@ Section zoo۰G.
     iSteps.
   Qed.
   Lemma bwpｰmatchｰcontext K `{!Context K} l hdr x_fb e_fb brs e tid E Φ :
-    eval_match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
+    eval۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
     ▷ l ↦ₕ hdr -∗
     ▷ BWP K e ∶ tid @ E {{ Φ }} -∗
     BWP K (Match #l x_fb e_fb brs) ∶ tid @ E {{ Φ }}.
@@ -937,7 +937,7 @@ Section zoo۰G.
       prophet۰model pid prophs' -∗
       Φ res
     }} -∗
-    BWP Resolve e #pid v ∶ tid @ E {{ Φ }}.
+    BWP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e #pid v ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "%Hatomic %He Hpid H".
     rewrite !bwpｰunfold /bwp۰pre He.

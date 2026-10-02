@@ -14,7 +14,7 @@ Definition LitIdentifier id :=
 Coercion LitIdentifier : identifier >-> literal.
 
 Definition Id :=
-  Proph.
+  Primitive0 Proph.
 Abbreviation ValId id := (
   ValProph id
 )(only parsing

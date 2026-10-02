@@ -280,7 +280,7 @@ Section prophet_multi۰G.
     {{{
       True
     }}}
-      Proph
+      𝗽𝗿𝗼𝗽𝗵
       @ E
     {{{
       pid γ prophss
@@ -313,7 +313,7 @@ Section prophet_multi۰G.
           Φ w
       end
     }} -∗
-    WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
+    WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
     iIntros "% % %Hi (:model) HΦ".
     Z_to_nat i. rewrite Nat2Z.id.
@@ -350,7 +350,7 @@ Section prophet_multi۰G.
           Φ w
       end
     }} -∗
-    WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
+    WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
     iIntros "% % Hmodel HΦ".
     iApply (prophet_multiｰwpｰresolve with "Hmodel"); [done | lia |].

@@ -39,18 +39,10 @@ Fixpoint expr۰wf e :=
       True
   | Rec _ _ e =>
       expr۰wf e
-  | App e1 e2 =>
+  | Apply e1 e2 =>
       expr۰wf e1 ∧
       expr۰wf e2
   | Let _ e1 e2 =>
-      expr۰wf e1 ∧
-      expr۰wf e2
-  | Unop _ e =>
-      expr۰wf e
-  | Binop _ e1 e2 =>
-      expr۰wf e1 ∧
-      expr۰wf e2
-  | Equal e1 e2 =>
       expr۰wf e1 ∧
       expr۰wf e2
   | If e0 e1 e2 =>
@@ -64,50 +56,32 @@ Fixpoint expr۰wf e :=
       expr۰wf e1 ∧
       expr۰wf e2 ∧
       expr۰wf e3
-  | Alloc e1 e2 =>
-      expr۰wf e1 ∧
-      expr۰wf e2
-  | Block _ _ es =>
-      Forall' expr۰wf es
   | Match e0 _ e1 brs =>
       expr۰wf e0 ∧
       expr۰wf e1 ∧
       Forall' (λ br, expr۰wf br.2) brs
-  | GetTag e =>
+  | Primitive0 _ =>
+      True
+  | Primitive1 _ e =>
       expr۰wf e
-  | GetSize e =>
-      expr۰wf e
-  | Load e1 e2 =>
+  | Primitive2 _ e1 e2 =>
       expr۰wf e1 ∧
       expr۰wf e2
-  | Store e1 e2 e3 =>
-      expr۰wf e1 ∧
-      expr۰wf e2 ∧
-      expr۰wf e3
-  | Xchg e1 e2 =>
-      expr۰wf e1 ∧
-      expr۰wf e2
-  | CAS e0 e1 e2 =>
-      expr۰wf e0 ∧
-      expr۰wf e1 ∧
-      expr۰wf e2
-  | FAA e1 e2 =>
-      expr۰wf e1 ∧
-      expr۰wf e2
+  | Primitive3 prim e1 e2 e3 =>
+      if decide (prim = ResolveErasure) then
+        False
+      else
+        expr۰wf e1 ∧
+        expr۰wf e2 ∧
+        expr۰wf e3
+  | Block _ _ es =>
+      Forall' expr۰wf es
   | Fork e =>
       expr۰wf e
-  | LocalGet =>
-      True
-  | LocalSet e =>
-      expr۰wf e
-  | Proph =>
-      True
   | Resolve e0 e1 e2 =>
       expr۰wf e0 ∧
       expr۰wf e1 ∧
       expr۰wf e2
-  | ResolveErasure _ _ _ =>
-      False
   end
 with val۰wf v :=
   match v with
@@ -123,22 +97,12 @@ with val۰wf v :=
 
 Fixpoint ectxi۰wf k :=
   match k with
-  | CtxApp1 v2 =>
+  | CtxApply1 v2 =>
       val۰wf v2
-  | CtxApp2 e1 =>
+  | CtxApply2 e1 =>
       expr۰wf e1
   | CtxLet _ e2 =>
       expr۰wf e2
-  | CtxUnop _ =>
-      True
-  | CtxBinop1 _ v2 =>
-      val۰wf v2
-  | CtxBinop2 _ e1 =>
-      expr۰wf e1
-  | CtxEqual1 v2 =>
-      val۰wf v2
-  | CtxEqual2 e1 =>
-      expr۰wf e1
   | CtxIf e1 e2 =>
       expr۰wf e1 ∧
       expr۰wf e2
@@ -148,52 +112,36 @@ Fixpoint ectxi۰wf k :=
   | CtxFor2 v1 e3 =>
       val۰wf v1 ∧
       expr۰wf e3
-  | CtxAlloc1 v2 =>
-      val۰wf v2
-  | CtxAlloc2 e1 =>
-      expr۰wf e1
-  | CtxBlock _ _ es vs =>
-      Forall' expr۰wf es ∧
-      Forall' val۰wf vs
   | CtxMatch _ e1 brs =>
       expr۰wf e1 ∧
       Forall' (λ br, expr۰wf br.2) brs
-  | CtxGetTag =>
+  | CtxPrimitive1 _ =>
       True
-  | CtxGetSize =>
-      True
-  | CtxLoad1 v2 =>
+  | CtxPrimitive21 _ v2 =>
       val۰wf v2
-  | CtxLoad2 e1 =>
+  | CtxPrimitive22 _ e1 =>
       expr۰wf e1
-  | CtxStore1 v2 v3 =>
-      val۰wf v2 ∧
-      val۰wf v3
-  | CtxStore2 e1 v3 =>
-      expr۰wf e1 ∧
-      val۰wf v3
-  | CtxStore3 e1 e2 =>
-      expr۰wf e1 ∧
-      expr۰wf e2
-  | CtxXchg1 v2 =>
-      val۰wf v2
-  | CtxXchg2 e1 =>
-      expr۰wf e1
-  | CtxCAS0 v1 v2 =>
-      val۰wf v1 ∧
-      val۰wf v2
-  | CtxCAS1 e0 v2 =>
-      expr۰wf e0 ∧
-      val۰wf v2
-  | CtxCAS2 e0 e1 =>
-      expr۰wf e0 ∧
-      expr۰wf e1
-  | CtxFAA1 v2 =>
-      val۰wf v2
-  | CtxFAA2 e1 =>
-      expr۰wf e1
-  | CtxLocalSet =>
-      True
+  | CtxPrimitive31 prim v2 v3 =>
+      if decide (prim = ResolveErasure) then
+        False
+      else
+        val۰wf v2 ∧
+        val۰wf v3
+  | CtxPrimitive32 prim e1 v3 =>
+      if decide (prim = ResolveErasure) then
+        False
+      else
+        expr۰wf e1 ∧
+        val۰wf v3
+  | CtxPrimitive33 prim e2 e3 =>
+      if decide (prim = ResolveErasure) then
+        False
+      else
+        expr۰wf e2 ∧
+        expr۰wf e3
+  | CtxBlock _ _ es vs =>
+      Forall' expr۰wf es ∧
+      Forall' val۰wf vs
   | CtxResolve0 k v1 v2 =>
       ectxi۰wf k ∧
       val۰wf v1 ∧
@@ -204,12 +152,6 @@ Fixpoint ectxi۰wf k :=
   | CtxResolve2 e0 e1 =>
       expr۰wf e0 ∧
       expr۰wf e1
-  | CtxResolveErasure0 _ _ =>
-      False
-  | CtxResolveErasure1 _ _ =>
-      False
-  | CtxResolveErasure2 _ _ =>
-      False
   end.
 #[global] Arguments ectxi۰wf !_ / : assert.
 
@@ -260,16 +202,20 @@ Lemma filliｰwf₁ k e :
     ectxi۰wf k ∧
     expr۰wf e.
 Proof.
-  induction k; try naive.
-  rewrite /= /expr۰of_vals. simp_Forall. naive.
+  induction k => /=.
+  all: try naive.
+  1-3: case_decide; naive.
+  rewrite /expr۰of_vals. simp_Forall. naive.
 Qed.
 Lemma filliｰwf₂ k e :
   ectxi۰wf k →
   expr۰wf e →
   expr۰wf (filli k e).
 Proof.
-  induction k; try naive.
-  rewrite /= /expr۰of_vals. simp_Forall. naive.
+  induction k => /=.
+  all: try naive.
+  1-3: case_decide; naive.
+  rewrite /expr۰of_vals. simp_Forall. naive.
 Qed.
 Lemma filliｰwf k e :
   expr۰wf (filli k e) ↔
@@ -348,20 +294,20 @@ Proof.
   apply subst'ｰwf; naive.
 Qed.
 
-Lemma eval_app۰auxｰwf recs i rec e :
+Lemma eval۰apply۰auxｰwf recs i rec e :
   Forall recursive۰wf recs →
   recursive۰wf rec →
   expr۰wf e →
-  expr۰wf (eval_app۰aux recs i rec e).
+  expr۰wf (eval۰apply۰aux recs i rec e).
 Proof.
   intros Hwf_recs Hwf_rec Hwf_e.
   apply subst'ｰwf => //. simp_Forall+/=.
 Qed.
-Lemma eval_appｰwf recs x v e :
+Lemma eval۰applyｰwf recs x v e :
   Forall recursive۰wf recs →
   val۰wf v →
   expr۰wf e →
-  expr۰wf (eval_app recs x v e).
+  expr۰wf (eval۰apply recs x v e).
 Proof.
   intros Hwf_recs Hwf_v Hwf_e.
   cut (
@@ -371,7 +317,7 @@ Proof.
       Forall recursive۰wf recs →
         ∀ acc i,
         expr۰wf acc →
-        expr۰wf (foldri' (eval_app۰aux recs0) acc recs i)
+        expr۰wf (foldri' (eval۰apply۰aux recs0) acc recs i)
   ).
   { intros Hcut.
     apply Hcut. 1,2: done.
@@ -379,7 +325,7 @@ Proof.
   }
   clear. intros recs0 Hwf_recs0.
   induction 1 as [| rec recs Hwf_rec Hwf_recs IH] using Forall_ind => //= acc i Hacc.
-  apply eval_app۰auxｰwf.
+  apply eval۰apply۰auxｰwf.
   - done.
   - done.
   - naive.
@@ -393,8 +339,8 @@ Proof.
   simp_Forall+/=.
 Qed.
 
-Lemma eval_matchｰwf tag sz subj x_fb e_fb brs e :
-  eval_match tag sz subj x_fb e_fb brs = Some e →
+Lemma eval۰matchｰwf tag sz subj x_fb e_fb brs e :
+  eval۰match tag sz subj x_fb e_fb brs = Some e →
   subject۰wf subj →
   (if subj is SubjectBlock _ vs then sz = length vs else True) →
   expr۰wf e_fb →
@@ -513,7 +459,7 @@ Proof.
   all: try done.
   all: simpl in *.
   all: try (split_and! => //; []).
-  - apply eval_appｰwf.
+  - apply eval۰applyｰwf.
     + simp_Forall in *. naive.
     + naive.
     + simp_Forall+ in *. naive.
@@ -521,8 +467,10 @@ Proof.
   - case_match; naive.
   - naive.
   - case_match; naive.
-  - apply state۰allocｰwf => //.
-    apply Forall_replicate => //.
+  - eapply eval۰matchｰwf; try naive.
+    simp_Forall in *. naive.
+  - eapply eval۰matchｰwf; try naive.
+    all: simp_Forall in *; naive.
   - apply state۰allocｰwf => //.
     subst. rewrite /expr۰of_vals in Hwf_e.
     simp_Forall+ in *.
@@ -532,10 +480,8 @@ Proof.
     simp_Forall+ in *.
   - subst. rewrite /expr۰of_vals in Hwf_e.
     simp_Forall+ in *.
-  - eapply eval_matchｰwf; try naive.
-    simp_Forall in *. naive.
-  - eapply eval_matchｰwf; try naive.
-    all: simp_Forall in *; naive.
+  - apply state۰allocｰwf => //.
+    apply Forall_replicate => //.
   - eapply state۰wfｰheap, map_Forall_lookup_1 in Hwf_σ => //.
   - simp_Forall+ in *. naive.
   - apply state۰set_locationｰwf; naive.

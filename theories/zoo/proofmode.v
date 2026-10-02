@@ -53,6 +53,30 @@ Section zoo۰G.
     intros ->. done.
   Qed.
 
+  Lemma tacｰwpｰvalueｰnofupd Δ v tid E Φ :
+    envs_entails Δ (Φ v) →
+    envs_entails Δ (WP (Val v) ∷ tid @ E {{ Φ }}).
+  Proof.
+    rewrite envs_entails_unseal => ->.
+    apply wpｰvalue'.
+  Qed.
+  Lemma tacｰwpｰvalue Δ v tid E Φ :
+    envs_entails Δ (|={E}=> Φ v) →
+    envs_entails Δ (WP (Val v) ∷ tid @ E {{ Φ }}).
+  Proof.
+    rewrite envs_entails_unseal => ->.
+    apply wpｰvalueｰfupd'.
+  Qed.
+
+  Lemma tacｰwpｰbind Δ K e (f : expr → expr) tid E Φ :
+    f = (λ e, fill K e) →
+    envs_entails Δ (WP e ∷ tid @ E {{ v, WP f (Val v) ∷ tid @ E {{ Φ }} }})%I →
+    envs_entails Δ (WP fill K e ∷ tid @ E {{ Φ }}).
+  Proof.
+    rewrite envs_entails_unseal => -> ->.
+    apply: wpｰbind'.
+  Qed.
+
   Lemma tacｰwpｰpure Δ1 Δ2 K e1 e2 ϕ n tid E Φ :
     PureExec ϕ n e1 e2 →
     ϕ →
@@ -222,28 +246,22 @@ Section zoo۰G.
     lia.
   Qed.
 
-  Lemma tacｰwpｰvalueｰnofupd Δ v tid E Φ :
-    envs_entails Δ (Φ v) →
-    envs_entails Δ (WP (Val v) ∷ tid @ E {{ Φ }}).
+  Lemma tacｰwpｰmatch Δ1 Δ2 id p K l hdr x_fb e_fb brs e tid E Φ :
+    MaybeIntoLaterNEnvs 1 Δ1 Δ2 →
+    envs_lookup id Δ2 = Some (p, l ↦ₕ hdr)%I →
+    eval۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
+    envs_entails Δ2 (WP fill K e ∷ tid @ E {{ Φ }}) →
+    envs_entails Δ1 (WP fill K (Match #l x_fb e_fb brs) ∷ tid @ E {{ Φ }}).
   Proof.
-    rewrite envs_entails_unseal => ->.
-    apply wpｰvalue'.
-  Qed.
-  Lemma tacｰwpｰvalue Δ v tid E Φ :
-    envs_entails Δ (|={E}=> Φ v) →
-    envs_entails Δ (WP (Val v) ∷ tid @ E {{ Φ }}).
-  Proof.
-    rewrite envs_entails_unseal => ->.
-    apply wpｰvalueｰfupd'.
-  Qed.
-
-  Lemma tacｰwpｰbind Δ K e (f : expr → expr) tid E Φ :
-    f = (λ e, fill K e) →
-    envs_entails Δ (WP e ∷ tid @ E {{ v, WP f (Val v) ∷ tid @ E {{ Φ }} }})%I →
-    envs_entails Δ (WP fill K e ∷ tid @ E {{ Φ }}).
-  Proof.
-    rewrite envs_entails_unseal => -> ->.
-    apply: wpｰbind'.
+    rewrite envs_entails_unseal => HΔ1 Hlookup He HΔ2.
+    rewrite into_laterN_env_sound /=.
+    iIntros "HΔ2".
+    iAssert (▷ l ↦ₕ hdr)%I as "#Hl".
+    { iDestruct (envs_lookup_split with "HΔ2") as "(Hl & _)"; first done.
+      destruct p; iSteps.
+    }
+    iApply (wpｰmatchｰcontext with "Hl"); first done.
+    rewrite HΔ2. iSteps.
   Qed.
 
   Lemma tacｰwpｰequal Δ1 Δ2 K v1 v2 tid E Φ :
@@ -261,31 +279,6 @@ Section zoo۰G.
     apply bi.later_mono, bi.and_intro.
     all: repeat (rewrite bi.pure_wand_forall; apply bi.forall_intro => ?).
     all: naive.
-  Qed.
-
-  Lemma tacｰwpｰalloc Δ1 Δ2 id1 id2 id3 K 𝑡𝑎𝑔 tag n tid E Φ :
-    tag۰of_Z 𝑡𝑎𝑔 = Some tag →
-    (0 ≤ n)%Z →
-    MaybeIntoLaterNEnvs 1 Δ1 Δ2 →
-    ( ∀ l,
-      let* Δ3 :=
-        envs_app false (Esnoc (Esnoc (Esnoc Enil
-          id1 (l ↦ₕ Header tag ₊n))
-          id2 (meta_token l ⊤))
-          id3 (l ↦∗ replicate ₊n ()%V))
-          Δ2
-      in
-      envs_entails Δ3 (WP fill K #l ∷ tid @ E {{ Φ }})
-    ) →
-    envs_entails Δ1 (WP fill K (Alloc #𝑡𝑎𝑔 #n) ∷ tid @ E {{ Φ }}).
-  Proof.
-    rewrite envs_entails_unseal => Htag Hn HΔ1 HΔ3.
-    rewrite into_laterN_env_sound -wpｰbind'.
-    iIntros "HΔ2".
-    iApply (wpｰalloc with "[//]"); [done.. |]. iIntros "!> %l (Hheader & Hmeta & Hl)".
-    specialize (HΔ3 l). destruct (envs_app _ _ _) as [Δ3 |] eqn:HΔ2; last done.
-    rewrite -HΔ3 envs_app_sound //= right_id.
-    iApply ("HΔ2" with "[$Hheader $Hl $Hmeta]").
   Qed.
 
   Lemma tacｰwpｰblockｰmutable Δ1 Δ2 id1 id2 id3 K tag es vs tid E Φ :
@@ -351,51 +344,58 @@ Section zoo۰G.
     iApply (HΔ2 with "HΔ2").
   Qed.
 
-  Lemma tacｰwpｰmatch Δ1 Δ2 id p K l hdr x_fb e_fb brs e tid E Φ :
+  Lemma tacｰwpｰalloc Δ1 Δ2 id1 id2 id3 K 𝑡𝑎𝑔 tag n tid E Φ :
+    tag۰of_Z 𝑡𝑎𝑔 = Some tag →
+    (0 ≤ n)%Z →
     MaybeIntoLaterNEnvs 1 Δ1 Δ2 →
-    envs_lookup id Δ2 = Some (p, l ↦ₕ hdr)%I →
-    eval_match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
-    envs_entails Δ2 (WP fill K e ∷ tid @ E {{ Φ }}) →
-    envs_entails Δ1 (WP fill K (Match #l x_fb e_fb brs) ∷ tid @ E {{ Φ }}).
+    ( ∀ l,
+      let* Δ3 :=
+        envs_app false (Esnoc (Esnoc (Esnoc Enil
+          id1 (l ↦ₕ Header tag ₊n))
+          id2 (meta_token l ⊤))
+          id3 (l ↦∗ replicate ₊n ()%V))
+          Δ2
+      in
+      envs_entails Δ3 (WP fill K #l ∷ tid @ E {{ Φ }})
+    ) →
+    envs_entails Δ1 (WP fill K (𝗮𝗹𝗹𝗼𝗰 #𝑡𝑎𝑔 #n) ∷ tid @ E {{ Φ }}).
   Proof.
-    rewrite envs_entails_unseal => HΔ1 Hlookup He HΔ2.
-    rewrite into_laterN_env_sound /=.
+    rewrite envs_entails_unseal => Htag Hn HΔ1 HΔ3.
+    rewrite into_laterN_env_sound -wpｰbind'.
     iIntros "HΔ2".
-    iAssert (▷ l ↦ₕ hdr)%I as "#Hl".
-    { iDestruct (envs_lookup_split with "HΔ2") as "(Hl & _)"; first done.
-      destruct p; iSteps.
-    }
-    iApply (wpｰmatchｰcontext with "Hl"); first done.
-    rewrite HΔ2. iSteps.
+    iApply (wpｰalloc with "[//]"); [done.. |]. iIntros "!> %l (Hheader & Hmeta & Hl)".
+    specialize (HΔ3 l). destruct (envs_app _ _ _) as [Δ3 |] eqn:HΔ2; last done.
+    rewrite -HΔ3 envs_app_sound //= right_id.
+    iApply ("HΔ2" with "[$Hheader $Hl $Hmeta]").
   Qed.
 
-  Lemma tacｰwpｰtag Δ1 Δ2 id p K l hdr tid E Φ :
+  Lemma tacｰwpｰget_tag Δ1 Δ2 id p K l hdr tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ1 Δ2 →
     envs_lookup id Δ2 = Some (p, l ↦ₕ hdr)%I →
     envs_entails Δ2 (WP fill K #hdr.(header۰tag) ∷ tid @ E {{ Φ }}) →
-    envs_entails Δ1 (WP fill K (GetTag #l) ∷ tid @ E {{ Φ }}).
+    envs_entails Δ1 (WP fill K (𝘁𝗮𝗴 #l) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ1 Hlookup HΔ2.
     rewrite into_laterN_env_sound -wpｰbind' envs_lookup_split //= HΔ2.
     iIntros "(Hheader & H)".
     iAssert (▷ l ↦ₕ hdr)%I with "[Hheader]" as "#Hheader_".
     { destruct p; iSteps. }
-    iApply (wpｰtag with "Hheader_").
+    iApply (wpｰget_tag with "Hheader_").
     iSteps.
   Qed.
 
-  Lemma tacｰwpｰsize Δ1 Δ2 id p K l hdr tid E Φ :
+  Lemma tacｰwpｰget_size Δ1 Δ2 id p K l hdr tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ1 Δ2 →
     envs_lookup id Δ2 = Some (p, l ↦ₕ hdr)%I →
     envs_entails Δ2 (WP fill K #hdr.(header۰size) ∷ tid @ E {{ Φ }}) →
-    envs_entails Δ1 (WP fill K (GetSize #l) ∷ tid @ E {{ Φ }}).
+    envs_entails Δ1 (WP fill K (𝘀𝗶𝘇𝗲 #l) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ1 Hlookup HΔ2.
     rewrite into_laterN_env_sound -wpｰbind' envs_lookup_split //= HΔ2.
     iIntros "(Hheader & H)".
     iAssert (▷ l ↦ₕ hdr)%I with "[Hheader]" as "#Hheader_".
     { destruct p; iSteps. }
-    iApply (wpｰsize with "Hheader_").
+    iApply (wpｰget_size with "Hheader_").
     iSteps.
   Qed.
 
@@ -403,7 +403,7 @@ Section zoo۰G.
     MaybeIntoLaterNEnvs 1 Δ1 Δ2 →
     envs_lookup id Δ2 = Some (p, (l +ₗ fld) ↦{dq} v)%I →
     envs_entails Δ2 (WP fill K v ∷ tid @ E {{ Φ }}) →
-    envs_entails Δ1 (WP fill K (Load #l #fld) ∷ tid @ E {{ Φ }}).
+    envs_entails Δ1 (WP fill K (𝗹𝗼𝗮𝗱 #l #fld) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ1 Hlookup HΔ2.
     rewrite into_laterN_env_sound -wpｰbind' envs_lookup_split //= HΔ2.
@@ -424,7 +424,7 @@ Section zoo۰G.
       in
       envs_entails Δ3 (WP fill K () ∷ tid @ E {{ Φ }})
     ) →
-    envs_entails Δ1 (WP fill K (Store #l #fld v) ∷ tid @ E {{ Φ }}).
+    envs_entails Δ1 (WP fill K (𝘀𝘁𝗼𝗿𝗲 #l #fld v) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ1 Hlookup HΔ2.
     destruct (envs_simple_replace _ _ _ _) as [Δ3 |] eqn:HΔ3; last done.
@@ -444,7 +444,7 @@ Section zoo۰G.
       in
       envs_entails Δ3 (WP fill K w ∷ tid @ E {{ Φ }})
     ) →
-    envs_entails Δ1 (WP fill K (Xchg (#l, #fld)%V v) ∷ tid @ E {{ Φ }}).
+    envs_entails Δ1 (WP fill K (𝘅𝗰𝗵𝗴 (#l, #fld)%V v) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ1 Hlookup HΔ2.
     destruct (envs_simple_replace _ _ _ _) as [Δ3 |] eqn:HΔ3; last done.
@@ -471,7 +471,7 @@ Section zoo۰G.
       v ≈ v1 →
       envs_entails Δ4 (WP fill K true%V ∷ tid @ E {{ Φ }})
     ) →
-    envs_entails Δ1 (WP fill K (CAS (#l, #fld)%V v1 v2) ∷ tid @ E {{ Φ }}).
+    envs_entails Δ1 (WP fill K (𝗰𝗮𝘀 (#l, #fld)%V v1 v2) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal. intros HΔ1 (Hlookup & ->)%envs_lookup_delete_Some Hfail Hsuc1 Hsuc2.
     destruct (envs_app _ _ _) as [Δ4 |] eqn:HΔ4; last done.
@@ -506,7 +506,7 @@ Section zoo۰G.
       in
       envs_entails Δ3 (WP fill K #i1 ∷ tid @ E {{ Φ }})
     ) →
-    envs_entails Δ1 (WP fill K (FAA (#l, #fld)%V #i2) ∷ tid @ E {{ Φ }}).
+    envs_entails Δ1 (WP fill K (𝗳𝗮𝗮 (#l, #fld)%V #i2) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ1 Hlookup HΔ3.
     destruct (envs_simple_replace _ _ _) as [Δ3 |] eqn:HΔ2; last done.
@@ -553,6 +553,27 @@ Ltac wp۰expr۰simpl :=
   try wp۰expr۰simpl;
   try wp۰value۰head;
   pm_prettify.
+
+Ltac wp۰bind۰core K :=
+  lazymatch eval hnf in K with
+  | [] =>
+      idtac
+  | _ =>
+      eapply (tacｰwpｰbind _ K);
+      [ simpl; reflexivity
+      | pm_prettify
+      ]
+  end.
+Tactic Notation "wp۰bind" open_constr(e_foc) :=
+  wp۰start ltac:(fun e =>
+    first
+    [ expr۰reshape_apply e ltac:(fun K e' =>
+        unify e' e_foc;
+        wp۰bind۰core K
+      )
+    | fail 1 "wp۰bind: cannot find" e_foc "in" e
+    ]
+  ).
 
 #[local] Ltac solve_pure_exec_obligation :=
   simpl; split_and?; done || lia.
@@ -730,27 +751,27 @@ Tactic Notation "wp۰pures" "steps:" constr(Hsteps_lb) "credit:" constr(Hcredit)
   clear H1 H2.
 Tactic Notation "wp۰rec" :=
   wp۰rec۰aux ltac:(fun _ =>
-    wp۰pure (App _ _)
+    wp۰pure (Apply _ _)
   ).
 Tactic Notation "wp۰rec" "credits:" constr(Hcredits) :=
   wp۰rec۰aux ltac:(fun _ =>
-    wp۰pure (App _ _) credits:Hcredits
+    wp۰pure (Apply _ _) credits:Hcredits
   ).
 Tactic Notation "wp۰rec" "credit:" constr(Hcredit) :=
   wp۰rec۰aux ltac:(fun _ =>
-    wp۰pure (App _ _) credit:Hcredit
+    wp۰pure (Apply _ _) credit:Hcredit
   ).
 Tactic Notation "wp۰rec" "steps:" constr(Hsteps_lb) :=
   wp۰rec۰aux ltac:(fun _ =>
-    wp۰pure (App _ _) steps:Hsteps_lb
+    wp۰pure (Apply _ _) steps:Hsteps_lb
   ).
 Tactic Notation "wp۰rec" "steps:" constr(Hsteps_lb) "credits:" constr(Hcredits) :=
   wp۰rec۰aux ltac:(fun _ =>
-    wp۰pure (App _ _) steps:Hsteps_lb credits:Hcredits
+    wp۰pure (Apply _ _) steps:Hsteps_lb credits:Hcredits
   ).
 Tactic Notation "wp۰rec" "steps:" constr(Hsteps_lb) "credit:" constr(Hcredit) :=
   wp۰rec۰aux ltac:(fun _ =>
-    wp۰pure (App _ _) steps:Hsteps_lb credit:Hcredit
+    wp۰pure (Apply _ _) steps:Hsteps_lb credit:Hcredit
   ).
 
 Tactic Notation "wp۰while" :=
@@ -785,24 +806,23 @@ Tactic Notation "wp۰for" "credit:" constr(Hcredit) :=
   wp۰pure (For _ _ _) credit:Hcredit;
   clear H.
 
-Ltac wp۰bind۰core K :=
-  lazymatch eval hnf in K with
-  | [] =>
-      idtac
-  | _ =>
-      eapply (tacｰwpｰbind _ K);
-      [ simpl; reflexivity
-      | pm_prettify
-      ]
-  end.
-Tactic Notation "wp۰bind" open_constr(e_foc) :=
+Tactic Notation "wp۰match" :=
+  wp۰pures;
   wp۰start ltac:(fun e =>
     first
     [ expr۰reshape_apply e ltac:(fun K e' =>
-        unify e' e_foc;
-        wp۰bind۰core K
+        eapply (tacｰwpｰmatch _ _ _ _ K)
       )
-    | fail 1 "wp۰bind: cannot find" e_foc "in" e
+    | fail 1 "wp۰match: cannot find 'Match' on location in" e
+    ];
+    [ tc_solve
+    | let l := match goal with |- _ = Some (_, ?l ↦ₕ _)%I => l end in
+      first
+      [ iAssumptionCore
+      | fail 1 "wp۰match: cannot find" l "↦ₕ ?"
+      ]
+    | try fast_done
+    | wp۰finish
     ]
   ).
 
@@ -826,48 +846,6 @@ Tactic Notation "wp۰equal" "as" simple_intropattern(H) :=
   wp۰equal as H | H.
 Tactic Notation "wp۰equal" :=
   wp۰equal as ?.
-
-Tactic Notation "wp۰alloc" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl) :=
-  let Hheader' := Hheader in
-  let Hmeta' := iFresh in
-  let Hl' := iFresh in
-  wp۰pures;
-  wp۰start ltac:(fun e =>
-    first
-    [ expr۰reshape_apply e ltac:(fun K e' =>
-        eapply (tacｰwpｰalloc _ _ Hheader' Hmeta' Hl' K)
-      )
-    | fail 1 "wp۰alloc: cannot find 'Alloc' in" e
-    ];
-    [ try fast_done
-    | try fast_done
-    | tc_solve
-    | first
-      [ intros l
-      | fail 1 "wp۰alloc:" l "not fresh"
-      ];
-      pm_reduce;
-      first
-      [ iDestructHyp Hheader' as Hheader
-      | fail 1 "wp۰alloc: invalid intro pattern for header:" Hheader
-      ];
-      first
-      [ iDestructHyp Hmeta' as Hmeta
-      | fail 1 "wp۰alloc: invalid intro pattern for meta:" Hmeta
-      ];
-      first
-      [ iDestructHyp Hl' as Hl
-      | fail 1 "wp۰alloc: invalid intro pattern for block:" Hl
-      ];
-      wp۰finish
-    ]
-  ).
-Tactic Notation "wp۰alloc" ident(l) "as" constr(Hmeta) constr(Hl) :=
-  wp۰alloc l as "_" Hmeta Hl.
-Tactic Notation "wp۰alloc" ident(l) "as" constr(Hl) :=
-  wp۰alloc l as "_" Hl.
-Tactic Notation "wp۰alloc" ident(l) :=
-  wp۰alloc l as "?".
 
 #[local] Fixpoint wp۰block۰parse۰aux pats :=
   match pats with
@@ -1021,34 +999,56 @@ Tactic Notation "wp۰block۰generative" simple_intropattern(bid) :=
 Tactic Notation "wp۰block۰generative" :=
   wp۰block۰generative ?.
 
-Tactic Notation "wp۰match" :=
+Tactic Notation "wp۰alloc" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl) :=
+  let Hheader' := Hheader in
+  let Hmeta' := iFresh in
+  let Hl' := iFresh in
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
     [ expr۰reshape_apply e ltac:(fun K e' =>
-        eapply (tacｰwpｰmatch _ _ _ _ K)
+        eapply (tacｰwpｰalloc _ _ Hheader' Hmeta' Hl' K)
       )
-    | fail 1 "wp۰match: cannot find 'Match' on location in" e
+    | fail 1 "wp۰alloc: cannot find 𝗮𝗹𝗹𝗼𝗰 in" e
     ];
-    [ tc_solve
-    | let l := match goal with |- _ = Some (_, ?l ↦ₕ _)%I => l end in
-      first
-      [ iAssumptionCore
-      | fail 1 "wp۰match: cannot find" l "↦ₕ ?"
-      ]
+    [ try fast_done
     | try fast_done
-    | wp۰finish
+    | tc_solve
+    | first
+      [ intros l
+      | fail 1 "wp۰alloc:" l "not fresh"
+      ];
+      pm_reduce;
+      first
+      [ iDestructHyp Hheader' as Hheader
+      | fail 1 "wp۰alloc: invalid intro pattern for header:" Hheader
+      ];
+      first
+      [ iDestructHyp Hmeta' as Hmeta
+      | fail 1 "wp۰alloc: invalid intro pattern for meta:" Hmeta
+      ];
+      first
+      [ iDestructHyp Hl' as Hl
+      | fail 1 "wp۰alloc: invalid intro pattern for block:" Hl
+      ];
+      wp۰finish
     ]
   ).
+Tactic Notation "wp۰alloc" ident(l) "as" constr(Hmeta) constr(Hl) :=
+  wp۰alloc l as "_" Hmeta Hl.
+Tactic Notation "wp۰alloc" ident(l) "as" constr(Hl) :=
+  wp۰alloc l as "_" Hl.
+Tactic Notation "wp۰alloc" ident(l) :=
+  wp۰alloc l as "?".
 
 Ltac wp۰tag :=
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
     [ expr۰reshape_apply e ltac:(fun K e' =>
-        eapply (tacｰwpｰtag _ _ _ _ K)
+        eapply (tacｰwpｰget_tag _ _ _ _ K)
       )
-    | fail 1 "wp۰tag: cannot find 'GetTag' in" e
+    | fail 1 "wp۰tag: cannot find 𝘁𝗮𝗴 in" e
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, ?l ↦ₕ _)%I => l end in
@@ -1065,9 +1065,9 @@ Ltac wp۰size :=
   wp۰start ltac:(fun e =>
     first
     [ expr۰reshape_apply e ltac:(fun K e' =>
-        eapply (tacｰwpｰsize _ _ _ _ K)
+        eapply (tacｰwpｰget_size _ _ _ _ K)
       )
-    | fail 1 "wp۰size: cannot find 'GetSize' in" e
+    | fail 1 "wp۰size: cannot find 𝘀𝗶𝘇𝗲 in" e
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, ?l ↦ₕ _)%I => l end in
@@ -1086,7 +1086,7 @@ Ltac wp۰load :=
     [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰload _ _ _ _ K)
       )
-    | fail 1 "wp۰load: cannot find 'Load' in" e
+    | fail 1 "wp۰load: cannot find 𝗹𝗼𝗮𝗱 in" e
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (pointsto ?l _ _)) => l end in
@@ -1105,7 +1105,7 @@ Ltac wp۰store :=
     [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰstore _ _ _ K)
       )
-    | fail 1 "wp۰store: cannot find 'Store' in" e
+    | fail 1 "wp۰store: cannot find 𝘀𝘁𝗼𝗿𝗲 in" e
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (pointsto ?l _ _)) => l end in
@@ -1125,7 +1125,7 @@ Ltac wp۰xchg :=
     [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰxchg _ _ _ K)
       )
-    | fail 1 "wp۰xchg: cannot find 'Xchg in" e
+    | fail 1 "wp۰xchg: cannot find 𝘅𝗰𝗵𝗴 in" e
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (pointsto ?l _ _)) => l end in
@@ -1145,7 +1145,7 @@ Tactic Notation "wp۰cas" "as" simple_intropattern(Hfail) "|" simple_intropatter
     [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰcas _ _ _ _ _ K)
       )
-    | fail 1 "wp۰cas: cannot find 'CAS' with literal arguments in" e
+    | fail 1 "wp۰cas: cannot find 𝗰𝗮𝘀 with literal arguments in" e
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (pointsto ?l _ _), _) => l end in
@@ -1174,7 +1174,7 @@ Ltac wp۰faa :=
     [ expr۰reshape_apply e ltac:(fun K e' =>
         eapply (tacｰwpｰfaa _ _ _ K)
       )
-    | fail 1 "wp۰faa: cannot find 'FAA' in" e
+    | fail 1 "wp۰faa: cannot find 𝗳𝗮𝗮 in" e
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (pointsto ?l _ _)) => l end in

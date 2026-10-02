@@ -490,7 +490,7 @@ Section inf_array۰G.
         ⌜PureExec True 1 e ()⌝ -∗
         ⌜expr۰to_val e = None⌝ -∗
         inf_array۰model t (<[₊i := v]> vs) -∗
-        WP Resolve e #pid v_resolve @ E {{ _,
+        WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e #pid v_resolve @ E {{ _,
           |={E,⊤}=>
           Φ (vs ₊i)
         }}
@@ -679,7 +679,7 @@ Section inf_array۰G.
         ⌜expr۰to_val e = None⌝ -∗
         ⌜(if b then (≈) else (≉)) (vs ₊i) v1⌝ -∗
         inf_array۰model t (if b then <[₊i := v2]> vs else vs) -∗
-        WP Resolve e #pid v_resolve @ E {{ _,
+        WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e #pid v_resolve @ E {{ _,
           |={E,⊤}=>
           Φ #b
         }}

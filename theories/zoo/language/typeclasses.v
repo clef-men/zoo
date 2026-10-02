@@ -31,37 +31,37 @@ Section atomic.
   Qed.
 
   #[global] Instance get_sizeｰatomic v :
-    Atomic (GetSize (Val v)).
+    Atomic (Primitive1 GetSize (Val v)).
   Proof.
     solve_atomic.
   Qed.
 
   #[global] Instance loadｰatomic v1 v2 :
-    Atomic (Load (Val v1) (Val v2)).
+    Atomic (Primitive2 Load (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
   #[global] Instance storeｰatomic v1 v2 v3 :
-    Atomic (Store (Val v1) (Val v2) (Val v3)).
+    Atomic (Primitive3 Store (Val v1) (Val v2) (Val v3)).
   Proof.
     solve_atomic.
   Qed.
 
   #[global] Instance xchgｰatomic v1 v2 :
-    Atomic (Xchg (Val v1) (Val v2)).
+    Atomic (Primitive2 Xchg (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
   #[global] Instance casｰatomic v0 v1 v2 :
-    Atomic (CAS (Val v0) (Val v1) (Val v2)).
+    Atomic (Primitive3 CAS (Val v0) (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
   #[global] Instance faaｰatomic v1 v2 :
-    Atomic (FAA (Val v1) (Val v2)).
+    Atomic (Primitive2 FAA (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
@@ -157,11 +157,11 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pureｰapp v1 i recs rec vs v2 `{HAsValRecs : !AsValRecs v1 i recs vs} :
+  #[global] Instance pureｰapply v1 i recs rec vs v2 `{HAsValRecs : !AsValRecs v1 i recs vs} :
     PureExec
       (recs !! i = Some rec)
       1
-      (App (Val v1) (Val v2))
+      (Apply (Val v1) (Val v2))
       (foldr2 (λ rec v, subst' rec.1.1 v) (subst' rec.1.2 v2 rec.2) recs vs).
   Proof.
     destruct HAsValRecs as (Hvs & -> & Hlength) => Hlookup.
@@ -198,14 +198,14 @@ Section pure_exec.
     { rewrite Hvs_eq -assoc //. }
     { lia. }
   Qed.
-  #[global] Instance pureｰappｰrec f x v1 v2 :
+  #[global] Instance pureｰapplyｰrec f x v1 v2 :
     PureExec
       True
       1
-      (App (Val $ ValRec f x (Val v1)) (Val v2))
+      (Apply (Val $ ValRec f x (Val v1)) (Val v2))
       (Val v1).
   Proof.
-    pose proof (pureｰapp (ValRec f x (Val v1)) 0 [(f, x, Val v1)] (f, x, Val v1) [ValRec f x (Val v1)] v2) as H.
+    pose proof (pureｰapply (ValRec f x (Val v1)) 0 [(f, x, Val v1)] (f, x, Val v1) [ValRec f x (Val v1)] v2) as H.
     rewrite /= !subst'ｰval in H.
     intros _. naive.
   Qed.
@@ -219,156 +219,6 @@ Section pure_exec.
     Proof.
       solve_pure_exec.
     Qed.
-
-  #[global] Instance pureｰunop op v lit :
-    PureExec
-      (eval_unop op v = Some lit)
-      1
-      (Unop op (Val v))
-      (Val $ ValLit lit).
-  Proof.
-    solve_pure_exec.
-  Qed.
-
-  #[global] Instance pureｰbinop op v1 v2 lit :
-    PureExec
-      (eval_binop op v1 v2 = Some lit)
-      1
-      (Binop op (Val v1) (Val v2))
-      (Val $ ValLit lit).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pureｰbinopｰstringｰget str i chr :
-    PureExec
-      ( (0 ≤ i)%Z ∧
-        String.get ₊i str = Some chr
-      )
-      1
-      (Binop BinopStringGet (Val $ ValString str) (Val $ ValInt i))
-      (Val $ ValChar chr).
-  Proof.
-    intros (Hi & Hlookup).
-    apply nsteps_once, pure_base_stepｰpure_step.
-    split.
-    - repeat econstructor.
-      rewrite /= decide_True // Hlookup //.
-    - intros.
-      inv_base_step.
-      select (_ = Some lit) (fun H =>
-        rewrite decide_True // Hlookup /= in H
-      ).
-      naive.
-  Qed.
-
-  #[global] Instance pureｰequalｰbool b1 b2 :
-    PureExec
-      True
-      1
-      (Equal (Val $ ValBool b1) (Val $ ValBool b2))
-      (Val $ ValBool (bool_decide (b1 = b2))).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pureｰequalｰchar chr1 chr2 :
-    PureExec
-      True
-      1
-      (Equal (Val $ ValChar chr1) (Val $ ValChar chr2))
-      (Val $ ValBool (bool_decide (chr1 = chr2))).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pureｰequalｰint i1 i2 :
-    PureExec
-      True
-      1
-      (Equal (Val $ ValInt i1) (Val $ ValInt i2))
-      (Val $ ValBool (bool_decide (i1 = i2))).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pureｰequalｰlocation l1 l2 :
-    PureExec
-      True
-      1
-      (Equal (Val $ ValLoc l1) (Val $ ValLoc l2))
-      (Val $ ValBool (bool_decide (l1 = l2))).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pureｰequalｰlocationｰblock l gen tag vs :
-    PureExec
-      True
-      1
-      (Equal (Val $ ValLoc l) (Val $ ValBlock gen tag vs))
-      (Val $ ValBool false).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pureｰequalｰblockｰlocation gen tag vs l :
-    PureExec
-      True
-      1
-      (Equal (Val $ ValBlock gen tag vs) (Val $ ValLoc l))
-      (Val $ ValBool false).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pureｰequalｰblockｰgenerative bid tag vs :
-    PureExec
-      True
-      1
-      (Equal (Val $ ValBlock (Generative (Some bid)) tag vs) (Val $ ValBlock (Generative (Some bid)) tag vs))
-      (Val $ ValBool true).
-  Proof.
-    destruct vs; solve_pure_exec.
-  Qed.
-  #[global] Instance pureｰequalｰblockｰgenerativeｰnongenerative bid1 tag1 vs1 tag2 vs2 :
-    PureExec
-      (length vs1 ≠ 0 ∨ length vs2 ≠ 0)
-      1
-      (Equal (Val $ ValBlock (Generative bid1) tag1 vs1) (Val $ ValBlock Nongenerative tag2 vs2))
-      (Val $ ValBool false).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pureｰequalｰblockｰnongenerativeｰgenerative tag1 vs1 bid2 tag2 vs2 :
-    PureExec
-      (length vs1 ≠ 0 ∨ length vs2 ≠ 0)
-      1
-      (Equal (Val $ ValBlock Nongenerative tag1 vs1) (Val $ ValBlock (Generative bid2) tag2 vs2))
-      (Val $ ValBool false).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pureｰequalｰblockｰempty tag1 tag2 :
-    PureExec
-      True
-      1
-      (Equal (Val $ ValBlock Nongenerative tag1 []) (Val $ ValBlock Nongenerative tag2 []))
-      (Val $ ValBool (bool_decide (tag1 = tag2))).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pureｰequalｰblockｰempty₁ gen1 tag1 gen2 tag2 v2 vs2 :
-    PureExec
-      True
-      1
-      (Equal (Val $ ValBlock gen1 tag1 []) (Val $ ValBlock gen2 tag2 (v2 :: vs2)))
-      (Val $ ValBool false).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pureｰequalｰblockｰempty₂ gen1 tag1 v1 vs1 gen2 tag2 :
-    PureExec
-      True
-      1
-      (Equal (Val $ ValBlock gen1 tag1 (v1 :: vs1)) (Val $ ValBlock gen2 tag2 []))
-      (Val $ ValBool false).
-  Proof.
-    solve_pure_exec.
-  Qed.
 
   #[global] Instance pureｰifｰtrue e1 e2 :
     PureExec
@@ -404,7 +254,180 @@ Section pure_exec.
       True
       1
       (For (Val $ ValInt n1) (Val $ ValInt n2) e)
-      (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (n1 + 1)) (Val $ ValInt n2) e)).
+      (if decide (n2 ≤ n1)%Z then Unit else Seq (Apply e (Val $ ValInt n1)) (For (Val $ ValInt (n1 + 1)) (Val $ ValInt n2) e)).
+  Proof.
+    solve_pure_exec.
+  Qed.
+
+  #[global] Instance pureｰmatch gen tag vs x_fb e_fb brs e :
+    PureExec
+      (eval۰match tag (length vs) (SubjectBlock gen vs) x_fb e_fb brs = Some e)
+      1
+      (Match (Val $ ValBlock gen tag vs) x_fb e_fb brs)
+      e.
+  Proof.
+    solve_pure_exec.
+  Qed.
+
+  #[global] Instance pureｰunop op v lit :
+    PureExec
+      (eval۰unop op v = Some lit)
+      1
+      (Primitive1 (Unop op) (Val v))
+      (Val $ ValLit lit).
+  Proof.
+    solve_pure_exec.
+  Qed.
+
+  #[global] Instance pureｰis_immediate v :
+    PureExec
+      True
+      1
+      (Primitive1 IsImmediate (Val v))
+      (Val $ ValBool (val۰immediate v)).
+  Proof.
+    solve_pure_exec.
+  Qed.
+
+  #[global] Instance pureｰbinop op n1 n2 :
+    PureExec
+      True
+      1
+      (Primitive2 (Binop op) (Val $ ValInt n1) (Val $ ValInt n2))
+      (Val $ ValLit $ eval۰binop op n1 n2).
+  Proof.
+    solve_pure_exec.
+  Qed.
+
+  #[global] Instance pureｰstring_get str i chr :
+    PureExec
+      ( (0 ≤ i)%Z ∧
+        String.get ₊i str = Some chr
+      )
+      1
+      (Primitive2 StringGet (Val $ ValString str) (Val $ ValInt i))
+      (Val $ ValChar chr).
+  Proof.
+    solve_pure_exec.
+  Qed.
+
+  #[global] Instance pureｰstring_equal str1 str2 :
+    PureExec
+      True
+      1
+      (Primitive2 StringEqual (Val $ ValString str1) (Val $ ValString str2))
+      (Val $ ValBool (bool_decide (str1 = str2))).
+  Proof.
+    intros _.
+    apply nsteps_once, pure_base_stepｰpure_step.
+    split; [solve_exec_safe | solve_exec_puredet].
+  Qed.
+
+  #[global] Instance pureｰequalｰbool b1 b2 :
+    PureExec
+      True
+      1
+      (Primitive2 Equal (Val $ ValBool b1) (Val $ ValBool b2))
+      (Val $ ValBool (bool_decide (b1 = b2))).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pureｰequalｰchar chr1 chr2 :
+    PureExec
+      True
+      1
+      (Primitive2 Equal (Val $ ValChar chr1) (Val $ ValChar chr2))
+      (Val $ ValBool (bool_decide (chr1 = chr2))).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pureｰequalｰint i1 i2 :
+    PureExec
+      True
+      1
+      (Primitive2 Equal (Val $ ValInt i1) (Val $ ValInt i2))
+      (Val $ ValBool (bool_decide (i1 = i2))).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pureｰequalｰlocation l1 l2 :
+    PureExec
+      True
+      1
+      (Primitive2 Equal (Val $ ValLoc l1) (Val $ ValLoc l2))
+      (Val $ ValBool (bool_decide (l1 = l2))).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pureｰequalｰlocationｰblock l gen tag vs :
+    PureExec
+      True
+      1
+      (Primitive2 Equal (Val $ ValLoc l) (Val $ ValBlock gen tag vs))
+      (Val $ ValBool false).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pureｰequalｰblockｰlocation gen tag vs l :
+    PureExec
+      True
+      1
+      (Primitive2 Equal (Val $ ValBlock gen tag vs) (Val $ ValLoc l))
+      (Val $ ValBool false).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pureｰequalｰblockｰgenerative bid tag vs :
+    PureExec
+      True
+      1
+      (Primitive2 Equal (Val $ ValBlock (Generative (Some bid)) tag vs) (Val $ ValBlock (Generative (Some bid)) tag vs))
+      (Val $ ValBool true).
+  Proof.
+    destruct vs; solve_pure_exec.
+  Qed.
+  #[global] Instance pureｰequalｰblockｰgenerativeｰnongenerative bid1 tag1 vs1 tag2 vs2 :
+    PureExec
+      (length vs1 ≠ 0 ∨ length vs2 ≠ 0)
+      1
+      (Primitive2 Equal (Val $ ValBlock (Generative bid1) tag1 vs1) (Val $ ValBlock Nongenerative tag2 vs2))
+      (Val $ ValBool false).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pureｰequalｰblockｰnongenerativeｰgenerative tag1 vs1 bid2 tag2 vs2 :
+    PureExec
+      (length vs1 ≠ 0 ∨ length vs2 ≠ 0)
+      1
+      (Primitive2 Equal (Val $ ValBlock Nongenerative tag1 vs1) (Val $ ValBlock (Generative bid2) tag2 vs2))
+      (Val $ ValBool false).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pureｰequalｰblockｰempty tag1 tag2 :
+    PureExec
+      True
+      1
+      (Primitive2 Equal (Val $ ValBlock Nongenerative tag1 []) (Val $ ValBlock Nongenerative tag2 []))
+      (Val $ ValBool (bool_decide (tag1 = tag2))).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pureｰequalｰblockｰempty₁ gen1 tag1 gen2 tag2 v2 vs2 :
+    PureExec
+      True
+      1
+      (Primitive2 Equal (Val $ ValBlock gen1 tag1 []) (Val $ ValBlock gen2 tag2 (v2 :: vs2)))
+      (Val $ ValBool false).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pureｰequalｰblockｰempty₂ gen1 tag1 v1 vs1 gen2 tag2 :
+    PureExec
+      True
+      1
+      (Primitive2 Equal (Val $ ValBlock gen1 tag1 (v1 :: vs1)) (Val $ ValBlock gen2 tag2 []))
+      (Val $ ValBool false).
   Proof.
     solve_pure_exec.
   Qed.
@@ -432,21 +455,11 @@ Section pure_exec.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.
 
-  #[global] Instance pureｰmatch gen tag vs x_fb e_fb brs e :
-    PureExec
-      (eval_match tag (length vs) (SubjectBlock gen vs) x_fb e_fb brs = Some e)
-      1
-      (Match (Val $ ValBlock gen tag vs) x_fb e_fb brs)
-      e.
-  Proof.
-    solve_pure_exec.
-  Qed.
-
   #[global] Instance pureｰget_tagｰstring str :
     PureExec
       True
       1
-      (GetTag $ Val $ ValString str)
+      (Primitive1 GetTag (Val $ ValString str))
       (Val $ ValNat tag۰string).
   Proof.
     solve_pure_exec.
@@ -455,7 +468,7 @@ Section pure_exec.
     PureExec
       (0 < length vs)
       1
-      (GetTag $ Val $ ValBlock gen tag vs)
+      (Primitive1 GetTag (Val $ ValBlock gen tag vs))
       (Val $ ValTag tag).
   Proof.
     solve_pure_exec.
@@ -465,7 +478,7 @@ Section pure_exec.
     PureExec
       (0 < length vs)
       1
-      (GetSize $ Val $ ValBlock gen tag vs)
+      (Primitive1 GetSize (Val $ ValBlock gen tag vs))
       (Val $ ValNat (length vs)).
   Proof.
     solve_pure_exec.
@@ -475,7 +488,7 @@ Section pure_exec.
     PureExec
       (vs !! fld = Some v)
       1
-      (Load (Val $ ValBlock gen tag vs) (Val $ ValNat fld))
+      (Primitive2 Load (Val $ ValBlock gen tag vs) (Val $ ValNat fld))
       (Val v).
   Proof.
     solve_pure_exec.
@@ -485,7 +498,7 @@ Section pure_exec.
     PureExec
       True
       1
-      (ResolveErasure (Val v0) (Val v1) (Val v2))
+      (Primitive3 ResolveErasure (Val v0) (Val v1) (Val v2))
       (Val v0).
   Proof.
     solve_pure_exec.

@@ -48,7 +48,7 @@ Section zoo۰G.
     ReshapeExprAnd _ e K e1 (
       TCAnd
         ( ( ∀ x e v,
-            PureExec True 1 (App (ValFun x e) v) (subst' x v e)
+            PureExec True 1 (Apply (ValFun x e) v) (subst' x v e)
           ) →
           PureExec ϕ n e1 e2
         )
@@ -73,248 +73,6 @@ Section zoo۰G.
       + auto with zoo.
       + intros. inv_base_step. done.
     - done.
-  Qed.
-
-  #[global] Instance allocｰdiaspec 𝑡𝑎𝑔 tag n E :
-    tag۰of_Z 𝑡𝑎𝑔 = Some tag →
-    DIASPEC
-    {{
-      ⌜0 ≤ n⌝%Z
-    }}
-      Alloc #𝑡𝑎𝑔 #n
-      @ E
-    {{ l,
-      RET #l;
-      l ↦ₕ Header tag ₊n ∗
-      meta_token l ⊤ ∗
-      l ↦∗ replicate ₊n ()%V
-    }}.
-  Proof.
-    intros Htag.
-    iSteps.
-    wp۰alloc l as "Hheader" "Hmeta" "Hl".
-    iSteps.
-  Qed.
-
-  #[global] Instance blockｰdiaspec tag es E :
-    DIASPEC vs
-    {{
-      ⌜0 < length es⌝%nat ∗
-      ⌜expr۰to_vals es = Some vs⌝
-    }}
-      Block Mutable tag es
-      @ E
-    {{ l,
-      RET #l;
-      l ↦ₕ Header tag (length es) ∗
-      meta_token l ⊤ ∗
-      l ↦∗ vs
-    }}
-  | 30.
-  Proof.
-    iSteps as (Φ vs Hes Hvs) "HΦ".
-    iApply (wpｰblockｰmutable with "[//] HΦ"). all: done.
-  Qed.
-
-  #[global] Instance refｰdiaspec e v E :
-    AsVal e v →
-    DIASPEC
-    {{
-      True
-    }}
-      𝗿𝗲𝗳 e
-      @ E
-    {{ l,
-      RET #l;
-      l ↦ₕ Header Tag0 1 ∗
-      meta_token l ⊤ ∗
-      l ↦ᵣ v
-    }}
-  | 20.
-  Proof.
-    move=> <-.
-    iSteps.
-    wp۰ref l as "Hheader" "Hmeta" "Hl".
-    iSteps.
-  Qed.
-
-  #[global] Instance blockｰgenerativeｰdiaspec tag es E :
-    DIASPEC vs
-    {{
-      ⌜expr۰to_vals es = Some vs⌝
-    }}
-      Block ImmutableGenerativeStrong tag es
-      @ E
-    {{ bid,
-      RET ValBlock (Generative (Some bid)) tag vs;
-      True
-    }}.
-  Proof.
-    iSteps.
-    wp۰block۰generative bid.
-    iSteps.
-  Qed.
-
-  #[global] Instance get_tagｰdiaspec l E :
-    DIASPEC hdr
-    {{
-      l ↦ₕ hdr
-    }}
-      GetTag #l
-      @ E
-    {{
-      RET #hdr.(header۰tag);
-      True
-    }}.
-  Proof.
-    iSteps.
-    wp۰tag.
-    iSteps.
-  Qed.
-
-  #[global] Instance get_sizeｰdiaspec l E :
-    DIASPEC hdr
-    {{
-      l ↦ₕ hdr
-    }}
-      GetSize #l
-      @ E
-    {{
-      RET #hdr.(header۰size);
-      True
-    }}.
-  Proof.
-    iSteps.
-    wp۰size.
-    iSteps.
-  Qed.
-
-  #[global] Instance loadｰdiaspec l fld E :
-    DIASPEC v dq
-    {{
-      ▷ (l +ₗ fld) ↦{dq} v
-    }}
-      Load #l #fld
-      @ E
-    {{
-      RET v;
-      (l +ₗ fld) ↦{dq} v
-    }}.
-  Proof.
-    iSteps.
-    wp۰load.
-    iSteps.
-  Qed.
-
-  #[global] Instance storeｰdiaspec l fld v E :
-    DIASPEC w
-    {{
-      ▷ (l +ₗ fld) ↦ w
-    }}
-      Store #l #fld v
-      @ E
-    {{
-      RET ();
-      (l +ₗ fld) ↦ v
-    }}.
-  Proof.
-    iSteps.
-    wp۰store.
-    iSteps.
-  Qed.
-
-  #[global] Instance xchgｰdiaspec l fld v E :
-    DIASPEC w
-    {{
-      ▷ (l +ₗ fld) ↦ w
-    }}
-      Xchg (#l, #fld)%V v
-      @ E
-    {{
-      RET w;
-      (l +ₗ fld) ↦ v
-    }}.
-  Proof.
-    iSteps.
-    wp۰xchg.
-    iSteps.
-  Qed.
-
-  #[global] Instance casｰdiaspec l fld v1 v2 E :
-    DIASPEC v dq
-    {{
-      ▷ (l +ₗ fld) ↦{dq} v ∗
-      ⌜dq = DfracOwn 1 ∨ ¬ v ≈ v1⌝
-    }}
-      CAS (#l, #fld)%V v1 v2
-      @ E
-    {{ (b : bool),
-      RET #b;
-        ⌜b = false⌝ ∗
-        ⌜v ≉ v1⌝ ∗
-        (l +ₗ fld) ↦{dq} v
-      ∨ ⌜b = true⌝ ∗
-        ⌜v ≈ v1⌝ ∗
-        (l +ₗ fld) ↦ v2
-    }}.
-  Proof.
-    iSteps.
-    all: wp۰cas.
-    all: iSteps.
-  Qed.
-
-  #[global] Instance faaｰdiaspec l fld (n : Z) E :
-    DIASPEC (z : Z)
-    {{
-      ▷ (l +ₗ fld) ↦ #z
-    }}
-      FAA (#l, #fld)%V #n
-      @ E
-    {{
-      RET #z;
-      (l +ₗ fld) ↦ #(z + n)
-    }}.
-  Proof.
-    iSteps.
-    wp۰faa.
-    iSteps.
-  Qed.
-
-  #[global] Instance prophｰdiaspec E :
-    DIASPEC
-    {{
-      True
-    }}
-      Proph
-      @ E
-    {{ prophs pid,
-      RET #pid;
-      prophet۰model pid prophs
-    }}.
-  Proof.
-    iSteps.
-    iApply (wpｰproph with "[//]").
-    iSteps.
-  Qed.
-
-  #[global] Instance matchｰdiaspec e K l x_fb e_fb brs tid E Φ :
-    ReshapeExprAnd _ e K (Match #l x_fb e_fb brs) TCTrue →
-    Context K →
-    HINT1 ε₀ ✱ [
-      ∃ hdr e,
-      ▷ l ↦ₕ hdr ∗
-      ⌜eval_match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e⌝ ∗
-      ▷ (
-        emp -∗
-        WP K e ∷ tid @ E {{ Φ }}
-      )
-    ] ⊫ [id];
-      WP e ∷ tid @ E {{ Φ }}.
-  Proof.
-    intros (->, _) HK.
-    iSteps as (hdr e He) "Hl_header H".
-    iApply (wpｰmatchｰcontext with "Hl_header"); first done.
-    iSteps.
   Qed.
 
   #[global] Instance ifｰboolｰdecideｰdiaspec e K P `{!Decision P} e1 e2 tid E Φ :
@@ -389,6 +147,248 @@ Section zoo۰G.
     2: iSpecialize ("H" $! true with "[]"); first iSteps.
     all: iSteps.
   Qed.
+
+  #[global] Instance matchｰdiaspec e K l x_fb e_fb brs tid E Φ :
+    ReshapeExprAnd _ e K (Match #l x_fb e_fb brs) TCTrue →
+    Context K →
+    HINT1 ε₀ ✱ [
+      ∃ hdr e,
+      ▷ l ↦ₕ hdr ∗
+      ⌜eval۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e⌝ ∗
+      ▷ (
+        emp -∗
+        WP K e ∷ tid @ E {{ Φ }}
+      )
+    ] ⊫ [id];
+      WP e ∷ tid @ E {{ Φ }}.
+  Proof.
+    intros (->, _) HK.
+    iSteps as (hdr e He) "Hl_header H".
+    iApply (wpｰmatchｰcontext with "Hl_header"); first done.
+    iSteps.
+  Qed.
+
+  #[global] Instance blockｰdiaspec tag es E :
+    DIASPEC vs
+    {{
+      ⌜0 < length es⌝%nat ∗
+      ⌜expr۰to_vals es = Some vs⌝
+    }}
+      Block Mutable tag es
+      @ E
+    {{ l,
+      RET #l;
+      l ↦ₕ Header tag (length es) ∗
+      meta_token l ⊤ ∗
+      l ↦∗ vs
+    }}
+  | 30.
+  Proof.
+    iSteps as (Φ vs Hes Hvs) "HΦ".
+    iApply (wpｰblockｰmutable with "[//] HΦ"). all: done.
+  Qed.
+
+  #[global] Instance refｰdiaspec e v E :
+    AsVal e v →
+    DIASPEC
+    {{
+      True
+    }}
+      𝗿𝗲𝗳 e
+      @ E
+    {{ l,
+      RET #l;
+      l ↦ₕ Header Tag0 1 ∗
+      meta_token l ⊤ ∗
+      l ↦ᵣ v
+    }}
+  | 20.
+  Proof.
+    move=> <-.
+    iSteps.
+    wp۰ref l as "Hheader" "Hmeta" "Hl".
+    iSteps.
+  Qed.
+
+  #[global] Instance blockｰgenerativeｰdiaspec tag es E :
+    DIASPEC vs
+    {{
+      ⌜expr۰to_vals es = Some vs⌝
+    }}
+      Block ImmutableGenerativeStrong tag es
+      @ E
+    {{ bid,
+      RET ValBlock (Generative (Some bid)) tag vs;
+      True
+    }}.
+  Proof.
+    iSteps.
+    wp۰block۰generative bid.
+    iSteps.
+  Qed.
+
+  #[global] Instance allocｰdiaspec 𝑡𝑎𝑔 tag n E :
+    tag۰of_Z 𝑡𝑎𝑔 = Some tag →
+    DIASPEC
+    {{
+      ⌜0 ≤ n⌝%Z
+    }}
+      𝗮𝗹𝗹𝗼𝗰 #𝑡𝑎𝑔 #n
+      @ E
+    {{ l,
+      RET #l;
+      l ↦ₕ Header tag ₊n ∗
+      meta_token l ⊤ ∗
+      l ↦∗ replicate ₊n ()%V
+    }}.
+  Proof.
+    intros Htag.
+    iSteps.
+    wp۰alloc l as "Hheader" "Hmeta" "Hl".
+    iSteps.
+  Qed.
+
+  #[global] Instance get_tagｰdiaspec l E :
+    DIASPEC hdr
+    {{
+      l ↦ₕ hdr
+    }}
+      𝘁𝗮𝗴 #l
+      @ E
+    {{
+      RET #hdr.(header۰tag);
+      True
+    }}.
+  Proof.
+    iSteps.
+    wp۰tag.
+    iSteps.
+  Qed.
+
+  #[global] Instance get_sizeｰdiaspec l E :
+    DIASPEC hdr
+    {{
+      l ↦ₕ hdr
+    }}
+      𝘀𝗶𝘇𝗲 #l
+      @ E
+    {{
+      RET #hdr.(header۰size);
+      True
+    }}.
+  Proof.
+    iSteps.
+    wp۰size.
+    iSteps.
+  Qed.
+
+  #[global] Instance loadｰdiaspec l fld E :
+    DIASPEC v dq
+    {{
+      ▷ (l +ₗ fld) ↦{dq} v
+    }}
+      𝗹𝗼𝗮𝗱 #l #fld
+      @ E
+    {{
+      RET v;
+      (l +ₗ fld) ↦{dq} v
+    }}.
+  Proof.
+    iSteps.
+    wp۰load.
+    iSteps.
+  Qed.
+
+  #[global] Instance storeｰdiaspec l fld v E :
+    DIASPEC w
+    {{
+      ▷ (l +ₗ fld) ↦ w
+    }}
+      𝘀𝘁𝗼𝗿𝗲 #l #fld v
+      @ E
+    {{
+      RET ();
+      (l +ₗ fld) ↦ v
+    }}.
+  Proof.
+    iSteps.
+    wp۰store.
+    iSteps.
+  Qed.
+
+  #[global] Instance xchgｰdiaspec l fld v E :
+    DIASPEC w
+    {{
+      ▷ (l +ₗ fld) ↦ w
+    }}
+      𝘅𝗰𝗵𝗴 (#l, #fld)%V v
+      @ E
+    {{
+      RET w;
+      (l +ₗ fld) ↦ v
+    }}.
+  Proof.
+    iSteps.
+    wp۰xchg.
+    iSteps.
+  Qed.
+
+  #[global] Instance casｰdiaspec l fld v1 v2 E :
+    DIASPEC v dq
+    {{
+      ▷ (l +ₗ fld) ↦{dq} v ∗
+      ⌜dq = DfracOwn 1 ∨ ¬ v ≈ v1⌝
+    }}
+      𝗰𝗮𝘀 (#l, #fld)%V v1 v2
+      @ E
+    {{ (b : bool),
+      RET #b;
+        ⌜b = false⌝ ∗
+        ⌜v ≉ v1⌝ ∗
+        (l +ₗ fld) ↦{dq} v
+      ∨ ⌜b = true⌝ ∗
+        ⌜v ≈ v1⌝ ∗
+        (l +ₗ fld) ↦ v2
+    }}.
+  Proof.
+    iSteps.
+    all: wp۰cas.
+    all: iSteps.
+  Qed.
+
+  #[global] Instance faaｰdiaspec l fld (n : Z) E :
+    DIASPEC (z : Z)
+    {{
+      ▷ (l +ₗ fld) ↦ #z
+    }}
+      𝗳𝗮𝗮 (#l, #fld)%V #n
+      @ E
+    {{
+      RET #z;
+      (l +ₗ fld) ↦ #(z + n)
+    }}.
+  Proof.
+    iSteps.
+    wp۰faa.
+    iSteps.
+  Qed.
+
+  #[global] Instance prophｰdiaspec E :
+    DIASPEC
+    {{
+      True
+    }}
+      𝗽𝗿𝗼𝗽𝗵
+      @ E
+    {{ prophs pid,
+      RET #pid;
+      prophet۰model pid prophs
+    }}.
+  Proof.
+    iSteps.
+    iApply (wpｰproph with "[//]").
+    iSteps.
+  Qed.
 End zoo۰G.
 
 #[local] Ltac expr۰reshape e K e' :=
@@ -424,7 +424,7 @@ End zoo۰G.
   PureExecNorec _ _ ?e1 _
 ) =>
   lazymatch e1 with
-  | App (Val ?v1) (Val ?v2) =>
+  | Apply (Val ?v1) (Val ?v2) =>
       assert_succeeds (
         assert (
           SolveSepSideCondition (val۰recursive v1 = false)

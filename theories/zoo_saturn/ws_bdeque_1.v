@@ -1273,7 +1273,7 @@ Module base.
         inv' t γ ∗
         front۰lb γ front2
       }}}
-        Resolve (CAS (#t).[front]%V #front1 #(front1 + 1)) #γ.(ws_bdeque_1۰name۰prophet) (#front1, #id)%V
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front1 #(front1 + 1)) #γ.(ws_bdeque_1۰name۰prophet) (#front1, #id)%V
       {{{
         RET false;
         True
@@ -1302,7 +1302,7 @@ Module base.
         front۰lb γ front ∗
         prophet_multi۰full prophet_identifier γ.(ws_bdeque_1۰name۰prophet_name) front prophs0
       }}}
-        Resolve (CAS (#t).[front]%V #front #(front + 1)) #γ.(ws_bdeque_1۰name۰prophet) (#front, #id)%V
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front #(front + 1)) #γ.(ws_bdeque_1۰name۰prophet) (#front, #id)%V
       {{{
         RET false;
         front۰lb γ ˖front
@@ -1336,7 +1336,7 @@ Module base.
         inv' t γ ∗
         winner۰pop γ front P
       }}}
-        Resolve (CAS (#t).[front]%V #front #(front + 1)) #γ.(ws_bdeque_1۰name۰prophet) (#front, #id)%V
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front #(front + 1)) #γ.(ws_bdeque_1۰name۰prophet) (#front, #id)%V
       {{{
         RET true;
         ▷ P
@@ -1422,7 +1422,7 @@ Module base.
         inv' t γ ∗
         winner۰steal γ front P
       }}}
-        Resolve (CAS (#t).[front]%V #front #(front + 1)) #γ.(ws_bdeque_1۰name۰prophet) (#front, #id)%V
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front #(front + 1)) #γ.(ws_bdeque_1۰name۰prophet) (#front, #id)%V
       {{{
         RET true;
         front۰lb γ ˖front
@@ -1459,7 +1459,7 @@ Module base.
         owner₁ γ Stable back ws ∗
         front۰lb γ back
       }}}
-        Resolve (CAS (#t).[front]%V #back #(back + 1)) #γ.(ws_bdeque_1۰name۰prophet) (#back, #id)%V
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #back #(back + 1)) #γ.(ws_bdeque_1۰name۰prophet) (#back, #id)%V
       {{{
         RET true;
         owner₁ γ Unstable back ws ∗

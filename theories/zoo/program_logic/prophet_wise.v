@@ -192,7 +192,7 @@ Section prophet_wise۰G.
     {{{
       True
     }}}
-      Proph
+      𝗽𝗿𝗼𝗽𝗵
       @ E
     {{{
       pid γ prophs
@@ -230,7 +230,7 @@ Section prophet_wise۰G.
           Φ w
       end
     }} -∗
-    WP Resolve e #pid v @ E {{ Φ }}.
+    WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e #pid v @ E {{ Φ }}.
   Proof.
     iIntros "% % (:model) HΦ".
     wp۰apply (prophet_typedｰwpｰresolve with "Hmodel"); first done.

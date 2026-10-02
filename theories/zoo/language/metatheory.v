@@ -19,21 +19,13 @@ Fixpoint occurs x e :=
       ￢ BNamed x ≟ f &&
       ￢ BNamed x ≟ y &&
       occurs x e
-  | App e1 e2 =>
+  | Apply e1 e2 =>
       occurs x e1 ||
       occurs x e2
   | Let y e1 e2 =>
       occurs x e1 ||
         ￢ BNamed x ≟ y &&
         occurs x e2
-  | Unop _ e =>
-      occurs x e
-  | Binop _ e1 e2 =>
-      occurs x e1 ||
-      occurs x e2
-  | Equal e1 e2 =>
-      occurs x e1 ||
-      occurs x e2
   | If e0 e1 e2 =>
       occurs x e0 ||
       occurs x e1 ||
@@ -45,11 +37,6 @@ Fixpoint occurs x e :=
       occurs x e1 ||
       occurs x e2 ||
       occurs x e3
-  | Alloc e1 e2 =>
-      occurs x e1 ||
-      occurs x e2
-  | Block _ _ es =>
-      existsb (occurs x) es
   | Match e0 y e1 brs =>
       occurs x e0 ||
       (￢ BNamed x ≟ y) && occurs x e1 ||
@@ -59,40 +46,22 @@ Fixpoint occurs x e :=
         ￢ BNamed x ≟ pat.(pattern۰as) &&
         occurs x br.2
       ) brs
-  | GetTag e =>
+  | Primitive0 _ =>
+      false
+  | Primitive1 _ e =>
       occurs x e
-  | GetSize e =>
-      occurs x e
-  | Load e1 e2 =>
+  | Primitive2 _ e1 e2 =>
       occurs x e1 ||
       occurs x e2
-  | Store e1 e2 e3 =>
+  | Primitive3 _ e1 e2 e3 =>
       occurs x e1 ||
       occurs x e2 ||
       occurs x e3
-  | Xchg e1 e2 =>
-      occurs x e1 ||
-      occurs x e2
-  | CAS e0 e1 e2 =>
-      occurs x e0 ||
-      occurs x e1 ||
-      occurs x e2
-  | FAA e1 e2 =>
-      occurs x e1 ||
-      occurs x e2
+  | Block _ _ es =>
+      existsb (occurs x) es
   | Fork e =>
       occurs x e
-  | LocalGet =>
-      false
-  | LocalSet e =>
-      occurs x e
-  | Proph =>
-      false
   | Resolve e0 e1 e2 =>
-      occurs x e0 ||
-      occurs x e1 ||
-      occurs x e2
-  | ResolveErasure e0 e1 e2 =>
       occurs x e0 ||
       occurs x e1 ||
       occurs x e2
@@ -133,8 +102,8 @@ Fixpoint subst (x : string) v e :=
           else
             subst x v e
         )
-  | App e1 e2 =>
-      App
+  | Apply e1 e2 =>
+      Apply
         (subst x v e1)
         (subst x v e2)
   | Let y e1 e2 =>
@@ -146,19 +115,6 @@ Fixpoint subst (x : string) v e :=
           else
             subst x v e2
         )
-  | Unop op e =>
-      Unop
-        op
-        (subst x v e)
-  | Binop op e1 e2 =>
-      Binop
-        op
-        (subst x v e1)
-        (subst x v e2)
-  | Equal e1 e2 =>
-      Equal
-        (subst x v e1)
-        (subst x v e2)
   | If e0 e1 e2 =>
       If
         (subst x v e0)
@@ -173,14 +129,6 @@ Fixpoint subst (x : string) v e :=
         (subst x v e1)
         (subst x v e2)
         (subst x v e3)
-  | Alloc e1 e2 =>
-      Alloc
-        (subst x v e1)
-        (subst x v e2)
-  | Block mut tag es =>
-      Block
-        mut tag
-        (subst x v <$> es)
   | Match e0 y e1 brs =>
       Match
         (subst x v e0)
@@ -202,51 +150,32 @@ Fixpoint subst (x : string) v e :=
               )
           ) <$> brs
         )
-  | GetTag e =>
-      GetTag
+  | Primitive0 _ =>
+      e
+  | Primitive1 prim e =>
+      Primitive1
+        prim
         (subst x v e)
-  | GetSize e =>
-      GetSize
-        (subst x v e)
-  | Load e1 e2 =>
-      Load
+  | Primitive2 prim e1 e2 =>
+      Primitive2
+        prim
         (subst x v e1)
         (subst x v e2)
-  | Store e1 e2 e3 =>
-      Store
+  | Primitive3 prim e1 e2 e3 =>
+      Primitive3
+        prim
         (subst x v e1)
         (subst x v e2)
         (subst x v e3)
-  | Xchg e1 e2 =>
-      Xchg
-        (subst x v e1)
-        (subst x v e2)
-  | CAS e0 e1 e2 =>
-      CAS
-        (subst x v e0)
-        (subst x v e1)
-        (subst x v e2)
-  | FAA e1 e2 =>
-      FAA
-        (subst x v e1)
-        (subst x v e2)
+  | Block mut tag es =>
+      Block
+        mut tag
+        (subst x v <$> es)
   | Fork e =>
       Fork
         (subst x v e)
-  | LocalGet =>
-      LocalGet
-  | LocalSet e =>
-      LocalSet
-        (subst x v e)
-  | Proph =>
-      Proph
   | Resolve e0 e1 e2 =>
       Resolve
-        (subst x v e0)
-        (subst x v e1)
-        (subst x v e2)
-  | ResolveErasure e0 e1 e2 =>
-      ResolveErasure
         (subst x v e0)
         (subst x v e1)
         (subst x v e2)

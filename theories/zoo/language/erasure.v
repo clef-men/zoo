@@ -46,26 +46,13 @@ Fixpoint erase۰expr e :=
         f
         x
         (erase۰expr e)
-  | App e1 e2 =>
-      App
+  | Apply e1 e2 =>
+      Apply
         (erase۰expr e1)
         (erase۰expr e2)
   | Let x e1 e2 =>
       Let
         x
-        (erase۰expr e1)
-        (erase۰expr e2)
-  | Unop op e =>
-      Unop
-        op
-        (erase۰expr e)
-  | Binop op e1 e2 =>
-      Binop
-        op
-        (erase۰expr e1)
-        (erase۰expr e2)
-  | Equal e1 e2 =>
-      Equal
         (erase۰expr e1)
         (erase۰expr e2)
   | If e0 e1 e2 =>
@@ -82,66 +69,40 @@ Fixpoint erase۰expr e :=
         (erase۰expr e1)
         (erase۰expr e2)
         (erase۰expr e3)
-  | Alloc e1 e2 =>
-      Alloc
-        (erase۰expr e1)
-        (erase۰expr e2)
-  | Block mut tag es =>
-      Block
-        mut
-        tag
-        (erase۰expr <$> es)
   | Match e0 x e1 brs =>
       Match
         (erase۰expr e0)
         x
         (erase۰expr e1)
         ((λ br, (br.1, erase۰expr br.2)) <$> brs)
-  | GetTag e =>
-      GetTag
+  | Primitive0 _ =>
+      e
+  | Primitive1 prim e =>
+      Primitive1
+        prim
         (erase۰expr e)
-  | GetSize e =>
-      GetSize
-        (erase۰expr e)
-  | Load e1 e2 =>
-      Load
+  | Primitive2 prim e1 e2 =>
+      Primitive2
+        prim
         (erase۰expr e1)
         (erase۰expr e2)
-  | Store e1 e2 e3 =>
-      Store
+  | Primitive3 prim e1 e2 e3 =>
+      Primitive3
+        prim
         (erase۰expr e1)
         (erase۰expr e2)
         (erase۰expr e3)
-  | Xchg e1 e2 =>
-      Xchg
-        (erase۰expr e1)
-        (erase۰expr e2)
-  | CAS e0 e1 e2 =>
-      CAS
-        (erase۰expr e0)
-        (erase۰expr e1)
-        (erase۰expr e2)
-  | FAA e1 e2 =>
-      FAA
-        (erase۰expr e1)
-        (erase۰expr e2)
+  | Block mut tag es =>
+      Block
+        mut
+        tag
+        (erase۰expr <$> es)
   | Fork e =>
       Fork
         (erase۰expr e)
-  | LocalGet =>
-      LocalGet
-  | LocalSet e =>
-      LocalSet
-        (erase۰expr e)
-  | Proph =>
-      Proph
   | Resolve e0 e1 e2 =>
-      ResolveErasure
-        (erase۰expr e0)
-        (erase۰expr e1)
-        (erase۰expr e2)
-  | ResolveErasure e0 e1 e2 =>
-      ResolveErasure
+      Primitive3
+        ResolveErasure
         (erase۰expr e0)
         (erase۰expr e1)
         (erase۰expr e2)
@@ -186,84 +147,107 @@ Definition erase۰state σ :=
 
 Fixpoint erase۰ectxi k : ectx :=
   match k with
-  | CtxApp1 v2 =>
-      [CtxApp1 (erase۰val v2)]
-  | CtxApp2 e1 =>
-      [CtxApp2 (erase۰expr e1)]
+  | CtxApply1 v2 =>
+      [ CtxApply1
+          (erase۰val v2)
+      ]
+  | CtxApply2 e1 =>
+      [ CtxApply2
+          (erase۰expr e1)
+      ]
   | CtxLet x e2 =>
-      [CtxLet x (erase۰expr e2)]
-  | CtxUnop op =>
-      [CtxUnop op]
-  | CtxBinop1 op v2 =>
-      [CtxBinop1 op (erase۰val v2)]
-  | CtxBinop2 op e1 =>
-      [CtxBinop2 op (erase۰expr e1)]
-  | CtxEqual1 v2 =>
-      [CtxEqual1 (erase۰val v2)]
-  | CtxEqual2 e1 =>
-      [CtxEqual2 (erase۰expr e1)]
+      [ CtxLet
+          x
+          (erase۰expr e2)
+      ]
   | CtxIf e1 e2 =>
-      [CtxIf (erase۰expr e1) (erase۰expr e2)]
+      [ CtxIf
+          (erase۰expr e1)
+          (erase۰expr e2)
+      ]
   | CtxFor1 e2 e3 =>
-      [CtxFor1 (erase۰expr e2) (erase۰expr e3)]
+      [ CtxFor1
+          (erase۰expr e2)
+          (erase۰expr e3)
+      ]
   | CtxFor2 v1 e3 =>
-      [CtxFor2 (erase۰val v1) (erase۰expr e3)]
-  | CtxAlloc1 v2 =>
-      [CtxAlloc1 (erase۰val v2)]
-  | CtxAlloc2 e1 =>
-      [CtxAlloc2 (erase۰expr e1)]
-  | CtxBlock mut tag es vs =>
-      [CtxBlock mut tag (erase۰expr <$> es) (erase۰val <$> vs)]
+      [ CtxFor2
+          (erase۰val v1)
+          (erase۰expr e3)
+      ]
   | CtxMatch x e1 brs =>
-      [CtxMatch x (erase۰expr e1) ((λ br, (br.1, erase۰expr br.2)) <$> brs)]
-  | CtxGetTag =>
-      [CtxGetTag]
-  | CtxGetSize =>
-      [CtxGetSize]
-  | CtxLoad1 v2 =>
-      [CtxLoad1 (erase۰val v2)]
-  | CtxLoad2 e1 =>
-      [CtxLoad2 (erase۰expr e1)]
-  | CtxStore1 v2 v3 =>
-      [CtxStore1 (erase۰val v2) (erase۰val v3)]
-  | CtxStore2 e1 v3 =>
-      [CtxStore2 (erase۰expr e1) (erase۰val v3)]
-  | CtxStore3 e1 e2 =>
-      [CtxStore3 (erase۰expr e1) (erase۰expr e2)]
-  | CtxXchg1 v2 =>
-      [CtxXchg1 (erase۰val v2)]
-  | CtxXchg2 e1 =>
-      [CtxXchg2 (erase۰expr e1)]
-  | CtxCAS0 v1 v2 =>
-      [CtxCAS0 (erase۰val v1) (erase۰val v2)]
-  | CtxCAS1 e0 v2 =>
-      [CtxCAS1 (erase۰expr e0) (erase۰val v2)]
-  | CtxCAS2 e0 e1 =>
-      [CtxCAS2 (erase۰expr e0) (erase۰expr e1)]
-  | CtxFAA1 v2 =>
-      [CtxFAA1 (erase۰val v2)]
-  | CtxFAA2 e1 =>
-      [CtxFAA2 (erase۰expr e1)]
-  | CtxLocalSet =>
-      [CtxLocalSet]
+      [ CtxMatch
+          x
+          (erase۰expr e1)
+          ((λ br, (br.1, erase۰expr br.2)) <$> brs)
+      ]
+  | CtxPrimitive1 _ =>
+      [k]
+  | CtxPrimitive21 prim v2 =>
+      [ CtxPrimitive21
+          prim
+          (erase۰val v2)
+      ]
+  | CtxPrimitive22 prim e1 =>
+      [ CtxPrimitive22
+          prim
+          (erase۰expr e1)
+      ]
+  | CtxPrimitive31 prim v2 v3 =>
+      [ CtxPrimitive31
+          prim
+          (erase۰val v2)
+          (erase۰val v3)
+      ]
+  | CtxPrimitive32 prim e1 v3 =>
+      [ CtxPrimitive32
+          prim
+          (erase۰expr e1)
+          (erase۰val v3)
+      ]
+  | CtxPrimitive33 prim e1 e2 =>
+      [ CtxPrimitive33
+          prim
+          (erase۰expr e1)
+          (erase۰expr e2)
+      ]
+  | CtxBlock mut tag es vs =>
+      [ CtxBlock
+          mut
+          tag
+          (erase۰expr <$> es)
+          (erase۰val <$> vs)
+      ]
   | CtxResolve0 k v1 v2 =>
       erase۰ectxi k ++
-      [CtxResolveErasure0 (erase۰val v1) (erase۰val v2)]
+      [ CtxPrimitive31
+          ResolveErasure
+          (erase۰val v1)
+          (erase۰val v2)
+      ]
   | CtxResolve1 e0 v2 =>
-      [CtxResolveErasure1 (erase۰expr e0) (erase۰val v2)]
+      [ CtxPrimitive32
+          ResolveErasure
+          (erase۰expr e0)
+          (erase۰val v2)
+      ]
   | CtxResolve2 e0 e1 =>
-      [CtxResolveErasure2 (erase۰expr e0) (erase۰expr e1)]
-  | CtxResolveErasure0 v1 v2 =>
-      [CtxResolveErasure0 (erase۰val v1) (erase۰val v2)]
-  | CtxResolveErasure1 e0 v2 =>
-      [CtxResolveErasure1 (erase۰expr e0) (erase۰val v2)]
-  | CtxResolveErasure2 e0 e1 =>
-      [CtxResolveErasure2 (erase۰expr e0) (erase۰expr e1)]
+      [ CtxPrimitive33
+          ResolveErasure
+          (erase۰expr e0)
+          (erase۰expr e1)
+      ]
   end.
 #[global] Arguments erase۰ectxi !_ / : assert.
 
 Definition erase۰ectx K : ectx :=
   K ≫= erase۰ectxi.
+
+Lemma val۰immediateｰerase v :
+  val۰immediate (erase۰val v) = val۰immediate v.
+Proof.
+  destruct v as [| | gen tag [| v vs]] => //.
+Qed.
 
 Lemma erase۰valｰimmediate v :
   val۰immediate v →
@@ -360,60 +344,22 @@ Proof.
   rewrite eraseｰsubst' IH //.
 Qed.
 
-Lemma eraseｰeval_unop op v lit :
-  eval_unop op v = Some lit →
-  eval_unop op (erase۰val v) = Some lit.
-Proof.
-  all: destruct op.
-  all: destruct v as [[] | | gen tag [| v vs]].
-  all: naive.
-Qed.
-Lemma eraseｰeval_unopｰinv op v 𝑙𝑖𝑡 :
-  eval_unop op (erase۰val v) = Some 𝑙𝑖𝑡 →
-  eval_unop op v = Some 𝑙𝑖𝑡.
-Proof.
-  all: destruct op.
-  all: destruct v as [[] | | gen tag [| v vs]].
-  all: naive.
-Qed.
-
-Lemma eraseｰeval_binop op v1 v2 lit :
-  eval_binop op v1 v2 = Some lit →
-  eval_binop op (erase۰val v1) (erase۰val v2) = Some lit.
-Proof.
-  all: destruct op.
-  all: destruct v1 as [[] | |].
-  all: try done.
-  all: destruct v2 as [[] | |].
-  all: naive.
-Qed.
-Lemma eraseｰeval_binopｰinv op v1 v2 𝑙𝑖𝑡 :
-  eval_binop op (erase۰val v1) (erase۰val v2) = Some 𝑙𝑖𝑡 →
-  eval_binop op v1 v2 = Some 𝑙𝑖𝑡.
-Proof.
-  all: destruct op.
-  all: destruct v1 as [[] | |].
-  all: try done.
-  all: destruct v2 as [[] | |].
-  all: naive.
-Qed.
-
-Lemma eraseｰeval_app recs x v e :
-  erase۰expr (eval_app recs x v e) = eval_app (erase۰recursive <$> recs) x (erase۰val v) (erase۰expr e).
+Lemma eraseｰeval۰apply recs x v e :
+  erase۰expr (eval۰apply recs x v e) = eval۰apply (erase۰recursive <$> recs) x (erase۰val v) (erase۰expr e).
 Proof.
   enough (
     ∀ recs' i,
-    erase۰expr $ eval_app' foldri' recs x v e recs' i = eval_app' foldri' (erase۰recursive <$> recs) x (erase۰val v) (erase۰expr e) (erase۰recursive <$> recs') i
+    erase۰expr $ eval۰apply' foldri' recs x v e recs' i = eval۰apply' foldri' (erase۰recursive <$> recs) x (erase۰val v) (erase۰expr e) (erase۰recursive <$> recs') i
   ) by eauto.
   induction recs' as [| rec recs' IH] => i.
   - apply eraseｰsubst'.
   - rewrite eraseｰsubst' IH //.
 Qed.
 
-Lemma eraseｰeval_match tag sz subj x_fb e_fb brs e 𝑠𝑢𝑏𝑗 :
+Lemma eraseｰeval۰match tag sz subj x_fb e_fb brs e 𝑠𝑢𝑏𝑗 :
   𝑠𝑢𝑏𝑗 = erase۰subject subj →
-  eval_match tag sz subj x_fb e_fb brs = Some e →
-  eval_match tag sz 𝑠𝑢𝑏𝑗 x_fb (erase۰expr e_fb) (erase۰branch <$> brs) = Some $ erase۰expr e.
+  eval۰match tag sz subj x_fb e_fb brs = Some e →
+  eval۰match tag sz 𝑠𝑢𝑏𝑗 x_fb (erase۰expr e_fb) (erase۰branch <$> brs) = Some $ erase۰expr e.
 Proof.
   intros -> H.
   all: induction brs as [| br brs].
@@ -426,10 +372,10 @@ Proof.
   all: simp.
   all: rewrite ?eraseｰsubst_list ?eraseｰsubst' //.
 Qed.
-Lemma eraseｰeval_matchｰinv tag sz subj x_fb e_fb brs 𝑒 :
-  eval_match tag sz (erase۰subject subj) x_fb (erase۰expr e_fb) (erase۰branch <$> brs) = Some 𝑒 →
+Lemma eraseｰeval۰matchｰinv tag sz subj x_fb e_fb brs 𝑒 :
+  eval۰match tag sz (erase۰subject subj) x_fb (erase۰expr e_fb) (erase۰branch <$> brs) = Some 𝑒 →
     ∃ e,
-    eval_match tag sz subj x_fb e_fb brs = Some e ∧
+    eval۰match tag sz subj x_fb e_fb brs = Some e ∧
     𝑒 = erase۰expr e.
 Proof.
   intros H.
@@ -444,6 +390,23 @@ Proof.
   all: rewrite -?(eraseｰsubst' _ (ValBlock _ _ _)).
   all: rewrite -?eraseｰsubst_list.
   all: eauto.
+Qed.
+
+Lemma eraseｰeval۰unop op v lit :
+  eval۰unop op v = Some lit →
+  eval۰unop op (erase۰val v) = Some lit.
+Proof.
+  all: destruct op.
+  all: destruct v as [[] | | gen tag [| v vs]].
+  all: naive.
+Qed.
+Lemma eraseｰeval۰unopｰinv op v 𝑙𝑖𝑡 :
+  eval۰unop op (erase۰val v) = Some 𝑙𝑖𝑡 →
+  eval۰unop op v = Some 𝑙𝑖𝑡.
+Proof.
+  all: destruct op.
+  all: destruct v as [[] | | gen tag [| v vs]].
+  all: naive.
 Qed.
 
 Lemma eraseｰstate۰update_heapｰinsert l v σ :
@@ -509,20 +472,22 @@ Qed.
   ).
 Proof.
   apply exprｰvalｰmutind.
-  1-12,15-17,18-25,27:
+  1-8,10-12,15-16:
     intros;
     select expr (fun e2 => destruct e2);
     naive.
-  - intros mut tag es1 IH [] [= <- <-] Hwf1 Hwf2.
-    f_equal.
-    simp_Forall+/= in *; naive.
   - intros e10 IH0 bdr e11 IH1 brs1 IHbrs [] [=] Hwf1 Hwf2.
     f_equal. 1-3: naive.
     simp_Forall+/= in *. split. 1: naive.
     naive eauto using injective_projections.
-  - intros e10 IH0 e11 IH1 e12 IH2 [] [=] Hwf1 Hwf2.
-    + naive.
-    + done.
+  - intros prim e1 IH1 e2 IH2 e3 IH3 e Heq Hwf1 Hwf2.
+    destruct_decide (prim = ResolveErasure). 1: naive.
+    destruct e; inv Heq.
+    rewrite /= !decide_False // in Hwf1 Hwf2.
+    naive.
+  - intros mut tag es1 IH [] [= <- <-] Hwf1 Hwf2.
+    f_equal.
+    simp_Forall+/= in *; naive.
   - intros lit [] [= <-] => //.
   - intros i recs1 IH [] [= <- H] Hwf1 Hwf2.
     f_equal.
@@ -590,14 +555,18 @@ Proof.
       do 4 eexists => //=;
       eauto
         using
-          eraseｰeval_unop,
-          eraseｰeval_binop,
+          eraseｰeval۰unop,
           erase۰exprsｰvals
         with
           zoo
     ].
   - do 5 econstructor.
     eapply list_lookup_fmap_Some. naive.
+  - do 5 econstructor => //.
+    eapply eraseｰeval۰match => // //.
+  - do 5 econstructor.
+    rewrite length_fmap.
+    eapply eraseｰeval۰match => // //.
   - apply base_reducibleｰequal.
   - apply base_reducibleｰequal.
   - do 5 econstructor.
@@ -605,11 +574,6 @@ Proof.
     + done.
     + eapply erase۰exprsｰvals => //.
     + rewrite eraseｰstate۰alloc_condition //.
-  - do 5 econstructor => //.
-    eapply eraseｰeval_match => // //.
-  - do 5 econstructor.
-    rewrite length_fmap.
-    eapply eraseｰeval_match => // //.
   - do 5 econstructor.
     simp_length.
   - do 5 econstructor.
@@ -640,7 +604,7 @@ Lemma eraseｰbase_reducibleｰresolve tid e σ :
 Proof.
   intros (κ & e' & σ2 & es & Hstep) He.
   induction Hstep => //=.
-  apply (fillｰreducible _ [CtxResolveErasure0 _ _]).
+  apply (fillｰreducible _ [CtxPrimitive31 ResolveErasure _ _]).
   destruct_decide (expr۰is_resolve e).
   - naive.
   - apply base_reducibleｰreducible, eraseｰbase_reducibleｰnoｰresolve. 2: done.
@@ -702,14 +666,12 @@ Qed.
         destruct vs; first done
     | _: [] = erase۰val <$> ?vs |- _ =>
         destruct vs; last done
-    | H: eval_unop _ (erase۰val _) = _ |- _ =>
-        apply eraseｰeval_unopｰinv in H
-    | H: eval_binop _ (erase۰val _) (erase۰val _) = _ |- _ =>
-        apply eraseｰeval_binopｰinv in H
-    | H: eval_match _ _ (SubjectLoc _) _ (erase۰expr _) _ = Some _ |- _ =>
-        apply (eraseｰeval_matchｰinv _ _ (SubjectLoc _)) in H
-    | H: eval_match _ _ (SubjectBlock _ _) _ (erase۰expr _) _ = Some _ |- _ =>
-        apply (eraseｰeval_matchｰinv _ _ (SubjectBlock _ _)) in H
+    | H: eval۰unop _ (erase۰val _) = _ |- _ =>
+        apply eraseｰeval۰unopｰinv in H
+    | H: eval۰match _ _ (SubjectLoc _) _ (erase۰expr _) _ = Some _ |- _ =>
+        apply (eraseｰeval۰matchｰinv _ _ (SubjectLoc _)) in H
+    | H: eval۰match _ _ (SubjectBlock _ _) _ (erase۰expr _) _ = Some _ |- _ =>
+        apply (eraseｰeval۰matchｰinv _ _ (SubjectBlock _ _)) in H
     end;
     simp
   ).
@@ -735,11 +697,15 @@ Proof.
       repeat eexists; eauto with zoo;
       try case_match;
       rewrite
-        ?eraseｰeval_app
+        ?eraseｰeval۰apply
         ?eraseｰsubst'
         ?eraseｰstate۰update_heapｰinsert
         //
     ].
+  - repeat eexists.
+    + constructor.
+    + rewrite val۰immediateｰerase //.
+    + done.
   - repeat eexists.
     + apply base_stepｰequalｰfail.
       apply erase۰valｰinjｰnonsimilar => //.
@@ -749,12 +715,6 @@ Proof.
     + apply base_stepｰequalｰsuccess.
       apply erase۰valｰinjｰsimilar => //.
     + done.
-    + done.
-  - repeat eexists.
-    + constructor => //.
-      rewrite -eraseｰstate۰alloc_condition //.
-    + done.
-    + rewrite eraseｰstate۰alloc fmap_replicate //.
     + done.
   - repeat eexists.
     + simp_length in *.
@@ -767,6 +727,12 @@ Proof.
   - repeat eexists.
     + eapply (base_stepｰblockｰimmutableｰgenerativeｰstrong _ _ _ _ _ bid) => //.
     + done.
+    + done.
+  - repeat eexists.
+    + constructor => //.
+      rewrite -eraseｰstate۰alloc_condition //.
+    + done.
+    + rewrite eraseｰstate۰alloc fmap_replicate //.
     + done.
   - repeat eexists.
     + eapply base_stepｰcasｰfail => //.
@@ -807,11 +773,11 @@ Proof.
   apply eraseｰbase_reducibleｰnoｰresolve => //.
 Qed.
 #[local] Lemma eraseｰfillｰinvｰresolveｰauxｰ1 tid e pid v σ κ e' σ' es 𝐾 𝑒ᵣ 𝜎 𝜅 𝑒ᵣ' 𝜎' 𝑒s:
-  ResolveErasure (erase۰expr e) (Val $ ValProph pid) (Val $ erase۰val v) = fill 𝐾 𝑒ᵣ →
+  Primitive3 ResolveErasure (erase۰expr e) (Val $ ValProph pid) (Val $ erase۰val v) = fill 𝐾 𝑒ᵣ →
   base_step tid e σ κ e' σ' es →
   base_step tid 𝑒ᵣ 𝜎 𝜅 𝑒ᵣ' 𝜎' 𝑒s →
     ∃ 𝐾',
-    𝐾 = 𝐾' ++ [CtxResolveErasure0 (ValProph pid) (erase۰val v)].
+    𝐾 = 𝐾' ++ [CtxPrimitive31 ResolveErasure (ValProph pid) (erase۰val v)].
 Proof.
   intros Heq Hstep H𝑠𝑡𝑒𝑝.
 
@@ -822,7 +788,7 @@ Proof.
   }
   rewrite fillｰapp in Heq.
 
-  destruct 𝑘 => //; first last.
+  destruct 𝑘 => //; destruct prim => //; first last.
   { injection Heq as _ _ Heq.
     apply base_stepｰnotｰval, (fillｰnotｰval 𝐾) in H𝑠𝑡𝑒𝑝.
     rewrite -Heq // in H𝑠𝑡𝑒𝑝.
@@ -838,11 +804,11 @@ Qed.
 #[local] Lemma eraseｰfillｰinvｰresolveｰauxｰ2 e v1 pid v2 :
   pure_steps e (Val v1) →
   pure_steps
-    (fill [CtxResolveErasure0 (ValProph pid) v2] e)
+    (fill [CtxPrimitive31 ResolveErasure (ValProph pid) v2] e)
     (Val v1).
 Proof.
   intros He.
-  trans (fill [CtxResolveErasure0 (ValProph pid) v2] (Val v1)).
+  trans (fill [CtxPrimitive31 ResolveErasure (ValProph pid) v2] (Val v1)).
   { apply pure_stepsｰfill => //. }
   apply (rtc_nsteps_2 1), pure_exec => //.
 Qed.

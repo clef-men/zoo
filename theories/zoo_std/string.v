@@ -8,7 +8,7 @@ Implicit Type str : string.
 
 Please Definition string٠unsafe_get : val :=
   𝗳𝘂𝗻 "t" "i" ->
-    Binop BinopStringGet "t" "i".
+    Primitive2 StringGet "t" "i".
 
 Please Definition string٠equal : val :=
   𝗳𝘂𝗻 "t1" "t2" ->

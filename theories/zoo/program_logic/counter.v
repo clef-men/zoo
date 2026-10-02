@@ -7,7 +7,7 @@ Require Import zoo.options.
 
 Definition zoo_counter٠incr : val :=
   𝗳𝘂𝗻 ⎽ ->
-    FAA (#zoo_counter).[contents] 1.
+    𝗳𝗮𝗮 (#zoo_counter).[contents] 1.
 
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.

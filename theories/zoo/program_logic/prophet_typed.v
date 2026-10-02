@@ -61,7 +61,7 @@ Section prophet_typed.
     {{{
       True
     }}}
-      Proph
+      𝗽𝗿𝗼𝗽𝗵
       @ E
     {{{
       pid prophs
@@ -92,7 +92,7 @@ Section prophet_typed.
           Φ w
       end
     }} -∗
-    WP Resolve e #pid v @ E {{ Φ }}.
+    WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e #pid v @ E {{ Φ }}.
   Proof.
     iIntros "% % (:model) HΦ".
     wp۰apply (wpｰresolve with "Hpid"); first done.
@@ -157,7 +157,7 @@ Section prophet_typed₁.
     {{{
       True
     }}}
-      Proph
+      𝗽𝗿𝗼𝗽𝗵
       @ E
     {{{
       pid proph
@@ -188,7 +188,7 @@ Section prophet_typed₁.
           Φ w
       end
     }} -∗
-    WP Resolve e #pid v @ E {{ Φ }}.
+    WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e #pid v @ E {{ Φ }}.
   Proof.
     iIntros (? ?) "(:model) HΦ".
     wp۰apply (prophet_typedｰwpｰresolve with "Hmodel"); first done.

@@ -12,32 +12,32 @@ Ltac expr۰reshape_apply e tac :=
         | _ =>
             fail
         end
-    | App ?e1 (Val ?v2) =>
-        add_ectxi (CtxApp1 v2) K resolves e1
-    | App ?e1 ?e2 =>
-        add_ectxi (CtxApp2 e1) K resolves e2
+    | Apply ?e1 (Val ?v2) =>
+        add_ectxi (CtxApply1 v2) K resolves e1
+    | Apply ?e1 ?e2 =>
+        add_ectxi (CtxApply2 e1) K resolves e2
     | Let ?x ?e1 ?e2 =>
         add_ectxi (CtxLet x e2) K resolves e1
-    | Unop ?op ?e =>
-        add_ectxi (CtxUnop op) K resolves e
-    | Binop ?op ?e1 (Val ?v2) =>
-        add_ectxi (CtxBinop1 op v2) K resolves e1
-    | Binop ?op ?e1 ?e2 =>
-        add_ectxi (CtxBinop2 op e1) K resolves e2
-    | Equal ?e1 (Val ?v2) =>
-        add_ectxi (CtxEqual1 v2) K resolves e1
-    | Equal ?e1 ?e2 =>
-        add_ectxi (CtxEqual2 e1) K resolves e2
     | If ?e0 ?e1 ?e2 =>
         add_ectxi (CtxIf e1 e2) K resolves e0
     | For (Val ?v1) ?e2 ?e3 =>
         add_ectxi (CtxFor2 v1 e3) K resolves e2
     | For ?e1 ?e2 ?e3 =>
         add_ectxi (CtxFor1 e2 e3) K resolves e1
-    | Alloc ?e1 (Val ?v2) =>
-        add_ectxi (CtxAlloc1 v2) K resolves e1
-    | Alloc ?e1 ?e2 =>
-        add_ectxi (CtxAlloc2 e1) K resolves e2
+    | Match ?e0 ?x ?e1 ?brs =>
+        add_ectxi (CtxMatch x e1 brs) K resolves e0
+    | Primitive1 ?prim ?e =>
+        add_ectxi (CtxPrimitive1 prim) K resolves e
+    | Primitive2 ?prim ?e1 (Val ?v2) =>
+        add_ectxi (CtxPrimitive21 prim v2) K resolves e1
+    | Primitive2 ?prim ?e1 ?e2 =>
+        add_ectxi (CtxPrimitive22 prim e1) K resolves e2
+    | Primitive3 ?prim ?e1 (Val ?v2) (Val ?v3) =>
+        add_ectxi (CtxPrimitive31 prim v2 v3) K resolves e1
+    | Primitive3 ?prim ?e1 ?e2 (Val ?v3) =>
+        add_ectxi (CtxPrimitive32 prim e1 v3) K resolves e2
+    | Primitive3 ?prim ?e1 ?e2 ?e3 =>
+        add_ectxi (CtxPrimitive33 prim e1 e2) K resolves e3
     | Block ?mut ?tag ?es =>
         lazymatch eval simpl in (expr۰to_vals_suffix es) with
         | Ok _ =>
@@ -45,50 +45,12 @@ Ltac expr۰reshape_apply e tac :=
         | Error (?es, ?e, ?vs) =>
             add_ectxi (CtxBlock mut tag es vs) K resolves e
         end
-    | Match ?e0 ?x ?e1 ?brs =>
-        add_ectxi (CtxMatch x e1 brs) K resolves e0
-    | GetTag ?e =>
-        add_ectxi CtxGetTag K resolves e
-    | GetSize ?e =>
-        add_ectxi CtxGetSize K resolves e
-    | Load ?e1 (Val ?v2) =>
-        add_ectxi (CtxLoad1 v2) K resolves e1
-    | Load ?e1 ?e2 =>
-        add_ectxi (CtxLoad2 e1) K resolves e2
-    | Store ?e1 (Val ?v2) (Val ?v3) =>
-        add_ectxi (CtxStore1 v2 v3) K resolves e1
-    | Store ?e1 ?e2 (Val ?v3) =>
-        add_ectxi (CtxStore2 e1 v3) K resolves e2
-    | Store ?e1 ?e2 ?e3 =>
-        add_ectxi (CtxStore3 e1 e2) K resolves e3
-    | Xchg ?e1 (Val ?v2) =>
-        add_ectxi (CtxXchg1 v2) K resolves e1
-    | Xchg ?e1 ?e2 =>
-        add_ectxi (CtxXchg2 e1) K resolves e2
-    | CAS ?e0 (Val ?v1) (Val ?v2) =>
-        add_ectxi (CtxCAS0 v1 v2) K resolves e0
-    | CAS ?e0 ?e1 (Val ?v2) =>
-        add_ectxi (CtxCAS1 e0 v2) K resolves e1
-    | CAS ?e0 ?e1 ?e2 =>
-        add_ectxi (CtxCAS2 e0 e1) K resolves e2
-    | FAA ?e1 (Val ?v2) =>
-        add_ectxi (CtxFAA1 v2) K resolves e1
-    | FAA ?e1 ?e2 =>
-        add_ectxi (CtxFAA2 e1) K resolves e2
-    | LocalSet ?e =>
-        add_ectxi CtxLocalSet K resolves e
     | Resolve ?e0 (Val ?v1) (Val ?v2) =>
         go K ((v1, v2) :: resolves) e0
     | Resolve ?e0 ?e1 (Val ?v2) =>
         add_ectxi (CtxResolve1 e0 v2) K resolves e1
     | Resolve ?e0 ?e1 ?e2 =>
         add_ectxi (CtxResolve2 e0 e1) K resolves e2
-    | ResolveErasure ?e0 (Val ?v1) (Val ?v2) =>
-        add_ectxi (CtxResolveErasure0 v1 v2) K resolves e0
-    | ResolveErasure ?e0 ?e1 (Val ?v2) =>
-        add_ectxi (CtxResolveErasure1 e0 v2) K resolves e1
-    | ResolveErasure ?e0 ?e1 ?e2 =>
-        add_ectxi (CtxResolveErasure2 e0 e1) K resolves e2
     end
   with add_ectxi k K resolves e :=
     let k := eval simpl in (ectxi۰make_resolves resolves k) in
@@ -244,19 +206,19 @@ Create HintDb zoo.
   econstructor
 : zoo.
 #[global] Hint Extern 0 (
-  base_step _ (Equal _ _) _ _ _ _ _
+  base_step _ (Primitive2 Equal _ _) _ _ _ _ _
 ) =>
   eapply base_stepｰequalｰfail;
   simpl; try naive done
 : zoo.
 #[global] Hint Extern 0 (
-  base_step _ (Equal _ _) _ _ _ _ _
+  base_step _ (Primitive2 Equal _ _) _ _ _ _ _
 ) =>
   eapply base_stepｰequalｰsuccess;
   simpl
 : zoo.
 #[global] Hint Extern 0 (
-  base_step _ (Alloc _ _) _ _ _ _ _
+  base_step _ (Primitive2 Alloc _ _) _ _ _ _ _
 ) =>
   apply base_stepｰalloc'
 : zoo.
@@ -271,7 +233,7 @@ Create HintDb zoo.
   eapply base_stepｰblockｰimmutableｰgenerativeｰstrong'
 : zoo.
 #[global] Hint Extern 0 (
-  base_step _ (CAS _ _ _) _ _ _ _ _
+  base_step _ (Primitive3 CAS _ _ _) _ _ _ _ _
 ) =>
   eapply base_stepｰcasｰfail;
   [ try done
@@ -279,7 +241,7 @@ Create HintDb zoo.
   ]
 : zoo.
 #[global] Hint Extern 0 (
-  base_step _ (CAS _ _ _) _ _ _ _ _
+  base_step _ (Primitive3 CAS _ _ _) _ _ _ _ _
 ) =>
   eapply base_stepｰcasｰsuccess;
   simpl
@@ -290,7 +252,7 @@ Create HintDb zoo.
   apply base_stepｰfork'
 : zoo.
 #[global] Hint Extern 0 (
-  base_step _ Proph _ _ _ _ _
+  base_step _ (Primitive0 Proph) _ _ _ _ _
 ) =>
   apply base_stepｰproph'
 : zoo.

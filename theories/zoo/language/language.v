@@ -608,39 +608,39 @@ Proof.
 Qed.
 
 Lemma base_reducible_no_obsｰequal tid v1 v2 σ :
-  base_reducible_no_obs tid (Equal (Val v1) (Val v2)) σ.
+  base_reducible_no_obs tid (Primitive2 Equal (Val v1) (Val v2)) σ.
 Proof.
   destruct (valｰsimilarｰorｰnonsimilar v1 v2).
   all: repeat econstructor; done.
 Qed.
 Lemma base_reducibleｰequal tid v1 v2 σ :
-  base_reducible tid (Equal (Val v1) (Val v2)) σ.
+  base_reducible tid (Primitive2 Equal (Val v1) (Val v2)) σ.
 Proof.
   apply base_reducible_no_obsｰbase_reducible, base_reducible_no_obsｰequal.
 Qed.
 Lemma reducibleｰequal tid v1 v2 σ :
-  reducible tid (Equal (Val v1) (Val v2)) σ.
+  reducible tid (Primitive2 Equal (Val v1) (Val v2)) σ.
 Proof.
   apply base_reducibleｰreducible, base_reducibleｰequal.
 Qed.
 
 Lemma base_reducible_no_obsｰcas tid l fld v1 v2 v σ :
   σ.(state۰heap) !! (l +ₗ fld) = Some v →
-  base_reducible_no_obs tid (CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2)) σ.
+  base_reducible_no_obs tid (Primitive3 CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2)) σ.
 Proof.
   destruct (valｰsimilarｰorｰnonsimilar v v1).
   all: repeat econstructor; done.
 Qed.
 Lemma base_reducibleｰcas tid l fld v1 v2 v σ :
   σ.(state۰heap) !! (l +ₗ fld) = Some v →
-  base_reducible tid (CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2)) σ.
+  base_reducible tid (Primitive3 CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2)) σ.
 Proof.
   intros.
   eapply base_reducible_no_obsｰbase_reducible, base_reducible_no_obsｰcas. done.
 Qed.
 Lemma reducibleｰcas tid l fld v1 v2 v σ :
   σ.(state۰heap) !! (l +ₗ fld) = Some v →
-  reducible tid (CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2)) σ.
+  reducible tid (Primitive3 CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2)) σ.
 Proof.
   intros.
   eapply base_reducibleｰreducible, base_reducibleｰcas. done.

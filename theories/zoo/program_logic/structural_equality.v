@@ -65,12 +65,12 @@ Proof.
 Qed.
 
 Notation "e1 = e2" := (
-  App (App (Val structeq) e1%E) e2%E
+  Apply (Apply (Val structeq) e1%E) e2%E
 )(at level 70,
   no associativity
 ) : expr_scope.
 Notation "e1 ≠ e2" := (
-  Unop UnopNeg (App (App (Val structeq) e1%E) e2%E)
+  Unop UnopNeg (Apply (Apply (Val structeq) e1%E) e2%E)
 )(at level 70,
   no associativity
 ) : expr_scope.
@@ -177,12 +177,12 @@ Section zoo۰G.
     iApply (structeq۰footprintｰlookup with "Hfootprint"); done.
   Qed.
 
-  Lemma structeq۰footprintｰwpｰtag {footprint} l blk :
+  Lemma structeq۰footprintｰwpｰget_tag {footprint} l blk :
     footprint !! l = Some blk →
     {{{
       structeq۰footprint footprint
     }}}
-      GetTag #l
+      𝘁𝗮𝗴 #l
     {{{
       RET #blk.(structeq۰block۰tag);
       structeq۰footprint footprint
@@ -193,12 +193,12 @@ Section zoo۰G.
     iDestruct (structeq۰footprintｰheader with "Hfootprint") as "#Hl_header"; first done.
     iSteps.
   Qed.
-  Lemma structeq۰footprintｰwpｰsize {footprint} l blk :
+  Lemma structeq۰footprintｰwpｰget_size {footprint} l blk :
     footprint !! l = Some blk →
     {{{
       structeq۰footprint footprint
     }}}
-      GetSize #l
+      𝘀𝗶𝘇𝗲 #l
     {{{
       RET #(length blk.(structeq۰block۰fields));
       structeq۰footprint footprint
@@ -216,7 +216,7 @@ Section zoo۰G.
     {{{
       structeq۰footprint footprint
     }}}
-      Load #l #i
+      𝗹𝗼𝗮𝗱 #l #i
     {{{
       RET fld.(structeq۰field۰val);
       ⌜val۰traversable footprint fld.(structeq۰field۰val)⌝ ∗
@@ -234,7 +234,7 @@ Section zoo۰G.
     {{{
       structeq۰footprint footprint
     }}}
-      Load #l #i
+      𝗹𝗼𝗮𝗱 #l #i
     {{{
       fld
     , RET fld.(structeq۰field۰val);
@@ -669,7 +669,7 @@ Section zoo۰G.
         + apply val۰structneqｰstring => //.
 
       - apply elem_of_dom in Htraversable2 as (blk2 & Hfootprint_lookup_2).
-        wp۰apply (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
+        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfootprint") as "Hfootprint"; first done.
         wp۰pures.
         rewrite bool_decide_eq_false_2.
         { pose proof (tag۰stringｰspec blk2.(structeq۰block۰tag)). lia. }
@@ -682,7 +682,7 @@ Section zoo۰G.
         apply val۰structneqｰstringｰl => //.
 
       - apply elem_of_dom in Htraversable1 as (blk1 & Hfootprint_lookup_1).
-        wp۰apply (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
+        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfootprint") as "Hfootprint"; first done.
         wp۰pures.
         rewrite bool_decide_eq_false_2.
         { pose proof (tag۰stringｰspec blk1.(structeq۰block۰tag)). lia. }
@@ -691,14 +691,14 @@ Section zoo۰G.
 
       - apply elem_of_dom in Htraversable1 as (blk1 & Hfootprint_lookup_1).
         apply elem_of_dom in Htraversable2 as (blk2 & Hfootprint_lookup_2).
-        wp۰apply (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
-        wp۰apply+ (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
+        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfootprint") as "Hfootprint"; first done.
+        wp۰apply+ (structeq۰footprintｰwpｰget_tag with "Hfootprint") as "Hfootprint"; first done.
         wp۰pures.
         case_bool_decide; wp۰pures.
         + rewrite bool_decide_eq_false_2.
           { pose proof (tag۰stringｰspec blk1.(structeq۰block۰tag)). lia. }
-          wp۰apply+ (structeq۰footprintｰwpｰsize with "Hfootprint") as "Hfootprint"; first done.
-          wp۰apply+ (structeq۰footprintｰwpｰsize with "Hfootprint") as "Hfootprint"; first done.
+          wp۰apply+ (structeq۰footprintｰwpｰget_size with "Hfootprint") as "Hfootprint"; first done.
+          wp۰apply+ (structeq۰footprintｰwpｰget_size with "Hfootprint") as "Hfootprint"; first done.
           wp۰pures.
           case_bool_decide; wp۰pures.
           * wp۰apply ("IHstructeq_aux_loc_loc" with "[$Hfootprint] HΦ").
@@ -715,12 +715,12 @@ Section zoo۰G.
           naive congruence.
 
       - apply elem_of_dom in Htraversable1 as (blk1 & Hfootprint_lookup_1).
-        wp۰apply (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
+        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfootprint") as "Hfootprint"; first done.
         wp۰pures.
         case_bool_decide; wp۰pures.
         + rewrite bool_decide_eq_false_2.
           { pose proof (tag۰stringｰspec blk1.(structeq۰block۰tag)). lia. }
-          wp۰apply+ (structeq۰footprintｰwpｰsize with "Hfootprint") as "Hfootprint"; first done.
+          wp۰apply+ (structeq۰footprintｰwpｰget_size with "Hfootprint") as "Hfootprint"; first done.
           wp۰pures.
           case_bool_decide; wp۰pures.
           * wp۰apply ("IHstructeq_aux_loc_block" with "[$Hfootprint] HΦ").
@@ -741,12 +741,12 @@ Section zoo۰G.
         apply val۰structneqｰstringｰr => //.
 
       - apply elem_of_dom in Htraversable2 as (blk2 & Hfootprint_lookup_2).
-        wp۰apply (structeq۰footprintｰwpｰtag with "Hfootprint") as "Hfootprint"; first done.
+        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfootprint") as "Hfootprint"; first done.
         wp۰pures.
         case_bool_decide; wp۰pures.
         + rewrite bool_decide_eq_false_2.
           { pose proof (tag۰stringｰspec tag1). lia. }
-          wp۰apply+ (structeq۰footprintｰwpｰsize with "Hfootprint") as "Hfootprint"; first done.
+          wp۰apply+ (structeq۰footprintｰwpｰget_size with "Hfootprint") as "Hfootprint"; first done.
           wp۰pures.
           case_bool_decide; wp۰pures.
           * wp۰apply ("IHstructeq_aux_block_loc" with "[$Hfootprint] HΦ").
