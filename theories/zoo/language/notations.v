@@ -198,86 +198,136 @@ Notation "# x" := (
 )(at level 8,
   format "# x"
 ).
-
-Notation "'#@{' X }" := (
+Notation "#@{ X } x" := (
+  ValLit x%Z%V%stdpp
+)(at level 8,
+  only parsing
+).
+Notation "(#)" := (
+  λ x, ValLit x
+).
+Notation "(#@{ X } )" := (
   λ x : X, ValLit x
 )(only parsing
 ).
-Notation "'#ᵇ'" := (
-  λ b, ValBool b
+Notation "#* xs" := (
+  @fmap _ _ _ val (#) xs
+)(at level 8,
+  format "#* xs"
 ).
-Notation "'#ᶜ'" := (
-  λ chr, ValChar chr
+Notation "#*@{ X } xs" := (
+  @fmap _ _ X val (#@{X}) xs
+)(at level 8,
+  only parsing
 ).
-Notation "'#ᶻ'" := (
-  λ n, ValInt n
-).
-Notation "'#ⁿ'" := (
-  λ n, ValNat n
-).
-Notation "'#ˢ'" := (
-  λ str, ValString str
-).
-Notation "'#ˡ'" := (
-  λ l, ValLoc l
-).
-
-Notation "'#*@{' X }" := (
-  @fmap _ _ X val #@{X}
+Notation "(#*)" := (
+  @fmap _ _ _ val (#)
 )(only parsing
 ).
-Notation "'#*ᵇ'" := (
-  @fmap _ _ bool val #ᵇ
+Notation "(#*@{ X } )" := (
+  @fmap _ _ X val (#@{X})
+)(only parsing
 ).
-Notation "'#*ᵇ' bs" := (
-  @fmap _ _ bool val #ᵇ bs
+
+Notation "#ᵇ b" := (
+  ValBool b%stdpp
 )(at level 8,
-  only printing,
+  only parsing
+).
+Notation "(#ᵇ)" := (
+  λ b, ValBool b
+).
+Notation "(#*ᵇ)" := (
+  @fmap _ _ bool val (#ᵇ)
+).
+Notation "#*ᵇ bs" := (
+  @fmap _ _ bool val (#ᵇ) bs
+)(at level 8,
   format "#*ᵇ  bs"
 ).
-Notation "'#*ᶜ'" := (
-  @fmap _ _ ascii val #ᶜ
-).
-Notation "'#*ᶜ' chrs" := (
-  @fmap _ _ ascii val #ᶜ chrs
+
+Notation "#ᶜ chr" := (
+  ValChar chr%char
 )(at level 8,
-  only printing,
-  format "#*ᶜ  chrs"
+  only parsing
 ).
-Notation "'#*ᶻ'" := (
-  @fmap _ _ Z val #ᶻ
+Notation "(#ᶜ)" := (
+  λ chr, ValChar chr
 ).
-Notation "'#*ᶻ' ns" := (
-  @fmap _ _ Z val #ᶻ ns
+Notation "(#*ᶜ)" := (
+  @fmap _ _ ascii val (#ᶜ)
+).
+Notation "#*ᵇ chrs" := (
+  @fmap _ _ ascii val (#ᶜ) chrs
 )(at level 8,
-  only printing,
+  format "#*ᵇ  chrs"
+).
+
+Notation "#ᶻ n" := (
+  ValInt n%Z
+)(at level 8,
+  only parsing
+).
+Notation "(#ᶻ)" := (
+  λ n, ValInt n
+).
+Notation "(#*ᶻ)" := (
+  @fmap _ _ Z val (#ᶻ)
+).
+Notation "#*ᶻ ns" := (
+  @fmap _ _ Z val (#ᶻ) ns
+)(at level 8,
   format "#*ᶻ  ns"
 ).
-Notation "'#*ⁿ'" := (
-  @fmap _ _ nat val #ⁿ
-).
-Notation "'#*ⁿ' ns" := (
-  @fmap _ _ nat val #ⁿ ns
+
+Notation "#ⁿ n" := (
+  ValNat n%nat
 )(at level 8,
-  only printing,
+  only parsing
+).
+Notation "(#ⁿ)" := (
+  λ n, ValNat n
+).
+Notation "(#*ⁿ)" := (
+  @fmap _ _ nat val (#ⁿ)
+).
+Notation "#*ⁿ ns" := (
+  @fmap _ _ nat val (#ⁿ) ns
+)(at level 8,
   format "#*ⁿ  ns"
 ).
-Notation "'#*ˢ'" := (
-  @fmap _ _ string val #ˢ
-).
-Notation "'#*ˢ' strs" := (
-  @fmap _ _ string val #ˢ strs
+
+Notation "#ˢ str" := (
+  ValString str%string
 )(at level 8,
-  only printing,
+  only parsing
+).
+Notation "(#ˢ)" := (
+  λ str, ValString str
+).
+Notation "(#*ˢ)" := (
+  @fmap _ _ string val (#ˢ)
+).
+Notation "#*ˢ strs" := (
+  @fmap _ _ string val (#ˢ) strs
+)(at level 8,
   format "#*ˢ  strs"
 ).
-Notation "'#*ˡ'" := (
-  @fmap _ _ location val #ˡ
-).
-Notation "'#*ˡ' ls" := (
-  @fmap _ _ location val #ˡ ls
+
+Notation "#ˡ l" := (
+  ValLoc l%stdpp
 )(at level 8,
-  only printing,
+  only parsing
+).
+Notation "(#ˡ)" := (
+  λ l, ValLoc l
+).
+Notation "(#*ˡ)" := (
+  @fmap _ _ location val (#ˡ)
+).
+Notation "#*ˡ ls" := (
+  @fmap _ _ location val (#ˡ) ls
+)(at level 8,
   format "#*ˡ  ls"
 ).
 
