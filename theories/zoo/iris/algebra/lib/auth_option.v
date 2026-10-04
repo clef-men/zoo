@@ -60,22 +60,22 @@ Section cmra.
   #[global] Instance auth_option۰authｰdistｰinj n :
     Inj2 (=) (≡{n}≡) (≡{n}≡) (@auth_option۰auth _ A).
   Proof.
-    rewrite /Inj2. intros * (-> & ?%(inj Some))%(inj2 auth_auth). done.
+    intros ?* (-> & ?%(inj Some))%(inj2 auth_auth). done.
   Qed.
   #[global] Instance auth_option۰authｰinj :
     Inj2 (=) (≡) (≡) (@auth_option۰auth _ A).
   Proof.
-    rewrite /Inj2. intros * (-> & ?%(inj Some))%(inj2 auth_auth). done.
+    intros ?* (-> & ?%(inj Some))%(inj2 auth_auth). done.
   Qed.
   #[global] Instance auth_option۰fragｰdistｰinj n :
     Inj (≡{n}≡) (≡{n}≡) (@auth_option۰frag _ A).
   Proof.
-    rewrite /Inj. intros * ?%(inj auth_frag)%(inj Some). done.
+    intros ?* ?%(inj auth_frag)%(inj Some). done.
   Qed.
   #[global] Instance auth_option۰fragｰinj :
     Inj (≡) (≡) (@auth_option۰frag _ A).
   Proof.
-    rewrite /Inj. intros * ?%(inj auth_frag)%(inj Some). done.
+    intros ?* ?%(inj auth_frag)%(inj Some). done.
   Qed.
 
   #[global] Instance auth_option۰ofe_discrete :
@@ -124,7 +124,8 @@ Section cmra.
     a ≼ b →
     ◯O a ≼ ◯O b.
   Proof.
-    intros. apply auth_frag_mono, Some_included. naive.
+    intros.
+    apply auth_frag_mono, Some_included. naive.
   Qed.
   Lemma auth_option۰fragｰcore `{!CmraTotal A} a :
     core (◯O a) = ◯O (core a).
@@ -170,19 +171,25 @@ Section cmra.
     ✓{n} (●O{dq1} a1 ⋅ ●O{dq2} a2) →
     a1 ≡{n}≡ a2.
   Proof.
-    intros. apply (inj Some). apply: auth_auth_dfrac_op_invN. done.
+    intros.
+    apply (inj Some).
+    apply: auth_auth_dfrac_op_invN. done.
   Qed.
   Lemma auth_option۰authｰdfracｰopｰinv dq1 a1 dq2 a2 :
     ✓ (●O{dq1} a1 ⋅ ●O{dq2} a2) →
     a1 ≡ a2.
   Proof.
-    intros. apply (inj Some). apply: auth_auth_dfrac_op_inv. done.
+    intros.
+    apply (inj Some).
+    apply: auth_auth_dfrac_op_inv. done.
   Qed.
   Lemma auth_option۰authｰdfracｰopｰinvｰL `{!LeibnizEquiv A} dq1 a1 dq2 a2 :
     ✓ (●O{dq1} a1 ⋅ ●O{dq2} a2) →
     a1 = a2.
   Proof.
-    intros. apply (inj Some). apply: auth_auth_dfrac_op_inv_L. done.
+    intros.
+    apply (inj Some).
+    apply: auth_auth_dfrac_op_inv_L. done.
   Qed.
 
   Lemma auth_option۰authｰdfracｰvalidN n dq a :
@@ -439,7 +446,8 @@ Section cmra.
     a ≡ b ∨ b ≼ a →
     ●O{dq} a ~~> ●O{dq} a ⋅ ◯O b.
   Proof.
-    intros. apply auth_update_dfrac_alloc; first apply _.
+    intros.
+    apply auth_update_dfrac_alloc; first apply _.
     rewrite Some_included. naive.
   Qed.
   Lemma auth_option۰authｰupdate a b `{!CoreId b} :
@@ -452,7 +460,8 @@ Section cmra.
     (a, b) ~l~> (a', b') →
     ●O a ⋅ ◯O b ~~> ●O a' ⋅ ◯O b'.
   Proof.
-    intros. apply auth_update, option_local_update. done.
+    intros.
+    apply auth_update, option_local_update. done.
   Qed.
 
   Lemma auth_optionｰlocal_update a b0 b1 a' b0' b1' :
@@ -461,7 +470,8 @@ Section cmra.
     ✓ a' →
     (●O a ⋅ ◯O b0, ●O a ⋅ ◯O b1) ~l~> (●O a' ⋅ ◯O b0', ●O a' ⋅ ◯O b1').
   Proof.
-    intros. apply auth_local_update; last done.
+    intros.
+    apply auth_local_update; last done.
     - apply option_local_update. done.
     - rewrite Some_included. naive.
   Qed.
