@@ -70,8 +70,8 @@ Section auth_nat_max۰G.
     apply auth_monoiｰalloc.
   Qed.
 
-  Lemma auth_nat_max۰authｰvalid γ dq a :
-    auth_nat_max۰auth γ dq a ⊢
+  Lemma auth_nat_max۰authｰvalid γ dq n :
+    auth_nat_max۰auth γ dq n ⊢
     ⌜✓ dq⌝.
   Proof.
     apply auth_monoi۰authｰvalid.

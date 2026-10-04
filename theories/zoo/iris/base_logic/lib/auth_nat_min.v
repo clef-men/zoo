@@ -71,8 +71,8 @@ Section auth_nat_min۰G.
     apply auth_monoｰalloc.
   Qed.
 
-  Lemma auth_nat_min۰authｰvalid γ dq a :
-    auth_nat_min۰auth γ dq a ⊢
+  Lemma auth_nat_min۰authｰvalid γ dq n :
+    auth_nat_min۰auth γ dq n ⊢
     ⌜✓ dq⌝.
   Proof.
     apply auth_mono۰authｰvalid.
