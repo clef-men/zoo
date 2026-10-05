@@ -20,7 +20,8 @@ Section exchanger_1۰G.
   Implicit Type Χ : val → val → iProp Σ.
 
   Definition exchanger_1۰valid ι Ψ Χ : iProp Σ :=
-    ▷ □ ∀ v1 v2,
+    ▷ □
+      ∀ v1 v2,
       Ψ v1 -∗
       Ψ v2 ={⊤ ∖ ↑ι}=∗
         Χ v1 v2 ∗
