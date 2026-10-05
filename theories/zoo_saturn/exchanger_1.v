@@ -6,40 +6,43 @@ Require Export zoo_saturn.exchanger_1__code.
 Require Import zoo_saturn.exchanger_1__types.
 Require Import zoo.options.
 
-Implicit Type v w : val.
+Implicit Type v 𝑣 : val.
 Implicit Type o : option val.
 
-Zoo global :=
-  { token : twins (leibnizO val)
+Zoo global X :=
+  { token : twins (leibnizO (val * X))
   }.
 
 Section exchanger_1۰G.
   Context `{exchanger_1۰G : Exchanger1G Σ}.
 
-  Implicit Type Ψ : val → iProp Σ.
-  Implicit Type Χ : val → val → iProp Σ.
+  Implicit Type x 𝑥 : X.
+  Implicit Type Ψ : val → X → iProp Σ.
+  Implicit Type Χ : val → X → val → X → iProp Σ.
 
   Definition exchanger_1۰valid ι Ψ Χ : iProp Σ :=
     ▷ □
-      ∀ v1 v2,
-      Ψ v1 -∗
-      Ψ v2 ={⊤ ∖ ↑ι}=∗
-        Χ v1 v2 ∗
-        Χ v2 v1.
+      ∀ v1 a1 v2 a2,
+      Ψ v1 a1 -∗
+      Ψ v2 a2 ={⊤ ∖ ↑ι}=∗
+        Χ v1 a1 v2 a2 ∗
+        Χ v2 a2 v1 a1.
 End exchanger_1۰G.
 
 Module base.
   Section exchanger_1۰G.
-    Context `{exchanger_1۰G : Exchanger1G Σ}.
+    Context `{exchanger_1۰G : Exchanger1G Σ X}.
+    Context `{Inhabited X}.
 
     Implicit Type t : location.
-    Implicit Type Ψ : val → iProp Σ.
-    Implicit Type Χ : val → val → iProp Σ.
+    Implicit Type x 𝑥 : X.
+    Implicit Type Ψ : val → X → iProp Σ.
+    Implicit Type Χ : val → X → val → X → iProp Σ.
 
     Variant state :=
       | Null
-      | Offer v
-      | Accept w.
+      | Offer v x
+      | Accept v x 𝑣 𝑥.
     Implicit Type state : state.
 
     #[local] Please derive Inhabited for state.
@@ -48,10 +51,10 @@ Module base.
       match state with
       | Null =>
           §Null
-      | Offer v =>
+      | Offer v _ =>
           ‘Offer[ v ]
-      | Accept w =>
-          ‘Accept[ w ]
+      | Accept _ _ 𝑣 _ =>
+          ‘Accept[ 𝑣 ]
       end.
 
     Record exchanger_1۰name :=
@@ -62,20 +65,21 @@ Module base.
     Please derive EqDecision for exchanger_1۰name.
     Please derive Countable for exchanger_1۰name.
 
-    #[local] Definition token₁' γ_token v :=
-      twins۰twin₁ γ_token Own v.
-    #[local] Definition token₁ γ v :=
-      token₁' γ.(exchanger_1۰name۰token) v.
-    #[local] Definition token₂' γ_token v :=
-      twins۰twin₂ γ_token v.
-    #[local] Definition token₂ γ v :=
-      token₂' γ.(exchanger_1۰name۰token) v.
+    #[local] Definition token₁' γ_token v x :=
+      twins۰twin₁ γ_token Own (v, x).
+    #[local] Definition token₁ γ v x :=
+      token₁' γ.(exchanger_1۰name۰token) v x.
+    #[local] Definition token₂' γ_token v x :=
+      twins۰twin₂ γ_token (v, x).
+    #[local] Definition token₂ γ v x :=
+      token₂' γ.(exchanger_1۰name۰token) v x.
     #[local] Definition token γ : iProp Σ :=
-      ∃ v,
-      token₁ γ v ∗
-      token₂ γ v.
+      ∃ v x,
+      token₁ γ v x ∗
+      token₂ γ v x.
     #[local] Instance : CustomIpat "token" :=
       " ( %{v}
+        & %{x}
         & Htoken₁
         & Htoken₂{{!}_}
         )
@@ -86,21 +90,19 @@ Module base.
     #[local] Instance : CustomIpat "inv۰state۰null" :=
       " (:token)
       ".
-    #[local] Definition inv۰state۰offer γ Ψ v : iProp Σ :=
-      token₁ γ v ∗
-      Ψ v.
+    #[local] Definition inv۰state۰offer γ Ψ v x : iProp Σ :=
+      token₁ γ v x ∗
+      Ψ v x.
     #[local] Instance : CustomIpat "inv۰state۰offer" :=
       " ( Htoken₁
         & HΨ{:{v}}
         )
       ".
-    #[local] Definition inv۰state۰accept γ Χ w : iProp Σ :=
-      ∃ v,
-      token₁ γ v ∗
-      Χ v w.
+    #[local] Definition inv۰state۰accept γ Χ v x 𝑣 𝑥 : iProp Σ :=
+      token₁ γ v x ∗
+      Χ v x 𝑣 𝑥.
     #[local] Instance : CustomIpat "inv۰state۰accept" :=
-      " ( %{v}
-        & Htoken₁
+      " ( Htoken₁
         & HΧ
         )
       ".
@@ -108,10 +110,10 @@ Module base.
       match state with
       | Null =>
           inv۰state۰null γ
-      | Offer v =>
-          inv۰state۰offer γ Ψ v
-      | Accept w =>
-          inv۰state۰accept γ Χ w
+      | Offer v x =>
+          inv۰state۰offer γ Ψ v x
+      | Accept v x 𝑣 𝑥 =>
+          inv۰state۰accept γ Χ v x 𝑣 𝑥
       end.
 
     #[local] Definition inv۰inner t ι Ψ Χ : iProp Σ :=
@@ -119,7 +121,7 @@ Module base.
       t ↦ᵣ state ∗
       inv۰state ι Ψ Χ state.
     #[local] Instance : CustomIpat "inv۰inner" :=
-      " ( %state{}
+      " ( %state
         & Ht
         & Hstate
         )
@@ -135,8 +137,8 @@ Module base.
 
     #[global] Instance exchanger_1۰invｰcontractive t γ ι n :
       Proper (
-        (pointwise_relation _ $ dist_later n) ==>
         (pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
+        (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
         (≡{n}≡)
       ) (exchanger_1۰inv t γ ι).
     Proof.
@@ -146,13 +148,14 @@ Module base.
     Qed.
     #[global] Instance exchanger_1۰invｰproper t γ ι :
       Proper (
-        pointwise_relation _ (≡) ==>
         (pointwise_relation _ $ pointwise_relation _ (≡)) ==>
+        (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ (≡)) ==>
         (≡)
       ) (exchanger_1۰inv t γ ι).
     Proof.
       rewrite /exchanger_1۰inv /exchanger_1۰valid /inv۰inner /inv۰state /inv۰state۰offer /inv۰state۰accept.
-      solve_proper.
+      intros Ψ1 Ψ2 HΨ Χ1 Χ2 HΧ.
+      repeat (apply HΨ || apply HΧ || f_equiv || done).
     Qed.
 
     #[global] Instance exchanger_1۰invｰpersistent t γ ι Ψ Χ :
@@ -164,30 +167,32 @@ Module base.
     #[local] Lemma tokenｰalloc :
       ⊢ |==>
         ∃ γ_token,
-        token₁' γ_token inhabitant ∗
-        token₂' γ_token inhabitant.
+        token₁' γ_token inhabitant inhabitant ∗
+        token₂' γ_token inhabitant inhabitant.
     Proof.
       apply twinsｰalloc'.
     Qed.
-    #[local] Lemma token₁ｰexclusive γ v1 v2 :
-      token₂ γ v1 -∗
-      token₂ γ v2 -∗
+    #[local] Lemma token₁ｰexclusive γ v1 a1 v2 a2 :
+      token₂ γ v1 a1 -∗
+      token₂ γ v2 a2 -∗
       False.
     Proof.
       apply twins۰twin₂ｰexclusive.
     Qed.
-    #[local] Lemma tokenｰagree γ v1 v2 :
-      token₁ γ v1 -∗
-      token₂ γ v2 -∗
-      ⌜v1 = v2⌝.
+    #[local] Lemma tokenｰagree γ v1 a1 v2 a2 :
+      token₁ γ v1 a1 -∗
+      token₂ γ v2 a2 -∗
+        ⌜v1 = v2⌝ ∧
+        ⌜a1 = a2⌝.
     Proof.
-      apply: twinsｰagreeｰL.
+      iIntros "Htwin₁ Htwin₂".
+      iDestruct (twinsｰagreeｰL with "Htwin₁ Htwin₂") as %[= -> ->] => //.
     Qed.
-    #[local] Lemma tokenｰupdate {γ v1 v2} v :
-      token₁ γ v1 -∗
-      token₂ γ v2 ==∗
-        token₁ γ v ∗
-        token₂ γ v.
+    #[local] Lemma tokenｰupdate {γ v1 a1 v2 a2} v x :
+      token₁ γ v1 a1 -∗
+      token₂ γ v2 a2 ==∗
+        token₁ γ v x ∗
+        token₂ γ v x.
     Proof.
       apply twinsｰupdate.
     Qed.
@@ -219,32 +224,34 @@ Module base.
       iFrameSteps. iExists Null. iSteps.
     Qed.
 
-    #[local] Lemma exchanger_1٠exchangeｰspecｰaux t γ ι Ψ Χ v :
+    #[local] Lemma exchanger_1٠exchangeｰspecｰaux t γ ι Ψ Χ v x :
       ⊢ {{{
           exchanger_1۰inv t γ ι Ψ Χ ∗
-          Ψ v
+          Ψ v x
         }}}
           exchanger_1٠exchange #t v
         {{{
           o
         , RET o;
-          if o is Some w then
-            Χ v w
+          if o is Some 𝑣 then
+            ∃ 𝑥,
+            Χ v x 𝑣 𝑥
           else
-            Ψ v
+            Ψ v x
         }}}
       ∧ {{{
           exchanger_1۰inv t γ ι Ψ Χ ∗
-          Ψ v
+          Ψ v x
         }}}
           exchanger_1٠exchange_aux #t v
         {{{
           o
         , RET o;
-          if o is Some w then
-            Χ v w
+          if o is Some 𝑣 then
+            ∃ 𝑥,
+            Χ v x 𝑣 𝑥
           else
-            Ψ v
+            Ψ v x
         }}}.
     Proof.
       iLöb as "HLöb".
@@ -257,17 +264,17 @@ Module base.
         wp۰rec. wp۰pures.
 
         wp۰bind (!_)%E.
-        iInv "Hinv" as "(:inv۰inner =1)".
+        iInv "Hinv" as "(:inv۰inner)".
         wp۰load.
         iSplitR "HΨ:v HΦ". { iFrameSteps. }
         iModIntro.
 
-        destruct state1 as [| v' | w]; wp۰pures.
+        destruct state as [| 𝑣 𝑥 | v' x' 𝑣 𝑥]; wp۰pures.
 
         - wp۰apply ("IHexchange_aux" with "[$] HΦ").
 
         - wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
-          iInv "Hinv" as "(:inv۰inner =2)".
+          iInv "Hinv" as "(:inv۰inner)".
           wp۰cas.
 
           + iSplitR "HΨ:v HΦ". { iFrameSteps. }
@@ -277,15 +284,15 @@ Module base.
 
             iApply ("HΦ" $! None with "HΨ:v").
 
-          + destruct state2; zoo۰simp.
-            iDestruct "Hstate" as "(:inv۰state۰offer v=v')".
-            iMod ("Hvalid" with "HΨ:v HΨ:v'") as "(HΧ:v & HΧ:v')".
-            iSplitR "HΧ:v HΦ". { iExists (Accept v). iFrameSteps. }
+          + destruct state as [| 𝑣_ 𝑥_ |]; zoo۰simp.
+            iDestruct "Hstate" as "(:inv۰state۰offer v=𝑣)".
+            iMod ("Hvalid" with "HΨ:v HΨ:𝑣") as "(HΧ:v & HΧ:𝑣)".
+            iSplitR "HΧ:v HΦ". { iExists (Accept _ _ v x). iFrameSteps. }
             iModIntro.
 
             wp۰pures.
 
-            iApply ("HΦ" $! (Some v') with "HΧ:v").
+            iApply ("HΦ" $! (Some 𝑣) with "[$HΧ:v]").
 
         - iApply ("HΦ" $! None with "HΨ:v").
       }
@@ -296,7 +303,7 @@ Module base.
         wp۰rec. wp۰pures.
 
         wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
-        iInv "Hinv" as "(:inv۰inner =1)".
+        iInv "Hinv" as "(:inv۰inner)".
         wp۰cas.
 
         - iSplitR "HΨ:v HΦ". { iFrameSteps. }
@@ -304,24 +311,24 @@ Module base.
 
           wp۰apply+ ("IHexchange" with "[$] HΦ").
 
-        - destruct state1; zoo۰simp.
-          iDestruct "Hstate" as "(:inv۰state۰null v=v')".
+        - destruct state; zoo۰simp.
+          iDestruct "Hstate" as "(:inv۰state۰null v=v' x=x')".
           iMod (tokenｰupdate with "Htoken₁ Htoken₂") as "(Htoken₁ & Htoken₂)".
-          iSplitR "Htoken₂ HΦ". { iExists (Offer _). iFrameSteps. }
-          iIntros "!> {% v'}".
+          iSplitR "Htoken₂ HΦ". { iExists (Offer v x). iFrameSteps. }
+          iIntros "!> {% v' x'}".
 
           iStep 11.
 
           wp۰bind (𝘅𝗰𝗵𝗴 _ _)%E.
-          iInv "Hinv" as "(:inv۰inner =2)".
+          iInv "Hinv" as "(:inv۰inner)".
           wp۰xchg.
-          destruct state2 as [| v_ | w]; wp۰pures.
+          destruct state as [| v_ a_ | v_ x_ 𝑣 𝑥]; wp۰pures.
 
-          + iDestruct "Hstate" as "(:inv۰state۰null != v=w)".
+          + iDestruct "Hstate" as "(:inv۰state۰null != v=v' x=x')".
             iDestruct (token₁ｰexclusive with "Htoken₂ Htoken₂_") as %[].
 
           + iDestruct "Hstate" as "(:inv۰state۰offer)".
-            iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %->.
+            iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %(-> & ->).
             iSplitR "HΨ HΦ". { iExists Null. iFrameSteps. }
             iModIntro.
 
@@ -329,29 +336,30 @@ Module base.
 
             iApply ("HΦ" $! None with "HΨ").
 
-          + iDestruct "Hstate" as "(:inv۰state۰accept v=v_)".
-            iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %->.
+          + iDestruct "Hstate" as "(:inv۰state۰accept)".
+            iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %(-> & ->).
             iSplitR "HΧ HΦ". { iExists Null. iFrameSteps. }
             iModIntro.
 
             wp۰pures.
 
-            iApply ("HΦ" $! (Some w) with "HΧ").
+            iApply ("HΦ" $! (Some 𝑣) with "[$HΧ]").
       }
     Qed.
-    Lemma exchanger_1٠exchangeｰspec t γ ι Ψ Χ v :
+    Lemma exchanger_1٠exchangeｰspec {t γ ι Ψ Χ v} x :
       {{{
         exchanger_1۰inv t γ ι Ψ Χ ∗
-        Ψ v
+        Ψ v x
       }}}
         exchanger_1٠exchange #t v
       {{{
         o
       , RET o;
-        if o is Some w then
-          Χ v w
+        if o is Some 𝑣 then
+          ∃ 𝑥,
+          Χ v x 𝑣 𝑥
         else
-          Ψ v
+          Ψ v x
       }}}.
     Proof.
       iPoseProof exchanger_1٠exchangeｰspecｰaux as "(H & _)".
@@ -366,12 +374,14 @@ Require zoo_saturn.exchanger_1__opaque.
 
 Section exchanger_1۰G.
   Context `{exchanger_1۰G : Exchanger1G Σ}.
+  Context `{Inhabited X}.
 
   Implicit Type 𝑡 : location.
   Implicit Type t : val.
+  Implicit Type x 𝑥 : X.
   Implicit Type γ : base.exchanger_1۰name.
-  Implicit Type Ψ : val → iProp Σ.
-  Implicit Type Χ : val → val → iProp Σ.
+  Implicit Type Ψ : val → X → iProp Σ.
+  Implicit Type Χ : val → X → val → X → iProp Σ.
 
   Please Definition exchanger_1۰inv t ι Ψ Χ : iProp Σ :=
     ∃ 𝑡 γ,
@@ -389,8 +399,8 @@ Section exchanger_1۰G.
 
   #[global] Instance exchanger_1۰invｰcontractive t ι n :
     Proper (
-      (pointwise_relation _ $ dist_later n) ==>
       (pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
+      (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
       (≡{n}≡)
     ) (exchanger_1۰inv t ι).
   Proof.
@@ -398,8 +408,8 @@ Section exchanger_1۰G.
   Qed.
   #[global] Instance exchanger_1۰invｰproper t ι :
     Proper (
-      pointwise_relation _ (≡) ==>
       (pointwise_relation _ $ pointwise_relation _ (≡)) ==>
+      (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ (≡)) ==>
       (≡)
     ) (exchanger_1۰inv t ι).
   Proof.
@@ -431,19 +441,20 @@ Section exchanger_1۰G.
     iSteps.
   Qed.
 
-  Lemma exchanger_1٠exchangeｰspec t ι Ψ Χ v :
+  Lemma exchanger_1٠exchangeｰspec {t ι Ψ Χ v} x :
     {{{
       exchanger_1۰inv t ι Ψ Χ ∗
-      Ψ v
+      Ψ v x
     }}}
       exchanger_1٠exchange t v
     {{{
       o
     , RET o;
-      if o is Some w then
-        Χ v w
+      if o is Some 𝑣 then
+        ∃ 𝑥,
+        Χ v x 𝑣 𝑥
       else
-        Ψ v
+        Ψ v x
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & HΨ) HΦ".
