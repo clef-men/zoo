@@ -78,6 +78,16 @@ Section bi.
     Proof.
       rewrite big_sepLｰseqｰsnoc //.
     Qed.
+    Lemma big_sepLｰseqｰsnoc₁' Φ i n :
+      0 < n →
+      ([∗ list] k ∈ seq i n, Φ k) ⊢
+        ([∗ list] k ∈ seq i (n - 1), Φ k) ∗
+        Φ (i + (n - 1)).
+    Proof.
+      intros Hn.
+      replace n with ˖(n - 1) at 1 by lia.
+      apply big_sepLｰseqｰsnoc₁.
+    Qed.
     Lemma big_sepLｰseqｰsnoc₂ Φ i n :
       ([∗ list] k ∈ seq i n, Φ k) -∗
       Φ (i + n) -∗
@@ -85,6 +95,15 @@ Section bi.
     Proof.
       rewrite big_sepLｰseqｰsnoc.
       iSteps.
+    Qed.
+    Lemma big_sepLｰseqｰsnoc₂' Φ i n1 n2 :
+      n2 = ˖n1 →
+      ([∗ list] k ∈ seq i n1, Φ k) -∗
+      Φ (i + n1) -∗
+      [∗ list] k ∈ seq i n2, Φ k.
+    Proof.
+      intros ->.
+      apply big_sepLｰseqｰsnoc₂.
     Qed.
 
     Lemma big_sepLｰseqｰapp Φ i n1 n2 :
@@ -103,12 +122,14 @@ Section bi.
       intros ->.
       rewrite big_sepLｰseqｰapp //.
     Qed.
-    Lemma big_sepLｰseqｰapp₂ Φ i1 n1 i2 n2 :
+    Lemma big_sepLｰseqｰapp₂ Φ i1 n1 i2 n2 n :
       i2 = i1 + n1 →
+      n = n1 + n2 →
       ([∗ list] k ∈ seq i1 n1, Φ k) -∗
       ([∗ list] k ∈ seq i2 n2, Φ k) -∗
-      [∗ list] k ∈ seq i1 (n1 + n2), Φ k.
+      [∗ list] k ∈ seq i1 n, Φ k.
     Proof.
+      intros -> ->.
       rewrite big_sepLｰseqｰapp.
       iSteps.
     Qed.
