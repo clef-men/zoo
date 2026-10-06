@@ -32,7 +32,7 @@ End exchanger_1۰G.
 Module base.
   Section exchanger_1۰G.
     Context `{exchanger_1۰G : Exchanger1G Σ X}.
-    Context `{Inhabited X}.
+    Context `{!Inhabited X}.
 
     Implicit Type t : location.
     Implicit Type x 𝑥 : X.
@@ -374,7 +374,7 @@ Require zoo_saturn.exchanger_1__opaque.
 
 Section exchanger_1۰G.
   Context `{exchanger_1۰G : Exchanger1G Σ}.
-  Context `{Inhabited X}.
+  Context `{!Inhabited X}.
 
   Implicit Type 𝑡 : location.
   Implicit Type t : val.
