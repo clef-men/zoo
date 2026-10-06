@@ -6,7 +6,8 @@ Require Export zoo_saturn.stack_mpmc_1__code.
 Require Import zoo_saturn.stack_mpmc_1__types.
 Require Import zoo.options.
 
-Implicit Type l : location.
+Implicit Type b : bool.
+Implicit Type 𝑡 : location.
 Implicit Type v t backoff : val.
 Implicit Type vs : list val.
 
@@ -26,9 +27,9 @@ Section zoo۰G.
   #[local] Definition model₂ γ vs :=
     twins۰twin₂ γ vs.
 
-  #[local] Definition inv۰inner l γ : iProp Σ :=
+  #[local] Definition inv۰inner 𝑡 γ : iProp Σ :=
     ∃ vs,
-    l ↦ᵣ glist۰to_val vs ∗
+    𝑡 ↦ᵣ glist۰to_val vs ∗
     model₂ γ vs.
   #[local] Instance : CustomIpat "inv۰inner" :=
     " ( %vs{}
@@ -37,12 +38,12 @@ Section zoo۰G.
       )
     ".
   Please Definition stack_mpmc_1۰inv t ι : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    l ↪ γ ∗
-    inv ι (inv۰inner l γ).
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    𝑡 ↪ γ ∗
+    inv ι (inv۰inner 𝑡 γ).
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l
+    " ( %𝑡
       & %γ
       & ->
       & #Hmeta
@@ -51,12 +52,12 @@ Section zoo۰G.
     ".
 
   Please Definition stack_mpmc_1۰model t vs : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    l ↪ γ ∗
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    𝑡 ↪ γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l{;_}
+    " ( %𝑡{;_}
       & %γ{;_}
       & %Heq{}
       & Hmeta_{}
@@ -132,14 +133,64 @@ Section zoo۰G.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰ref l as "Hmeta" "Hl".
+    wp۰ref 𝑡 as "Hmeta" "Hl".
 
     iMod modelｰalloc as "(%γ & Hmodel₁ & Hmodel₂)".
 
-    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (metaｰset γ with "Hmeta") as "#Hmeta". 1: done.
 
-    iApply "HΦ". iSplitR "Hmodel₁"; last iSteps.
-    iStep 2. iApply inv_alloc. iExists []. iSteps.
+    iApply "HΦ".
+    iSplitR "Hmodel₁". 2: iFrameSteps.
+    iStep 2.
+    iApply inv_alloc.
+    iFrame.
+  Qed.
+
+  Lemma stack_mpmc_1٠try_pushｰspec t ι v :
+    <<<
+      stack_mpmc_1۰inv t ι
+    | ∀∀ vs,
+      stack_mpmc_1۰model t vs
+    >>>
+      stack_mpmc_1٠try_push t v
+      @ ↑ι
+    <<<
+      ∃∃ b,
+      stack_mpmc_1۰model t (if b then v :: vs else vs)
+    | RET #b;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ (:inv) HΦ".
+
+    wp۰rec. wp۰pures.
+
+    wp۰bind (!_)%E.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰load.
+    iSplitR "HΦ". { iFrameSteps. }
+    iModIntro.
+
+    wp۰pures.
+
+    wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
+    iInv "Hinv" as "(:inv۰inner =2)".
+    wp۰cas as _ | ->%(inj _).
+
+    - iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
+      iMod ("HΦ" $! false with "Hmodel") as "HΦ".
+
+      iSplitR "HΦ". { iFrameSteps. }
+      iSteps.
+
+    - iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (modelｰupdate (v :: vs1) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod ("HΦ" $! true with "[$Hmodel₁]") as "HΦ". 1: iSteps.
+
+      iSplitR "HΦ". { iExists (v :: vs1). iFrameSteps. }
+      iSteps.
   Qed.
 
   #[local] Lemma stack_mpmc_1٠push₁ｰspec t ι v backoff :
@@ -157,30 +208,19 @@ Section zoo۰G.
       True
     >>>.
   Proof.
-    iIntros "%Φ ((:inv) & Hbackoff) HΦ".
+    iIntros "%Φ (#Hinv & Hbackoff) HΦ".
 
     iLöb as "HLöb" forall (backoff).
 
-    wp۰rec. wp۰pures.
+    wp۰rec.
 
-    wp۰bind (!_)%E.
-    iInv "Hinv" as "(:inv۰inner)".
-    wp۰load.
-    iSplitR "Hbackoff HΦ"; first iSteps.
-    iModIntro.
+    awp۰apply+ (stack_mpmc_1٠try_pushｰspec with "Hinv").
+    iApply (aaccｰaupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
+    iAaccIntro with "Hmodel". 1: iSteps. iIntros ([]) "Hmodel !>".
 
-    wp۰pures.
+    - iRight. iFrameSteps.
 
-    wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
-    iInv "Hinv" as "(:inv۰inner =')".
-    wp۰cas as _ | ->%(inj _); first iSteps.
-    iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-    iMod (modelｰupdate (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-    iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
-    iSplitR "HΦ". { iExists (v :: vs). iSteps. }
-    iSteps.
+    - iLeft. iFrameSteps.
   Qed.
 
   Lemma stack_mpmc_1٠pushｰspec t ι v :
@@ -203,6 +243,74 @@ Section zoo۰G.
     wp۰apply+ (stack_mpmc_1٠push₁ｰspec with "[$Hinv] HΦ"). 1: iSteps.
   Qed.
 
+  Lemma stack_mpmc_1٠try_popｰspec t ι :
+    <<<
+      stack_mpmc_1۰inv t ι
+    | ∀∀ vs,
+      stack_mpmc_1۰model t vs
+    >>>
+      stack_mpmc_1٠try_pop t
+      @ ↑ι
+    <<<
+      ∃∃ o,
+      match o with
+      | Nothing =>
+          ⌜vs = []⌝ ∗
+          stack_mpmc_1۰model t []
+      | Something v =>
+          ∃ vs',
+          ⌜vs = v :: vs'⌝ ∗
+          stack_mpmc_1۰model t vs'
+      | Anything =>
+          stack_mpmc_1۰model t vs
+      end
+    | RET o;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ (:inv) HΦ".
+
+    wp۰rec.
+
+    wp۰bind (!_)%E.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰load.
+    destruct vs1 as [| v vs1].
+
+    - iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+      iMod ("HΦ" $! Nothing with "[$Hmodel₁]") as "HΦ". 1: iSteps.
+
+      iSplitR "HΦ". { iExists []. iFrameSteps. }
+      iSteps.
+
+    - iSplitR "HΦ". { iExists (v :: vs1). iFrameSteps. }
+      iModIntro.
+
+      wp۰pures.
+
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
+      iInv "Hinv" as "(:inv۰inner =2)".
+      wp۰cas as _ | Hcas.
+
+      + iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
+        iMod ("HΦ" $! Anything with "Hmodel") as "HΦ".
+
+        iSplitR "HΦ". { iFrameSteps. }
+        iSteps.
+
+      + destruct vs2. 1: done. apply (inj glist۰to_val _ (_ :: _)) in Hcas as [= -> ->].
+
+        iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+        iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+        iMod (modelｰupdate vs1 with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+        iMod ("HΦ" $! (Something v) with "[$Hmodel₁]") as "HΦ". 1: iSteps.
+        iSplitR "HΦ". { iFrameSteps. }
+        iSteps.
+  Qed.
+
   #[local] Lemma stack_mpmc_1٠pop₁ｰspec t ι backoff :
     <<<
       stack_mpmc_1۰inv t ι ∗
@@ -218,40 +326,23 @@ Section zoo۰G.
       True
     >>>.
   Proof.
-    iIntros "%Φ ((:inv) & Hbackoff) HΦ".
+    iIntros "%Φ (#Hinv & Hbackoff) HΦ".
 
     iLöb as "HLöb" forall (backoff).
 
-    wp۰rec. wp۰pures.
+    wp۰rec.
 
-    wp۰bind (!_)%E.
-    iInv "Hinv" as "(:inv۰inner)".
-    wp۰load.
-    destruct vs as [| v vs].
+    awp۰apply+ (stack_mpmc_1٠try_popｰspec with "Hinv").
+    iApply (aaccｰaupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
+    iAaccIntro with "Hmodel". 1: iSteps. iIntros ([| | v]) "Hmodel !>".
 
-    - iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-      iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
-      iSplitR "HΦ". { iExists []. iSteps. }
-      iSteps.
+    - iDestruct "Hmodel" as "(-> & Hmodel)".
+      iRight. iFrameSteps.
 
-    - iSplitR "Hbackoff HΦ". { iExists (v :: vs). iSteps. }
-      iModIntro.
+    - iLeft. iFrameSteps.
 
-      wp۰pures.
-
-      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
-      iInv "Hinv" as "(:inv۰inner =')".
-      wp۰cas as _ | Hcas; first iSteps.
-      destruct vs'; first done. apply (inj glist۰to_val _ (_ :: _)) in Hcas as [= -> ->].
-      iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (modelｰupdate vs with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
-      iSplitR "HΦ"; first iSteps.
-      iSteps.
+    - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
+      iRight. iFrameSteps.
   Qed.
 
   Lemma stack_mpmc_1٠popｰspec t ι :
@@ -297,7 +388,7 @@ Section zoo۰G.
     iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
     iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-    iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
+    iMod ("HΦ" with "[$Hmodel₁]") as "HΦ". 1: iSteps.
     iSteps.
   Qed.
 End zoo۰G.

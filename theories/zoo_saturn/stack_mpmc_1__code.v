@@ -5,17 +5,22 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.language.notations.
 Require Import backoff.backoff.
 Require Import zoo_std.glist.
+Require Import zoo_std.optional.
 Require Import zoo.options.
 
 Definition stack_mpmc_1٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
     𝗿𝗲𝗳 §glist٠Nil.
 
-Definition stack_mpmc_1٠push₁ : val :=
-  𝗿𝗲𝗰 "push" "t" "v" "backoff" ->
+Definition stack_mpmc_1٠try_push : val :=
+  𝗳𝘂𝗻 "t" "v" ->
     𝗹𝗲𝘁 "old" = !"t" 𝗶𝗻
     𝗹𝗲𝘁 "new_" = ‘glist٠Cons[ "v", "old" ] 𝗶𝗻
-    𝗶𝗳 ~ 𝗰𝗮𝘀 "t".[contents] "old" "new_" 𝘁𝗵𝗲𝗻 (
+    𝗰𝗮𝘀 "t".[contents] "old" "new_".
+
+Definition stack_mpmc_1٠push₁ : val :=
+  𝗿𝗲𝗰 "push" "t" "v" "backoff" ->
+    𝗶𝗳 ~ stack_mpmc_1٠try_push "t" "v" 𝘁𝗵𝗲𝗻 (
       "push" "t" "v" (backoff٠once "backoff")
     ).
 
@@ -23,17 +28,28 @@ Definition stack_mpmc_1٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
     stack_mpmc_1٠push₁ "t" "v" backoff٠default.
 
-Definition stack_mpmc_1٠pop₁ : val :=
-  𝗿𝗲𝗰 "pop" "t" "backoff" ->
+Definition stack_mpmc_1٠try_pop : val :=
+  𝗳𝘂𝗻 "t" ->
     𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
     | glist٠Nil ->
-        §None
+        §optional٠Nothing
     | glist٠Cons "v" "new_" 𝗮𝘀 "old" ->
         𝗶𝗳 𝗰𝗮𝘀 "t".[contents] "old" "new_" 𝘁𝗵𝗲𝗻 (
-          ‘Some( "v" )
+          ‘optional٠Something( "v" )
         ) 𝗲𝗹𝘀𝗲 (
-          "pop" "t" (backoff٠once "backoff")
+          §optional٠Anything
         )
+    𝗲𝗻𝗱.
+
+Definition stack_mpmc_1٠pop₁ : val :=
+  𝗿𝗲𝗰 "pop" "t" "backoff" ->
+    𝗺𝗮𝘁𝗰𝗵 stack_mpmc_1٠try_pop "t" 𝘄𝗶𝘁𝗵
+    | optional٠Nothing ->
+        §None
+    | optional٠Something "v" ->
+        ‘Some( "v" )
+    | optional٠Anything ->
+        "pop" "t" (backoff٠once "backoff")
     𝗲𝗻𝗱.
 
 Definition stack_mpmc_1٠pop : val :=
