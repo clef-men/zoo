@@ -60,6 +60,27 @@ Module base.
     #[local] Definition receipts۰frag γ :=
       receipts۰frag' γ.(latch۰name۰receipts).
 
+    Please Definition latch۰init t γ sz : iProp Σ :=
+      ⌜sz = γ.(latch۰name۰size)⌝ ∗
+      t.[counter] ↦ #γ.(latch۰name۰size) ∗
+      t.[mutex] ↦□ γ.(latch۰name۰mutex) ∗
+      mutex۰init γ.(latch۰name۰mutex) false ∗
+      t.[condition] ↦□ γ.(latch۰name۰condition) ∗
+      condition۰inv γ.(latch۰name۰condition) ∗
+      tokens۰auth γ γ.(latch۰name۰size) ∗
+      receipts۰auth γ 0.
+    #[local] Instance : CustomIpat "init" :=
+      " ( ->
+        & Ht۰counter
+        & Ht۰mutex
+        & Hmutex۰init
+        & Ht۰condition
+        & Hcondition۰inv
+        & Htokens۰auth
+        & Hreceipts۰auth
+        )
+      ".
+
     #[local] Definition inv۰valid γ P Q nt : iProp Σ :=
       ([∗ list] _ ∈ seq 0 nt, P) ={⊤}=∗
       [∗ list] _ ∈ seq 0 γ.(latch۰name۰size), Q.
@@ -136,6 +157,11 @@ Module base.
       solve_proper.
     Qed.
 
+    #[global] Instance latch۰initｰtimeless t γ sz :
+      Timeless (latch۰init t γ sz).
+    Proof.
+      apply _.
+    Qed.
     #[global] Instance latch۰tokenｰpersistent γ :
       Timeless (latch۰token γ).
     Proof.
@@ -207,21 +233,39 @@ Module base.
     Opaque receipts۰auth'.
     Opaque receipts۰frag'.
 
-    Lemma latch٠createｰspec P Q sz :
+    Lemma latch۰initｰexclusive t γ1 sz1 γ2 sz2 :
+      latch۰init t γ1 sz1 -∗
+      latch۰init t γ2 sz2 -∗
+      False.
+    Proof.
+      iSteps.
+    Qed.
+    Lemma latch۰initｰtoｰinv {t γ sz} P Q E :
+      latch۰init t γ sz -∗
+      latch۰valid sz P Q ={E}=∗
+      latch۰inv t γ P Q.
+    Proof.
+      iIntros "(:init) Hvalid".
+      iFrame.
+      iApply (mutex۰initｰtoｰinv with "Hmutex۰init").
+      { iFrameSteps. case_decide; iSteps. }
+    Qed.
+
+    Lemma latch٠createｰspecｰinit sz :
       (0 ≤ sz)%Z →
       {{{
-        latch۰valid ₊sz P Q
+        True
       }}}
         latch٠create #sz
       {{{
         t γ
       , RET #t;
         meta_token t ⊤ ∗
-        latch۰inv t γ P Q ∗
+        latch۰init t γ ₊sz ∗
         [∗ list] _ ∈ seq 0 ₊sz, latch۰token γ
       }}}.
     Proof.
-      iIntros "%Hsz %Φ Hvalid HΦ".
+      iIntros "%Hsz %Φ _ HΦ".
 
       wp۰rec.
       wp۰apply (condition٠createｰspec with "[//]") as (cond) "Hcond۰inv".
@@ -239,11 +283,29 @@ Module base.
         ; latch۰name۰receipts := γ_receipts
         |}.
 
-      iMod (mutex۰initｰtoｰinv (inv۰inner t γ P Q) with "Hmtx۰init [Ht۰counter Htokens۰auth Hreceipts۰auth Hvalid]") as "Hmtx۰inv".
-      { iFrameSteps. case_decide; iSteps. iSteps. }
-
       iApply ("HΦ" $! t γ).
       iFrameSteps.
+    Qed.
+    Lemma latch٠createｰspec P Q sz :
+      (0 ≤ sz)%Z →
+      {{{
+        latch۰valid ₊sz P Q
+      }}}
+        latch٠create #sz
+      {{{
+        t γ
+      , RET #t;
+        meta_token t ⊤ ∗
+        latch۰inv t γ P Q ∗
+        [∗ list] _ ∈ seq 0 ₊sz, latch۰token γ
+      }}}.
+    Proof.
+      iIntros "%Hsz %Φ Hvalid HΦ".
+
+      iApply wpｰfupd.
+      wp۰apply (latch٠createｰspecｰinit with "[//]") as (t γ) "(Hmeta & Hinit & Htokens)". 1: done.
+      iMod (latch۰initｰtoｰinv with "Hinit Hvalid") as "Hinv".
+      iSteps.
     Qed.
 
     Lemma latch٠waitｰspec t γ P Q :
@@ -329,6 +391,20 @@ Section latch_G.
   Implicit Type t : val.
   Implicit Type P Q : iProp Σ.
 
+  Please Definition latch۰init t sz : iProp Σ :=
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    𝑡 ↪ γ ∗
+    base.latch۰init 𝑡 γ sz.
+  #[local] Instance : CustomIpat "init" :=
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & Hmeta{_{}}
+      & Hinit{_{}}
+      )
+    ".
+
   Please Definition latch۰inv t P Q : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
@@ -357,6 +433,11 @@ Section latch_G.
       )
     ".
 
+  #[global] Instance latch۰initｰtimeless t sz :
+    Timeless (latch۰init t sz).
+  Proof.
+    apply _.
+  Qed.
   #[global] Instance latch۰tokenｰtimeless t :
     Timeless (latch۰token t).
   Proof.
@@ -369,6 +450,46 @@ Section latch_G.
     apply _.
   Qed.
 
+  Lemma latch۰initｰexclusive t sz1 sz2 :
+    latch۰init t sz1 -∗
+    latch۰init t sz2 -∗
+    False.
+  Proof.
+    iIntros "(:init =1) (:init =2)". simp.
+    iApply (base.latch۰initｰexclusive with "Hinit_1 Hinit_2").
+  Qed.
+  Lemma latch۰initｰtoｰinv {t sz} P Q E :
+    latch۰init t sz -∗
+    latch۰valid sz P Q ={E}=∗
+    latch۰inv t P Q.
+  Proof.
+    iIntros "(:init) Hvalid".
+    iMod (base.latch۰initｰtoｰinv with "Hinit Hvalid") as "Hinv".
+    iFrameSteps.
+  Qed.
+
+  Lemma latch٠createｰspecｰinit sz :
+    (0 ≤ sz)%Z →
+    {{{
+      True
+    }}}
+      latch٠create #sz
+    {{{
+      t
+    , RET t;
+      latch۰init t ₊sz ∗
+      [∗ list] _ ∈ seq 0 ₊sz, latch۰token t
+    }}}.
+  Proof.
+    iIntros "%Hsz %Φ _ HΦ".
+
+    iApply wpｰfupd.
+    wp۰apply (base.latch٠createｰspecｰinit with "[//]") as (𝑡 γ) "(Hmeta & Hinit & Htokens)". 1: done.
+    iMod (metaｰset γ with "Hmeta"). 1: done.
+    iSteps.
+    iApply (big_sepL_impl with "Htokens").
+    iSteps.
+  Qed.
   Lemma latch٠createｰspec P Q sz :
     (0 ≤ sz)%Z →
     {{{
