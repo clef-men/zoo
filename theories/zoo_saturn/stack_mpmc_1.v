@@ -15,7 +15,7 @@ Zoo global :=
   { model : twins (leibnizO (list val))
   }.
 
-Section zoo۰G.
+Section stack_mpmc_1۰G.
   Context `{stack_mpmc_1۰G : StackMpmc1G Σ}.
 
   #[local] Definition metadata :=
@@ -391,7 +391,7 @@ Section zoo۰G.
     iMod ("HΦ" with "[$Hmodel₁]") as "HΦ". 1: iSteps.
     iSteps.
   Qed.
-End zoo۰G.
+End stack_mpmc_1۰G.
 
 Require zoo_saturn.stack_mpmc_1__opaque.
 
