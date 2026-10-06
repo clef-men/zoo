@@ -16,7 +16,7 @@ Module internal.
     | Receiver (y : Y).
   #[global] Arguments offer : clear implicits.
 
-  #[global] Instance offerｰinhabited {X Y} `{Inhabited X} : Inhabited (offer X Y) :=
+  #[global] Instance offerｰinhabited {X Y} `{!Inhabited X} : Inhabited (offer X Y) :=
     populate $ Sender inhabitant inhabitant.
 End internal.
 
@@ -45,8 +45,8 @@ End channel_sync_1۰G.
 Module base.
   Section channel_sync_1۰G.
     Context `{channel_sync_1۰G : ChannelSync1G Σ}.
-    Context `{Inhabited X}.
-    Context `{Inhabited Y}.
+    Context `{!Inhabited X}.
+    Context `{!Inhabited Y}.
 
     Import internal.
 
@@ -566,8 +566,8 @@ Require zoo_saturn.channel_sync_1__opaque.
 
 Section channel_sync_1۰G.
   Context `{channel_sync_1۰G : ChannelSync1G Σ}.
-  Context `{Inhabited X}.
-  Context `{Inhabited Y}.
+  Context `{!Inhabited X}.
+  Context `{!Inhabited Y}.
 
   Implicit Type 𝑡 : location.
   Implicit Type t : val.
