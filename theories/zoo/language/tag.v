@@ -35,7 +35,7 @@ Variant tag :=
   | Tag28
   | Tag29
   | Tag30.
-Implicit Types tag : tag.
+Implicit Type tag : tag.
 
 Please derive Inhabited for tag.
 Please derive EqDecision for tag.
