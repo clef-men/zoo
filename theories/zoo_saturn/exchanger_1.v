@@ -22,11 +22,11 @@ Section exchanger_1۰G.
 
   Definition exchanger_1۰valid ι Ψ Χ : iProp Σ :=
     ▷ □
-      ∀ v1 a1 v2 a2,
-      Ψ v1 a1 -∗
-      Ψ v2 a2 ={⊤ ∖ ↑ι}=∗
-        Χ v1 a1 v2 a2 ∗
-        Χ v2 a2 v1 a1.
+      ∀ v1 x1 v2 x2,
+      Ψ v1 x1 -∗
+      Ψ v2 x2 ={⊤ ∖ ↑ι}=∗
+        Χ v1 x1 v2 x2 ∗
+        Χ v2 x2 v1 x1.
 End exchanger_1۰G.
 
 Module base.
@@ -187,25 +187,25 @@ Module base.
     Proof.
       apply twinsｰalloc'.
     Qed.
-    #[local] Lemma token₁ｰexclusive γ v1 a1 v2 a2 :
-      token₂ γ v1 a1 -∗
-      token₂ γ v2 a2 -∗
+    #[local] Lemma token₁ｰexclusive γ v1 x1 v2 x2 :
+      token₂ γ v1 x1 -∗
+      token₂ γ v2 x2 -∗
       False.
     Proof.
       apply twins۰twin₂ｰexclusive.
     Qed.
-    #[local] Lemma tokenｰagree γ v1 a1 v2 a2 :
-      token₁ γ v1 a1 -∗
-      token₂ γ v2 a2 -∗
+    #[local] Lemma tokenｰagree γ v1 x1 v2 x2 :
+      token₁ γ v1 x1 -∗
+      token₂ γ v2 x2 -∗
         ⌜v1 = v2⌝ ∧
-        ⌜a1 = a2⌝.
+        ⌜x1 = x2⌝.
     Proof.
       iIntros "Htwin₁ Htwin₂".
       iDestruct (twinsｰagreeｰL with "Htwin₁ Htwin₂") as %[= -> ->] => //.
     Qed.
-    #[local] Lemma tokenｰupdate {γ v1 a1 v2 a2} v x :
-      token₁ γ v1 a1 -∗
-      token₂ γ v2 a2 ==∗
+    #[local] Lemma tokenｰupdate {γ v1 x1 v2 x2} v x :
+      token₁ γ v1 x1 -∗
+      token₂ γ v2 x2 ==∗
         token₁ γ v x ∗
         token₂ γ v x.
     Proof.
