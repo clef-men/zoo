@@ -85,6 +85,15 @@ Module base.
         )
       ".
 
+    Please Definition exchanger_1۰init t γ : iProp Σ :=
+      t ↦ᵣ §Null ∗
+      token γ.
+    #[local] Instance : CustomIpat "init" :=
+      " ( Ht
+        & Htoken
+        )
+      ".
+
     #[local] Definition inv۰state۰null γ :=
       token γ.
     #[local] Instance : CustomIpat "inv۰state۰null" :=
@@ -158,6 +167,12 @@ Module base.
       repeat (apply HΨ || apply HΧ || f_equiv || done).
     Qed.
 
+    #[global] Instance exchanger_1۰initｰtimeless t γ :
+      Timeless (exchanger_1۰init t γ).
+    Proof.
+      apply _.
+    Qed.
+
     #[global] Instance exchanger_1۰invｰpersistent t γ ι Ψ Χ :
       Persistent (exchanger_1۰inv t γ ι Ψ Χ).
     Proof.
@@ -197,6 +212,50 @@ Module base.
       apply twinsｰupdate.
     Qed.
 
+    Lemma exchanger_1۰initｰexclusive t γ1 γ2 :
+      exchanger_1۰init t γ1 -∗
+      exchanger_1۰init t γ2 -∗
+      False.
+    Proof.
+      iSteps.
+    Qed.
+    Lemma exchanger_1۰initｰtoｰinv {t γ} ι Ψ Χ E :
+      exchanger_1۰init t γ -∗
+      exchanger_1۰valid ι Ψ Χ ={E}=∗
+      exchanger_1۰inv t γ ι Ψ Χ.
+    Proof.
+      iIntros "(:init) Hvalid".
+      iFrame.
+      iApply inv_alloc.
+      iExists Null. iFrame.
+    Qed.
+
+    Lemma exchanger_1٠createｰspecｰinit :
+      {{{
+        True
+      }}}
+        exchanger_1٠create ()
+      {{{
+        t γ
+      , RET #t;
+        meta_token t ⊤ ∗
+        exchanger_1۰init t γ
+      }}}.
+    Proof.
+      iIntros "%Φ _ HΦ".
+
+      wp۰rec.
+      wp۰ref t as "Hmeta" "Ht".
+
+      iMod tokenｰalloc as "(%γ۰token & Htoken₁ & Htoken₂)".
+
+      pose γ :=
+        {|exchanger_1۰name۰token := γ۰token
+        |}.
+
+      iApply ("HΦ" $! t γ).
+      iFrameSteps.
+    Qed.
     Lemma exchanger_1٠createｰspec ι Ψ Χ :
       {{{
         exchanger_1۰valid ι Ψ Χ
@@ -211,17 +270,10 @@ Module base.
     Proof.
       iIntros "%Φ Hvalid HΦ".
 
-      wp۰rec.
-      wp۰ref t as "Hmeta" "Ht".
-
-      iMod tokenｰalloc as "(%γ۰token & Htoken₁ & Htoken₂)".
-
-      pose γ :=
-        {|exchanger_1۰name۰token := γ۰token
-        |}.
-
-      iApply ("HΦ" $! t γ).
-      iFrameSteps. iExists Null. iSteps.
+      iApply wpｰfupd.
+      wp۰apply (exchanger_1٠createｰspecｰinit with "[//]") as (t γ) "(Hmeta & Hinit)".
+      iMod (exchanger_1۰initｰtoｰinv with "Hinit Hvalid") as "Hinv".
+      iSteps.
     Qed.
 
     #[local] Lemma exchanger_1٠exchangeｰspecｰaux t γ ι Ψ Χ v x :
@@ -383,6 +435,20 @@ Section exchanger_1۰G.
   Implicit Type Ψ : val → X → iProp Σ.
   Implicit Type Χ : val → X → val → X → iProp Σ.
 
+  Please Definition exchanger_1۰init t : iProp Σ :=
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    𝑡 ↪ γ ∗
+    base.exchanger_1۰init 𝑡 γ.
+  #[local] Instance : CustomIpat "init" :=
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinit{_{}}
+      )
+    ".
+
   Please Definition exchanger_1۰inv t ι Ψ Χ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
@@ -416,12 +482,54 @@ Section exchanger_1۰G.
     solve_proper.
   Qed.
 
+  #[global] Instance exchanger_1۰initｰtimeless t :
+    Timeless (exchanger_1۰init t).
+  Proof.
+    apply _.
+  Qed.
+
   #[global] Instance exchanger_1۰invｰpersistent t ι Ψ Χ :
     Persistent (exchanger_1۰inv t ι Ψ Χ).
   Proof.
     apply _.
   Qed.
 
+  Lemma exchanger_1۰initｰexclusive t :
+    exchanger_1۰init t -∗
+    exchanger_1۰init t -∗
+    False.
+  Proof.
+    iIntros "(:init =1) (:init =2)". simp.
+    iApply (base.exchanger_1۰initｰexclusive with "Hinit_1 Hinit_2").
+  Qed.
+  Lemma exchanger_1۰initｰtoｰinv {t} ι Ψ Χ E :
+    exchanger_1۰init t -∗
+    exchanger_1۰valid ι Ψ Χ ={E}=∗
+    exchanger_1۰inv t ι Ψ Χ.
+  Proof.
+    iIntros "(:init) Hvalid".
+    iMod (base.exchanger_1۰initｰtoｰinv with "Hinit Hvalid") as "Hinv".
+    iFrameSteps.
+  Qed.
+
+  Lemma exchanger_1٠createｰspecｰinit :
+    {{{
+      True
+    }}}
+      exchanger_1٠create ()
+    {{{
+      t
+    , RET t;
+      exchanger_1۰init t
+    }}}.
+  Proof.
+    iIntros "%Φ _ HΦ".
+
+    iApply wpｰfupd.
+    wp۰apply (base.exchanger_1٠createｰspecｰinit with "[//]") as (𝑡 γ) "(Hmeta & Hinit)".
+    iMod (metaｰset γ with "Hmeta"). 1: done.
+    iSteps.
+  Qed.
   Lemma exchanger_1٠createｰspec ι Ψ Χ :
     {{{
       exchanger_1۰valid ι Ψ Χ

@@ -41,6 +41,21 @@ Section exchanger_2۰G.
   Definition exchanger_2۰valid :=
     exchanger_1۰valid (X := X).
 
+  Please Definition exchanger_2۰init t : iProp Σ :=
+    ∃ γ,
+    ⌜t = γ⌝ ∗
+    ⌜length γ.(metadata۰exchangers) = 2 ^ γ.(metadata۰capacity_log)⌝ ∗
+    array۰model γ.(metadata۰𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠) Own γ.(metadata۰exchangers) ∗
+    [∗ list] exchanger ∈ γ.(metadata۰exchangers), exchanger_1۰init exchanger.
+  #[local] Instance : CustomIpat "init" :=
+    " ( %γ{}
+      & %Heq{}
+      & %Hexchangers{}
+      & H𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠{}
+      & Hexchangers{}
+      )
+    ".
+
   #[local] Definition inv' γ ι Ψ Χ : iProp Σ :=
     ⌜length γ.(metadata۰exchangers) = 2 ^ γ.(metadata۰capacity_log)⌝ ∗
     array۰model γ.(metadata۰𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠) Discard γ.(metadata۰exchangers) ∗
@@ -83,38 +98,65 @@ Section exchanger_2۰G.
     solve_proper.
   Qed.
 
+  #[global] Instance exchanger_1۰initｰtimeless t :
+    Timeless (exchanger_1۰init t).
+  Proof.
+    apply _.
+  Qed.
+
   #[global] Instance exchanger_2۰invｰpersistent t ι Ψ Χ :
     Persistent (exchanger_2۰inv t ι Ψ Χ).
   Proof.
     apply _.
   Qed.
 
-  Lemma exchanger_2٠createｰspec ι Ψ Χ (cap_log : Z) :
+  Lemma exchanger_2۰initｰexclusive t :
+    exchanger_2۰init t -∗
+    exchanger_2۰init t -∗
+    False.
+  Proof.
+    iIntros "(:init =1) (:init =2)". simp.
+    iEval (rewrite Heq2) in "H𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠1".
+    iApply (array۰modelｰexclusive with "H𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠1 H𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠2"). 1: lia.
+  Qed.
+  Lemma exchanger_2۰initｰtoｰinv {t} ι Ψ Χ E :
+    exchanger_2۰init t -∗
+    exchanger_2۰valid ι Ψ Χ ={E}=∗
+    exchanger_2۰inv t ι Ψ Χ.
+  Proof.
+    iIntros "(:init) #Hvalid".
+    iMod (array۰modelｰpersist with "H𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠") as "#H𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠".
+    iFrame "#". iSteps.
+    iApply big_sepL_fupd.
+    iApply (big_sepL_impl with "Hexchangers"). iIntros "!> %i %exchanger %Hlookup Hinit".
+    iApply (exchanger_1۰initｰtoｰinv with "Hinit Hvalid").
+  Qed.
+
+  Lemma exchanger_2٠createｰspecｰinit (cap_log : Z) :
     (0 ≤ cap_log)%Z →
     {{{
-      exchanger_2۰valid ι Ψ Χ
+      True
     }}}
       exchanger_2٠create #cap_log
     {{{
       t
     , RET t;
-      exchanger_2۰inv t ι Ψ Χ
+      exchanger_2۰init t
     }}}.
   Proof.
-    iIntros "%Hcap_log %Φ #Hvalid HΦ".
+    iIntros "%Hcap_log %Φ _ HΦ".
     Z_to_nat cap_log.
 
     wp۰rec.
 
     wp۰apply+ (array٠unsafe_initｰspecｰdisentangled (λ _ exchanger,
-      exchanger_1۰inv exchanger ι Ψ Χ
+      exchanger_1۰init exchanger
     )) as (𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠 exchangers) "(%Hexchangers & H𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠 & Hexchangers)".
     { apply Z.shiftl_nonneg => //. }
     { iIntros "!> %i _".
-      wp۰apply (exchanger_1٠createｰspec with "Hvalid").
+      wp۰apply (exchanger_1٠createｰspecｰinit with "[//]").
       iSteps.
     }
-    iMod (array۰modelｰpersist with "H𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠") as "#H𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠".
 
     wp۰pures.
 
@@ -127,6 +169,25 @@ Section exchanger_2۰G.
     iApply "HΦ".
     iExists γ. iFrameSteps. iPureIntro.
     rewrite Hexchangers Z.shiftl_1_l. lia.
+  Qed.
+  Lemma exchanger_2٠createｰspec ι Ψ Χ (cap_log : Z) :
+    (0 ≤ cap_log)%Z →
+    {{{
+      exchanger_2۰valid ι Ψ Χ
+    }}}
+      exchanger_2٠create #cap_log
+    {{{
+      t
+    , RET t;
+      exchanger_2۰inv t ι Ψ Χ
+    }}}.
+  Proof.
+    iIntros "%Hcap_log %Φ Hvalid HΦ".
+
+    iApply wpｰfupd.
+    wp۰apply (exchanger_2٠createｰspecｰinit with "[//]") as (t) "Hinit". 1: done.
+    iMod (exchanger_2۰initｰtoｰinv with "Hinit Hvalid") as "Hinv".
+    iApply ("HΦ" with "Hinv").
   Qed.
 
   #[local] Lemma exchanger_2٠exchange₁ｰspec {γ ι Ψ Χ v} x log :
