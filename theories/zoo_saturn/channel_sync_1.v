@@ -109,6 +109,15 @@ Module base.
         )
       ".
 
+    Please Definition channel_sync_1۰init t γ : iProp Σ :=
+      t ↦ᵣ §Null ∗
+      token γ.
+    #[local] Instance : CustomIpat "init" :=
+      " ( Ht
+        & Htoken
+        )
+      ".
+
     #[local] Definition inv۰state۰null γ :=
       token γ.
     #[local] Instance : CustomIpat "inv۰state۰null" :=
@@ -206,6 +215,12 @@ Module base.
       repeat (apply HΨₛ || apply HΨᵣ || apply HΧₛ || apply HΧᵣ || f_equiv || done).
     Qed.
 
+    #[global] Instance channel_sync_1۰initｰtimeless t γ :
+      Timeless (channel_sync_1۰init t γ).
+    Proof.
+      apply _.
+    Qed.
+
     #[global] Instance channel_sync_1۰invｰpersistent t γ ι Ψₛ Ψᵣ Χₛ Χᵣ :
       Persistent (channel_sync_1۰inv t γ ι Ψₛ Ψᵣ Χₛ Χᵣ).
     Proof.
@@ -243,6 +258,50 @@ Module base.
       apply twinsｰupdate.
     Qed.
 
+    Lemma channel_sync_1۰initｰexclusive t γ1 γ2 :
+      channel_sync_1۰init t γ1 -∗
+      channel_sync_1۰init t γ2 -∗
+      False.
+    Proof.
+      iSteps.
+    Qed.
+    Lemma channel_sync_1۰initｰtoｰinv {t γ} ι Ψₛ Ψᵣ Χₛ Χᵣ E :
+      channel_sync_1۰init t γ -∗
+      channel_sync_1۰valid ι Ψₛ Ψᵣ Χₛ Χᵣ ={E}=∗
+      channel_sync_1۰inv t γ ι Ψₛ Ψᵣ Χₛ Χᵣ.
+    Proof.
+      iIntros "(:init) Hvalid".
+      iFrame.
+      iApply inv_alloc.
+      iExists Null. iFrame.
+    Qed.
+
+    Lemma channel_sync_1٠createｰspecｰinit :
+      {{{
+        True
+      }}}
+        channel_sync_1٠create ()
+      {{{
+        t γ
+      , RET #t;
+        meta_token t ⊤ ∗
+        channel_sync_1۰init t γ
+      }}}.
+    Proof.
+      iIntros "%Φ _ HΦ".
+
+      wp۰rec.
+      wp۰ref t as "Hmeta" "Ht".
+
+      iMod tokenｰalloc as "(%γ۰token & Htoken₁ & Htoken₂)".
+
+      pose γ :=
+        {|channel_sync_1۰name۰token := γ۰token
+        |}.
+
+      iApply ("HΦ" $! t γ).
+      iFrameSteps.
+    Qed.
     Lemma channel_sync_1٠createｰspec ι Ψₛ Ψᵣ Χₛ Χᵣ :
       {{{
         channel_sync_1۰valid ι Ψₛ Ψᵣ Χₛ Χᵣ
@@ -257,17 +316,10 @@ Module base.
     Proof.
       iIntros "%Φ Hvalid HΦ".
 
-      wp۰rec.
-      wp۰ref t as "Hmeta" "Ht".
-
-      iMod tokenｰalloc as "(%γ۰token & Htoken₁ & Htoken₂)".
-
-      pose γ :=
-        {|channel_sync_1۰name۰token := γ۰token
-        |}.
-
-      iApply ("HΦ" $! t γ).
-      iFrameSteps. iExists Null. iSteps.
+      iApply wpｰfupd.
+      wp۰apply (channel_sync_1٠createｰspecｰinit with "[//]") as (t γ) "(Hmeta & Hinit)".
+      iMod (channel_sync_1۰initｰtoｰinv with "Hinit Hvalid") as "Hinv".
+      iSteps.
     Qed.
 
     #[local] Lemma channel_sync_1٠sendｰspecｰaux t γ ι Ψₛ Ψᵣ Χₛ Χᵣ v x :
@@ -578,6 +630,20 @@ Section channel_sync_1۰G.
   Implicit Type Ψᵣ : Y → iProp Σ.
   Implicit Type Χₛ Χᵣ : val → X → Y → iProp Σ.
 
+  Please Definition channel_sync_1۰init t : iProp Σ :=
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    𝑡 ↪ γ ∗
+    base.channel_sync_1۰init 𝑡 γ.
+  #[local] Instance : CustomIpat "init" :=
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinit{_{}}
+      )
+    ".
+
   Please Definition channel_sync_1۰inv t ι Ψₛ Ψᵣ Χₛ Χᵣ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
@@ -615,12 +681,54 @@ Section channel_sync_1۰G.
     solve_proper.
   Qed.
 
+  #[global] Instance channel_sync_1۰initｰtimeless t :
+    Timeless (channel_sync_1۰init t).
+  Proof.
+    apply _.
+  Qed.
+
   #[global] Instance channel_sync_1۰invｰpersistent t ι Ψₛ Ψᵣ Χₛ Χᵣ :
     Persistent (channel_sync_1۰inv t ι Ψₛ Ψᵣ Χₛ Χᵣ).
   Proof.
     apply _.
   Qed.
 
+  Lemma channel_sync_1۰initｰexclusive t :
+    channel_sync_1۰init t -∗
+    channel_sync_1۰init t -∗
+    False.
+  Proof.
+    iIntros "(:init =1) (:init =2)". simp.
+    iApply (base.channel_sync_1۰initｰexclusive with "Hinit_1 Hinit_2").
+  Qed.
+  Lemma channel_sync_1۰initｰtoｰinv {t} ι Ψₛ Ψᵣ Χₛ Χᵣ E :
+    channel_sync_1۰init t -∗
+    channel_sync_1۰valid ι Ψₛ Ψᵣ Χₛ Χᵣ ={E}=∗
+    channel_sync_1۰inv t ι Ψₛ Ψᵣ Χₛ Χᵣ.
+  Proof.
+    iIntros "(:init) Hvalid".
+    iMod (base.channel_sync_1۰initｰtoｰinv with "Hinit Hvalid") as "Hinv".
+    iFrameSteps.
+  Qed.
+
+  Lemma channel_sync_1٠createｰspecｰinit :
+    {{{
+      True
+    }}}
+      channel_sync_1٠create ()
+    {{{
+      t
+    , RET t;
+      channel_sync_1۰init t
+    }}}.
+  Proof.
+    iIntros "%Φ _ HΦ".
+
+    iApply wpｰfupd.
+    wp۰apply (base.channel_sync_1٠createｰspecｰinit with "[//]") as (𝑡 γ) "(Hmeta & Hinit)".
+    iMod (metaｰset γ with "Hmeta"). 1: done.
+    iSteps.
+  Qed.
   Lemma channel_sync_1٠createｰspec ι Ψₛ Ψᵣ Χₛ Χᵣ :
     {{{
       channel_sync_1۰valid ι Ψₛ Ψᵣ Χₛ Χᵣ

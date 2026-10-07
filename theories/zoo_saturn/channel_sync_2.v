@@ -45,6 +45,21 @@ Section channel_sync_2۰G.
   Definition channel_sync_2۰valid :=
     channel_sync_1۰valid (X := X) (Y := Y).
 
+  Please Definition channel_sync_2۰init t : iProp Σ :=
+    ∃ γ,
+    ⌜t = γ⌝ ∗
+    ⌜length γ.(metadata۰channels) = 2 ^ γ.(metadata۰capacity_log)⌝ ∗
+    array۰model γ.(metadata۰𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠) Own γ.(metadata۰channels) ∗
+    [∗ list] channel ∈ γ.(metadata۰channels), channel_sync_1۰init channel.
+  #[local] Instance : CustomIpat "init" :=
+    " ( %γ{}
+      & %Heq{}
+      & %Hchannels{}
+      & H𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠{}
+      & Hchannels{}
+      )
+    ".
+
   #[local] Definition inv' γ ι Ψₛ Ψᵣ Χₛ Χᵣ : iProp Σ :=
     ⌜length γ.(metadata۰channels) = 2 ^ γ.(metadata۰capacity_log)⌝ ∗
     array۰model γ.(metadata۰𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠) Discard γ.(metadata۰channels) ∗
@@ -91,12 +106,78 @@ Section channel_sync_2۰G.
     solve_proper.
   Qed.
 
+  #[global] Instance channel_sync_1۰initｰtimeless t :
+    Timeless (channel_sync_1۰init t).
+  Proof.
+    apply _.
+  Qed.
+
   #[global] Instance channel_sync_2۰invｰpersistent t ι Ψₛ Ψᵣ Χₛ Χᵣ :
     Persistent (channel_sync_2۰inv t ι Ψₛ Ψᵣ Χₛ Χᵣ).
   Proof.
     apply _.
   Qed.
 
+  Lemma channel_sync_2۰initｰexclusive t :
+    channel_sync_2۰init t -∗
+    channel_sync_2۰init t -∗
+    False.
+  Proof.
+    iIntros "(:init =1) (:init =2)". simp.
+    iEval (rewrite Heq2) in "H𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠1".
+    iApply (array۰modelｰexclusive with "H𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠1 H𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠2"). 1: lia.
+  Qed.
+  Lemma channel_sync_2۰initｰtoｰinv {t} ι Ψₛ Ψᵣ Χₛ Χᵣ E :
+    channel_sync_2۰init t -∗
+    channel_sync_2۰valid ι Ψₛ Ψᵣ Χₛ Χᵣ ={E}=∗
+    channel_sync_2۰inv t ι Ψₛ Ψᵣ Χₛ Χᵣ.
+  Proof.
+    iIntros "(:init) #Hvalid".
+    iMod (array۰modelｰpersist with "H𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠") as "#H𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠".
+    iFrame "#". iSteps.
+    iApply big_sepL_fupd.
+    iApply (big_sepL_impl with "Hchannels"). iIntros "!> %i %channel %Hlookup Hinit".
+    iApply (channel_sync_1۰initｰtoｰinv with "Hinit Hvalid").
+  Qed.
+
+  Lemma channel_sync_2٠createｰspecｰinit (cap_log : Z) :
+    (0 ≤ cap_log)%Z →
+    {{{
+      True
+    }}}
+      channel_sync_2٠create #cap_log
+    {{{
+      t
+    , RET t;
+      channel_sync_2۰init t
+    }}}.
+  Proof.
+    iIntros "%Hcap_log %Φ _ HΦ".
+    Z_to_nat cap_log.
+
+    wp۰rec.
+
+    wp۰apply+ (array٠unsafe_initｰspecｰdisentangled (λ _ channel,
+      channel_sync_1۰init channel
+    )) as (𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠 channels) "(%Hchannels & H𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠 & Hchannels)".
+    { apply Z.shiftl_nonneg => //. }
+    { iIntros "!> %i _".
+      wp۰apply (channel_sync_1٠createｰspecｰinit with "[//]").
+      iSteps.
+    }
+
+    wp۰pures.
+
+    pose γ :=
+      {|metadata۰𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠 := 𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠
+      ; metadata۰channels := channels
+      ; metadata۰capacity_log := cap_log
+      |}.
+
+    iApply "HΦ".
+    iExists γ. iFrameSteps. iPureIntro.
+    rewrite Hchannels Z.shiftl_1_l. lia.
+  Qed.
   Lemma channel_sync_2٠createｰspec ι Ψₛ Ψᵣ Χₛ Χᵣ (cap_log : Z) :
     (0 ≤ cap_log)%Z →
     {{{
@@ -109,32 +190,12 @@ Section channel_sync_2۰G.
       channel_sync_2۰inv t ι Ψₛ Ψᵣ Χₛ Χᵣ
     }}}.
   Proof.
-    iIntros "%Hcap_log %Φ #Hvalid HΦ".
-    Z_to_nat cap_log.
+    iIntros "%Hcap_log %Φ Hvalid HΦ".
 
-    wp۰rec.
-
-    wp۰apply+ (array٠unsafe_initｰspecｰdisentangled (λ _ chan,
-      channel_sync_1۰inv chan ι Ψₛ Ψᵣ Χₛ Χᵣ
-    )) as (𝑐𝘩𝑎𝑛𝑠 chans) "(%Hchans & H𝑐𝘩𝑎𝑛𝑠 & Hchans)".
-    { apply Z.shiftl_nonneg => //. }
-    { iIntros "!> %i _".
-      wp۰apply (channel_sync_1٠createｰspec with "Hvalid").
-      iSteps.
-    }
-    iMod (array۰modelｰpersist with "H𝑐𝘩𝑎𝑛𝑠") as "#H𝑐𝘩𝑎𝑛𝑠".
-
-    wp۰pures.
-
-    pose γ :=
-      {|metadata۰𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠 := 𝑐𝘩𝑎𝑛𝑠
-      ; metadata۰channels := chans
-      ; metadata۰capacity_log := cap_log
-      |}.
-
-    iApply "HΦ".
-    iExists γ. iFrameSteps. iPureIntro.
-    rewrite Hchans Z.shiftl_1_l. lia.
+    iApply wpｰfupd.
+    wp۰apply (channel_sync_2٠createｰspecｰinit with "[//]") as (t) "Hinit". 1: done.
+    iMod (channel_sync_2۰initｰtoｰinv with "Hinit Hvalid") as "Hinv".
+    iApply ("HΦ" with "Hinv").
   Qed.
 
   #[local] Lemma channel_sync_2٠send₁ｰspec {γ ι Ψₛ Ψᵣ Χₛ Χᵣ v} x log :
