@@ -135,6 +135,7 @@ Zoo is not available on `opam` yet, but you can already use it in your Rocq deve
 
 ```
 pin-depends: [
+  ["rocq-please.dev" "git+https://github.com/clef-men/rocq-please.git#main"]
   ["rocq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
 ]
 depends: [
@@ -146,6 +147,7 @@ To also install the standard library, add:
 
 ```
 pin-depends: [
+  ["rocq-please.dev" "git+https://github.com/clef-men/rocq-please.git#main"]
   ["rocq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
   ["rocq-zoo-std.dev" "git+https://github.com/clef-men/zoo.git#main"]
 ]
