@@ -33,7 +33,7 @@ Section stack_mpmc_1۰G.
     model₂ γ vs.
   #[local] Instance : CustomIpat "inv۰inner" :=
     " ( %vs{}
-      & Hl
+      & Ht
       & Hmodel₂
       )
     ".
@@ -133,7 +133,7 @@ Section stack_mpmc_1۰G.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰ref 𝑡 as "Hmeta" "Hl".
+    wp۰ref 𝑡 as "Hmeta" "Ht".
 
     iMod modelｰalloc as "(%γ & Hmodel₁ & Hmodel₂)".
 
