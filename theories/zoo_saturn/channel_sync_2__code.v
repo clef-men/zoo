@@ -21,13 +21,17 @@ Definition channel_sync_2٠create : val :=
   𝗳𝘂𝗻 "cap_log" ->
     ( array٠unsafe_init (1 𝗹𝘀𝗹 "cap_log") channel_sync_1٠create, "cap_log" ).
 
+Definition channel_sync_2٠random_channel : val :=
+  𝗳𝘂𝗻 "t" "log" ->
+    𝗹𝗲𝘁 "i" = random٠int (1 𝗹𝘀𝗹 "log") 𝗶𝗻
+    array٠unsafe_get "t".<channel_sync_2٠channels> "i".
+
 Definition channel_sync_2٠send₁ : val :=
   𝗿𝗲𝗰 "send" "t" "v" "log" ->
     𝗶𝗳 "t".<channel_sync_2٠capacity_log> < "log" 𝘁𝗵𝗲𝗻 (
       false
     ) 𝗲𝗹𝘀𝗲 (
-      𝗹𝗲𝘁 "i" = random٠int (1 𝗹𝘀𝗹 "log") 𝗶𝗻
-      𝗹𝗲𝘁 "chan" = array٠unsafe_get "t".<channel_sync_2٠channels> "i" 𝗶𝗻
+      𝗹𝗲𝘁 "chan" = channel_sync_2٠random_channel "t" "log" 𝗶𝗻
       channel_sync_1٠send "chan" "v" 𝗼𝗿 "send" "t" "v" ("log" + 1)
     ).
 
@@ -40,8 +44,7 @@ Definition channel_sync_2٠recv₁ : val :=
     𝗶𝗳 "t".<channel_sync_2٠capacity_log> < "log" 𝘁𝗵𝗲𝗻 (
       §None
     ) 𝗲𝗹𝘀𝗲 (
-      𝗹𝗲𝘁 "i" = random٠int (1 𝗹𝘀𝗹 "log") 𝗶𝗻
-      𝗹𝗲𝘁 "chan" = array٠unsafe_get "t".<channel_sync_2٠channels> "i" 𝗶𝗻
+      𝗹𝗲𝘁 "chan" = channel_sync_2٠random_channel "t" "log" 𝗶𝗻
       𝗺𝗮𝘁𝗰𝗵 channel_sync_1٠recv "chan" 𝘄𝗶𝘁𝗵
       | None ->
           "recv" "t" ("log" + 1)

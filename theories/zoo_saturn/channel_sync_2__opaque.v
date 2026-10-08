@@ -3,6 +3,7 @@
 Require Import zoo_saturn.channel_sync_2__code.
 
 #[global] Opaque channel_sync_2٠create.
+#[global] Opaque channel_sync_2٠random_channel.
 #[global] Opaque channel_sync_2٠send₁.
 #[global] Opaque channel_sync_2٠send.
 #[global] Opaque channel_sync_2٠recv₁.

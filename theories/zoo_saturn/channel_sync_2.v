@@ -8,7 +8,7 @@ Require Import zoo.options.
 Implicit Type b : bool.
 Implicit Type cap_log : nat.
 Implicit Type log : Z.
-Implicit Type v t chan : val.
+Implicit Type v t channel : val.
 
 Zoo global X Y :=
   { channel : channel_sync_1 X Y
@@ -63,7 +63,7 @@ Section channel_sync_2۰G.
   #[local] Definition inv' γ ι Ψₛ Ψᵣ Χₛ Χᵣ : iProp Σ :=
     ⌜length γ.(metadata۰channels) = 2 ^ γ.(metadata۰capacity_log)⌝ ∗
     array۰model γ.(metadata۰𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠) Discard γ.(metadata۰channels) ∗
-    [∗ list] chan ∈ γ.(metadata۰channels), channel_sync_1۰inv chan ι Ψₛ Ψᵣ Χₛ Χᵣ.
+    [∗ list] channel ∈ γ.(metadata۰channels), channel_sync_1۰inv channel ι Ψₛ Ψᵣ Χₛ Χᵣ.
   #[local] Instance : CustomIpat "inv'" :=
     " ( %Hchannels
       & #H𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠
@@ -198,6 +198,35 @@ Section channel_sync_2۰G.
     iApply ("HΦ" with "Hinv").
   Qed.
 
+  #[local] Lemma channel_sync_2٠random_channelｰspec γ ι Ψₛ Ψᵣ Χₛ Χᵣ log :
+    (0 ≤ log ≤ γ.(metadata۰capacity_log))%Z →
+    {{{
+      inv' γ ι Ψₛ Ψᵣ Χₛ Χᵣ
+    }}}
+      channel_sync_2٠random_channel γ #log
+    {{{
+      channel
+    , RET channel;
+      channel_sync_1۰inv channel ι Ψₛ Ψᵣ Χₛ Χᵣ
+    }}}.
+  Proof.
+    iIntros "%Hlog %Φ (:inv') HΦ".
+
+    wp۰rec.
+    wp۰apply+ random٠intｰspec as (i) "%Hi".
+    { rewrite Z.shiftl_1_l. lia. }
+
+    destruct (lookup_lt_is_Some_2 γ.(metadata۰channels) ₊i) as (channel & Hchannels_lookup).
+    { apply (Nat.lt_le_trans _ ₊(1 ≪ log) _). 1: lia.
+      rewrite Z.shiftl_1_l Hchannels Znat.Z2Nat.inj_pow. 1,2: lia.
+      apply Nat.pow_le_mono_r. 1,2: lia.
+    }
+    wp۰apply+ (array٠unsafe_getｰspec with "H𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠") as "_". 1-3: done || lia.
+
+    iDestruct (big_sepL_lookup with "Hchannels") as "Hchannel". 1: done.
+    iSteps.
+  Qed.
+
   #[local] Lemma channel_sync_2٠send₁ｰspec {γ ι Ψₛ Ψᵣ Χₛ Χᵣ v} x log :
     (0 ≤ log)%Z →
     {{{
@@ -215,7 +244,7 @@ Section channel_sync_2۰G.
         Ψₛ v x
     }}}.
   Proof.
-    iIntros "%Hlog %Φ ((:inv') & HΨₛ) HΦ".
+    iIntros "%Hlog %Φ (#Hinv & HΨₛ) HΦ".
 
     iLöb as "HLöb" forall (log Hlog).
 
@@ -224,18 +253,8 @@ Section channel_sync_2۰G.
 
     - iSteps.
 
-    - wp۰apply random٠intｰspec as (i) "%Hi".
-      { rewrite Z.shiftl_1_l. lia. }
-
-      destruct (lookup_lt_is_Some_2 γ.(metadata۰channels) ₊i).
-      { apply (Nat.lt_le_trans _ ₊(1 ≪ log) _). 1: lia.
-        rewrite Z.shiftl_1_l Hchannels Znat.Z2Nat.inj_pow. 1,2: lia.
-        apply Nat.pow_le_mono_r. 1,2: lia.
-      }
-      wp۰apply+ (array٠unsafe_getｰspec with "H𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠") as "_". 1-3: done || lia.
-
-      wp۰apply+ (channel_sync_1٠sendｰspec with "[HΨₛ]") as ([]) "H".
-      { iDestruct (big_sepL_lookup with "Hchannels") as "$" => //. }
+    - wp۰apply (channel_sync_2٠random_channelｰspec with "Hinv") as (channel) "Hchannel". 1: lia.
+      wp۰apply+ (channel_sync_1٠sendｰspec with "[$]") as ([]) "H".
       all:wp۰pures.
 
       + iSteps.
@@ -282,7 +301,7 @@ Section channel_sync_2۰G.
         Ψᵣ y
     }}}.
   Proof.
-    iIntros "%Hlog %Φ ((:inv') & HΨᵣ) HΦ".
+    iIntros "%Hlog %Φ (#Hinv & HΨᵣ) HΦ".
 
     iLöb as "HLöb" forall (log Hlog).
 
@@ -291,18 +310,8 @@ Section channel_sync_2۰G.
 
     - iApply ("HΦ" $! None with "HΨᵣ").
 
-    - wp۰apply random٠intｰspec as (i) "%Hi".
-      { rewrite Z.shiftl_1_l. lia. }
-
-      destruct (lookup_lt_is_Some_2 γ.(metadata۰channels) ₊i).
-      { apply (Nat.lt_le_trans _ ₊(1 ≪ log) _). 1: lia.
-        rewrite Z.shiftl_1_l Hchannels Znat.Z2Nat.inj_pow. 1,2: lia.
-        apply Nat.pow_le_mono_r. 1,2: lia.
-      }
-      wp۰apply+ (array٠unsafe_getｰspec with "H𝑐𝘩𝑎𝑛𝑛𝑒𝑙𝑠") as "_". 1-3: done || lia.
-
-      wp۰apply+ (channel_sync_1٠recvｰspec with "[HΨᵣ]") as ([𝑣 |]) "H".
-      { iDestruct (big_sepL_lookup with "Hchannels") as "$" => //. }
+    - wp۰apply (channel_sync_2٠random_channelｰspec with "Hinv") as (channel) "Hchannel". 1: lia.
+      wp۰apply+ (channel_sync_1٠recvｰspec with "[$]") as ([𝑣 |]) "H".
       all:wp۰pures.
 
       + iApply ("HΦ" $! (Some 𝑣) with "H").
