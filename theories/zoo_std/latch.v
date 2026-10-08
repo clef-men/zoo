@@ -270,7 +270,7 @@ Module base.
       wp۰rec.
       wp۰apply (condition٠createｰspec with "[//]") as (cond) "Hcond۰inv".
       wp۰apply (mutex٠createｰspecｰinit with "[//]") as (mtx) "Hmtx۰init".
-      wp۰block t as "Hmeta" "Ht۰counter #Ht۰mutex #Ht۰condition".
+      wp۰block t as "Ht۰counter #Ht۰mutex #Ht۰condition" meta:"Hmeta".
 
       iMod (tokensｰalloc ₊sz) as (γ_tokens) "(Htokens۰auth & Htokens۰frags)".
       iMod receiptsｰalloc as (γ_receipts) "Hreceipts۰auth".

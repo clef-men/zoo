@@ -408,8 +408,8 @@ Module base.
       iIntros "%Φ _ HΦ".
 
       wp۰rec.
-      wp۰block front as "#Hfront_header" "_" "Hfront_next".
-      wp۰block t as "Hmeta" "Ht_front Ht_back".
+      wp۰block front as "Hfront_next" header:"#Hfront_header".
+      wp۰block t as "Ht_front Ht_back" meta:"Hmeta".
 
       iMod historyｰalloc as "(%γ_history & Hhistory_auth & Hhistory_last)".
       iMod frontｰalloc as "(%γ_front & Hfront_auth)".
@@ -750,7 +750,7 @@ Module base.
       iIntros "%Φ ((:inv) & (:producer)) HΦ".
 
       wp۰rec.
-      wp۰block new_back as "#Hnew_back_header" "_" "Hnew_back_next Hnew_back_data".
+      wp۰block new_back as "Hnew_back_next Hnew_back_data" header:"#Hnew_back_header".
       wp۰match. wp۰load. wp۰match.
 
       wp۰bind (_ <-{next} _)%E.

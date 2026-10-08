@@ -211,7 +211,7 @@ Section queue_mpsc_2۰G.
 
     wp۰rec.
 
-    wp۰block l as "Hmeta" "Hfront Hback".
+    wp۰block l as "Hfront Hback" meta:"Hmeta".
 
     iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod frontｰalloc as "(%γ_front & Hfront₁ & Hfront₂)".

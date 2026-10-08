@@ -125,7 +125,7 @@ Section mutex۰G.
     iIntros "%Φ HP HΦ".
 
     wp۰rec.
-    wp۰ref l as "Hmeta" "Hl".
+    wp۰ref l as "Hl" meta:"Hmeta".
 
     iMod exclｰalloc as "(%γ & Hlocked)".
     iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
@@ -166,7 +166,7 @@ Section mutex۰G.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰ref l as "Hmeta" "Hl".
+    wp۰ref l as "Hl" meta:"Hmeta".
 
     iMod exclｰalloc as "(%γ & Hlocked)".
     iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.

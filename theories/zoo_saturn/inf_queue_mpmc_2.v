@@ -813,7 +813,7 @@ Module base.
       wp۰rec.
       wp۰apply (prophet_multiｰwpｰproph prophet_identifier with "[//]") as "%pid %γ_prophet %prophss Hprophet_model".
       wp۰apply (inf_array٠createｰspec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
-      wp۰block t as "Hmeta" "#Ht_data Ht_front Ht_back #Ht_proph".
+      wp۰block t as "#Ht_data Ht_front Ht_back #Ht_proph" meta:"Hmeta".
 
       iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
       iMod historyｰalloc as "(%γ_history & Hhistory_auth)".

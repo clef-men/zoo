@@ -213,7 +213,7 @@ Module base.
       wp۰rec.
       wp۰apply (channel_sync_2٠createｰspecｰinit with "[//]") as (channel) "Hchannel۰init". 1: done.
       wp۰apply (stack_mpmc_1٠createｰspec with "[//]") as (stack) "(#Hstack۰inv & Hstack۰model)".
-      wp۰block t as "Hmeta" "#Ht۰stack #Ht۰channel".
+      wp۰block t as "#Ht۰stack #Ht۰channel" meta:"Hmeta".
 
       iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
 

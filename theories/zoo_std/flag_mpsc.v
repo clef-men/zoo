@@ -188,7 +188,7 @@ Module base.
       iIntros "%Φ _ HΦ".
 
       wp۰rec.
-      wp۰ref t as "Ht" "Hmeta".
+      wp۰ref t as "Ht" meta:"Hmeta".
 
       iMod stateｰalloc as "(%γ_state & Hstate_unset)".
       iMod consumerｰalloc as "(%γ_consumer & Hconsumer)".

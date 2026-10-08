@@ -600,7 +600,7 @@ Section sstore_1۰G.
     iIntros "%Φ _ HΦ".
     wp۰rec.
     wp۰ref r as "Hroot".
-    wp۰ref t0 as "Hmeta" "Ht0".
+    wp۰ref t0 as "Ht0" meta:"Hmeta".
     iMod (mono_gsetｰalloc ∅) as "[%γ ?]".
     iMod (metaｰset γ nroot with "Hmeta") as "Hmeta". set_solver.
     iApply "HΦ". iModIntro.

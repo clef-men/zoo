@@ -146,7 +146,7 @@ Section waiter_spsc۰G.
     wp۰rec.
     wp۰apply+ (condition٠createｰspec with "[//]") as "%cond #Hcondition_inv".
     wp۰apply+ (mutex٠createｰspec True with "[//]") as "%mtx #Hmutex_inv".
-    wp۰block 𝑡 as "Hmeta" "#H𝑡_mutex #H𝑡_condition H𝑡_flag".
+    wp۰block 𝑡 as "#H𝑡_mutex #H𝑡_condition H𝑡_flag" meta:"Hmeta".
 
     iMod (oneshotｰalloc ()) as "(%γ_lstate & Hpending)".
     iEval (assert (1 = 2/3 + 1/3)%Qp as -> by compute_done) in "Hpending".

@@ -897,10 +897,10 @@ Tactic Notation "wp۰equal" :=
       _iDestructHyp_go Hl' pat0 pat env;
       wp۰block۰persist ids
   end.
-Tactic Notation "wp۰block" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl) :=
-  let Hheader' := iFresh in
-  let Hmeta' := iFresh in
+Tactic Notation "wp۰block" ident(l) "as" constr(Hl) "meta:" constr(Hmeta) "header:" constr(Hheader) :=
   let Hl' := iFresh in
+  let Hmeta' := iFresh in
+  let Hheader' := iFresh in
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
@@ -934,15 +934,17 @@ Tactic Notation "wp۰block" ident(l) "as" constr(Hheader) constr(Hmeta) constr(H
       wp۰finish
     ]
   ).
-Tactic Notation "wp۰block" ident(l) "as" constr(Hmeta) constr(Hl) :=
-  wp۰block l as "_" Hmeta Hl.
+Tactic Notation "wp۰block" ident(l) "as" constr(Hl) "meta:" constr(Hmeta) :=
+  wp۰block l as Hl meta:Hmeta header:"_".
+Tactic Notation "wp۰block" ident(l) "as" constr(Hl) "header:" constr(Hheader) :=
+  wp۰block l as Hl meta:"_" header:Hheader.
 Tactic Notation "wp۰block" ident(l) "as" constr(Hl) :=
-  wp۰block l as "_" Hl.
+  wp۰block l as Hl meta:"_".
 
-Tactic Notation "wp۰ref" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl) :=
-  let Hheader' := Hheader in
-  let Hmeta' := iFresh in
+Tactic Notation "wp۰ref" ident(l) "as" constr(Hl) "meta:" constr(Hmeta) "header:" constr(Hheader) :=
   let Hl' := iFresh in
+  let Hmeta' := iFresh in
+  let Hheader' := Hheader in
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
@@ -972,10 +974,12 @@ Tactic Notation "wp۰ref" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl)
       wp۰finish
     ]
   ).
-Tactic Notation "wp۰ref" ident(l) "as" constr(Hmeta) constr(Hl) :=
-  wp۰ref l as "_" Hmeta Hl.
+Tactic Notation "wp۰ref" ident(l) "as" constr(Hl) "meta:" constr(Hmeta) :=
+  wp۰ref l as Hl meta:Hmeta header:"_".
+Tactic Notation "wp۰ref" ident(l) "as" constr(Hl) "header:" constr(Hheader) :=
+  wp۰ref l as Hl meta:"_" header:Hheader.
 Tactic Notation "wp۰ref" ident(l) "as" constr(Hl) :=
-  wp۰ref l as "_" Hl.
+  wp۰ref l as Hl meta:"_".
 Tactic Notation "wp۰ref" ident(l) :=
   wp۰ref l as "?".
 
@@ -999,10 +1003,10 @@ Tactic Notation "wp۰block۰generative" simple_intropattern(bid) :=
 Tactic Notation "wp۰block۰generative" :=
   wp۰block۰generative ?.
 
-Tactic Notation "wp۰alloc" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl) :=
-  let Hheader' := Hheader in
-  let Hmeta' := iFresh in
+Tactic Notation "wp۰alloc" ident(l) "as" constr(Hl) "meta:" constr(Hmeta) "header:" constr(Hheader) :=
   let Hl' := iFresh in
+  let Hmeta' := iFresh in
+  let Hheader' := Hheader in
   wp۰pures;
   wp۰start ltac:(fun e =>
     first
@@ -1034,10 +1038,12 @@ Tactic Notation "wp۰alloc" ident(l) "as" constr(Hheader) constr(Hmeta) constr(H
       wp۰finish
     ]
   ).
-Tactic Notation "wp۰alloc" ident(l) "as" constr(Hmeta) constr(Hl) :=
-  wp۰alloc l as "_" Hmeta Hl.
+Tactic Notation "wp۰alloc" ident(l) "as" constr(Hl) "meta:" constr(Hmeta) :=
+  wp۰alloc l as Hl meta:Hmeta header:"_".
+Tactic Notation "wp۰alloc" ident(l) "as" constr(Hl) "header:" constr(Hheader) :=
+  wp۰alloc l as Hl meta:"_" header:Hheader.
 Tactic Notation "wp۰alloc" ident(l) "as" constr(Hl) :=
-  wp۰alloc l as "_" Hl.
+  wp۰alloc l as Hl meta:"_".
 Tactic Notation "wp۰alloc" ident(l) :=
   wp۰alloc l as "?".
 

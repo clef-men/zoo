@@ -245,7 +245,7 @@ Module base.
       iIntros "%Φ _ HΦ".
 
       wp۰rec.
-      wp۰ref t as "Hmeta" "Ht".
+      wp۰ref t as "Ht" meta:"Hmeta".
 
       iMod tokenｰalloc as "(%γ۰token & Htoken₁ & Htoken₂)".
 

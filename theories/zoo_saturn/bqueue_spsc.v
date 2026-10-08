@@ -556,7 +556,7 @@ Section bqueue_spsc۰G.
     iApply wpｰfupd.
     wp۰apply (array٠unsafe_makeｰspec with "[//]") as "%data Hdata_model"; first done.
     iDestruct (array۰modelｰtoｰinv with "Hdata_model") as "#Hdata_inv". simp_length.
-    wp۰block l as "Hmeta" "#Hl_data Hl_front Hl_front_cache Hl_back Hl_back_cache".
+    wp۰block l as "#Hl_data Hl_front Hl_front_cache Hl_back Hl_back_cache" meta:"Hmeta".
 
     iMod modelｰproducerｰalloc as "(%γ_model & %γ_producer & %γ_back & Hmodel₁ & Hmodel₂ & Hproducer₁ & Hproducer₂)".
     iMod historyｰalloc as "(%γ_history & Hhistory_auth)".

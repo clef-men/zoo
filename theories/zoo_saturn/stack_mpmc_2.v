@@ -151,7 +151,7 @@ Section stack_mpmc_2۰G.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰ref l as "Hmeta" "Hl".
+    wp۰ref l as "Hl" meta:"Hmeta".
 
     iMod modelｰalloc as "(%γ & Hmodel₁ & Hmodel₂)".
 

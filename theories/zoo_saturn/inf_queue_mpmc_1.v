@@ -478,7 +478,7 @@ Module base.
 
       wp۰rec.
       wp۰apply (inf_array٠createｰspec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
-      wp۰block t as "Hmeta" "#Ht_data Ht_front Ht_back".
+      wp۰block t as "#Ht_data Ht_front Ht_back" meta:"Hmeta".
 
       iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
       iMod historyｰalloc as "(%γ_history & Hhistory_auth)".

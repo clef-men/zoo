@@ -206,7 +206,7 @@ Section zoo۰G.
   Proof.
     move=> <-.
     iSteps.
-    wp۰ref l as "Hheader" "Hmeta" "Hl".
+    wp۰ref l as "Hl" meta:"Hmeta" header:"Hheader".
     iSteps.
   Qed.
 
@@ -244,7 +244,7 @@ Section zoo۰G.
   Proof.
     intros Htag.
     iSteps.
-    wp۰alloc l as "Hheader" "Hmeta" "Hl".
+    wp۰alloc l as "Hl" meta:"Hmeta" header:"Hheader".
     iSteps.
   Qed.
 

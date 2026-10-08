@@ -1172,7 +1172,7 @@ Section zoo۰G.
     rewrite /array۰model /array۰slice.
     iIntros "%Hsz %Φ _ HΦ".
     wp۰rec.
-    wp۰alloc l as "#Hheader" "_" "Hl"; [done.. |].
+    wp۰alloc l as "Hl" header:"#Hheader"; [done.. |].
     iSteps. simp_length. iSteps.
   Qed.
 

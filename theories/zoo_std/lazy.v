@@ -401,7 +401,7 @@ Module base.
       iIntros "%Φ Hfn HΦ".
 
       wp۰rec.
-      wp۰ref t as "Hmeta" "Ht".
+      wp۰ref t as "Ht" meta:"Hmeta".
 
       iMod lstateｰalloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
       iMod consumerｰalloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
@@ -434,7 +434,7 @@ Module base.
       iIntros "%Φ (HΨ & #HΞ) HΦ".
 
       wp۰rec.
-      wp۰ref t as "Hmeta" "Ht".
+      wp۰ref t as "Ht" meta:"Hmeta".
 
       iMod lstateｰalloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
       iMod consumerｰalloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".

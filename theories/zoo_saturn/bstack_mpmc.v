@@ -189,7 +189,7 @@ Section bstack_mpmc۰G.
     iIntros "%Hcap %Φ _ HΦ".
 
     wp۰rec.
-    wp۰block l as "Hmeta" "#Hl_capacity Hl_front".
+    wp۰block l as "#Hl_capacity Hl_front" meta:"Hmeta".
     rewrite -{1}(Z2Nat.id cap); first lia.
 
     iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".

@@ -473,7 +473,7 @@ Module base.
 
       wp۰rec.
       wp۰ref root as "Hroot".
-      wp۰block l as "Hmeta" "Hl_gen Hl_root".
+      wp۰block l as "Hl_gen Hl_root" meta:"Hmeta".
 
       iMod (cnodesｰalloc root) as "(%γ & Hauth)".
 

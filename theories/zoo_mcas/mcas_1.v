@@ -2004,9 +2004,9 @@ Section mcas_1۰G.
     wp۰rec.
     wp۰apply (wpｰid with "[//]") as (gid) "Hgid".
     wp۰apply+ (prophet_typedｰwpｰproph global_prophet with "[//]") as (pid prophs) "Hgproph".
-    wp۰block casn as "Hcasn_meta" "Hcasn_status #Hcasn_proph".
+    wp۰block casn as "Hcasn_status #Hcasn_proph" meta:"Hcasn_meta".
     wp۰block state as "#Hstate_casn Hstate_before Hstate_after".
-    wp۰ref loc as "Hloc_meta" "Hloc".
+    wp۰ref loc as "Hloc" meta:"Hloc_meta".
 
     iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod historyｰalloc as "(%γ_history & Hhistory_auth & #Hhistory_elem)".
@@ -2138,7 +2138,7 @@ Section mcas_1۰G.
 
     wp۰rec credit:"H£".
     wp۰apply+ (prophet_typedｰwpｰproph global_prophet with "[//]") as (pid prophs0) "Hgproph".
-    wp۰block casn as "Hcasn_meta" "Hcasn_state #Hcasn_proph".
+    wp۰block casn as "Hcasn_state #Hcasn_proph" meta:"Hcasn_meta".
 
     pose (Ψ i (_ : val) 𝑐𝑎𝑠 := (
       ∃ descr,

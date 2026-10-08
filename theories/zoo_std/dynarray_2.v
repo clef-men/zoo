@@ -79,7 +79,7 @@ Section zoo۰G.
     iIntros "%Φ _ HΦ".
     wp۰rec.
     wp۰apply (array٠createｰspec with "[//]") as "%data Hmodel".
-    wp۰block l as "Hl_meta" "Hl_size Hl_data".
+    wp۰block l as "Hl_size Hl_data" meta:"Hl_meta".
     iDestruct (meta_tokenｰdifference (↑nroot.@"user") with "Hl_meta") as "(Hl_meta & _)"; first done.
     iSteps. iExists [], 0. iSteps.
   Qed.

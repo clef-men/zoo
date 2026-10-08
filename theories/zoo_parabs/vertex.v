@@ -709,7 +709,7 @@ Module base.
       { destruct task; iSteps. }
 
       wp۰apply+ (stack_mpmc_2٠createｰspec with "[//]") as (succs) "(#Hsuccessors_inv & Hsuccessors_model)".
-      wp۰block t as "Hmeta" "Ht_task Ht_preds #Ht_succs".
+      wp۰block t as "Ht_task Ht_preds #Ht_succs" meta:"Hmeta".
 
       iMod stateｰalloc as "(%γ_state & Hstate₁ & Hstate₂)".
       iMod dependenciesｰalloc as "(%iter & Hdependencies_auth)".
