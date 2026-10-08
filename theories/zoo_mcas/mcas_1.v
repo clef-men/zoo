@@ -21,7 +21,7 @@ Implicit Type i : nat.
 Implicit Type loc casn : location.
 Implicit Type casns : list location.
 Implicit Type gid : identifier.
-Implicit Type v w state : val.
+Implicit Type v w state 𝑐𝑎𝑠𝑠 : val.
 Implicit Type vs befores afters : list val.
 Implicit Type cas : location * (val * val).
 Implicit Type cass : list (location * (val * val)).
@@ -129,7 +129,7 @@ Implicit Type η : metadata.
   length η.(metadata۰descrs).
 #[local] Definition metadata۰cass η :=
   descriptor۰cas <$> η.(metadata۰descrs).
-#[local] Definition metadata۰cass۰val η :=
+#[local] Definition metadata۰𝑐𝑎𝑠𝑠 η :=
   list۰to_val $ metadata۰cass η.
 #[local] Definition metadata۰outcome η :=
   hd inhabitant η.(metadata۰prophs).
@@ -145,7 +145,7 @@ Implicit Type η : metadata.
 #[local] Definition status۰to_val η status : val :=
   match status with
   | Undetermined =>
-      ‘Undetermined@η.(metadata۰undetermined)[ metadata۰cass۰val η ]
+      ‘Undetermined@η.(metadata۰undetermined)[ metadata۰𝑐𝑎𝑠𝑠 η ]
   | After =>
       §After
   | Before =>
@@ -1198,7 +1198,7 @@ Section mcas_1۰G.
       casn۰inv' ι casn η ∗
       lstatus۰lb η Finished
     }}}
-      mcas_1٠clear (metadata۰cass۰val η) #b
+      mcas_1٠clear (metadata۰𝑐𝑎𝑠𝑠 η) #b
     {{{
       RET ();
       True
