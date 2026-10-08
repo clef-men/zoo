@@ -731,7 +731,7 @@ Module base.
       wp۰match.
       wp۰apply+ (backｰspec with "Hinv") as (back i) "(:node۰model =back)".
       wp۰apply+ (queue_mpsc_1٠push₁ｰspec with "[$]").
-      iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_at_new_back)".
+      iApply (aupdｰwand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_at_new_back)".
       wp۰apply+ (queue_mpsc_1٠fix_backｰspec with "[] HΦ"); first iSteps.
     Qed.
 

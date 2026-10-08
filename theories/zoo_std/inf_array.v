@@ -561,7 +561,7 @@ Section inf_array۰G.
 
     wp۰rec.
     wp۰apply+ (inf_array٠xchgｰspec with "Hinv"); first done.
-    iApply (atomic_updateｰwand with "HΦ").
+    iApply (aupdｰwand with "HΦ").
     iSteps.
   Qed.
   Lemma inf_array٠setｰspec' t i v :

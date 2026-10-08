@@ -3993,7 +3993,7 @@ Section zoo۰G.
       iAaccIntro with "[$Hslice]". 1,2: iSteps. iIntros "$ !> HΨ !> H£".
       iFrameSteps.
       iPureIntro. simp_length/=. lia.
-    - iApply (atomic_updateｰwand with "(H [//] [//] [//] HΨ)").
+    - iApply (aupdｰwand with "(H [//] [//] [//] HΨ)").
       iSteps.
   Qed.
   Lemma array٠unsafe_applyi_sliceｰspec Ψ fn t vs (i n : Z) :

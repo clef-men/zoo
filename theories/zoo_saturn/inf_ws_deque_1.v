@@ -1424,7 +1424,7 @@ Module base.
 
       wp۰rec.
       wp۰apply (inf_ws_deque_1٠sizeｰspec with "[$]").
-      iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs HΦ (%Hvs & Howner)".
+      iApply (aupdｰwand with "HΦ"). iIntros "%vs HΦ (%Hvs & Howner)".
       wp۰pures.
 
       rewrite (bool_decide_ext (⁺(length vs) = 0) (vs = [])).

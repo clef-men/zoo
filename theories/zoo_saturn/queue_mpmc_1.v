@@ -652,7 +652,7 @@ Module base.
 
       wp۰rec credits:"H£".
       iDestruct (lc_weaken 2 with "H£") as "(H£1 & H£2)"; first done.
-      iDestruct (atomic_updateｰframeｰl with "[H£1 $HΦ]") as "HΦ"; first iAccu.
+      iDestruct (aupdｰframeｰl with "[H£1 $HΦ]") as "HΦ"; first iAccu.
 
       wp۰apply+ (frontｰspec_strong (Some $ λ b, Φ #b) with "[$Hinv HΦ]")
       as (node i) "((:node۰model =node front=) & %waiter & #Hwaiter & Hwaiters_at)".
@@ -841,12 +841,12 @@ Module base.
       iIntros "%Φ (:inv) HΦ".
 
       wp۰rec credit:"H£".
-      iDestruct (atomic_updateｰframeｰl with "[H£ $HΦ]") as "HΦ"; first iAccu.
+      iDestruct (aupdｰframeｰl with "[H£ $HΦ]") as "HΦ"; first iAccu.
       wp۰block new_back as "#Hnew_back_header" "_" "Hnew_back_next Hnew_back_data".
       wp۰match.
       wp۰apply+ (backｰspec with "Hinv") as (back i) "(:node۰model =back)".
       wp۰apply+ (queue_mpmc_1٠push₁ｰspec with "[$]").
-      iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_at_new_back)".
+      iApply (aupdｰwand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_at_new_back)".
       wp۰apply+ (queue_mpmc_1٠fix_backｰspec with "[]"); first iSteps.
       iSteps.
     Qed.

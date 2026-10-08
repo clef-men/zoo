@@ -1125,7 +1125,7 @@ Section ws_hub_hybrid۰G.
     wp۰apply+ (ws_hub_hybrid٠block_activeｰspec with "[$Hinv $Howner]") as "Howner". 1: done.
 
     wp۰apply+ (ws_hub_hybrid٠steal_auxｰspec P_notification P_pred Q_pred with "[$Hinv $Howner $HP_notification $Hnotification $HP_pred $Hpred]"). 1-3: done.
-    iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs %o HΦ (Howner & HP_notification & H)".
+    iApply (aupdｰwand with "HΦ"). iIntros "%vs %o HΦ (Howner & HP_notification & H)".
 
     wp۰apply+ (ws_hub_hybrid٠unblock_activeｰspec with "[$Hinv $Howner]"). 1: done.
     iSteps.
@@ -1168,7 +1168,7 @@ Section ws_hub_hybrid۰G.
       wp۰apply+ (ws_hub_hybrid٠closedｰspec with "Hinv") as ([]) "_".
       all: iSteps.
     }
-    iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs %o HΦ (Howner & _)".
+    iApply (aupdｰwand with "HΦ"). iIntros "%vs %o HΦ (Howner & _)".
 
     wp۰pures.
 
@@ -1275,7 +1275,7 @@ Section ws_hub_hybrid۰G.
       + iLeft. iFrame. iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
 
         wp۰apply+ (ws_hub_hybrid٠steal_untilｰspec P_notification P_pred Q_pred with "[$Hinv $Howner $HP_notification $Hnotification $Hb $Hpred]"). 1-3: done.
-        iApply (atomic_updateｰwand with "HΦ").
+        iApply (aupdｰwand with "HΦ").
         iSteps.
   Qed.
 
@@ -1324,7 +1324,7 @@ Section ws_hub_hybrid۰G.
     - iLeft. iFrame. iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
 
       wp۰apply+ (ws_hub_hybrid٠stealｰspec with "[$Hinv $Howner]"). 1-3: done.
-      iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs %o HΦ Howner".
+      iApply (aupdｰwand with "HΦ"). iIntros "%vs %o HΦ Howner".
       iApply ("HΦ" with "[$Howner]").
       destruct o; iFrameSteps.
   Qed.

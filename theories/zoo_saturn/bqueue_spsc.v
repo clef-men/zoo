@@ -744,7 +744,7 @@ Section bqueue_spsc۰G.
     wp۰rec.
 
     wp۰apply (bqueue_spsc٠sizeｰspecｰproducer with "[$Hinv $Hproducer]").
-    iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs HΦ Hproducer".
+    iApply (aupdｰwand with "HΦ"). iIntros "%vs HΦ Hproducer".
 
     wp۰pures.
     setoid_rewrite (bool_decide_ext _ (vs = [])) at 2; last first.
@@ -771,7 +771,7 @@ Section bqueue_spsc۰G.
     wp۰rec.
 
     wp۰apply (bqueue_spsc٠sizeｰspecｰconsumer with "[$Hinv $Hconsumer]").
-    iApply (atomic_updateｰwand with "HΦ"). iIntros "%vs HΦ Hconsumer".
+    iApply (aupdｰwand with "HΦ"). iIntros "%vs HΦ Hconsumer".
 
     wp۰pures.
     setoid_rewrite (bool_decide_ext _ (vs = [])) at 2; last first.
