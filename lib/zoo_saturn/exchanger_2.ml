@@ -8,12 +8,15 @@ let create ~cap_log =
   ; capacity_log= cap_log
   }
 
+let random_exchanger t log =
+  let i = Random.int (1 lsl log) in
+  Array.unsafe_get t.exchangers i
+
 let rec exchange t v log =
   if t.capacity_log < log then
     None
   else
-    let i = Random.int (1 lsl log) in
-    let exchanger = Array.unsafe_get t.exchangers i in
+    let exchanger = random_exchanger t log in
     match Exchanger_1.exchange exchanger v with
     | None ->
         exchange t v (log + 1)

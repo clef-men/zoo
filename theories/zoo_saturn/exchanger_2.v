@@ -190,6 +190,35 @@ Section exchanger_2۰G.
     iApply ("HΦ" with "Hinv").
   Qed.
 
+  #[local] Lemma exchanger_2٠random_exchangerｰspec γ ι Ψ Χ log :
+    (0 ≤ log ≤ γ.(metadata۰capacity_log))%Z →
+    {{{
+      inv' γ ι Ψ Χ
+    }}}
+      exchanger_2٠random_exchanger γ #log
+    {{{
+      exchanger
+    , RET exchanger;
+      exchanger_1۰inv exchanger ι Ψ Χ
+    }}}.
+  Proof.
+    iIntros "%Hlog %Φ (:inv') HΦ".
+
+    wp۰rec.
+    wp۰apply+ random٠intｰspec as (i) "%Hi".
+    { rewrite Z.shiftl_1_l. lia. }
+
+    destruct (lookup_lt_is_Some_2 γ.(metadata۰exchangers) ₊i) as (exchanger & Hexchangers_lookup).
+    { apply (Nat.lt_le_trans _ ₊(1 ≪ log) _). 1: lia.
+      rewrite Z.shiftl_1_l Hexchangers Znat.Z2Nat.inj_pow. 1,2: lia.
+      apply Nat.pow_le_mono_r. 1,2: lia.
+    }
+    wp۰apply+ (array٠unsafe_getｰspec with "H𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠") as "_". 1-3: done || lia.
+
+    iDestruct (big_sepL_lookup with "Hexchangers") as "Hexchanger". 1: done.
+    iSteps.
+  Qed.
+
   #[local] Lemma exchanger_2٠exchange₁ｰspec {γ ι Ψ Χ v} x log :
     (0 ≤ log)%Z →
     {{{
@@ -207,7 +236,7 @@ Section exchanger_2۰G.
         Ψ v x
     }}}.
   Proof.
-    iIntros "%Hlog %Φ ((:inv') & HΨ) HΦ".
+    iIntros "%Hlog %Φ (#Hinv & HΨ) HΦ".
 
     iLöb as "HLöb" forall (log Hlog).
 
@@ -216,18 +245,8 @@ Section exchanger_2۰G.
 
     - iApply ("HΦ" $! None with "HΨ").
 
-    - wp۰apply random٠intｰspec as (i) "%Hi".
-      { rewrite Z.shiftl_1_l. lia. }
-
-      destruct (lookup_lt_is_Some_2 γ.(metadata۰exchangers) ₊i).
-      { apply (Nat.lt_le_trans _ ₊(1 ≪ log) _). 1: lia.
-        rewrite Z.shiftl_1_l Hexchangers Znat.Z2Nat.inj_pow. 1,2: lia.
-        apply Nat.pow_le_mono_r. 1,2: lia.
-      }
-      wp۰apply+ (array٠unsafe_getｰspec with "H𝑒𝑥𝑐𝘩𝑎𝑛𝑔𝑒𝑟𝑠") as "_". 1-3: done || lia.
-
-      wp۰apply+ (exchanger_1٠exchangeｰspec with "[HΨ]") as ([𝑣 |]) "H".
-      { iDestruct (big_sepL_lookup with "Hexchangers") as "$" => //. }
+    - wp۰apply (exchanger_2٠random_exchangerｰspec with "Hinv") as (exchanger) "Hexchanger". 1: lia.
+      wp۰apply+ (exchanger_1٠exchangeｰspec with "[$]") as ([𝑣 |]) "H".
       all:wp۰pures.
 
       + iApply ("HΦ" $! (Some 𝑣) with "H").

@@ -3,5 +3,6 @@
 Require Import zoo_saturn.exchanger_2__code.
 
 #[global] Opaque exchanger_2٠create.
+#[global] Opaque exchanger_2٠random_exchanger.
 #[global] Opaque exchanger_2٠exchange₁.
 #[global] Opaque exchanger_2٠exchange.

@@ -21,13 +21,17 @@ Definition exchanger_2٠create : val :=
   𝗳𝘂𝗻 "cap_log" ->
     ( array٠unsafe_init (1 𝗹𝘀𝗹 "cap_log") exchanger_1٠create, "cap_log" ).
 
+Definition exchanger_2٠random_exchanger : val :=
+  𝗳𝘂𝗻 "t" "log" ->
+    𝗹𝗲𝘁 "i" = random٠int (1 𝗹𝘀𝗹 "log") 𝗶𝗻
+    array٠unsafe_get "t".<exchanger_2٠exchangers> "i".
+
 Definition exchanger_2٠exchange₁ : val :=
   𝗿𝗲𝗰 "exchange" "t" "v" "log" ->
     𝗶𝗳 "t".<exchanger_2٠capacity_log> < "log" 𝘁𝗵𝗲𝗻 (
       §None
     ) 𝗲𝗹𝘀𝗲 (
-      𝗹𝗲𝘁 "i" = random٠int (1 𝗹𝘀𝗹 "log") 𝗶𝗻
-      𝗹𝗲𝘁 "exchanger" = array٠unsafe_get "t".<exchanger_2٠exchangers> "i" 𝗶𝗻
+      𝗹𝗲𝘁 "exchanger" = exchanger_2٠random_exchanger "t" "log" 𝗶𝗻
       𝗺𝗮𝘁𝗰𝗵 exchanger_1٠exchange "exchanger" "v" 𝘄𝗶𝘁𝗵
       | None ->
           "exchange" "t" "v" ("log" + 1)
