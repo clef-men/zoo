@@ -20,12 +20,17 @@ Notation "'mcas_1٠after'" := (
 )(in custom zoo_field
 ).
 
+Notation "'mcas_1٠Cas'" := (
+  in_type "zoo_mcas.mcas_1.cas" Tag0
+)(in custom zoo_tag
+).
+
 Notation "'mcas_1٠loc'" := (
-  in_type "zoo_mcas.mcas_1.cas" 0
+  in_type "zoo_mcas.mcas_1.cas.Cas" 0
 )(in custom zoo_proj
 ).
 Notation "'mcas_1٠state'" := (
-  in_type "zoo_mcas.mcas_1.cas" 1
+  in_type "zoo_mcas.mcas_1.cas.Cas" 1
 )(in custom zoo_proj
 ).
 
@@ -55,15 +60,21 @@ Definition mcas_1٠clear : val :=
   𝗳𝘂𝗻 "cass" "is_after" ->
     𝗶𝗳 "is_after" 𝘁𝗵𝗲𝗻 (
       list٠iter
-        (𝗳𝘂𝗻 "cas" ->
-           "cas".<mcas_1٠state> <-{mcas_1٠before}
-             "cas".<mcas_1٠state>.{mcas_1٠after})
+        (𝗳𝘂𝗻 "param" ->
+           𝗺𝗮𝘁𝗰𝗵 "param" 𝘄𝗶𝘁𝗵
+           | mcas_1٠Cas ⎽ ⎽ 𝗮𝘀 "cas_r" ->
+               "cas_r".<mcas_1٠state> <-{mcas_1٠before}
+                 "cas_r".<mcas_1٠state>.{mcas_1٠after}
+           𝗲𝗻𝗱)
         "cass"
     ) 𝗲𝗹𝘀𝗲 (
       list٠iter
-        (𝗳𝘂𝗻 "cas" ->
-           "cas".<mcas_1٠state> <-{mcas_1٠after}
-             "cas".<mcas_1٠state>.{mcas_1٠before})
+        (𝗳𝘂𝗻 "param" ->
+           𝗺𝗮𝘁𝗰𝗵 "param" 𝘄𝗶𝘁𝗵
+           | mcas_1٠Cas ⎽ ⎽ 𝗮𝘀 "cas_r" ->
+               "cas_r".<mcas_1٠state> <-{mcas_1٠after}
+                 "cas_r".<mcas_1٠state>.{mcas_1٠before}
+           𝗲𝗻𝗱)
         "cass"
     ).
 
@@ -100,20 +111,24 @@ Definition mcas_1٠finish : val :=
       | [] ->
           mcas_1٠finish "gid" "casn" §mcas_1٠After
       | "cas" :: "continue" 𝗮𝘀 "retry" ->
-          𝗹𝗲𝘁 "loc", "state" = "cas" 𝗶𝗻
-          𝗹𝗲𝘁 "proph" = 𝗽𝗿𝗼𝗽𝗵 𝗶𝗻
-          𝗹𝗲𝘁 "old_state" = !"loc" 𝗶𝗻
-          𝗶𝗳 "state" == "old_state" 𝘁𝗵𝗲𝗻 (
-            "determine_as" "casn" "continue"
-          ) 𝗲𝗹𝘀𝗲 𝗶𝗳
-             𝗹𝗲𝘁 "@tmp" = "state".{mcas_1٠before} == "eval" "old_state" 𝗶𝗻
-             𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "@tmp" ⍮
-             "@tmp"
-           𝘁𝗵𝗲𝗻 (
-            "lock" "casn" "loc" "old_state" "state" "retry" "continue"
-          ) 𝗲𝗹𝘀𝗲 (
-            mcas_1٠finish "gid" "casn" §mcas_1٠Before
-          )
+          𝗺𝗮𝘁𝗰𝗵 "cas" 𝘄𝗶𝘁𝗵
+          | mcas_1٠Cas "loc" "state" ->
+              𝗹𝗲𝘁 "proph" = 𝗽𝗿𝗼𝗽𝗵 𝗶𝗻
+              𝗹𝗲𝘁 "old_state" = !"loc" 𝗶𝗻
+              𝗶𝗳 "state" == "old_state" 𝘁𝗵𝗲𝗻 (
+                "determine_as" "casn" "continue"
+              ) 𝗲𝗹𝘀𝗲 𝗶𝗳
+                 𝗹𝗲𝘁 "@tmp" =
+                   "state".{mcas_1٠before} == "eval" "old_state"
+                 𝗶𝗻
+                 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "@tmp" ⍮
+                 "@tmp"
+               𝘁𝗵𝗲𝗻 (
+                "lock" "casn" "loc" "old_state" "state" "retry" "continue"
+              ) 𝗲𝗹𝘀𝗲 (
+                mcas_1٠finish "gid" "casn" §mcas_1٠Before
+              )
+          𝗲𝗻𝗱
       𝗲𝗻𝗱
     𝘄𝗶𝘁𝗵 "lock" "casn" "loc" "old_state" "state" "retry" "continue" ->
       𝗺𝗮𝘁𝗰𝗵 "casn".{mcas_1٠status} 𝘄𝗶𝘁𝗵
@@ -212,7 +227,7 @@ Definition mcas_1٠mcas : val :=
         (𝗳𝘂𝗻 "cas" ->
            𝗹𝗲𝘁 "loc", "before", "after" = "cas" 𝗶𝗻
            𝗹𝗲𝘁 "state" = { "casn", "before", "after" } 𝗶𝗻
-           ( "loc", "state" ))
+           ‘mcas_1٠Cas( "loc", "state" ))
         "cass"
     𝗶𝗻
     "casn" <-{mcas_1٠status} ‘mcas_1٠Undetermined@[ "cass" ] ⍮

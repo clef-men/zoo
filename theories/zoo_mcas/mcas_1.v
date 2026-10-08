@@ -61,7 +61,10 @@ Implicit Type descr : descriptor.
 Implicit Type descrs : list descriptor.
 
 #[local] Definition descriptor۰cas descr : val :=
-  (#descr.(descriptor۰loc), #descr.(descriptor۰state)).
+  ‘Cas
+  ( #descr.(descriptor۰loc)
+  , #descr.(descriptor۰state)
+  ).
 
 #[local] Please derive Inhabited for descriptor.
 #[local] Please derive EqDecision for descriptor.
