@@ -82,8 +82,16 @@ let rec determine_as casn cass =
         lock casn loc old_state state retry continue
       else
         finish gid casn Before
-and[@inline] lock : type a. casn -> a loc -> a state -> a state -> cas list -> cas list -> bool =
-  fun casn loc old_state state retry continue ->
+and[@inline] lock :
+  type a.
+  casn ->
+  a loc ->
+  a state ->
+  a state ->
+  cas list ->
+  cas list ->
+  bool
+= fun casn loc old_state state retry continue ->
     match casn.status with
     | Before ->
         false
@@ -94,8 +102,9 @@ and[@inline] lock : type a. casn -> a loc -> a state -> a state -> cas list -> c
           determine_as casn continue
         else
           determine_as casn retry
-and eval : type a. a state -> a =
-  fun state ->
+and eval :
+  type a. a state -> a
+= fun state ->
     if determine state.casn then
       state.after
     else
