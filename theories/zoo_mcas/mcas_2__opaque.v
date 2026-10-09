@@ -2,6 +2,7 @@
 
 Require Import zoo_mcas.mcas_2__code.
 
+#[global] Opaque mcas_2٠verify.
 #[global] Opaque mcas_2٠clear.
 #[global] Opaque mcas_2٠status_to_bool.
 #[global] Opaque mcas_2٠finish.

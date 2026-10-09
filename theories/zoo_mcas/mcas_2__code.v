@@ -20,12 +20,17 @@ Notation "'mcas_2٠after'" := (
 )(in custom zoo_field
 ).
 
+Notation "'mcas_2٠Cas'" := (
+  in_type "zoo_mcas.mcas_2.cas" Tag0
+)(in custom zoo_tag
+).
+
 Notation "'mcas_2٠loc'" := (
-  in_type "zoo_mcas.mcas_2.cas" 0
+  in_type "zoo_mcas.mcas_2.cas.Cas" 0
 )(in custom zoo_proj
 ).
 Notation "'mcas_2٠state'" := (
-  in_type "zoo_mcas.mcas_2.cas" 1
+  in_type "zoo_mcas.mcas_2.cas.Cas" 1
 )(in custom zoo_proj
 ).
 
@@ -60,19 +65,35 @@ Notation "'mcas_2٠cass'" := (
 )(in custom zoo_proj
 ).
 
+Definition mcas_2٠verify : val :=
+  𝗳𝘂𝗻 "cmps" ->
+    list٠forall
+      (𝗳𝘂𝗻 "param" ->
+         𝗺𝗮𝘁𝗰𝗵 "param" 𝘄𝗶𝘁𝗵
+         | mcas_2٠Cas ⎽ ⎽ 𝗮𝘀 "cmp_r" ->
+             !"cmp_r".<mcas_2٠loc> == "cmp_r".<mcas_2٠state>
+         𝗲𝗻𝗱)
+      "cmps".
+
 Definition mcas_2٠clear : val :=
   𝗳𝘂𝗻 "cass" "is_after" ->
     𝗶𝗳 "is_after" 𝘁𝗵𝗲𝗻 (
       list٠iter
-        (𝗳𝘂𝗻 "cas" ->
-           "cas".<mcas_2٠state> <-{mcas_2٠before}
-             "cas".<mcas_2٠state>.{mcas_2٠after})
+        (𝗳𝘂𝗻 "param" ->
+           𝗺𝗮𝘁𝗰𝗵 "param" 𝘄𝗶𝘁𝗵
+           | mcas_2٠Cas ⎽ ⎽ 𝗮𝘀 "cas_r" ->
+               "cas_r".<mcas_2٠state> <-{mcas_2٠before}
+                 "cas_r".<mcas_2٠state>.{mcas_2٠after}
+           𝗲𝗻𝗱)
         "cass"
     ) 𝗲𝗹𝘀𝗲 (
       list٠iter
-        (𝗳𝘂𝗻 "cas" ->
-           "cas".<mcas_2٠state> <-{mcas_2٠after}
-             "cas".<mcas_2٠state>.{mcas_2٠before})
+        (𝗳𝘂𝗻 "param" ->
+           𝗺𝗮𝘁𝗰𝗵 "param" 𝘄𝗶𝘁𝗵
+           | mcas_2٠Cas ⎽ ⎽ 𝗮𝘀 "cas_r" ->
+               "cas_r".<mcas_2٠state> <-{mcas_2٠after}
+                 "cas_r".<mcas_2٠state>.{mcas_2٠before}
+           𝗲𝗻𝗱)
         "cass"
     ).
 
@@ -91,11 +112,7 @@ Definition mcas_2٠finish : val :=
         𝗹𝗲𝘁 "status" =
           𝗶𝗳 "status" == §mcas_2٠Before 𝘁𝗵𝗲𝗻 (
             §mcas_2٠Before
-          ) 𝗲𝗹𝘀𝗲 𝗶𝗳
-             list٠forall
-               (𝗳𝘂𝗻 "cmp" -> !"cmp".<mcas_2٠loc> == "cmp".<mcas_2٠state>)
-               "cmps"
-           𝘁𝗵𝗲𝗻 (
+          ) 𝗲𝗹𝘀𝗲 𝗶𝗳 mcas_2٠verify "cmps" 𝘁𝗵𝗲𝗻 (
             §mcas_2٠After
           ) 𝗲𝗹𝘀𝗲 (
             §mcas_2٠Before
@@ -122,20 +139,24 @@ Definition mcas_2٠finish : val :=
       | [] ->
           mcas_2٠finish "gid" "casn" §mcas_2٠After
       | "cas" :: "continue" 𝗮𝘀 "retry" ->
-          𝗹𝗲𝘁 "loc", "state" = "cas" 𝗶𝗻
-          𝗹𝗲𝘁 "proph" = 𝗽𝗿𝗼𝗽𝗵 𝗶𝗻
-          𝗹𝗲𝘁 "old_state" = !"loc" 𝗶𝗻
-          𝗶𝗳 "state" == "old_state" 𝘁𝗵𝗲𝗻 (
-            "determine_as" "casn" "continue"
-          ) 𝗲𝗹𝘀𝗲 𝗶𝗳
-             𝗹𝗲𝘁 "@tmp" = "state".{mcas_2٠before} == "eval" "old_state" 𝗶𝗻
-             𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "@tmp" ⍮
-             "@tmp"
-           𝘁𝗵𝗲𝗻 (
-            "lock" "casn" "loc" "old_state" "state" "retry" "continue"
-          ) 𝗲𝗹𝘀𝗲 (
-            mcas_2٠finish "gid" "casn" §mcas_2٠Before
-          )
+          𝗺𝗮𝘁𝗰𝗵 "cas" 𝘄𝗶𝘁𝗵
+          | mcas_2٠Cas "loc" "state" ->
+              𝗹𝗲𝘁 "proph" = 𝗽𝗿𝗼𝗽𝗵 𝗶𝗻
+              𝗹𝗲𝘁 "old_state" = !"loc" 𝗶𝗻
+              𝗶𝗳 "state" == "old_state" 𝘁𝗵𝗲𝗻 (
+                "determine_as" "casn" "continue"
+              ) 𝗲𝗹𝘀𝗲 𝗶𝗳
+                 𝗹𝗲𝘁 "@tmp" =
+                   "state".{mcas_2٠before} == "eval" "old_state"
+                 𝗶𝗻
+                 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "@tmp" ⍮
+                 "@tmp"
+               𝘁𝗵𝗲𝗻 (
+                "lock" "casn" "loc" "old_state" "state" "retry" "continue"
+              ) 𝗲𝗹𝘀𝗲 (
+                mcas_2٠finish "gid" "casn" §mcas_2٠Before
+              )
+          𝗲𝗻𝗱
       𝗲𝗻𝗱
     𝘄𝗶𝘁𝗵 "lock" "casn" "loc" "old_state" "state" "retry" "continue" ->
       𝗺𝗮𝘁𝗰𝗵 "casn".{mcas_2٠status} 𝘄𝗶𝘁𝗵
@@ -234,7 +255,7 @@ Definition mcas_2٠mcas_2 : val :=
         (𝗳𝘂𝗻 "cas" ->
            𝗹𝗲𝘁 "loc", "before", "after" = "cas" 𝗶𝗻
            𝗹𝗲𝘁 "state" = { "casn", "before", "after" } 𝗶𝗻
-           ( "loc", "state" ))
+           ‘mcas_2٠Cas( "loc", "state" ))
         "cass"
     𝗶𝗻
     "casn" <-{mcas_2٠status} ‘mcas_2٠Undetermined@[ "cmps", "cass" ] ⍮
@@ -249,7 +270,7 @@ Definition mcas_2٠mcas_1 : val :=
         𝗹𝗲𝘁 "loc", "expected" = "cmp" 𝗶𝗻
         𝗹𝗲𝘁 "state" = !"loc" 𝗶𝗻
         𝗶𝗳 mcas_2٠eval "state" == "expected" 𝘁𝗵𝗲𝗻 (
-          "mcas_1" (( "loc", "state" ) :: "acc") "cmps" "cass"
+          "mcas_1" (‘mcas_2٠Cas( "loc", "state" ) :: "acc") "cmps" "cass"
         ) 𝗲𝗹𝘀𝗲 (
           false
         )

@@ -20,12 +20,17 @@ Notation "'after'" := (
 )(in custom zoo_field
 ).
 
+Notation "'Cas'" := (
+  in_type "zoo_mcas.mcas_2.cas" Tag0
+)(in custom zoo_tag
+).
+
 Notation "'loc'" := (
-  in_type "zoo_mcas.mcas_2.cas" 0
+  in_type "zoo_mcas.mcas_2.cas.Cas" 0
 )(in custom zoo_proj
 ).
 Notation "'state'" := (
-  in_type "zoo_mcas.mcas_2.cas" 1
+  in_type "zoo_mcas.mcas_2.cas.Cas" 1
 )(in custom zoo_proj
 ).
 
