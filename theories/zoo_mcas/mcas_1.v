@@ -166,8 +166,12 @@ Variant lstep : lstatus → lstatus → Prop :=
       lstep (Running i) Finished.
 #[local] Hint Constructors lstep : core.
 
+Abbreviation lsteps := (
+  rtc lstep
+).
+
 #[local] Lemma lstepsｰrunning0 lstatus :
-  rtc lstep (Running 0) lstatus.
+  lsteps (Running 0) lstatus.
 Proof.
   destruct lstatus as [i |].
   - induction i; first done.
@@ -180,13 +184,13 @@ Proof.
   inversion 1.
 Qed.
 #[local] Lemma lstepsｰfinished lstatus :
-  rtc lstep Finished lstatus →
+  lsteps Finished lstatus →
   lstatus = Finished.
 Proof.
   inversion 1 as [| ? ? ? []] => //.
 Qed.
 #[local] Lemma lstepsｰle lstatus1 i1 lstatus2 i2 :
-  rtc lstep lstatus1 lstatus2 →
+  lsteps lstatus1 lstatus2 →
   lstatus1 = Running i1 →
   lstatus2 = Running i2 →
   i1 ≤ i2.
