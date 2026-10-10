@@ -8,40 +8,40 @@ open Stdarg
 
 }
 
-VERNAC ARGUMENT EXTEND global_base
+VERNAC ARGUMENT EXTEND zoo_global_base
 | [ ] ->
     { Zoo_global.default_base }
 | [ "⟨" qualid(theory) "⟩" ] ->
     { theory }
 END
 
-VERNAC ARGUMENT EXTEND global_kind'
+VERNAC ARGUMENT EXTEND zoo_global_kind'
 | [ "iris" ] ->
     { Zoo_global.Iris }
 | [ "zoo" ] ->
     { Zoo_global.Zoo }
 END
-VERNAC ARGUMENT EXTEND global_kind
+VERNAC ARGUMENT EXTEND zoo_global_kind
 | [ ] ->
     { Zoo_global.Zoo }
-| [ ":" global_kind'(kind) ] ->
+| [ ":" zoo_global_kind'(kind) ] ->
     { kind }
 END
 
-VERNAC ARGUMENT EXTEND global_field
-| [ preident(name) ":" qualid(theory) constr_list(arguments) global_kind(kind) ] ->
+VERNAC ARGUMENT EXTEND zoo_global_field
+| [ preident(name) ":" qualid(theory) constr_list(arguments) zoo_global_kind(kind) ] ->
     { Zoo_global.{ name; theory; arguments; kind } }
 END
 
-VERNAC ARGUMENT EXTEND global_spec
-| [ global_base(base) binders(parameters) ":="
-    "{" global_field_list_sep(fields, ";") "}"
+VERNAC ARGUMENT EXTEND zoo_global_spec
+| [ zoo_global_base(base) binders(parameters) ":="
+    "{" zoo_global_field_list_sep(fields, ";") "}"
   ] ->
     { Zoo_global.{ base; parameters; fields } }
 END
 
-VERNAC COMMAND EXTEND global
+VERNAC COMMAND EXTEND zoo_global
   CLASSIFIED AS SIDEFF
-| [ "Zoo" "global" global_spec(spec) ] ->
+| [ "Zoo" "global" zoo_global_spec(spec) ] ->
     { Zoo_global.main spec }
 END
