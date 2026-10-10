@@ -87,13 +87,13 @@ Definition final_status۰to_bool fstatus :=
 Definition final_status۰of_bool b :=
   if b then FinalAfter else FinalBefore.
 #[global] Arguments final_status۰of_bool !_ : assert.
-Definition final_status۰to_val fstatus :=
+Definition final_status۰to_val fstatus : val :=
   match fstatus with
   | FinalAfter =>
       §After
   | FinalBefore =>
       §Before
-  end%V.
+  end.
 #[global] Arguments final_status۰to_val !_ : assert.
 
 #[local] Lemma final_statusｰto_boolｰof_bool b :
@@ -441,7 +441,11 @@ Section mcas_1۰G.
       )
     ".
   #[local] Instance casn۰inv۰preｰcontractive ι n :
-    Proper (dist_later n ==> (≡{n}≡) ==> (≡{n}≡)) (casn۰inv۰pre ι).
+    Proper (
+      dist_later n ==>
+      (≡{n}≡) ==>
+      (≡{n}≡)
+    ) (casn۰inv۰pre ι).
   Proof.
     solve_proper.
   Qed.
@@ -484,7 +488,11 @@ Section mcas_1۰G.
     λ '(loc, γ),
       inv (loc۰inv۰name ι) (loc۰inv۰inner' casn۰inv' loc γ).
   #[local] Instance loc۰inv۰preｰcontractive ι n :
-    Proper (dist_later n ==> dist_later n ==> (≡{n}≡)) (loc۰inv۰pre ι).
+    Proper (
+      dist_later n ==>
+      dist_later n ==>
+      (≡{n}≡)
+    ) (loc۰inv۰pre ι).
   Proof.
     rewrite /loc۰inv۰pre /loc۰inv۰inner' /loc۰inv۰inner'' /curry.
     solve_contractive.
