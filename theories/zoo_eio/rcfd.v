@@ -296,27 +296,11 @@ Section rcfd۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance rcfd۰ownerｰtimeless t :
-    Timeless (rcfd۰owner t).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance rcfd۰closingｰtimeless t :
-    Timeless (rcfd۰closing t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for rcfd۰owner.
+  Zoo derive Timeless for rcfd۰closing.
 
-  #[global] Instance rcfd۰invｰpersistent t owned fd Ψ :
-    Persistent (rcfd۰inv t owned fd Ψ).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance rcfd۰closingｰpersistent t :
-    Persistent (rcfd۰closing t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for rcfd۰inv.
+  Zoo derive Persistent for rcfd۰closing.
 
   #[local] Lemma tokensｰalloc Ψ :
     Ψ 1%Qp ⊢ |==>

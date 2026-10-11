@@ -72,8 +72,8 @@ Module base.
       oneshot۰pending γ_lstate (DfracOwn (2/3)) ().
     #[local] Definition lstate۰unset₂ γ :=
       lstate۰unset₂' γ.(lazy۰name۰lstate).
-    #[local] Definition lstate۰set' γ_lstate :=
-      oneshot۰shot γ_lstate.
+    #[local] Definition lstate۰set' γ_lstate v :=
+      oneshot۰shot γ_lstate v.
     #[local] Definition lstate۰set γ :=
       lstate۰set' γ.(lazy۰name۰lstate).
 
@@ -198,22 +198,10 @@ Module base.
       apply _.
     Qed.
 
-    #[global] Instance lazy۰resultｰtimeless γ v :
-      Timeless (lazy۰result γ v).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for lazy۰result.
 
-    #[global] Instance lazy۰invｰpersistent t γ Ψ Ξ :
-      Persistent (lazy۰inv t γ Ψ Ξ).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance lazy۰resultｰpersistent γ v :
-      Persistent (lazy۰result γ v).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for lazy۰inv.
+    Zoo derive Persistent for lazy۰result.
 
     #[local] Lemma lstateｰalloc :
       ⊢ |==>
@@ -752,22 +740,10 @@ Section lazy۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance lazy۰resultｰtimeless t v :
-    Timeless (lazy۰result t v).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for lazy۰result.
 
-  #[global] Instance lazy۰invｰpersistent t Ψ Ξ :
-    Persistent (lazy۰inv t Ψ Ξ).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance lazy۰resultｰpersistent t v :
-    Persistent (lazy۰result t v).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for lazy۰inv.
+  Zoo derive Persistent for lazy۰result.
 
   Lemma lazy۰consumerｰwand {t Ψ Ξ Χ1} Χ2 :
     lazy۰inv t Ψ Ξ -∗

@@ -181,17 +181,9 @@ Section ws_hub_fifo۰G.
       )
     ".
 
-  #[global] Instance ws_hub_fifo۰modelｰtimeless t vs :
-    Timeless (ws_hub_fifo۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for ws_hub_fifo۰model.
 
-  #[global] Instance ws_hub_fifo۰invｰpersistent t ι sz :
-    Persistent (ws_hub_fifo۰inv t ι sz).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for ws_hub_fifo۰inv.
 
   #[local] Lemma ownerｰalloc sz :
     ⊢ |==>

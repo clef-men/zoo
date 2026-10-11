@@ -133,11 +133,7 @@ Section sarray۰G.
       )
     ".
 
-  #[global] Instance sarray۰snapshotｰpersistent s t vs :
-    Persistent (sarray۰snapshot s t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for sarray۰snapshot.
 
   #[local] Lemma nodesｰalloc root vs :
     ⊢ |==>

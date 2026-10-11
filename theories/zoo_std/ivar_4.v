@@ -122,37 +122,13 @@ Section ivar_4۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance ivar_4۰producerｰtimeless t :
-    Timeless (ivar_4۰producer t).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_4۰resultｰtimeless t v :
-    Timeless (ivar_4۰result t v).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for ivar_4۰producer.
+  Zoo derive Timeless for ivar_4۰result.
 
-  #[global] Instance ivar_4۰invｰpersistent t Ψ Ξ Γ :
-    Persistent (ivar_4۰inv t Ψ Ξ Γ).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_4۰resultｰpersistent t v :
-    Persistent (ivar_4۰result t v).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_4۰waitersｰpersistent t waiters Ps :
-    Persistent (ivar_4۰waiters t waiters Ps).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_4۰waiterｰpersistent t waiter P :
-    Persistent (ivar_4۰waiter t waiter P).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for ivar_4۰inv.
+  Zoo derive Persistent for ivar_4۰result.
+  Zoo derive Persistent for ivar_4۰waiters.
+  Zoo derive Persistent for ivar_4۰waiter.
 
   Lemma ivar_4۰producerｰexclusive t :
     ivar_4۰producer t -∗

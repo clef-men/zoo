@@ -75,27 +75,11 @@ Section waiter_mpsc۰G.
     apply _.
   Qed.
 
-  #[global] Instance waiter_mpsc۰consumerｰtimeless t :
-    Timeless (waiter_mpsc۰consumer t).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance waiter_mpsc۰notifiedｰtimeless t :
-    Timeless (waiter_mpsc۰notified t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for waiter_mpsc۰consumer.
+  Zoo derive Timeless for waiter_mpsc۰notified.
 
-  #[global] Instance waiter_mpsc۰invｰpersistent t P :
-    Persistent (waiter_mpsc۰inv t P).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance waiter_mpsc۰notifiedｰpersistent t :
-    Persistent (waiter_mpsc۰notified t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for waiter_mpsc۰inv.
+  Zoo derive Persistent for waiter_mpsc۰notified.
 
   Lemma waiter_mpsc۰consumerｰexclusive t :
     waiter_mpsc۰consumer t -∗

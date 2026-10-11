@@ -103,27 +103,11 @@ Section future۰G.
     apply _.
   Qed.
 
-  #[global] Instance future۰resultｰtimeless t v :
-    Timeless (future۰result t v).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for future۰result.
 
-  #[global] Instance future۰invｰpersistent pool t Ψ Ξ :
-    Persistent (future۰inv pool t Ψ Ξ).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance future۰obligationｰpersistent pool P :
-    Persistent (future۰obligation pool P).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance future۰resultｰpersistent t v :
-    Persistent (future۰result t v).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for future۰inv.
+  Zoo derive Persistent for future۰obligation.
+  Zoo derive Persistent for future۰result.
 
   #[local] Ltac solve_biglater :=
     iFrame "#";

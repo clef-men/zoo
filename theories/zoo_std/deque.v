@@ -16,11 +16,7 @@ Section zoo۰G.
     xdeque۰model t nodes ∗
     [∗ list] node; v ∈ nodes; vs, node.[xdeque٠data] ↦ v.
 
-  #[global] Instance deque۰modelｰtimeless t vs :
-    Timeless (deque۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for deque۰model.
 
   Lemma deque۰modelｰexclusive t vs1 vs2 :
     deque۰model t vs1 -∗

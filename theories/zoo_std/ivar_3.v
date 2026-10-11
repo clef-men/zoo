@@ -78,8 +78,8 @@ Module base.
       oneshot۰pending γ_lstate (DfracOwn (2/3)) ().
     #[local] Definition lstate۰unset₂ γ :=
       lstate۰unset₂' γ.(ivar_3۰name۰lstate).
-    #[local] Definition lstate۰set γ :=
-      oneshot۰shot γ.(ivar_3۰name۰lstate).
+    #[local] Definition lstate۰set γ v :=
+      oneshot۰shot γ.(ivar_3۰name۰lstate) v.
 
     #[local] Definition consumer۰auth' :=
       subpreds۰auth.
@@ -225,52 +225,16 @@ Module base.
       apply _.
     Qed.
 
-    #[local] Instance waiters۰authｰtimeless γ own waiters ωs :
-      Timeless (waiters۰auth γ own waiters ωs).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ivar_3۰producerｰtimeless γ :
-      Timeless (ivar_3۰producer γ).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ivar_3۰resultｰtimeless γ v :
-      Timeless (ivar_3۰result γ v).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ivar_3۰waitersｰtimeless γ waiters ωs :
-      Timeless (ivar_3۰waiters γ waiters ωs).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ivar_3۰waiterｰtimeless γ waiter ω :
-      Timeless (ivar_3۰waiter γ waiter ω).
-    Proof.
-      apply _.
-    Qed.
+    #[local] Zoo derive Timeless for waiters۰auth.
+    Zoo derive Timeless for ivar_3۰producer.
+    Zoo derive Timeless for ivar_3۰result.
+    Zoo derive Timeless for ivar_3۰waiters.
+    Zoo derive Timeless for ivar_3۰waiter.
 
-    #[global] Instance ivar_3۰invｰpersistent t γ Ψ Ξ Ω :
-      Persistent (ivar_3۰inv t γ Ψ Ξ Ω).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ivar_3۰resultｰpersistent γ v :
-      Persistent (ivar_3۰result γ v).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ivar_3۰waitersｰpersistent γ waiters ωs :
-      Persistent (ivar_3۰waiters γ waiters ωs).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ivar_3۰waiterｰpersistent γ waiter ω :
-      Persistent (ivar_3۰waiter γ waiter ω).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for ivar_3۰inv.
+    Zoo derive Persistent for ivar_3۰result.
+    Zoo derive Persistent for ivar_3۰waiters.
+    Zoo derive Persistent for ivar_3۰waiter.
 
     #[local] Lemma lstateｰalloc :
       ⊢ |==>
@@ -991,47 +955,15 @@ Section ivar_3۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance ivar_3۰producerｰtimeless t :
-    Timeless (ivar_3۰producer t).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_3۰resultｰtimeless t v :
-    Timeless (ivar_3۰result t v).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_3۰waitersｰtimeless t waiters ωs :
-    Timeless (ivar_3۰waiters t waiters ωs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_3۰waiterｰtimeless t waiter ω :
-    Timeless (ivar_3۰waiter t waiter ω).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for ivar_3۰producer.
+  Zoo derive Timeless for ivar_3۰result.
+  Zoo derive Timeless for ivar_3۰waiters.
+  Zoo derive Timeless for ivar_3۰waiter.
 
-  #[global] Instance ivar_3۰invｰpersistent t Ψ Ξ Ω :
-    Persistent (ivar_3۰inv t Ψ Ξ Ω).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_3۰resultｰpersistent t v :
-    Persistent (ivar_3۰result t v).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_3۰waitersｰpersistent t waiters ωs :
-    Persistent (ivar_3۰waiters t waiters ωs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_3۰waiterｰpersistent t waiter ω :
-    Persistent (ivar_3۰waiter t waiter ω).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for ivar_3۰inv.
+  Zoo derive Persistent for ivar_3۰result.
+  Zoo derive Persistent for ivar_3۰waiters.
+  Zoo derive Persistent for ivar_3۰waiter.
 
   Lemma ivar_3۰producerｰexclusive t :
     ivar_3۰producer t -∗

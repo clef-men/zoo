@@ -206,17 +206,9 @@ Section ws_hub_std۰G.
       )
     ".
 
-  #[global] Instance ws_hub_std۰modelｰtimeless t vs :
-    Timeless (ws_hub_std۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for ws_hub_std۰model.
 
-  #[global] Instance ws_hub_std۰invｰpersistent t ι sz :
-    Persistent (ws_hub_std۰inv t ι sz).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for ws_hub_std۰inv.
 
   Lemma ws_hub_std۰invｰagree t ι sz1 sz2 :
     ws_hub_std۰inv t ι sz1 -∗

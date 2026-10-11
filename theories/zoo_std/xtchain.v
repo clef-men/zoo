@@ -16,17 +16,9 @@ Section zoo۰G.
     xchain dq nodes dst ∗
     [∗ list] node ∈ nodes, node ↦ₕ hdr.
 
-  #[global] Instance xtchainｰtimeless hdr dq nodes dst :
-    Timeless (xtchain hdr dq nodes dst).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for xtchain.
 
-  #[global] Instance xtchainｰpersistent hdr nodes dst :
-    Persistent (xtchain hdr DfracDiscarded nodes dst).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for xtchain:discarded.
 
   Lemma xtchainｰnil hdr dq dst :
     ⊢ xtchain hdr dq [] dst.

@@ -330,6 +330,7 @@ Module base.
     Qed.
     Please Definition vertex۰inv : location → vertex۰name → iProp Σ → iProp Σ → iProp Σ :=
       fixpoint inv۰pre.
+    #[global] Arguments vertex۰inv t γ P R : assert.
 
     #[local] Lemma vertex۰invｰunfold t γ P R :
       vertex۰inv t γ P R ⊣⊢
@@ -394,26 +395,10 @@ Module base.
       " #Hdependencies{which;}_elem{_{}}
       ".
 
-    #[global] Instance vertex۰modelｰtimeless t γ task iter :
-      Timeless (vertex۰model t γ task iter).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance vertex۰readyｰtimeless iter :
-      Timeless (vertex۰ready iter).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance vertex۰finishedｰtimeless γ :
-      Timeless (vertex۰finished γ).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance vertex۰predecessorｰtimeless γ iter :
-      Timeless (vertex۰predecessor γ iter).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for vertex۰model.
+    Zoo derive Timeless for vertex۰ready.
+    Zoo derive Timeless for vertex۰finished.
+    Zoo derive Timeless for vertex۰predecessor.
 
     #[global] Instance vertex۰invｰpersistent t γ P R :
       Persistent (vertex۰inv t γ P R).
@@ -421,21 +406,9 @@ Module base.
       rewrite vertex۰invｰunfold.
       apply _.
     Qed.
-    #[global] Instance vertex۰readyｰpersistent iter :
-      Persistent (vertex۰ready iter).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance vertex۰finishedｰpersistent γ :
-      Persistent (vertex۰finished γ).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance vertex۰predecessorｰpersistent γ iter :
-      Persistent (vertex۰predecessor γ iter).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for vertex۰ready.
+    Zoo derive Persistent for vertex۰finished.
+    Zoo derive Persistent for vertex۰predecessor.
 
     #[local] Lemma stateｰalloc :
       ⊢ |==>
@@ -1329,47 +1302,15 @@ Section vertex۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance vertex۰modelｰtimeless t task iter :
-    Timeless (vertex۰model t task iter).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance vertex۰readyｰtimeless iter :
-    Timeless (vertex۰ready iter).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance vertex۰finishedｰtimeless t :
-    Timeless (vertex۰finished t).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance vertex۰predecessorｰtimeless t iter :
-    Timeless (vertex۰predecessor t iter).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for vertex۰model.
+  Zoo derive Timeless for vertex۰ready.
+  Zoo derive Timeless for vertex۰finished.
+  Zoo derive Timeless for vertex۰predecessor.
 
-  #[global] Instance vertex۰invｰpersistent t P R :
-    Persistent (vertex۰inv t P R).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance vertex۰readyｰpersistent iter :
-    Persistent (vertex۰ready iter).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance vertex۰finishedｰpersistent t :
-    Persistent (vertex۰finished t).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance vertex۰predecessorｰpersistent t iter :
-    Persistent (vertex۰predecessor t iter).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for vertex۰inv.
+  Zoo derive Persistent for vertex۰ready.
+  Zoo derive Persistent for vertex۰finished.
+  Zoo derive Persistent for vertex۰predecessor.
 
   Lemma vertex۰modelｰexclusive t task1 iter1 task2 iter2 :
     vertex۰model t task1 iter1 -∗

@@ -574,17 +574,9 @@ Section sstore_1۰G.
     t0 ↪ γ ∗
     sstore_1۰map۰elem γ l σ.
 
-  #[global] Instance sstore_1۰snapshotｰtimeless t s σ :
-    Timeless (sstore_1۰snapshot t s σ).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for sstore_1۰snapshot.
 
-  #[global] Instance sstore_1۰snapshotｰpersistent t s σ :
-    Persistent (sstore_1۰snapshot t s σ).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for sstore_1۰snapshot.
 
   Lemma sstore_1٠createｰspec :
     {{{

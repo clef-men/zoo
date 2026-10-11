@@ -122,22 +122,10 @@ Module base.
       " (:consumer₂)
       ".
 
-    #[global] Instance queue_mpsc_1۰modelｰtimeless γ vs :
-      Timeless (queue_mpsc_1۰model γ vs).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance queue_mpsc_1۰consumerｰtimeless t :
-      Timeless (queue_mpsc_1۰consumer t).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for queue_mpsc_1۰model.
+    Zoo derive Timeless for queue_mpsc_1۰consumer.
 
-    #[global] Instance queue_mpsc_1۰invｰpersistent t γ ι :
-      Persistent (queue_mpsc_1۰inv t γ ι).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for queue_mpsc_1۰inv.
 
     #[local] Lemma historyｰalloc front :
       ⊢ |==>
@@ -862,22 +850,10 @@ Section queue_mpsc_1۰G.
       )
     ".
 
-  #[global] Instance queue_mpsc_1۰modelｰtimeless t vs :
-    Timeless (queue_mpsc_1۰model t vs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance queue_mpsc_1۰consumerｰtimeless t :
-    Timeless (queue_mpsc_1۰consumer t ).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for queue_mpsc_1۰model.
+  Zoo derive Timeless for queue_mpsc_1۰consumer.
 
-  #[global] Instance queue_mpsc_1۰invｰpersistent t ι :
-    Persistent (queue_mpsc_1۰inv t ι).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for queue_mpsc_1۰inv.
 
   Lemma queue_mpsc_1۰modelｰexclusive t vs1 vs2 :
     queue_mpsc_1۰model t vs1 -∗

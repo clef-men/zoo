@@ -70,17 +70,9 @@ Section ws_bdeques_public۰G.
       )
     ".
 
-  #[global] Instance ws_bdeques_public۰modelｰtimeless t vss :
-    Timeless (ws_bdeques_public۰model t vss).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for ws_bdeques_public۰model.
 
-  #[global] Instance ws_bdeques_public۰invｰpersistent t ι sz :
-    Persistent (ws_bdeques_public۰inv t ι sz).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for ws_bdeques_public۰inv.
 
   Lemma ws_bdeques_public۰invｰagree t ι1 sz1 ι2 sz2 :
     ws_bdeques_public۰inv t ι1 sz1 -∗

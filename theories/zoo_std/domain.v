@@ -276,37 +276,13 @@ Section domain۰G.
       ]
     ".
 
-  #[global] Instance domain۰dlsｰtimeless tid keys :
-    Timeless (domain۰dls tid keys).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance domain۰dls۰initｰtimeless tid key :
-    Timeless (domain۰dls۰init tid key).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance domain۰dls۰pointstoｰtimeless tid key dq v :
-    Timeless (domain۰dls۰pointsto tid key dq v).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for domain۰dls.
+  Zoo derive Timeless for domain۰dls۰init.
+  Zoo derive Timeless for domain۰dls۰pointsto.
 
-  #[local] Instance dls۰key۰idｰpersistent key id :
-    Persistent (dls۰key۰id key id).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance domain۰dls۰keyｰpersistent key Ψ :
-    Persistent (domain۰dls۰key key Ψ).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance domain۰dls۰pointstoｰpersistent tid key v :
-    Persistent (domain۰dls۰pointsto tid key DfracDiscarded v).
-  Proof.
-    apply _.
-  Qed.
+  #[local] Zoo derive Persistent for dls۰key۰id.
+  Zoo derive Persistent for domain۰dls۰key.
+  Zoo derive Persistent for domain۰dls۰pointsto:discarded.
 
   #[local] Lemma dlsｰalloc :
     ⊢ |==>

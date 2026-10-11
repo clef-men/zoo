@@ -122,22 +122,10 @@ Module base.
       solve_proper.
     Qed.
 
-    #[global] Instance mvar۰resolvedｰtimeless γ :
-      Timeless (mvar۰resolved γ).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for mvar۰resolved.
 
-    #[global] Instance mvar۰invｰpersistent t γ Ψ :
-      Persistent (mvar۰inv t γ Ψ).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance mvar۰resolvedｰpersistent γ :
-      Persistent (mvar۰resolved γ).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for mvar۰inv.
+    Zoo derive Persistent for mvar۰resolved.
 
     #[local] Lemma lstateｰalloc :
       ⊢ |==>
@@ -564,22 +552,10 @@ Section mvar۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance mvar۰resolvedｰtimeless t :
-    Timeless (mvar۰resolved t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for mvar۰resolved.
 
-  #[global] Instance mvar۰invｰpersistent t Ψ :
-    Persistent (mvar۰inv t Ψ).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance mvar۰resolvedｰpersistent t :
-    Persistent (mvar۰resolved t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for mvar۰inv.
+  Zoo derive Persistent for mvar۰resolved.
 
   Lemma mvar۰consumerｰexclusive t :
     mvar۰consumer t -∗

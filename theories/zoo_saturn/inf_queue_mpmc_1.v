@@ -223,52 +223,20 @@ Module base.
       " Hmodel₁{_{}}
       ".
 
-    #[local] Instance tokens۰pendingｰtimeless γ i :
-      Timeless (tokens۰pending γ i).
-    Proof.
-      apply _.
-    Qed.
-    #[local] Instance tokens۰doneｰtimeless γ i :
-      Timeless (tokens۰done γ i).
-    Proof.
-      apply _.
-    Qed.
+    #[local] Zoo derive Timeless for tokens۰pending.
+    #[local] Zoo derive Timeless for tokens۰done.
     #[local] Instance slot۰modelｰtimeless γ i slot :
       Timeless (slot۰model γ i slot).
     Proof.
       rewrite /slot۰model. apply _.
     Qed.
-    #[global] Instance inf_queue_mpmc_1۰modelｰtimeless γ vs :
-      Timeless (inf_queue_mpmc_1۰model γ vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for inf_queue_mpmc_1۰model.
 
-    #[local] Instance consumers۰atｰpersistent γ i Ψ :
-      Persistent (consumers۰at γ i Ψ).
-    Proof.
-      apply _.
-    Qed.
-    #[local] Instance consumers۰lbｰpersistent γ i :
-      Persistent (consumers۰lb γ i).
-    Proof.
-      apply _.
-    Qed.
-    #[local] Instance tokens۰doneｰpersistent γ i :
-      Persistent (tokens۰done γ i).
-    Proof.
-      apply _.
-    Qed.
-    #[local] Instance slot۰modelｰpersistent γ i slot :
-      Persistent (slot۰model γ i slot).
-    Proof.
-      rewrite /slot۰model. apply _.
-    Qed.
-    #[global] Instance inf_queue_mpmc_1۰invｰpersistent t γ ι :
-      Persistent (inf_queue_mpmc_1۰inv t γ ι).
-    Proof.
-      apply _.
-    Qed.
+    #[local] Zoo derive Persistent for consumers۰at.
+    #[local] Zoo derive Persistent for consumers۰lb.
+    #[local] Zoo derive Persistent for tokens۰done.
+    #[local] Zoo derive Persistent for slot۰model.
+    Zoo derive Persistent for inf_queue_mpmc_1۰inv.
 
     #[local] Lemma modelｰalloc :
       ⊢ |==>
@@ -970,17 +938,9 @@ Section inf_queue_mpmc_1۰G.
       )
     ".
 
-  #[global] Instance inf_queue_mpmc_1۰modelｰtimeless t vs :
-    Timeless (inf_queue_mpmc_1۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for inf_queue_mpmc_1۰model.
 
-  #[global] Instance inf_queue_mpmc_1۰invｰpersistent t ι :
-    Persistent (inf_queue_mpmc_1۰inv t ι).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for inf_queue_mpmc_1۰inv.
 
   Lemma inf_queue_mpmc_1۰modelｰexclusive t vs1 vs2 :
     inf_queue_mpmc_1۰model t vs1 -∗

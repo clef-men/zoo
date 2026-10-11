@@ -14,11 +14,7 @@ Section mutex۰G.
   Please Definition condition۰inv t : iProp Σ :=
     True.
 
-  #[global] Instance condition۰invｰpersistent t :
-    Persistent (condition۰inv t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for condition۰inv.
 
   Lemma condition٠createｰspec :
     {{{

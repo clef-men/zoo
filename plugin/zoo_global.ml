@@ -95,12 +95,12 @@ let gFunctors_name ?(kind = Zoo) (theory : string) : string =
   | Iris ->
       Printf.sprintf "%s%s"
         theory
-        Iris.sigma
+        Iris._Sigma
   | Zoo ->
       Printf.sprintf "%s%s%s"
         theory
         Separator.cdot
-        Iris.sigma
+        Iris._Sigma
 let gFunctors_ident ?kind (theory : Names.Id.t) : Names.Id.t =
   theory
   |> Names.Id.to_string
@@ -130,7 +130,7 @@ let base spec =
   , Generalized (MaxImplicit, false)
   , mk_app
       (spec.base |> class_qualid |> Constrexpr_.mk_ref)
-      [Iris.sigma_ref]
+      [Iris._Sigma_ref]
   )
 
 let fields ~theory spec =
@@ -142,7 +142,7 @@ let fields ~theory spec =
       , []
       , mk_app
           (fld.theory |> class_qualid ~kind:fld.kind |> mk_ref)
-          (Iris.sigma_ref :: fld.arguments)
+          (Iris._Sigma_ref :: fld.arguments)
       )
     , { rfu_attrs= [("local", Attributes.VernacFlagEmpty) |> CAst.make]
       ; rfu_coercion= NoCoercion
@@ -159,7 +159,7 @@ let class_ ~theory spec =
   , VernacInductive
     ( Class false
     , [ ( ( (NoCoercion, (name, None))
-          , (Iris.sigma_binder :: base spec :: spec.parameters, None)
+          , (Iris._Sigma_binder :: base spec :: spec.parameters, None)
           , None
           , RecordDecl (None, fields ~theory spec, None)
           )
@@ -228,19 +228,19 @@ let subG ~theory spec =
       ~locality:SuperGlobal
       ~poly:PolyFlags.default
       (theory |> subG_name |> Names_.lname_of_string, None)
-      (Iris.sigma_binder :: base spec :: spec.parameters)
+      (Iris._Sigma_binder :: base spec :: spec.parameters)
       ( mk_arrow
           ( mk_app
               Iris.subG_ref
               [ mk_app
                   (theory |> gFunctors_name |> mk_ref_string)
                   params
-              ; Iris.sigma_ref
+              ; Iris._Sigma_ref
               ]
           )
           ( mk_app
               (theory |> class_name |> mk_ref_string)
-              (Iris.sigma_ref :: params)
+              (Iris._Sigma_ref :: params)
           )
       )
       Hints.empty_hint_info

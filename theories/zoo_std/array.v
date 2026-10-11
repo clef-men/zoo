@@ -37,17 +37,9 @@ Section zoo۰G.
       ⌜t = #l⌝ ∗
       l ↦ₕ Header Tag0 sz.
 
-    #[global] Instance array۰invｰtimeless t sz :
-      Timeless (array۰inv t sz).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for array۰inv.
 
-    #[global] Instance array۰invｰpersistent t sz :
-      Persistent (array۰inv t sz).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for array۰inv.
 
     Lemma array۰invｰagree t sz1 sz2 :
       array۰inv t sz1 -∗
@@ -65,17 +57,9 @@ Section zoo۰G.
       ⌜t = #l⌝ ∗
       chunk۰model (l +ₗ i) dq vs.
 
-    #[global] Instance array۰sliceｰtimeless t i dq vs :
-      Timeless (array۰slice t i dq vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for array۰slice.
 
-    #[global] Instance array۰sliceｰpersistent t i vs :
-      Persistent (array۰slice t i DfracDiscarded vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for array۰slice:discarded.
 
     #[global] Instance array۰sliceｰfractional t i vs :
       Fractional (λ q, array۰slice t i (DfracOwn q) vs).
@@ -373,17 +357,9 @@ Section zoo۰G.
       rewrite -Hvs' //.
     Qed.
 
-    #[global] Instance array۰modelｰtimeless t dq vs :
-      Timeless (array۰model t dq vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for array۰model.
 
-    #[global] Instance array۰modelｰpersistent t vs :
-      Persistent (array۰model t DfracDiscarded vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for array۰model:discarded.
 
     #[global] Instance array۰modelｰfractional t vs :
       Fractional (λ q, array۰model t (DfracOwn q) vs).
@@ -615,17 +591,9 @@ Section zoo۰G.
       iSteps.
     Qed.
 
-    #[global] Instance array۰csliceｰtimeless t sz i dq vs :
-      Timeless (array۰cslice t sz i dq vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for array۰cslice.
 
-    #[global] Instance array۰csliceｰpersistent t sz i vs :
-      Persistent (array۰cslice t sz i DfracDiscarded vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for array۰cslice:discarded.
 
     #[global] Instance array۰csliceｰfractional t sz i vs :
       Fractional (λ q, array۰cslice t sz i (DfracOwn q) vs).

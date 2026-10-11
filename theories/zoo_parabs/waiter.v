@@ -43,11 +43,7 @@ Section waiter۰G.
       )
     ".
 
-  #[global] Instance waiter۰invｰpersistent t :
-    Persistent (waiter۰inv t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for waiter۰inv.
 
   Lemma waiter٠createｰspec :
     {{{

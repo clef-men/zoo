@@ -45,3 +45,24 @@ VERNAC COMMAND EXTEND zoo_global
 | [ "Zoo" "global" zoo_global_spec(spec) ] ->
     { Zoo_global.main spec }
 END
+
+VERNAC ARGUMENT EXTEND zoo_derive_kind
+| [ "Timeless" ] ->
+    { Zoo_derive.Kind.Timeless }
+| [ "Persistent" ] ->
+    { Zoo_derive.Kind.Persistent }
+END
+
+VERNAC ARGUMENT EXTEND zoo_derive_modifier
+| [ ] ->
+    { Zoo_derive.Modifier.None }
+| [ ":" "discarded" ] ->
+    { Zoo_derive.Modifier.Discarded }
+END
+
+VERNAC COMMAND EXTEND zoo_derive
+  CLASSIFIED AS SIDEFF
+| #[ locality = Attributes.hint_locality_default_superglobal ]
+  [ "Zoo" "derive" zoo_derive_kind(kind) "for" reference(id) zoo_derive_modifier(modifier) ] ->
+    { Zoo_derive.derive ~locality ~kind ~modifier id }
+END

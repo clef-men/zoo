@@ -114,11 +114,7 @@ Section parray۰G.
       )
     ".
 
-  #[global] Instance parray۰modelｰpersistent t γ vs :
-    Persistent (parray۰model t γ vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for parray۰model.
 
   #[local] Lemma nodesｰalloc root vs :
     ⊢ |==>

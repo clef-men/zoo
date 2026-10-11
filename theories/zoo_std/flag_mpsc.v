@@ -106,27 +106,11 @@ Module base.
       apply _.
     Qed.
 
-    #[global] Instance flag_mpsc۰consumerｰtimeless γ :
-      Timeless (flag_mpsc۰consumer γ).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance flag_mpsc۰resolvedｰtimeless γ :
-      Timeless (flag_mpsc۰resolved γ).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for flag_mpsc۰consumer.
+    Zoo derive Timeless for flag_mpsc۰resolved.
 
-    #[global] Instance flag_mpsc۰invｰpersistent t γ P :
-      Persistent (flag_mpsc۰inv t γ P).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance flag_mpsc۰resolvedｰpersistent γ :
-      Persistent (flag_mpsc۰resolved γ).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for flag_mpsc۰inv.
+    Zoo derive Persistent for flag_mpsc۰resolved.
 
     #[local] Lemma stateｰalloc :
       ⊢ |==>
@@ -326,27 +310,11 @@ Section flag_mpsc۰G.
     apply _.
   Qed.
 
-  #[global] Instance flag_mpsc۰consumerｰtimeless t :
-    Timeless (flag_mpsc۰consumer t).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance flag_mpsc۰resolvedｰtimeless t :
-    Timeless (flag_mpsc۰resolved t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for flag_mpsc۰consumer.
+  Zoo derive Timeless for flag_mpsc۰resolved.
 
-  #[global] Instance flag_mpsc۰invｰpersistent t P :
-    Persistent (flag_mpsc۰inv t P).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance flag_mpsc۰resolvedｰpersistent t :
-    Persistent (flag_mpsc۰resolved t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for flag_mpsc۰inv.
+  Zoo derive Persistent for flag_mpsc۰resolved.
 
   Lemma flag_mpsc۰consumerｰexclusive t :
     flag_mpsc۰consumer t -∗

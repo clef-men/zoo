@@ -16,17 +16,9 @@ Section zoo۰G.
     Please Definition chunk۰model l dq vs : iProp Σ :=
       l ↦∗{dq} vs.
 
-    #[global] Instance chunk۰modelｰtimeless l dq vs :
-      Timeless (chunk۰model l dq vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for chunk۰model.
 
-    #[global] Instance chunk۰modelｰpersistent l vs :
-      Persistent (chunk۰model l DfracDiscarded vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for chunk۰model:discarded.
 
     #[global] Instance chunk۰modelｰfractional l vs :
       Fractional (λ q, chunk۰model l (DfracOwn q) vs).
@@ -327,17 +319,9 @@ Section zoo۰G.
       ⌜length vs = n⌝ ∗
       chunk۰model l dq vs.
 
-    #[global] Instance chunk۰spanｰtimeless l dq n :
-      Timeless (chunk۰span l dq n).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for chunk۰span.
 
-    #[global] Instance chunk۰spanｰpersistent l n :
-      Persistent (chunk۰span l DfracDiscarded n).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for chunk۰span:discarded.
 
     #[global] Instance chunk۰spanｰfractional l n :
       Fractional (λ q, chunk۰span l (DfracOwn q) n).
@@ -637,17 +621,9 @@ Section zoo۰G.
     Please Definition chunk۰cslice l sz i dq vs : iProp Σ :=
       [∗ list] k ↦ v ∈ vs, (l +ₗ (i + k) `mod` sz) ↦{dq} v.
 
-    #[global] Instance chunk۰csliceｰtimeless l sz i dq vs :
-      Timeless (chunk۰cslice l sz i dq vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for chunk۰cslice.
 
-    #[global] Instance chunk۰csliceｰpersistent l sz i vs :
-      Persistent (chunk۰cslice l sz i DfracDiscarded vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for chunk۰cslice:discarded.
 
     #[global] Instance chunk۰csliceｰfractional l sz i vs :
       Fractional (λ q, chunk۰cslice l sz i (DfracOwn q) vs).

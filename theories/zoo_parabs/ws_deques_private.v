@@ -384,27 +384,11 @@ Section ws_deques_private۰G.
       )
     ".
 
-  #[local] Instance owner₂ｰtimeless γ i status :
-    Timeless (owner₂ γ i status).
-  Proof.
-    apply _.
-  Qed.
-  #[local] Instance channels۰waitingｰtimeless γ i :
-    Timeless (channels۰waiting γ i).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ws_deques_private۰modelｰtimeless t vss :
-    Timeless (ws_deques_private۰model t vss).
-  Proof.
-    apply _.
-  Qed.
+  #[local] Zoo derive Timeless for owner₂.
+  #[local] Zoo derive Timeless for channels۰waiting.
+  Zoo derive Timeless for ws_deques_private۰model.
 
-  #[global] Instance ws_deques_private۰invｰpersistent t ι sz :
-    Persistent (ws_deques_private۰inv t ι sz).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for ws_deques_private۰inv.
 
   #[local] Lemma modelsｰalloc sz :
     ⊢ |==>

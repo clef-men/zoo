@@ -32,11 +32,7 @@ Section zoo۰G.
       )
     ".
 
-  #[global] Instance queue_2۰modelｰtimeless t vs :
-    Timeless (queue_2۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for queue_2۰model.
 
   Lemma queue_2٠createｰspec :
     {{{

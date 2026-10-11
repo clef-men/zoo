@@ -119,22 +119,10 @@ Section partition۰G.
       )
     ".
 
-  #[global] Instance partition۰modelｰtimeless γ part :
-    Timeless (partition۰model γ part).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance partition۰elementｰtimeless γ elt v :
-    Timeless (partition۰element γ elt v).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for partition۰model.
+  Zoo derive Timeless for partition۰element.
 
-  #[global] Instance partition۰elementｰpersistent γ elt v :
-    Persistent (partition۰element γ elt v).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for partition۰element.
 
   #[local] Lemma elementsｰalloc :
     ⊢ |==>

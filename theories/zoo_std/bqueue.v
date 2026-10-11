@@ -43,11 +43,7 @@ Section zoo۰G.
       )
     ".
 
-  #[global] Instance bqueue۰modelｰtimeless t cap vs :
-    Timeless (bqueue۰model t cap vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for bqueue۰model.
 
   Lemma bqueue۰modelｰvalid t cap vs :
     bqueue۰model t cap vs ⊢

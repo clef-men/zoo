@@ -184,22 +184,10 @@ Module base.
       " Hmodel₁{_{}}
       ".
 
-    #[global] Instance queue_spmc۰modelｰtimeless γ vs :
-      Timeless (queue_spmc۰model γ vs).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance queue_spmc۰producerｰtimeless t γ ws :
-      Timeless (queue_spmc۰producer t γ ws).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for queue_spmc۰model.
+    Zoo derive Timeless for queue_spmc۰producer.
 
-    #[global] Instance queue_spmc۰invｰpersistent t γ ι :
-      Persistent (queue_spmc۰inv t γ ι).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for queue_spmc۰inv.
 
     #[local] Lemma historyｰalloc front :
       ⊢ |==>
@@ -919,22 +907,10 @@ Section queue_spmc۰G.
       )
     ".
 
-  #[global] Instance queue_spmc۰modelｰtimeless t vs :
-    Timeless (queue_spmc۰model t vs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance queue_spmc۰producerｰtimeless t ws :
-    Timeless (queue_spmc۰producer t ws).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for queue_spmc۰model.
+  Zoo derive Timeless for queue_spmc۰producer.
 
-  #[global] Instance queue_spmc۰invｰpersistent t ι :
-    Persistent (queue_spmc۰inv t ι).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for queue_spmc۰inv.
 
   Lemma queue_spmc۰modelｰexclusive t vs1 vs2 :
     queue_spmc۰model t vs1 -∗

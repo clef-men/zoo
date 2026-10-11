@@ -120,22 +120,10 @@ Section semaphore۰G.
     apply _.
   Qed.
 
-  #[global] Instance semaphore۰lockedｰtimeless t :
-    Timeless (semaphore۰locked t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for semaphore۰locked.
 
-  #[local] Instance tokens۰authｰpersistent γ cap :
-    Persistent (tokens۰auth γ cap).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance semaphore۰invｰpersistent t cap P :
-    Persistent (semaphore۰inv t cap P).
-  Proof.
-    apply _.
-  Qed.
+  #[local] Zoo derive Persistent for tokens۰auth.
+  Zoo derive Persistent for semaphore۰inv.
 
   #[local] Lemma tokensｰalloc cap :
     ⊢ |==>

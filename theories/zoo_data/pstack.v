@@ -13,17 +13,9 @@ Section zoo۰G.
   Please Definition pstack۰model t vs : iProp Σ :=
     list۰model t vs.
 
-  #[global] Instance pstack۰modelｰtimeless t vs :
-    Timeless (pstack۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for pstack۰model.
 
-  #[global] Instance pstack۰modelｰpersistent t vs :
-    Persistent (pstack۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for pstack۰model.
 
   Lemma pstack۰modelｰnil :
     ⊢ pstack۰model pstack٠empty [].

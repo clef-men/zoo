@@ -245,36 +245,13 @@ Section bqueue_spsc۰G.
       )
     ".
 
-  #[global] Instance bqueue_spsc۰invｰpersistent t ι cap :
-    Persistent (bqueue_spsc۰inv t ι cap).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance bqueue_spsc۰modelｰtimeless t vs :
-    Timeless (bqueue_spsc۰model t vs).
-  Proof.
-    apply _.
-  Qed.
-  #[local] Instance producer₂ｰtimeless γ stable back :
-    Timeless (producer₂ γ stable back).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance bqueue_spsc۰producerｰtimeless t ws :
-    Timeless (bqueue_spsc۰producer t ws).
-  Proof.
-    apply _.
-  Qed.
-  #[local] Instance consumer₂ｰtimeless γ stable front :
-    Timeless (consumer₂ γ stable front).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance bqueue_spsc۰consumerｰtimeless t :
-    Timeless (bqueue_spsc۰consumer t).
-  Proof.
-    apply _.
-  Qed.
+  #[local] Zoo derive Timeless for producer₂.
+  #[local] Zoo derive Timeless for consumer₂.
+  Zoo derive Timeless for bqueue_spsc۰model.
+  Zoo derive Timeless for bqueue_spsc۰producer.
+  Zoo derive Timeless for bqueue_spsc۰consumer.
+
+  Zoo derive Persistent for bqueue_spsc۰inv.
 
   #[local] Lemma modelｰproducerｰalloc :
     ⊢ |==>

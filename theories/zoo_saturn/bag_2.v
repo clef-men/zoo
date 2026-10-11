@@ -237,22 +237,10 @@ Section bag_2۰G.
       )
     ".
 
-  #[local] Instance queues۰authｰtimeless γ nodes descrs wss :
-    Timeless (queues۰auth γ nodes descrs wss).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance bag_2۰modelｰtimeless t vss :
-    Timeless (bag_2۰model t vss).
-  Proof.
-    apply _.
-  Qed.
+  #[local] Zoo derive Timeless for queues۰auth.
+  Zoo derive Timeless for bag_2۰model.
 
-  #[global] Instance bag_2۰invｰpersistent t ι :
-    Persistent (bag_2۰inv t ι).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for bag_2۰inv.
 
   #[local] Lemma queuesｰalloc :
     ⊢ |==>

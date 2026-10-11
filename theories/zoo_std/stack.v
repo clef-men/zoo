@@ -12,11 +12,7 @@ Section zoo۰G.
   Please Definition stack۰model t vs :=
     dynarray_1۰model t (reverse vs).
 
-  #[global] Instance stack۰modelｰtimeless t vs :
-    Timeless (stack۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for stack۰model.
 
   Lemma stack٠makeｰspec :
     {{{

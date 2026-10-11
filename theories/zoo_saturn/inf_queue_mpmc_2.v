@@ -467,47 +467,19 @@ Module base.
       " Hmodel₁{_{}}
       ".
 
-    #[global] Instance inf_queue_mpmc_2۰modelｰtimeless γ vs :
-      Timeless (inf_queue_mpmc_2۰model γ vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for inf_queue_mpmc_2۰model.
 
-    #[local] Instance lstates۰atｰpersistent γ i lstate :
-      Persistent (lstates۰at γ i lstate).
-    Proof.
-      apply _.
-    Qed.
-    #[local] Instance lstates۰lbｰpersistent γ i lstate :
-      Persistent (lstates۰lb γ i lstate).
-    Proof.
-      apply _.
-    Qed.
-    #[local] Instance producers۰atｰpersistent γ i :
-      Persistent (producers۰at γ i Discard).
-    Proof.
-      apply _.
-    Qed.
-    #[local] Instance consumers۰atｰpersistent γ i :
-      Persistent (consumers۰at γ i Discard).
-    Proof.
-      apply _.
-    Qed.
-    #[local] Instance consumers۰lbｰpersistent γ i :
-      Persistent (consumers۰lb γ i).
-    Proof.
-      apply _.
-    Qed.
+    #[local] Zoo derive Persistent for lstates۰at.
+    #[local] Zoo derive Persistent for lstates۰lb.
+    #[local] Zoo derive Persistent for producers۰at:discarded.
+    #[local] Zoo derive Persistent for consumers۰at:discarded.
+    #[local] Zoo derive Persistent for consumers۰lb.
     #[local] Instance inv۰slotｰpersistent γ i slot past :
       Persistent (inv۰slot γ i slot past).
     Proof.
       destruct slot; apply _.
     Qed.
-    #[global] Instance inf_queue_mpmc_2۰invｰpersistent t γ ι :
-      Persistent (inf_queue_mpmc_2۰inv t γ ι).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for inf_queue_mpmc_2۰inv.
 
     #[local] Lemma modelｰalloc :
       ⊢ |==>
@@ -1497,17 +1469,9 @@ Section inf_queue_mpmc_2۰G.
       )
     ".
 
-  #[global] Instance inf_queue_mpmc_2۰modelｰtimeless t vs :
-    Timeless (inf_queue_mpmc_2۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for inf_queue_mpmc_2۰model.
 
-  #[global] Instance inf_queue_mpmc_2۰invｰpersistent t ι :
-    Persistent (inf_queue_mpmc_2۰inv t ι).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for inf_queue_mpmc_2۰inv.
 
   Lemma inf_queue_mpmc_2۰modelｰexclusive t vs1 vs2 :
     inf_queue_mpmc_2۰model t vs1 -∗

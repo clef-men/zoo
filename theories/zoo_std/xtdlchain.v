@@ -16,11 +16,7 @@ Section zoo۰G.
     xdlchain src nodes dst ∗
     [∗ list] node ∈ nodes, headers۰at node hdr.
 
-  #[global] Instance xtdlchainｰtimeless hdr src nodes dst :
-    Timeless (xtdlchain hdr src nodes dst).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for xtdlchain.
 
   Lemma xtdlchainｰnil hdr src dst :
     ⊢ xtdlchain hdr src [] dst.

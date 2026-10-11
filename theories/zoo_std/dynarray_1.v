@@ -37,11 +37,7 @@ Section zoo۰G.
       )
     ".
 
-  #[global] Instance dynarray_1۰modelｰtimeless t vs :
-    Timeless (dynarray_1۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for dynarray_1۰model.
 
   Lemma dynarray_1٠createｰspec' :
     {{{

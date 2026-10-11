@@ -144,17 +144,9 @@ Module base.
       " Hmodel₁{_{}}
       ".
 
-    #[global] Instance stack_mpmc_3۰modelｰtimeless γ vs :
-      Timeless (stack_mpmc_3۰model γ vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for stack_mpmc_3۰model.
 
-    #[global] Instance stack_mpmc_3۰invｰpersistent t γ ι :
-      Persistent (stack_mpmc_3۰inv t γ ι).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for stack_mpmc_3۰inv.
 
     #[local] Lemma modelｰalloc :
       ⊢ |==>
@@ -520,17 +512,9 @@ Section stack_mpmc_3۰G.
       )
     ".
 
-  #[global] Instance stack_mpmc_3۰modelｰtimeless t vs :
-    Timeless (stack_mpmc_3۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for stack_mpmc_3۰model.
 
-  #[global] Instance stack_mpmc_3۰invｰpersistent t ι :
-    Persistent (stack_mpmc_3۰inv t ι).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for stack_mpmc_3۰inv.
 
   Lemma stack_mpmc_3۰modelｰexclusive t vs1 vs2 :
     stack_mpmc_3۰model t vs1 -∗

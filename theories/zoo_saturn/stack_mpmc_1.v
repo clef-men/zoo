@@ -65,17 +65,9 @@ Section stack_mpmc_1۰G.
       )
     ".
 
-  #[global] Instance stack_mpmc_1۰modelｰtimeless t vs :
-    Timeless (stack_mpmc_1۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for stack_mpmc_1۰model.
 
-  #[global] Instance stack_mpmc_1۰invｰpersistent t ι :
-    Persistent (stack_mpmc_1۰inv t ι).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for stack_mpmc_1۰inv.
 
   #[local] Lemma modelｰalloc :
     ⊢ |==>

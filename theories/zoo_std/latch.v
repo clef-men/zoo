@@ -157,22 +157,10 @@ Module base.
       solve_proper.
     Qed.
 
-    #[global] Instance latch۰initｰtimeless t γ sz :
-      Timeless (latch۰init t γ sz).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance latch۰tokenｰpersistent γ :
-      Timeless (latch۰token γ).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for latch۰init.
+    Zoo derive Timeless for latch۰token.
 
-    #[global] Instance latch۰invｰpersistent t γ P Q :
-      Persistent (latch۰inv t γ P Q).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for latch۰inv.
 
     #[local] Lemma tokensｰalloc sz :
       ⊢ |==>
@@ -433,22 +421,10 @@ Section latch_G.
       )
     ".
 
-  #[global] Instance latch۰initｰtimeless t sz :
-    Timeless (latch۰init t sz).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance latch۰tokenｰtimeless t :
-    Timeless (latch۰token t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for latch۰init.
+  Zoo derive Timeless for latch۰token.
 
-  #[global] Instance latch۰invｰpersistent t P Q :
-    Persistent (latch۰inv t P Q).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for latch۰inv.
 
   Lemma latch۰initｰexclusive t sz1 sz2 :
     latch۰init t sz1 -∗

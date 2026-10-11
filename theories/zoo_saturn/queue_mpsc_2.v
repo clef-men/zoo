@@ -104,22 +104,10 @@ Section queue_mpsc_2۰G.
       )
     ".
 
-  #[global] Instance queue_mpsc_2۰modelｰtimeless t vs :
-    Timeless (queue_mpsc_2۰model t vs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance queue_mpsc_2۰consumerｰtimeless t :
-    Timeless (queue_mpsc_2۰consumer t ).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for queue_mpsc_2۰model.
+  Zoo derive Timeless for queue_mpsc_2۰consumer.
 
-  #[global] Instance queue_mpsc_2۰invｰpersistent t ι :
-    Persistent (queue_mpsc_2۰inv t ι).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for queue_mpsc_2۰inv.
 
   #[local] Lemma modelｰalloc :
     ⊢ |==>

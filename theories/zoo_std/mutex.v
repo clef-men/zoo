@@ -69,22 +69,10 @@ Section mutex۰G.
     apply _.
   Qed.
 
-  #[global] Instance mutex۰initｰtimeless t b :
-    Timeless (mutex۰init t b).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance mutex۰lockedｰtimeless t :
-    Timeless (mutex۰locked t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for mutex۰init.
+  Zoo derive Timeless for mutex۰locked.
 
-  #[global] Instance mutex۰invｰpersistent t P :
-    Persistent (mutex۰inv t P).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for mutex۰inv.
 
   Lemma mutex۰initｰexclusive t b1 b2 :
     mutex۰init t b1 -∗

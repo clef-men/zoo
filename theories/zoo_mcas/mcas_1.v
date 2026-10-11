@@ -582,55 +582,26 @@ Section mcas_1۰G.
       case_decide; iSteps.
   Qed.
 
-  #[local] Instance model₂ｰtimeless γ v :
-    Timeless (model₂ γ v).
-  Proof.
-    apply _.
-  Qed.
-  #[local] Instance history۰authｰtimeless γ casns :
-    Timeless (history۰auth γ casns).
-  Proof.
-    apply _.
-  Qed.
-  #[local] Instance lockｰtimeless η i :
-    Timeless (lock η i).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance mcas_1۰loc۰modelｰtimeless loc ι :
-    Timeless (mcas_1۰loc۰model loc ι).
-  Proof.
-    apply _.
-  Qed.
+  #[local] Zoo derive Timeless for model₂.
+  #[local] Zoo derive Timeless for history۰auth.
+  #[local] Zoo derive Timeless for lock.
+  Zoo derive Timeless for mcas_1۰loc۰model.
 
-  #[local] Instance history۰lbｰpersistent γ casns :
-    Persistent (history۰lb γ casns).
-  Proof.
-    apply _.
-  Qed.
+  #[local] Zoo derive Persistent for history۰lb.
   #[local] Instance loc۰inv'ｰpersistent loc γ ι :
     Persistent (loc۰inv' ι (loc, γ)).
   Proof.
     rewrite loc۰inv'ｰunfold.
     apply _.
   Qed.
-  #[global] Instance mcas_1۰loc۰invｰpersistent loc γ ι :
-    Persistent (mcas_1۰loc۰inv loc ι).
-  Proof.
-    rewrite /mcas_1۰loc۰inv.
-    apply _.
-  Qed.
+  Zoo derive Persistent for mcas_1۰loc۰inv.
   #[local] Instance casn۰inv''ｰpersistent casn η (i : option nat) ι :
     Persistent (casn۰inv'' ι (casn, η, i)).
   Proof.
     rewrite casn۰inv''ｰunfold.
     apply _.
   Qed.
-  #[local] Instance casn۰inv'ｰpersistent casn η ι :
-    Persistent (casn۰inv' ι casn η).
-  Proof.
-    apply _.
-  Qed.
+  #[local] Zoo derive Persistent for casn۰inv'.
 
   #[local] Lemma modelｰalloc v :
     ⊢ |==>

@@ -167,17 +167,9 @@ Module base.
       repeat (apply HΨ || apply HΧ || f_equiv || done).
     Qed.
 
-    #[global] Instance exchanger_1۰initｰtimeless t γ :
-      Timeless (exchanger_1۰init t γ).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for exchanger_1۰init.
 
-    #[global] Instance exchanger_1۰invｰpersistent t γ ι Ψ Χ :
-      Persistent (exchanger_1۰inv t γ ι Ψ Χ).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for exchanger_1۰inv.
 
     #[local] Lemma tokenｰalloc :
       ⊢ |==>
@@ -482,17 +474,9 @@ Section exchanger_1۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance exchanger_1۰initｰtimeless t :
-    Timeless (exchanger_1۰init t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for exchanger_1۰init.
 
-  #[global] Instance exchanger_1۰invｰpersistent t ι Ψ Χ :
-    Persistent (exchanger_1۰inv t ι Ψ Χ).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for exchanger_1۰inv.
 
   Lemma exchanger_1۰initｰexclusive t :
     exchanger_1۰init t -∗

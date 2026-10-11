@@ -49,11 +49,7 @@ Section waiters۰G.
       )
     ".
 
-  #[global] Instance waiters۰invｰpersistent t sz :
-    Persistent (waiters۰inv t sz).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for waiters۰inv.
 
   Lemma waiters٠createｰspec sz :
     (0 ≤ sz)%Z →

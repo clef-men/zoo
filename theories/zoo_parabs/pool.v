@@ -342,37 +342,13 @@ Module base.
       solve_proper.
     Qed.
 
-    #[local] Instance globals۰modelｰtimeless γ globals :
-      Timeless (globals۰model γ globals).
-    Proof.
-      apply _.
-    Qed.
+    #[local] Zoo derive Timeless for globals۰model.
 
-    #[local] Instance jobs۰elemｰpersistent γ job :
-      Persistent (jobs۰elem γ job).
-    Proof.
-      apply _.
-    Qed.
-    #[local] Instance jobs۰finishedｰpersistent jobs :
-      Persistent (jobs۰finished jobs).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance pool۰invｰpersistent γ sz :
-      Persistent (pool۰inv γ sz).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance pool۰obligationｰpersistent γ P :
-      Persistent (pool۰obligation γ P).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance pool۰finishedｰpersistent γ :
-      Persistent (pool۰finished γ).
-    Proof.
-      apply _.
-    Qed.
+    #[local] Zoo derive Persistent for jobs۰elem.
+    #[local] Zoo derive Persistent for jobs۰finished.
+    Zoo derive Persistent for pool۰inv.
+    Zoo derive Persistent for pool۰obligation.
+    Zoo derive Persistent for pool۰finished.
 
     #[local] Lemma jobsｰalloc :
       ⊢ |==>
@@ -1271,21 +1247,9 @@ Section pool۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance pool۰invｰpersistent t sz :
-    Persistent (pool۰inv t sz).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance pool۰obligationｰpersistent t P :
-    Persistent (pool۰obligation t P).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance pool۰finishedｰpersistent t :
-    Persistent (pool۰finished t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for pool۰inv.
+  Zoo derive Persistent for pool۰obligation.
+  Zoo derive Persistent for pool۰finished.
 
   Lemma pool۰invｰagree t sz1 sz2 :
     pool۰inv t sz1 -∗

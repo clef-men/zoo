@@ -210,17 +210,9 @@ Section suf۰G.
       )
     ".
 
-  #[global] Instance suf۰modelｰtimeless t reprs :
-    Timeless (suf۰model t reprs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for suf۰model.
 
-  #[global] Instance suf۰snapshotｰpersistent s t reprs :
-    Persistent (suf۰snapshot s t reprs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for suf۰snapshot.
 
   Lemma suf۰modelｰvalid {t reprs} elt repr :
     reprs !! elt = Some repr →

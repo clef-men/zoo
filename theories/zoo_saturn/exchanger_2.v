@@ -98,17 +98,9 @@ Section exchanger_2۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance exchanger_1۰initｰtimeless t :
-    Timeless (exchanger_1۰init t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for exchanger_2۰init.
 
-  #[global] Instance exchanger_2۰invｰpersistent t ι Ψ Χ :
-    Persistent (exchanger_2۰inv t ι Ψ Χ).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for exchanger_2۰inv.
 
   Lemma exchanger_2۰initｰexclusive t :
     exchanger_2۰init t -∗

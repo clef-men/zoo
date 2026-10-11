@@ -194,17 +194,9 @@ Module base.
         )
       ".
 
-    #[global] Instance bqueue_mpmc۰modelｰtimeless γ vs :
-      Timeless (bqueue_mpmc۰model γ vs).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for bqueue_mpmc۰model.
 
-    #[global] Instance bqueue_mpmc۰invｰpersistent t γ ι cap :
-      Persistent (bqueue_mpmc۰inv t γ ι cap).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for bqueue_mpmc۰inv.
 
     #[local] Lemma historyｰalloc front :
       ⊢ |==>
@@ -1356,17 +1348,9 @@ Section bqueue_mpmc۰G.
       )
     ".
 
-  #[global] Instance bqueue_mpmc۰modelｰtimeless t vs :
-    Timeless (bqueue_mpmc۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for bqueue_mpmc۰model.
 
-  #[global] Instance bqueue_mpmc۰invｰpersistent t ι cap :
-    Persistent (bqueue_mpmc۰inv t ι cap).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for bqueue_mpmc۰inv.
 
   Lemma bqueue_mpmc۰modelｰvalid t ι cap vs :
     bqueue_mpmc۰inv t ι cap -∗

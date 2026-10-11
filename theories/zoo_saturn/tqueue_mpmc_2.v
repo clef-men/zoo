@@ -274,27 +274,11 @@ Section tqueue_mpmc_2۰G.
       )
     ".
 
-  #[global] Instance tqueue_mpmc_2۰modelｰtimeless t vs :
-    Timeless (tqueue_mpmc_2۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for tqueue_mpmc_2۰model.
 
-  #[global] Instance tqueue_mpmc_2۰invｰpersistent t ι :
-    Persistent (tqueue_mpmc_2۰inv t ι).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance tqueue_mpmc_2۰fullｰpersistent t :
-    Persistent (tqueue_mpmc_2۰full t).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance tqueue_mpmc_2۰finishedｰpersistent t :
-    Persistent (tqueue_mpmc_2۰finished t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for tqueue_mpmc_2۰inv.
+  Zoo derive Persistent for tqueue_mpmc_2۰full.
+  Zoo derive Persistent for tqueue_mpmc_2۰finished.
 
   Lemma tqueue_mpmc_2۰modelｰexclusive t vs1 vs2 :
     tqueue_mpmc_2۰model t vs1 -∗

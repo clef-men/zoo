@@ -40,8 +40,8 @@ Module base.
       oneshot۰pending γ_lstate (DfracOwn (2/3)) ().
     #[local] Definition lstate۰unset₂ γ :=
       lstate۰unset₂' γ.(ivar_1۰name۰lstate).
-    #[local] Definition lstate۰set' γ_lstate :=
-      oneshot۰shot γ_lstate.
+    #[local] Definition lstate۰set' γ_lstate v :=
+      oneshot۰shot γ_lstate v.
     #[local] Definition lstate۰set γ :=
       lstate۰set' γ.(ivar_1۰name۰lstate).
 
@@ -151,27 +151,11 @@ Module base.
       apply _.
     Qed.
 
-    #[global] Instance ivar_1۰producerｰtimeless γ :
-      Timeless (ivar_1۰producer γ).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ivar_1۰resultｰtimeless γ v :
-      Timeless (ivar_1۰result γ v).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for ivar_1۰producer.
+    Zoo derive Timeless for ivar_1۰result.
 
-    #[global] Instance ivar_1۰invｰpersistent t γ Ψ Ξ :
-      Persistent (ivar_1۰inv t γ Ψ Ξ).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ivar_1۰resultｰpersistent γ v :
-      Persistent (ivar_1۰result γ v).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for ivar_1۰inv.
+    Zoo derive Persistent for ivar_1۰result.
 
     #[local] Lemma lstateｰalloc :
       ⊢ |==>
@@ -704,27 +688,11 @@ Section ivar_1۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance ivar_1۰producerｰtimeless t :
-    Timeless (ivar_1۰producer t).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_1۰resultｰtimeless t v :
-    Timeless (ivar_1۰result t v).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for ivar_1۰producer.
+  Zoo derive Timeless for ivar_1۰result.
 
-  #[global] Instance ivar_1۰invｰpersistent t Ψ Ξ :
-    Persistent (ivar_1۰inv t Ψ Ξ).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_1۰resultｰpersistent t v :
-    Persistent (ivar_1۰result t v).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for ivar_1۰inv.
+  Zoo derive Persistent for ivar_1۰result.
 
   Lemma ivar_1۰producerｰexclusive t :
     ivar_1۰producer t -∗

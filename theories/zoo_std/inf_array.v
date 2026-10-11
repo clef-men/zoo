@@ -102,11 +102,7 @@ Section inf_array۰G.
         if decide (i < length vsₗ) then vsₗ !!! i else vsᵣ (i - length vsₗ)
     ).
 
-  #[global] Instance inf_array۰invｰpersistent t :
-    Persistent (inf_array۰inv t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for inf_array۰inv.
 
   #[global] Instance inf_array۰modelｰne t n :
     Proper (
@@ -125,11 +121,7 @@ Section inf_array۰G.
     intros vs1 vs2 Hvs. rewrite equiv_dist. solve_proper.
   Qed.
 
-  #[global] Instance inf_array۰modelｰtimeless t vs :
-    Timeless (inf_array۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for inf_array۰model.
 
   #[global] Instance inf_array۰model'ｰne t n :
     Proper (
@@ -150,11 +142,7 @@ Section inf_array۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance inf_array۰model'ｰtimeless t vsₗ vsᵣ :
-    Timeless (inf_array۰model' t vsₗ vsᵣ).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for inf_array۰model'.
 
   #[local] Lemma modelｰalloc default :
     ⊢ |==>

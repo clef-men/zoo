@@ -22,11 +22,7 @@ Section zoo۰G.
     l.[next] ↦ from_option (#ˡ) t (head nodes) ∗
     xdlchain t nodes t.
 
-  #[global] Instance xdeque۰modelｰtimeless t nodes :
-    Timeless (xdeque۰model t nodes).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for xdeque۰model.
 
   Lemma xdeque۰modelｰexclusive t nodes1 nodes2 :
     xdeque۰model t nodes1 -∗

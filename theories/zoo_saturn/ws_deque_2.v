@@ -88,22 +88,10 @@ Module base.
         )
       ".
 
-    #[global] Instance ws_deque_2۰modelｰtimeless γ vs :
-      Timeless (ws_deque_2۰model γ vs).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ws_deque_2۰ownerｰtimeless γ ws :
-      Timeless (ws_deque_2۰owner γ ws).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for ws_deque_2۰model.
+    Zoo derive Timeless for ws_deque_2۰owner.
 
-    #[global] Instance ws_deque_2۰invｰpersistent t γ ι :
-      Persistent (ws_deque_2۰inv t γ ι).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for ws_deque_2۰inv.
 
     #[local] Lemma modelｰownerｰalloc :
       ⊢ |==>
@@ -482,22 +470,10 @@ Section ws_deque_2۰G.
       )
     ".
 
-  #[global] Instance ws_deque_2۰modelｰtimeless γ vs :
-    Timeless (ws_deque_2۰model γ vs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ws_deque_2۰ownerｰtimeless γ ws :
-    Timeless (ws_deque_2۰owner γ ws).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for ws_deque_2۰model.
+  Zoo derive Timeless for ws_deque_2۰owner.
 
-  #[global] Instance ws_deque_2۰invｰpersistent t ι :
-    Persistent (ws_deque_2۰inv t ι).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for ws_deque_2۰inv.
 
   Lemma ws_deque_2۰modelｰexclusive t vs1 vs2 :
     ws_deque_2۰model t vs1 -∗

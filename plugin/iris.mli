@@ -13,14 +13,34 @@ val gFunctors_app :
 val gFunctors_app_ref :
   Constrexpr.constr_expr
 
-val sigma :
+val _Sigma :
   string
-val sigma_ref :
+val _Sigma_ref :
   Constrexpr.constr_expr
-val sigma_binder :
+val _Sigma_binder :
   Constrexpr.local_binder_expr
 
 val subG :
   string
 val subG_ref :
+  Constrexpr.constr_expr
+
+val _Timeless :
+  string
+val _Timeless_ref :
+  Constrexpr.constr_expr
+
+val _Persistent :
+  string
+val _Persistent_ref :
+  Constrexpr.constr_expr
+
+val dfrac :
+  string
+val dfrac_constr :
+  unit -> Constr.t
+
+val _DfracDiscarded :
+  string
+val _DfracDiscarded_ref :
   Constrexpr.constr_expr

@@ -141,17 +141,9 @@ Section bag_1۰G.
       )
     ".
 
-  #[global] Instance bag_1۰modelｰtimeless t vs :
-    Timeless (bag_1۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for bag_1۰model.
 
-  #[global] Instance bag_1۰invｰpersistent t ι :
-    Persistent (bag_1۰inv t ι).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for bag_1۰inv.
 
   #[local] Lemma modelｰalloc :
     ⊢ |==>

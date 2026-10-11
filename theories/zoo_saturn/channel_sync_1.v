@@ -215,17 +215,9 @@ Module base.
       repeat (apply HΨₛ || apply HΨᵣ || apply HΧₛ || apply HΧᵣ || f_equiv || done).
     Qed.
 
-    #[global] Instance channel_sync_1۰initｰtimeless t γ :
-      Timeless (channel_sync_1۰init t γ).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for channel_sync_1۰init.
 
-    #[global] Instance channel_sync_1۰invｰpersistent t γ ι Ψₛ Ψᵣ Χₛ Χᵣ :
-      Persistent (channel_sync_1۰inv t γ ι Ψₛ Ψᵣ Χₛ Χᵣ).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for channel_sync_1۰inv.
 
     #[local] Lemma tokenｰalloc :
       ⊢ |==>
@@ -681,17 +673,9 @@ Section channel_sync_1۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance channel_sync_1۰initｰtimeless t :
-    Timeless (channel_sync_1۰init t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for channel_sync_1۰init.
 
-  #[global] Instance channel_sync_1۰invｰpersistent t ι Ψₛ Ψᵣ Χₛ Χᵣ :
-    Persistent (channel_sync_1۰inv t ι Ψₛ Ψᵣ Χₛ Χᵣ).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for channel_sync_1۰inv.
 
   Lemma channel_sync_1۰initｰexclusive t :
     channel_sync_1۰init t -∗

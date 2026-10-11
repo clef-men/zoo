@@ -1,5 +1,8 @@
 open Constrexpr
 
+let hole =
+  CHole None |> CAst.make
+
 let mk_ref id =
   CRef (id, None) |> CAst.make
 let mk_ref_string str =

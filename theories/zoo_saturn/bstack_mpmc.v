@@ -111,17 +111,9 @@ Section bstack_mpmc۰G.
       )
     ".
 
-  #[global] Instance bstack_mpmc۰modelｰtimeless t vs :
-    Timeless (bstack_mpmc۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for bstack_mpmc۰model.
 
-  #[global] Instance bstack_mpmc۰invｰpersistent t ι cap :
-    Persistent (bstack_mpmc۰inv t ι cap).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for bstack_mpmc۰inv.
 
   #[local] Lemma modelｰalloc :
     ⊢ |==>

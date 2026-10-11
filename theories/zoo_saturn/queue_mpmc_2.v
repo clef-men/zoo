@@ -434,32 +434,12 @@ Section queue_mpmc_2۰G.
       )
     ".
 
-  #[local] Instance state۰authｰtimeless γ backs i status :
-    Timeless (state۰auth γ backs i status).
-  Proof.
-    apply _.
-  Qed.
-  #[local] Instance state۰atｰtimeless γ back i_back :
-    Timeless (state۰at γ back i_back).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance queue_mpmc_2۰modelｰtimeless t vs :
-    Timeless (queue_mpmc_2۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  #[local] Zoo derive Timeless for state۰auth.
+  #[local] Zoo derive Timeless for state۰at.
+  Zoo derive Timeless for queue_mpmc_2۰model.
 
-  #[local] Instance state۰atｰpersistent γ back i_back :
-    Persistent (state۰at γ back i_back).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance queue_mpmc_2۰invｰpersistent t ι :
-    Persistent (queue_mpmc_2۰inv t ι).
-  Proof.
-    apply _.
-  Qed.
+  #[local] Zoo derive Persistent for state۰at.
+  Zoo derive Persistent for queue_mpmc_2۰inv.
 
   #[local] Lemma modelｰalloc :
     ⊢ |==>

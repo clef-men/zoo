@@ -170,11 +170,7 @@ Module base.
       case_decide; iApply (timeless with "H").
     Qed.
 
-    #[global] Instance sstore_2۰snapshotｰpersistent s t σ :
-      Persistent (sstore_2۰snapshot s t σ).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for sstore_2۰snapshot.
 
     #[local] Lemma store۰onｰdom σ₀ ς :
       dom (store۰on σ₀ ς) = dom σ₀ ∪ dom ς.
@@ -1516,17 +1512,9 @@ Section sstore_2۰G.
     mono_gmap۰lb γ σ₀ ∗
     base.sstore_2۰snapshot s t ς.
 
-  #[global] Instance sstore_2۰modelｰtimeless t σ :
-    Timeless (sstore_2۰model t σ).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for sstore_2۰model.
 
-  #[global] Instance sstore_2۰snapshotｰpersistent s t σ :
-    Persistent (sstore_2۰snapshot s t σ).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for sstore_2۰snapshot.
 
   Lemma sstore_2۰modelｰexclusive t σ1 σ2 :
     sstore_2۰model t σ1 -∗

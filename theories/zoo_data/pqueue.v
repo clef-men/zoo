@@ -16,17 +16,9 @@ Section zoo۰G.
     ∃ front back,
     ⌜t = (list۰to_val front, list۰to_val back)%V ∧ vs = front ++ reverse back⌝.
 
-  #[global] Instance pqueue۰modelｰtimeless t vs :
-    Timeless (pqueue۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for pqueue۰model.
 
-  #[global] Instance pqueue۰modelｰpersistent t vs :
-    Persistent (pqueue۰model t vs).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for pqueue۰model.
 
   Lemma pqueue۰modelｰnil :
     ⊢ pqueue۰model pqueue٠empty [].

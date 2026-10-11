@@ -43,8 +43,8 @@ Module base.
       oneshot۰pending γ_lstate (DfracOwn (2/3)) ().
     #[local] Definition lstate۰unset₂ γ :=
       lstate۰unset₂' γ.(ivar_2۰name۰lstate).
-    #[local] Definition lstate۰set γ :=
-      oneshot۰shot γ.(ivar_2۰name۰lstate).
+    #[local] Definition lstate۰set γ v :=
+      oneshot۰shot γ.(ivar_2۰name۰lstate) v.
 
     #[local] Definition consumer۰auth' :=
       subpreds۰auth.
@@ -164,37 +164,13 @@ Module base.
       apply _.
     Qed.
 
-    #[global] Instance ivar_2۰producerｰtimeless γ :
-      Timeless (ivar_2۰producer γ).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ivar_2۰resultｰtimeless γ v :
-      Timeless (ivar_2۰result γ v).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ivar_2۰synchronizedｰtimeless γ :
-      Timeless (ivar_2۰synchronized γ).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Timeless for ivar_2۰producer.
+    Zoo derive Timeless for ivar_2۰result.
+    Zoo derive Timeless for ivar_2۰synchronized.
 
-    #[global] Instance ivar_2۰invｰpersistent t γ Ψ Ξ :
-      Persistent (ivar_2۰inv t γ Ψ Ξ).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ivar_2۰resultｰpersistent γ v :
-      Persistent (ivar_2۰result γ v).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance ivar_2۰synchronizedｰpersistent γ :
-      Persistent (ivar_2۰synchronized γ).
-    Proof.
-      apply _.
-    Qed.
+    Zoo derive Persistent for ivar_2۰inv.
+    Zoo derive Persistent for ivar_2۰result.
+    Zoo derive Persistent for ivar_2۰synchronized.
 
     #[local] Lemma lstateｰalloc :
       ⊢ |==>
@@ -827,37 +803,13 @@ Section ivar_2۰G.
     solve_proper.
   Qed.
 
-  #[global] Instance ivar_2۰producerｰtimeless t :
-    Timeless (ivar_2۰producer t).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_2۰resultｰtimeless t v :
-    Timeless (ivar_2۰result t v).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_2۰synchronizedｰtimeless t :
-    Timeless (ivar_2۰synchronized t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Timeless for ivar_2۰producer.
+  Zoo derive Timeless for ivar_2۰result.
+  Zoo derive Timeless for ivar_2۰synchronized.
 
-  #[global] Instance ivar_2۰invｰpersistent t Ψ Ξ :
-    Persistent (ivar_2۰inv t Ψ Ξ).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_2۰resultｰpersistent t v :
-    Persistent (ivar_2۰result t v).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_2۰synchronizedｰpersistent t :
-    Persistent (ivar_2۰synchronized t).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for ivar_2۰inv.
+  Zoo derive Persistent for ivar_2۰result.
+  Zoo derive Persistent for ivar_2۰synchronized.
 
   Lemma ivar_2۰producerｰexclusive t :
     ivar_2۰producer t -∗
