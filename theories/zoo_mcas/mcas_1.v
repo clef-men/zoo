@@ -119,33 +119,33 @@ Record metadata :=
   ; metadata۰winning : gname
   ; metadata۰owner : gname
   }.
-Implicit Type η : metadata.
+Implicit Type κ : metadata.
 
 #[local] Please derive Inhabited for metadata.
 #[local] Please derive EqDecision for metadata.
 #[local] Please derive Countable for metadata.
 
-#[local] Definition metadata۰size η :=
-  length η.(metadata۰descrs).
-#[local] Definition metadata۰cass η :=
-  descriptor۰cas <$> η.(metadata۰descrs).
-#[local] Definition metadata۰𝑐𝑎𝑠𝑠 η :=
-  list۰to_val $ metadata۰cass η.
-#[local] Definition metadata۰outcome η :=
-  hd inhabitant η.(metadata۰prophs).
-#[local] Definition metadata۰winner η :=
-  (metadata۰outcome η).1.
-#[local] Definition metadata۰success η :=
-  (metadata۰outcome η).2.
-#[local] Definition metadata۰final η :=
-  final_status۰to_val $ final_status۰of_bool $ metadata۰success η.
+#[local] Definition metadata۰size κ :=
+  length κ.(metadata۰descrs).
+#[local] Definition metadata۰cass κ :=
+  descriptor۰cas <$> κ.(metadata۰descrs).
+#[local] Definition metadata۰𝑐𝑎𝑠𝑠 κ :=
+  list۰to_val $ metadata۰cass κ.
+#[local] Definition metadata۰outcome κ :=
+  hd inhabitant κ.(metadata۰prophs).
+#[local] Definition metadata۰winner κ :=
+  (metadata۰outcome κ).1.
+#[local] Definition metadata۰success κ :=
+  (metadata۰outcome κ).2.
+#[local] Definition metadata۰final κ :=
+  final_status۰to_val $ final_status۰of_bool $ metadata۰success κ.
 
 #[local] Please derive Inhabited for status.
 
-#[local] Definition status۰to_val η status : val :=
+#[local] Definition status۰to_val κ status : val :=
   match status with
   | Undetermined =>
-      ‘Undetermined@η.(metadata۰undetermined)[ metadata۰𝑐𝑎𝑠𝑠 η ]
+      ‘Undetermined@κ.(metadata۰undetermined)[ metadata۰𝑐𝑎𝑠𝑠 κ ]
   | After =>
       §After
   | Before =>
@@ -202,8 +202,8 @@ Proof.
     + apply lstepsｰfinished in Hlsteps as [=].
 Qed.
 
-#[local] Definition descriptor۰final descr η :=
-  if metadata۰success η then
+#[local] Definition descriptor۰final descr κ :=
+  if metadata۰success κ then
     descr.(descriptor۰after)
   else
     descr.(descriptor۰before).
@@ -236,20 +236,20 @@ Section mcas_1۰G.
   #[local] Definition model₂ γ v :=
     model₂' γ.(loc۰metadata۰model) v.
 
-  #[local] Definition lstatus۰auth' η_lstatus lstatus :=
-    auth_mono۰auth _ η_lstatus (DfracOwn 1) lstatus.
-  #[local] Definition lstatus۰auth η lstatus :=
-    lstatus۰auth' η.(metadata۰lstatus) lstatus.
-  #[local] Definition lstatus۰lb η lstatus :=
-    auth_mono۰lb _ η.(metadata۰lstatus) lstatus.
+  #[local] Definition lstatus۰auth' κ_lstatus lstatus :=
+    auth_mono۰auth _ κ_lstatus (DfracOwn 1) lstatus.
+  #[local] Definition lstatus۰auth κ lstatus :=
+    lstatus۰auth' κ.(metadata۰lstatus) lstatus.
+  #[local] Definition lstatus۰lb κ lstatus :=
+    auth_mono۰lb _ κ.(metadata۰lstatus) lstatus.
 
   #[local] Definition history۰auth' γ_history casns : iProp Σ :=
     mono_list۰auth γ_history (DfracOwn 1) casns ∗
     ⌜NoDup casns⌝ ∗
     [∗ list] casn ∈ removelast casns,
-      ∃ η,
-      casn ↪ η ∗
-      lstatus۰lb η Finished.
+      ∃ κ,
+      casn ↪ κ ∗
+      lstatus۰lb κ Finished.
   #[local] Definition history۰auth γ casns :=
     history۰auth' γ.(loc۰metadata۰history) casns.
   #[local] Definition history۰lb γ casns : iProp Σ :=
@@ -260,114 +260,114 @@ Section mcas_1۰G.
   #[local] Definition history۰elem γ casn :=
     history۰elem' γ.(loc۰metadata۰history) casn.
 
-  #[local] Definition lock' η_lock :=
-    excl η_lock ().
-  #[local] Definition lock η i : iProp Σ :=
-    ∃ η_lock,
-    ⌜η.(metadata۰locks) !! i = Some η_lock⌝ ∗
-    lock' η_lock.
+  #[local] Definition lock' κ_lock :=
+    excl κ_lock ().
+  #[local] Definition lock κ i : iProp Σ :=
+    ∃ κ_lock,
+    ⌜κ.(metadata۰locks) !! i = Some κ_lock⌝ ∗
+    lock' κ_lock.
 
-  #[local] Definition helpers۰auth' η_helpers helpers :=
-    ghost_map_auth η_helpers (DfracOwn 1) helpers.
-  #[local] Definition helpers۰auth η helpers :=
-    helpers۰auth' η.(metadata۰helpers) helpers.
-  #[local] Definition helpers۰elem η helper i :=
-    ghost_map_elem η.(metadata۰helpers) helper (DfracOwn 1) i.
+  #[local] Definition helpers۰auth' κ_helpers helpers :=
+    ghost_map_auth κ_helpers (DfracOwn 1) helpers.
+  #[local] Definition helpers۰auth κ helpers :=
+    helpers۰auth' κ.(metadata۰helpers) helpers.
+  #[local] Definition helpers۰elem κ helper i :=
+    ghost_map_elem κ.(metadata۰helpers) helper (DfracOwn 1) i.
 
-  #[local] Definition winning' η_winning :=
-    excl η_winning ().
-  #[local] Definition winning η :=
-    winning' η.(metadata۰winning).
+  #[local] Definition winning' κ_winning :=
+    excl κ_winning ().
+  #[local] Definition winning κ :=
+    winning' κ.(metadata۰winning).
 
-  #[local] Definition owner' η_owner :=
-    excl η_owner ().
-  #[local] Definition owner η :=
-    owner' η.(metadata۰owner).
+  #[local] Definition owner' κ_owner :=
+    excl κ_owner ().
+  #[local] Definition owner κ :=
+    owner' κ.(metadata۰owner).
 
-  #[local] Definition au η ι Ψ : iProp Σ :=
+  #[local] Definition au κ ι Ψ : iProp Σ :=
     AU <{
       ∃∃ vs,
-      [∗ list] descr; v ∈ η.(metadata۰descrs); vs,
+      [∗ list] descr; v ∈ κ.(metadata۰descrs); vs,
         model₁ descr.(descriptor۰meta) v
     }> @ ⊤ ∖ ↑ι, ∅ <{
       ∀∀ b,
       if b then
-        ⌜vs ≈ descriptor۰before <$> η.(metadata۰descrs)⌝ ∗
-        [∗ list] descr ∈ η.(metadata۰descrs),
+        ⌜vs ≈ descriptor۰before <$> κ.(metadata۰descrs)⌝ ∗
+        [∗ list] descr ∈ κ.(metadata۰descrs),
           model₁ descr.(descriptor۰meta) descr.(descriptor۰after)
       else
         ∃ i descr v,
-        ⌜η.(metadata۰descrs) !! i = Some descr⌝ ∗
+        ⌜κ.(metadata۰descrs) !! i = Some descr⌝ ∗
         ⌜vs !! i = Some v⌝ ∗
         ⌜descr.(descriptor۰before) ≉ v⌝ ∗
-        [∗ list] descr; v ∈ η.(metadata۰descrs); vs,
+        [∗ list] descr; v ∈ κ.(metadata۰descrs); vs,
           model₁ descr.(descriptor۰meta) v
     , COMM
       Ψ b
     }>.
 
-  #[local] Definition helper۰au' η ι descr P : iProp Σ :=
+  #[local] Definition helper۰au' κ ι descr P : iProp Σ :=
     AU <{
       ∃∃ v,
       model₁ descr.(descriptor۰meta) v
     }> @ ⊤ ∖ ↑ι, ∅ <{
-      ⌜v ≈ descriptor۰final descr η⌝ ∗
+      ⌜v ≈ descriptor۰final descr κ⌝ ∗
       model₁ descr.(descriptor۰meta) v
     , COMM
       P
     }>.
-  #[local] Definition helper۰au η ι i P : iProp Σ :=
+  #[local] Definition helper۰au κ ι i P : iProp Σ :=
     ∃ descr,
-    ⌜η.(metadata۰descrs) !! i = Some descr⌝ ∗
-    helper۰au' η ι descr P.
+    ⌜κ.(metadata۰descrs) !! i = Some descr⌝ ∗
+    helper۰au' κ ι descr P.
 
   #[local] Definition casn۰inv۰name ι casn :=
     ι.@"casn".@casn.
-  #[local] Definition casn۰inv۰inner casn η ι Ψ : iProp Σ :=
+  #[local] Definition casn۰inv۰inner casn κ ι Ψ : iProp Σ :=
     ∃ 𝑠𝑡𝑎𝑡𝑢𝑠 lstatus helpers prophs,
     casn.[status] ↦ 𝑠𝑡𝑎𝑡𝑢𝑠 ∗
-    lstatus۰auth η lstatus ∗
-    helpers۰auth η helpers ∗
-    prophet_typed۰model global_prophet η.(metadata۰prophet) prophs ∗
+    lstatus۰auth κ lstatus ∗
+    helpers۰auth κ helpers ∗
+    prophet_typed۰model global_prophet κ.(metadata۰prophet) prophs ∗
     match lstatus with
     | Running i =>
-        ⌜𝑠𝑡𝑎𝑡𝑢𝑠 = status۰to_val η Undetermined⌝ ∗
-        ⌜prophs = η.(metadata۰prophs)⌝ ∗
-        ( au η ι Ψ ∗
-          winning η
-        ∨ identifier۰model (metadata۰winner η)
+        ⌜𝑠𝑡𝑎𝑡𝑢𝑠 = status۰to_val κ Undetermined⌝ ∗
+        ⌜prophs = κ.(metadata۰prophs)⌝ ∗
+        ( au κ ι Ψ ∗
+          winning κ
+        ∨ identifier۰model (metadata۰winner κ)
         ) ∗
         ( [∗ map] helper ↦ j ∈ helpers,
           ∃ P,
           ⌜j < i⌝ ∗
           saved_prop helper P ∗
-          helper۰au η ι j P
+          helper۰au κ ι j P
         ) ∗
-        ( [∗ list] descr ∈ η.(metadata۰descrs),
+        ( [∗ list] descr ∈ κ.(metadata۰descrs),
           descr.(descriptor۰state).[before] ↦ descr.(descriptor۰before) ∗
           descr.(descriptor۰state).[after] ↦ descr.(descriptor۰after)
         ) ∗
-        ( [∗ list] descr ∈ take i η.(metadata۰descrs),
+        ( [∗ list] descr ∈ take i κ.(metadata۰descrs),
           model₂ descr.(descriptor۰meta) descr.(descriptor۰before) ∗
           history۰elem descr.(descriptor۰meta) casn
         ) ∗
-        ( [∗ list] j ∈ seq i (metadata۰size η - i),
-          lock η j
+        ( [∗ list] j ∈ seq i (metadata۰size κ - i),
+          lock κ j
         )
     | Finished =>
-        ⌜𝑠𝑡𝑎𝑡𝑢𝑠 = metadata۰final η⌝ ∗
-        identifier۰model (metadata۰winner η) ∗
-        (owner η ∨ Ψ (metadata۰success η)) ∗
+        ⌜𝑠𝑡𝑎𝑡𝑢𝑠 = metadata۰final κ⌝ ∗
+        identifier۰model (metadata۰winner κ) ∗
+        (owner κ ∨ Ψ (metadata۰success κ)) ∗
         ( [∗ map] helper ↦ _ ∈ helpers,
           ∃ P,
           saved_prop helper P ∗
           P
         ) ∗
-        ( [∗ list] i ↦ descr ∈ η.(metadata۰descrs),
-          ( model₂ descr.(descriptor۰meta) (descriptor۰final descr η)
-          ∨ lock η i
+        ( [∗ list] i ↦ descr ∈ κ.(metadata۰descrs),
+          ( model₂ descr.(descriptor۰meta) (descriptor۰final descr κ)
+          ∨ lock κ i
           ) ∗
-          if metadata۰success η then
+          if metadata۰success κ then
             history۰elem descr.(descriptor۰meta) casn ∗
             descr.(descriptor۰state).[after] ↦ descr.(descriptor۰after) ∗
             descr.(descriptor۰state).[before] ↦-
@@ -411,13 +411,13 @@ Section mcas_1۰G.
     (loc۰inv' : location * loc۰metadata -d> iProp Σ)
   : location * metadata * option nat -d> iProp Σ
   :=
-    λ '(casn, η, i), (
+    λ '(casn, κ, i), (
       ∃ Ψ,
-      casn.[proph] ↦□ #η.(metadata۰prophet) ∗
-      saved_pred η.(metadata۰post) Ψ ∗
-      ⌜NoDup (descriptor۰loc <$> η.(metadata۰descrs))⌝ ∗
-      inv (casn۰inv۰name ι casn) (casn۰inv۰inner casn η ι Ψ) ∗
-      [∗ list] j ↦ descr ∈ η.(metadata۰descrs),
+      casn.[proph] ↦□ #κ.(metadata۰prophet) ∗
+      saved_pred κ.(metadata۰post) Ψ ∗
+      ⌜NoDup (descriptor۰loc <$> κ.(metadata۰descrs))⌝ ∗
+      inv (casn۰inv۰name ι casn) (casn۰inv۰inner casn κ ι Ψ) ∗
+      [∗ list] j ↦ descr ∈ κ.(metadata۰descrs),
         if i is Some i then
           if decide (j = i) then
             descr.(descriptor۰loc) ↪ descr.(descriptor۰meta) ∗
@@ -453,19 +453,19 @@ Section mcas_1۰G.
   #[local] Definition loc۰inv۰name ι :=
     ι.@"loc".
   #[local] Definition loc۰inv۰inner'' full casn۰inv' loc γ : iProp Σ :=
-    ∃ casns casn η i descr,
-    casn ↪ η ∗
-    ⌜η.(metadata۰descrs) !! i = Some descr⌝ ∗
+    ∃ casns casn κ i descr,
+    casn ↪ κ ∗
+    ⌜κ.(metadata۰descrs) !! i = Some descr⌝ ∗
     ⌜loc = descr.(descriptor۰loc)⌝ ∗
     loc ↦ᵣ #descr.(descriptor۰state) ∗
-    lstatus۰lb η (Running ˖i) ∗
-    lock η i ∗
+    lstatus۰lb κ (Running ˖i) ∗
+    lock κ i ∗
     history۰auth γ (casns ++ [casn]) ∗
-    casn۰inv' (casn, η, if full then None else Some i).
+    casn۰inv' (casn, κ, if full then None else Some i).
   #[local] Instance : CustomIpat "loc۰inv۰inner" :=
     " ( %casns{}
       & %casn{}
-      & %η{}
+      & %κ{}
       & %i{}
       & %descr{}
       & {>;}{#}Hcasn{}_meta
@@ -500,12 +500,12 @@ Section mcas_1۰G.
 
   #[local] Definition casn۰inv'' ι :=
     fixpoint_A (casn۰inv۰pre ι) (loc۰inv۰pre ι).
-  #[local] Definition casn۰inv' ι casn η :=
-    casn۰inv'' ι (casn, η, None).
+  #[local] Definition casn۰inv' ι casn κ :=
+    casn۰inv'' ι (casn, κ, None).
   #[local] Definition casn۰inv casn ι : iProp Σ :=
-    ∃ η,
-    casn ↪ η ∗
-    casn۰inv' ι casn η.
+    ∃ κ,
+    casn ↪ κ ∗
+    casn۰inv' ι casn κ.
 
   #[local] Definition loc۰inv' ι :=
     fixpoint_B (casn۰inv۰pre ι) (loc۰inv۰pre ι).
@@ -527,15 +527,15 @@ Section mcas_1۰G.
       )
     ".
 
-  #[local] Lemma casn۰inv''ｰunfold ι casn (i : option nat) η :
-    casn۰inv'' ι (casn, η, i) ⊣⊢
-    casn۰inv۰pre ι (casn۰inv'' ι) (loc۰inv' ι) (casn, η, i).
+  #[local] Lemma casn۰inv''ｰunfold ι casn (i : option nat) κ :
+    casn۰inv'' ι (casn, κ, i) ⊣⊢
+    casn۰inv۰pre ι (casn۰inv'' ι) (loc۰inv' ι) (casn, κ, i).
   Proof.
     symmetry. apply (fixpoint_A_unfold (casn۰inv۰pre ι) (loc۰inv۰pre ι) _).
   Qed.
-  #[local] Lemma casn۰inv'ｰunfold ι casn η :
-    casn۰inv' ι casn η ⊣⊢
-    casn۰inv۰pre ι (casn۰inv'' ι) (loc۰inv' ι) (casn, η, None).
+  #[local] Lemma casn۰inv'ｰunfold ι casn κ :
+    casn۰inv' ι casn κ ⊣⊢
+    casn۰inv۰pre ι (casn۰inv'' ι) (loc۰inv' ι) (casn, κ, None).
   Proof.
     apply casn۰inv''ｰunfold.
   Qed.
@@ -595,8 +595,8 @@ Section mcas_1۰G.
     apply _.
   Qed.
   Zoo derive Persistent for mcas_1۰loc۰inv.
-  #[local] Instance casn۰inv''ｰpersistent casn η (i : option nat) ι :
-    Persistent (casn۰inv'' ι (casn, η, i)).
+  #[local] Instance casn۰inv''ｰpersistent casn κ (i : option nat) ι :
+    Persistent (casn۰inv'' ι (casn, κ, i)).
   Proof.
     rewrite casn۰inv''ｰunfold.
     apply _.
@@ -657,53 +657,53 @@ Section mcas_1۰G.
 
   #[local] Lemma lstatusｰalloc lstatus :
     ⊢ |==>
-      ∃ η_lstatus,
-      lstatus۰auth' η_lstatus lstatus.
+      ∃ κ_lstatus,
+      lstatus۰auth' κ_lstatus lstatus.
   Proof.
     apply: auth_monoｰalloc.
   Qed.
-  #[local] Lemma lstatus۰lbｰget η lstatus :
-    lstatus۰auth η lstatus ⊢
-    lstatus۰lb η lstatus.
+  #[local] Lemma lstatus۰lbｰget κ lstatus :
+    lstatus۰auth κ lstatus ⊢
+    lstatus۰lb κ lstatus.
   Proof.
     apply auth_mono۰lbｰget.
   Qed.
-  #[local] Lemma lstatus۰lbｰgetｰrunning0 η lstatus :
-    lstatus۰auth η lstatus ⊢
-    lstatus۰lb η (Running 0).
+  #[local] Lemma lstatus۰lbｰgetｰrunning0 κ lstatus :
+    lstatus۰auth κ lstatus ⊢
+    lstatus۰lb κ (Running 0).
   Proof.
     apply auth_mono۰lbｰgetｰmono, lstepsｰrunning0.
   Qed.
-  #[local] Lemma lstatus۰lbｰgetｰfinished {η} lstatus :
-    lstatus۰auth η Finished ⊢
-    lstatus۰lb η lstatus.
+  #[local] Lemma lstatus۰lbｰgetｰfinished {κ} lstatus :
+    lstatus۰auth κ Finished ⊢
+    lstatus۰lb κ lstatus.
   Proof.
     destruct lstatus.
     - apply auth_mono۰lbｰgetｰmono'. done.
     - apply lstatus۰lbｰget.
   Qed.
-  #[local] Lemma lstatusｰfinished η lstatus :
-    lstatus۰auth η lstatus -∗
-    lstatus۰lb η Finished -∗
+  #[local] Lemma lstatusｰfinished κ lstatus :
+    lstatus۰auth κ lstatus -∗
+    lstatus۰lb κ Finished -∗
     ⌜lstatus = Finished⌝.
   Proof.
     iIntros "Hlstatus_auth Hlstatus_lb".
     iDestruct (auth_mono۰lbｰvalid with "Hlstatus_auth Hlstatus_lb") as %->%lstepsｰfinished.
     iSteps.
   Qed.
-  #[local] Lemma lstatusｰle η i1 i2 :
-    lstatus۰auth η (Running i1) -∗
-    lstatus۰lb η (Running i2) -∗
+  #[local] Lemma lstatusｰle κ i1 i2 :
+    lstatus۰auth κ (Running i1) -∗
+    lstatus۰lb κ (Running i2) -∗
     ⌜i2 ≤ i1⌝.
   Proof.
     iIntros "Hlstatus_auth Hlstatus_lb".
     iDestruct (auth_mono۰lbｰvalid with "Hlstatus_auth Hlstatus_lb") as %Hlsteps.
     iPureIntro. eapply lstepsｰle; done.
   Qed.
-  #[local] Lemma lstatusｰupdate {η lstatus} lstatus' :
+  #[local] Lemma lstatusｰupdate {κ lstatus} lstatus' :
     lstep lstatus lstatus' →
-    lstatus۰auth η lstatus ⊢ |==>
-    lstatus۰auth η lstatus'.
+    lstatus۰auth κ lstatus ⊢ |==>
+    lstatus۰auth κ lstatus'.
   Proof.
     apply auth_monoｰupdate'.
   Qed.
@@ -777,24 +777,24 @@ Section mcas_1۰G.
     iIntros "(Hhistory_auth & _) Hhistory_elem".
     iApply (mono_list۰elemｰvalid with "Hhistory_auth Hhistory_elem").
   Qed.
-  #[local] Lemma historyｰrunning γ casns casn1 casn2 η2 i :
+  #[local] Lemma historyｰrunning γ casns casn1 casn2 κ2 i :
     history۰auth γ (casns ++ [casn1]) -∗
-    casn2 ↪ η2 -∗
-    lstatus۰auth η2 (Running i) -∗
+    casn2 ↪ κ2 -∗
+    lstatus۰auth κ2 (Running i) -∗
     ⌜casn2 ∉ casns⌝.
   Proof.
     iIntros "(Hhistory_auth & %Hcasns & Hcasns) Hcasn2_meta Hlstatus2_auth" ((j & Hcasns_lookup)%list_elem_of_lookup).
-    iDestruct (big_sepL_lookup with "Hcasns") as "(%_η2 & _Hcasn2_meta & Hlstatus2_lb)".
+    iDestruct (big_sepL_lookup with "Hcasns") as "(%_κ2 & _Hcasn2_meta & Hlstatus2_lb)".
     { rewrite removelast_last //. }
     iDestruct (metaｰagree with "Hcasn2_meta _Hcasn2_meta") as %<-. iClear "_Hcasn2_meta".
     iDestruct (lstatusｰfinished with "Hlstatus2_auth Hlstatus2_lb") as %[=].
   Qed.
-  #[local] Lemma historyｰupdate {γ casns casn1 η1} casn2 :
+  #[local] Lemma historyｰupdate {γ casns casn1 κ1} casn2 :
     casn2 ∉ casns →
     casn2 ≠ casn1 →
     history۰auth γ (casns ++ [casn1]) -∗
-    casn1 ↪ η1 -∗
-    lstatus۰lb η1 Finished ==∗
+    casn1 ↪ κ1 -∗
+    lstatus۰lb κ1 Finished ==∗
       history۰auth γ ((casns ++ [casn1]) ++ [casn2]) ∗
       history۰elem γ casn2.
   Proof.
@@ -807,16 +807,16 @@ Section mcas_1۰G.
       rewrite comm NoDup_cons not_elem_of_app list_elem_of_singleton //.
     - rewrite !removelast_last big_sepL_snoc. iSteps.
   Qed.
-  #[local] Lemma historyｰupdateｰrunning {γ casns casn1 η1} casn2 η2 i :
+  #[local] Lemma historyｰupdateｰrunning {γ casns casn1 κ1} casn2 κ2 i :
     casn1 ≠ casn2 →
     history۰auth γ (casns ++ [casn1]) -∗
-    casn1 ↪ η1 -∗
-    lstatus۰lb η1 Finished -∗
-    casn2 ↪ η2 -∗
-    lstatus۰auth η2 (Running i) ==∗
+    casn1 ↪ κ1 -∗
+    lstatus۰lb κ1 Finished -∗
+    casn2 ↪ κ2 -∗
+    lstatus۰auth κ2 (Running i) ==∗
       history۰auth γ ((casns ++ [casn1]) ++ [casn2]) ∗
       history۰elem γ casn2 ∗
-      lstatus۰auth η2 (Running i).
+      lstatus۰auth κ2 (Running i).
   Proof.
     iIntros "% Hhistory_auth Hcasn1_meta Hlstatus1_lb Hcasn2_meta Hlstatus2_auth".
     iDestruct (historyｰrunning with "Hhistory_auth Hcasn2_meta Hlstatus2_auth") as %?.
@@ -826,27 +826,27 @@ Section mcas_1۰G.
 
   #[local] Lemma lockｰalloc :
     ⊢ |==>
-      ∃ η_lock,
-      lock' η_lock.
+      ∃ κ_lock,
+      lock' κ_lock.
   Proof.
     apply exclｰalloc.
   Qed.
   #[local] Lemma lockｰallocs n :
     ⊢ |==>
-      ∃ ηs_lock,
-      ⌜length ηs_lock = n⌝ ∗
-      [∗ list] η_lock ∈ ηs_lock,
-        lock' η_lock.
+      ∃ κs_lock,
+      ⌜length κs_lock = n⌝ ∗
+      [∗ list] κ_lock ∈ κs_lock,
+        lock' κ_lock.
   Proof.
     iInduction n as [| n] "IH".
     - iExists []. iSteps.
-    - iMod lockｰalloc as "(%η_lock & Hlock)".
-      iMod "IH" as "(%ηs_lock & %Hlength & Hlocks)".
-      iExists (η_lock :: ηs_lock). iSteps.
+    - iMod lockｰalloc as "(%κ_lock & Hlock)".
+      iMod "IH" as "(%κs_lock & %Hlength & Hlocks)".
+      iExists (κ_lock :: κs_lock). iSteps.
   Qed.
-  #[local] Lemma lockｰexclusive η i :
-    lock η i -∗
-    lock η i -∗
+  #[local] Lemma lockｰexclusive κ i :
+    lock κ i -∗
+    lock κ i -∗
     False.
   Proof.
     iIntros "(%γ_lock & %Hlookup & Hexcl1) (%_γ_lock & %_Hlookup & Hexcl2)".
@@ -856,16 +856,16 @@ Section mcas_1۰G.
 
   #[local] Lemma helpersｰalloc :
     ⊢ |==>
-      ∃ η_helpers,
-      helpers۰auth' η_helpers ∅.
+      ∃ κ_helpers,
+      helpers۰auth' κ_helpers ∅.
   Proof.
     apply ghost_map_alloc_empty.
   Qed.
-  #[local] Lemma helpersｰinsert {η helpers} i P :
-    helpers۰auth η helpers ⊢ |==>
+  #[local] Lemma helpersｰinsert {κ helpers} i P :
+    helpers۰auth κ helpers ⊢ |==>
       ∃ helper,
-      helpers۰auth η (<[helper := i]> helpers) ∗
-      helpers۰elem η helper i ∗
+      helpers۰auth κ (<[helper := i]> helpers) ∗
+      helpers۰elem κ helper i ∗
       saved_prop helper P.
   Proof.
     iIntros "Hhelpers_auth".
@@ -874,31 +874,31 @@ Section mcas_1۰G.
     { apply not_elem_of_dom. done. }
     iSteps.
   Qed.
-  #[local] Lemma helpersｰlookup η helpers helper i :
-    helpers۰auth η helpers -∗
-    helpers۰elem η helper i -∗
+  #[local] Lemma helpersｰlookup κ helpers helper i :
+    helpers۰auth κ helpers -∗
+    helpers۰elem κ helper i -∗
     ⌜helpers !! helper = Some i⌝.
   Proof.
     apply ghost_map_lookup.
   Qed.
-  #[local] Lemma helpersｰdelete η helpers helper i :
-    helpers۰auth η helpers -∗
-    helpers۰elem η helper i ==∗
-    helpers۰auth η (delete helper helpers).
+  #[local] Lemma helpersｰdelete κ helpers helper i :
+    helpers۰auth κ helpers -∗
+    helpers۰elem κ helper i ==∗
+    helpers۰auth κ (delete helper helpers).
   Proof.
     apply ghost_map_delete.
   Qed.
 
   #[local] Lemma winningｰalloc :
     ⊢ |==>
-      ∃ η_winning,
-      winning' η_winning.
+      ∃ κ_winning,
+      winning' κ_winning.
   Proof.
     apply exclｰalloc.
   Qed.
-  #[local] Lemma winningｰexclusive η :
-    winning η -∗
-    winning η -∗
+  #[local] Lemma winningｰexclusive κ :
+    winning κ -∗
+    winning κ -∗
     False.
   Proof.
     apply exclｰexclusive.
@@ -906,14 +906,14 @@ Section mcas_1۰G.
 
   #[local] Lemma ownerｰalloc :
     ⊢ |==>
-      ∃ η_owner,
-      owner' η_owner.
+      ∃ κ_owner,
+      owner' κ_owner.
   Proof.
     apply exclｰalloc.
   Qed.
-  #[local] Lemma ownerｰexclusive η :
-    owner η -∗
-    owner η -∗
+  #[local] Lemma ownerｰexclusive κ :
+    owner κ -∗
+    owner κ -∗
     False.
   Proof.
     apply exclｰexclusive.
@@ -933,16 +933,16 @@ Section mcas_1۰G.
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  #[local] Lemma casnｰhelp {casn η ι Ψ i} descr P :
-    η.(metadata۰descrs) !! i = Some descr →
-    inv (casn۰inv۰name ι casn) (casn۰inv۰inner casn η ι Ψ) -∗
-    lock η i -∗
-    helper۰au' η ι descr P -∗
+  #[local] Lemma casnｰhelp {casn κ ι Ψ i} descr P :
+    κ.(metadata۰descrs) !! i = Some descr →
+    inv (casn۰inv۰name ι casn) (casn۰inv۰inner casn κ ι Ψ) -∗
+    lock κ i -∗
+    helper۰au' κ ι descr P -∗
       |={⊤ ∖ ↑loc۰inv۰name ι}=>
       ∃ helper,
-      lock η i ∗
+      lock κ i ∗
       saved_prop helper P ∗
-      helpers۰elem η helper i.
+      helpers۰elem κ helper i.
   Proof.
     iIntros "%Hdescrs_lookup #Hcasn_inv Hlock H".
     iInv "Hcasn_inv" as "(:casn۰inv۰inner)".
@@ -976,11 +976,11 @@ Section mcas_1۰G.
       iSplitR "Hlock Hhelpers_elem". { iFrameSteps 2. }
       iFrameSteps.
   Qed.
-  #[local] Lemma casnｰretrieve casn η ι Ψ helper P i :
-    inv (casn۰inv۰name ι casn) (casn۰inv۰inner casn η ι Ψ) -∗
-    lstatus۰lb η Finished -∗
+  #[local] Lemma casnｰretrieve casn κ ι Ψ helper P i :
+    inv (casn۰inv۰name ι casn) (casn۰inv۰inner casn κ ι Ψ) -∗
+    lstatus۰lb κ Finished -∗
     saved_prop helper P -∗
-    helpers۰elem η helper i ={⊤}=∗
+    helpers۰elem κ helper i ={⊤}=∗
     ▷^2 P.
   Proof.
     iIntros "#Hcasn_inv #Hlstatus_lb #Hhelper Hhelpers_elem".
@@ -997,14 +997,14 @@ Section mcas_1۰G.
     do 3 iModIntro. iRewrite "Heq". iSteps.
   Qed.
 
-  #[local] Lemma statusｰspecｰfinished casn η ι :
+  #[local] Lemma statusｰspecｰfinished casn κ ι :
     {{{
-      casn۰inv' ι casn η ∗
-      lstatus۰lb η Finished
+      casn۰inv' ι casn κ ∗
+      lstatus۰lb κ Finished
     }}}
       (#casn).{status}
     {{{
-      RET metadata۰final η;
+      RET metadata۰final κ;
       True
     }}}.
   Proof.
@@ -1018,17 +1018,17 @@ Section mcas_1۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma beforeｰspec {casn η ι} i descr :
-    η.(metadata۰descrs) !! i = Some descr →
+  #[local] Lemma beforeｰspec {casn κ ι} i descr :
+    κ.(metadata۰descrs) !! i = Some descr →
     {{{
-      casn۰inv' ι casn η
+      casn۰inv' ι casn κ
     }}}
       (#descr.(descriptor۰state)).{before}
     {{{
       v
     , RET v;
         ⌜v = descr.(descriptor۰before)⌝
-      ∨ lstatus۰lb η Finished
+      ∨ lstatus۰lb κ Finished
     }}}.
   Proof.
     iIntros "%Hdescrs_lookup %Φ #Hcasn_inv' HΦ".
@@ -1046,7 +1046,7 @@ Section mcas_1۰G.
 
     - iDestruct "Hlstatus" as "(:casn۰inv۰inner۰finished >)".
       iDestruct (lstatus۰lbｰget with "Hlstatus_auth") as "#Hlstatus_lb".
-      destruct (metadata۰success η) eqn:Hsuccess.
+      destruct (metadata۰success κ) eqn:Hsuccess.
       1: iDestruct (big_sepL_lookup_acc with "Hdescrs") as "((Hmodel₂ & History_elem & Hstate_after & %v & Hstate_before) & Hdescrs)"; first done.
       2: iDestruct (big_sepL_lookup_acc with "Hdescrs") as "((Hmodel₂ & Hstate_before & Hstate_after) & Hdescrs)"; first done.
       all: wp۰load.
@@ -1054,12 +1054,12 @@ Section mcas_1۰G.
       all: iSplitR "HΦ"; first (rewrite /casn۰inv۰inner Hsuccess; iFrameSteps 2).
       all: iApply "HΦ"; iRight; iSteps.
   Qed.
-  #[local] Lemma beforeｰspecｰfinished {casn η ι} i descr :
-    η.(metadata۰descrs) !! i = Some descr →
-    metadata۰success η = false →
+  #[local] Lemma beforeｰspecｰfinished {casn κ ι} i descr :
+    κ.(metadata۰descrs) !! i = Some descr →
+    metadata۰success κ = false →
     {{{
-      casn۰inv' ι casn η ∗
-      lstatus۰lb η Finished
+      casn۰inv' ι casn κ ∗
+      lstatus۰lb κ Finished
     }}}
       (#descr.(descriptor۰state)).{before}
     {{{
@@ -1080,12 +1080,12 @@ Section mcas_1۰G.
     iSplitR "HΦ". { rewrite /casn۰inv۰inner Hsuccess. iFrameSteps 2. }
     iSteps.
   Qed.
-  #[local] Lemma set_beforeｰspecｰfinished {casn η ι} i descr v :
-    η.(metadata۰descrs) !! i = Some descr →
-    metadata۰success η = true →
+  #[local] Lemma set_beforeｰspecｰfinished {casn κ ι} i descr v :
+    κ.(metadata۰descrs) !! i = Some descr →
+    metadata۰success κ = true →
     {{{
-      casn۰inv' ι casn η ∗
-      lstatus۰lb η Finished
+      casn۰inv' ι casn κ ∗
+      lstatus۰lb κ Finished
     }}}
       (#descr.(descriptor۰state)) <-{before} v
     {{{
@@ -1107,12 +1107,12 @@ Section mcas_1۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma afterｰspecｰfinished {casn η ι} i descr :
-    η.(metadata۰descrs) !! i = Some descr →
-    metadata۰success η = true →
+  #[local] Lemma afterｰspecｰfinished {casn κ ι} i descr :
+    κ.(metadata۰descrs) !! i = Some descr →
+    metadata۰success κ = true →
     {{{
-      casn۰inv' ι casn η ∗
-      lstatus۰lb η Finished
+      casn۰inv' ι casn κ ∗
+      lstatus۰lb κ Finished
     }}}
       (#descr.(descriptor۰state)).{after}
     {{{
@@ -1133,12 +1133,12 @@ Section mcas_1۰G.
     iSplitR "HΦ". { rewrite /casn۰inv۰inner Hsuccess. iFrameSteps 2. }
     iSteps.
   Qed.
-  #[local] Lemma set_afterｰspecｰfinished {casn η ι} i descr v :
-    η.(metadata۰descrs) !! i = Some descr →
-    metadata۰success η = false →
+  #[local] Lemma set_afterｰspecｰfinished {casn κ ι} i descr v :
+    κ.(metadata۰descrs) !! i = Some descr →
+    metadata۰success κ = false →
     {{{
-      casn۰inv' ι casn η ∗
-      lstatus۰lb η Finished
+      casn۰inv' ι casn κ ∗
+      lstatus۰lb κ Finished
     }}}
       (#descr.(descriptor۰state)) <-{after} v
     {{{
@@ -1175,13 +1175,13 @@ Section mcas_1۰G.
     destruct fstatus; iSteps.
   Qed.
 
-  #[local] Lemma mcas_1٠clearｰspec casn η ι b :
-    b = metadata۰success η →
+  #[local] Lemma mcas_1٠clearｰspec casn κ ι b :
+    b = metadata۰success κ →
     {{{
-      casn۰inv' ι casn η ∗
-      lstatus۰lb η Finished
+      casn۰inv' ι casn κ ∗
+      lstatus۰lb κ Finished
     }}}
-      mcas_1٠clear (metadata۰𝑐𝑎𝑠𝑠 η) #b
+      mcas_1٠clear (metadata۰𝑐𝑎𝑠𝑠 κ) #b
     {{{
       RET ();
       True
@@ -1191,7 +1191,7 @@ Section mcas_1۰G.
     iDestruct (casn۰inv'ｰunfold with "Hcasn_inv'") as "(:casn۰inv)".
 
     wp۰rec. wp۰pures.
-    destruct (metadata۰success η) eqn:Hsuccess.
+    destruct (metadata۰success κ) eqn:Hsuccess.
     all: wp۰apply+ (list٠iterｰspecｰdisentangled (λ _ _, True)%I); [done | | iSteps].
     all: iIntros "!>" (i v (descr & -> & Hdescrs_lookup)%list_lookup_fmap_Some).
 
@@ -1204,34 +1204,34 @@ Section mcas_1۰G.
       iSteps.
   Qed.
 
-  #[local] Lemma mcas_1٠finishｰspec {gid casn η ι} fstatus :
+  #[local] Lemma mcas_1٠finishｰspec {gid casn κ ι} fstatus :
     {{{
-      casn ↪ η ∗
-      casn۰inv' ι casn η ∗
-      ( ( ⌜gid ≠ metadata۰winner η⌝ ∗
+      casn ↪ κ ∗
+      casn۰inv' ι casn κ ∗
+      ( ( ⌜gid ≠ metadata۰winner κ⌝ ∗
           identifier۰model gid
         ) ∨ (
           ∃ Ψ,
           ⌜fstatus = FinalBefore⌝ ∗
-          winning η ∗
-          saved_pred η.(metadata۰post) Ψ ∗
+          winning κ ∗
+          saved_pred κ.(metadata۰post) Ψ ∗
           Ψ false
         ) ∨ (
           ∃ i,
-          ⌜gid = metadata۰winner η⌝ ∗
+          ⌜gid = metadata۰winner κ⌝ ∗
           identifier۰model gid ∗
           ⌜fstatus = FinalAfter⌝ ∗
-          ⌜metadata۰size η ≤ i⌝ ∗
-          lstatus۰lb η (Running i)
+          ⌜metadata۰size κ ≤ i⌝ ∗
+          lstatus۰lb κ (Running i)
         ) ∨ (
-          lstatus۰lb η Finished
+          lstatus۰lb κ Finished
         )
       )
     }}}
       mcas_1٠finish #gid #casn (final_status۰to_val fstatus)
     {{{
-      RET #(metadata۰success η);
-      lstatus۰lb η Finished
+      RET #(metadata۰success κ);
+      lstatus۰lb κ Finished
     }}}.
   Proof.
     iIntros "%Φ (#Hcasn_meta & #Hcasn_inv' & H) HΦ".
@@ -1255,8 +1255,8 @@ Section mcas_1۰G.
       wp۰apply (wpｰwand (λ res,
         ∃ b,
         ⌜res = #b⌝ ∗
-        ⌜b = true → final_status۰to_bool fstatus = metadata۰success η⌝ ∗
-        lstatus۰lb η Finished
+        ⌜b = true → final_status۰to_bool fstatus = metadata۰success κ⌝ ∗
+        lstatus۰lb κ Finished
       )%I with "[- HΦ]") as (res) "(%b & -> & % & #Hlstatus_lb)".
 
       { iInv "Hcasn_inv" as "(:casn۰inv۰inner)".
@@ -1268,20 +1268,20 @@ Section mcas_1۰G.
           { exfalso. zoo۰simp in Hcas. naive. }
           iStep. iIntros "!> %prophs %Hprophs Hgproph".
 
-          assert (metadata۰success η = final_status۰to_bool fstatus) as Hsuccess.
+          assert (metadata۰success κ = final_status۰to_bool fstatus) as Hsuccess.
           { rewrite /metadata۰success /metadata۰outcome Hprophs //. }
 
           iAssert (
-            ( [∗ list] descr ∈ take i η.(metadata۰descrs),
-              model₂ descr.(descriptor۰meta) (descriptor۰final descr η)
+            ( [∗ list] descr ∈ take i κ.(metadata۰descrs),
+              model₂ descr.(descriptor۰meta) (descriptor۰final descr κ)
             ) ={⊤ ∖ ↑casn۰inv۰name ι casn}=∗
               ( [∗ map] helper ↦ j ∈ helpers,
                 ∃ P,
                 saved_prop helper P ∗
                 P
               ) ∗
-              ( [∗ list] descr ∈ take i η.(metadata۰descrs),
-                model₂ descr.(descriptor۰meta) (descriptor۰final descr η)
+              ( [∗ list] descr ∈ take i κ.(metadata۰descrs),
+                model₂ descr.(descriptor۰meta) (descriptor۰final descr κ)
               )
           )%I with "[Hhelpers]" as "Hhelpers".
           { iIntros "Hmodels₂".
@@ -1312,14 +1312,14 @@ Section mcas_1۰G.
             { rewrite /descriptor۰final Hsuccess //. }
 
             iAssert (
-              [∗ list] i ↦ descr ∈ η.(metadata۰descrs),
-                  model₂ descr.(descriptor۰meta) (descriptor۰final descr η)
-                ∨ lock η i
+              [∗ list] i ↦ descr ∈ κ.(metadata۰descrs),
+                  model₂ descr.(descriptor۰meta) (descriptor۰final descr κ)
+                ∨ lock κ i
             )%I with "[Hmodels₂ Hlocks]" as "Hmodels₂".
             { iApply big_sepL_take_drop. iSplitL "Hmodels₂".
               - iApply (big_sepL_impl with "Hmodels₂").
                 rewrite /descriptor۰final Hsuccess /=. iSteps.
-              - iApply (big_sepLｰseqｰindex₁ (drop i η.(metadata۰descrs))) in "Hlocks".
+              - iApply (big_sepLｰseqｰindex₁ (drop i κ.(metadata۰descrs))) in "Hlocks".
                 { simp_length. }
                 iApply (big_sepL_impl with "Hlocks").
                 iSteps.
@@ -1348,7 +1348,7 @@ Section mcas_1۰G.
             iDestruct (big_sepL2_sep_sepL_l with "[$Hmodels₂ $Hmodels₁]") as "Hmodels".
             iMod (big_sepL2ｰimplｰbupd _ _ (λ _ descr v,
               ( model₁ descr.(descriptor۰meta) descr.(descriptor۰after) ∗
-                model₂ descr.(descriptor۰meta) (descriptor۰final descr η) ∗
+                model₂ descr.(descriptor۰meta) (descriptor۰final descr κ) ∗
                 history۰elem descr.(descriptor۰meta) casn
               ) ∗
               ⌜descr.(descriptor۰before) ≈ v⌝
@@ -1369,7 +1369,7 @@ Section mcas_1۰G.
             }
             iDestruct (big_sepL_sep with "Hmodels₂") as "(Hmodels₂ & Hhistory_elems)".
             iMod ("Hhelpers" with "Hmodels₂") as "(Hhelpers & Hmodels₂)".
-            iApply (big_sepLｰorｰr (λ i _, lock η i)) in "Hmodels₂".
+            iApply (big_sepLｰorｰr (λ i _, lock κ i)) in "Hmodels₂".
             iDestruct (big_sepL_sep_2 with "Hmodels₂ Hhistory_elems") as "Hmodels₂".
             iSplitL; last iSteps. do 2 iModIntro.
             rewrite /casn۰inv۰inner Hsuccess. iFrameSteps 2.
@@ -1403,72 +1403,72 @@ Section mcas_1۰G.
       iSplitR "HΦ". { iFrameSteps 2. }
       iModIntro. clear.
 
-      rewrite /metadata۰final. destruct (metadata۰success η); iSteps.
+      rewrite /metadata۰final. destruct (metadata۰success κ); iSteps.
   Qed.
-  #[local] Lemma mcas_1٠finishｰspecｰloser {gid casn η ι} fstatus :
-    gid ≠ metadata۰winner η →
+  #[local] Lemma mcas_1٠finishｰspecｰloser {gid casn κ ι} fstatus :
+    gid ≠ metadata۰winner κ →
     {{{
-      casn ↪ η ∗
-      casn۰inv' ι casn η ∗
+      casn ↪ κ ∗
+      casn۰inv' ι casn κ ∗
       identifier۰model gid
     }}}
       mcas_1٠finish #gid #casn (final_status۰to_val fstatus)
     {{{
-      RET #(metadata۰success η);
-      lstatus۰lb η Finished
+      RET #(metadata۰success κ);
+      lstatus۰lb κ Finished
     }}}.
   Proof.
     iIntros "%Hgid %Φ (#Hcasn_meta & #Hcasn_inv' & Hgid) HΦ".
     wp۰apply (mcas_1٠finishｰspec with "[- HΦ] HΦ").
     iSteps.
   Qed.
-  #[local] Lemma mcas_1٠finishｰspecｰwinnerｰbefore gid casn η ι Ψ :
-    gid = metadata۰winner η →
+  #[local] Lemma mcas_1٠finishｰspecｰwinnerｰbefore gid casn κ ι Ψ :
+    gid = metadata۰winner κ →
     {{{
-      casn ↪ η ∗
-      casn۰inv' ι casn η ∗
-      winning η ∗
-      saved_pred η.(metadata۰post) Ψ ∗
+      casn ↪ κ ∗
+      casn۰inv' ι casn κ ∗
+      winning κ ∗
+      saved_pred κ.(metadata۰post) Ψ ∗
       Ψ false
     }}}
       mcas_1٠finish #gid #casn §Before
     {{{
-      RET #(metadata۰success η);
-      lstatus۰lb η Finished
+      RET #(metadata۰success κ);
+      lstatus۰lb κ Finished
     }}}.
   Proof.
     iIntros "%Hgid %Φ (#Hcasn_meta & #Hcasn_inv' & Hwinning & #Hpost & HΨ) HΦ".
     wp۰apply (mcas_1٠finishｰspec FinalBefore with "[- HΦ] HΦ").
     iSteps.
   Qed.
-  #[local] Lemma mcas_1٠finishｰspecｰafter {gid casn η ι} i :
-    metadata۰size η ≤ i →
+  #[local] Lemma mcas_1٠finishｰspecｰafter {gid casn κ ι} i :
+    metadata۰size κ ≤ i →
     {{{
-      casn ↪ η ∗
-      casn۰inv' ι casn η ∗
+      casn ↪ κ ∗
+      casn۰inv' ι casn κ ∗
       identifier۰model gid ∗
-      lstatus۰lb η (Running i)
+      lstatus۰lb κ (Running i)
     }}}
       mcas_1٠finish #gid #casn §After
     {{{
-      RET #(metadata۰success η);
-      lstatus۰lb η Finished
+      RET #(metadata۰success κ);
+      lstatus۰lb κ Finished
     }}}.
   Proof.
     iIntros "%Hi %Φ (#Hcasn_meta & #Hcasn_inv' & Hgid & #Hlstatus_lb) HΦ".
     wp۰apply (mcas_1٠finishｰspec FinalAfter with "[- HΦ] HΦ").
-    destruct_decide (gid = metadata۰winner η); iSteps.
+    destruct_decide (gid = metadata۰winner κ); iSteps.
   Qed.
-  #[local] Lemma mcas_1٠finishｰspecｰfinished gid casn η ι :
+  #[local] Lemma mcas_1٠finishｰspecｰfinished gid casn κ ι :
     {{{
-      casn ↪ η ∗
-      casn۰inv' ι casn η ∗
-      lstatus۰lb η Finished
+      casn ↪ κ ∗
+      casn۰inv' ι casn κ ∗
+      lstatus۰lb κ Finished
     }}}
       mcas_1٠finish #gid #casn §Before
     {{{
-      RET #(metadata۰success η);
-      lstatus۰lb η Finished
+      RET #(metadata۰success κ);
+      lstatus۰lb κ Finished
     }}}.
   Proof.
     iIntros "%Φ (#Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb) HΦ".
@@ -1476,12 +1476,12 @@ Section mcas_1۰G.
     iSmash.
   Qed.
 
-  #[local] Lemma descriptor۰stateｰinj {ι casn1 η1 casn2 η2} i1 descr1 i2 descr2 :
+  #[local] Lemma descriptor۰stateｰinj {ι casn1 κ1 casn2 κ2} i1 descr1 i2 descr2 :
     casn1 ≠ casn2 →
-    η1.(metadata۰descrs) !! i1 = Some descr1 →
-    η2.(metadata۰descrs) !! i2 = Some descr2 →
-    casn۰inv' ι casn1 η1 -∗
-    casn۰inv' ι casn2 η2 ={⊤ ∖ ↑loc۰inv۰name ι}=∗
+    κ1.(metadata۰descrs) !! i1 = Some descr1 →
+    κ2.(metadata۰descrs) !! i2 = Some descr2 →
+    casn۰inv' ι casn1 κ1 -∗
+    casn۰inv' ι casn2 κ2 ={⊤ ∖ ↑loc۰inv۰name ι}=∗
     ⌜descr1.(descriptor۰state) ≠ descr2.(descriptor۰state)⌝.
   Proof.
     iIntros "%Hneq %Hdescrs1_lookup %Hdescrs2_lookup #Hcasn1_inv' #Hcasn2_inv'".
@@ -1494,7 +1494,7 @@ Section mcas_1۰G.
       [ iDestruct "Hlstatus1" as "(:casn۰inv۰inner۰running > =1)";
         iDestruct (big_sepL_lookup_acc with "Hdescrs1") as "((Hstate1_before & Hstate1_after) & Hdescrs1)"; first done
       | iDestruct "Hlstatus1" as "(:casn۰inv۰inner۰finished > =1)";
-        destruct (metadata۰success η1) eqn:Hsuccess1;
+        destruct (metadata۰success κ1) eqn:Hsuccess1;
         [ iDestruct (big_sepL_lookup_acc with "Hdescrs1") as "((Hmodel₂1 & Hhistory1_elem & Hstate1_after & (% & Hstate1_before)) & Hdescrs1)"; first done
         | iDestruct (big_sepL_lookup_acc with "Hdescrs1") as "((Hmodel₂1 & Hstate1_before & Hstate1_after) & Hdescrs1)"; first done
         ]
@@ -1504,7 +1504,7 @@ Section mcas_1۰G.
       [ iDestruct "Hlstatus2" as "(:casn۰inv۰inner۰running > =2)";
         iDestruct (big_sepL_lookup_acc with "Hdescrs2") as "((Hstate2_before & Hstate2_after) & Hdescrs2)"; first done
       | iDestruct "Hlstatus2" as "(:casn۰inv۰inner۰finished > =2)";
-        destruct (metadata۰success η2) eqn:Hsuccess2;
+        destruct (metadata۰success κ2) eqn:Hsuccess2;
         [ iDestruct (big_sepL_lookup_acc with "Hdescrs2") as "((Hmodel₂2 & Hhistory2_elem & Hstate2_after & (% & Hstate2_before)) & Hdescrs2)"; first done
         | iDestruct (big_sepL_lookup_acc with "Hdescrs2") as "((Hmodel₂2 & Hstate2_before & Hstate2_after) & Hdescrs2)"; first done
         ]
@@ -1523,67 +1523,67 @@ Section mcas_1۰G.
 
   #[local] Lemma mcas_1٠determine_asｰevalｰdetermineｰspec ι :
     ⊢ (
-      ∀ casn η 𝑐𝑎𝑠𝑠 i,
+      ∀ casn κ 𝑐𝑎𝑠𝑠 i,
       {{{
-        ⌜𝑐𝑎𝑠𝑠 = list۰to_val (drop i (metadata۰cass η))⌝ ∗
-        casn ↪ η ∗
-        casn۰inv' ι casn η ∗
-        lstatus۰lb η (Running i)
+        ⌜𝑐𝑎𝑠𝑠 = list۰to_val (drop i (metadata۰cass κ))⌝ ∗
+        casn ↪ κ ∗
+        casn۰inv' ι casn κ ∗
+        lstatus۰lb κ (Running i)
       }}}
         mcas_1٠determine_as #casn 𝑐𝑎𝑠𝑠
       {{{
-        RET #(metadata۰success η);
-        lstatus۰lb η Finished
+        RET #(metadata۰success κ);
+        lstatus۰lb κ Finished
       }}}
     ) ∧ (
-      ∀ casn η i descr casn1 η1 i1 descr1 casns1 𝑟𝑒𝑡𝑟𝑦 𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒,
+      ∀ casn κ i descr casn1 κ1 i1 descr1 casns1 𝑟𝑒𝑡𝑟𝑦 𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒,
       {{{
-        ⌜𝑟𝑒𝑡𝑟𝑦 = list۰to_val (drop i (metadata۰cass η))⌝ ∗
-        ⌜𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒 = list۰to_val (drop ˖i (metadata۰cass η))⌝ ∗
-        ⌜η.(metadata۰descrs) !! i = Some descr⌝ ∗
-        ⌜η1.(metadata۰descrs) !! i1 = Some descr1⌝ ∗
+        ⌜𝑟𝑒𝑡𝑟𝑦 = list۰to_val (drop i (metadata۰cass κ))⌝ ∗
+        ⌜𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒 = list۰to_val (drop ˖i (metadata۰cass κ))⌝ ∗
+        ⌜κ.(metadata۰descrs) !! i = Some descr⌝ ∗
+        ⌜κ1.(metadata۰descrs) !! i1 = Some descr1⌝ ∗
         ⌜descr1.(descriptor۰loc) = descr.(descriptor۰loc)⌝ ∗
         ⌜descr1.(descriptor۰meta) = descr.(descriptor۰meta)⌝ ∗
         ⌜casn1 ≠ casn⌝ ∗
-        casn ↪ η ∗
-        casn۰inv' ι casn η ∗
-        lstatus۰lb η (Running i) ∗
-        casn1 ↪ η1 ∗
-        casn۰inv' ι casn1 η1 ∗
-        lstatus۰lb η1 Finished ∗
+        casn ↪ κ ∗
+        casn۰inv' ι casn κ ∗
+        lstatus۰lb κ (Running i) ∗
+        casn1 ↪ κ1 ∗
+        casn۰inv' ι casn1 κ1 ∗
+        lstatus۰lb κ1 Finished ∗
         history۰lb descr.(descriptor۰meta) (casns1 ++ [casn1]) ∗
-        ( lstatus۰lb η Finished
-        ∨ ⌜descriptor۰final descr1 η1 ≈ descr.(descriptor۰before)⌝
+        ( lstatus۰lb κ Finished
+        ∨ ⌜descriptor۰final descr1 κ1 ≈ descr.(descriptor۰before)⌝
         )
       }}}
         mcas_1٠lock #casn #descr.(descriptor۰loc) #descr1.(descriptor۰state) #descr.(descriptor۰state) 𝑟𝑒𝑡𝑟𝑦 𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒
       {{{
-        RET #(metadata۰success η);
-        lstatus۰lb η Finished
+        RET #(metadata۰success κ);
+        lstatus۰lb κ Finished
       }}}
     ) ∧ (
-      ∀ casn η i descr,
+      ∀ casn κ i descr,
       {{{
-        ⌜η.(metadata۰descrs) !! i = Some descr⌝ ∗
-        casn ↪ η ∗
-        casn۰inv' ι casn η
+        ⌜κ.(metadata۰descrs) !! i = Some descr⌝ ∗
+        casn ↪ κ ∗
+        casn۰inv' ι casn κ
       }}}
         mcas_1٠eval #descr.(descriptor۰state)
       {{{
-        RET descriptor۰final descr η;
-        lstatus۰lb η Finished ∗
+        RET descriptor۰final descr κ;
+        lstatus۰lb κ Finished ∗
         £ 1
       }}}
     ) ∧ (
-      ∀ casn η,
+      ∀ casn κ,
       {{{
-        casn ↪ η ∗
-        casn۰inv' ι casn η
+        casn ↪ κ ∗
+        casn۰inv' ι casn κ
       }}}
         mcas_1٠determine #casn
       {{{
-        RET #(metadata۰success η);
-        lstatus۰lb η Finished
+        RET #(metadata۰success κ);
+        lstatus۰lb κ Finished
       }}}
     ).
   Proof.
@@ -1591,13 +1591,13 @@ Section mcas_1۰G.
     iDestruct "HLöb" as "(IHdetermine_as & IHlock & IHeval & IHdetermine)".
     repeat iSplit.
 
-    { iIntros "%casn %η %𝑐𝑎𝑠𝑠 %i !> %Φ (-> & #Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb) HΦ".
+    { iIntros "%casn %κ %𝑐𝑎𝑠𝑠 %i !> %Φ (-> & #Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb) HΦ".
       iDestruct (casn۰inv'ｰunfold with "Hcasn_inv'") as "(:casn۰inv)".
 
       wp۰rec credit:"H£".
       wp۰apply+ (wpｰid with "[//]") as (gid) "Hgid".
 
-      destruct (η.(metadata۰descrs) !! i) as [descr |] eqn:Hdescrs_lookup.
+      destruct (κ.(metadata۰descrs) !! i) as [descr |] eqn:Hdescrs_lookup.
 
       - apply lookup_lt_Some in Hdescrs_lookup as Hi.
         erewrite drop_S; last first.
@@ -1638,9 +1638,9 @@ Section mcas_1۰G.
 
         + iMod (descriptor۰stateｰinj with "Hcasn_inv' Hcasn1_inv'") as %?; [done.. |].
           destruct_decide (
-            gid = metadata۰winner η ∧
+            gid = metadata۰winner κ ∧
             b = false ∧
-            descr.(descriptor۰before) ≉ descriptor۰final descr1 η1
+            descr.(descriptor۰before) ≉ descriptor۰final descr1 κ1
           ) as (-> & -> & Hbefore) | Hok%not_and_r_alt.
 
           * iInv "Hcasn_inv" as "(:casn۰inv۰inner)".
@@ -1713,7 +1713,7 @@ Section mcas_1۰G.
         { rewrite lookup_ge_None // in Hdescrs_lookup. }
     }
 
-    { iIntros "%casn %η %i %descr %casn1 %η1 %i1 %descr1 %casns1 %𝑟𝑒𝑡𝑟𝑦 %𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒 !> %Φ (-> & -> & %Hdescrs_lookup & %Hdescrs1_lookup & %Hloc1 & %Hmeta1 & %Hcasn1 & #Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb & #Hcasn1_meta & #Hcasn1_inv' & #Hlstatus1_lb & #Hhistory_lb1 & H) HΦ".
+    { iIntros "%casn %κ %i %descr %casn1 %κ1 %i1 %descr1 %casns1 %𝑟𝑒𝑡𝑟𝑦 %𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒 !> %Φ (-> & -> & %Hdescrs_lookup & %Hdescrs1_lookup & %Hloc1 & %Hmeta1 & %Hcasn1 & #Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb & #Hcasn1_meta & #Hcasn1_inv' & #Hlstatus1_lb & #Hhistory_lb1 & H) HΦ".
       iDestruct (casn۰inv'ｰunfold with "Hcasn_inv'") as "(:casn۰inv)".
       iDestruct (casn۰inv'ｰunfold with "Hcasn1_inv'") as "(:casn۰inv =1)".
       iDestruct (big_sepL_lookup with "Hlocs") as "(Hloc_meta & Hstate_casn & Hloc_inv')"; first done.
@@ -1725,7 +1725,7 @@ Section mcas_1۰G.
       iDestruct "H" as "[#Hlstatus_lb_finished | %Hfinal1]".
 
       - wp۰apply (statusｰspecｰfinished with "[$Hcasn_inv' $Hlstatus_lb_finished]") as "_".
-        rewrite /metadata۰final. destruct (metadata۰success η); iSteps.
+        rewrite /metadata۰final. destruct (metadata۰success κ); iSteps.
 
       - wp۰bind (_.{status})%E.
         iInv "Hcasn_inv" as "(:casn۰inv۰inner)".
@@ -1804,12 +1804,12 @@ Section mcas_1۰G.
                   iApply model₂ｰsimilar in "Hmodel₂"; first done.
                   iDestruct (big_sepLｰsnoc₂ with "Hmodels₂ [$Hmodel₂ $Hhistory_elem]") as "Hmodels₂".
                   iEval (rewrite -take_S_r //) in "Hmodels₂".
-                  rewrite -(Nat.succ_pred_pos (metadata۰size η - i)).
+                  rewrite -(Nat.succ_pred_pos (metadata۰size κ - i)).
                   { apply lookup_lt_Some in Hdescrs_lookup.
                     rewrite /metadata۰size. lia.
                   }
                   iDestruct (big_sepLｰseqｰcons₁ with "Hlocks") as "(Hlock & Hlocks)".
-                  assert (Nat.pred (metadata۰size η - i) = metadata۰size η - ˖i) as -> by lia.
+                  assert (Nat.pred (metadata۰size κ - i) = metadata۰size κ - ˖i) as -> by lia.
                   iSplitR "Hloc Hhistory_auth Hlock HΦ".
                   { iFrameSteps 2. do 2 iModIntro.
                     iApply (big_sepM_impl with "Hhelpers").
@@ -1824,7 +1824,7 @@ Section mcas_1۰G.
 
                ++ iDestruct "Hlstatus" as "(:casn۰inv۰inner۰finished >)".
                   iDestruct (history۰lbｰvalidｰeq with "Hhistory_auth Hhistory_lb2") as %(-> & _).
-                  destruct (metadata۰success η) eqn:Hsuccess.
+                  destruct (metadata۰success κ) eqn:Hsuccess.
 
                   ** iDestruct (big_sepL_lookup with "Hdescrs") as "(_ & Hhistory_elem & _)"; first done.
                      iDestruct (history۰elemｰvalid with "Hhistory_auth Hhistory_elem") as %[| ?%list_elem_of_singleton]%elem_of_app.
@@ -1832,7 +1832,7 @@ Section mcas_1۰G.
 
                   ** iDestruct (big_sepL_lookup_acc with "Hdescrs") as "(([Hmodel₂_ | Hlock] & Hdescr) & Hdescrs)"; first done.
                      { iDestruct (model₂ｰexclusive with "Hmodel₂ Hmodel₂_") as %[]. }
-                       iApply (model₂ｰsimilar (descriptor۰final descr η)) in "Hmodel₂".
+                       iApply (model₂ｰsimilar (descriptor۰final descr κ)) in "Hmodel₂".
                        { rewrite {2}/descriptor۰final Hsuccess //. }
                        iDestruct ("Hdescrs" with "[$Hmodel₂ $Hdescr]") as "Hdescrs".
                        iClear "Hlstatus_lb". iDestruct (lstatus۰lbｰgetｰfinished (Running ˖i) with "Hlstatus_auth") as "#Hlstatus_lb".
@@ -1879,16 +1879,16 @@ Section mcas_1۰G.
           iSplitR "HΦ". { iFrameSteps 2. }
           iModIntro. clear helpers prophs.
 
-          rewrite /metadata۰final. destruct (metadata۰success η); iSteps.
+          rewrite /metadata۰final. destruct (metadata۰success κ); iSteps.
     }
 
-    { iIntros "%casn %η %i %descr !> %Φ (%Hdescrs_lookup & #Hcasn_meta & #Hcasn_inv') HΦ".
+    { iIntros "%casn %κ %i %descr !> %Φ (%Hdescrs_lookup & #Hcasn_meta & #Hcasn_inv') HΦ".
       iDestruct (casn۰inv'ｰunfold with "Hcasn_inv'") as "(:casn۰inv)".
       iDestruct (big_sepL_lookup with "Hlocs") as "(_ & #Hstate_casn & _)"; first done.
 
       wp۰rec credit:"H£". wp۰load.
       wp۰apply ("IHdetermine" with "[$Hcasn_meta $Hcasn_inv']") as "#Hlstatus_lb".
-      destruct (metadata۰success η) eqn:Hsuccess; wp۰pures.
+      destruct (metadata۰success κ) eqn:Hsuccess; wp۰pures.
 
       - wp۰apply (afterｰspecｰfinished with "[$Hcasn_inv' $Hlstatus_lb]"); [done.. |].
         rewrite /descriptor۰final Hsuccess. iSteps.
@@ -1897,7 +1897,7 @@ Section mcas_1۰G.
         rewrite /descriptor۰final Hsuccess. iSteps.
     }
 
-    { iIntros "%casn %η !> %Φ (#Hcasn_meta & #Hcasn_inv') HΦ".
+    { iIntros "%casn %κ !> %Φ (#Hcasn_meta & #Hcasn_inv') HΦ".
       iDestruct (casn۰inv'ｰunfold with "Hcasn_inv'") as "(:casn۰inv)".
 
       wp۰rec.
@@ -1920,36 +1920,36 @@ Section mcas_1۰G.
         iSplitR "HΦ". { iFrameSteps 2. }
         iModIntro. clear.
 
-        rewrite /metadata۰final. destruct (metadata۰success η); iSteps.
+        rewrite /metadata۰final. destruct (metadata۰success κ); iSteps.
     }
   Qed.
-  #[local] Lemma mcas_1٠determine_asｰspec casn η ι 𝑐𝑎𝑠𝑠 i :
-    𝑐𝑎𝑠𝑠 = list۰to_val (drop i (metadata۰cass η)) →
+  #[local] Lemma mcas_1٠determine_asｰspec casn κ ι 𝑐𝑎𝑠𝑠 i :
+    𝑐𝑎𝑠𝑠 = list۰to_val (drop i (metadata۰cass κ)) →
     {{{
-      casn ↪ η ∗
-      casn۰inv' ι casn η ∗
-      lstatus۰lb η (Running i)
+      casn ↪ κ ∗
+      casn۰inv' ι casn κ ∗
+      lstatus۰lb κ (Running i)
     }}}
       mcas_1٠determine_as #casn 𝑐𝑎𝑠𝑠
     {{{
-      RET #(metadata۰success η);
-      lstatus۰lb η Finished
+      RET #(metadata۰success κ);
+      lstatus۰lb κ Finished
     }}}.
   Proof.
     iDestruct mcas_1٠determine_asｰevalｰdetermineｰspec as "(H & _)".
     iIntros (->) "%Φ (#Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb) HΦ".
     wp۰apply ("H" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //] HΦ").
   Qed.
-  #[local] Lemma mcas_1٠evalｰspec {casn η ι} i descr :
-    η.(metadata۰descrs) !! i = Some descr →
+  #[local] Lemma mcas_1٠evalｰspec {casn κ ι} i descr :
+    κ.(metadata۰descrs) !! i = Some descr →
     {{{
-      casn ↪ η ∗
-      casn۰inv' ι casn η
+      casn ↪ κ ∗
+      casn۰inv' ι casn κ
     }}}
       mcas_1٠eval #descr.(descriptor۰state)
     {{{
-      RET descriptor۰final descr η;
-      lstatus۰lb η Finished ∗
+      RET descriptor۰final descr κ;
+      lstatus۰lb κ Finished ∗
       £ 1
     }}}.
   Proof.
@@ -1957,15 +1957,15 @@ Section mcas_1۰G.
     iIntros "%Hdescrs_lookup %Φ (#Hcasn_meta & #Hcasn_inv') HΦ".
     wp۰apply ("H" with "[$Hcasn_meta $Hcasn_inv' //] HΦ").
   Qed.
-  #[local] Lemma mcas_1٠determineｰspec casn η ι :
+  #[local] Lemma mcas_1٠determineｰspec casn κ ι :
     {{{
-      casn ↪ η ∗
-      casn۰inv' ι casn η
+      casn ↪ κ ∗
+      casn۰inv' ι casn κ
     }}}
       mcas_1٠determine #casn
     {{{
-      RET #(metadata۰success η);
-      lstatus۰lb η Finished
+      RET #(metadata۰success κ);
+      lstatus۰lb κ Finished
     }}}.
   Proof.
     iDestruct mcas_1٠determine_asｰevalｰdetermineｰspec as "(_ & _ & H)".
@@ -2003,11 +2003,11 @@ Section mcas_1۰G.
       |}.
     iMod (metaｰset γ with "Hloc_meta") as "#Hloc_meta"; first done.
 
-    iMod (saved_predｰalloc (λ _, True)%I) as "(%η_post & #Hpost)".
-    iMod (lstatusｰalloc Finished) as "(%η_lstatus & Hlstatus_auth)".
-    iMod lockｰalloc as "(%η_lock & Hlock)".
-    iMod helpersｰalloc as "(%η_helpers & Hhelpers_auth)".
-    iMod ownerｰalloc as "(%η_owner & Howner)".
+    iMod (saved_predｰalloc (λ _, True)%I) as "(%κ_post & #Hpost)".
+    iMod (lstatusｰalloc Finished) as "(%κ_lstatus & Hlstatus_auth)".
+    iMod lockｰalloc as "(%κ_lock & Hlock)".
+    iMod helpersｰalloc as "(%κ_helpers & Hhelpers_auth)".
+    iMod ownerｰalloc as "(%κ_owner & Howner)".
 
     pose descr :=
       {|descriptor۰loc := loc
@@ -2016,29 +2016,29 @@ Section mcas_1۰G.
       ; descriptor۰after := v
       ; descriptor۰state := state
       |}.
-    set η :=
+    set κ :=
       {|metadata۰descrs := [descr]
       ; metadata۰prophet := pid
       ; metadata۰prophs := ((gid, true) :: prophs)
       ; metadata۰undetermined := inhabitant
-      ; metadata۰post := η_post
-      ; metadata۰lstatus := η_lstatus
-      ; metadata۰locks := [η_lock]
-      ; metadata۰helpers := η_helpers
+      ; metadata۰post := κ_post
+      ; metadata۰lstatus := κ_lstatus
+      ; metadata۰locks := [κ_lock]
+      ; metadata۰helpers := κ_helpers
       ; metadata۰winning := inhabitant
-      ; metadata۰owner := η_owner
+      ; metadata۰owner := κ_owner
       |}.
-    iMod (metaｰset η with "Hcasn_meta") as "#Hcasn_meta"; first done.
+    iMod (metaｰset κ with "Hcasn_meta") as "#Hcasn_meta"; first done.
 
-    iDestruct (lstatus۰lbｰgetｰfinished (η := η) (Running 1) with "Hlstatus_auth") as "#Hlstatus_lb".
+    iDestruct (lstatus۰lbｰgetｰfinished (κ := κ) (Running 1) with "Hlstatus_auth") as "#Hlstatus_lb".
 
-    iMod (inv_alloc _ _ (casn۰inv۰inner casn η ι (λ _, True)%I) with "[Hgid Hgproph Hcasn_status Hstate_before Hstate_after Hmodel₂ Hlstatus_auth Hhelpers_auth Howner]") as "#Hcasn_inv".
+    iMod (inv_alloc _ _ (casn۰inv۰inner casn κ ι (λ _, True)%I) with "[Hgid Hgproph Hcasn_status Hstate_before Hstate_after Hmodel₂ Hlstatus_auth Hhelpers_auth Howner]") as "#Hcasn_inv".
     { iFrameSteps. }
 
     iAssert (|={⊤}=> loc۰inv' ι (loc, γ))%I with "[Hloc Hlock Hhistory_auth]" as ">#Hloc_inv'".
     { iApply loc۰inv'ｰintro.
       iApply inv_alloc.
-      iExists [], casn, η, 0, descr.
+      iExists [], casn, κ, 0, descr.
       setoid_rewrite <- (fixpoint_A_unfold (casn۰inv۰pre ι) (loc۰inv۰pre ι) _).
       iSteps; iPureIntro; apply NoDup_singleton.
     }
@@ -2075,7 +2075,7 @@ Section mcas_1۰G.
     iDestruct (casn۰inv'ｰunfold with "Hcasn_inv'") as "(:casn۰inv)".
     iDestruct (big_sepL_lookup with "Hlocs") as "(_Hloc_meta & _)"; first done.
     iDestruct (metaｰagree with "Hloc_meta _Hloc_meta") as %->. iClear "_Hloc_meta".
-    iMod (casnｰhelp _ (Φ (descriptor۰final descr η)) with "Hcasn_inv Hlock [HΦ]") as "(%helper & Hlock & #Hhelper & Hhelpers_elem)"; [solve_ndisj | done.. | |].
+    iMod (casnｰhelp _ (Φ (descriptor۰final descr κ)) with "Hcasn_inv Hlock [HΦ]") as "(%helper & Hlock & #Hhelper & Hhelpers_elem)"; [solve_ndisj | done.. | |].
     { rewrite /helper۰au'. iAuIntro.
       iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%v (%γ & Hloc_meta_ & Hmodel₁)".
       iDestruct (metaｰagree with "Hloc_meta Hloc_meta_") as %<-. iClear "Hloc_meta_".
@@ -2186,34 +2186,34 @@ Section mcas_1۰G.
 
     pose Φ' b := Φ #b.
 
-    iMod (saved_predｰalloc Φ') as "(%η_post & #Hpost)".
-    iMod (lstatusｰalloc (Running 0)) as "(%η_lstatus & Hlstatus_auth)".
-    iMod (lockｰallocs (length descrs)) as "(%ηs_lock & %Hηs_lock & Hlocks)".
-    iMod helpersｰalloc as "(%η_helpers & Hhelpers_auth)".
-    iMod winningｰalloc as "(%η_winning & Hwinning)".
-    iMod ownerｰalloc as "(%η_owner & Howner)".
+    iMod (saved_predｰalloc Φ') as "(%κ_post & #Hpost)".
+    iMod (lstatusｰalloc (Running 0)) as "(%κ_lstatus & Hlstatus_auth)".
+    iMod (lockｰallocs (length descrs)) as "(%κs_lock & %Hκs_lock & Hlocks)".
+    iMod helpersｰalloc as "(%κ_helpers & Hhelpers_auth)".
+    iMod winningｰalloc as "(%κ_winning & Hwinning)".
+    iMod ownerｰalloc as "(%κ_owner & Howner)".
 
-    pose η :=
+    pose κ :=
       {|metadata۰descrs := descrs
       ; metadata۰prophet := pid
       ; metadata۰prophs := prophs0
       ; metadata۰undetermined := undetermined
-      ; metadata۰post := η_post
-      ; metadata۰lstatus := η_lstatus
-      ; metadata۰locks := ηs_lock
-      ; metadata۰helpers := η_helpers
-      ; metadata۰winning := η_winning
-      ; metadata۰owner := η_owner
+      ; metadata۰post := κ_post
+      ; metadata۰lstatus := κ_lstatus
+      ; metadata۰locks := κs_lock
+      ; metadata۰helpers := κ_helpers
+      ; metadata۰winning := κ_winning
+      ; metadata۰owner := κ_owner
       |}.
-    iMod (metaｰset η with "Hcasn_meta") as "#Hcasn_meta"; first done.
+    iMod (metaｰset κ with "Hcasn_meta") as "#Hcasn_meta"; first done.
 
-    iDestruct (lstatus۰lbｰget η with "Hlstatus_auth") as "#Hlstatus_lb".
+    iDestruct (lstatus۰lbｰget κ with "Hlstatus_auth") as "#Hlstatus_lb".
 
-    iMod (inv_alloc _ _ (casn۰inv۰inner casn η ι Φ') with "[Hgproph Hcasn_state Hlstatus_auth Hlocks Hhelpers_auth Hwinning Hstates HΦ]") as "#Hcasn_inv".
+    iMod (inv_alloc _ _ (casn۰inv۰inner casn κ ι Φ') with "[Hgproph Hcasn_state Hlstatus_auth Hlocks Hhelpers_auth Hwinning Hstates HΦ]") as "#Hcasn_inv".
     { iExists _, (Running 0), ∅, _. iFrameStep 3.
       rewrite comm. iSteps.
       iSplitL "Hlocks".
-      { iApply (big_sepLｰseqｰindex ηs_lock); first lia.
+      { iApply (big_sepLｰseqｰindex κs_lock); first lia.
         iApply (big_sepL_impl with "Hlocks").
         iSteps.
       }
@@ -2279,7 +2279,7 @@ Section mcas_1۰G.
     iDestruct (lstatusｰfinished with "Hlstatus_auth Hlstatus_lb_finished") as %->.
     iDestruct "Hlstatus" as "(:casn۰inv۰inner۰finished >)".
     iDestruct "HΨ" as "[>Howner_ | HΨ]".
-    { iDestruct (ownerｰexclusive η with "Howner Howner_") as %[]. }
+    { iDestruct (ownerｰexclusive κ with "Howner Howner_") as %[]. }
     iSplitR "H£ HΨ". { iFrameSteps 2. }
     iModIntro. clear.
 
