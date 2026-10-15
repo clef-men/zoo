@@ -166,10 +166,7 @@ Module base.
       ) (lazy۰inv t γ).
     Proof.
       rewrite /lazy۰inv /inv۰inner /inv۰state /inv۰state۰unset /inv۰state۰setting /inv۰state۰set.
-      intros Ψ1 Ψ2 HΨ Ξ1 Ξ2 HΞ.
-      repeat (f_contractive || f_equiv).
-      { eapply dist_lt. apply HΨ. done. }
-      { eapply dist_lt. apply HΞ. done. }
+      solve_proper_prepare. f_contractive. solve_proper.
     Qed.
     #[global] Instance lazy۰invｰproper t γ :
       Proper (

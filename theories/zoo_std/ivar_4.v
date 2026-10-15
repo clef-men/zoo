@@ -88,10 +88,6 @@ Section ivar_4۰G.
     ) (ivar_4۰inv t).
   Proof.
     rewrite /ivar_4۰inv /waiter۰model₂ /waiter۰model₁.
-    intros Ψ1 Ψ2 HΨ Ξ1 Ξ2 HΞ Γ1 Γ2 HΓ.
-    f_equiv. 1,2: solve_proper.
-    do 3 f_equiv.
-    apply dist_dist_later.
     solve_proper.
   Qed.
   #[global] Instance ivar_4۰invｰproper t :

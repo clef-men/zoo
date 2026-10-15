@@ -198,8 +198,7 @@ Module base.
       ) (channel_sync_1۰inv t γ ι).
     Proof.
       rewrite /channel_sync_1۰inv /channel_sync_1۰valid /inv۰inner /inv۰state /inv۰state۰sender_offer /inv۰state۰sender_accept /inv۰state۰receiver_offer /inv۰state۰receiver_accept.
-      intros Ψₛ1 Ψₛ2 HΨₛ Ψᵣ1 Ψᵣ2 HΨᵣ Χₛ1 Χₛ2 HΧₛ Χᵣ1 Χᵣ2 HΧᵣ.
-      repeat (apply HΨₛ || apply HΨᵣ || apply HΧₛ || apply HΧᵣ || f_contractive || f_equiv || done).
+      solve_contractive.
     Qed.
     #[global] Instance channel_sync_1۰invｰproper t γ ι :
       Proper (
@@ -211,8 +210,7 @@ Module base.
       ) (channel_sync_1۰inv t γ ι).
     Proof.
       rewrite /channel_sync_1۰inv /channel_sync_1۰valid /inv۰inner /inv۰state /inv۰state۰sender_offer /inv۰state۰sender_accept /inv۰state۰receiver_offer /inv۰state۰receiver_accept.
-      intros Ψₛ1 Ψₛ2 HΨₛ Ψᵣ1 Ψᵣ2 HΨᵣ Χₛ1 Χₛ2 HΧₛ Χᵣ1 Χᵣ2 HΧᵣ.
-      repeat (apply HΨₛ || apply HΨᵣ || apply HΧₛ || apply HΧᵣ || f_equiv || done).
+      solve_proper.
     Qed.
 
     Zoo derive Timeless for channel_sync_1۰init.

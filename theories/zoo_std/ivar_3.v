@@ -187,8 +187,7 @@ Module base.
       ) (ivar_3۰inv t γ).
     Proof.
       rewrite /ivar_3۰inv /inv۰inner /inv۰state /inv۰state۰unset /inv۰state۰set.
-      intros Ψ1 Ψ2 HΨ Ξ1 Ξ2 HΞ Ω1 Ω2 HΩ.
-      repeat (apply HΩ || f_contractive || f_equiv). done.
+      solve_contractive.
     Qed.
     #[global] Instance ivar_3۰invｰproper t γ :
       Proper (
@@ -198,15 +197,8 @@ Module base.
         (≡)
       ) (ivar_3۰inv t γ).
     Proof.
-      intros Ψ1 Ψ2 HΨ Ξ1 Ξ2 HΞ Ω1 Ω2 HΩ.
-      apply equiv_dist => n.
-      apply ivar_3۰invｰcontractive.
-      - intros v.
-        apply dist_dist_later, equiv_dist, HΨ.
-      - intros v.
-        apply dist_dist_later, equiv_dist, HΞ.
-      - clear t. intros t waiter ω.
-        apply dist_dist_later, equiv_dist, HΩ.
+      rewrite /ivar_3۰inv /inv۰inner /inv۰state /inv۰state۰unset /inv۰state۰set.
+      solve_proper.
     Qed.
     #[global] Instance ivar_3۰consumerｰcontractive γ n :
       Proper (

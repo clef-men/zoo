@@ -152,8 +152,7 @@ Module base.
       ) (exchanger_1۰inv t γ ι).
     Proof.
       rewrite /exchanger_1۰inv /exchanger_1۰valid /inv۰inner /inv۰state /inv۰state۰offer /inv۰state۰accept.
-      intros Ψ1 Ψ2 HΨ Χ1 Χ2 HΧ.
-      repeat (apply HΨ || apply HΧ || f_contractive || f_equiv || done).
+      solve_contractive.
     Qed.
     #[global] Instance exchanger_1۰invｰproper t γ ι :
       Proper (
@@ -163,8 +162,7 @@ Module base.
       ) (exchanger_1۰inv t γ ι).
     Proof.
       rewrite /exchanger_1۰inv /exchanger_1۰valid /inv۰inner /inv۰state /inv۰state۰offer /inv۰state۰accept.
-      intros Ψ1 Ψ2 HΨ Χ1 Χ2 HΧ.
-      repeat (apply HΨ || apply HΧ || f_equiv || done).
+      solve_proper.
     Qed.
 
     Zoo derive Timeless for exchanger_1۰init.
