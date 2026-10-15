@@ -58,8 +58,7 @@ Module base.
     Record inf_ws_deque_1۰name :=
       { inf_ws_deque_1۰name۰data : val
       ; inf_ws_deque_1۰name۰inv : namespace
-      ; inf_ws_deque_1۰name۰prophet : prophet_id
-      ; inf_ws_deque_1۰name۰prophet_name : prophet_multi۰name
+      ; inf_ws_deque_1۰name۰prophet : prophet_multi۰name
       ; inf_ws_deque_1۰name۰model : auth_twins۰name
       ; inf_ws_deque_1۰name۰owner : gname
       ; inf_ws_deque_1۰name۰front : gname
@@ -340,7 +339,7 @@ Module base.
       ⌜length vs = back - front⌝ ∗
       inf_array۰model' γ.(inf_ws_deque_1۰name۰data) (hist ++ vs) priv ∗
       history۰auth γ lhist ∗
-      prophet_multi۰model prophet_identifier γ.(inf_ws_deque_1۰name۰prophet) γ.(inf_ws_deque_1۰name۰prophet_name) pasts prophss ∗
+      prophet_multi۰model prophet_identifier γ.(inf_ws_deque_1۰name۰prophet) pasts prophss ∗
       ⌜∀ i, front ≤ i → pasts i = []⌝ ∗
       inv۰state γ state stable front back hist lhist vs (prophss front).
     #[local] Instance : CustomIpat "inv۰inner" :=
@@ -370,7 +369,7 @@ Module base.
       ".
     #[local] Definition inv' t γ : iProp Σ :=
       t.[data] ↦□ γ.(inf_ws_deque_1۰name۰data) ∗
-      t.[proph] ↦□ #γ.(inf_ws_deque_1۰name۰prophet) ∗
+      t.[proph] ↦□ γ.(inf_ws_deque_1۰name۰prophet) ∗
       inf_array۰inv γ.(inf_ws_deque_1۰name۰data) ∗
       inv γ.(inf_ws_deque_1۰name۰inv) (inv۰inner t γ).
     #[local] Instance : CustomIpat "inv'" :=
@@ -852,7 +851,7 @@ Module base.
 
       wp۰rec.
 
-      wp۰apply (prophet_multiｰwpｰproph with "[//]") as (pid γ_prophet prophss) "Hprophet_model".
+      wp۰apply (prophet_multiｰwpｰproph with "[//]") as (γ_prophet prophss) "Hprophet_model".
 
       wp۰apply (inf_array٠createｰspec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
       iDestruct (inf_array۰modelｰtoｰmodel'ｰconstant 1 with "Hdata_model") as "Hdata_model".
@@ -867,8 +866,7 @@ Module base.
       set γ :=
         {|inf_ws_deque_1۰name۰data := data
         ; inf_ws_deque_1۰name۰inv := ι
-        ; inf_ws_deque_1۰name۰prophet := pid
-        ; inf_ws_deque_1۰name۰prophet_name := γ_prophet
+        ; inf_ws_deque_1۰name۰prophet := γ_prophet
         ; inf_ws_deque_1۰name۰model := γ_model
         ; inf_ws_deque_1۰name۰owner := γ_owner
         ; inf_ws_deque_1۰name۰front := γ_front
@@ -1148,7 +1146,7 @@ Module base.
         inv' t γ ∗
         front۰lb γ front2
       }}}
-        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front1 #(front1 + 1)) #γ.(inf_ws_deque_1۰name۰prophet) (#front1, #id)%V
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front1 #(front1 + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#front1, #id)%V
       {{{
         RET false;
         True
@@ -1175,9 +1173,9 @@ Module base.
       {{{
         inv' t γ ∗
         front۰lb γ front ∗
-        prophet_multi۰full prophet_identifier γ.(inf_ws_deque_1۰name۰prophet_name) front prophs0
+        prophet_multi۰full prophet_identifier γ.(inf_ws_deque_1۰name۰prophet) front prophs0
       }}}
-        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front #(front + 1)) #γ.(inf_ws_deque_1۰name۰prophet) (#front, #id)%V
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front #(front + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#front, #id)%V
       {{{
         RET false;
         front۰lb γ ˖front
@@ -1211,7 +1209,7 @@ Module base.
         inv' t γ ∗
         winner۰pop γ front P
       }}}
-        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front #(front + 1)) #γ.(inf_ws_deque_1۰name۰prophet) (#front, #id)%V
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front #(front + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#front, #id)%V
       {{{
         RET true;
         ▷ P
@@ -1278,7 +1276,7 @@ Module base.
         inv' t γ ∗
         winner۰steal γ front P
       }}}
-        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front #(front + 1)) #γ.(inf_ws_deque_1۰name۰prophet) (#front, #id)%V
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front #(front + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#front, #id)%V
       {{{
         RET true;
         front۰lb γ ˖front
@@ -1308,7 +1306,7 @@ Module base.
         owner₁ γ Stable back priv ws ∗
         front۰lb γ back
       }}}
-        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #back #(back + 1)) #γ.(inf_ws_deque_1۰name۰prophet) (#back, #id)%V
+        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #back #(back + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#back, #id)%V
       {{{
         RET true;
         owner₁ γ Unstable back (priv ∘ S) ws ∗
@@ -1615,7 +1613,7 @@ Module base.
         | PopEmptyishLoser =>
             ∃ id_winner prophs,
             ⌜stable = Unstable⌝ ∗
-            prophet_multi۰full prophet_identifier γ.(inf_ws_deque_1۰name۰prophet_name) back (id_winner :: prophs) ∗
+            prophet_multi۰full prophet_identifier γ.(inf_ws_deque_1۰name۰prophet) back (id_winner :: prophs) ∗
             ⌜head (id_winner :: prophs) ≠ Some id⌝
         | PopSuperempty =>
             ∃ front,

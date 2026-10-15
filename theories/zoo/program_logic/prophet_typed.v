@@ -7,6 +7,18 @@ Record prophet_typed :=
   ; prophet_typed۰of_val : val → val → option $ option prophet_typed۰type
   }.
 
+Record prophet_typed۰name :=
+  { prophet_typed۰name۰id : prophet_id
+  }.
+Implicit Type γ : prophet_typed۰name.
+
+Please derive Inhabited for prophet_typed۰name.
+Please derive EqDecision for prophet_typed۰name.
+Please derive Countable for prophet_typed۰name.
+
+Coercion prophet_typed۰name۰to_val γ : val :=
+  #γ.(prophet_typed۰name۰id).
+
 Section prophet_typed.
   Context (prophet : prophet_typed).
   Context `{zoo۰G : !ZooG Σ}.
@@ -32,26 +44,26 @@ Section prophet_typed.
         end
     end.
 
-  Please Definition prophet_typed۰model pid prophs : iProp Σ :=
+  Please Definition prophet_typed۰model γ prophs : iProp Σ :=
     ∃ uprophs,
     ⌜prophs = prophet_typed۰process uprophs⌝ ∗
-    prophet۰model pid uprophs.
+    prophet۰model γ.(prophet_typed۰name۰id) uprophs.
   #[local] Instance : CustomIpat "model" :=
     " ( %uprophs
       & %Hprophs
-      & Hpid
+      & Hmodel
       )
     ".
 
-  #[global] Instance prophet_typed۰modelｰtimeless pid prophs :
-    Timeless (prophet_typed۰model pid prophs).
+  #[global] Instance prophet_typed۰modelｰtimeless γ prophs :
+    Timeless (prophet_typed۰model γ prophs).
   Proof.
     apply _.
   Qed.
 
-  Lemma prophet_typed۰modelｰexclusive pid prophs1 prophs2 :
-    prophet_typed۰model pid prophs1 -∗
-    prophet_typed۰model pid prophs2 -∗
+  Lemma prophet_typed۰modelｰexclusive γ prophs1 prophs2 :
+    prophet_typed۰model γ prophs1 -∗
+    prophet_typed۰model γ prophs2 -∗
     False.
   Proof.
     iSteps.
@@ -64,39 +76,46 @@ Section prophet_typed.
       𝗽𝗿𝗼𝗽𝗵
       @ E
     {{{
-      pid prophs
-    , RET #pid;
-      prophet_typed۰model pid prophs
+      γ prophs
+    , RET γ;
+      prophet_typed۰model γ prophs
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp۰apply (wpｰproph with "[//]").
-    iSteps.
+
+    wp۰apply (wpｰproph with "[//]") as (prophs pid) "Hmodel".
+
+    pose γ :=
+      {|prophet_typed۰name۰id := pid
+      |}.
+
+    iApply ("HΦ" $! γ with "[$Hmodel //]").
   Qed.
 
-  Lemma prophet_typedｰwpｰresolve e pid v prophs E Φ :
+  Lemma prophet_typedｰwpｰresolve e γ v prophs E Φ :
     Atomic e →
     expr۰to_val e = None →
-    prophet_typed۰model pid prophs -∗
+    prophet_typed۰model γ prophs -∗
     WP e @ E {{ w,
       ∃ oproph,
       ⌜prophet.(prophet_typed۰of_val) w v = Some oproph⌝ ∗
       match oproph with
       | None =>
-          prophet_typed۰model pid prophs -∗
+          prophet_typed۰model γ prophs -∗
           Φ w
       | Some proph =>
           ∀ prophs',
           ⌜prophs = proph :: prophs'⌝ -∗
-          prophet_typed۰model pid prophs' -∗
+          prophet_typed۰model γ prophs' -∗
           Φ w
       end
     }} -∗
-    WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e #pid v @ E {{ Φ }}.
+    WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e γ v @ E {{ Φ }}.
   Proof.
     iIntros "% % (:model) HΦ".
-    wp۰apply (wpｰresolve with "Hpid"); first done.
-    wp۰apply (wpｰwand with "HΦ") as "%w (%oproph & %Hoproph & HΦ) %prophs' -> Hpid".
+
+    wp۰apply (wpｰresolve with "Hmodel"). 1: done.
+    wp۰apply (wpｰwand with "HΦ") as "%w (%oproph & %Hoproph & HΦ) %prophs' -> Hmodel".
     rewrite /= Hoproph in Hprophs.
     destruct oproph; iSteps.
   Qed.
@@ -127,9 +146,9 @@ Section prophet_typed₁.
         prophet.(prophet_typed₁۰of_val)
     |}.
 
-  Please Definition prophet_typed₁۰model pid proph : iProp Σ :=
+  Please Definition prophet_typed₁۰model γ proph : iProp Σ :=
     ∃ prophs,
-    prophet_typed۰model prophet_typed₁۰to_prophet pid prophs ∗
+    prophet_typed۰model prophet_typed₁۰to_prophet γ prophs ∗
     ⌜if prophs is proph' :: _ then proph' = proph else True⌝.
   #[local] Instance : CustomIpat "model" :=
     " ( %prophs{}
@@ -138,15 +157,15 @@ Section prophet_typed₁.
       )
     ".
 
-  #[global] Instance prophet_typed₁۰modelｰtimeless pid proph :
-    Timeless (prophet_typed₁۰model pid proph).
+  #[global] Instance prophet_typed₁۰modelｰtimeless γ proph :
+    Timeless (prophet_typed₁۰model γ proph).
   Proof.
     apply _.
   Qed.
 
-  Lemma prophet_typed₁۰modelｰexclusive pid proph1 proph2 :
-    prophet_typed₁۰model pid proph1 -∗
-    prophet_typed₁۰model pid proph2 -∗
+  Lemma prophet_typed₁۰modelｰexclusive γ proph1 proph2 :
+    prophet_typed₁۰model γ proph1 -∗
+    prophet_typed₁۰model γ proph2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)".
@@ -160,23 +179,24 @@ Section prophet_typed₁.
       𝗽𝗿𝗼𝗽𝗵
       @ E
     {{{
-      pid proph
-    , RET #pid;
-      prophet_typed₁۰model pid proph
+      γ proph
+    , RET γ;
+      prophet_typed₁۰model γ proph
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp۰apply (prophet_typedｰwpｰproph prophet_typed₁۰to_prophet with "[//]") as "%pid %prophs Hmodel".
+
+    wp۰apply (prophet_typedｰwpｰproph prophet_typed₁۰to_prophet with "[//]") as "%γ %prophs Hmodel".
     destruct prophs as [| proph prophs'] eqn:Heq.
-    1: iApply ("HΦ" $! pid inhabitant).
-    2: iApply ("HΦ" $! pid proph).
-    all: iSteps.
+    1: iApply ("HΦ" $! γ inhabitant).
+    2: iApply ("HΦ" $! γ proph).
+    all: iFrameSteps.
   Qed.
 
-  Lemma prophet_typed₁ｰwpｰresolve e pid v proph E Φ :
+  Lemma prophet_typed₁ｰwpｰresolve e γ v proph E Φ :
     Atomic e →
     expr۰to_val e = None →
-    prophet_typed₁۰model pid proph -∗
+    prophet_typed₁۰model γ proph -∗
     WP e @ E {{ w,
       ∃ oproph,
       ⌜prophet.(prophet_typed₁۰of_val) w v = Some oproph⌝ ∗
@@ -188,10 +208,11 @@ Section prophet_typed₁.
           Φ w
       end
     }} -∗
-    WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e #pid v @ E {{ Φ }}.
+    WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e γ v @ E {{ Φ }}.
   Proof.
     iIntros (? ?) "(:model) HΦ".
-    wp۰apply (prophet_typedｰwpｰresolve with "Hmodel"); first done.
+
+    wp۰apply (prophet_typedｰwpｰresolve with "Hmodel"). 1: done.
     wp۰apply (wpｰwand with "HΦ") as (w) "(%oproph & %Hoproph & HΦ)".
     destruct oproph; iSteps.
   Qed.

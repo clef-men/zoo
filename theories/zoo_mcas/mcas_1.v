@@ -109,7 +109,7 @@ Qed.
 
 Record metadata :=
   { metadata۰descrs : list descriptor
-  ; metadata۰prophet : prophet_id
+  ; metadata۰prophet : prophet_typed۰name
   ; metadata۰prophs : list global_prophet.(prophet_typed۰type)
   ; metadata۰undetermined : block_id
   ; metadata۰post : gname
@@ -413,7 +413,7 @@ Section mcas_1۰G.
   :=
     λ '(casn, κ, i), (
       ∃ Ψ,
-      casn.[proph] ↦□ #κ.(metadata۰prophet) ∗
+      casn.[proph] ↦□ κ.(metadata۰prophet) ∗
       saved_pred κ.(metadata۰post) Ψ ∗
       ⌜NoDup (descriptor۰loc <$> κ.(metadata۰descrs))⌝ ∗
       inv (casn۰inv۰name ι casn) (casn۰inv۰inner casn κ ι Ψ) ∗
@@ -1989,7 +1989,7 @@ Section mcas_1۰G.
 
     wp۰rec.
     wp۰apply (wpｰid with "[//]") as (gid) "Hgid".
-    wp۰apply+ (prophet_typedｰwpｰproph global_prophet with "[//]") as (pid prophs) "Hgproph".
+    wp۰apply+ (prophet_typedｰwpｰproph global_prophet with "[//]") as (κ_prophet prophs) "Hgproph".
     wp۰block casn as "Hcasn_status #Hcasn_proph" meta:"Hcasn_meta".
     wp۰block state as "#Hstate_casn Hstate_before Hstate_after".
     wp۰ref loc as "Hloc" meta:"Hloc_meta".
@@ -2018,7 +2018,7 @@ Section mcas_1۰G.
       |}.
     set κ :=
       {|metadata۰descrs := [descr]
-      ; metadata۰prophet := pid
+      ; metadata۰prophet := κ_prophet
       ; metadata۰prophs := ((gid, true) :: prophs)
       ; metadata۰undetermined := inhabitant
       ; metadata۰post := κ_post
@@ -2123,7 +2123,7 @@ Section mcas_1۰G.
     iDestruct (big_sepLｰexists with "Hlocs_") as "(%γs & %Hγs & #Hlocs)". iClear "Hlocs_".
 
     wp۰rec credit:"H£".
-    wp۰apply+ (prophet_typedｰwpｰproph global_prophet with "[//]") as (pid prophs0) "Hgproph".
+    wp۰apply+ (prophet_typedｰwpｰproph global_prophet with "[//]") as (κ_prophet prophs0) "Hgproph".
     wp۰block casn as "Hcasn_state #Hcasn_proph" meta:"Hcasn_meta".
 
     pose (Ψ i (_ : val) 𝑐𝑎𝑠 := (
@@ -2195,7 +2195,7 @@ Section mcas_1۰G.
 
     pose κ :=
       {|metadata۰descrs := descrs
-      ; metadata۰prophet := pid
+      ; metadata۰prophet := κ_prophet
       ; metadata۰prophs := prophs0
       ; metadata۰undetermined := undetermined
       ; metadata۰post := κ_post

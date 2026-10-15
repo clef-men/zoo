@@ -154,8 +154,7 @@ Module base.
     Record inf_queue_mpmc_2۰name :=
       { inf_queue_mpmc_2۰name۰data : val
       ; inf_queue_mpmc_2۰name۰inv : namespace
-      ; inf_queue_mpmc_2۰name۰prophet : prophet_id
-      ; inf_queue_mpmc_2۰name۰prophet_name : prophet_multi۰name
+      ; inf_queue_mpmc_2۰name۰prophet : prophet_multi۰name
       ; inf_queue_mpmc_2۰name۰model : gname
       ; inf_queue_mpmc_2۰name۰history : gname
       ; inf_queue_mpmc_2۰name۰lstates : gname
@@ -285,7 +284,7 @@ Module base.
 
     #[local] Definition winner γ i : iProp Σ :=
       ∃ id prophs,
-      prophet_multi۰full prophet_identifier γ.(inf_queue_mpmc_2۰name۰prophet_name) i prophs ∗
+      prophet_multi۰full prophet_identifier γ.(inf_queue_mpmc_2۰name۰prophet) i prophs ∗
       ⌜head prophs = Some id⌝ ∗
       identifier۰model id.
     #[local] Instance : CustomIpat "winner" :=
@@ -408,7 +407,7 @@ Module base.
       ⌜length hist = back⌝ ∗
       lstates۰auth γ lstates ∗
       ⌜length lstates = front `max` back⌝ ∗
-      prophet_multi۰model prophet_identifier γ.(inf_queue_mpmc_2۰name۰prophet) γ.(inf_queue_mpmc_2۰name۰prophet_name) pasts prophss ∗
+      prophet_multi۰model prophet_identifier γ.(inf_queue_mpmc_2۰name۰prophet) pasts prophss ∗
       producers۰auth γ back ∗
       consumers۰auth γ front ∗
       ( [∗ list] i ↦ lstate ∈ take back lstates,
@@ -449,7 +448,7 @@ Module base.
     Please Definition inf_queue_mpmc_2۰inv t γ ι : iProp Σ :=
       ⌜ι = γ.(inf_queue_mpmc_2۰name۰inv)⌝ ∗
       t.[data] ↦□ γ.(inf_queue_mpmc_2۰name۰data) ∗
-      t.[proph] ↦□ #γ.(inf_queue_mpmc_2۰name۰prophet) ∗
+      t.[proph] ↦□ γ.(inf_queue_mpmc_2۰name۰prophet) ∗
       inf_array۰inv γ.(inf_queue_mpmc_2۰name۰data) ∗
       inv γ.(inf_queue_mpmc_2۰name۰inv) (inv۰inner t γ).
     #[local] Instance : CustomIpat "inv" :=
@@ -783,7 +782,7 @@ Module base.
       iIntros "%Φ _ HΦ".
 
       wp۰rec.
-      wp۰apply (prophet_multiｰwpｰproph prophet_identifier with "[//]") as "%pid %γ_prophet %prophss Hprophet_model".
+      wp۰apply (prophet_multiｰwpｰproph prophet_identifier with "[//]") as "%γ_prophet %prophss Hprophet_model".
       wp۰apply (inf_array٠createｰspec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
       wp۰block t as "#Ht_data Ht_front Ht_back #Ht_proph" meta:"Hmeta".
 
@@ -796,8 +795,7 @@ Module base.
       pose γ :=
         {|inf_queue_mpmc_2۰name۰data := data
         ; inf_queue_mpmc_2۰name۰inv := ι
-        ; inf_queue_mpmc_2۰name۰prophet := pid
-        ; inf_queue_mpmc_2۰name۰prophet_name := γ_prophet
+        ; inf_queue_mpmc_2۰name۰prophet := γ_prophet
         ; inf_queue_mpmc_2۰name۰model := γ_model
         ; inf_queue_mpmc_2۰name۰history := γ_history
         ; inf_queue_mpmc_2۰name۰lstates := γ_lstates
