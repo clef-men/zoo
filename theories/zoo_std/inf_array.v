@@ -10,8 +10,7 @@ Require Import zoo.options.
 
 Implicit Type b : bool.
 Implicit Type l : location.
-Implicit Type pid : prophet_id.
-Implicit Type v v_resolve t fn : val.
+Implicit Type v v_resolve t fn proph resolve : val.
 Implicit Type us : list val.
 Implicit Type vs : nat → val.
 
@@ -468,7 +467,7 @@ Section inf_array۰G.
     iAaccIntro with "[$Hmodel]"; iSteps.
   Qed.
 
-  Lemma inf_array٠xchg_resolveｰspec t i v pid v_resolve Φ E :
+  Lemma inf_array٠xchg_resolveｰspec t i v proph resolve Φ E :
     (0 ≤ i)%Z →
     inf_array۰inv t -∗
     ( |={⊤,E}=>
@@ -478,13 +477,13 @@ Section inf_array۰G.
         ⌜PureExec True 1 e ()⌝ -∗
         ⌜expr۰to_val e = None⌝ -∗
         inf_array۰model t (<[₊i := v]> vs) -∗
-        WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e #pid v_resolve @ E {{ _,
+        WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e proph resolve @ E {{ _,
           |={E,⊤}=>
           Φ (vs ₊i)
         }}
       )
     ) -∗
-    WP inf_array٠xchg_resolve t #i v #pid v_resolve {{ Φ }}.
+    WP inf_array٠xchg_resolve t #i v proph resolve {{ Φ }}.
   Proof.
     iIntros "% (:inv) HΦ".
 
@@ -656,7 +655,7 @@ Section inf_array۰G.
       rewrite list_lookup_total_insert_ne //.
   Qed.
 
-  Lemma inf_array٠cas_resolveｰspec t i v1 v2 pid v_resolve Φ E :
+  Lemma inf_array٠cas_resolveｰspec t i v1 v2 proph resolve Φ E :
     (0 ≤ i)%Z →
     inf_array۰inv t -∗
     ( |={⊤,E}=>
@@ -667,13 +666,13 @@ Section inf_array۰G.
         ⌜expr۰to_val e = None⌝ -∗
         ⌜(if b then (≈) else (≉)) (vs ₊i) v1⌝ -∗
         inf_array۰model t (if b then <[₊i := v2]> vs else vs) -∗
-        WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e #pid v_resolve @ E {{ _,
+        WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e proph resolve @ E {{ _,
           |={E,⊤}=>
           Φ #b
         }}
       )
     ) -∗
-    WP inf_array٠cas_resolve t #i v1 v2 #pid v_resolve {{ Φ }}.
+    WP inf_array٠cas_resolve t #i v1 v2 proph resolve {{ Φ }}.
   Proof.
     iIntros "% (:inv) HΦ".
 
