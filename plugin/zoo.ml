@@ -1,3 +1,42 @@
+let location =
+  "zoo.language.location.location"
+let location_qualid =
+  location
+  |> Libnames.qualid_of_string
+let location_globref () =
+  location_qualid
+  |> Nametab.global
+
+let prophet_id =
+  "zoo.language.syntax.prophet_id"
+let prophet_id_qualid =
+  prophet_id
+  |> Libnames.qualid_of_string
+let prophet_id_globref () =
+  prophet_id_qualid
+  |> Nametab.global
+
+let val_ =
+  "zoo.language.syntax.val"
+let val_qualid =
+  val_
+  |> Libnames.qualid_of_string
+let val_ref =
+  val_
+  |> Constrexpr_.mk_ref_string
+
+let _ValLoc =
+  "zoo.language.syntax.ValLoc"
+let _ValLoc_ref =
+  _ValLoc
+  |> Constrexpr_.mk_ref_string
+
+let _ValProph =
+  "zoo.language.syntax.ValProph"
+let _ValProph_ref =
+  _ValProph
+  |> Constrexpr_.mk_ref_string
+
 let ghost_state =
   "zoo.program_logic.ghost_state"
 

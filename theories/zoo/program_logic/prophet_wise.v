@@ -5,19 +5,11 @@ Require Import zoo.base.
 Require Export zoo.program_logic.prophet_typed.
 Require Import zoo.options.
 
-Record prophet_wise۰name :=
-  { prophet_wise۰name۰base : prophet_typed۰name
-  ; prophet_wise۰name۰full : gname
-  ; prophet_wise۰name۰past : gname
+Zoo name :=
+  { base : prophet_typed۰name
+  ; full : gname
+  ; past : gname
   }.
-Implicit Type γ : prophet_wise۰name.
-
-Please derive Inhabited for prophet_wise۰name.
-Please derive EqDecision for prophet_wise۰name.
-Please derive Countable for prophet_wise۰name.
-
-Coercion prophet_wise۰name۰to_val γ : val :=
-  γ.(prophet_wise۰name۰base).
 
 Class ProphetWiseG Σ `{zoo۰G : !ZooG Σ} prophet :=
   { #[local] prophet_wise۰G۰full۰G :: AgreeG Σ (leibnizO (list prophet.(prophet_typed۰type)))

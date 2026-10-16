@@ -99,9 +99,8 @@ let instance_arguments ~modifier params =
   params |> List.map (instance_argument ~modifier)
 
 let derive ~locality ~kind ~modifier id =
-  let env = Global.env () in
   let const = Nametab.locate_constant id in
-  let const = Environ.lookup_constant const env in
+  let const = Environ.lookup_constant const (Global.env ()) in
   let params = parameters const in
   let _id, proof =
     let open Constrexpr_ in

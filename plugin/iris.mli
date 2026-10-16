@@ -44,3 +44,12 @@ val _DfracDiscarded :
   string
 val _DfracDiscarded_ref :
   Constrexpr.constr_expr
+
+val gamma :
+  string
+val gamma_lident :
+  Names.lident
+val gamma_lname :
+  Names.lname
+val gamma_ref :
+  Constrexpr.constr_expr

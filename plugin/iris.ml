@@ -58,3 +58,15 @@ let _DfracDiscarded =
 let _DfracDiscarded_ref =
   _DfracDiscarded
   |> Constrexpr_.mk_ref_string
+
+let gamma =
+  "γ"
+let gamma_lident =
+  gamma
+  |> Names_.lident_of_string
+let gamma_lname =
+  gamma
+  |> Names_.lname_of_string
+let gamma_ref =
+  gamma
+  |> Constrexpr_.mk_ref_string

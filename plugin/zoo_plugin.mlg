@@ -6,6 +6,9 @@ open Procq.Constr
 open Procq.Prim
 open Stdarg
 
+let record_field =
+  G_vernac.record_field
+
 }
 
 VERNAC ARGUMENT EXTEND zoo_global_base
@@ -65,4 +68,20 @@ VERNAC COMMAND EXTEND zoo_derive
 | #[ locality = Attributes.hint_locality_default_superglobal ]
   [ "Zoo" "derive" zoo_derive_kind(kind) "for" reference(id) zoo_derive_modifier(modifier) ] ->
     { Zoo_derive.derive ~locality ~kind ~modifier id }
+END
+
+VERNAC ARGUMENT EXTEND zoo_name_field
+| [ record_field(fld) ] ->
+    { fld }
+END
+VERNAC ARGUMENT EXTEND zoo_name_fields
+| [ "{" zoo_name_field_list_sep(flds, ";") "}" ] ->
+    { flds }
+END
+
+VERNAC COMMAND EXTEND zoo_name
+  CLASSIFIED AS SIDEFF
+| #[ locality = Attributes.hint_locality_default_superglobal ]
+  [ "Zoo" "name" ":=" zoo_name_fields(flds) ] ->
+    { Zoo_name.main ~locality flds }
 END

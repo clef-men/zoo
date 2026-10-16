@@ -4,17 +4,9 @@ Require Import zoo.base.
 Require Export zoo.program_logic.prophet_wise.
 Require Import zoo.options.
 
-Record prophet_multi۰name :=
-  { prophet_multi۰name۰base : prophet_wise۰name
+Zoo name :=
+  { base : prophet_wise۰name
   }.
-Implicit Type γ : prophet_multi۰name.
-
-Please derive Inhabited for prophet_multi۰name.
-Please derive EqDecision for prophet_multi۰name.
-Please derive Countable for prophet_multi۰name.
-
-Coercion prophet_multi۰name۰to_val γ : val :=
-  γ.(prophet_multi۰name۰base).
 
 #[local] Definition prophetx prophet :=
   {|prophet_typed۰type :=

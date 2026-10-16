@@ -7,17 +7,9 @@ Record prophet_typed :=
   ; prophet_typed۰of_val : val → val → option $ option prophet_typed۰type
   }.
 
-Record prophet_typed۰name :=
-  { prophet_typed۰name۰id : prophet_id
+Zoo name :=
+  { id : prophet_id
   }.
-Implicit Type γ : prophet_typed۰name.
-
-Please derive Inhabited for prophet_typed۰name.
-Please derive EqDecision for prophet_typed۰name.
-Please derive Countable for prophet_typed۰name.
-
-Coercion prophet_typed۰name۰to_val γ : val :=
-  #γ.(prophet_typed۰name۰id).
 
 Section prophet_typed.
   Context (prophet : prophet_typed).
