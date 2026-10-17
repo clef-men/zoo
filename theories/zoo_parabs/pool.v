@@ -13,6 +13,7 @@ Require Import zoo.options.
 
 Implicit Type b : bool.
 Implicit Type v ctx hub task notification notify pred ivar waiter : val.
+Implicit Type domain : domain۰name.
 Implicit Type empty : emptiness.
 Implicit Type own : ownership.
 Implicit Type η : prop_spsc۰name.
@@ -77,7 +78,7 @@ Module base.
     Record pool۰name :=
       { pool۰name۰size : nat
       ; pool۰name۰hub : val
-      ; pool۰name۰domains : val
+      ; pool۰name۰𝑑𝑜𝑚𝑎𝑖𝑛𝑠 : val
       ; pool۰name۰jobs : gname
       ; pool۰name۰locals : gname
       }.
@@ -283,28 +284,28 @@ Module base.
       ".
 
     Please Definition pool۰model t γ : iProp Σ :=
-      ∃ empty doms,
-      ⌜length doms = γ.(pool۰name۰size)⌝ ∗
+      ∃ empty domains,
+      ⌜length domains = γ.(pool۰name۰size)⌝ ∗
       t.[size] ↦□ #γ.(pool۰name۰size) ∗
       t.[hub] ↦□ γ.(pool۰name۰hub) ∗
-      t.[domains] ↦□ γ.(pool۰name۰domains) ∗
+      t.[domains] ↦□ γ.(pool۰name۰𝑑𝑜𝑚𝑎𝑖𝑛𝑠) ∗
       inv₂ γ ∗
-      array۰model γ.(pool۰name۰domains) DfracDiscarded doms ∗
-      ( [∗ list] i ↦ dom ∈ doms,
-        domain۰model dom (worker۰post γ ˖i)
+      array۰model γ.(pool۰name۰𝑑𝑜𝑚𝑎𝑖𝑛𝑠) DfracDiscarded (domain۰name۰to_val <$> domains) ∗
+      ( [∗ list] i ↦ domain ∈ domains,
+        domain۰model domain (worker۰post γ ˖i)
       ) ∗
       ws_hub_std۰owner γ.(pool۰name۰hub) 0 Blocked empty ∗
       locals۰at γ 0 (Some ∅).
     #[local] Instance : CustomIpat "model" :=
       " ( %empty{}
-        & %doms{}
-        & %Hdoms{}
-        & #Hl{}_size
-        & #Hl{}_hub
-        & #Hl{}_domains
+        & %domains{}
+        & %Hdomains{}
+        & #Ht{}_size
+        & #Ht{}_hub
+        & #Ht{}_domains
         & {#Hinv{};(:inv₂)}
+        & H𝑑𝑜𝑚𝑎𝑖𝑛𝑠{}
         & Hdomains{}
-        & Hdoms{}
         & Hhub{}_owner
         & Hlocals_at{_{}}
         )
@@ -750,42 +751,48 @@ Module base.
       iMod (localsｰalloc ₊sz) as "(%γ_locals & Hlocals_auth & Hlocals_ats)".
       iDestruct (big_sepLｰseqｰcons₁ with "Hlocals_ats") as "(Hlocals_at & Hlocals_ats)".
 
-      pose γ 𝑑𝑜𝑚𝑠 :=
+      pose γ 𝑑𝑜𝑚𝑎𝑖𝑛𝑠 :=
         {|pool۰name۰size := ₊sz
         ; pool۰name۰hub := hub
-        ; pool۰name۰domains := 𝑑𝑜𝑚𝑠
+        ; pool۰name۰𝑑𝑜𝑚𝑎𝑖𝑛𝑠 := 𝑑𝑜𝑚𝑎𝑖𝑛𝑠
         ; pool۰name۰jobs := γ_jobs
         ; pool۰name۰locals := γ_locals
         |}.
 
       wp۰apply+ (array٠unsafe_initiｰspecｰdisentangledｰstrong'
-        ( λ 𝑑𝑜𝑚𝑠,
-          inv₁ (γ 𝑑𝑜𝑚𝑠)
+        ( λ 𝑑𝑜𝑚𝑎𝑖𝑛𝑠,
+          inv₁ (γ 𝑑𝑜𝑚𝑎𝑖𝑛𝑠)
         )
-        ( λ 𝑑𝑜𝑚𝑠 i dom,
-          domain۰model dom (worker۰post (γ 𝑑𝑜𝑚𝑠) ˖i)
-        )
-      with "[Hhub_model Hhub_owners Hjobs_auth Hlocals_auth Hlocals_ats]") as (𝑑𝑜𝑚𝑠 doms) "(%Hdoms & Hdomains & #Hinv & Hdoms)"; first done.
+        ( λ 𝑑𝑜𝑚𝑎𝑖𝑛𝑠 i 𝑑𝑜𝑚𝑎𝑖𝑛,
+          ∃ domain,
+          ⌜𝑑𝑜𝑚𝑎𝑖𝑛 = domain⌝ ∗
+          domain۰model domain (worker۰post (γ 𝑑𝑜𝑚𝑎𝑖𝑛𝑠) ˖i)
+        )%I
+      with "[Hhub_model Hhub_owners Hjobs_auth Hlocals_auth Hlocals_ats]") as (𝑑𝑜𝑚𝑎𝑖𝑛𝑠 𝑑𝑜𝑚𝑎𝑖𝑛s) "(%H𝑑𝑜𝑚𝑎𝑖𝑛s & H𝑑𝑜𝑚𝑎𝑖𝑛𝑠 & #Hinv & H𝑑𝑜𝑚𝑎𝑖𝑛s)"; first done.
       { iSplitR "Hhub_owners Hlocals_ats".
 
-        - iIntros "!> %𝑑𝑜𝑚𝑠".
+        - iIntros "!> %𝑑𝑜𝑚𝑎𝑖𝑛𝑠".
           iApply inv_alloc.
-          iDestruct (globals۰modelｰinit (γ 𝑑𝑜𝑚𝑠) with "Hjobs_auth Hlocals_auth") as "$".
+          iDestruct (globals۰modelｰinit (γ 𝑑𝑜𝑚𝑎𝑖𝑛𝑠) with "Hjobs_auth Hlocals_auth") as "$".
           iFrameSteps.
 
         - iDestruct (big_sepL_sep_2 with "Hhub_owners Hlocals_ats") as "H".
           iApply (big_sepLｰimplｰstrong with "H").
           { simp_length. }
-          iIntros "!>" (k i1 i2 (-> & Hi1)%lookup_seq (-> & Hi2)%lookup_seq) "(Hhub_owner & Hlocals_at) %𝑑𝑜𝑚𝑠 #Hinv".
+          iIntros "!>" (k i1 i2 (-> & Hi1)%lookup_seq (-> & Hi2)%lookup_seq) "(Hhub_owner & Hlocals_at) %𝑑𝑜𝑚𝑎𝑖𝑛𝑠 #Hinv".
 
           wp۰apply+ (domain٠spawnｰspec with "[Hhub_owner Hlocals_at]"); last iSteps. iIntros "%tid _".
           iApply wpｰthread_id_mono.
 
-          wp۰apply+ (pool٠contextｰspec (γ 𝑑𝑜𝑚𝑠) ˖k with "[//]") as "_"; [naive lia.. |].
+          wp۰apply+ (pool٠contextｰspec (γ 𝑑𝑜𝑚𝑎𝑖𝑛𝑠) ˖k with "[//]") as "_"; [naive lia.. |].
           wp۰apply (pool٠workerｰspec with "[Hhub_owner Hlocals_at]"); first iFrameSteps.
           iSteps.
       }
-      iMod (array۰modelｰpersist with "Hdomains") as "#Hdomains".
+      iMod (array۰modelｰpersist with "H𝑑𝑜𝑚𝑎𝑖𝑛𝑠") as "#H𝑑𝑜𝑚𝑎𝑖𝑛𝑠".
+      iDestruct (big_sepLｰexists with "H𝑑𝑜𝑚𝑎𝑖𝑛s") as "(%domains & %Hdomains & H𝑑𝑜𝑚𝑎𝑖𝑛s)".
+      iDestruct (big_sepL2_sep with "H𝑑𝑜𝑚𝑎𝑖𝑛s") as "(H𝑑𝑜𝑚𝑎𝑖𝑛s & Hdomains)".
+      iDestruct (big_sepL2ｰForall2 with "H𝑑𝑜𝑚𝑎𝑖𝑛s") as %->%listｰfmapｰaltｰForall2ｰl. iClear "H𝑑𝑜𝑚𝑎𝑖𝑛s".
+      iDestruct (big_sepL2_const_sepL_r with "Hdomains") as "(_ & Hdomains)".
 
       wp۰block t as "#Ht_size #Ht_hub #Ht_domains" meta:"Hmeta".
 
@@ -824,7 +831,7 @@ Module base.
         wp۰apply (wpｰwand with "(Htask [Hctx])") as (v) "((:context =1) & $)"; first iFrameSteps.
         apply (inj _) in Heq1 as <-. iFrame.
       }
-      iIntros "{%- Hdoms} %v ((:context₁) & HΨ)".
+      iIntros "{%- Hdomains} %v ((:context₁) & HΨ)".
 
       wp۰load.
       wp۰apply (ws_hub_std٠blockｰspec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
@@ -850,21 +857,22 @@ Module base.
       wp۰apply+ (pool٠context_mainｰspec with "[$]") as "_".
 
       wp۰apply+ (pool٠workerｰspec with "[$Hhub_owner $Hlocals_at]"); first iSteps.
-      iIntros "{%- Hdoms} %res (:worker۰post)".
+      iIntros "{%- Hdomains} %res (:worker۰post)".
 
       wp۰load.
 
       iApply wpｰfupd.
-      wp۰apply+ (array٠iterｰspecｰdisentangled' (λ i _, context۰finished γ ˖i)%I with "[$Hdomains Hdoms]") as "(_ & Hdoms)".
-      { iApply (big_sepL_impl with "Hdoms"). iIntros "!> %i %dom _ Hdom".
-        wp۰apply (domain٠joinｰspec with "Hdom").
+      wp۰apply+ (array٠iterｰspecｰdisentangled' (λ i _, context۰finished γ ˖i)%I with "[$H𝑑𝑜𝑚𝑎𝑖𝑛𝑠 Hdomains]") as "(_ & Hdomains)".
+      { iApply big_sepL_fmap.
+        iApply (big_sepL_impl with "Hdomains"). iIntros "!> %i %domain _ Hdomain".
+        wp۰apply (domain٠joinｰspec with "Hdomain").
         iSteps.
       }
 
-      iApply (big_sepLｰseqｰindex₂ γ.(pool۰name۰size)) in "Hdoms"; first lia.
-      iApply big_sepLｰseqｰshiftｰ1₂ in "Hdoms".
-      iDestruct (big_sepLｰseqｰcons₂ with "Hdoms [$]") as "Hdoms".
-      iDestruct (big_sepL_sep with "Hdoms") as "(Hhub_owners & Hlocals_ats)".
+      iApply (big_sepLｰseqｰindex₂ γ.(pool۰name۰size)) in "Hdomains". 1: simp_length.
+      iApply big_sepLｰseqｰshiftｰ1₂ in "Hdomains".
+      iDestruct (big_sepLｰseqｰcons₂ with "Hdomains [$]") as "Hdomains".
+      iDestruct (big_sepL_sep with "Hdomains") as "(Hhub_owners & Hlocals_ats)".
 
       iApply "HΦ".
 

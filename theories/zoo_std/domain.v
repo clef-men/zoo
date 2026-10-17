@@ -15,7 +15,7 @@ Require Import zoo.options.
 
 Implicit Type id : nat.
 Implicit Type l : location.
-Implicit Type t fn key : val.
+Implicit Type fn key : val.
 Implicit Type vs : list (option val).
 Implicit Type ws : gmap nat (option val).
 Implicit Type ids : gmap val nat.
@@ -74,6 +74,10 @@ Please Definition domain٠dls٠set : val :=
     𝗹𝗲𝘁 "id" = domain٠dls٠key۰id "key" 𝗶𝗻
     dynarray_1٠grow "local" ("id" + 1) §None ⍮
     dynarray_1٠set "local" "id" ‘Some( "v" ).
+
+Zoo name :=
+  { self : ivar_2۰name
+  }.
 
 Zoo global :=
   { ivar : ivar_2
@@ -149,7 +153,6 @@ Section consistent.
 End consistent.
 
 Please opacify.
-
 Please end.
 
 Section domain۰G.
@@ -157,14 +160,14 @@ Section domain۰G.
 
   Implicit Type Ψ : val → iProp Σ.
 
-  #[local] Definition dls۰auth γ :=
-    ghost_map_auth γ (DfracOwn 1).
-  #[local] Definition dls۰at :=
-    ghost_map_elem.
+  #[local] Definition dls۰auth δ ws :=
+    ghost_map_auth δ (DfracOwn 1) ws.
+  #[local] Definition dls۰at δ id dq v :=
+    ghost_map_elem δ id dq v.
 
-  Please Definition domain۰model t Ψ : iProp Σ :=
-    ivar_2۰inv t Ψ (λ _, True)%I ∗
-    ivar_2۰consumer t Ψ.
+  Please Definition domain۰model γ Ψ : iProp Σ :=
+    ivar_2۰inv γ.(domain۰name۰self) Ψ (λ _, True)%I ∗
+    ivar_2۰consumer γ.(domain۰name۰self) Ψ.
   #[local] Instance : CustomIpat "model" :=
     " ( #Hivar_inv
       & Hivar_consumer
@@ -200,18 +203,18 @@ Section domain۰G.
     domain۰dls۰key key Ψ.
 
   Please Definition domain۰dls tid keys : iProp Σ :=
-    ∃ l γ vs ws ids,
+    ∃ l δ vs ws ids,
     tid ↦ₗ□ #l ∗
-    l ↪[nroot.@"user"] γ ∗
+    l ↪[nroot.@"user"] δ ∗
     dynarray_1۰model #l (option۰to_val <$> vs) ∗
-    dls۰auth γ ws ∗
+    dls۰auth δ ws ∗
     ⌜dom ids = keys⌝ ∗
     ⌜map_img ids = dom ws⌝ ∗
     ([∗ map] key ↦ id ∈ ids, dls۰key۰id key id) ∗
     ⌜consistent vs ws⌝.
   #[local] Instance : CustomIpat "dls" :=
     " ( %l
-      & %γ
+      & %δ
       & %vs
       & %ws
       & %ids
@@ -227,14 +230,14 @@ Section domain۰G.
     ".
 
   Please Definition domain۰dls۰init tid key : iProp Σ :=
-    ∃ l γ id,
+    ∃ l δ id,
     tid ↦ₗ□ #l ∗
-    l ↪[nroot.@"user"] γ ∗
+    l ↪[nroot.@"user"] δ ∗
     dls۰key۰id key id ∗
-    dls۰at γ id (DfracOwn 1) None.
+    dls۰at δ id (DfracOwn 1) None.
   #[local] Instance : CustomIpat "dls۰init" :=
     " ( %l{}{_{suff}}
-      & %γ{}{_{suff}}
+      & %δ{}{_{suff}}
       & %id{}
       & #Hlocal{}{_{suff}}
       & #Hl{}_meta{_{suff}}
@@ -244,14 +247,14 @@ Section domain۰G.
     ".
 
   Please Definition domain۰dls۰pointsto tid key dq v : iProp Σ :=
-    ∃ l γ id,
+    ∃ l δ id,
     tid ↦ₗ□ #l ∗
-    l ↪[nroot.@"user"] γ ∗
+    l ↪[nroot.@"user"] δ ∗
     dls۰key۰id key id ∗
-    dls۰at γ id dq (Some v).
+    dls۰at δ id dq (Some v).
   #[local] Instance : CustomIpat "dls۰pointsto" :=
     " ( %l{}{_{suff}}
-      & %γ{}{_{suff}}
+      & %δ{}{_{suff}}
       & %id{}
       & #Hlocal{}{_{suff}}
       & #Hl{}_meta{_{suff}}
@@ -286,32 +289,32 @@ Section domain۰G.
 
   #[local] Lemma dlsｰalloc :
     ⊢ |==>
-      ∃ γ,
-      dls۰auth γ ∅.
+      ∃ δ,
+      dls۰auth δ ∅.
   Proof.
     apply ghost_map_alloc_empty.
   Qed.
-  #[local] Lemma dls۰atｰvalid γ ws id dq v :
-    dls۰auth γ ws -∗
-    dls۰at γ id dq v -∗
+  #[local] Lemma dls۰atｰvalid δ ws id dq v :
+    dls۰auth δ ws -∗
+    dls۰at δ id dq v -∗
     ⌜ws !! id = Some v⌝.
   Proof.
     apply ghost_map_lookup.
   Qed.
-  #[local] Lemma dlsｰinsert {γ ws} id :
+  #[local] Lemma dlsｰinsert {δ ws} id :
     ws !! id = None →
-    dls۰auth γ ws ⊢ |==>
-      dls۰auth γ (<[id := None]> ws) ∗
-      dls۰at γ id (DfracOwn 1) None.
+    dls۰auth δ ws ⊢ |==>
+      dls۰auth δ (<[id := None]> ws) ∗
+      dls۰at δ id (DfracOwn 1) None.
   Proof.
     intros.
     iApply ghost_map_insert; first done.
   Qed.
-  #[local] Lemma dlsｰupdate {γ ws id w} w' :
-    dls۰auth γ ws -∗
-    dls۰at γ id (DfracOwn 1) w ==∗
-      dls۰auth γ (<[id := w']> ws) ∗
-      dls۰at γ id (DfracOwn 1) w'.
+  #[local] Lemma dlsｰupdate {δ ws id w} w' :
+    dls۰auth δ ws -∗
+    dls۰at δ id (DfracOwn 1) w ==∗
+      dls۰auth δ (<[id := w']> ws) ∗
+      dls۰at δ id (DfracOwn 1) w'.
   Proof.
     apply ghost_map_update.
   Qed.
@@ -496,35 +499,48 @@ Section domain۰G.
     }}}
       domain٠spawn fn
     {{{
-      t
-    , RET t;
-      domain۰model t Ψ
+      γ
+    , RET γ;
+      domain۰model γ Ψ
     }}}.
   Proof.
     iIntros "%Φ Hfn HΦ".
+
     wp۰rec.
-    wp۰apply (ivar_2٠createｰspec with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
-    wp۰apply+ (wpｰfork with "[Hfn Hivar_producer]"); last iSteps. iIntros "!> %tid %dls Hlocal".
-    wp۰bind (dynarray_1٠create ())%E. iApply wpｰthread_id_mono.
-    wp۰apply (dynarray_1٠createｰspec' with "[//]") as (l) "(Hl & Hl_meta)".
-    wp۰apply+ (wpｰlocal_set with "Hlocal") as "Hlocal".
+    wp۰apply (ivar_2٠createｰspec Ψ (λ _, True)%I with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
 
-    iMod (local_pointstoｰpersist with "Hlocal") as "#Hlocal".
-    iMod dlsｰalloc as "(%γ & Hdls_auth)".
-    iMod (metaｰset γ with "Hl_meta") as "#Hl_meta"; first done.
+    wp۰apply+ (wpｰfork with "[Hfn Hivar_producer]").
+    { iIntros "!> %tid %dls Hlocal".
+      wp۰bind (dynarray_1٠create ())%E. iApply wpｰthread_id_mono.
+      wp۰apply (dynarray_1٠createｰspec' with "[//]") as (l) "(Hl & Hl_meta)".
+      wp۰apply+ (wpｰlocal_set with "Hlocal") as "Hlocal".
 
-    wp۰apply+ (wpｰwand with "(Hfn [Hl Hdls_auth])") as (res) "HΨ".
-    { iExists l, γ, [], ∅, ∅. iSteps. }
-    iApply wpｰthread_id_mono.
-    wp۰apply (ivar_2٠setｰspec with "[$Hivar_inv $Hivar_producer $HΨ //]").
-    iSteps.
+      iMod (local_pointstoｰpersist with "Hlocal") as "#Hlocal".
+      iMod dlsｰalloc as "(%δ & Hdls_auth)".
+      iMod (metaｰset δ with "Hl_meta") as "#Hl_meta"; first done.
+
+      wp۰apply+ (wpｰwand with "(Hfn [Hl Hdls_auth])") as (res) "HΨ".
+      { iExists l, δ, [], ∅, ∅. iSteps. }
+      iApply wpｰthread_id_mono.
+      wp۰apply (ivar_2٠setｰspec with "[$Hivar_inv $Hivar_producer $HΨ //]").
+      iSteps.
+    }
+
+    wp۰pures.
+
+    pose γ :=
+      {|domain۰name۰self := ivar
+      |}.
+
+    iApply ("HΦ" $! γ).
+    iFrameSteps.
   Qed.
 
-  Lemma domain٠joinｰspec t Ψ :
+  Lemma domain٠joinｰspec γ Ψ :
     {{{
-      domain۰model t Ψ
+      domain۰model γ Ψ
     }}}
-      domain٠join t
+      domain٠join γ
     {{{
       v
     , RET v;
@@ -532,6 +548,7 @@ Section domain۰G.
     }}}.
   Proof.
     iIntros "%Φ (:model) HΦ".
+
     iApply wpｰfupd.
     wp۰apply (ivar_2٠getｰspec with "Hivar_inv") as (v) "(H£ & Hivar_result & Hivar_synchronized)".
     iMod (ivar_2ｰinvｰresultｰconsumer' with "H£ Hivar_inv Hivar_result Hivar_synchronized Hivar_consumer") as "(HΨ & _)".
