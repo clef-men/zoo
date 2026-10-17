@@ -8,304 +8,95 @@ Require Import zoo.options.
 
 Implicit Type b : bool.
 
+Zoo name :=
+  { self : location
+  ; state : gname
+  ; consumer : gname
+  }.
+
 Zoo global :=
   { state : oneshot () ()
   ; consumer : excl unitO
   }.
 
-Module base.
-  Section flag_mpsc۰G.
-    Context `{flag_mpsc۰G : FlagMpscG Σ}.
-
-    Implicit Type t : location.
-    Implicit Type P : iProp Σ.
-
-    Record flag_mpsc۰name :=
-      { flag_mpsc۰name۰state : gname
-      ; flag_mpsc۰name۰consumer : gname
-      }.
-    Implicit Type γ : flag_mpsc۰name.
-
-    Please derive EqDecision for flag_mpsc۰name.
-    Please derive Countable for flag_mpsc۰name.
-
-    #[local] Definition state۰unset' γ_state :=
-      oneshot۰pending γ_state Own ().
-    #[local] Definition state۰unset γ :=
-      state۰unset' γ.(flag_mpsc۰name۰state).
-    #[local] Definition state۰set' γ_state :=
-      oneshot۰shot γ_state ().
-    #[local] Definition state۰set γ :=
-      state۰set' γ.(flag_mpsc۰name۰state).
-
-    #[local] Definition consumer' γ_consumer :=
-      excl γ_consumer ().
-    #[local] Definition consumer γ :=
-      consumer' γ.(flag_mpsc۰name۰consumer).
-
-    #[local] Definition inv۰consumer γ P : iProp Σ :=
-      P ∨ consumer γ.
-    #[local] Instance : CustomIpat "inv۰consumer" :=
-      " [ HP
-        | Hconsumer{_{!}}
-        ]
-      ".
-    #[local] Definition inv۰set γ P : iProp Σ :=
-      state۰set γ ∗
-      inv۰consumer γ P.
-    #[local] Instance : CustomIpat "inv۰set" :=
-      " ( #Hstate_set
-        & Hinv_consumer
-        )
-      ".
-    #[local] Definition inv۰inner t γ P : iProp Σ :=
-      ∃ b,
-      t ↦ᵣ #b ∗
-      if b then
-        inv۰set γ P
-      else
-        state۰unset γ.
-    #[local] Instance : CustomIpat "inv۰inner" :=
-      " ( %b
-        & >Ht
-        & Hb
-        )
-      ".
-    Please Definition flag_mpsc۰inv t γ P :=
-      inv nroot (inv۰inner t γ P).
-    #[local] Instance : CustomIpat "inv" :=
-      " #Hinv
-      ".
-
-    Please Definition flag_mpsc۰consumer :=
-      consumer.
-    #[local] Instance : CustomIpat "consumer" :=
-      " Hconsumer
-      ".
-
-    Please Definition flag_mpsc۰resolved :=
-      state۰set.
-    #[local] Instance : CustomIpat "resolved" :=
-      " #Hstate_set
-      ".
-
-    #[global] Instance flag_mpsc۰invｰcontractive t γ :
-      Contractive (flag_mpsc۰inv t γ).
-    Proof.
-      rewrite /flag_mpsc۰inv /inv۰inner /inv۰set  /inv۰consumer.
-      solve_contractive.
-    Qed.
-    #[global] Instance flag_mpsc۰invｰne t γ :
-      NonExpansive (flag_mpsc۰inv t γ).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance flag_mpsc۰invｰproper t γ :
-      Proper ((≡) ==> (≡)) (flag_mpsc۰inv t γ).
-    Proof.
-      apply _.
-    Qed.
-
-    Zoo derive Timeless for flag_mpsc۰consumer.
-    Zoo derive Timeless for flag_mpsc۰resolved.
-
-    Zoo derive Persistent for flag_mpsc۰inv.
-    Zoo derive Persistent for flag_mpsc۰resolved.
-
-    #[local] Lemma stateｰalloc :
-      ⊢ |==>
-        ∃ γ_state,
-        state۰unset' γ_state.
-    Proof.
-      apply: oneshotｰalloc.
-    Qed.
-    #[local] Lemma stateｰunsetｰset γ :
-      state۰unset γ -∗
-      state۰set γ -∗
-      False.
-    Proof.
-      apply oneshotｰpendingｰshot.
-    Qed.
-    #[local] Lemma stateｰupdate γ :
-      state۰unset γ ⊢ |==>
-      state۰set γ.
-    Proof.
-      apply oneshotｰupdateｰshot.
-    Qed.
-
-    #[local] Lemma consumerｰalloc :
-      ⊢ |==>
-        ∃ γ_consumer,
-        consumer' γ_consumer.
-    Proof.
-      apply exclｰalloc.
-    Qed.
-    #[local] Lemma consumerｰexclusive γ :
-      consumer γ -∗
-      consumer γ -∗
-      False.
-    Proof.
-      apply exclｰexclusive.
-    Qed.
-
-    Lemma flag_mpsc۰consumerｰexclusive γ :
-      flag_mpsc۰consumer γ -∗
-      flag_mpsc۰consumer γ -∗
-      False.
-    Proof.
-      apply consumerｰexclusive.
-    Qed.
-
-    Lemma flag_mpsc٠createｰspec P :
-      {{{
-        True
-      }}}
-        flag_mpsc٠create ()
-      {{{
-        t γ
-      , RET #t;
-        meta_token t ⊤ ∗
-        flag_mpsc۰inv t γ P ∗
-        flag_mpsc۰consumer γ
-      }}}.
-    Proof.
-      iIntros "%Φ _ HΦ".
-
-      wp۰rec.
-      wp۰ref t as "Ht" meta:"Hmeta".
-
-      iMod stateｰalloc as "(%γ_state & Hstate_unset)".
-      iMod consumerｰalloc as "(%γ_consumer & Hconsumer)".
-
-      pose γ :=
-        {|flag_mpsc۰name۰state := γ_state
-        ; flag_mpsc۰name۰consumer := γ_consumer
-        |}.
-
-      iApply ("HΦ" $! t γ).
-      iFrameSteps.
-    Qed.
-
-    Lemma flag_mpsc٠getｰspec t γ P :
-      {{{
-        flag_mpsc۰inv t γ P ∗
-        flag_mpsc۰consumer γ
-      }}}
-        flag_mpsc٠get #t
-      {{{
-        b
-      , RET #b;
-        if b then
-          P
-        else
-          flag_mpsc۰consumer γ
-      }}}.
-    Proof.
-      iIntros "%Φ ((:inv) & (:consumer)) HΦ".
-
-      wp۰rec credit:"H£".
-
-      iInv "Hinv" as "(:inv۰inner)".
-      wp۰load.
-      destruct b.
-
-      - iDestruct "Hb" as "(:inv۰set)".
-        iDestruct "Hinv_consumer" as "(:inv۰consumer !=)".
-        + iFrameSteps.
-        + iDestruct (consumerｰexclusive with "Hconsumer Hconsumer_") as %[].
-
-      - iFrameSteps.
-    Qed.
-
-    Lemma flag_mpsc٠setｰspec t γ P :
-      {{{
-        flag_mpsc۰inv t γ P ∗
-        ▷ P
-      }}}
-        flag_mpsc٠set #t
-      {{{
-        RET ();
-        flag_mpsc۰resolved γ
-      }}}.
-    Proof.
-      iIntros "%Φ ((:inv) & HP) HΦ".
-
-      wp۰rec.
-
-      iInv "Hinv" as "(:inv۰inner)".
-      wp۰store.
-      destruct b. 1: iFrameSteps.
-      iMod (stateｰupdate with "Hb") as "#Hstate_set".
-      iFrameSteps.
-    Qed.
-  End flag_mpsc۰G.
-
-  Please opacify.
-End base.
-
-Require zoo_std.flag_mpsc__opaque.
-
 Section flag_mpsc۰G.
   Context `{flag_mpsc۰G : FlagMpscG Σ}.
 
-  Implicit Type 𝑡 : location.
-  Implicit Type t : val.
   Implicit Type P : iProp Σ.
 
-  Please Definition flag_mpsc۰inv t P : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    𝑡 ↪ γ ∗
-    base.flag_mpsc۰inv 𝑡 γ P.
+  #[local] Definition state۰unset' γ_state :=
+    oneshot۰pending γ_state Own ().
+  #[local] Definition state۰unset γ :=
+    state۰unset' γ.(flag_mpsc۰name۰state).
+  #[local] Definition state۰set' γ_state :=
+    oneshot۰shot γ_state ().
+  #[local] Definition state۰set γ :=
+    state۰set' γ.(flag_mpsc۰name۰state).
+
+  #[local] Definition consumer' γ_consumer :=
+    excl γ_consumer ().
+  #[local] Definition consumer γ :=
+    consumer' γ.(flag_mpsc۰name۰consumer).
+
+  #[local] Definition inv۰consumer γ P : iProp Σ :=
+    P ∨ consumer γ.
+  #[local] Instance : CustomIpat "inv۰consumer" :=
+    " [ HP
+      | Hconsumer{_{!}}
+      ]
+    ".
+  #[local] Definition inv۰set γ P : iProp Σ :=
+    state۰set γ ∗
+    inv۰consumer γ P.
+  #[local] Instance : CustomIpat "inv۰set" :=
+    " ( #Hstate_set
+      & Hinv_consumer
+      )
+    ".
+  #[local] Definition inv۰inner γ P : iProp Σ :=
+    ∃ b,
+    γ.(flag_mpsc۰name۰self) ↦ᵣ #b ∗
+    if b then
+      inv۰set γ P
+    else
+      state۰unset γ.
+  #[local] Instance : CustomIpat "inv۰inner" :=
+    " ( %b
+      & >Ht
+      & Hb
+      )
+    ".
+  Please Definition flag_mpsc۰inv γ P :=
+    inv nroot (inv۰inner γ P).
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{}
-      & %γ{}
-      & {%Heq{};->}
-      & #Hmeta{_{}}
-      & Hinv{_{}}
-      )
+    " #Hinv
     ".
 
-  Please Definition flag_mpsc۰consumer t : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    𝑡 ↪ γ ∗
-    base.flag_mpsc۰consumer γ.
+  Please Definition flag_mpsc۰consumer :=
+    consumer.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %𝑡{;_}
-      & %γ{;_}
-      & {%Heq{};->}
-      & #Hmeta{_{}}
-      & Hconsumer{_{}}
-      )
+    " Hconsumer
     ".
 
-  Please Definition flag_mpsc۰resolved t : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    𝑡 ↪ γ ∗
-    base.flag_mpsc۰resolved γ.
+  Please Definition flag_mpsc۰resolved :=
+    state۰set.
   #[local] Instance : CustomIpat "resolved" :=
-    " ( %𝑡{;_}
-      & %γ{;_}
-      & {%Heq{};->}
-      & #Hmeta{_{}}
-      & Hresolved{_{}}
-      )
+    " #Hstate_set
     ".
 
-  #[global] Instance flag_mpsc۰invｰcontractive t :
-    Contractive (flag_mpsc۰inv t).
+  #[global] Instance flag_mpsc۰invｰcontractive γ :
+    Contractive (flag_mpsc۰inv γ).
   Proof.
+    rewrite /flag_mpsc۰inv /inv۰inner /inv۰set  /inv۰consumer.
     solve_contractive.
   Qed.
-  #[global] Instance flag_mpsc۰invｰne t :
-    NonExpansive (flag_mpsc۰inv t).
+  #[global] Instance flag_mpsc۰invｰne γ :
+    NonExpansive (flag_mpsc۰inv γ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance flag_mpsc۰invｰproper t :
-    Proper ((≡) ==> (≡)) (flag_mpsc۰inv t).
+  #[global] Instance flag_mpsc۰invｰproper γ :
+    Proper ((≡) ==> (≡)) (flag_mpsc۰inv γ).
   Proof.
     apply _.
   Qed.
@@ -316,14 +107,48 @@ Section flag_mpsc۰G.
   Zoo derive Persistent for flag_mpsc۰inv.
   Zoo derive Persistent for flag_mpsc۰resolved.
 
-  Lemma flag_mpsc۰consumerｰexclusive t :
-    flag_mpsc۰consumer t -∗
-    flag_mpsc۰consumer t -∗
+  #[local] Lemma stateｰalloc :
+    ⊢ |==>
+      ∃ γ_state,
+      state۰unset' γ_state.
+  Proof.
+    apply: oneshotｰalloc.
+  Qed.
+  #[local] Lemma stateｰunsetｰset γ :
+    state۰unset γ -∗
+    state۰set γ -∗
     False.
   Proof.
-    iIntros "(:consumer =1) (:consumer =2)". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.flag_mpsc۰consumerｰexclusive with "Hconsumer_1 Hconsumer_2").
+    apply oneshotｰpendingｰshot.
+  Qed.
+  #[local] Lemma stateｰupdate γ :
+    state۰unset γ ⊢ |==>
+    state۰set γ.
+  Proof.
+    apply oneshotｰupdateｰshot.
+  Qed.
+
+  #[local] Lemma consumerｰalloc :
+    ⊢ |==>
+      ∃ γ_consumer,
+      consumer' γ_consumer.
+  Proof.
+    apply exclｰalloc.
+  Qed.
+  #[local] Lemma consumerｰexclusive γ :
+    consumer γ -∗
+    consumer γ -∗
+    False.
+  Proof.
+    apply exclｰexclusive.
+  Qed.
+
+  Lemma flag_mpsc۰consumerｰexclusive γ :
+    flag_mpsc۰consumer γ -∗
+    flag_mpsc۰consumer γ -∗
+    False.
+  Proof.
+    apply consumerｰexclusive.
   Qed.
 
   Lemma flag_mpsc٠createｰspec P :
@@ -332,58 +157,84 @@ Section flag_mpsc۰G.
     }}}
       flag_mpsc٠create ()
     {{{
-      t
-    , RET t;
-      flag_mpsc۰inv t P ∗
-      flag_mpsc۰consumer t
+      γ
+    , RET γ;
+      flag_mpsc۰inv γ P ∗
+      flag_mpsc۰consumer γ
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
 
-    iApply wpｰfupd.
-    wp۰apply (base.flag_mpsc٠createｰspec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hconsumer)".
-    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
-    iSteps.
+    wp۰rec.
+    wp۰ref t as "Ht" meta:"Hmeta".
+
+    iMod stateｰalloc as "(%γ_state & Hstate_unset)".
+    iMod consumerｰalloc as "(%γ_consumer & Hconsumer)".
+
+    pose γ :=
+      {|flag_mpsc۰name۰self := t
+      ; flag_mpsc۰name۰state := γ_state
+      ; flag_mpsc۰name۰consumer := γ_consumer
+      |}.
+
+    iApply ("HΦ" $! γ).
+    iFrameSteps.
   Qed.
 
-  Lemma flag_mpsc٠getｰspec t P :
+  Lemma flag_mpsc٠getｰspec γ P :
     {{{
-      flag_mpsc۰inv t P ∗
-      flag_mpsc۰consumer t
+      flag_mpsc۰inv γ P ∗
+      flag_mpsc۰consumer γ
     }}}
-      flag_mpsc٠get t
+      flag_mpsc٠get γ
     {{{
       b
     , RET #b;
       if b then
         P
       else
-        flag_mpsc۰consumer t
+        flag_mpsc۰consumer γ
     }}}.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:consumer =2)) HΦ". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iIntros "%Φ ((:inv) & (:consumer)) HΦ".
 
-    wp۰apply (base.flag_mpsc٠getｰspec with "[$]") as (b) "Hb".
-    destruct b; iSteps.
+    wp۰rec credit:"H£".
+
+    iInv "Hinv" as "(:inv۰inner)".
+    wp۰load.
+    destruct b.
+
+    - iDestruct "Hb" as "(:inv۰set)".
+      iDestruct "Hinv_consumer" as "(:inv۰consumer !=)".
+      + iFrameSteps.
+      + iDestruct (consumerｰexclusive with "Hconsumer Hconsumer_") as %[].
+
+    - iFrameSteps.
   Qed.
 
-  Lemma flag_mpsc٠setｰspec t P :
+  Lemma flag_mpsc٠setｰspec γ P :
     {{{
-      flag_mpsc۰inv t P ∗
+      flag_mpsc۰inv γ P ∗
       ▷ P
     }}}
-      flag_mpsc٠set t
+      flag_mpsc٠set γ
     {{{
       RET ();
-      flag_mpsc۰resolved t
+      flag_mpsc۰resolved γ
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & HP) HΦ".
 
-    wp۰apply (base.flag_mpsc٠setｰspec _ _ P with "[$]").
-    iSteps.
+    wp۰rec.
+
+    iInv "Hinv" as "(:inv۰inner)".
+    wp۰store.
+    destruct b. 1: iFrameSteps.
+    iMod (stateｰupdate with "Hb") as "#Hstate_set".
+    iFrameSteps.
   Qed.
 End flag_mpsc۰G.
+
+Require zoo_std.flag_mpsc__opaque.
 
 Please opacify.
