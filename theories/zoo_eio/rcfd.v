@@ -19,7 +19,7 @@ Implicit Type o : option val.
 
 Record metadata :=
   { metadata۰fd : val
-  ; metadata۰open : block_id
+  ; metadata۰open : block_identifier
   ; metadata۰owned : bool
   ; metadata۰tokens : gname
   ; metadata۰lstate : gname

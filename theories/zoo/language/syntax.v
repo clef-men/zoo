@@ -6,6 +6,7 @@ Require Import zoo.prelude.
 Require Export zoo.common.ascii.
 Require Export zoo.common.binder.
 Require Import zoo.common.list.
+Require Export zoo.language.block_identifier.
 Require Export zoo.language.location.
 Require Export zoo.language.tag.
 Require Import zoo.options.
@@ -17,11 +18,8 @@ Implicit Type n : Z.
 Implicit Type str : string.
 Implicit Type tag : tag.
 Implicit Type l : location.
+Implicit Type bid : option block_identifier.
 Implicit Type f x : binder.
-
-Definition block_id :=
-  positive.
-Implicit Type bid : option block_id.
 
 Definition prophet_id :=
   positive.

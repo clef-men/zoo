@@ -111,7 +111,7 @@ Record metadata :=
   { metadata۰descrs : list descriptor
   ; metadata۰prophet : prophet_typed۰name
   ; metadata۰prophs : list global_prophet.(prophet_typed۰type)
-  ; metadata۰undetermined : block_id
+  ; metadata۰undetermined : block_identifier
   ; metadata۰post : gname
   ; metadata۰lstatus : gname
   ; metadata۰locks : list gname
