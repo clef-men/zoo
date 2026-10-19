@@ -342,10 +342,10 @@ Definition lowval۰compatible fp lv1 lv2 :=
               false
           end
       | _ =>
-          bool_decide (lv2 = LowvalLit lit1)
+          bool_decide (lv1 = lv2)
       end
   | LowvalRecs =>
-      bool_decide (lv2 = LowvalRecs)
+      bool_decide (lv1 = lv2)
   | LowvalBlock _ tag1 vs1 _ =>
       match lv2 with
       | LowvalLoc l2 =>
