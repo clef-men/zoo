@@ -16,11 +16,11 @@ Require Import zoo.options.
 
 Implicit Type b : bool.
 Implicit Type front front_cache back : nat.
-Implicit Type id : prophet_identifier.
+Implicit Type id : identifier.
 Implicit Type v backoff : val.
 Implicit Type us vs ws hist priv : list val.
-Implicit Type past prophs : list prophet_identifier.(prophet_typed۰type).
-Implicit Type pasts prophss : nat → list prophet_identifier.(prophet_typed۰type).
+Implicit Type past prophs : list identifier.
+Implicit Type pasts prophss : nat → list identifier.
 
 Variant state :=
   | Empty
@@ -910,7 +910,7 @@ Module base.
 
       wp۰rec.
 
-      wp۰apply (prophet_multiｰwpｰproph with "[//]") as (γ_prophet prophss) "Hprophet_model".
+      wp۰apply (prophet_multiｰwpｰproph prophet_identifier with "[//]") as (γ_prophet prophss) "Hprophet_model".
 
       wp۰apply (array٠unsafe_makeｰspec with "[//]") as (data) "Hdata_model"; first lia.
       iDestruct (array۰modelｰtoｰcslice with "Hdata_model") as "Hdata_cslice".

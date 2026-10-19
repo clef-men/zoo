@@ -15,12 +15,12 @@ Require Import zoo_saturn.inf_ws_deque_1__types.
 Require Import zoo.options.
 
 Implicit Type front back : nat.
-Implicit Type id : prophet_identifier.
+Implicit Type id : identifier.
 Implicit Type v backoff : val.
 Implicit Type vs ws hist lhist : list val.
 Implicit Type priv : nat → val.
-Implicit Type past prophs : list prophet_identifier.(prophet_typed۰type).
-Implicit Type pasts prophss : nat → list prophet_identifier.(prophet_typed۰type).
+Implicit Type past prophs : list identifier.
+Implicit Type pasts prophss : nat → list identifier.
 
 Variant state :=
   | Empty
@@ -851,7 +851,7 @@ Module base.
 
       wp۰rec.
 
-      wp۰apply (prophet_multiｰwpｰproph with "[//]") as (γ_prophet prophss) "Hprophet_model".
+      wp۰apply (prophet_multiｰwpｰproph prophet_identifier with "[//]") as (γ_prophet prophss) "Hprophet_model".
 
       wp۰apply (inf_array٠createｰspec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
       iDestruct (inf_array۰modelｰtoｰmodel'ｰconstant 1 with "Hdata_model") as "Hdata_model".

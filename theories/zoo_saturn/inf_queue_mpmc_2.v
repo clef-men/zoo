@@ -26,8 +26,8 @@ Implicit Type slot : optional val.
 Implicit Type slots : nat → optional val.
 Implicit Type η : gname.
 Implicit Type ηs : list gname.
-Implicit Type past prophs : list prophet_identifier.(prophet_typed۰type).
-Implicit Type pasts prophss : nat → list prophet_identifier.(prophet_typed۰type).
+Implicit Type past prophs : list identifier.
+Implicit Type pasts prophss : nat → list identifier.
 
 Variant lstate :=
   | Producer
