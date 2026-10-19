@@ -155,9 +155,9 @@ let main ~locality ~state flds =
       ]
   in
   Vernacstate_.unfreeze_full_state state ;
-  Please_plugin.Please_derive.derive ~locality ~kind:Inhabited ~ty:(record_qualid ()) ;
-  Please_plugin.Please_derive.derive ~locality ~kind:Eq_decision ~ty:(record_qualid ()) ;
-  Please_plugin.Please_derive.derive ~locality ~kind:Countable ~ty:(record_qualid ())
+  Please_derive.derive ~locality ~kind:Inhabited ~ty:(record_qualid ()) ;
+  Please_derive.derive ~locality ~kind:Eq_decision ~ty:(record_qualid ()) ;
+  Please_derive.derive ~locality ~kind:Countable ~ty:(record_qualid ())
 let main ~locality flds =
   Vernacstate_.freeze_full_state_and_try @@ fun state ->
     main ~locality ~state flds

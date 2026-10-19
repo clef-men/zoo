@@ -6,6 +6,7 @@
   rocq-runtime.vernac
   rocq-please.plugin
  )
+ (flags (:standard -open Please_plugin))
 )
 
 (rocq.pp
