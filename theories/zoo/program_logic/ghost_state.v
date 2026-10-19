@@ -17,6 +17,7 @@ Implicit Type cnt ns nt : nat.
 Implicit Type pid : prophet_identifier.
 Implicit Type tid : thread_id.
 Implicit Type l : location.
+Implicit Type lᴮ : bytes_location.
 Implicit Type v : val.
 Implicit Type vs : list val.
 Implicit Type hdr : header.
@@ -32,6 +33,7 @@ Parameter zoo_counter : location.
 Class ZooG₀ Σ :=
   { #[local] zoo۰G₀۰headers۰G :: GhostHeapG Σ location header
   ; #[local] zoo۰G₀۰heap۰G :: ghost_mapG Σ location val
+  ; #[local] zoo۰G₀۰bytes۰G :: ghost_mapG Σ bytes_location string
   ; #[local] zoo۰G₀۰prophets۰G :: ghost_mapG Σ prophet_identifier (list (val * val))
   ; #[local] zoo۰G₀۰steps۰G :: AuthNatMaxG Σ
   ; #[local] zoo۰G₀۰locals۰G :: GhostListG Σ val
@@ -41,6 +43,7 @@ Class ZooG₀ Σ :=
 #[local] Definition zoo۰Σ₀ :=
   #[ghost_heap۰Σ location header
   ; ghost_mapΣ location val
+  ; ghost_mapΣ bytes_location string
   ; ghost_mapΣ prophet_identifier (list (val * val))
   ; auth_nat_max۰Σ
   ; ghost_list۰Σ val
@@ -74,12 +77,13 @@ Class ZooG Σ :=
   ; #[local] zoo۰G۰G₀ :: ZooG₀ Σ
   ; zoo۰G۰headers۰name : ghost_heap۰name
   ; zoo۰G۰heap۰name : gname
+  ; zoo۰G۰bytes۰name : gname
   ; zoo۰G۰prophets۰name : gname
   ; zoo۰G۰steps۰name : gname
   ; zoo۰G۰locals۰name : gname
   ; zoo۰G۰counter۰name : gname
   }.
-#[global] Arguments Build_ZooG {_ _ _} _ _ _ _ _ _ : assert.
+#[global] Arguments Build_ZooG {_ _ _} _ _ _ _ _ _ _ : assert.
 
 Section zoo۰G₀.
   Context `{zoo۰G₀ : !ZooG₀ Σ}.
@@ -397,10 +401,10 @@ Section zoo۰G.
     apply: frame_fractional.
   Qed.
 
-  Lemma heapｰlookup h a dq c :
+  Lemma heapｰlookup h l dq v :
     heap۰auth h -∗
-    a ↦{dq} c -∗
-    ⌜h !! a = Some c⌝.
+    l ↦{dq} v -∗
+    ⌜h !! l = Some v⌝.
   Proof.
     apply ghost_map_lookup.
   Qed.
@@ -413,11 +417,11 @@ Section zoo۰G.
     intros.
     apply bi.wand_entails', ghost_map_insert_big => //.
   Qed.
-  Lemma heapｰupdate {h a c1} c2 :
+  Lemma heapｰupdate {h l v1} v2 :
     heap۰auth h -∗
-    a ↦ c1 ==∗
-      heap۰auth (<[a := c2]> h) ∗
-      a ↦ c2.
+    l ↦ v1 ==∗
+      heap۰auth (<[l := v2]> h) ∗
+      l ↦ v2.
   Proof.
     apply ghost_map_update.
   Qed.
@@ -494,6 +498,180 @@ Section zoo۰G.
     apply big_sepL2ｰpointstoｰsuffix.
   Qed.
 End zoo۰G.
+
+Section zoo۰G₀.
+  Context `{zoo۰G₀ : !ZooG₀ Σ}.
+
+  #[local] Definition bytes۰auth' γ_bytes bytes :=
+    ghost_map_auth (V := string) γ_bytes (DfracOwn 1) bytes.
+  #[local] Definition bytes۰pointsto' γ_bytes lᴮ dq str :=
+    ghost_map_elem (V := string) γ_bytes lᴮ dq str.
+
+  #[local] Lemma bytesｰalloc bytes :
+    ⊢ |==>
+      ∃ γ_bytes,
+      bytes۰auth' γ_bytes bytes ∗
+      [∗ map] lᴮ ↦ str ∈ bytes, bytes۰pointsto' γ_bytes lᴮ (DfracOwn 1) str.
+  Proof.
+    apply ghost_map_alloc.
+  Qed.
+End zoo۰G₀.
+
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
+
+  Please Definition bytes۰auth :=
+    bytes۰auth' zoo۰G۰bytes۰name.
+  Please Definition bytes۰pointsto :=
+    bytes۰pointsto' zoo۰G۰bytes۰name.
+End zoo۰G.
+
+Notation "lᴮ ↦ᴮ dq str" := (
+  bytes۰pointsto lᴮ dq str%string
+)(at level 20,
+  dq custom dfrac at level 1,
+  format "lᴮ  ↦ᴮ dq  str"
+) : bi_scope.
+Notation "lᴮ ↦ᴮ-" := (
+  (∃ str, lᴮ ↦ᴮ str)%I
+)(at level 1,
+  format "lᴮ  ↦ᴮ-"
+) : bi_scope.
+
+Section zoo۰G.
+  Context `{zoo۰G : !ZooG Σ}.
+
+  #[global] Instance bytes۰pointstoｰtimeless lᴮ dq str :
+    Timeless (lᴮ ↦ᴮ{dq} str).
+  Proof.
+    apply _.
+  Qed.
+
+  #[global] Instance bytes۰pointstoｰpersistent lᴮ str :
+    Persistent (lᴮ ↦ᴮ□ str).
+  Proof.
+    apply _.
+  Qed.
+
+  #[global] Instance bytes۰pointstoｰfractional lᴮ str :
+    Fractional (λ q, lᴮ ↦ᴮ{#q} str)%I.
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance bytes۰pointstoｰas_fractional lᴮ q str :
+    AsFractional (lᴮ ↦ᴮ{#q} str) (λ q, lᴮ ↦ᴮ{#q} str)%I q.
+  Proof.
+    apply _.
+  Qed.
+
+  Lemma bytes۰pointstoｰvalid lᴮ dq str :
+    lᴮ ↦ᴮ{dq} str ⊢
+    ⌜✓ dq⌝.
+  Proof.
+    apply bi.wand_entails', ghost_map_elem_valid.
+  Qed.
+  Lemma bytes۰pointstoｰcombine lᴮ dq1 str1 dq2 str2 :
+    lᴮ ↦ᴮ{dq1} str1 -∗
+    lᴮ ↦ᴮ{dq2} str2 -∗
+      ⌜str1 = str2⌝ ∗
+      lᴮ ↦ᴮ{dq1 ⋅ dq2} str1.
+  Proof.
+    rewrite comm. apply ghost_map_elem_combine.
+  Qed.
+  Lemma bytes۰pointstoｰvalidｰ2 lᴮ dq1 str1 dq2 str2 :
+    lᴮ ↦ᴮ{dq1} str1 -∗
+    lᴮ ↦ᴮ{dq2} str2 -∗
+      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+      ⌜str1 = str2⌝.
+  Proof.
+    iIntros "H1 H2".
+    iDestruct (ghost_map_elem_valid_2 with "H1 H2") as "$".
+  Qed.
+  Lemma bytes۰pointstoｰagree lᴮ dq2 str1 dq1 str2 :
+    lᴮ ↦ᴮ{dq1} str1 -∗
+    lᴮ ↦ᴮ{dq2} str2 -∗
+    ⌜str1 = str2⌝.
+  Proof.
+    apply ghost_map_elem_agree.
+  Qed.
+  Lemma bytes۰pointstoｰdfracｰne lᴮ1 dq1 str1 lᴮ2 dq2 str2 :
+    ¬ ✓ (dq1 ⋅ dq2) →
+    lᴮ1 ↦ᴮ{dq1} str1 -∗
+    lᴮ2 ↦ᴮ{dq2} str2 -∗
+    ⌜lᴮ1 ≠ lᴮ2⌝.
+  Proof.
+    apply ghost_map_elem_frac_ne.
+  Qed.
+  Lemma bytes۰pointstoｰne lᴮ1 str1 lᴮ2 dq2 str2 :
+    lᴮ1 ↦ᴮ str1 -∗
+    lᴮ2 ↦ᴮ{dq2} str2 -∗
+    ⌜lᴮ1 ≠ lᴮ2⌝.
+  Proof.
+    apply ghost_map_elem_ne.
+  Qed.
+  Lemma bytes۰pointstoｰexclusive lᴮ str1 dq2 str2 :
+    lᴮ ↦ᴮ str1 -∗
+    lᴮ ↦ᴮ{dq2} str2 -∗
+    False.
+  Proof.
+    iIntros "H1 H2".
+    iDestruct (ghost_map_elem_ne with "H1 H2") as %?. done.
+  Qed.
+  Lemma bytes۰pointstoｰpersist lᴮ dq str :
+    lᴮ ↦ᴮ{dq} str ⊢ |==>
+    lᴮ ↦ᴮ□ str.
+  Proof.
+    apply bi.wand_entails', ghost_map_elem_persist.
+  Qed.
+
+  #[global] Instance bytes۰pointstoｰcombine_sep_gives lᴮ dq1 str1 dq2 str2 :
+    CombineSepGives (lᴮ ↦ᴮ{dq1} str1) (lᴮ ↦ᴮ{dq2} str2) ⌜✓ (dq1 ⋅ dq2) ∧ str1 = str2⌝
+  | 30.
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance bytes۰pointstoｰcombine_as lᴮ dq1 dq2 str1 str2 :
+    CombineSepAs (lᴮ ↦ᴮ{dq1} str1) (lᴮ ↦ᴮ{dq2} str2) (lᴮ ↦ᴮ{dq1 ⋅ dq2} str1)
+  | 60.
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance frameｰbytes۰pointsto p lᴮ str q1 q2 q :
+    FrameFractionalQp q1 q2 q →
+    Frame p (lᴮ ↦ᴮ{#q1} str) (lᴮ ↦ᴮ{#q2} str) (lᴮ ↦ᴮ{#q} str)
+  | 5.
+  Proof.
+    apply: frame_fractional.
+  Qed.
+
+  Lemma bytesｰlookup bytes lᴮ dq str :
+    bytes۰auth bytes -∗
+    lᴮ ↦ᴮ{dq} str -∗
+    ⌜bytes !! lᴮ = Some str⌝.
+  Proof.
+    apply ghost_map_lookup.
+  Qed.
+  Lemma bytesｰinsert {bytes} lᴮ str :
+    bytes !! lᴮ = None →
+    bytes۰auth bytes ⊢ |==>
+      bytes۰auth (<[lᴮ := str]> bytes) ∗
+      lᴮ ↦ᴮ str.
+  Proof.
+    intros.
+    apply bi.wand_entails', ghost_map_insert => //.
+  Qed.
+  Lemma bytesｰupdate {bytes lᴮ str1} str2 :
+    bytes۰auth bytes -∗
+    lᴮ ↦ᴮ str1 ==∗
+      bytes۰auth (<[lᴮ := str2]> bytes) ∗
+      lᴮ ↦ᴮ str2.
+  Proof.
+    apply ghost_map_update.
+  Qed.
+End zoo۰G.
+
+#[global] Opaque bytes۰auth'.
+#[global] Opaque bytes۰pointsto'.
 
 Section resolve_prophecies.
   #[local] Fixpoint resolve_prophecies κs pid :=
@@ -745,14 +923,14 @@ Section zoo۰G₀.
 
   #[local] Definition locals۰auth' γ_locals vs :=
     ghost_list۰auth γ_locals vs.
-  #[local] Definition local_pointsto' γ_locals tid dq v :=
+  #[local] Definition locals۰pointsto' γ_locals tid dq v :=
     ghost_list۰at γ_locals tid dq v.
 
   #[local] Lemma localsｰalloc vs :
     ⊢ |==>
       ∃ γ_locals,
       locals۰auth' γ_locals vs ∗
-      [∗ list] tid ↦ v ∈ vs, local_pointsto' γ_locals tid (DfracOwn 1) v.
+      [∗ list] tid ↦ v ∈ vs, locals۰pointsto' γ_locals tid (DfracOwn 1) v.
   Proof.
     apply: ghost_listｰalloc vs.
   Qed.
@@ -763,12 +941,12 @@ Section zoo۰G.
 
   Please Definition locals۰auth :=
     locals۰auth' zoo۰G۰locals۰name.
-  Please Definition local_pointsto :=
-    local_pointsto' zoo۰G۰locals۰name.
+  Please Definition locals۰pointsto :=
+    locals۰pointsto' zoo۰G۰locals۰name.
 End zoo۰G.
 
 Notation "tid ↦ₗ dq v" := (
-  local_pointsto tid dq v%V
+  locals۰pointsto tid dq v%V
 )(at level 20,
   dq custom dfrac at level 1,
   format "tid  ↦ₗ dq  v"
@@ -782,36 +960,36 @@ Notation "tid ↦ₗ-" := (
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  #[global] Instance local_pointstoｰtimeless tid dq v :
+  #[global] Instance locals۰pointstoｰtimeless tid dq v :
     Timeless (tid ↦ₗ{dq} v).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance local_pointstoｰpersistent tid v :
+  #[global] Instance locals۰pointstoｰpersistent tid v :
     Persistent (tid ↦ₗ□ v).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance local_pointstoｰfractional tid v :
+  #[global] Instance locals۰pointstoｰfractional tid v :
     Fractional (λ q, tid ↦ₗ{#q} v)%I.
   Proof.
     apply _.
   Qed.
-  #[global] Instance local_pointstoｰas_fractional tid q v :
+  #[global] Instance locals۰pointstoｰas_fractional tid q v :
     AsFractional (tid ↦ₗ{#q} v) (λ q, tid ↦ₗ{#q} v)%I q.
   Proof.
     apply _.
   Qed.
 
-  Lemma local_pointstoｰvalid tid dq v :
+  Lemma locals۰pointstoｰvalid tid dq v :
     tid ↦ₗ{dq} v ⊢
     ⌜✓ dq⌝.
   Proof.
     apply ghost_list۰atｰvalid.
   Qed.
-  Lemma local_pointstoｰcombine tid dq1 v1 dq2 v2 :
+  Lemma locals۰pointstoｰcombine tid dq1 v1 dq2 v2 :
     tid ↦ₗ{dq1} v1 -∗
     tid ↦ₗ{dq2} v2 -∗
       ⌜v1 = v2⌝ ∗
@@ -819,7 +997,7 @@ Section zoo۰G.
   Proof.
     apply ghost_list۰atｰcombine.
   Qed.
-  Lemma local_pointstoｰvalidｰ2 tid dq1 v1 dq2 v2 :
+  Lemma locals۰pointstoｰvalidｰ2 tid dq1 v1 dq2 v2 :
     tid ↦ₗ{dq1} v1 -∗
     tid ↦ₗ{dq2} v2 -∗
       ⌜✓ (dq1 ⋅ dq2)⌝ ∗
@@ -827,14 +1005,14 @@ Section zoo۰G.
   Proof.
     apply ghost_list۰atｰvalidｰ2.
   Qed.
-  Lemma local_pointstoｰagree tid dq2 v1 dq1 v2 :
+  Lemma locals۰pointstoｰagree tid dq2 v1 dq1 v2 :
     tid ↦ₗ{dq1} v1 -∗
     tid ↦ₗ{dq2} v2 -∗
     ⌜v1 = v2⌝.
   Proof.
     apply ghost_list۰atｰagree.
   Qed.
-  Lemma local_pointstoｰdfracｰne tid1 dq1 v1 tid2 dq2 v2 :
+  Lemma locals۰pointstoｰdfracｰne tid1 dq1 v1 tid2 dq2 v2 :
     ¬ ✓ (dq1 ⋅ dq2) →
     tid1 ↦ₗ{dq1} v1 -∗
     tid2 ↦ₗ{dq2} v2 -∗
@@ -843,7 +1021,7 @@ Section zoo۰G.
     iIntros "% H1 H2".
     iDestruct (ghost_list۰atｰdfracｰne with "H1 H2") as %[]; done.
   Qed.
-  Lemma local_pointstoｰne tid1 v1 tid2 dq2 v2 :
+  Lemma locals۰pointstoｰne tid1 v1 tid2 dq2 v2 :
     tid1 ↦ₗ v1 -∗
     tid2 ↦ₗ{dq2} v2 -∗
     ⌜tid1 ≠ tid2⌝.
@@ -851,14 +1029,14 @@ Section zoo۰G.
     iIntros "H1 H2".
     iDestruct (ghost_list۰atｰne with "H1 H2") as %[]; done.
   Qed.
-  Lemma local_pointstoｰexclusive tid v1 dq2 v2 :
+  Lemma locals۰pointstoｰexclusive tid v1 dq2 v2 :
     tid ↦ₗ v1 -∗
     tid ↦ₗ{dq2} v2 -∗
     False.
   Proof.
     apply ghost_list۰atｰexclusive.
   Qed.
-  Lemma local_pointstoｰpersist tid dq v :
+  Lemma locals۰pointstoｰpersist tid dq v :
     tid ↦ₗ{dq} v ⊢ |==>
     tid ↦ₗ□ v.
   Proof.
@@ -891,7 +1069,7 @@ Section zoo۰G.
 End zoo۰G.
 
 #[global] Opaque locals۰auth'.
-#[global] Opaque local_pointsto'.
+#[global] Opaque locals۰pointsto'.
 
 Section zoo۰G₀.
   Context `{zoo۰G₀ : !ZooG₀ Σ}.
@@ -982,18 +1160,20 @@ Section zoo۰G.
     inv nroot zoo_counter۰inv۰inner.
 End zoo۰G.
 
-Lemma zooｰinit `{zoo۰Gpre : !ZooGpre Σ} `{inv۰G : !invGS Σ} hdrs h pids vs κs :
+Lemma zooｰinit `{zoo۰Gpre : !ZooGpre Σ} `{inv۰G : !invGS Σ} hdrs h bytes pids vs κs :
   h !! zoo_counter = Some 0%V →
   ⊢ |={⊤}=>
     ∃ zoo۰G : ZooG Σ,
     ⌜zoo۰G.(zoo۰G۰inv۰G) = inv۰G⌝ ∗
     headers۰auth hdrs ∗
     heap۰auth h ∗
+    bytes۰auth bytes ∗
     prophets۰auth κs pids ∗
     steps۰auth 0 ∗
     locals۰auth vs ∗
     zoo_counter۰inv ∗
     ([∗ map] l ↦ v ∈ delete zoo_counter h, l ↦ v) ∗
+    ([∗ map] lᴮ ↦ str ∈ bytes, lᴮ ↦ᴮ str) ∗
     ([∗ list] tid ↦ v ∈ vs, tid ↦ₗ v).
 Proof.
   intros Hh_lookup_zoo_counter.
@@ -1003,6 +1183,8 @@ Proof.
   iMod (heapｰalloc h) as "(%γ_heap & Hheap_auth & Hheap)".
   iDestruct (big_sepM_delete with "Hheap") as "(Hcounter & Hheap)". 1: done.
   iEval (rewrite -(location۰addｰ0 zoo_counter)) in "Hcounter".
+
+  iMod (bytesｰalloc bytes) as "(%γ_bytes & Hbytes_auth & Hbytes)".
 
   iMod (prophetsｰalloc κs pids) as "(%γ_prophets & Hprophets_interp)".
 
@@ -1015,6 +1197,7 @@ Proof.
   set zoo۰G :=
     {|zoo۰G۰headers۰name := γ_headers
     ; zoo۰G۰heap۰name := γ_heap
+    ; zoo۰G۰bytes۰name := γ_bytes
     ; zoo۰G۰prophets۰name := γ_prophets
     ; zoo۰G۰steps۰name := γ_steps
     ; zoo۰G۰locals۰name := γ_locals

@@ -299,23 +299,23 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pureｰstring_get str i chr :
+  #[global] Instance pureｰstringｰget str i chr :
     PureExec
       ( (0 ≤ i)%Z ∧
         String.get ₊i str = Some chr
       )
       1
-      (Primitive2 StringGet (Val $ ValString str) (Val $ ValInt i))
+      (Primitive2 BytesGet (Val $ ValString str) (Val $ ValInt i))
       (Val $ ValChar chr).
   Proof.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pureｰstring_equal str1 str2 :
+  #[global] Instance pureｰstringｰequal str1 str2 :
     PureExec
       True
       1
-      (Primitive2 StringEqual (Val $ ValString str1) (Val $ ValString str2))
+      (Primitive2 BytesEqual (Val $ ValString str1) (Val $ ValString str2))
       (Val $ ValBool (bool_decide (str1 = str2))).
   Proof.
     intros _.

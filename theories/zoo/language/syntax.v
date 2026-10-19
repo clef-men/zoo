@@ -7,6 +7,7 @@ Require Export zoo.common.ascii.
 Require Export zoo.common.binder.
 Require Import zoo.common.list.
 Require Export zoo.language.block_identifier.
+Require Export zoo.language.bytes_location.
 Require Export zoo.language.location.
 Require Export zoo.language.prophet_identifier.
 Require Export zoo.language.tag.
@@ -19,6 +20,7 @@ Implicit Type n : Z.
 Implicit Type str : string.
 Implicit Type tag : tag.
 Implicit Type l : location.
+Implicit Type lᴮ : bytes_location.
 Implicit Type bid : option block_identifier.
 Implicit Type pid : prophet_identifier.
 Implicit Type f x : binder.
@@ -47,6 +49,7 @@ Variant literal :=
   | LitInt n
   | LitString str
   | LitLoc l
+  | LitBytes lᴮ
   | LitProph pid.
 Implicit Type lit : literal.
 
@@ -89,6 +92,7 @@ Variant primitive1 :=
   | IsImmediate
   | GetTag
   | GetSize
+  | BytesCreate
   | LocalSet.
 
 Please derive EqDecision for primitive1.
@@ -96,7 +100,7 @@ Please derive Countable for primitive1.
 
 Variant primitive2 :=
   | Binop (op : binop)
-  | StringGet | StringEqual
+  | BytesGet | BytesEqual
   | Equal
   | Alloc
   | Load
@@ -107,6 +111,7 @@ Please derive EqDecision for primitive2.
 Please derive Countable for primitive2.
 
 Variant primitive3 :=
+  | BytesSet
   | Store
   | CAS
   | ResolveErasure.
@@ -584,6 +589,10 @@ Abbreviation ValString str := (
 ).
 Abbreviation ValLoc l := (
   ValLit (LitLoc l)
+)(only parsing
+).
+Abbreviation ValBytes lᴮ := (
+  ValLit (LitBytes lᴮ)
 )(only parsing
 ).
 Abbreviation ValProph pid := (

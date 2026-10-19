@@ -7,6 +7,7 @@ Require Export zoo.language.syntax.
 Require Import zoo.options.
 
 Implicit Type l : location.
+Implicit Type lᴮ : bytes_location.
 Implicit Type v w : val.
 Implicit Type vs : list val.
 Implicit Type h : gmap location val.
@@ -21,6 +22,7 @@ Implicit Type hdr : header.
 Record state :=
   { state۰headers : gmap location header
   ; state۰heap : gmap location val
+  ; state۰bytes : gmap bytes_location string
   ; state۰locals : list val
   ; state۰prophets : gset prophet_identifier
   }.
@@ -34,24 +36,35 @@ Please derive Inhabited for state.
 Definition state۰update_headers f σ :=
   {|state۰headers := f σ.(state۰headers)
   ; state۰heap := σ.(state۰heap)
+  ; state۰bytes := σ.(state۰bytes)
   ; state۰locals := σ.(state۰locals)
   ; state۰prophets := σ.(state۰prophets)
   |}.
 Definition state۰update_heap f σ :=
   {|state۰headers := σ.(state۰headers)
   ; state۰heap := f σ.(state۰heap)
+  ; state۰bytes := σ.(state۰bytes)
+  ; state۰locals := σ.(state۰locals)
+  ; state۰prophets := σ.(state۰prophets)
+  |}.
+Definition state۰update_bytes f σ :=
+  {|state۰headers := σ.(state۰headers)
+  ; state۰heap := σ.(state۰heap)
+  ; state۰bytes := f σ.(state۰bytes)
   ; state۰locals := σ.(state۰locals)
   ; state۰prophets := σ.(state۰prophets)
   |}.
 Definition state۰update_locals f σ :=
   {|state۰headers := σ.(state۰headers)
   ; state۰heap := σ.(state۰heap)
+  ; state۰bytes := σ.(state۰bytes)
   ; state۰locals := f σ.(state۰locals)
   ; state۰prophets := σ.(state۰prophets)
   |}.
 Definition state۰update_prophets f σ :=
   {|state۰headers := σ.(state۰headers)
   ; state۰heap := σ.(state۰heap)
+  ; state۰bytes := σ.(state۰bytes)
   ; state۰locals := σ.(state۰locals)
   ; state۰prophets := f σ.(state۰prophets)
   |}.
@@ -60,6 +73,8 @@ Definition state۰set_header l hdr :=
   state۰update_headers $ insert l hdr.
 Definition state۰set_location l v :=
   state۰update_heap $ insert l v.
+Definition state۰set_bytes lᴮ str :=
+  state۰update_bytes $ insert lᴮ str.
 Definition state۰set_local tid v :=
   state۰update_locals $ insert tid v.
 Definition state۰add_local v :=
@@ -137,6 +152,7 @@ End chunk.
 Definition state۰alloc l hdr vs σ :=
   {|state۰headers := <[l := hdr]> σ.(state۰headers)
   ; state۰heap := chunk l vs ∪ σ.(state۰heap)
+  ; state۰bytes := σ.(state۰bytes)
   ; state۰locals := σ.(state۰locals)
   ; state۰prophets := σ.(state۰prophets)
   |}.
@@ -178,4 +194,25 @@ Proof.
     apply state۰alloc_condition۰atｰfresh => //.
   - intros i Hi.
     apply state۰alloc_condition۰atｰfresh. 1: lia.
+Qed.
+
+Definition state۰bytes۰alloc :=
+  state۰set_bytes.
+
+Record state۰bytes۰alloc_condition lᴮ σ :=
+  { state۰bytes۰alloc_conditionｰbytes :
+      σ.(state۰bytes) !! lᴮ = None
+  }.
+
+Definition state۰bytes۰fresh۰dom σ :=
+  dom σ.(state۰bytes).
+Definition state۰bytes۰fresh σ :=
+  fresh $ state۰bytes۰fresh۰dom σ.
+
+Lemma state۰bytes۰alloc_conditionｰfresh σ :
+  state۰bytes۰alloc_condition (state۰bytes۰fresh σ) σ.
+Proof.
+  split.
+  apply not_elem_of_dom.
+  apply: is_fresh.
 Qed.

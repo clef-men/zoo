@@ -11,6 +11,7 @@ Coercion LitChar : ascii >-> literal.
 Coercion LitInt : Z >-> literal.
 Coercion LitString : string >-> literal.
 Coercion LitLoc : location >-> literal.
+Coercion LitBytes : bytes_location >-> literal.
 Coercion LitProph : prophet_identifier >-> literal.
 
 Coercion Val : val >-> expr.
@@ -331,6 +332,23 @@ Notation "#*ˡ ls" := (
   format "#*ˡ  ls"
 ).
 
+Notation "#ᴮ lᴮ" := (
+  ValBytes lᴮ%stdpp
+)(at level 8,
+  format "#ᴮ lᴮ"
+).
+Notation "(#ᴮ)" := (
+  λ lᴮ, ValBytes lᴮ
+).
+Notation "(#*ᴮ)" := (
+  @fmap _ _ location val (#ᴮ)
+).
+Notation "#*ᴮ lᴮs" := (
+  @fmap _ _ location val (#ᴮ) lᴮs
+)(at level 8,
+  format "#*ᴮ  lᴮs"
+).
+
 Notation "f x -> e" := (
   @pair (prod binder binder) expr
     (@pair binder binder f%binder x%binder)
@@ -538,13 +556,27 @@ Notation "e1 > e2" := (
   no associativity
 ) : expr_scope.
 Notation "e1 =ₛ e2" := (
-  Primitive2 StringEqual e1%E e2%E
+  Primitive2 BytesEqual e1%E e2%E
+)(at level 70,
+  no associativity,
+  only parsing
+) : expr_scope.
+Notation "e1 =ᴮ e2" := (
+  Primitive2 BytesEqual e1%E e2%E
 )(at level 70,
   no associativity
 ) : expr_scope.
 Notation "e1 ≠ₛ e2" := (
   Primitive1 (Unop UnopNeg) (
-    Primitive2 StringEqual e1%E e2%E
+    Primitive2 BytesEqual e1%E e2%E
+  )
+)(at level 70,
+  no associativity,
+  only parsing
+) : expr_scope.
+Notation "e1 ≠ᴮ e2" := (
+  Primitive1 (Unop UnopNeg) (
+    Primitive2 BytesEqual e1%E e2%E
   )
 )(at level 70,
   no associativity

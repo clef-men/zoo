@@ -247,6 +247,11 @@ Create HintDb zoo.
   simpl
 : zoo.
 #[global] Hint Extern 0 (
+  base_step _ (Primitive1 BytesCreate _) _ _ _ _ _
+) =>
+  apply base_stepｰbytesｰcreate'
+: zoo.
+#[global] Hint Extern 0 (
   base_step _ (Fork _) _ _ _ _ _
 ) =>
   apply base_stepｰfork'

@@ -407,7 +407,7 @@ Section domain۰G.
       iDestruct "Hdls_at" as "(Hdls_at1 & Hdls_at2)".
       iSplitL "Hdls_at1"; iFrame "#∗".
     - iIntros "((:dls۰pointsto =1) & (:dls۰pointsto =2))".
-      iDestruct (local_pointstoｰagree with "Hlocal1 Hlocal2") as %[= <-]. iClear "Hlocal2".
+      iDestruct (locals۰pointstoｰagree with "Hlocal1 Hlocal2") as %[= <-]. iClear "Hlocal2".
       iDestruct (metaｰagree with "Hl1_meta Hl2_meta") as %<-. iClear "Hl2_meta".
       iDestruct (dls۰key۰idｰagree with "Hid1 Hid2") as %<-. iClear "Hid2".
       iCombine "Hdls_at1 Hdls_at2" as "Hdls_at".
@@ -433,7 +433,7 @@ Section domain۰G.
       domain۰dls۰pointsto tid key (dq1 ⋅ dq2) v1.
   Proof.
     iIntros "(:dls۰pointsto =1) (:dls۰pointsto =2)".
-    iDestruct (local_pointstoｰagree with "Hlocal1 Hlocal2") as %[= <-]. iClear "Hlocal2".
+    iDestruct (locals۰pointstoｰagree with "Hlocal1 Hlocal2") as %[= <-]. iClear "Hlocal2".
     iDestruct (metaｰagree with "Hl1_meta Hl2_meta") as %<-. iClear "Hl2_meta".
     iDestruct (dls۰key۰idｰagree with "Hid1 Hid2") as %<-. iClear "Hid2".
     iDestruct (ghost_map_elem_combine with "Hdls_at1 Hdls_at2") as "(Hdls_at & %)". simp.
@@ -515,7 +515,7 @@ Section domain۰G.
       wp۰apply (dynarray_1٠createｰspec' with "[//]") as (l) "(Hl & Hl_meta)".
       wp۰apply+ (wpｰlocal_set with "Hlocal") as "Hlocal".
 
-      iMod (local_pointstoｰpersist with "Hlocal") as "#Hlocal".
+      iMod (locals۰pointstoｰpersist with "Hlocal") as "#Hlocal".
       iMod dlsｰalloc as "(%δ & Hdls_auth)".
       iMod (metaｰset δ with "Hl_meta") as "#Hl_meta"; first done.
 
@@ -611,7 +611,7 @@ Section domain۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:dls) & #Hkey & (:dls۰init suff=)) HΦ".
-    iDestruct (local_pointstoｰagree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
+    iDestruct (locals۰pointstoｰagree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
     iDestruct (metaｰagree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
     iDestruct (dls۰atｰvalid with "Hdls_auth Hdls_at") as %Hws_lookup.
 
@@ -660,7 +660,7 @@ Section domain۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:dls) & (:dls۰pointsto suff=)) HΦ".
-    iDestruct (local_pointstoｰagree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
+    iDestruct (locals۰pointstoｰagree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
     iDestruct (metaｰagree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
     iDestruct (dls۰atｰvalid with "Hdls_auth Hdls_at") as %Hws_lookup.
 
@@ -720,7 +720,7 @@ Section domain۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:dls) & #Hkey & (:dls۰init suff=)) HΦ".
-    iDestruct (local_pointstoｰagree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
+    iDestruct (locals۰pointstoｰagree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
     iDestruct (metaｰagree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
     iDestruct (dls۰atｰvalid with "Hdls_auth Hdls_at") as %Hws_lookup.
 
@@ -759,7 +759,7 @@ Section domain۰G.
     }}}.
   Proof.
     iIntros "%Φ ((:dls) & (:dls۰pointsto suff=)) HΦ".
-    iDestruct (local_pointstoｰagree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
+    iDestruct (locals۰pointstoｰagree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
     iDestruct (metaｰagree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
     iDestruct (dls۰atｰvalid with "Hdls_auth Hdls_at") as %Hws_lookup.
 

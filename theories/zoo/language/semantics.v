@@ -12,6 +12,7 @@ Implicit Type n m : Z.
 Implicit Type str : string.
 Implicit Type tag : tag.
 Implicit Type l : location.
+Implicit Type lᴮ : bytes_location.
 Implicit Type gen : generativity.
 Implicit Type mut : mutability.
 Implicit Type lit : literal.
@@ -40,6 +41,7 @@ Definition literal۰immediate lit :=
       true
   | LitString _
   | LitLoc _
+  | LitBytes _
   | LitProph _ =>
       false
   end.
@@ -250,21 +252,21 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValLit $ eval۰binop op n1 n2)
         σ
         []
-  | base_stepｰstring_get str i chr σ :
+  | base_stepｰstringｰget str i chr σ :
       (0 ≤ i)%Z →
       String.get ₊i str = Some chr →
       base_step
         tid
-        (Primitive2 StringGet (Val $ ValString str) (Val $ ValInt i))
+        (Primitive2 BytesGet (Val $ ValString str) (Val $ ValInt i))
         σ
         []
         (Val $ ValChar chr)
         σ
         []
-  | base_stepｰstring_equal str1 str2 σ :
+  | base_stepｰstringｰequal str1 str2 σ :
       base_step
         tid
-        (Primitive2 StringEqual (Val $ ValString str1) (Val $ ValString str2))
+        (Primitive2 BytesEqual (Val $ ValString str1) (Val $ ValString str2))
         σ
         []
         (Val $ ValBool (bool_decide (str1 = str2)))
@@ -361,6 +363,16 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
         (Val $ ValTag hdr.(header۰tag))
+        σ
+        []
+  | base_stepｰget_tagｰbytes lᴮ σ :
+      is_Some (σ.(state۰bytes) !! lᴮ) →
+      base_step
+        tid
+        (Primitive1 GetTag (Val $ ValBytes lᴮ))
+        σ
+        []
+        (Val $ ValNat tag۰string)
         σ
         []
   | base_stepｰget_tagｰblock gen tag vs σ :
@@ -464,6 +476,53 @@ Inductive base_step tid : expr → state → list observation → expr → state
         []
         (Val $ ValInt m)
         (state۰set_location (l +ₗ fld) (ValInt (m + n)) σ)
+        []
+  | base_stepｰbytesｰcreate n σ lᴮ str :
+      (0 ≤ n)%Z →
+      state۰bytes۰alloc_condition lᴮ σ →
+      String.length str = ₊n →
+      base_step
+        tid
+        (Primitive1 BytesCreate (Val $ ValInt n))
+        σ
+        []
+        (Val $ ValBytes lᴮ)
+        (state۰bytes۰alloc lᴮ str σ)
+        []
+  | base_stepｰbytesｰget lᴮ str i chr σ :
+      (0 ≤ i)%Z →
+      σ.(state۰bytes) !! lᴮ = Some str →
+      String.get ₊i str = Some chr →
+      base_step
+        tid
+        (Primitive2 BytesGet (Val $ ValBytes lᴮ) (Val $ ValInt i))
+        σ
+        []
+        (Val $ ValChar chr)
+        σ
+        []
+  | base_stepｰbytesｰset lᴮ str i chr str' σ :
+      (0 ≤ i)%Z →
+      σ.(state۰bytes) !! lᴮ = Some str →
+      string۰set ₊i chr str = Some str' →
+      base_step
+        tid
+        (Primitive3 BytesSet (Val $ ValBytes lᴮ) (Val $ ValInt i) (Val $ ValChar chr))
+        σ
+        []
+        Unit
+        (state۰set_bytes lᴮ str' σ)
+        []
+  | base_stepｰbytesｰequal lᴮ1 str1 lᴮ2 str2 σ :
+      σ.(state۰bytes) !! lᴮ1 = Some str1 →
+      σ.(state۰bytes) !! lᴮ2 = Some str2 →
+      base_step
+        tid
+        (Primitive2 BytesEqual (Val $ ValBytes lᴮ1) (Val $ ValBytes lᴮ2))
+        σ
+        []
+        (Val $ ValBool (bool_decide (str1 = str2)))
+        σ
         []
   | base_stepｰfork e σ v :
       val۰immediate v →
@@ -572,6 +631,22 @@ Lemma base_stepｰblockｰimmutableｰgenerativeｰstrong' tid tag es vs σ :
     [].
 Proof.
   apply base_stepｰblockｰimmutableｰgenerativeｰstrong.
+Qed.
+Lemma base_stepｰbytesｰcreate' tid n σ :
+  (0 ≤ n)%Z →
+  base_step
+    tid
+     (Primitive1 BytesCreate (Val $ ValInt n))
+     σ
+     []
+     (Val $ ValBytes (state۰bytes۰fresh σ))
+     (state۰bytes۰alloc (state۰bytes۰fresh σ) (string۰repeat ₊n inhabitant) σ)
+     [].
+Proof.
+  intros Hn.
+  apply base_stepｰbytesｰcreate. 1: done.
+  { apply state۰bytes۰alloc_conditionｰfresh. }
+  { apply string۰repeatｰlength. }
 Qed.
 Lemma base_stepｰfork' tid e σ :
   base_step

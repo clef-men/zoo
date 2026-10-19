@@ -11,6 +11,7 @@ Implicit Type n : Z.
 Implicit Type str : string.
 Implicit Type tag : tag.
 Implicit Type l : location.
+Implicit Type lᴮ : bytes_location.
 Implicit Type gen : generativity.
 Implicit Type lit : literal.
 Implicit Type v : val.
@@ -20,6 +21,7 @@ Variant lowliteral :=
   | LowlitInt n
   | LowlitString str
   | LowlitLoc l
+  | LowlitBytes lᴮ
   | LowlitProph.
 Implicit Type llit : lowliteral.
 
@@ -37,6 +39,8 @@ Definition literal۰to_low lit :=
       LowlitString str
   | LitLoc l =>
       LowlitLoc l
+  | LitBytes lᴮ =>
+      LowlitBytes lᴮ
   | LitProph _ =>
       LowlitProph
   end.
@@ -45,10 +49,10 @@ Definition literal۰to_low lit :=
 #[global] Instance lowliteral۰nonsimilar : Nonsimilar lowliteral :=
   λ llit1 llit2,
     match llit1 with
-    | LowlitInt n1 =>
-        llit2 ≠ LowlitInt n1
-    | LowlitLoc l1 =>
-        llit2 ≠ LowlitLoc l1
+    | LowlitInt _
+    | LowlitLoc _
+    | LowlitBytes _ =>
+        llit1 ≠ llit2
     | LowlitString _
     | LowlitProph =>
         True
@@ -61,9 +65,11 @@ Proof.
     λ llit1 llit2,
       match llit1 with
       | LowlitInt n1 =>
-          decide (llit2 ≠ LowlitInt n1)
+          decide (LowlitInt n1 ≠ llit2)
       | LowlitLoc l1 =>
-          decide (llit2 ≠ LowlitLoc l1)
+          decide (LowlitLoc l1 ≠ llit2)
+      | LowlitBytes lᴮ1 =>
+          decide (LowlitBytes lᴮ1 ≠ llit2)
       | _ =>
           left _
       end
@@ -119,6 +125,10 @@ Abbreviation LowvalInt n := (
 ).
 Abbreviation LowvalLoc l := (
   LowvalLit (LowlitLoc l)
+)(only parsing
+).
+Abbreviation LowvalBytes lᴮ := (
+  LowvalLit (LowlitBytes lᴮ)
 )(only parsing
 ).
 Abbreviation LowvalProph := (
@@ -331,8 +341,8 @@ Qed.
 Lemma lowvalｰsimilarｰorｰnonsimilar lv1 lv2 :
   lv1 ≈ lv2 ∨ lv1 ≉ lv2.
 Proof.
-  all: destruct lv1 as [[n1 | str1 | l1 |] | | [[bid1 |] |] tag1 [| v1 vs1]].
-  all: destruct lv2 as [[n2 | str2 | l2 |] | | [[bid2 |] |] tag2 [| v2 vs2]].
+  all: destruct lv1 as [[n1 | str1 | l1 | l1 |] | | [[bid1 |] |] tag1 [| v1 vs1]].
+  all: destruct lv2 as [[n2 | str2 | l2 | l2 |] | | [[bid2 |] |] tag2 [| v2 vs2]].
   all: try destruct_decide (n1 = n2).
   all: try destruct_decide (l1 = l2).
   all: try destruct_decide (bid1 = bid2).
@@ -397,6 +407,12 @@ Qed.
 Lemma valｰnonsimilarｰlocation l1 l2 :
   ValLoc l1 ≉ ValLoc l2 →
   l1 ≠ l2.
+Proof.
+  naive.
+Qed.
+Lemma valｰnonsimilarｰbytes lᴮ1 lᴮ2 :
+  ValBytes lᴮ1 ≉ ValBytes lᴮ2 →
+  lᴮ1 ≠ lᴮ2.
 Proof.
   naive.
 Qed.
@@ -472,6 +488,12 @@ Qed.
 Lemma valｰsimilarｰlocation l1 l2 :
   ValLit (LitLoc l1) ≈ ValLit (LitLoc l2) →
   l1 = l2.
+Proof.
+  intros [= ->]. done.
+Qed.
+Lemma valｰsimilarｰbytes lᴮ1 lᴮ2 :
+  ValLit (LitBytes lᴮ1) ≈ ValLit (LitBytes lᴮ2) →
+  lᴮ1 = lᴮ2.
 Proof.
   intros [= ->]. done.
 Qed.

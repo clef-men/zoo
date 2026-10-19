@@ -9,6 +9,7 @@ Implicit Type i : nat.
 Implicit Type n m : Z.
 Implicit Type tag : tag.
 Implicit Type l : location.
+Implicit Type lᴮ : bytes_location.
 Implicit Type pid : prophet_identifier.
 Implicit Type gen : generativity.
 Implicit Type mut : mutability.
@@ -414,6 +415,19 @@ Proof.
     apply Hwf_σ.
   - apply Hwf_σ.
 Qed.
+Lemma state۰set_bytesｰwf lᴮ str σ :
+  state۰wf σ →
+  state۰wf (state۰set_bytes lᴮ str σ).
+Proof.
+  intros Hwf_σ.
+  split; apply Hwf_σ.
+Qed.
+Lemma state۰bytes۰allocｰwf lᴮ str σ :
+  state۰wf σ →
+  state۰wf (state۰bytes۰alloc lᴮ str σ).
+Proof.
+  apply state۰set_bytesｰwf.
+Qed.
 Lemma state۰add_localｰwf v σ :
   val۰wf v →
   state۰wf σ →
@@ -490,6 +504,8 @@ Proof.
     + apply state۰set_locationｰwf; naive.
   - apply state۰set_locationｰwf; naive.
   - apply state۰set_locationｰwf; naive.
+  - apply state۰bytes۰allocｰwf => //.
+  - apply state۰set_bytesｰwf => //.
   - split_and! => //.
     + apply state۰add_localｰwf => //.
       apply valｰimmediateｰwf => //.

@@ -119,7 +119,9 @@ Notation "'{{{' P } } } e tid E {{{ 'RET' v ; Q } } }" := (
 ) : stdpp_scope.
 
 Implicit Type b : bool.
+Implicit Type chr : ascii.
 Implicit Type l : location.
+Implicit Type lᴮ : bytes_location.
 Implicit Type pid : prophet_identifier.
 Implicit Type e : expr.
 Implicit Type es : list expr.
@@ -890,6 +892,112 @@ Section zoo۰G.
     iFrameSteps.
   Qed.
 
+  Lemma wpｰbytesｰget_tag lᴮ dq str tid E Φ :
+    ▷ lᴮ ↦ᴮ{dq} str -∗
+    ▷ Φ #tag۰string -∗
+    WP 𝘁𝗮𝗴 #lᴮ ∷ tid @ E {{ Φ }}.
+  Proof.
+    iIntros ">Hlᴮ HΦ".
+    iApply bwpｰwpｰweak. iIntros.
+    iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp".
+    iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
+    iDestruct (state_interpｰbytes۰pointstoｰvalid with "Hinterp Hlᴮ") as %Hlookup.
+    iSplit; first eauto with zoo. iIntros "%κ %κs' %e %σ2 %es -> %Hstep _ !>".
+    inv_base_step.
+    iFrameSteps.
+  Qed.
+
+  Lemma wpｰbytesｰcreate n tid E :
+    (0 ≤ n)%Z →
+    {{{
+      True
+    }}}
+      Primitive1 BytesCreate #n ∷ tid
+      @ E
+    {{{
+      lᴮ str
+    , RET #lᴮ;
+      ⌜String.length str = ₊n⌝ ∗
+      lᴮ ↦ᴮ str
+    }}}.
+  Proof.
+    iIntros "%Hn %Φ _ HΦ".
+    iApply bwpｰwpｰweak. iIntros.
+    iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
+    iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
+    inv_base_step.
+    iMod (state_interpｰbytes۰alloc lᴮ str with "Hinterp") as "($ & Hlᴮ)". 1: done.
+    iSteps.
+  Qed.
+
+  Lemma wpｰbytesｰget lᴮ dq str i chr tid E :
+    (0 ≤ i)%Z →
+    String.get ₊i str = Some chr →
+    {{{
+      ▷ lᴮ ↦ᴮ{dq} str
+    }}}
+      Primitive2 BytesGet #lᴮ #i ∷ tid
+      @ E
+    {{{
+      RET #chr;
+      lᴮ ↦ᴮ{dq} str
+    }}}.
+  Proof.
+    iIntros "%Hi %Hstr %Φ >Hlᴮ HΦ".
+    iApply bwpｰwpｰweak. iIntros.
+    iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
+    iDestruct (state_interpｰbytes۰pointstoｰvalid with "Hinterp Hlᴮ") as %Hlookup.
+    iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !> !>".
+    inv_base_step.
+    iFrameSteps.
+  Qed.
+
+  Lemma wpｰbytesｰset lᴮ str i chr str' tid E :
+    (0 ≤ i)%Z →
+    string۰set ₊i chr str = Some str' →
+    {{{
+      ▷ lᴮ ↦ᴮ str
+    }}}
+      Primitive3 BytesSet #lᴮ #i #chr ∷ tid
+      @ E
+    {{{
+      RET ();
+      lᴮ ↦ᴮ str'
+    }}}.
+  Proof.
+    iIntros "%Hi %Hstr %Φ >Hlᴮ HΦ".
+    iApply bwpｰwpｰweak. iIntros.
+    iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
+    iDestruct (state_interpｰbytes۰pointstoｰvalid with "Hinterp Hlᴮ") as %Hlookup.
+    iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
+    inv_base_step.
+    iMod (state_interpｰbytes۰pointstoｰupdate with "Hinterp Hlᴮ") as "($ & Hlᴮ)".
+    iSteps.
+  Qed.
+
+  Lemma wpｰbytesｰequal lᴮ1 dq1 str1 lᴮ2 dq2 str2 tid E :
+    {{{
+      ▷ lᴮ1 ↦ᴮ{dq1} str1 ∗
+      ▷ lᴮ2 ↦ᴮ{dq2} str2
+    }}}
+      #lᴮ1 =ᴮ #lᴮ2 ∷ tid
+      @ E
+    {{{
+      RET #(bool_decide (str1 = str2));
+      lᴮ1 ↦ᴮ{dq1} str1 ∗
+      lᴮ2 ↦ᴮ{dq2} str2
+    }}}.
+  Proof.
+    iIntros "%Φ (>Hlᴮ1 & >Hlᴮ2) HΦ".
+    iApply bwpｰwpｰweak. iIntros.
+    iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
+    iDestruct (state_interpｰbytes۰pointstoｰvalid with "Hinterp Hlᴮ1") as %Hlookup1.
+    iDestruct (state_interpｰbytes۰pointstoｰvalid with "Hinterp Hlᴮ2") as %Hlookup2.
+    iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !> !>".
+    inv_base_step.
+    iFrameSteps.
+  Qed.
+
   Lemma wpｰfork e tid E Φ :
     ▷ (
       ∀ tid v,
@@ -924,7 +1032,7 @@ Section zoo۰G.
     iIntros "%Φ >Htid HΦ".
     iApply bwpｰwp.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
-    iDestruct (state_interpｰlocal_pointstoｰvalid with "Hinterp Htid") as %Hlookup.
+    iDestruct (state_interpｰlocals۰pointstoｰvalid with "Hinterp Htid") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     inv_base_step.
     iFrameSteps.
@@ -944,10 +1052,10 @@ Section zoo۰G.
     iIntros "%Φ >Htid HΦ".
     iApply bwpｰwp.
     iApply bwpｰliftｰatomicｰbaseｰstepｰnofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
-    iDestruct (state_interpｰlocal_pointstoｰvalid with "Hinterp Htid") as %Hlookup.
+    iDestruct (state_interpｰlocals۰pointstoｰvalid with "Hinterp Htid") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     inv_base_step.
-    iMod (state_interpｰlocal_pointstoｰupdate with "Hinterp Htid") as "($ & Htid)".
+    iMod (state_interpｰlocals۰pointstoｰupdate with "Hinterp Htid") as "($ & Htid)".
     iSteps.
   Qed.
 

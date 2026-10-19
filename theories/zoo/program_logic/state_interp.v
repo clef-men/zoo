@@ -10,6 +10,7 @@ Implicit Type cnt ns nt : nat.
 Implicit Type pid : prophet_identifier.
 Implicit Type tid : thread_id.
 Implicit Type l : location.
+Implicit Type lᴮ : bytes_location.
 Implicit Type v : val.
 Implicit Type vs : list val.
 Implicit Type hdr : header.
@@ -33,6 +34,7 @@ Section zoo۰G.
   Please Definition state_interp ns nt σ κs : iProp Σ :=
     headers۰auth σ.(state۰headers) ∗
     heap۰auth σ.(state۰heap) ∗
+    bytes۰auth σ.(state۰bytes) ∗
     prophets۰auth κs σ.(state۰prophets) ∗
     steps۰auth ns ∗
     locals۰auth σ.(state۰locals) ∗
@@ -46,6 +48,7 @@ End zoo۰G.
 #[local] Instance : CustomIpat "state_interp" :=
   " ( Hheaders_auth
     & Hheap_auth
+    & Hbytes_auth
     & Hprophets_auth
     & Hsteps_auth
     & Hlocals_auth
@@ -145,14 +148,45 @@ Section zoo۰G.
     iDestruct (big_sepL_lookup with "Hl") as "Hl"; first done.
     iApply (heapｰlookup with "Hheap_auth Hl").
   Qed.
-  Lemma state_interpｰpointstoｰupdate {ns nt σ κs l w} v :
+  Lemma state_interpｰpointstoｰupdate {ns nt σ κs l v} v' :
     state_interp ns nt σ κs -∗
-    l ↦ w ==∗
-      state_interp ns nt (state۰set_location l v σ) κs ∗
-      l ↦ v.
+    l ↦ v ==∗
+      state_interp ns nt (state۰set_location l v' σ) κs ∗
+      l ↦ v'.
   Proof.
     iIntros "(:state_interp) Hl".
     iMod (heapｰupdate with "Hheap_auth Hl") as "(Hheap_auth & Hl)".
+    iFrameSteps.
+  Qed.
+
+  Lemma state_interpｰbytes۰alloc {ns nt σ κs} lᴮ str :
+    state۰bytes۰alloc_condition lᴮ σ →
+    state_interp ns nt σ κs ⊢ |==>
+      state_interp ns nt (state۰bytes۰alloc lᴮ str σ) κs ∗
+      lᴮ ↦ᴮ str.
+  Proof.
+    iIntros "%H (:state_interp)".
+    iMod (bytesｰinsert with "Hbytes_auth") as "($ & $)".
+    { apply state۰bytes۰alloc_conditionｰbytes => //. }
+    iFrameSteps.
+  Qed.
+
+  Lemma state_interpｰbytes۰pointstoｰvalid ns nt σ κs lᴮ dq str :
+    state_interp ns nt σ κs -∗
+    lᴮ ↦ᴮ{dq} str -∗
+    ⌜σ.(state۰bytes) !! lᴮ = Some str⌝.
+  Proof.
+    iIntros "(:state_interp) Hlᴮ".
+    iApply (bytesｰlookup with "Hbytes_auth Hlᴮ").
+  Qed.
+  Lemma state_interpｰbytes۰pointstoｰupdate {ns nt σ κs lᴮ str} str' :
+    state_interp ns nt σ κs -∗
+    lᴮ ↦ᴮ str ==∗
+      state_interp ns nt (state۰set_bytes lᴮ str' σ) κs ∗
+      lᴮ ↦ᴮ str'.
+  Proof.
+    iIntros "(:state_interp) Hlᴮ".
+    iMod (bytesｰupdate with "Hbytes_auth Hlᴮ") as "(Hbytes_auth & Hlᴮ)".
     iFrameSteps.
   Qed.
 
@@ -172,7 +206,7 @@ Section zoo۰G.
     iApply (steps۰lbｰvalid with "Hsteps_auth Hsteps_lb").
   Qed.
 
-  Lemma state_interpｰlocal_pointstoｰvalid ns nt σ κs tid dq v :
+  Lemma state_interpｰlocals۰pointstoｰvalid ns nt σ κs tid dq v :
     state_interp ns nt σ κs -∗
     tid ↦ₗ{dq} v -∗
     ⌜σ.(state۰locals) !! tid = Some v⌝.
@@ -190,7 +224,7 @@ Section zoo۰G.
     rewrite Hlocals. iFrameSteps. iPureIntro.
     simp_length/=. lia.
   Qed.
-  Lemma state_interpｰlocal_pointstoｰupdate {ns nt σ κs tid w} v :
+  Lemma state_interpｰlocals۰pointstoｰupdate {ns nt σ κs tid w} v :
     state_interp ns nt σ κs -∗
     tid ↦ₗ w ==∗
       state_interp ns nt (state۰set_local tid v σ) κs ∗
@@ -236,10 +270,11 @@ Lemma state_interpｰinit `{zoo۰Gpre : !ZooGpre Σ} `{inv۰G : !invGS Σ} σ v 
     ⌜zoo۰G.(zoo۰G۰inv۰G) = inv۰G⌝ ∗
     state_interp 0 1 σ κs ∗
     ([∗ map] l ↦ v ∈ state۰heap۰initial σ, l ↦ v) ∗
+    ([∗ map] lᴮ ↦ str ∈ σ.(state۰bytes), lᴮ ↦ᴮ str) ∗
     0 ↦ₗ v.
 Proof.
   intros Hwf.
-  iMod (zooｰinit σ.(state۰headers) σ.(state۰heap) σ.(state۰prophets) σ.(state۰locals) κs) as "(%zoo۰G & $ & $ & $ & $ & $ & $ & $ & $ & Hlocals)".
+  iMod (zooｰinit σ.(state۰headers) σ.(state۰heap) σ.(state۰bytes) σ.(state۰prophets) σ.(state۰locals) κs) as "(%zoo۰G & $ & $ & $ & $ & $ & $ & $ & $ & $ & $ & Hlocals)".
   { apply Hwf. }
   iEval (rewrite (state۰wfｰlocals _ v) //) in "Hlocals" |- *.
   iDestruct "Hlocals" as "($ & _)" => //.

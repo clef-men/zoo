@@ -141,6 +141,7 @@ Definition erase۰subject subj :=
 Definition erase۰state σ :=
   {|state۰headers := σ.(state۰headers) ;
     state۰heap := erase۰val <$> σ.(state۰heap) ;
+    state۰bytes := σ.(state۰bytes) ;
     state۰locals := erase۰val <$> σ.(state۰locals) ;
     state۰prophets := σ.(state۰prophets) ;
   |}.
@@ -441,7 +442,7 @@ Lemma eraseｰstate۰alloc_condition۰at l σ :
   state۰alloc_condition۰at l σ.
 Proof.
   split.
-  all: intros (Hheaders & Hheap).
+  all: intros (Hheaders, Hheap).
   all: split => //.
   - rewrite lookupｰfmapｰNone // in Hheap.
   - rewrite lookupｰfmapｰNone //.
@@ -455,6 +456,14 @@ Proof.
   all: split.
   1,2: setoid_rewrite <- eraseｰstate۰alloc_condition۰at => //.
   all: setoid_rewrite eraseｰstate۰alloc_condition۰at => //.
+Qed.
+
+Lemma eraseｰstate۰bytes۰alloc_condition lᴮ σ :
+  state۰bytes۰alloc_condition lᴮ (erase۰state σ) ↔
+  state۰bytes۰alloc_condition lᴮ σ.
+Proof.
+  split.
+  all: intros (Hbytes) => //.
 Qed.
 
 #[local] Lemma eraseｰexprｰvalｰinj :
@@ -745,6 +754,12 @@ Proof.
       eapply Hwf_σ => //.
     + done.
     + rewrite eraseｰstate۰update_heapｰinsert //.
+    + done.
+  - repeat eexists.
+    + constructor => //.
+      rewrite -eraseｰstate۰bytes۰alloc_condition //.
+    + done.
+    + done.
     + done.
   - repeat eexists.
     + constructor => //.

@@ -3,6 +3,8 @@ Require Export Stdlib.Strings.Ascii.
 Require Import zoo.prelude.
 Require Import zoo.options.
 
+Please derive Inhabited for ascii.
+
 #[global] Instance nat_of_asciiｰinj :
   Inj (=) (=) nat_of_ascii.
 Proof.
