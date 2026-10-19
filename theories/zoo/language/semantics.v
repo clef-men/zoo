@@ -143,7 +143,7 @@ Definition eval۰binop op n1 n2 :=
 #[global] Arguments eval۰binop !_ _ _ / : assert.
 
 Definition observation : Set :=
-  prophet_id * (val * val).
+  prophet_identifier * (val * val).
 
 Inductive base_step tid : expr → state → list observation → expr → state → list expr → Prop :=
   | base_stepｰrec f x e σ :

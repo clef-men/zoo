@@ -5,9 +5,9 @@ val location :
 val location_globref :
   unit -> Names.GlobRef.t
 
-val prophet_id :
+val prophet_identifier :
   string
-val prophet_id_globref :
+val prophet_identifier_globref :
   unit -> Names.GlobRef.t
 
 val val_ :

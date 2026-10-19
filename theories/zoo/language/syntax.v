@@ -8,6 +8,7 @@ Require Export zoo.common.binder.
 Require Import zoo.common.list.
 Require Export zoo.language.block_identifier.
 Require Export zoo.language.location.
+Require Export zoo.language.prophet_identifier.
 Require Export zoo.language.tag.
 Require Import zoo.options.
 
@@ -19,11 +20,8 @@ Implicit Type str : string.
 Implicit Type tag : tag.
 Implicit Type l : location.
 Implicit Type bid : option block_identifier.
+Implicit Type pid : prophet_identifier.
 Implicit Type f x : binder.
-
-Definition prophet_id :=
-  positive.
-Implicit Type pid : prophet_id.
 
 Variant mutability :=
   | Mutable

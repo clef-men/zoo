@@ -7,7 +7,7 @@ Require Export zoo.program_logic.ghost_state.
 Require Import zoo.options.
 
 Implicit Type cnt ns nt : nat.
-Implicit Type pid : prophet_id.
+Implicit Type pid : prophet_identifier.
 Implicit Type tid : thread_id.
 Implicit Type l : location.
 Implicit Type v : val.
@@ -17,7 +17,7 @@ Implicit Type hdrs : gmap location header.
 Implicit Type σ : state.
 Implicit Type proph : val * val.
 Implicit Type prophs : list (val * val).
-Implicit Type prophets : gmap prophet_id (list (val * val)).
+Implicit Type prophets : gmap prophet_identifier (list (val * val)).
 Implicit Type κ κs : list observation.
 
 Record state۰wf σ v :=

@@ -15,7 +15,7 @@ Require Import zoo_saturn.inf_ws_deque_1__types.
 Require Import zoo.options.
 
 Implicit Type front back : nat.
-Implicit Type id : prophet_id.
+Implicit Type id : prophet_identifier.
 Implicit Type v backoff : val.
 Implicit Type vs ws hist lhist : list val.
 Implicit Type priv : nat → val.

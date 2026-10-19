@@ -9,7 +9,7 @@ Implicit Type i : nat.
 Implicit Type n m : Z.
 Implicit Type tag : tag.
 Implicit Type l : location.
-Implicit Type pid : prophet_id.
+Implicit Type pid : prophet_identifier.
 Implicit Type gen : generativity.
 Implicit Type mut : mutability.
 Implicit Type lit : literal.

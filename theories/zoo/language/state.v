@@ -22,7 +22,7 @@ Record state :=
   { state۰headers : gmap location header
   ; state۰heap : gmap location val
   ; state۰locals : list val
-  ; state۰prophets : gset prophet_id
+  ; state۰prophets : gset prophet_identifier
   }.
 Implicit Type σ : state.
 

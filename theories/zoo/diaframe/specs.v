@@ -6,7 +6,7 @@ Require Export zoo.diaframe.symb_exec.wp.
 Require Import zoo.options.
 
 Implicit Type l : location.
-Implicit Type pid : prophet_id.
+Implicit Type pid : prophet_identifier.
 Implicit Type e : expr.
 Implicit Type v : val.
 

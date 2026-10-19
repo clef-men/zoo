@@ -120,7 +120,7 @@ Notation "'{{{' P } } } e tid E {{{ 'RET' v ; Q } } }" := (
 
 Implicit Type b : bool.
 Implicit Type l : location.
-Implicit Type pid : prophet_id.
+Implicit Type pid : prophet_identifier.
 Implicit Type e : expr.
 Implicit Type es : list expr.
 Implicit Type v w : val.

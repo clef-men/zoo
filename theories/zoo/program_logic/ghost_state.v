@@ -14,7 +14,7 @@ Require Import zoo.language.notations.
 Require Import zoo.options.
 
 Implicit Type cnt ns nt : nat.
-Implicit Type pid : prophet_id.
+Implicit Type pid : prophet_identifier.
 Implicit Type tid : thread_id.
 Implicit Type l : location.
 Implicit Type v : val.
@@ -24,7 +24,7 @@ Implicit Type hdrs : gmap location header.
 Implicit Type σ : state.
 Implicit Type proph : val * val.
 Implicit Type prophs : list (val * val).
-Implicit Type prophets : gmap prophet_id (list (val * val)).
+Implicit Type prophets : gmap prophet_identifier (list (val * val)).
 Implicit Type κ κs : list observation.
 
 Parameter zoo_counter : location.
@@ -32,7 +32,7 @@ Parameter zoo_counter : location.
 Class ZooG₀ Σ :=
   { #[local] zoo۰G₀۰headers۰G :: GhostHeapG Σ location header
   ; #[local] zoo۰G₀۰heap۰G :: ghost_mapG Σ location val
-  ; #[local] zoo۰G₀۰prophets۰G :: ghost_mapG Σ prophet_id (list (val * val))
+  ; #[local] zoo۰G₀۰prophets۰G :: ghost_mapG Σ prophet_identifier (list (val * val))
   ; #[local] zoo۰G₀۰steps۰G :: AuthNatMaxG Σ
   ; #[local] zoo۰G₀۰locals۰G :: GhostListG Σ val
   ; #[local] zoo۰G₀۰counter۰G :: MonoListG Σ val
@@ -41,7 +41,7 @@ Class ZooG₀ Σ :=
 #[local] Definition zoo۰Σ₀ :=
   #[ghost_heap۰Σ location header
   ; ghost_mapΣ location val
-  ; ghost_mapΣ prophet_id (list (val * val))
+  ; ghost_mapΣ prophet_identifier (list (val * val))
   ; auth_nat_max۰Σ
   ; ghost_list۰Σ val
   ; mono_list۰Σ val

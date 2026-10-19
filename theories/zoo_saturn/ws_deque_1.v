@@ -19,7 +19,7 @@ Require Import zoo.options.
 
 Implicit Type b : bool.
 Implicit Type front back : nat.
-Implicit Type id : prophet_id.
+Implicit Type id : prophet_identifier.
 Implicit Type v backoff : val.
 Implicit Type us vs ws hist priv : list val.
 Implicit Type datas : gmultiset val.

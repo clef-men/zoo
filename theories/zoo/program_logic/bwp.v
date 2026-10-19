@@ -149,7 +149,7 @@ Notation "'BWP' e ∶ tid E {{ v , Q } }" := (
 
 Implicit Type ns nt : nat.
 Implicit Type l : location.
-Implicit Type pid : prophet_id.
+Implicit Type pid : prophet_identifier.
 Implicit Type e : expr.
 Implicit Type es : list expr.
 Implicit Type v : val.

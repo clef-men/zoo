@@ -136,7 +136,7 @@ let coercion ~locality fld ty =
   let ty = Nametab.locate ty in
   if Names.GlobRef.UserOrd.equal ty (Zoo.location_globref ()) then
     coercion ~locality ~kind:Location fld
-  else if Names.GlobRef.UserOrd.equal ty (Zoo.prophet_id_globref ()) then
+  else if Names.GlobRef.UserOrd.equal ty (Zoo.prophet_identifier_globref ()) then
     coercion ~locality ~kind:Prophet fld
   else
     coercion ~locality ~kind:Other fld

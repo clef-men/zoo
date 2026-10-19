@@ -8,7 +8,7 @@ Record prophet_typed :=
   }.
 
 Zoo name :=
-  { id : prophet_id
+  { id : prophet_identifier
   }.
 
 Section prophet_typed.

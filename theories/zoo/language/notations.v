@@ -11,7 +11,7 @@ Coercion LitChar : ascii >-> literal.
 Coercion LitInt : Z >-> literal.
 Coercion LitString : string >-> literal.
 Coercion LitLoc : location >-> literal.
-Coercion LitProph : prophet_id >-> literal.
+Coercion LitProph : prophet_identifier >-> literal.
 
 Coercion Val : val >-> expr.
 Coercion Var : string >-> expr.

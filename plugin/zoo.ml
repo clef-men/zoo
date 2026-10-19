@@ -7,13 +7,13 @@ let location_globref () =
   location_qualid
   |> Nametab.global
 
-let prophet_id =
-  "zoo.language.syntax.prophet_id"
-let prophet_id_qualid =
-  prophet_id
+let prophet_identifier =
+  "zoo.language.prophet_identifier.prophet_identifier"
+let prophet_identifier_qualid =
+  prophet_identifier
   |> Libnames.qualid_of_string
-let prophet_id_globref () =
-  prophet_id_qualid
+let prophet_identifier_globref () =
+  prophet_identifier_qualid
   |> Nametab.global
 
 let val_ =

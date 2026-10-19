@@ -3,7 +3,7 @@ Require Import zoo.base.
 Require Import zoo.options.
 
 Definition identifier :=
-  prophet_id.
+  prophet_identifier.
 Canonical identifier۰O {SI : sidx} :=
   leibnizO identifier.
 
