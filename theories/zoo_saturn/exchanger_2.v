@@ -28,7 +28,7 @@ Module internal.
 End internal.
 
 Section exchanger_2۰G.
-  Context `{exchanger_2۰G : Exchanger2G Σ}.
+  Context `{exchanger_2۰G : Exchanger2G Σ X}.
   Context `{!Inhabited X}.
 
   Import internal.

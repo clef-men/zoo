@@ -14,7 +14,7 @@ Zoo global X :=
   }.
 
 Section exchanger_1۰G.
-  Context `{exchanger_1۰G : Exchanger1G Σ}.
+  Context `{exchanger_1۰G : Exchanger1G Σ X}.
 
   Implicit Type x 𝑥 : X.
   Implicit Type Ψ : val → X → iProp Σ.
@@ -415,7 +415,7 @@ End base.
 Require zoo_saturn.exchanger_1__opaque.
 
 Section exchanger_1۰G.
-  Context `{exchanger_1۰G : Exchanger1G Σ}.
+  Context `{exchanger_1۰G : Exchanger1G Σ X}.
   Context `{!Inhabited X}.
 
   Implicit Type 𝑡 : location.
