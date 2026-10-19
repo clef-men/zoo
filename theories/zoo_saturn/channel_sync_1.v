@@ -44,7 +44,7 @@ End channel_sync_1۰G.
 
 Module base.
   Section channel_sync_1۰G.
-    Context `{channel_sync_1۰G : ChannelSync1G Σ}.
+    Context `{channel_sync_1۰G : ChannelSync1G Σ X Y}.
     Context `{!Inhabited X}.
     Context `{!Inhabited Y}.
 
@@ -607,7 +607,7 @@ End base.
 Require zoo_saturn.channel_sync_1__opaque.
 
 Section channel_sync_1۰G.
-  Context `{channel_sync_1۰G : ChannelSync1G Σ}.
+  Context `{channel_sync_1۰G : ChannelSync1G Σ X Y}.
   Context `{!Inhabited X}.
   Context `{!Inhabited Y}.
 

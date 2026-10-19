@@ -29,7 +29,7 @@ Module internal.
 End internal.
 
 Section channel_sync_2۰G.
-  Context `{channel_sync_2۰G : ChannelSync2G Σ}.
+  Context `{channel_sync_2۰G : ChannelSync2G Σ X Y}.
   Context `{!Inhabited X}.
   Context `{!Inhabited Y}.
 
