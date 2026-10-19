@@ -7,7 +7,7 @@ Require Import zoo.options.
 
 #[local] Open Scope Z_scope.
 
-Record location := Loc
+Record location := Location
   { location۰car : Z
   }.
 Add Printing Constructor location.
