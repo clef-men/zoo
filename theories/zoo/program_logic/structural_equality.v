@@ -90,11 +90,11 @@ Record structeq۰block := StructeqBlock
   }.
 Add Printing Constructor structeq۰block.
 Implicit Type blk : structeq۰block.
-Implicit Type footprint : gmap location structeq۰block.
+Implicit Type fp : gmap location structeq۰block.
 
 Please derive Inhabited for structeq۰block.
 
-Definition literal۰traversable footprint lit :=
+Definition literal۰traversable fp lit :=
   match lit with
   | LitBool _
   | LitChar _
@@ -102,18 +102,18 @@ Definition literal۰traversable footprint lit :=
   | LitString _ =>
       True
   | LitLoc l =>
-      l ∈ dom footprint
+      l ∈ dom fp
   | LitProph _ =>
       False
   end.
 #[global] Arguments literal۰traversable _ !_ / : assert.
 
-Fixpoint val۰traversable footprint v :=
+Fixpoint val۰traversable fp v :=
   match v with
   | ValLit lit =>
-      literal۰traversable footprint lit
+      literal۰traversable fp lit
   | ValBlock _ _ vs =>
-      Forall' (val۰traversable footprint) vs
+      Forall' (val۰traversable fp) vs
   | ValRecs _ _ =>
       False
   end.
@@ -122,12 +122,12 @@ Fixpoint val۰traversable footprint v :=
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition structeq۰footprint footprint : iProp Σ :=
-    [∗ map] l ↦ blk ∈ footprint,
+  Definition structeq۰footprint fp : iProp Σ :=
+    [∗ map] l ↦ blk ∈ fp,
       l ↦ₕ Header blk.(structeq۰block۰tag) (length blk.(structeq۰block۰fields)) ∗
       [∗ list] i ↦ fld ∈ blk.(structeq۰block۰fields),
         (l +ₗ i) ↦{fld.(structeq۰field۰dfrac)} fld.(structeq۰field۰val) ∗
-        ⌜val۰traversable footprint fld.(structeq۰field۰val)⌝.
+        ⌜val۰traversable fp fld.(structeq۰field۰val)⌝.
 
   Lemma structeq۰footprintｰempty :
     ⊢ structeq۰footprint ∅.
@@ -135,129 +135,129 @@ Section zoo۰G.
     iSteps.
   Qed.
 
-  Lemma structeq۰footprintｰheader {footprint} l blk :
-    footprint !! l = Some blk →
-    structeq۰footprint footprint ⊢
+  Lemma structeq۰footprintｰheader {fp} l blk :
+    fp !! l = Some blk →
+    structeq۰footprint fp ⊢
     l ↦ₕ Header blk.(structeq۰block۰tag) (length blk.(structeq۰block۰fields)).
   Proof.
-    iIntros "%Hlookup Hfootprint".
-    iDestruct (big_sepM_lookup with "Hfootprint") as "($ & _)"; first done.
+    iIntros "%Hlookup Hfp".
+    iDestruct (big_sepM_lookup with "Hfp") as "($ & _)"; first done.
   Qed.
 
-  Lemma structeq۰footprintｰlookup {footprint} l blk (i : nat) fld :
-    footprint !! l = Some blk →
+  Lemma structeq۰footprintｰlookup {fp} l blk (i : nat) fld :
+    fp !! l = Some blk →
     blk.(structeq۰block۰fields) !! i = Some fld →
-    structeq۰footprint footprint ⊢
+    structeq۰footprint fp ⊢
       (l +ₗ i) ↦{fld.(structeq۰field۰dfrac)} fld.(structeq۰field۰val) ∗
-      ⌜val۰traversable footprint fld.(structeq۰field۰val)⌝ ∗
+      ⌜val۰traversable fp fld.(structeq۰field۰val)⌝ ∗
       ( (l +ₗ i) ↦{fld.(structeq۰field۰dfrac)} fld.(structeq۰field۰val) -∗
-        structeq۰footprint footprint
+        structeq۰footprint fp
       ).
   Proof.
-    iIntros "%Hfootprint_lookup %Hfields_lookup Hfootprint".
-    iDestruct (big_sepM_lookup_acc with "Hfootprint") as "((#Hl_header & Hblk) & Hfootprint)"; first done.
+    iIntros "%Hfp_lookup %Hfields_lookup Hfp".
+    iDestruct (big_sepM_lookup_acc with "Hfp") as "((#Hl_header & Hblk) & Hfp)"; first done.
     iDestruct (big_sepL_lookup_acc with "Hblk") as "(HHfld & Hblk)"; first done.
     iSteps.
   Qed.
-  Lemma structeq۰footprintｰlookup' {footprint} l blk i :
-    footprint !! l = Some blk →
+  Lemma structeq۰footprintｰlookup' {fp} l blk i :
+    fp !! l = Some blk →
     i < length blk.(structeq۰block۰fields) →
-    structeq۰footprint footprint ⊢
+    structeq۰footprint fp ⊢
       ∃ fld,
       ⌜blk.(structeq۰block۰fields) !! i = Some fld⌝ ∗
       (l +ₗ i) ↦{fld.(structeq۰field۰dfrac)} fld.(structeq۰field۰val) ∗
-      ⌜val۰traversable footprint fld.(structeq۰field۰val)⌝ ∗
+      ⌜val۰traversable fp fld.(structeq۰field۰val)⌝ ∗
       ( (l +ₗ i) ↦{fld.(structeq۰field۰dfrac)} fld.(structeq۰field۰val) -∗
-        structeq۰footprint footprint
+        structeq۰footprint fp
       ).
   Proof.
-    iIntros "%Hfootprint_lookup %Hi Hfootprint".
+    iIntros "%Hfp_lookup %Hi Hfp".
     destruct (lookup_lt_is_Some_2 blk.(structeq۰block۰fields) i) as (fld & Hfields_lookup); first done.
     iExists fld. iStep.
-    iApply (structeq۰footprintｰlookup with "Hfootprint"); done.
+    iApply (structeq۰footprintｰlookup with "Hfp"); done.
   Qed.
 
-  Lemma structeq۰footprintｰwpｰget_tag {footprint} l blk :
-    footprint !! l = Some blk →
+  Lemma structeq۰footprintｰwpｰget_tag {fp} l blk :
+    fp !! l = Some blk →
     {{{
-      structeq۰footprint footprint
+      structeq۰footprint fp
     }}}
       𝘁𝗮𝗴 #l
     {{{
       RET #blk.(structeq۰block۰tag);
-      structeq۰footprint footprint
+      structeq۰footprint fp
     }}}.
   Proof.
-    iIntros "%Hlookup %Φ Hfootprint HΦ".
+    iIntros "%Hlookup %Φ Hfp HΦ".
 
-    iDestruct (structeq۰footprintｰheader with "Hfootprint") as "#Hl_header"; first done.
+    iDestruct (structeq۰footprintｰheader with "Hfp") as "#Hl_header"; first done.
     iSteps.
   Qed.
-  Lemma structeq۰footprintｰwpｰget_size {footprint} l blk :
-    footprint !! l = Some blk →
+  Lemma structeq۰footprintｰwpｰget_size {fp} l blk :
+    fp !! l = Some blk →
     {{{
-      structeq۰footprint footprint
+      structeq۰footprint fp
     }}}
       𝘀𝗶𝘇𝗲 #l
     {{{
       RET #(length blk.(structeq۰block۰fields));
-      structeq۰footprint footprint
+      structeq۰footprint fp
     }}}.
   Proof.
-    iIntros "%Hlookup %Φ Hfootprint HΦ".
+    iIntros "%Hlookup %Φ Hfp HΦ".
 
-    iDestruct (structeq۰footprintｰheader with "Hfootprint") as "#Hl_header"; first done.
+    iDestruct (structeq۰footprintｰheader with "Hfp") as "#Hl_header"; first done.
     iSteps.
   Qed.
 
-  Lemma structeq۰footprintｰwpｰload {footprint} l blk (i : nat) fld :
-    footprint !! l = Some blk →
+  Lemma structeq۰footprintｰwpｰload {fp} l blk (i : nat) fld :
+    fp !! l = Some blk →
     blk.(structeq۰block۰fields) !! i = Some fld →
     {{{
-      structeq۰footprint footprint
+      structeq۰footprint fp
     }}}
       𝗹𝗼𝗮𝗱 #l #i
     {{{
       RET fld.(structeq۰field۰val);
-      ⌜val۰traversable footprint fld.(structeq۰field۰val)⌝ ∗
-      structeq۰footprint footprint
+      ⌜val۰traversable fp fld.(structeq۰field۰val)⌝ ∗
+      structeq۰footprint fp
     }}}.
   Proof.
-    iIntros "%Hfootprint_lookup %Hfields_lookup %Φ Hfootprint HΦ".
+    iIntros "%Hfp_lookup %Hfields_lookup %Φ Hfp HΦ".
 
-    iDestruct (structeq۰footprintｰlookup with "Hfootprint") as "(Hl & %Htraversable & Hfootprint)"; [done.. |].
+    iDestruct (structeq۰footprintｰlookup with "Hfp") as "(Hl & %Htraversable & Hfp)"; [done.. |].
     iSteps.
   Qed.
-  Lemma structeq۰footprintｰwpｰload' {footprint} l blk i :
-    footprint !! l = Some blk →
+  Lemma structeq۰footprintｰwpｰload' {fp} l blk i :
+    fp !! l = Some blk →
     i < length blk.(structeq۰block۰fields) →
     {{{
-      structeq۰footprint footprint
+      structeq۰footprint fp
     }}}
       𝗹𝗼𝗮𝗱 #l #i
     {{{
       fld
     , RET fld.(structeq۰field۰val);
       ⌜blk.(structeq۰block۰fields) !! i = Some fld⌝ ∗
-      ⌜val۰traversable footprint fld.(structeq۰field۰val)⌝ ∗
-      structeq۰footprint footprint
+      ⌜val۰traversable fp fld.(structeq۰field۰val)⌝ ∗
+      structeq۰footprint fp
     }}}.
   Proof.
-    iIntros "%Hfootprint_lookup %Hi %Φ Hfootprint HΦ".
+    iIntros "%Hfp_lookup %Hi %Φ Hfp HΦ".
 
-    iDestruct (structeq۰footprintｰlookup' with "Hfootprint") as "(%fld & %Hfields_lookup & Hl & %Htraversable & Hfootprint)"; [done.. |].
+    iDestruct (structeq۰footprintｰlookup' with "Hfp") as "(%fld & %Hfields_lookup & Hl & %Htraversable & Hfp)"; [done.. |].
     iSteps.
   Qed.
 End zoo۰G.
 
-Fixpoint val۰reachable footprint src path dst :=
+Fixpoint val۰reachable fp src path dst :=
   match path with
   | [] =>
       src = dst
   | i :: path =>
       match src with
       | ValLoc l =>
-          match footprint !! l with
+          match fp !! l with
           | None =>
               False
           | Some blk =>
@@ -265,7 +265,7 @@ Fixpoint val۰reachable footprint src path dst :=
               | None =>
                   False
               | Some fld =>
-                  val۰reachable footprint fld.(structeq۰field۰val) path dst
+                  val۰reachable fp fld.(structeq۰field۰val) path dst
               end
           end
       | ValBlock _ _ vs =>
@@ -273,7 +273,7 @@ Fixpoint val۰reachable footprint src path dst :=
           | None =>
               False
           | Some src =>
-              val۰reachable footprint src path dst
+              val۰reachable fp src path dst
           end
       | _ =>
           False
@@ -281,8 +281,8 @@ Fixpoint val۰reachable footprint src path dst :=
   end.
 #[global] Arguments val۰reachable _ !_ !_ / _ : assert.
 
-#[global] Instance val۰reachableｰdec footprint src path dst :
-  Decision (val۰reachable footprint src path dst).
+#[global] Instance val۰reachableｰdec fp src path dst :
+  Decision (val۰reachable fp src path dst).
 Proof.
   move: src path.
   refine (
@@ -293,17 +293,17 @@ Proof.
       | i :: path =>
           match src with
           | ValLoc l =>
-              (match footprint !! l as x return _ = x → _ with
-              | None => λ Hfootprint_lookup,
+              (match fp !! l as x return _ = x → _ with
+              | None => λ Hfp_lookup,
                   right _
-              | Some blk => λ Hfootprint_lookup,
+              | Some blk => λ Hfp_lookup,
                   (match blk.(structeq۰block۰fields) !! i as x return _ = x → _ with
                   | None => λ Hfields_lookup,
                       right _
                   | Some fld => λ Hfields_lookup,
                       cast_if (go fld.(structeq۰field۰val) path)
                   end) (eq_refl (blk.(structeq۰block۰fields) !! i))
-              end) (eq_refl (footprint !! l))
+              end) (eq_refl (fp !! l))
           | ValBlock _ _ vs =>
               (match vs !! i as x return _ = x → _ with
               | None => λ Hvs_lookup,
@@ -318,24 +318,24 @@ Proof.
   ).
   all:
     abstract (
-      rewrite /= ?Hfootprint_lookup ?Hfields_lookup ?Hvs_lookup;
+      rewrite /= ?Hfp_lookup ?Hfields_lookup ?Hvs_lookup;
       congruence
     ).
 Defined.
 
-Definition lowval۰compatible footprint lv1 lv2 :=
+Definition lowval۰compatible fp lv1 lv2 :=
   match lv1 with
   | LowvalLit lit1 =>
       match lit1 with
       | LowlitLoc l1 =>
           match lv2 with
           | LowvalLoc l2 =>
-              let blk1 := footprint !!! l1 in
-              let blk2 := footprint !!! l2 in
+              let blk1 := fp !!! l1 in
+              let blk2 := fp !!! l2 in
               blk1.(structeq۰block۰tag) ≟ blk2.(structeq۰block۰tag) &&
               length blk1.(structeq۰block۰fields) ≟ length blk2.(structeq۰block۰fields)
           | LowvalBlock _ tag2 vs2 _ =>
-              let blk1 := footprint !!! l1 in
+              let blk1 := fp !!! l1 in
               blk1.(structeq۰block۰tag) ≟ tag2 &&
               length blk1.(structeq۰block۰fields) ≟ length vs2
           | _ =>
@@ -349,7 +349,7 @@ Definition lowval۰compatible footprint lv1 lv2 :=
   | LowvalBlock _ tag1 vs1 _ =>
       match lv2 with
       | LowvalLoc l2 =>
-          let blk2 := footprint !!! l2 in
+          let blk2 := fp !!! l2 in
           tag1 ≟ blk2.(structeq۰block۰tag) &&
           length vs1 ≟ length blk2.(structeq۰block۰fields)
       | LowvalBlock _ tag2 vs2 _ =>
@@ -361,12 +361,12 @@ Definition lowval۰compatible footprint lv1 lv2 :=
   end.
 #[global] Arguments lowval۰compatible _ !_ !_ / : assert.
 
-Definition val۰compatible footprint v1 v2 :=
-  lowval۰compatible footprint (val۰to_low v1) (val۰to_low v2).
+Definition val۰compatible fp v1 v2 :=
+  lowval۰compatible fp (val۰to_low v1) (val۰to_low v2).
 
-Lemma lowval۰compatibleｰsym footprint lv1 lv2 :
-  lowval۰compatible footprint lv1 lv2 =
-  lowval۰compatible footprint lv2 lv1.
+Lemma lowval۰compatibleｰsym fp lv1 lv2 :
+  lowval۰compatible fp lv1 lv2 =
+  lowval۰compatible fp lv2 lv1.
 Proof.
   all: destruct lv1 as [[] | |].
   all: destruct lv2 as [[] | |].
@@ -375,47 +375,47 @@ Proof.
   1,2: apply bool_decide_ext => //.
   all: setoid_rewrite beqｰsym at 1 2 => //.
 Qed.
-Lemma val۰compatibleｰsym footprint v1 v2 :
-  val۰compatible footprint v1 v2 =
-  val۰compatible footprint v2 v1.
+Lemma val۰compatibleｰsym fp v1 v2 :
+  val۰compatible fp v1 v2 =
+  val۰compatible fp v2 v1.
 Proof.
   rewrite /val۰compatible lowval۰compatibleｰsym //.
 Qed.
 
-Definition val۰structeq footprint v1 v2 :=
+Definition val۰structeq fp v1 v2 :=
   ∀ path v1' v2',
-  val۰reachable footprint v1 path v1' →
-  val۰reachable footprint v2 path v2' →
-  val۰compatible footprint v1' v2' = true.
+  val۰reachable fp v1 path v1' →
+  val۰reachable fp v2 path v2' →
+  val۰compatible fp v1' v2' = true.
 
-Definition val۰structneq footprint v1 v2 :=
+Definition val۰structneq fp v1 v2 :=
   ∃ path v1' v2',
-  val۰reachable footprint v1 path v1' ∧
-  val۰reachable footprint v2 path v2' ∧
-  val۰compatible footprint v1' v2' = false.
+  val۰reachable fp v1 path v1' ∧
+  val۰reachable fp v2 path v2' ∧
+  val۰compatible fp v1' v2' = false.
 
-Lemma val۰structeqｰsym footprint v1 v2 :
-  val۰structeq footprint v1 v2 →
-  val۰structeq footprint v2 v1.
+Lemma val۰structeqｰsym fp v1 v2 :
+  val۰structeq fp v1 v2 →
+  val۰structeq fp v2 v1.
 Proof.
   intros Hstructeq path v1' v2' Hreachable1 Hreachable2.
   rewrite val۰compatibleｰsym. eauto.
 Qed.
 
-Lemma val۰structneqｰsym footprint v1 v2 :
-  val۰structneq footprint v1 v2 →
-  val۰structneq footprint v2 v1.
+Lemma val۰structneqｰsym fp v1 v2 :
+  val۰structneq fp v1 v2 →
+  val۰structneq fp v2 v1.
 Proof.
   intros (path & v1' & v2' & Hreachable1 & Hreachable2 & Hcompatible).
   rewrite val۰compatibleｰsym in Hcompatible.
   rewrite /val۰structneq. naive.
 Qed.
 
-Lemma valｰimmediateｰstructeq footprint v1 v2 :
+Lemma valｰimmediateｰstructeq fp v1 v2 :
   val۰immediate v1 →
   val۰immediate v2 →
   v1 ≈ v2 →
-  val۰structeq footprint v1 v2.
+  val۰structeq fp v1 v2.
 Proof.
   intros Himmediate1 Himmediate2 Hsimilar.
   intros path v1_ v2_ Hreachable1 Hreachable2.
@@ -426,11 +426,11 @@ Proof.
   all: cbn.
   all: rewrite bool_decide_eq_true_2 //.
 Qed.
-Lemma valｰimmediateｰstructneq footprint v1 v2 :
+Lemma valｰimmediateｰstructneq fp v1 v2 :
   val۰immediate v1 →
   val۰immediate v2 →
   v1 ≉ v2 →
-  val۰structneq footprint v1 v2.
+  val۰structneq fp v1 v2.
 Proof.
   intros Himmediate1 Himmediate2 Hnonsimilar.
   eexists [], v1, v2. split_and! => //.
@@ -441,56 +441,56 @@ Proof.
   all: congruence.
 Qed.
 
-Lemma val۰structeqｰreflｰimmediate footprint v :
+Lemma val۰structeqｰreflｰimmediate fp v :
   val۰immediate v →
-  val۰structeq footprint v v.
+  val۰structeq fp v v.
 Proof.
   intros Himmediate.
   apply valｰimmediateｰstructeq; done.
 Qed.
-Lemma val۰structeqｰreflｰimmediate' footprint v1 v2 :
+Lemma val۰structeqｰreflｰimmediate' fp v1 v2 :
   v1 = v2 →
   val۰immediate v1 →
-  val۰structeq footprint v1 v2.
+  val۰structeq fp v1 v2.
 Proof.
   intros ->.
   apply val۰structeqｰreflｰimmediate.
 Qed.
-Lemma val۰structeqｰreflｰstring footprint str :
-  val۰structeq footprint #str #str.
+Lemma val۰structeqｰreflｰstring fp str :
+  val۰structeq fp #str #str.
 Proof.
   intros path v1 v2 Hreachable1 Hreachable2.
   destruct path. 2: done.
   simp. cbn.
   rewrite bool_decide_eq_true_2 //.
 Qed.
-Lemma val۰structeqｰreflｰstring' footprint str1 str2 :
+Lemma val۰structeqｰreflｰstring' fp str1 str2 :
   str1 = str2 →
-  val۰structeq footprint #str1 #str2.
+  val۰structeq fp #str1 #str2.
 Proof.
   intros ->.
   apply val۰structeqｰreflｰstring.
 Qed.
 
-Lemma val۰structneqｰstringｰl footprint str v :
+Lemma val۰structneqｰstringｰl fp str v :
   #str ≠ v →
-  val۰structneq footprint #str v.
+  val۰structneq fp #str v.
 Proof.
   intros.
   exists [], #str, v. split_and! => //.
   destruct v as [[] | | gen tag [| v vs]] => //.
   rewrite bool_decide_eq_false. naive.
 Qed.
-Lemma val۰structneqｰstringｰr footprint v str :
+Lemma val۰structneqｰstringｰr fp v str :
   v ≠ #str →
-  val۰structneq footprint v #str.
+  val۰structneq fp v #str.
 Proof.
   intros.
   apply val۰structneqｰsym, val۰structneqｰstringｰl => //.
 Qed.
-Lemma val۰structneqｰstring footprint str1 str2 :
+Lemma val۰structneqｰstring fp str1 str2 :
   str1 ≠ str2 →
-  val۰structneq footprint #str1 #str2.
+  val۰structneq fp #str1 #str2.
 Proof.
   intros.
   apply val۰structneqｰstringｰl. naive.
@@ -501,94 +501,94 @@ Section zoo۰G.
 
   #[local] Lemma structeqｰspecｰaux :
     ⊢ (
-      ∀ v1 v2 footprint,
+      ∀ v1 v2 fp,
       {{{
-        ⌜val۰traversable footprint v1⌝ ∗
-        ⌜val۰traversable footprint v2⌝ ∗
-        structeq۰footprint footprint
+        ⌜val۰traversable fp v1⌝ ∗
+        ⌜val۰traversable fp v2⌝ ∗
+        structeq۰footprint fp
       }}}
         v1 = v2
       {{{
         b
       , RET #b;
-        ⌜(if b then val۰structeq else val۰structneq) footprint v1 v2⌝ ∗
-        structeq۰footprint footprint
+        ⌜(if b then val۰structeq else val۰structneq) fp v1 v2⌝ ∗
+        structeq۰footprint fp
       }}}
     ) ∧ (
-      ∀ l1 blk1 l2 blk2 footprint i,
+      ∀ l1 blk1 l2 blk2 fp i,
       {{{
         ⌜0 ≤ i ≤ length blk1.(structeq۰block۰fields)⌝%Z ∗
-        ⌜footprint !! l1 = Some blk1⌝ ∗
-        ⌜footprint !! l2 = Some blk2⌝ ∗
+        ⌜fp !! l1 = Some blk1⌝ ∗
+        ⌜fp !! l2 = Some blk2⌝ ∗
         ⌜blk1.(structeq۰block۰tag) = blk2.(structeq۰block۰tag)⌝ ∗
         ⌜length blk1.(structeq۰block۰fields) = length blk2.(structeq۰block۰fields)⌝ ∗
-        structeq۰footprint footprint ∗
+        structeq۰footprint fp ∗
         ⌜ ∀ j fld1 fld2,
           blk1.(structeq۰block۰fields) !! j = Some fld1 →
           blk2.(structeq۰block۰fields) !! j = Some fld2 →
           ₊i ≤ j →
-          val۰structeq footprint fld1.(structeq۰field۰val) fld2.(structeq۰field۰val)
+          val۰structeq fp fld1.(structeq۰field۰val) fld2.(structeq۰field۰val)
         ⌝
       }}}
         structeq۰aux #l1 #l2 #i
       {{{
         b
       , RET #b;
-        ⌜(if b then val۰structeq else val۰structneq) footprint #l1 #l2⌝ ∗
-        structeq۰footprint footprint
+        ⌜(if b then val۰structeq else val۰structneq) fp #l1 #l2⌝ ∗
+        structeq۰footprint fp
       }}}
     ) ∧ (
-      ∀ l1 blk1 gen2 tag2 vs2 footprint i,
+      ∀ l1 blk1 gen2 tag2 vs2 fp i,
       let v2 := ValBlock gen2 tag2 vs2 in
       {{{
         ⌜0 ≤ i ≤ length vs2⌝%Z ∗
-        ⌜footprint !! l1 = Some blk1⌝ ∗
+        ⌜fp !! l1 = Some blk1⌝ ∗
         ⌜blk1.(structeq۰block۰tag) = tag2⌝ ∗
         ⌜length blk1.(structeq۰block۰fields) = length vs2⌝ ∗
         ⌜0 < length vs2⌝ ∗
-        ⌜val۰traversable footprint v2⌝ ∗
-        structeq۰footprint footprint ∗
+        ⌜val۰traversable fp v2⌝ ∗
+        structeq۰footprint fp ∗
         ⌜ ∀ j fld1 v2,
           blk1.(structeq۰block۰fields) !! j = Some fld1 →
           vs2 !! j = Some v2 →
           ₊i ≤ j →
-          val۰structeq footprint fld1.(structeq۰field۰val) v2
+          val۰structeq fp fld1.(structeq۰field۰val) v2
         ⌝
       }}}
         structeq۰aux #l1 v2 #i
       {{{
         b
       , RET #b;
-        ⌜(if b then val۰structeq else val۰structneq) footprint #l1 v2⌝ ∗
-        structeq۰footprint footprint
+        ⌜(if b then val۰structeq else val۰structneq) fp #l1 v2⌝ ∗
+        structeq۰footprint fp
       }}}
     ) ∧ (
-      ∀ gen1 tag1 vs1 l2 blk2 footprint i,
+      ∀ gen1 tag1 vs1 l2 blk2 fp i,
       let v1 := ValBlock gen1 tag1 vs1 in
       {{{
         ⌜0 ≤ i ≤ length vs1⌝%Z ∗
-        ⌜footprint !! l2 = Some blk2⌝ ∗
+        ⌜fp !! l2 = Some blk2⌝ ∗
         ⌜tag1 = blk2.(structeq۰block۰tag)⌝ ∗
         ⌜length vs1 = length blk2.(structeq۰block۰fields)⌝ ∗
         ⌜0 < length vs1⌝ ∗
-        ⌜val۰traversable footprint v1⌝ ∗
-        structeq۰footprint footprint ∗
+        ⌜val۰traversable fp v1⌝ ∗
+        structeq۰footprint fp ∗
         ⌜ ∀ j v1 fld2,
           vs1 !! j = Some v1 →
           blk2.(structeq۰block۰fields) !! j = Some fld2 →
           ₊i ≤ j →
-          val۰structeq footprint v1 fld2.(structeq۰field۰val)
+          val۰structeq fp v1 fld2.(structeq۰field۰val)
         ⌝
       }}}
         structeq۰aux v1 #l2 #i
       {{{
         b
       , RET #b;
-        ⌜(if b then val۰structeq else val۰structneq) footprint v1 #l2⌝ ∗
-        structeq۰footprint footprint
+        ⌜(if b then val۰structeq else val۰structneq) fp v1 #l2⌝ ∗
+        structeq۰footprint fp
       }}}
     ) ∧ (
-      ∀ gen1 tag1 vs1 gen2 tag2 vs2 footprint i,
+      ∀ gen1 tag1 vs1 gen2 tag2 vs2 fp i,
       let v1 := ValBlock gen1 tag1 vs1 in
       let v2 := ValBlock gen2 tag2 vs2 in
       {{{
@@ -596,22 +596,22 @@ Section zoo۰G.
         ⌜tag1 = tag2⌝ ∗
         ⌜length vs1 = length vs2⌝ ∗
         ⌜0 < length vs1⌝ ∗
-        ⌜val۰traversable footprint v1⌝ ∗
-        ⌜val۰traversable footprint v2⌝ ∗
-        structeq۰footprint footprint ∗
+        ⌜val۰traversable fp v1⌝ ∗
+        ⌜val۰traversable fp v2⌝ ∗
+        structeq۰footprint fp ∗
         ⌜ ∀ j v1 v2,
           vs1 !! j = Some v1 →
           vs2 !! j = Some v2 →
           ₊i ≤ j →
-          val۰structeq footprint v1 v2
+          val۰structeq fp v1 v2
         ⌝
       }}}
         structeq۰aux v1 v2 #i
       {{{
         b
       , RET #b;
-        ⌜(if b then val۰structeq else val۰structneq) footprint v1 v2⌝ ∗
-        structeq۰footprint footprint
+        ⌜(if b then val۰structeq else val۰structneq) fp v1 v2⌝ ∗
+        structeq۰footprint fp
       }}}
     ).
   Proof.
@@ -620,7 +620,7 @@ Section zoo۰G.
     repeat iSplit.
 
     { iClear "IHstructeq".
-      iIntros "%v1 %v2 %footprint !> %Φ (%Htraversable1 & %Htraversable2 & Hfootprint) HΦ".
+      iIntros "%v1 %v2 %fp !> %Φ (%Htraversable1 & %Htraversable2 & Hfp) HΦ".
 
       wp۰rec. wp۰pures.
 
@@ -668,8 +668,8 @@ Section zoo۰G.
         + apply val۰structeqｰreflｰstring' => //.
         + apply val۰structneqｰstring => //.
 
-      - apply elem_of_dom in Htraversable2 as (blk2 & Hfootprint_lookup_2).
-        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfootprint") as "Hfootprint"; first done.
+      - apply elem_of_dom in Htraversable2 as (blk2 & Hfp_lookup_2).
+        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfp") as "Hfp"; first done.
         wp۰pures.
         rewrite bool_decide_eq_false_2.
         { pose proof (tag۰stringｰspec blk2.(structeq۰block۰tag)). lia. }
@@ -681,27 +681,27 @@ Section zoo۰G.
         iSteps. iPureIntro.
         apply val۰structneqｰstringｰl => //.
 
-      - apply elem_of_dom in Htraversable1 as (blk1 & Hfootprint_lookup_1).
-        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfootprint") as "Hfootprint"; first done.
+      - apply elem_of_dom in Htraversable1 as (blk1 & Hfp_lookup_1).
+        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfp") as "Hfp"; first done.
         wp۰pures.
         rewrite bool_decide_eq_false_2.
         { pose proof (tag۰stringｰspec blk1.(structeq۰block۰tag)). lia. }
         iSteps. iPureIntro.
         apply val۰structneqｰstringｰr => //.
 
-      - apply elem_of_dom in Htraversable1 as (blk1 & Hfootprint_lookup_1).
-        apply elem_of_dom in Htraversable2 as (blk2 & Hfootprint_lookup_2).
-        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfootprint") as "Hfootprint"; first done.
-        wp۰apply+ (structeq۰footprintｰwpｰget_tag with "Hfootprint") as "Hfootprint"; first done.
+      - apply elem_of_dom in Htraversable1 as (blk1 & Hfp_lookup_1).
+        apply elem_of_dom in Htraversable2 as (blk2 & Hfp_lookup_2).
+        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfp") as "Hfp"; first done.
+        wp۰apply+ (structeq۰footprintｰwpｰget_tag with "Hfp") as "Hfp"; first done.
         wp۰pures.
         case_bool_decide; wp۰pures.
         + rewrite bool_decide_eq_false_2.
           { pose proof (tag۰stringｰspec blk1.(structeq۰block۰tag)). lia. }
-          wp۰apply+ (structeq۰footprintｰwpｰget_size with "Hfootprint") as "Hfootprint"; first done.
-          wp۰apply+ (structeq۰footprintｰwpｰget_size with "Hfootprint") as "Hfootprint"; first done.
+          wp۰apply+ (structeq۰footprintｰwpｰget_size with "Hfp") as "Hfp"; first done.
+          wp۰apply+ (structeq۰footprintｰwpｰget_size with "Hfp") as "Hfp"; first done.
           wp۰pures.
           case_bool_decide; wp۰pures.
-          * wp۰apply ("IHstructeq_aux_loc_loc" with "[$Hfootprint] HΦ").
+          * wp۰apply ("IHstructeq_aux_loc_loc" with "[$Hfp] HΦ").
             iPureIntro. split_and!; [naive lia.. |].
             intros j ? ? ? Hj%lookup_lt_Some. lia.
           * iSteps. iPureIntro.
@@ -714,16 +714,16 @@ Section zoo۰G.
           rewrite andb_false_iff !beqｰspec'.
           naive congruence.
 
-      - apply elem_of_dom in Htraversable1 as (blk1 & Hfootprint_lookup_1).
-        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfootprint") as "Hfootprint"; first done.
+      - apply elem_of_dom in Htraversable1 as (blk1 & Hfp_lookup_1).
+        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfp") as "Hfp"; first done.
         wp۰pures.
         case_bool_decide; wp۰pures.
         + rewrite bool_decide_eq_false_2.
           { pose proof (tag۰stringｰspec blk1.(structeq۰block۰tag)). lia. }
-          wp۰apply+ (structeq۰footprintｰwpｰget_size with "Hfootprint") as "Hfootprint"; first done.
+          wp۰apply+ (structeq۰footprintｰwpｰget_size with "Hfp") as "Hfp"; first done.
           wp۰pures.
           case_bool_decide; wp۰pures.
-          * wp۰apply ("IHstructeq_aux_loc_block" with "[$Hfootprint] HΦ").
+          * wp۰apply ("IHstructeq_aux_loc_block" with "[$Hfp] HΦ").
             iPureIntro. split_and!; [naive lia.. |].
             intros j ? ? ? Hj%lookup_lt_Some. simpl in Hj. lia.
           * iSteps. iPureIntro.
@@ -740,16 +740,16 @@ Section zoo۰G.
         iSteps. iPureIntro.
         apply val۰structneqｰstringｰr => //.
 
-      - apply elem_of_dom in Htraversable2 as (blk2 & Hfootprint_lookup_2).
-        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfootprint") as "Hfootprint"; first done.
+      - apply elem_of_dom in Htraversable2 as (blk2 & Hfp_lookup_2).
+        wp۰apply (structeq۰footprintｰwpｰget_tag with "Hfp") as "Hfp"; first done.
         wp۰pures.
         case_bool_decide; wp۰pures.
         + rewrite bool_decide_eq_false_2.
           { pose proof (tag۰stringｰspec tag1). lia. }
-          wp۰apply+ (structeq۰footprintｰwpｰget_size with "Hfootprint") as "Hfootprint"; first done.
+          wp۰apply+ (structeq۰footprintｰwpｰget_size with "Hfp") as "Hfp"; first done.
           wp۰pures.
           case_bool_decide; wp۰pures.
-          * wp۰apply ("IHstructeq_aux_block_loc" with "[$Hfootprint] HΦ").
+          * wp۰apply ("IHstructeq_aux_block_loc" with "[$Hfp] HΦ").
             iPureIntro. split_and!; [naive lia.. |].
             intros j ? ? ? Hj%lookup_lt_Some. lia.
           * iSteps. iPureIntro.
@@ -765,7 +765,7 @@ Section zoo۰G.
         + rewrite bool_decide_eq_false_2.
           { pose proof (tag۰stringｰspec tag1). lia. }
           wp۰pures. case_bool_decide; wp۰pures.
-          * wp۰apply ("IHstructeq_aux_block_block" with "[$Hfootprint] HΦ").
+          * wp۰apply ("IHstructeq_aux_block_block" with "[$Hfp] HΦ").
             iPureIntro. split_and!; [naive lia.. |].
             intros j ? ? ? Hj%lookup_lt_Some. simpl in Hj. lia.
           * iSteps. iPureIntro.
@@ -777,7 +777,7 @@ Section zoo۰G.
     }
 
     { iClear "IHstructeq_aux_loc_block IHstructeq_aux_block_loc IHstructeq_aux_block_block".
-      iIntros "%l1 %blk1 %l2 %blk2 %footprint %i !> %Φ (%Hi & %Hfootprint_lookup_1 & %Hfootprint_lookup_2 & % & % & Hfootprint & %Hstructeq) HΦ".
+      iIntros "%l1 %blk1 %l2 %blk2 %fp %i !> %Φ (%Hi & %Hfp_lookup_1 & %Hfp_lookup_2 & % & % & Hfp & %Hstructeq) HΦ".
 
       wp۰rec. wp۰pures.
       case_bool_decide; wp۰pures.
@@ -789,20 +789,20 @@ Section zoo۰G.
         + rewrite andb_true_iff !beqｰspec.
           erewrite !lookup_total_correct; done.
 
-        + rewrite Hfootprint_lookup_1 in Hreachable1.
+        + rewrite Hfp_lookup_1 in Hreachable1.
           destruct (blk1.(structeq۰block۰fields) !! j) as [fld1 |] eqn:Hfields1_lookup; last done.
-          rewrite Hfootprint_lookup_2 in Hreachable2.
+          rewrite Hfp_lookup_2 in Hreachable2.
           destruct (blk2.(structeq۰block۰fields) !! j) as [fld2 |] eqn:Hfields2_lookup; last done.
           eapply Hstructeq; done || lia.
 
       - replace (i - 1)%Z with ⁺(₊i - 1) by lia.
 
-        wp۰apply (structeq۰footprintｰwpｰload' with "Hfootprint") as (fld2) "(%Hfields2_lookup & %Htraversable2 & Hfootprint)"; [done | lia |].
-        wp۰apply (structeq۰footprintｰwpｰload' with "Hfootprint") as (fld1) "(%Hfields1_lookup & %Htraversable1 & Hfootprint)"; [done | lia |].
-        wp۰apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)"; first iSteps.
+        wp۰apply (structeq۰footprintｰwpｰload' with "Hfp") as (fld2) "(%Hfields2_lookup & %Htraversable2 & Hfp)"; [done | lia |].
+        wp۰apply (structeq۰footprintｰwpｰload' with "Hfp") as (fld1) "(%Hfields1_lookup & %Htraversable1 & Hfp)"; [done | lia |].
+        wp۰apply+ ("IHstructeq" with "[$Hfp]") as (b) "(%Hb & Hfp)"; first iSteps.
         destruct b; wp۰pures.
 
-        + wp۰apply ("IHstructeq_aux_loc_loc" with "[$Hfootprint] HΦ").
+        + wp۰apply ("IHstructeq_aux_loc_loc" with "[$Hfp] HΦ").
           iPureIntro. split_and! => //; try lia.
           intros j.
           destruct_decide (j = ₊i - 1); naive lia.
@@ -810,12 +810,12 @@ Section zoo۰G.
         + iSteps. iPureIntro.
           destruct Hb as (path & w1 & w2 & Hreachable1 & Hreachable2 & Hcompatible).
           eexists (₊i - 1 :: path), w1, w2. split_and!; last done.
-          * rewrite /= Hfootprint_lookup_1 Hfields1_lookup //.
-          * rewrite /= Hfootprint_lookup_2 Hfields2_lookup //.
+          * rewrite /= Hfp_lookup_1 Hfields1_lookup //.
+          * rewrite /= Hfp_lookup_2 Hfields2_lookup //.
     }
 
     { iClear "IHstructeq_aux_loc_loc IHstructeq_aux_block_loc IHstructeq_aux_block_block".
-      iIntros "%l1 %blk1 %gen2 %tag2 %vs2 %footprint %i !> %Φ (%Hi & %Hfootprint_lookup_1 & % & % & % & %Htraversable2 & Hfootprint & %Hstructeq) HΦ".
+      iIntros "%l1 %blk1 %gen2 %tag2 %vs2 %fp %i !> %Φ (%Hi & %Hfp_lookup_1 & % & % & % & %Htraversable2 & Hfp & %Hstructeq) HΦ".
 
       wp۰rec. wp۰pures.
       case_bool_decide; wp۰pures.
@@ -828,7 +828,7 @@ Section zoo۰G.
           rewrite andb_true_iff !beqｰspec.
           erewrite !lookup_total_correct; done.
 
-        + rewrite Hfootprint_lookup_1 in Hreachable1.
+        + rewrite Hfp_lookup_1 in Hreachable1.
           destruct (blk1.(structeq۰block۰fields) !! j) as [fld1 |] eqn:Hfields1_lookup; last done.
           destruct (vs2 !! j) as [v2 |] eqn:Hvs2_lookup; last done.
           eapply Hstructeq; done || lia.
@@ -838,12 +838,12 @@ Section zoo۰G.
         destruct (lookup_lt_is_Some_2 vs2 (₊i - 1)) as (v2 & Hvs2_lookup); first lia.
 
         wp۰pures.
-        wp۰apply (structeq۰footprintｰwpｰload' with "Hfootprint") as (fld1) "(%Hfields1_lookup & %Htraversable1 & Hfootprint)"; [done | lia |].
-        wp۰apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)"; first iSteps.
+        wp۰apply (structeq۰footprintｰwpｰload' with "Hfp") as (fld1) "(%Hfields1_lookup & %Htraversable1 & Hfp)"; [done | lia |].
+        wp۰apply+ ("IHstructeq" with "[$Hfp]") as (b) "(%Hb & Hfp)"; first iSteps.
         { iPureIntro. simp_Forall+/= in *. eauto. }
         destruct b; wp۰pures.
 
-        + wp۰apply ("IHstructeq_aux_loc_block" with "[$Hfootprint] HΦ").
+        + wp۰apply ("IHstructeq_aux_loc_block" with "[$Hfp] HΦ").
           iPureIntro. split_and! => //; try lia.
           intros j.
           destruct_decide (j = ₊i - 1); naive lia.
@@ -851,12 +851,12 @@ Section zoo۰G.
         + iSteps. iPureIntro.
           destruct Hb as (path & w1 & w2 & Hreachable1 & Hreachable2 & Hcompatible).
           eexists (₊i - 1 :: path), w1, w2. split_and!; last done.
-          * rewrite /= Hfootprint_lookup_1 Hfields1_lookup //.
+          * rewrite /= Hfp_lookup_1 Hfields1_lookup //.
           * rewrite /= Hvs2_lookup //.
     }
 
     { iClear "IHstructeq_aux_loc_loc IHstructeq_aux_loc_block IHstructeq_aux_block_block".
-      iIntros "%gen1 %tag1 %vs1 %l2 %blk2 %footprint %i !> %Φ (%Hi & %Hfootprint_lookup_2 & % & % & % & %Htraversable1 & Hfootprint & %Hstructeq) HΦ".
+      iIntros "%gen1 %tag1 %vs1 %l2 %blk2 %fp %i !> %Φ (%Hi & %Hfp_lookup_2 & % & % & % & %Htraversable1 & Hfp & %Hstructeq) HΦ".
 
       wp۰rec. wp۰pures.
       case_bool_decide; wp۰pures.
@@ -870,7 +870,7 @@ Section zoo۰G.
           erewrite !lookup_total_correct; done.
 
         + destruct (vs1 !! j) as [v1 |] eqn:Hvs1_lookup; last done.
-          rewrite Hfootprint_lookup_2 in Hreachable2.
+          rewrite Hfp_lookup_2 in Hreachable2.
           destruct (blk2.(structeq۰block۰fields) !! j) as [fld2 |] eqn:Hfields2_lookup; last done.
           eapply Hstructeq; done || lia.
 
@@ -879,12 +879,12 @@ Section zoo۰G.
         destruct (lookup_lt_is_Some_2 vs1 (₊i - 1)) as (v1 & Hvs1_lookup); first lia.
 
         wp۰pures.
-        wp۰apply (structeq۰footprintｰwpｰload' with "Hfootprint") as (fld2) "(%Hfields2_lookup & %Htraversable2 & Hfootprint)"; [done | lia |].
-        wp۰apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)"; first iSteps.
+        wp۰apply (structeq۰footprintｰwpｰload' with "Hfp") as (fld2) "(%Hfields2_lookup & %Htraversable2 & Hfp)"; [done | lia |].
+        wp۰apply+ ("IHstructeq" with "[$Hfp]") as (b) "(%Hb & Hfp)"; first iSteps.
         { iPureIntro. simp_Forall+/= in *. eauto. }
         destruct b; wp۰pures.
 
-        + wp۰apply ("IHstructeq_aux_block_loc" with "[$Hfootprint] HΦ").
+        + wp۰apply ("IHstructeq_aux_block_loc" with "[$Hfp] HΦ").
           iPureIntro. split_and! => //; try lia.
           intros j.
           destruct_decide (j = ₊i - 1); naive lia.
@@ -893,11 +893,11 @@ Section zoo۰G.
           destruct Hb as (path & w1 & w2 & Hreachable1 & Hreachable2 & Hcompatible).
           eexists (₊i - 1 :: path), w1, w2. split_and!; last done.
           * rewrite /= Hvs1_lookup //.
-          * rewrite /= Hfootprint_lookup_2 Hfields2_lookup //.
+          * rewrite /= Hfp_lookup_2 Hfields2_lookup //.
     }
 
     { iClear "IHstructeq_aux_loc_loc IHstructeq_aux_loc_block IHstructeq_aux_block_loc".
-      iIntros "%gen1 %tag1 %vs1 %gen2 %tag2 %vs2 %footprint %i !> %Φ (%Hi & -> & % & % & %Htraversable1 & %Htraversable2 & Hfootprint & %Hstructeq) HΦ".
+      iIntros "%gen1 %tag1 %vs1 %gen2 %tag2 %vs2 %fp %i !> %Φ (%Hi & -> & % & % & %Htraversable1 & %Htraversable2 & Hfp & %Hstructeq) HΦ".
 
       wp۰rec. wp۰pures.
       case_bool_decide; wp۰pures.
@@ -920,11 +920,11 @@ Section zoo۰G.
         destruct (lookup_lt_is_Some_2 vs2 (₊i - 1)) as (v2 & Hvs2_lookup); first lia.
 
         wp۰pures.
-        wp۰apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)".
+        wp۰apply+ ("IHstructeq" with "[$Hfp]") as (b) "(%Hb & Hfp)".
         { iPureIntro. simp_Forall+/= in *. eauto. }
         destruct b; wp۰pures.
 
-        + wp۰apply ("IHstructeq_aux_block_block" with "[$Hfootprint] HΦ").
+        + wp۰apply ("IHstructeq_aux_block_block" with "[$Hfp] HΦ").
           iPureIntro. split_and! => //; try lia.
           intros j.
           destruct_decide (j = ₊i - 1); naive lia.
@@ -936,23 +936,23 @@ Section zoo۰G.
           * rewrite /= Hvs2_lookup //.
     }
   Qed.
-  Lemma structeqｰspec {v1 v2} footprint :
-    val۰traversable footprint v1 →
-    val۰traversable footprint v2 →
+  Lemma structeqｰspec {v1 v2} fp :
+    val۰traversable fp v1 →
+    val۰traversable fp v2 →
     {{{
-      structeq۰footprint footprint
+      structeq۰footprint fp
     }}}
       v1 = v2
     {{{
       b
     , RET #b;
-      ⌜(if b then val۰structeq else val۰structneq) footprint v1 v2⌝ ∗
-      structeq۰footprint footprint
+      ⌜(if b then val۰structeq else val۰structneq) fp v1 v2⌝ ∗
+      structeq۰footprint fp
     }}}.
   Proof.
-    iIntros "%Htraversable1 %Htraversable2 %Φ Hfootprint HΦ".
+    iIntros "%Htraversable1 %Htraversable2 %Φ Hfp HΦ".
     iDestruct structeqｰspecｰaux as "(H & _)".
-    iApply ("H" with "[$Hfootprint]"); iSteps.
+    iApply ("H" with "[$Hfp]"); iSteps.
   Qed.
 End zoo۰G.
 
@@ -993,11 +993,11 @@ Proof.
   simp_Forall+/= in *. eauto.
 Qed.
 
-Lemma val۰compatibleｰreflｰabstract footprint v1 v2 :
+Lemma val۰compatibleｰreflｰabstract fp v1 v2 :
   val۰abstract v1 →
   val۰abstract v2 →
   v1 ≈ v2 →
-  val۰compatible footprint v1 v2 = true.
+  val۰compatible fp v1 v2 = true.
 Proof.
   destruct v1 as [[] | | [] tag1 [| v1 vs1]] => //.
   all: destruct v2 as [[] | | [] tag2 [| v2 vs2]] => //.
@@ -1008,10 +1008,10 @@ Proof.
   split; apply beqｰtrue; naive.
 Qed.
 
-Lemma valｰstructeqｰabstract₁ footprint v1 v2 :
+Lemma valｰstructeqｰabstract₁ fp v1 v2 :
   val۰abstract v1 →
   val۰abstract v2 →
-  val۰structeq footprint v1 v2 →
+  val۰structeq fp v1 v2 →
   v1 ≈ v2.
 Proof.
   move: v2. induction v1 as [[] | | [] tag1 [| v1 vs1'] IH] => //.
