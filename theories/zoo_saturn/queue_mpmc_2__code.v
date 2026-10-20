@@ -163,18 +163,24 @@ Definition queue_mpmc_2٠push_aux :=
 Definition queue_mpmc_2٠push₁ :=
   ValRecs 1 __zoo_recs_0.
 #[global] Instance :
-  AsValRecs' queue_mpmc_2٠push_aux 0 __zoo_recs_0 [
-    queue_mpmc_2٠push_aux ;
-    queue_mpmc_2٠push₁
-  ].
+  AsValRecs'
+    queue_mpmc_2٠push_aux
+    0
+    __zoo_recs_0
+    [ queue_mpmc_2٠push_aux
+    ; queue_mpmc_2٠push₁
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' queue_mpmc_2٠push₁ 1 __zoo_recs_0 [
-    queue_mpmc_2٠push_aux ;
+  AsValRecs'
     queue_mpmc_2٠push₁
-  ].
+    1
+    __zoo_recs_0
+    [ queue_mpmc_2٠push_aux
+    ; queue_mpmc_2٠push₁
+    ].
 Proof.
   done.
 Qed.
@@ -249,42 +255,54 @@ Definition queue_mpmc_2٠pop_3 :=
 Definition queue_mpmc_2٠pop₁ :=
   ValRecs 3 __zoo_recs_1.
 #[global] Instance :
-  AsValRecs' queue_mpmc_2٠pop_1 0 __zoo_recs_1 [
-    queue_mpmc_2٠pop_1 ;
-    queue_mpmc_2٠pop_2 ;
-    queue_mpmc_2٠pop_3 ;
-    queue_mpmc_2٠pop₁
-  ].
+  AsValRecs'
+    queue_mpmc_2٠pop_1
+    0
+    __zoo_recs_1
+    [ queue_mpmc_2٠pop_1
+    ; queue_mpmc_2٠pop_2
+    ; queue_mpmc_2٠pop_3
+    ; queue_mpmc_2٠pop₁
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' queue_mpmc_2٠pop_2 1 __zoo_recs_1 [
-    queue_mpmc_2٠pop_1 ;
-    queue_mpmc_2٠pop_2 ;
-    queue_mpmc_2٠pop_3 ;
-    queue_mpmc_2٠pop₁
-  ].
+  AsValRecs'
+    queue_mpmc_2٠pop_2
+    1
+    __zoo_recs_1
+    [ queue_mpmc_2٠pop_1
+    ; queue_mpmc_2٠pop_2
+    ; queue_mpmc_2٠pop_3
+    ; queue_mpmc_2٠pop₁
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' queue_mpmc_2٠pop_3 2 __zoo_recs_1 [
-    queue_mpmc_2٠pop_1 ;
-    queue_mpmc_2٠pop_2 ;
-    queue_mpmc_2٠pop_3 ;
-    queue_mpmc_2٠pop₁
-  ].
+  AsValRecs'
+    queue_mpmc_2٠pop_3
+    2
+    __zoo_recs_1
+    [ queue_mpmc_2٠pop_1
+    ; queue_mpmc_2٠pop_2
+    ; queue_mpmc_2٠pop_3
+    ; queue_mpmc_2٠pop₁
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' queue_mpmc_2٠pop₁ 3 __zoo_recs_1 [
-    queue_mpmc_2٠pop_1 ;
-    queue_mpmc_2٠pop_2 ;
-    queue_mpmc_2٠pop_3 ;
+  AsValRecs'
     queue_mpmc_2٠pop₁
-  ].
+    3
+    __zoo_recs_1
+    [ queue_mpmc_2٠pop_1
+    ; queue_mpmc_2٠pop_2
+    ; queue_mpmc_2٠pop_3
+    ; queue_mpmc_2٠pop₁
+    ].
 Proof.
   done.
 Qed.

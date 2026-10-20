@@ -66,18 +66,24 @@ Definition bstack_mpmc٠push_aux :=
 Definition bstack_mpmc٠push₁ :=
   ValRecs 1 __zoo_recs_0.
 #[global] Instance :
-  AsValRecs' bstack_mpmc٠push_aux 0 __zoo_recs_0 [
-    bstack_mpmc٠push_aux ;
-    bstack_mpmc٠push₁
-  ].
+  AsValRecs'
+    bstack_mpmc٠push_aux
+    0
+    __zoo_recs_0
+    [ bstack_mpmc٠push_aux
+    ; bstack_mpmc٠push₁
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' bstack_mpmc٠push₁ 1 __zoo_recs_0 [
-    bstack_mpmc٠push_aux ;
+  AsValRecs'
     bstack_mpmc٠push₁
-  ].
+    1
+    __zoo_recs_0
+    [ bstack_mpmc٠push_aux
+    ; bstack_mpmc٠push₁
+    ].
 Proof.
   done.
 Qed.

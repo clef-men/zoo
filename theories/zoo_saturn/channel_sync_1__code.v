@@ -69,18 +69,24 @@ Definition channel_sync_1٠send :=
 Definition channel_sync_1٠send_aux :=
   ValRecs 1 __zoo_recs_0.
 #[global] Instance :
-  AsValRecs' channel_sync_1٠send 0 __zoo_recs_0 [
-    channel_sync_1٠send ;
-    channel_sync_1٠send_aux
-  ].
+  AsValRecs'
+    channel_sync_1٠send
+    0
+    __zoo_recs_0
+    [ channel_sync_1٠send
+    ; channel_sync_1٠send_aux
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' channel_sync_1٠send_aux 1 __zoo_recs_0 [
-    channel_sync_1٠send ;
+  AsValRecs'
     channel_sync_1٠send_aux
-  ].
+    1
+    __zoo_recs_0
+    [ channel_sync_1٠send
+    ; channel_sync_1٠send_aux
+    ].
 Proof.
   done.
 Qed.
@@ -126,18 +132,24 @@ Definition channel_sync_1٠recv :=
 Definition channel_sync_1٠recv_aux :=
   ValRecs 1 __zoo_recs_1.
 #[global] Instance :
-  AsValRecs' channel_sync_1٠recv 0 __zoo_recs_1 [
-    channel_sync_1٠recv ;
-    channel_sync_1٠recv_aux
-  ].
+  AsValRecs'
+    channel_sync_1٠recv
+    0
+    __zoo_recs_1
+    [ channel_sync_1٠recv
+    ; channel_sync_1٠recv_aux
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' channel_sync_1٠recv_aux 1 __zoo_recs_1 [
-    channel_sync_1٠recv ;
+  AsValRecs'
     channel_sync_1٠recv_aux
-  ].
+    1
+    __zoo_recs_1
+    [ channel_sync_1٠recv
+    ; channel_sync_1٠recv_aux
+    ].
 Proof.
   done.
 Qed.

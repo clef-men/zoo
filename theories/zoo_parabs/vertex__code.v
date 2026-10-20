@@ -78,18 +78,24 @@ Definition vertex٠release :=
 Definition vertex٠run :=
   ValRecs 1 __zoo_recs_0.
 #[global] Instance :
-  AsValRecs' vertex٠release 0 __zoo_recs_0 [
-    vertex٠release ;
-    vertex٠run
-  ].
+  AsValRecs'
+    vertex٠release
+    0
+    __zoo_recs_0
+    [ vertex٠release
+    ; vertex٠run
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' vertex٠run 1 __zoo_recs_0 [
-    vertex٠release ;
+  AsValRecs'
     vertex٠run
-  ].
+    1
+    __zoo_recs_0
+    [ vertex٠release
+    ; vertex٠run
+    ].
 Proof.
   done.
 Qed.

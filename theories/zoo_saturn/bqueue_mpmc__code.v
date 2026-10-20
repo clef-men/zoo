@@ -172,18 +172,24 @@ Definition bqueue_mpmc٠push_1 :=
 Definition bqueue_mpmc٠push_2 :=
   ValRecs 1 __zoo_recs_0.
 #[global] Instance :
-  AsValRecs' bqueue_mpmc٠push_1 0 __zoo_recs_0 [
-    bqueue_mpmc٠push_1 ;
-    bqueue_mpmc٠push_2
-  ].
+  AsValRecs'
+    bqueue_mpmc٠push_1
+    0
+    __zoo_recs_0
+    [ bqueue_mpmc٠push_1
+    ; bqueue_mpmc٠push_2
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' bqueue_mpmc٠push_2 1 __zoo_recs_0 [
-    bqueue_mpmc٠push_1 ;
+  AsValRecs'
     bqueue_mpmc٠push_2
-  ].
+    1
+    __zoo_recs_0
+    [ bqueue_mpmc٠push_1
+    ; bqueue_mpmc٠push_2
+    ].
 Proof.
   done.
 Qed.

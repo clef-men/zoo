@@ -168,42 +168,54 @@ Definition mcas_1٠eval :=
 Definition mcas_1٠determine :=
   ValRecs 3 __zoo_recs_0.
 #[global] Instance :
-  AsValRecs' mcas_1٠determine_as 0 __zoo_recs_0 [
-    mcas_1٠determine_as ;
-    mcas_1٠lock ;
-    mcas_1٠eval ;
-    mcas_1٠determine
-  ].
+  AsValRecs'
+    mcas_1٠determine_as
+    0
+    __zoo_recs_0
+    [ mcas_1٠determine_as
+    ; mcas_1٠lock
+    ; mcas_1٠eval
+    ; mcas_1٠determine
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' mcas_1٠lock 1 __zoo_recs_0 [
-    mcas_1٠determine_as ;
-    mcas_1٠lock ;
-    mcas_1٠eval ;
-    mcas_1٠determine
-  ].
+  AsValRecs'
+    mcas_1٠lock
+    1
+    __zoo_recs_0
+    [ mcas_1٠determine_as
+    ; mcas_1٠lock
+    ; mcas_1٠eval
+    ; mcas_1٠determine
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' mcas_1٠eval 2 __zoo_recs_0 [
-    mcas_1٠determine_as ;
-    mcas_1٠lock ;
-    mcas_1٠eval ;
-    mcas_1٠determine
-  ].
+  AsValRecs'
+    mcas_1٠eval
+    2
+    __zoo_recs_0
+    [ mcas_1٠determine_as
+    ; mcas_1٠lock
+    ; mcas_1٠eval
+    ; mcas_1٠determine
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' mcas_1٠determine 3 __zoo_recs_0 [
-    mcas_1٠determine_as ;
-    mcas_1٠lock ;
-    mcas_1٠eval ;
+  AsValRecs'
     mcas_1٠determine
-  ].
+    3
+    __zoo_recs_0
+    [ mcas_1٠determine_as
+    ; mcas_1٠lock
+    ; mcas_1٠eval
+    ; mcas_1٠determine
+    ].
 Proof.
   done.
 Qed.

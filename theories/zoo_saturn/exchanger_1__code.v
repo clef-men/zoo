@@ -59,18 +59,24 @@ Definition exchanger_1٠exchange :=
 Definition exchanger_1٠exchange_aux :=
   ValRecs 1 __zoo_recs_0.
 #[global] Instance :
-  AsValRecs' exchanger_1٠exchange 0 __zoo_recs_0 [
-    exchanger_1٠exchange ;
-    exchanger_1٠exchange_aux
-  ].
+  AsValRecs'
+    exchanger_1٠exchange
+    0
+    __zoo_recs_0
+    [ exchanger_1٠exchange
+    ; exchanger_1٠exchange_aux
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' exchanger_1٠exchange_aux 1 __zoo_recs_0 [
-    exchanger_1٠exchange ;
+  AsValRecs'
     exchanger_1٠exchange_aux
-  ].
+    1
+    __zoo_recs_0
+    [ exchanger_1٠exchange
+    ; exchanger_1٠exchange_aux
+    ].
 Proof.
   done.
 Qed.
