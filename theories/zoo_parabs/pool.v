@@ -290,7 +290,7 @@ Module base.
       t.[hub] ↦□ γ.(pool۰name۰hub) ∗
       t.[domains] ↦□ γ.(pool۰name۰𝑑𝑜𝑚𝑎𝑖𝑛𝑠) ∗
       inv₂ γ ∗
-      array۰model γ.(pool۰name۰𝑑𝑜𝑚𝑎𝑖𝑛𝑠) DfracDiscarded (domain۰name۰to_val <$> domains) ∗
+      array۰model γ.(pool۰name۰𝑑𝑜𝑚𝑎𝑖𝑛𝑠) DfracDiscarded ((♯) <$> domains) ∗
       ( [∗ list] i ↦ domain ∈ domains,
         domain۰model domain (worker۰post γ ˖i)
       ) ∗

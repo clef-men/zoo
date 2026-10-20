@@ -27,6 +27,33 @@ let field_qualid (id : Names.Id.t) : Libnames.qualid =
   |> field_ident
   |> Libnames.qualid_of_ident
 
+let coercion_name () : string =
+  Printf.sprintf "%s%s%s"
+    (record_name ())
+    Separator.cdot
+    "to_val"
+let coercion_lname () : Names.lname =
+  coercion_name ()
+  |> Names_.lname_of_string
+let coercion_qualid () : Libnames.qualid =
+  coercion_name ()
+  |> Libnames.qualid_of_string
+let coercion_ref () : Constrexpr.constr_expr =
+  coercion_qualid ()
+  |> Constrexpr_.mk_ref
+
+let instance_name () : string =
+  Printf.sprintf "%s%s%s"
+    (record_name ())
+    Separator.hyphen
+    "to_val"
+let instance_lname () : Names.lname =
+  instance_name ()
+  |> Names_.lname_of_string
+let instance_qualid () : Libnames.qualid =
+  instance_name ()
+  |> Libnames.qualid_of_string
+
 let field (name : Names.Name.t) : Names.Name.t =
   match name with
   | Anonymous ->
@@ -66,17 +93,19 @@ let record flds =
     )
   ]
 
-let coercion_name () : string =
-  Printf.sprintf "%s%s%s"
-    (record_name ())
-    Separator.cdot
-    "to_val"
-let coercion_lname () : Names.lname =
-  coercion_name ()
-  |> Names_.lname_of_string
-let coercion_qualid () : Libnames.qualid =
-  coercion_name ()
-  |> Libnames.qualid_of_string
+let instance ~locality =
+  let open Vernacexpr in
+  let open Constrexpr_ in
+  [ ( Some locality
+    , VernacInstance
+      ( (instance_lname (), None)
+      , []
+      , mk_app Zoo._ToVal_ref [record_ref ()]
+      , Some (false, coercion_ref ())
+      , Hints.empty_hint_info
+      )
+    )
+  ]
 
 type coercion_kind =
   | Location
@@ -143,7 +172,8 @@ let coercion ~locality fld ty =
 let coercion ~locality (flds : (Vernacexpr.local_decl_expr * Vernacexpr.record_field_attr_unparsed) list) =
   match flds with
   | (AssumExpr ({ v= Name fld; _}, _bdrs, { v= CRef (ty, _inst); _ }), _attrs) :: _ ->
-      coercion ~locality fld ty
+      coercion ~locality fld ty @
+      instance ~locality
   | _ ->
       []
 

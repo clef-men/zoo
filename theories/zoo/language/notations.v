@@ -200,7 +200,7 @@ Notation "# x" := (
   format "# x"
 ).
 Notation "#@{ X } x" := (
-  ValLit x%Z%V%stdpp
+  ValLit (x : X)%Z%V%stdpp
 )(at level 8,
   only parsing
 ).
@@ -347,6 +347,28 @@ Notation "#*ᴮ lᴮs" := (
   @fmap _ _ location val (#ᴮ) lᴮs
 )(at level 8,
   format "#*ᴮ  lᴮs"
+).
+
+Class ToVal X :=
+  to_val : X → val.
+
+Notation "♯ x" := (
+  to_val x
+)(at level 8,
+  format "♯ x"
+).
+Notation "♯@{ X } x" := (
+  to_val (X := X) x
+)(at level 8,
+  only parsing
+).
+Notation "(♯)" := (
+  to_val
+)(only parsing
+).
+Notation "(♯@{ X } )" := (
+  to_val (X := X)
+)(only parsing
 ).
 
 Notation "f x -> e" := (

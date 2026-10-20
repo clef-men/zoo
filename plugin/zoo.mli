@@ -27,6 +27,11 @@ val _ValProph :
 val _ValProph_ref :
   Constrexpr.constr_expr
 
+val _ToVal :
+  string
+val _ToVal_ref :
+  Constrexpr.constr_expr
+
 val ghost_state :
   string
 

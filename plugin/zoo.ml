@@ -37,6 +37,12 @@ let _ValProph_ref =
   _ValProph
   |> Constrexpr_.mk_ref_string
 
+let _ToVal =
+  "zoo.language.notations.ToVal"
+let _ToVal_ref =
+  _ToVal
+  |> Constrexpr_.mk_ref_string
+
 let ghost_state =
   "zoo.program_logic.ghost_state"
 
