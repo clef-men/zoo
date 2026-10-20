@@ -351,7 +351,7 @@ let unsafe_cshrink_slice t i sz' =
   unsafe_ccopy_slice t i t' i sz' ;
   t'
 
-let partition t i sz =
+let partition (t : int t) i sz =
   let pivot = unsafe_get t i in
   let i1 = ref (i + 1) in
   for i2 = i + 1 to i + sz - 1 do
