@@ -33,6 +33,16 @@ Proof.
   intros ?%symmetry%option۰to_valｰsimilarｰNoneｰl. done.
 Qed.
 
+Definition option۰of_val 𝑜 :=
+  match 𝑜 with
+  | ValBlock Nongenerative Tag0 [] =>
+      Some None
+  | ValBlock Nongenerative Tag1 [v] =>
+      Some $ Some v
+  | _ =>
+      None
+  end.
+
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
   Context τ `{!iType (iPropI Σ) τ}.
