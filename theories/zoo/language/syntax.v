@@ -1200,8 +1200,15 @@ Definition expr۰is_resolve e :=
   if e is Resolve _ _ _ then
     True
   else
- False.
+    False.
 
+Lemma expr۰is_resolveｰalt e :
+  expr۰is_resolve e →
+    ∃ e0 e1 e2,
+    e = Resolve e0 e1 e2.
+Proof.
+  destruct e; naive.
+Qed.
 #[global] Instance expr۰is_resolveｰdec e :
   Decision (expr۰is_resolve e).
 Proof.
@@ -1213,11 +1220,3 @@ Proof.
   ).
   all: abstract naive.
 Defined.
-
-Lemma expr۰is_resolveｰalt e :
-  expr۰is_resolve e →
-    ∃ e0 e1 e2,
-    e = Resolve e0 e1 e2.
-Proof.
-  destruct e; naive.
-Qed.
