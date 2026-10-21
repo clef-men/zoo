@@ -279,7 +279,7 @@ let subG ~theory spec =
 let main ~state spec =
   let theory = Utils.current_unit () in
   let state =
-    Vernacinterp_.interp ~state
+    Vernacinterp_.interp_synpure ~state
       [ class_ ~theory spec
       ; gFunctors ~theory spec
       ]
