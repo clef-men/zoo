@@ -177,7 +177,7 @@ let coercion ~locality (flds : (Vernacexpr.local_decl_expr * Vernacexpr.record_f
   | _ ->
       []
 
-let main ~locality ~state flds =
+let interp ~locality ~state flds =
   let state =
     Vernacinterp_.interp_synpure ~state @@ List.flatten @@
       [ record flds
@@ -188,6 +188,6 @@ let main ~locality ~state flds =
   Please_derive.interp ~locality ~kind:Inhabited ~ty:(record_qualid ()) ;
   Please_derive.interp ~locality ~kind:Eq_decision ~ty:(record_qualid ()) ;
   Please_derive.interp ~locality ~kind:Countable ~ty:(record_qualid ())
-let main ~locality flds =
+let interp ~locality flds =
   Vernacstate_.freeze_full_state_and_try @@ fun state ->
-    main ~locality ~state flds
+    interp ~locality ~state flds

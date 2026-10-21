@@ -276,7 +276,7 @@ let subG ~theory spec =
   in
   ()
 
-let main ~state spec =
+let interp ~state spec =
   let theory = Utils.current_unit () in
   let state =
     Vernacinterp_.interp_synpure ~state
@@ -286,6 +286,6 @@ let main ~state spec =
   in
   Vernacstate_.unfreeze_full_state state ;
   subG ~theory spec
-let main spec =
+let interp spec =
   Vernacstate_.freeze_full_state_and_try @@ fun state ->
-    main ~state spec
+    interp ~state spec

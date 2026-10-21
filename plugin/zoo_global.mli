@@ -18,5 +18,5 @@ type spec =
 val default_base :
   Libnames.qualid
 
-val main :
+val interp :
   spec -> unit

@@ -12,7 +12,7 @@ module Modifier : sig
     | Discarded
 end
 
-val derive :
+val interp :
   locality:Hints.hint_locality ->
   kind:Kind.t ->
   modifier:Modifier.t ->
