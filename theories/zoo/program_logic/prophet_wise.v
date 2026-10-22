@@ -11,21 +11,10 @@ Zoo name :=
   ; past : gname
   }.
 
-Class ProphetWiseG Σ `{zoo۰G : !ZooG Σ} prophet :=
-  { #[local] prophet_wise۰G۰full۰G :: AgreeG Σ (leibnizO (list prophet.(prophet_typed۰type)))
-  ; #[local] prophet_wise۰G۰past۰G :: MonoListG Σ prophet.(prophet_typed۰type)
+Zoo global prophet :=
+  { full : agree (leibnizO (list prophet.(prophet_typed۰type)))
+  ; past : mono_list prophet.(prophet_typed۰type)
   }.
-
-Definition prophet_wise۰Σ prophet :=
-  #[agree۰Σ (leibnizO (list prophet.(prophet_typed۰type)))
-  ; mono_list۰Σ prophet.(prophet_typed۰type)
-  ].
-#[global] Instance subGｰprophet_wise۰Σ Σ `{zoo۰G : !ZooG Σ} prophet :
-  subG (prophet_wise۰Σ prophet) Σ →
-  ProphetWiseG Σ prophet.
-Proof.
-  solve_inG.
-Qed.
 
 Section prophet_wise۰G.
   Context (prophet : prophet_typed).

@@ -26,19 +26,9 @@ Zoo name :=
       end
   |}.
 
-Class ProphetMultiG Σ `{zoo۰G : !ZooG Σ} prophet :=
-  { #[local] prophet_multi۰G :: ProphetWiseG Σ (prophetx prophet)
+Zoo global prophet :=
+  { base : prophet_wise (prophetx prophet)
   }.
-
-Definition prophet_multi۰Σ prophet :=
-  #[prophet_wise۰Σ (prophetx prophet)
-  ].
-#[global] Instance subGｰprophet_multi۰Σ Σ `{zoo۰G : !ZooG Σ} prophet :
-  subG (prophet_multi۰Σ prophet) Σ →
-  ProphetMultiG Σ prophet.
-Proof.
-  solve_inG.
-Qed.
 
 Section prophet_multi۰G.
   Context (prophet : prophet_typed).
