@@ -287,7 +287,7 @@ Section prophet_multi۰G.
     iFrameSteps.
   Qed.
 
-  Lemma prophet_multiｰwpｰresolve e i v γ pasts prophss E Φ :
+  Lemma prophet_multiｰwpｰresolve e γ i v pasts prophss E Φ :
     Atomic e →
     expr۰to_val e = None →
     (0 ≤ i)%Z →
@@ -326,7 +326,7 @@ Section prophet_multi۰G.
         * rewrite fnｰlookupｰinsert Hprophss untangleｰcons /=.
           case_decide; subst; done.
   Qed.
-  Lemma prophet_multiｰwpｰresolve' e i v γ pasts prophss E Φ :
+  Lemma prophet_multiｰwpｰresolve' e γ i v pasts prophss E Φ :
     Atomic e →
     expr۰to_val e = None →
     prophet_multi۰model γ pasts prophss -∗

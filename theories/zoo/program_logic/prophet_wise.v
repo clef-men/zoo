@@ -204,7 +204,7 @@ Section prophet_wise۰G.
     iFrameSteps.
   Qed.
 
-  Lemma prophet_wiseｰwpｰresolve e v γ past prophs E Φ :
+  Lemma prophet_wiseｰwpｰresolve e γ v past prophs E Φ :
     Atomic e →
     expr۰to_val e = None →
     prophet_wise۰model γ past prophs -∗
