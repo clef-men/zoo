@@ -1,7 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.common.function.
 Require Import zoo.base.
-Require Export zoo.program_logic.prophet_wise.
+Require Export zoo.program_logic.prophet_typed.
+Require Import zoo.program_logic.prophet_wise.
 Require Import zoo.options.
 
 Zoo name :=
