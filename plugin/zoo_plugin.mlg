@@ -45,7 +45,8 @@ END
 
 VERNAC COMMAND EXTEND zoo_global
   CLASSIFIED AS SIDEFF
-| [ "Zoo" "global" zoo_global_spec(spec) ] ->
+| [ "Zoo" "global" zoo_global_spec(spec) ]
+  ->
     { Zoo_global.interp spec }
 END
 
@@ -66,7 +67,8 @@ END
 VERNAC COMMAND EXTEND zoo_derive
   CLASSIFIED AS SIDEFF
 | #[ locality = Attributes.hint_locality_default_superglobal ]
-  [ "Zoo" "derive" zoo_derive_kind(kind) "for" reference(id) zoo_derive_modifier(modifier) ] ->
+  [ "Zoo" "derive" zoo_derive_kind(kind) "for" reference(id) zoo_derive_modifier(modifier) ]
+  ->
     { Zoo_derive.interp ~locality ~kind ~modifier id }
 END
 
@@ -82,6 +84,7 @@ END
 VERNAC COMMAND EXTEND zoo_name
   CLASSIFIED AS SIDEFF
 | #[ locality = Attributes.hint_locality_default_superglobal ]
-  [ "Zoo" "name" ":=" zoo_name_fields(flds) ] ->
+  [ "Zoo" "name" ":=" zoo_name_fields(flds) ]
+  ->
     { Zoo_name.interp ~locality flds }
 END
