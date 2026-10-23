@@ -12,8 +12,9 @@ Require Import zoo_parabs.pool__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.
-Implicit Type v ctx hub task notification notify pred ivar waiter : val.
+Implicit Type v ctx hub task notification notify pred waiter : val.
 Implicit Type domain : domain۰name.
+Implicit Type ivar : ivar_4۰name.
 Implicit Type empty : emptiness.
 Implicit Type own : ownership.
 Implicit Type η : prop_spsc۰name.

@@ -9,10 +9,14 @@ Require Import zoo.options.
 
 Implicit Type b : bool.
 Implicit Type depth : nat.
-Implicit Type v t pool ctx task waiter : val.
+Implicit Type v pool ctx task waiter : val.
 Implicit Type scope : pool۰scope.
 Implicit Type ω : gname.
 Implicit Type ωs : list gname.
+
+Zoo name :=
+  { ivar : ivar_4۰name
+  }.
 
 Zoo global ⟨pool⟩ :=
   { ivar : ivar_4
@@ -24,10 +28,10 @@ Section future۰G.
   Implicit Type P : iProp Σ.
   Implicit Type Ψ Χ Ξ : val → iProp Σ.
 
-  #[local] Definition finished t : iProp Σ :=
+  #[local] Definition finished γ : iProp Σ :=
     ∃ waiters Ps,
-    ivar_4۰resolved t ∗
-    ivar_4۰waiters t waiters Ps ∗
+    ivar_4۰resolved γ.(future۰name۰ivar) ∗
+    ivar_4۰waiters γ.(future۰name۰ivar) waiters Ps ∗
     [∗ list] P ∈ Ps, □ P.
   #[local] Instance : CustomIpat "finished" :=
     " ( %waiters
@@ -38,13 +42,13 @@ Section future۰G.
       )
     ".
 
-  Please Definition future۰inv pool t Ψ Ξ : iProp Σ :=
+  Please Definition future۰inv pool γ Ψ Ξ : iProp Σ :=
     ∃ depth,
-    ivar_4۰inv t Ψ Ξ (pool۰context pool) ∗
+    ivar_4۰inv γ.(future۰name۰ivar) Ψ Ξ (pool۰context pool) ∗
     ⧖ depth ∗
     □ (
       pool۰finished pool -∗
-      ▷^(2 * depth + 1) finished t
+      ▷^(2 * depth + 1) finished γ
     ).
   #[local] Instance : CustomIpat "inv" :=
     " ( %depth{}
@@ -68,21 +72,21 @@ Section future۰G.
       )
     ".
 
-  Please Definition future۰consumer :=
-    ivar_4۰consumer.
+  Please Definition future۰consumer γ :=
+    ivar_4۰consumer γ.(future۰name۰ivar).
 
-  Please Definition future۰result :=
-    ivar_4۰result.
-  Definition future۰resolved t : iProp Σ :=
+  Please Definition future۰result γ :=
+    ivar_4۰result γ.(future۰name۰ivar).
+  Definition future۰resolved γ : iProp Σ :=
     ∃ v,
-    future۰result t v.
+    future۰result γ v.
 
-  #[global] Instance future۰invｰproper pool t :
+  #[global] Instance future۰invｰproper pool γ :
     Proper (
       pointwise_relation _ (≡) ==>
       pointwise_relation _ (≡) ==>
       (≡)
-    ) (future۰inv pool t).
+    ) (future۰inv pool γ).
   Proof.
     solve_proper.
   Qed.
@@ -94,11 +98,11 @@ Section future۰G.
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance future۰consumerｰproper t :
+  #[global] Instance future۰consumerｰproper γ :
     Proper (
       pointwise_relation _ (≡) ==>
       (≡)
-    ) (future۰consumer t).
+    ) (future۰consumer γ).
   Proof.
     apply _.
   Qed.
@@ -120,10 +124,10 @@ Section future۰G.
       lia
     ].
 
-  Lemma future۰invｰfinished pool t Ψ Ξ :
-    future۰inv pool t Ψ Ξ -∗
+  Lemma future۰invｰfinished pool γ Ψ Ξ :
+    future۰inv pool γ Ψ Ξ -∗
     pool۰finished pool -∗
-    ▶ future۰resolved t.
+    ▶ future۰resolved γ.
   Proof.
     iIntros "(:inv) #Hpool_finished".
     iDestruct ("Htermination" with "Hpool_finished") as "(:finished)".
@@ -140,74 +144,74 @@ Section future۰G.
     solve_biglater.
   Qed.
 
-  Lemma future۰consumerｰwand {pool t Ψ Ξ Χ1} Χ2 :
-    future۰inv pool t Ψ Ξ -∗
-    future۰consumer t Χ1 -∗
+  Lemma future۰consumerｰwand {pool γ Ψ Ξ Χ1} Χ2 :
+    future۰inv pool γ Ψ Ξ -∗
+    future۰consumer γ Χ1 -∗
     (∀ x, Χ1 x -∗ Χ2 x) ={⊤}=∗
-    future۰consumer t Χ2.
+    future۰consumer γ Χ2.
   Proof.
     iIntros "(:inv)".
     iApply (ivar_4۰consumerｰwand with "Hinv").
   Qed.
-  Lemma future۰consumerｰdivide {pool t Ψ Ξ} Χs :
-    future۰inv pool t Ψ Ξ -∗
-    future۰consumer t (λ x, [∗ list] Χ ∈ Χs, Χ x) ={⊤}=∗
-    [∗ list] Χ ∈ Χs, future۰consumer t Χ.
+  Lemma future۰consumerｰdivide {pool γ Ψ Ξ} Χs :
+    future۰inv pool γ Ψ Ξ -∗
+    future۰consumer γ (λ x, [∗ list] Χ ∈ Χs, Χ x) ={⊤}=∗
+    [∗ list] Χ ∈ Χs, future۰consumer γ Χ.
   Proof.
     iIntros "(:inv)".
     iApply (ivar_4۰consumerｰdivide with "Hinv").
   Qed.
-  Lemma future۰consumerｰsplit {pool t Ψ Ξ} Χ1 Χ2 :
-    future۰inv pool t Ψ Ξ -∗
-    future۰consumer t (λ v, Χ1 v ∗ Χ2 v) ={⊤}=∗
-      future۰consumer t Χ1 ∗
-      future۰consumer t Χ2.
+  Lemma future۰consumerｰsplit {pool γ Ψ Ξ} Χ1 Χ2 :
+    future۰inv pool γ Ψ Ξ -∗
+    future۰consumer γ (λ v, Χ1 v ∗ Χ2 v) ={⊤}=∗
+      future۰consumer γ Χ1 ∗
+      future۰consumer γ Χ2.
   Proof.
     iIntros "(:inv)".
     iApply (ivar_4۰consumerｰsplit with "Hinv").
   Qed.
 
-  Lemma future۰resultｰagree t v1 v2 :
-    future۰result t v1 -∗
-    future۰result t v2 -∗
+  Lemma future۰resultｰagree γ v1 v2 :
+    future۰result γ v1 -∗
+    future۰result γ v2 -∗
     ⌜v1 = v2⌝.
   Proof.
     apply ivar_4۰resultｰagree.
   Qed.
 
-  Lemma futureｰinvｰresult pool t Ψ Ξ v :
-    future۰inv pool t Ψ Ξ -∗
-    future۰result t v ={⊤}=∗
+  Lemma futureｰinvｰresult pool γ Ψ Ξ v :
+    future۰inv pool γ Ψ Ξ -∗
+    future۰result γ v ={⊤}=∗
     ▷ □ Ξ v.
   Proof.
     iIntros "(:inv) Hresult".
     iApply (ivar_4ｰinvｰresult with "Hinv Hresult").
   Qed.
-  Lemma futureｰinvｰresult' pool t Ψ Ξ v :
+  Lemma futureｰinvｰresult' pool γ Ψ Ξ v :
     £ 1 -∗
-    future۰inv pool t Ψ Ξ -∗
-    future۰result t v ={⊤}=∗
+    future۰inv pool γ Ψ Ξ -∗
+    future۰result γ v ={⊤}=∗
     □ Ξ v.
   Proof.
     iIntros "H£ Hfut_inv Hfut_result".
     iMod (futureｰinvｰresult with "Hfut_inv Hfut_result") as "HΞ".
     iApply (lc_fupd_elim_later with "H£ HΞ").
   Qed.
-  Lemma futureｰinvｰresultｰconsumer pool t Ψ Ξ v Χ :
-    future۰inv pool t Ψ Ξ -∗
-    future۰result t v -∗
-    future۰consumer t Χ ={⊤}=∗
+  Lemma futureｰinvｰresultｰconsumer pool γ Ψ Ξ v Χ :
+    future۰inv pool γ Ψ Ξ -∗
+    future۰result γ v -∗
+    future۰consumer γ Χ ={⊤}=∗
       ▷^2 Χ v ∗
       ▷ □ Ξ v.
   Proof.
     iIntros "(:inv) Hresult Hconsumer".
     iApply (ivar_4ｰinvｰresultｰconsumer with "Hinv Hresult Hconsumer").
   Qed.
-  Lemma futureｰinvｰresultｰconsumer' pool t Ψ Ξ v Χ :
+  Lemma futureｰinvｰresultｰconsumer' pool γ Ψ Ξ v Χ :
     £ 2 -∗
-    future۰inv pool t Ψ Ξ -∗
-    future۰result t v -∗
-    future۰consumer t Χ ={⊤}=∗
+    future۰inv pool γ Ψ Ξ -∗
+    future۰result γ v -∗
+    future۰consumer γ Χ ={⊤}=∗
       Χ v ∗
       □ Ξ v.
   Proof.
@@ -225,36 +229,40 @@ Section future۰G.
     }}}
       future٠return v
     {{{
-      t
-    , RET t;
-      future۰inv pool t Ψ Ξ ∗
-      future۰consumer t Ψ ∗
-      future۰result t v
+      γ
+    , RET γ;
+      future۰inv pool γ Ψ Ξ ∗
+      future۰consumer γ Ψ ∗
+      future۰result γ v
     }}}.
   Proof.
     iIntros "%Φ (HΨ & HΞ) HΦ".
 
     iMod steps۰lbｰ0 as "#H⧖".
 
-    wp۰apply (ivar_4٠makeｰspec Ψ Ξ with "[$]") as (t) "(#Hinv & Hconsumer & #Hresult & #Hwaiters)".
+    wp۰apply (ivar_4٠makeｰspec Ψ Ξ with "[$]") as (γ۰ivar) "(#Hinv & Hconsumer & #Hresult & #Hwaiters)".
 
-    iApply "HΦ".
+    pose γ :=
+      {|future۰name۰ivar := γ۰ivar
+      |}.
+
+    iApply ("HΦ" $! γ).
     iFrame "#∗". iSteps.
   Qed.
 
-  #[local] Lemma future٠setｰspec pool ctx scope t Ψ Ξ v :
+  #[local] Lemma future٠setｰspec pool ctx scope γ Ψ Ξ v :
     {{{
       pool۰context pool ctx scope ∗
-      ivar_4۰inv t Ψ Ξ (pool۰context pool) ∗
-      ivar_4۰producer t ∗
+      ivar_4۰inv γ.(future۰name۰ivar) Ψ Ξ (pool۰context pool) ∗
+      ivar_4۰producer γ.(future۰name۰ivar) ∗
       ▷ Ψ v ∗
       ▷ □ Ξ v
     }}}
-      future٠set ctx t v
+      future٠set ctx γ v
     {{{
       RET ();
       pool۰context pool ctx scope ∗
-      finished t
+      finished γ
     }}}.
   Proof.
     iIntros "%Φ (Hctx & #Hinv & Hproducer & HΨ & HΞ) HΦ".
@@ -278,11 +286,11 @@ Section future۰G.
     }}}
       future٠async ctx task
     {{{
-      t
-    , RET t;
+      γ
+    , RET γ;
       pool۰context pool ctx scope ∗
-      future۰inv pool t Ψ Ξ ∗
-      future۰consumer t Ψ
+      future۰inv pool γ Ψ Ξ ∗
+      future۰consumer γ Ψ
     }}}.
   Proof.
     iIntros "%Φ (Hctx & Htask) HΦ".
@@ -290,34 +298,41 @@ Section future۰G.
     iMod steps۰lbｰ0 as "#H⧖".
 
     wp۰rec.
-    wp۰apply+ (ivar_4٠createｰspec Ψ Ξ (pool۰context pool) with "[//]") as (t) "(#Hinv & Hproducer & Hconsumer)".
+    wp۰apply+ (ivar_4٠createｰspec Ψ Ξ (pool۰context pool) with "[//]") as (ivar) "(#Hinv & Hproducer & Hconsumer)".
+
+    pose γ :=
+      {|future۰name۰ivar := ivar
+      |}.
 
     wp۰apply+ (pool٠asyncｰspec
       True
-      (finished t)
+      (finished γ)
     with "[$Hctx Htask Hproducer]") as "(Hctx & _ & #Hpool_obligation)".
     { iIntros "{%} %ctx %scope Hctx".
       wp۰apply+ (wpｰwand with "(Htask Hctx)") as (v) "(Hctx & HΨ & HΞ)".
-      wp۰apply (future٠setｰspec _ _ _ _ Ψ with "[$]") as "($ & #$) //".
+      wp۰apply (future٠setｰspec _ _ _ γ Ψ with "[$]") as "($ & #$) //".
     }
 
-    iStep 6. iFrame "#∗". iIntros "!> !> Hpool_finished".
+    wp۰pures.
+
+    iApply ("HΦ" $! γ).
+    iFrame "#∗". iIntros "!> !> Hpool_finished".
     iDestruct (pool۰obligationｰfinished with "Hpool_obligation Hpool_finished") as "#Hfinished".
     iNext => //.
   Qed.
 
-  Lemma future٠waitｰspec pool ctx scope t Ψ Ξ :
+  Lemma future٠waitｰspec pool ctx scope γ Ψ Ξ :
     {{{
       pool۰context pool ctx scope ∗
-      future۰inv pool t Ψ Ξ
+      future۰inv pool γ Ψ Ξ
     }}}
-      future٠wait ctx t
+      future٠wait ctx γ
     {{{
       v
     , RET v;
       £ 2 ∗
       pool۰context pool ctx scope ∗
-      future۰result t v
+      future۰result γ v
     }}}.
   Proof.
     iIntros "%Φ (Hctx & (:inv)) HΦ".
@@ -329,13 +344,13 @@ Section future۰G.
     iSteps.
   Qed.
 
-  Lemma future٠iterｰspec P pool ctx scope t Ψ Ξ task :
+  Lemma future٠iterｰspec P pool ctx scope γ Ψ Ξ task :
     {{{
       pool۰context pool ctx scope ∗
-      future۰inv pool t Ψ Ξ ∗
+      future۰inv pool γ Ψ Ξ ∗
       ( ∀ ctx scope v,
         pool۰context pool ctx scope -∗
-        future۰result t v -∗
+        future۰result γ v -∗
         WP task ctx v {{ res,
           ⌜res = ()%V⌝ ∗
           pool۰context pool ctx scope ∗
@@ -343,7 +358,7 @@ Section future۰G.
         }}
       )
     }}}
-      future٠iter ctx t task
+      future٠iter ctx γ task
     {{{
       RET ();
       pool۰context pool ctx scope ∗
@@ -390,13 +405,13 @@ Section future۰G.
       iRewrite -"Heq" in "HP" => //.
   Qed.
 
-  Lemma future٠mapｰspec {pool ctx scope t1 Ψ1 Ξ1} Ψ2 Ξ2 task :
+  Lemma future٠mapｰspec {pool ctx scope γ1 Ψ1 Ξ1} Ψ2 Ξ2 task :
     {{{
       pool۰context pool ctx scope ∗
-      future۰inv pool t1 Ψ1 Ξ1 ∗
+      future۰inv pool γ1 Ψ1 Ξ1 ∗
       ( ∀ ctx scope v1,
         pool۰context pool ctx scope -∗
-        future۰result t1 v1 -∗
+        future۰result γ1 v1 -∗
         WP task ctx v1 {{ v2,
           pool۰context pool ctx scope ∗
           ▷ Ψ2 v2 ∗
@@ -404,37 +419,41 @@ Section future۰G.
         }}
       )
     }}}
-      future٠map ctx t1 task
+      future٠map ctx γ1 task
     {{{
-      t2
-    , RET t2;
+      γ2
+    , RET γ2;
       pool۰context pool ctx scope ∗
-      future۰inv pool t2 Ψ2 Ξ2 ∗
-      future۰consumer t2 Ψ2
+      future۰inv pool γ2 Ψ2 Ξ2 ∗
+      future۰consumer γ2 Ψ2
     }}}.
   Proof.
     iIntros "%Φ (Hctx & #Hinv_1 & Htask) HΦ".
 
     wp۰rec.
-    wp۰apply+ (ivar_4٠createｰspec Ψ2 Ξ2 (pool۰context pool) with "[//]") as (t2) "(#Hinv_2 & Hproducer_2 & Hconsumer_2)".
+    wp۰apply+ (ivar_4٠createｰspec Ψ2 Ξ2 (pool۰context pool) with "[//]") as (ivar2) "(#Hinv_2 & Hproducer_2 & Hconsumer_2)".
+
+    pose γ2 :=
+      {|future۰name۰ivar := ivar2
+      |}.
 
     wp۰apply+ (future٠iterｰspec (
-      pool۰obligation pool (finished t2)
+      pool۰obligation pool (finished γ2)
     ) with "[$Hctx $Hinv_1 Htask Hproducer_2]") as "(Hctx & (:obligation))".
     { iIntros "{%} %ctx %scope %v1 Hctx #Hresult_1".
       wp۰apply+ (pool٠asyncｰspec
         True
-        (finished t2)
+        (finished γ2)
       with "[$Hctx Htask Hproducer_2]") as "($ & _ & #$) //".
       { iIntros "{%} %ctx %scope Hctx".
         wp۰apply+ (wpｰwand with "(Htask Hctx Hresult_1)") as (v2) "(Hctx & HΨ2 & HΞ2)".
-        wp۰apply (future٠setｰspec _ _ _ _ Ψ2 with "[$]") as "($ & #$) //".
+        wp۰apply (future٠setｰspec _ _ _ γ2 Ψ2 with "[$]") as "($ & #$) //".
       }
     }
 
     wp۰pures steps:"H⧖".
 
-    iApply "HΦ".
+    iApply ("HΦ" $! γ2).
     iFrame "#∗". iIntros "!> !> #Hpool_finished".
     iDestruct ("Htermination" with "Hpool_finished") as "Hpool_obligation".
     iEval (replace (2 * ˖depth + 1) with ((2 * depth + 2) + 1) by lia).

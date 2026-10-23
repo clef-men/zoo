@@ -8,10 +8,14 @@ Require Import zoo_std.ivar_4__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.
-Implicit Type v t ctx waiter : val.
+Implicit Type v ctx waiter : val.
 Implicit Type waiters : list val.
 Implicit Type ω : gname.
 Implicit Type ωs : list gname.
+
+Zoo name :=
+  { base : ivar_3۰name
+  }.
 
 Zoo global :=
   { ivar_3 : ivar_3 gname
@@ -28,38 +32,38 @@ Section ivar_4۰G.
   Implicit Type Ψ Χ Ξ : val → iProp Σ.
   Implicit Type Γ : val → context_name → iProp Σ.
 
-  #[local] Definition waiter۰model₁ Γ t waiter P : iProp Σ :=
+  #[local] Definition waiter۰model₁ Γ γ۰base waiter P : iProp Σ :=
     ∀ ctx 𝑐𝑡𝑥 v,
     Γ ctx 𝑐𝑡𝑥 -∗
-    ivar_3۰result t v -∗
+    ivar_3۰result γ۰base v -∗
     WP waiter ctx v {{ res,
       ⌜res = ()%V⌝ ∗
       Γ ctx 𝑐𝑡𝑥 ∗
       ▷ □ P
     }}.
-  #[local] Definition waiter۰model₂ Γ t waiter ω : iProp Σ :=
+  #[local] Definition waiter۰model₂ Γ γ۰base waiter ω : iProp Σ :=
     ∃ P,
     saved_prop ω P ∗
-    waiter۰model₁ Γ t waiter P.
+    waiter۰model₁ Γ γ۰base waiter P.
 
-  Please Definition ivar_4۰inv t Ψ Ξ Γ :=
-    ivar_3۰inv t Ψ Ξ (waiter۰model₂ Γ).
+  Please Definition ivar_4۰inv γ Ψ Ξ Γ :=
+    ivar_3۰inv γ.(ivar_4۰name۰base) Ψ Ξ (waiter۰model₂ Γ).
 
-  Please Definition ivar_4۰producer :=
-    ivar_3۰producer.
+  Please Definition ivar_4۰producer γ :=
+    ivar_3۰producer γ.(ivar_4۰name۰base).
 
-  Please Definition ivar_4۰consumer :=
-    ivar_3۰consumer.
+  Please Definition ivar_4۰consumer γ :=
+    ivar_3۰consumer γ.(ivar_4۰name۰base).
 
-  Please Definition ivar_4۰result :=
-    ivar_3۰result.
-  Definition ivar_4۰resolved t : iProp Σ :=
+  Please Definition ivar_4۰result γ :=
+    ivar_3۰result γ.(ivar_4۰name۰base).
+  Definition ivar_4۰resolved γ : iProp Σ :=
     ∃ v,
-    ivar_4۰result t v.
+    ivar_4۰result γ v.
 
-  Please Definition ivar_4۰waiters t waiters Ps : iProp Σ :=
+  Please Definition ivar_4۰waiters γ waiters Ps : iProp Σ :=
     ∃ ωs,
-    ivar_3۰waiters t waiters ωs ∗
+    ivar_3۰waiters γ.(ivar_4۰name۰base) waiters ωs ∗
     [∗ list] ω; P ∈ ωs; Ps, saved_prop ω P.
   #[local] Instance : CustomIpat "waiters" :=
     " ( %ωs
@@ -68,9 +72,9 @@ Section ivar_4۰G.
       )
     ".
 
-  Please Definition ivar_4۰waiter t waiter P : iProp Σ :=
+  Please Definition ivar_4۰waiter γ waiter P : iProp Σ :=
     ∃ ω,
-    ivar_3۰waiter t waiter ω ∗
+    ivar_3۰waiter γ.(ivar_4۰name۰base) waiter ω ∗
     saved_prop ω P.
   #[local] Instance : CustomIpat "waiter" :=
     " ( %ω
@@ -79,41 +83,41 @@ Section ivar_4۰G.
       )
     ".
 
-  #[global] Instance ivar_4۰invｰcontractive t n :
+  #[global] Instance ivar_4۰invｰcontractive γ n :
     Proper (
       (pointwise_relation _ $ dist_later n) ==>
       (pointwise_relation _ $ dist_later n) ==>
       (pointwise_relation _ $ pointwise_relation _ (≡{n}≡)) ==>
       (≡{n}≡)
-    ) (ivar_4۰inv t).
+    ) (ivar_4۰inv γ).
   Proof.
     rewrite /ivar_4۰inv /waiter۰model₂ /waiter۰model₁.
     solve_proper.
   Qed.
-  #[global] Instance ivar_4۰invｰproper t :
+  #[global] Instance ivar_4۰invｰproper γ :
     Proper (
       pointwise_relation _ (≡) ==>
       pointwise_relation _ (≡) ==>
       (pointwise_relation _ $ pointwise_relation _ (≡)) ==>
       (≡)
-    ) (ivar_4۰inv t).
+    ) (ivar_4۰inv γ).
   Proof.
     rewrite /ivar_4۰inv /waiter۰model₂ /waiter۰model₁.
     solve_proper.
   Qed.
-  #[global] Instance ivar_4۰consumerｰcontractive t n :
+  #[global] Instance ivar_4۰consumerｰcontractive γ n :
     Proper (
       (pointwise_relation _ $ dist_later n) ==>
       (≡{n}≡)
-    ) (ivar_4۰consumer t).
+    ) (ivar_4۰consumer γ).
   Proof.
     solve_proper.
   Qed.
-  #[global] Instance ivar_4۰consumerｰproper t :
+  #[global] Instance ivar_4۰consumerｰproper γ :
     Proper (
       pointwise_relation _ (≡) ==>
       (≡)
-    ) (ivar_4۰consumer t).
+    ) (ivar_4۰consumer γ).
   Proof.
     solve_proper.
   Qed.
@@ -126,92 +130,92 @@ Section ivar_4۰G.
   Zoo derive Persistent for ivar_4۰waiters.
   Zoo derive Persistent for ivar_4۰waiter.
 
-  Lemma ivar_4۰producerｰexclusive t :
-    ivar_4۰producer t -∗
-    ivar_4۰producer t -∗
+  Lemma ivar_4۰producerｰexclusive γ :
+    ivar_4۰producer γ -∗
+    ivar_4۰producer γ -∗
     False.
   Proof.
     apply ivar_3۰producerｰexclusive.
   Qed.
 
-  Lemma ivar_4۰consumerｰwand {t Ψ Ξ Γ Χ1} Χ2 :
-    ivar_4۰inv t Ψ Ξ Γ -∗
-    ivar_4۰consumer t Χ1 -∗
+  Lemma ivar_4۰consumerｰwand {γ Ψ Ξ Γ Χ1} Χ2 :
+    ivar_4۰inv γ Ψ Ξ Γ -∗
+    ivar_4۰consumer γ Χ1 -∗
     (∀ v, Χ1 v -∗ Χ2 v) ={⊤}=∗
-    ivar_4۰consumer t Χ2.
+    ivar_4۰consumer γ Χ2.
   Proof.
     apply ivar_3۰consumerｰwand.
   Qed.
-  Lemma ivar_4۰consumerｰdivide {t Ψ Ξ Γ} Χs :
-    ivar_4۰inv t Ψ Ξ Γ -∗
-    ivar_4۰consumer t (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
-    [∗ list] Χ ∈ Χs, ivar_4۰consumer t Χ.
+  Lemma ivar_4۰consumerｰdivide {γ Ψ Ξ Γ} Χs :
+    ivar_4۰inv γ Ψ Ξ Γ -∗
+    ivar_4۰consumer γ (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
+    [∗ list] Χ ∈ Χs, ivar_4۰consumer γ Χ.
   Proof.
     apply ivar_3۰consumerｰdivide.
   Qed.
-  Lemma ivar_4۰consumerｰsplit {t Ψ Ξ Γ} Χ1 Χ2 :
-    ivar_4۰inv t Ψ Ξ Γ -∗
-    ivar_4۰consumer t (λ v, Χ1 v ∗ Χ2 v) ={⊤}=∗
-      ivar_4۰consumer t Χ1 ∗
-      ivar_4۰consumer t Χ2.
+  Lemma ivar_4۰consumerｰsplit {γ Ψ Ξ Γ} Χ1 Χ2 :
+    ivar_4۰inv γ Ψ Ξ Γ -∗
+    ivar_4۰consumer γ (λ v, Χ1 v ∗ Χ2 v) ={⊤}=∗
+      ivar_4۰consumer γ Χ1 ∗
+      ivar_4۰consumer γ Χ2.
   Proof.
     apply ivar_3۰consumerｰsplit.
   Qed.
 
-  Lemma ivar_4۰resultｰagree t v1 v2 :
-    ivar_4۰result t v1 -∗
-    ivar_4۰result t v2 -∗
+  Lemma ivar_4۰resultｰagree γ v1 v2 :
+    ivar_4۰result γ v1 -∗
+    ivar_4۰result γ v2 -∗
     ⌜v1 = v2⌝.
   Proof.
     apply ivar_3۰resultｰagree.
   Qed.
 
-  Lemma ivar_4ｰproducerｰresult t v :
-    ivar_4۰producer t -∗
-    ivar_4۰result t v -∗
+  Lemma ivar_4ｰproducerｰresult γ v :
+    ivar_4۰producer γ -∗
+    ivar_4۰result γ v -∗
     False.
   Proof.
     apply ivar_3ｰproducerｰresult.
   Qed.
 
-  Lemma ivar_4ｰinvｰresult t Ψ Ξ Γ v :
-    ivar_4۰inv t Ψ Ξ Γ -∗
-    ivar_4۰result t v ={⊤}=∗
+  Lemma ivar_4ｰinvｰresult γ Ψ Ξ Γ v :
+    ivar_4۰inv γ Ψ Ξ Γ -∗
+    ivar_4۰result γ v ={⊤}=∗
     ▷ □ Ξ v.
   Proof.
     apply ivar_3ｰinvｰresult.
   Qed.
-  Lemma ivar_4ｰinvｰresult' t Ψ Ξ Γ v :
+  Lemma ivar_4ｰinvｰresult' γ Ψ Ξ Γ v :
     £ 1 -∗
-    ivar_4۰inv t Ψ Ξ Γ -∗
-    ivar_4۰result t v ={⊤}=∗
+    ivar_4۰inv γ Ψ Ξ Γ -∗
+    ivar_4۰result γ v ={⊤}=∗
     □ Ξ v.
   Proof.
     apply ivar_3ｰinvｰresult'.
   Qed.
-  Lemma ivar_4ｰinvｰresultｰconsumer t Ψ Ξ Γ v Χ :
-    ivar_4۰inv t Ψ Ξ Γ -∗
-    ivar_4۰result t v -∗
-    ivar_4۰consumer t Χ ={⊤}=∗
+  Lemma ivar_4ｰinvｰresultｰconsumer γ Ψ Ξ Γ v Χ :
+    ivar_4۰inv γ Ψ Ξ Γ -∗
+    ivar_4۰result γ v -∗
+    ivar_4۰consumer γ Χ ={⊤}=∗
       ▷^2 Χ v ∗
       ▷ □ Ξ v.
   Proof.
     apply ivar_3ｰinvｰresultｰconsumer.
   Qed.
-  Lemma ivar_4ｰinvｰresultｰconsumer' t Ψ Ξ Γ v Χ :
+  Lemma ivar_4ｰinvｰresultｰconsumer' γ Ψ Ξ Γ v Χ :
     £ 2 -∗
-    ivar_4۰inv t Ψ Ξ Γ -∗
-    ivar_4۰result t v -∗
-    ivar_4۰consumer t Χ ={⊤}=∗
+    ivar_4۰inv γ Ψ Ξ Γ -∗
+    ivar_4۰result γ v -∗
+    ivar_4۰consumer γ Χ ={⊤}=∗
       Χ v ∗
       □ Ξ v.
   Proof.
     apply ivar_3ｰinvｰresultｰconsumer'.
   Qed.
 
-  Lemma ivar_4۰waiterｰvalid t waiters Ps waiter P :
-    ivar_4۰waiters t waiters Ps -∗
-    ivar_4۰waiter t waiter P -∗
+  Lemma ivar_4۰waiterｰvalid γ waiters Ps waiter P :
+    ivar_4۰waiters γ waiters Ps -∗
+    ivar_4۰waiter γ waiter P -∗
       ∃ i P_,
       ⌜waiters !! i = Some waiter⌝ ∗
       ⌜Ps !! i = Some P_⌝ ∗
@@ -230,14 +234,22 @@ Section ivar_4۰G.
     }}}
       ivar_4٠create ()
     {{{
-      t
-    , RET t;
-      ivar_4۰inv t Ψ Ξ Γ ∗
-      ivar_4۰producer t ∗
-      ivar_4۰consumer t Ψ
+      γ
+    , RET γ;
+      ivar_4۰inv γ Ψ Ξ Γ ∗
+      ivar_4۰producer γ ∗
+      ivar_4۰consumer γ Ψ
     }}}.
   Proof.
-    apply ivar_3٠createｰspec.
+    iIntros "%Φ _ HΦ".
+
+    wp۰apply (ivar_3٠createｰspec with "[//]") as (γ۰base) "(Hinv & Hproducer & Hconsumer)".
+
+    pose γ :=
+      {|ivar_4۰name۰base := γ۰base
+      |}.
+
+    iApply ("HΦ" $! γ with "[$]").
   Qed.
 
   Lemma ivar_4٠makeｰspec Ψ Ξ Γ v :
@@ -247,25 +259,31 @@ Section ivar_4۰G.
     }}}
       ivar_4٠make v
     {{{
-      t
-    , RET t;
-      ivar_4۰inv t Ψ Ξ Γ ∗
-      ivar_4۰consumer t Ψ ∗
-      ivar_4۰result t v ∗
-      ivar_4۰waiters t [] []
+      γ
+    , RET γ;
+      ivar_4۰inv γ Ψ Ξ Γ ∗
+      ivar_4۰consumer γ Ψ ∗
+      ivar_4۰result γ v ∗
+      ivar_4۰waiters γ [] []
     }}}.
   Proof.
     iIntros "%Φ (HΨ & HΞ) HΦ".
 
-    wp۰apply (ivar_3٠makeｰspec with "[$HΨ $HΞ]").
-    iSteps.
+    wp۰apply (ivar_3٠makeｰspec with "[$HΨ $HΞ]") as (γ۰base) "(Hinv & Hconsumer & Hresult & Hwaiters)".
+
+    pose γ :=
+      {|ivar_4۰name۰base := γ۰base
+      |}.
+
+    iApply ("HΦ" $! γ).
+    iFrameSteps.
   Qed.
 
-  Lemma ivar_4٠is_unsetｰspec t Ψ Ξ Γ :
+  Lemma ivar_4٠is_unsetｰspec γ Ψ Ξ Γ :
     {{{
-      ivar_4۰inv t Ψ Ξ Γ
+      ivar_4۰inv γ Ψ Ξ Γ
     }}}
-      ivar_4٠is_unset t
+      ivar_4٠is_unset γ
     {{{
       b
     , RET #b;
@@ -273,17 +291,17 @@ Section ivar_4۰G.
         True
       else
         £ 2 ∗
-        ivar_4۰resolved t
+        ivar_4۰resolved γ
     }}}.
   Proof.
     apply ivar_3٠is_unsetｰspec.
   Qed.
-  Lemma ivar_4٠is_unsetｰspecｰresult t Ψ Ξ Γ v :
+  Lemma ivar_4٠is_unsetｰspecｰresult γ Ψ Ξ Γ v :
     {{{
-      ivar_4۰inv t Ψ Ξ Γ ∗
-      ivar_4۰result t v
+      ivar_4۰inv γ Ψ Ξ Γ ∗
+      ivar_4۰result γ v
     }}}
-      ivar_4٠is_unset t
+      ivar_4٠is_unset γ
     {{{
       RET false;
       £ 2
@@ -292,29 +310,29 @@ Section ivar_4۰G.
     apply ivar_3٠is_unsetｰspecｰresult.
   Qed.
 
-  Lemma ivar_4٠is_setｰspec t Ψ Ξ Γ :
+  Lemma ivar_4٠is_setｰspec γ Ψ Ξ Γ :
     {{{
-      ivar_4۰inv t Ψ Ξ Γ
+      ivar_4۰inv γ Ψ Ξ Γ
     }}}
-      ivar_4٠is_set t
+      ivar_4٠is_set γ
     {{{
       b
     , RET #b;
       if b then
         £ 2 ∗
-        ivar_4۰resolved t
+        ivar_4۰resolved γ
       else
         True
     }}}.
   Proof.
     apply ivar_3٠is_setｰspec.
   Qed.
-  Lemma ivar_4٠is_setｰspecｰresult t Ψ Ξ Γ v :
+  Lemma ivar_4٠is_setｰspecｰresult γ Ψ Ξ Γ v :
     {{{
-      ivar_4۰inv t Ψ Ξ Γ ∗
-      ivar_4۰result t v
+      ivar_4۰inv γ Ψ Ξ Γ ∗
+      ivar_4۰result γ v
     }}}
-      ivar_4٠is_set t
+      ivar_4٠is_set γ
     {{{
       RET true;
       £ 2
@@ -323,29 +341,29 @@ Section ivar_4۰G.
     apply ivar_3٠is_setｰspecｰresult.
   Qed.
 
-  Lemma ivar_4٠try_getｰspec t Ψ Ξ Γ :
+  Lemma ivar_4٠try_getｰspec γ Ψ Ξ Γ :
     {{{
-      ivar_4۰inv t Ψ Ξ Γ
+      ivar_4۰inv γ Ψ Ξ Γ
     }}}
-      ivar_4٠try_get t
+      ivar_4٠try_get γ
     {{{
       o
     , RET o;
       if o is Some v then
         £ 2 ∗
-        ivar_4۰result t v
+        ivar_4۰result γ v
       else
         True
     }}}.
   Proof.
     apply ivar_3٠try_getｰspec.
   Qed.
-  Lemma ivar_4٠try_getｰspecｰresult t Ψ Ξ Γ v :
+  Lemma ivar_4٠try_getｰspecｰresult γ Ψ Ξ Γ v :
     {{{
-      ivar_4۰inv t Ψ Ξ Γ ∗
-      ivar_4۰result t v
+      ivar_4۰inv γ Ψ Ξ Γ ∗
+      ivar_4۰result γ v
     }}}
-      ivar_4٠try_get t
+      ivar_4٠try_get γ
     {{{
       RET Some v;
       £ 2
@@ -354,12 +372,12 @@ Section ivar_4۰G.
     apply ivar_3٠try_getｰspecｰresult.
   Qed.
 
-  Lemma ivar_4٠getｰspec t Ψ Ξ Γ v :
+  Lemma ivar_4٠getｰspec γ Ψ Ξ Γ v :
     {{{
-      ivar_4۰inv t Ψ Ξ Γ ∗
-      ivar_4۰result t v
+      ivar_4۰inv γ Ψ Ξ Γ ∗
+      ivar_4۰result γ v
     }}}
-      ivar_4٠get t
+      ivar_4٠get γ
     {{{
       RET v;
       £ 2
@@ -368,14 +386,14 @@ Section ivar_4۰G.
     apply ivar_3٠getｰspec.
   Qed.
 
-  Lemma ivar_4٠waitｰspec P Q t Ψ Ξ Γ waiter :
+  Lemma ivar_4٠waitｰspec P Q γ Ψ Ξ Γ waiter :
     {{{
-      ivar_4۰inv t Ψ Ξ Γ ∗
+      ivar_4۰inv γ Ψ Ξ Γ ∗
       Q ∗
       ( ∀ ctx 𝑐𝑡𝑥 v,
         Q -∗
         Γ ctx 𝑐𝑡𝑥 -∗
-        ivar_3۰result t v -∗
+        ivar_4۰result γ v -∗
         WP waiter ctx v {{ res,
           ⌜res = ()%V⌝ ∗
           Γ ctx 𝑐𝑡𝑥 ∗
@@ -383,16 +401,16 @@ Section ivar_4۰G.
         }}
       )
     }}}
-      ivar_4٠wait t waiter
+      ivar_4٠wait γ waiter
     {{{
       o
     , RET o;
       if o is Some v then
         £ 2 ∗
-        ivar_4۰result t v ∗
+        ivar_4۰result γ v ∗
         Q
       else
-        ivar_4۰waiter t waiter P
+        ivar_4۰waiter γ waiter P
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & HQ & Hwaiter) HΦ".
@@ -404,23 +422,23 @@ Section ivar_4۰G.
     destruct o; iSteps.
   Qed.
 
-  Lemma ivar_4٠setｰspec t Ψ Ξ Γ v :
+  Lemma ivar_4٠setｰspec γ Ψ Ξ Γ v :
     {{{
-      ivar_4۰inv t Ψ Ξ Γ ∗
-      ivar_4۰producer t ∗
+      ivar_4۰inv γ Ψ Ξ Γ ∗
+      ivar_4۰producer γ ∗
       ▷ Ψ v ∗
       ▷ □ Ξ v
     }}}
-      ivar_4٠set t v
+      ivar_4٠set γ v
     {{{
       waiters Ps
     , RET list۰to_val waiters;
-      ivar_4۰result t v ∗
-      ivar_4۰waiters t waiters Ps ∗
+      ivar_4۰result γ v ∗
+      ivar_4۰waiters γ waiters Ps ∗
       [∗ list] waiter; P ∈ waiters; Ps,
         ∀ ctx 𝑐𝑡𝑥 v,
         Γ ctx 𝑐𝑡𝑥 -∗
-        ivar_3۰result t v -∗
+        ivar_4۰result γ v -∗
         WP waiter ctx v {{ res,
           ⌜res = ()%V⌝ ∗
           Γ ctx 𝑐𝑡𝑥 ∗
@@ -439,20 +457,20 @@ Section ivar_4۰G.
     iSteps.
   Qed.
 
-  Lemma ivar_4٠notifyｰspec {t Ψ Ξ Γ ctx} 𝑐𝑡𝑥 v :
+  Lemma ivar_4٠notifyｰspec {γ Ψ Ξ Γ ctx} 𝑐𝑡𝑥 v :
     {{{
-      ivar_4۰inv t Ψ Ξ Γ ∗
-      ivar_4۰producer t ∗
+      ivar_4۰inv γ Ψ Ξ Γ ∗
+      ivar_4۰producer γ ∗
       Γ ctx 𝑐𝑡𝑥 ∗
       ▷ Ψ v ∗
       ▷ □ Ξ v
     }}}
-      ivar_4٠notify t ctx v
+      ivar_4٠notify γ ctx v
     {{{
       waiters Ps
     , RET ();
-      ivar_4۰result t v ∗
-      ivar_4۰waiters t waiters Ps ∗
+      ivar_4۰result γ v ∗
+      ivar_4۰waiters γ waiters Ps ∗
       Γ ctx 𝑐𝑡𝑥 ∗
       [∗ list] P ∈ Ps, □ P
     }}}.
@@ -468,7 +486,7 @@ Section ivar_4۰G.
       Γ ctx 𝑐𝑡𝑥 ∗
       ([∗ list] P ∈ take i Ps, □ P) ∗
       ( [∗ list] waiter; P ∈ drop i waiters; drop i Ps,
-        waiter۰model₁ Γ t waiter P
+        waiter۰model₁ Γ γ.(ivar_4۰name۰base) waiter P
       )
     )%I with "[$HΓ HPs]") as "(HΓ & HPs & _)". 1: done.
     { iStep.
