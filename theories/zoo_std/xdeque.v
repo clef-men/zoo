@@ -49,7 +49,6 @@ Section zoo۰G.
     {{{
       t
     , RET t;
-      (∃ l, ⌜t = #l⌝ ∗ meta_token l ⊤) ∗
       xdeque۰model t []
     }}}.
   Proof.
