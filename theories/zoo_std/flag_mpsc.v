@@ -62,7 +62,7 @@ Section flag_mpsc۰G.
       state۰unset γ.
   #[local] Instance : CustomIpat "inv۰inner" :=
     " ( %b
-      & >Ht
+      & >Hself
       & Hb
       )
     ".
@@ -166,7 +166,7 @@ Section flag_mpsc۰G.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰ref t as "Ht" meta:"Hmeta".
+    wp۰ref t as "Ht".
 
     iMod stateｰalloc as "(%γ_state & Hstate_unset)".
     iMod consumerｰalloc as "(%γ_consumer & Hconsumer)".

@@ -90,9 +90,9 @@ Section ivar_2۰G.
     condition۰inv γ.(ivar_2۰name۰condition) ∗
     inv nroot (inv۰inner γ Ψ Ξ).
   #[local] Instance : CustomIpat "inv" :=
-    " ( #Ht_mutex
+    " ( #Hself_mutex
       & #Hmutex_inv
-      & #Ht_condition
+      & #Hself_condition
       & #Hcondition_inv
       & #Hinv
       )
@@ -397,7 +397,7 @@ Section ivar_2۰G.
     wp۰rec.
     wp۰apply+ (condition٠createｰspec _ with "[//]") as "%cond #Hcondition_inv".
     wp۰apply+ (mutex٠createｰspec True with "[//]") as "%mtx #Hmutex_inv".
-    wp۰block t as "#Ht_mutex #Ht_condition Ht_result" meta:"Hmeta".
+    wp۰block t as "#Ht_mutex #Ht_condition Ht_result".
 
     iMod lstateｰalloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
     iMod consumerｰalloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
@@ -434,7 +434,7 @@ Section ivar_2۰G.
     wp۰rec.
     wp۰apply+ (condition٠createｰspec _ with "[//]") as "%cond #Hcondition_inv".
     wp۰apply+ (mutex٠createｰspec True with "[//]") as "%mtx #Hmutex_inv".
-    wp۰block t as "#Ht_mutex #Ht_condition Ht_result" meta:"Hmeta".
+    wp۰block t as "#Ht_mutex #Ht_condition Ht_result".
 
     iMod lstateｰalloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
     iMod consumerｰalloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".

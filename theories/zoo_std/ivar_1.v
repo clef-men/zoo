@@ -77,7 +77,7 @@ Section ivar_1۰G.
     inv۰state γ Ξ state.
   #[local] Instance : CustomIpat "inv۰inner" :=
     " ( %state
-      & Ht
+      & Hself
       & Hconsumer_auth
       & Hstate
       )
@@ -376,7 +376,7 @@ Section ivar_1۰G.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰ref t as "Ht" meta:"Hmeta".
+    wp۰ref t as "Ht".
 
     iMod lstateｰalloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
     iMod consumerｰalloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
@@ -408,7 +408,7 @@ Section ivar_1۰G.
     iIntros "%Φ (HΨ & #HΞ) HΦ".
 
     wp۰rec.
-    wp۰ref t as "Ht" meta:"Hmeta".
+    wp۰ref t as "Ht".
 
     iMod lstateｰalloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
     iMod consumerｰalloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
