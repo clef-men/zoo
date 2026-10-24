@@ -12,23 +12,14 @@ Implicit Type v t : val.
 Implicit Type o : option val.
 Implicit Type id : identifier.
 
-#[local] Notation "'tracker'" := (
-  in_type "t.tracker" 0
-)(in custom zoo_proj
-).
-#[local] Notation "'exchanger'" := (
-  in_type "t.tracker" 1
-)(in custom zoo_proj
-).
+#[local] Zoo type t :=
+  { tracker
+  ; exchanger
+  }.
 
-#[local] Notation "'Call'" := (
-  in_type "event" Tag0
-)(in custom zoo_tag
-).
-#[local] Notation "'Return'" := (
-  in_type "event" Tag1
-)(in custom zoo_tag
-).
+#[local] Zoo type event :=
+  | Call
+  | Return.
 
 Please Definition exchanger_1ˡⁱⁿ٠create : val :=
   𝗳𝘂𝗻 ⎽ ->

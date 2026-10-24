@@ -2,6 +2,9 @@ DECLARE PLUGIN "rocq-zoo.plugin"
 
 {
 
+module Option =
+  Stdlib.Option
+
 open Procq.Constr
 open Procq.Prim
 open Stdarg
@@ -9,7 +12,47 @@ open Stdarg
 let record_field =
   G_vernac.record_field
 
+let attribute_qualification =
+  Attributes.bool_attribute ~name:"qualified"
+
 }
+
+VERNAC ARGUMENT EXTEND zoo_ident
+| [ preident(id) ] ->
+    { id }
+| [ "Axiom" ] ->
+    { "Axiom" }
+| [ "CoFixpoint" ] ->
+    { "CoFixpoint" }
+| [ "Definition" ] ->
+    { "Definition" }
+| [ "Fixpoint" ] ->
+    { "Fixpoint" }
+| [ "Hypothesis" ] ->
+    { "Hypothesis" }
+| [ "Parameter" ] ->
+    { "Parameter" }
+| [ "Prop" ] ->
+    { "Prop" }
+| [ "Set" ] ->
+    { "Set" }
+| [ "SProp" ] ->
+    { "SProp" }
+| [ "Theorem" ] ->
+    { "Theorem" }
+| [ "Type" ] ->
+    { "Type" }
+| [ "Variable" ] ->
+    { "Variable" }
+| [ "by" ] ->
+    { "by" }
+| [ "exists" ] ->
+    { "exists" }
+| [ "forall" ] ->
+    { "forall" }
+| [ "using" ] ->
+    { "using" }
+END
 
 VERNAC ARGUMENT EXTEND zoo_global_base
 | [ ] ->
@@ -17,7 +60,6 @@ VERNAC ARGUMENT EXTEND zoo_global_base
 | [ "⟨" qualid(theory) "⟩" ] ->
     { theory }
 END
-
 VERNAC ARGUMENT EXTEND zoo_global_kind'
 | [ "iris" ] ->
     { Zoo_global.Iris }
@@ -30,12 +72,10 @@ VERNAC ARGUMENT EXTEND zoo_global_kind
 | [ ":" zoo_global_kind'(kind) ] ->
     { kind }
 END
-
 VERNAC ARGUMENT EXTEND zoo_global_field
-| [ preident(name) ":" qualid(theory) constr_list(arguments) zoo_global_kind(kind) ] ->
+| [ zoo_ident(name) ":" qualid(theory) constr_list(arguments) zoo_global_kind(kind) ] ->
     { Zoo_global.{ name; theory; arguments; kind } }
 END
-
 VERNAC ARGUMENT EXTEND zoo_global_spec
 | [ zoo_global_base(base) binders(parameters) ":="
     "{" zoo_global_field_list_sep(fields, ";") "}"
@@ -56,7 +96,6 @@ VERNAC ARGUMENT EXTEND zoo_derive_kind
 | [ "Persistent" ] ->
     { Zoo_derive.Kind.Persistent }
 END
-
 VERNAC ARGUMENT EXTEND zoo_derive_modifier
 | [ ] ->
     { Zoo_derive.Modifier.None }
@@ -87,4 +126,33 @@ VERNAC COMMAND EXTEND zoo_name
   [ "Zoo" "name" ":=" zoo_name_fields(flds) ]
   ->
     { Zoo_name.interp ~locality flds }
+END
+
+VERNAC ARGUMENT EXTEND zoo_type_ident
+| [ qualid(id) ] ->
+    { id }
+END
+VERNAC ARGUMENT EXTEND zoo_type_mutability
+| [ ] ->
+    { Zoo_type.Immutable }
+| [ "mutable" ] ->
+    { Zoo_type.Mutable }
+END
+VERNAC ARGUMENT EXTEND zoo_type_declaration
+| [ zoo_type_mutability(mut) "{" zoo_ident_list_sep(flds, ";") "}" ] ->
+    { Zoo_type.Record (mut, flds) }
+| [ "|" zoo_ident_list_sep(ctors, "|") ] ->
+    { Zoo_type.Variant ctors }
+END
+
+VERNAC COMMAND EXTEND zoo_type
+  CLASSIFIED BY { fun _ -> Vernacextend.VtSideff ([], VtNow) }
+| #[ locality = Attributes.hint_locality; qualified = attribute_qualification ]
+  [ "Zoo" "type" zoo_type_ident(id) ":=" zoo_type_declaration(decl) ]
+  SYNTERP AS decls
+    { let qualified = Option.value ~default:false qualified in
+      Zoo_type.synterp ~locality ~qualified id decl
+    }
+  ->
+    { Zoo_type.interp ~locality decls }
 END

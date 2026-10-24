@@ -10,6 +10,11 @@ val prophet_identifier :
 val prophet_identifier_globref :
   unit -> Names.GlobRef.t
 
+val _Tag :
+  int -> string
+val _Tag_ref :
+  int -> Constrexpr.constr_expr
+
 val val_ :
   string
 val val_qualid :
@@ -54,3 +59,25 @@ val solve_iris_typeclass :
   string
 val solve_iris_typeclass_tactic :
   unit -> Tacexpr.ltac_constant
+
+val in_type :
+  string
+val in_type_ref :
+  Constrexpr.constr_expr
+
+module Custom_entry : sig
+  val field :
+    string
+  val field_qualid :
+    Libnames.qualid
+
+  val proj :
+    string
+  val proj_qualid :
+    Libnames.qualid
+
+  val tag :
+    string
+  val tag_qualid :
+    Libnames.qualid
+end

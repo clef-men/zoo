@@ -20,14 +20,10 @@ Implicit Type vs : list (option val).
 Implicit Type ws : gmap nat (option val).
 Implicit Type ids : gmap val nat.
 
-#[local] Notation "'dls٠id'" := (
-  in_type "zoo_std.domain.dls.key" 0
-)(in custom zoo_proj
-).
-#[local] Notation "'dls٠init'" := (
-  in_type "zoo_std.domain.dls.key" 1
-)(in custom zoo_proj
-).
+#[local] Zoo type dls.key :=
+  { id
+  ; init
+  }.
 
 Please Definition domain٠spawn : val :=
   𝗳𝘂𝗻 "fn" ->

@@ -16,6 +16,12 @@ let prophet_identifier_globref () =
   prophet_identifier_qualid
   |> Nametab.global
 
+let _Tag =
+  Printf.sprintf "zoo.language.tag.Tag%i"
+let _Tag_ref i =
+  _Tag i
+  |> Constrexpr_.mk_ref_string
+
 let val_ =
   "zoo.language.syntax.val"
 let val_qualid =
@@ -74,3 +80,29 @@ let solve_iris_typeclass_tactic () =
   solve_iris_typeclass
   |> Libnames.qualid_of_string
   |> Tacenv.locate_tactic
+
+let in_type =
+  "zoo.language.notations.in_type"
+let in_type_ref =
+  in_type
+  |> Constrexpr_.mk_ref_string
+
+module Custom_entry = struct
+  let field =
+    "zoo.language.notations.zoo_field"
+  let field_qualid =
+    field
+    |> Libnames.qualid_of_string
+
+  let proj =
+    "zoo.language.notations.zoo_proj"
+  let proj_qualid =
+    proj
+    |> Libnames.qualid_of_string
+
+  let tag =
+    "zoo.language.notations.zoo_tag"
+  let tag_qualid =
+    tag
+    |> Libnames.qualid_of_string
+end
