@@ -17,7 +17,7 @@ module Kind = struct
     | Record Mutable ->
         Zoo.Custom_entry.field
     | Variant ->
-        Zoo.Custom_entry.tag
+        Zoo.Custom_entry.constructor
 end
 
 let library_name =

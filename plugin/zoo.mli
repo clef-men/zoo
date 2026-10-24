@@ -66,6 +66,11 @@ val in_type_ref :
   Constrexpr.constr_expr
 
 module Custom_entry : sig
+  val constructor :
+    string
+  val constructor_qualid :
+    Libnames.qualid
+
   val field :
     string
   val field_qualid :
@@ -74,10 +79,5 @@ module Custom_entry : sig
   val proj :
     string
   val proj_qualid :
-    Libnames.qualid
-
-  val tag :
-    string
-  val tag_qualid :
     Libnames.qualid
 end

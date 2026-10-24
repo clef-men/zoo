@@ -88,6 +88,12 @@ let in_type_ref =
   |> Constrexpr_.mk_ref_string
 
 module Custom_entry = struct
+  let constructor =
+    "zoo.language.notations.zoo_constructor"
+  let constructor_qualid =
+    constructor
+    |> Libnames.qualid_of_string
+
   let field =
     "zoo.language.notations.zoo_field"
   let field_qualid =
@@ -98,11 +104,5 @@ module Custom_entry = struct
     "zoo.language.notations.zoo_proj"
   let proj_qualid =
     proj
-    |> Libnames.qualid_of_string
-
-  let tag =
-    "zoo.language.notations.zoo_tag"
-  let tag_qualid =
-    tag
     |> Libnames.qualid_of_string
 end
