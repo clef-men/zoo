@@ -2,7 +2,7 @@ Require Import zoo.prelude.
 Require Export zoo.language.language.
 Require Import zoo.options.
 
-Definition in_type {X} (_ : string) (x : X) :=
+Definition in_type {X} (_ _ : string) (x : X) :=
   x.
 #[global] Arguments in_type : simpl never.
 
@@ -976,7 +976,7 @@ Notation "()" :=
 Notation "[ ] -> e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "list" Tag0)
+        (in_type "list" "[]" Tag0)
         (@nil binder)
         BAnon
     )
@@ -988,7 +988,7 @@ Notation "[ ] -> e" := (
 Notation "[ ] '𝗮𝘀' x -> e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "list" Tag0)
+        (in_type "list" "[]" Tag0)
         (@nil binder)
         (BNamed x%string)
     )
@@ -1001,7 +1001,7 @@ Notation "[ ] '𝗮𝘀' x -> e" := (
 Notation "x1 :: x2 -> e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "list" Tag1)
+        (in_type "list" "(::)" Tag1)
         (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
         BAnon
     )
@@ -1015,7 +1015,7 @@ Notation "x1 :: x2 -> e" := (
 Notation "x1 :: x2 '𝗮𝘀' y -> e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "list" Tag1)
+        (in_type "list" "(::)" Tag1)
         (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
         (BNamed y%string)
     )
@@ -1149,7 +1149,7 @@ Notation "v .[ fld ]" := (
   Val (
     ValBlock
       Nongenerative
-      (in_type "atomic_loc" Tag0)
+      (in_type "atomic_loc" "" Tag0)
       ( @cons val v%V
           ( @cons val (ValInt (Z.of_nat fld))
               (@nil val)
@@ -1165,7 +1165,7 @@ Notation "v .[ fld ]" := (
 Notation "e .[ fld ]" := (
   Block
     ImmutableNongenerative
-    (in_type "atomic_loc" Tag0)
+    (in_type "atomic_loc" "" Tag0)
     ( @cons expr e%E
         ( @cons expr (Val (ValNat fld))
             (@nil expr)
@@ -1179,7 +1179,7 @@ Notation "e .[ fld ]" := (
 Notation "v .[ fld ]" := (
   ValBlock
     Nongenerative
-    (in_type "atomic_loc" Tag0)
+    (in_type "atomic_loc" "" Tag0)
     ( @cons val v%V
         ( @cons val (ValInt (Z.of_nat fld))
             (@nil val)
@@ -1192,34 +1192,34 @@ Notation "v .[ fld ]" := (
 ) : val_scope.
 
 Notation "'contents'" := (
-  in_type "ref" 0
+  in_type "ref" "contents" 0
 )(in custom zoo_field
 ).
 Notation "'𝗿𝗲𝗳' e" := (
   Block
     Mutable
-    (in_type "ref" Tag0)
+    (in_type "ref" "" Tag0)
     (@cons expr e%E (@nil expr))
 )(at level 10
 ) : expr_scope.
 Notation "! e" := (
-  Primitive2 Load e%E (Val (ValNat (in_type "ref" 0)))
+  Primitive2 Load e%E (Val (ValNat (in_type "ref" "contents" 0)))
 )(at level 9,
   right associativity,
   format "! e"
 ) : expr_scope.
 Notation "e1 <- e2" := (
-  Primitive3 Store e1%E (Val (ValNat (in_type "ref" 0))) e2%E
+  Primitive3 Store e1%E (Val (ValNat (in_type "ref" "contents" 0))) e2%E
 )(at level 80,
   format "'[hv' '[hv' '[' e1 ']'  '/  ' <-  ']' '/  ' '[' e2 ']' ']'"
 ) : expr_scope.
 
 Notation "'None'" := (
-  in_type "option" Tag0
+  in_type "option" "None" Tag0
 )(in custom zoo_constructor
 ).
 Notation "'Some'" := (
-  in_type "option" Tag1
+  in_type "option" "Some" Tag1
 )(in custom zoo_constructor
 ).
 
@@ -1227,7 +1227,7 @@ Notation "[ ]" := (
   Val (
     ValBlock
       Nongenerative
-      (in_type "list" Tag0)
+      (in_type "list" "[]" Tag0)
       (@nil val)
   )
 )(format "[ ]"
@@ -1235,14 +1235,14 @@ Notation "[ ]" := (
 Notation "[ ]" := (
   ValBlock
     Nongenerative
-    (in_type "list" Tag0)
+    (in_type "list" "[]" Tag0)
     (@nil val)
 )(format "[ ]"
 ) : val_scope.
 Notation "e1 :: e2" := (
   Block
     ImmutableNongenerative
-    (in_type "list" Tag1)
+    (in_type "list" "(::)" Tag1)
     ( @cons expr e1%E
         ( @cons expr e2%E
             (@nil expr)
@@ -1255,7 +1255,7 @@ Notation "e1 :: e2" := (
 Notation "v1 :: v2" := (
   ValBlock
     Nongenerative
-    (in_type "list" Tag1)
+    (in_type "list" "(::)" Tag1)
     ( @cons val v1%V
         ( @cons val v2%V
             (@nil val)

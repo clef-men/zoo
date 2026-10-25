@@ -61,12 +61,13 @@ let item_name ~qualified ~id ~kind name =
     )
     name
 
-let notation_interp ~id ~(kind : Kind.t) i =
+let notation_interp ~id ~(kind : Kind.t) i name =
   let open Constrexpr in
   let open Constrexpr_ in
   mk_app
     Zoo.in_type_ref
     [ id |> type_name |> mk_string
+    ; name |> mk_string
     ; match kind with
       | Record _mut ->
           mk_int i
@@ -81,7 +82,7 @@ let notation ~qualified ~id ~kind i name =
       |> Printf.sprintf "'%s'"
       |> CAst.make
   ; ntn_decl_interp=
-      notation_interp ~id ~kind i
+      notation_interp ~id ~kind i name
   ; ntn_decl_scope=
       None
   ; ntn_decl_modifiers=

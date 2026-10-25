@@ -2211,7 +2211,7 @@ Section mcas_1۰G.
 
     iMod (inv_alloc _ _ (casn۰inv۰inner casn κ ι Φ') with "[Hgproph Hcasn_state Hlstatus_auth Hlocks Hhelpers_auth Hwinning Hstates HΦ]") as "#Hcasn_inv".
     { iExists _, (Running 0), ∅, _. iFrameStep 3.
-      rewrite comm. iSteps.
+      iEval (rewrite comm). iSteps.
       iSplitL "Hlocks".
       { iApply (big_sepLｰseqｰindex κs_lock); first lia.
         iApply (big_sepL_impl with "Hlocks").
