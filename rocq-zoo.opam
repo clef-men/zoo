@@ -8,6 +8,7 @@ homepage: "https://github.com/clef-men/zoo"
 bug-reports: "https://github.com/clef-men/zoo/issues"
 depends: [
   "dune" {>= "3.21"}
+  "ocaml" {>= "5.5"}
   "rocq-core" {= "9.2.0"}
   "rocq-stdlib" {= "9.2.0"}
   "rocq-stdpp"

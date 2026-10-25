@@ -81,6 +81,7 @@
  (name rocq-zoo)
  (synopsis "Zoo")
  (depends
+  (ocaml (>= 5.5))
   (rocq-core (= 9.2.0))
   (rocq-stdlib (= 9.2.0))
   rocq-stdpp
