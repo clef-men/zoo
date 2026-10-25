@@ -76,8 +76,8 @@ module Custom_entry : sig
   val field_qualid :
     Libnames.qualid
 
-  val proj :
+  val projection :
     string
-  val proj_qualid :
+  val projection_qualid :
     Libnames.qualid
 end

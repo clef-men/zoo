@@ -24,7 +24,7 @@ Delimit Scope zoo_recs_scope with zoo_recs.
 
 Declare Custom Entry zoo_field.
 Declare Custom Entry zoo_constructor.
-Declare Custom Entry zoo_proj.
+Declare Custom Entry zoo_projection.
 Declare Custom Entry zoo_branch.
 
 Number Notation
@@ -150,43 +150,43 @@ Notation "9" :=
 
 Notation "0" :=
   0
-( in custom zoo_proj
+( in custom zoo_projection
 ).
 Notation "1" :=
   1
-( in custom zoo_proj
+( in custom zoo_projection
 ).
 Notation "2" :=
   2
-( in custom zoo_proj
+( in custom zoo_projection
 ).
 Notation "3" :=
   3
-( in custom zoo_proj
+( in custom zoo_projection
 ).
 Notation "4" :=
   4
-( in custom zoo_proj
+( in custom zoo_projection
 ).
 Notation "5" :=
   5
-( in custom zoo_proj
+( in custom zoo_projection
 ).
 Notation "6" :=
   6
-( in custom zoo_proj
+( in custom zoo_projection
 ).
 Notation "7" :=
   7
-( in custom zoo_proj
+( in custom zoo_projection
 ).
 Notation "8" :=
   8
-( in custom zoo_proj
+( in custom zoo_projection
 ).
 Notation "9" :=
   9
-( in custom zoo_proj
+( in custom zoo_projection
 ).
 
 Notation "# x" := (
@@ -1127,7 +1127,7 @@ Notation "e .{ fld }" := (
 Notation "e .< proj >" := (
   Primitive2 Load e%E (Val (ValNat proj))
 )(at level 1,
-  proj custom zoo_proj,
+  proj custom zoo_projection,
   format "e .< proj >"
 ) : expr_scope.
 

@@ -100,9 +100,9 @@ module Custom_entry = struct
     field
     |> Libnames.qualid_of_string
 
-  let proj =
-    "zoo.language.notations.zoo_proj"
-  let proj_qualid =
-    proj
+  let projection =
+    "zoo.language.notations.zoo_projection"
+  let projection_qualid =
+    projection
     |> Libnames.qualid_of_string
 end

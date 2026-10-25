@@ -13,7 +13,7 @@ module Kind = struct
 
   let entry = function
     | Record Immutable ->
-        Zoo.Custom_entry.proj
+        Zoo.Custom_entry.projection
     | Record Mutable ->
         Zoo.Custom_entry.field
     | Variant ->
