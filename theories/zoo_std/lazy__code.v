@@ -8,9 +8,9 @@ Require Import zoo_std.mutex.
 Require Import zoo.options.
 
 #[qualified] Zoo type state :=
-  | Unset
-  | Setting
-  | Set.
+  | Unset _
+  | Setting _
+  | Set _.
 
 Definition lazy٠make : val :=
   𝗳𝘂𝗻 "fn" ->

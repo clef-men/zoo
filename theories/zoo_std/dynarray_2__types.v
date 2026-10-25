@@ -12,7 +12,7 @@ Require Import zoo.options.
 
 Zoo type slot :=
   | Empty
-  | Element.
+  | Element _.
 
 Zoo type slot.Element := mutable
   { value

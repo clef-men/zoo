@@ -8,7 +8,7 @@ Require Import zoo.options.
 
 Zoo type node :=
   | Null
-  | Node.
+  | Node _.
 
 Zoo type node.Node := mutable
   { next

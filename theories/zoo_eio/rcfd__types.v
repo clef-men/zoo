@@ -9,8 +9,8 @@ Require Export zoo_std.waiter_spsc.
 Require Import zoo.options.
 
 Zoo type state :=
-  | Open
-  | Closing.
+  | Open _
+  | Closing _.
 
 Zoo type t := mutable
   { ops

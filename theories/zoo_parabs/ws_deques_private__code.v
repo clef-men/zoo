@@ -18,12 +18,12 @@ Require Import zoo.options.
 #[qualified] Zoo type request :=
   | RequestBlocked
   | RequestNone
-  | RequestSome.
+  | RequestSome _.
 
 #[qualified] Zoo type response :=
   | ResponseWaiting
   | ResponseNone
-  | ResponseSome.
+  | ResponseSome _.
 
 #[qualified] Zoo type t := mutable
   { size

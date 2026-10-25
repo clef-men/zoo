@@ -18,8 +18,8 @@ Implicit Type id : identifier.
   }.
 
 #[local] Zoo type event :=
-  | Call
-  | Return.
+  | Call _
+  | Return _.
 
 Please Definition exchanger_1ˡⁱⁿ٠create : val :=
   𝗳𝘂𝗻 ⎽ ->

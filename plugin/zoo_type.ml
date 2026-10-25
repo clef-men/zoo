@@ -2,9 +2,22 @@ type mutability =
   | Immutable
   | Mutable
 
+type constancy =
+  | Constant
+  | Nonconstant
+
+type constructor =
+  { constructor_tag: string
+  ; constructor_constancy: constancy
+  }
+
 type declaration =
   | Record of mutability * string list
-  | Variant of string list
+  | Variant of constructor list
+
+type t =
+  | Record of mutability
+  | Variant
 
 module Kind = struct
   type t =
@@ -36,7 +49,7 @@ let type_name id =
     Separator.dot
     (id |> Libnames.string_of_qualid)
 
-let item_name ~qualified ~id ~kind name =
+let item_name ~qualified ~id name =
   Printf.sprintf "%s%s%s"
     ( if qualified then
         Printf.sprintf "%s%s"
@@ -78,7 +91,7 @@ let notation ~qualified ~id ~kind i name =
   let open Vernacexpr in
   { ntn_decl_string=
       name
-      |> item_name ~qualified ~id ~kind
+      |> item_name ~qualified ~id
       |> Printf.sprintf "'%s'"
       |> CAst.make
   ; ntn_decl_interp=
@@ -92,23 +105,41 @@ let notation ~qualified ~id ~kind i name =
         ) |> CAst.make
       ]
   }
-let notation ~(locality : Hints.hint_locality) ~qualified ~id ~kind i name =
+let notation ~locality ~qualified ~id ~kind i name =
   Metasyntax.add_notation_syntax
-    ~local:(locality = Local)
+    ~local:(locality = Hints.Local)
     ~infix:false
     None
     (notation ~qualified ~id ~kind i name)
 
-let synterp ~locality ~qualified id decl =
+let rec record ~locality ~qualified ~id mut flds =
+  flds |> List.mapi (notation ~locality ~qualified ~id ~kind:(Record mut))
+
+let rec variant ~locality ~qualified ~id ctors =
+  let cnt_const = ref 0 in
+  let cnt_nonconst = ref 0 in
+  ctors |> List.map @@ fun ctor ->
+    let cnt =
+      match ctor.constructor_constancy with
+      | Constant ->
+          cnt_const
+      | Nonconstant ->
+          cnt_nonconst
+    in
+    let i = !cnt in
+    incr cnt ;
+    notation ~locality ~qualified ~id ~kind:Variant i ctor.constructor_tag
+
+let synterp ~locality ~qualified id (decl : declaration) =
   match decl with
   | Record (mut, flds) ->
-      flds |> List.mapi (notation ~locality ~qualified ~id ~kind:(Record mut))
+      record ~locality ~qualified ~id mut flds
   | Variant ctors ->
-      ctors |> List.mapi (notation ~locality ~qualified ~id ~kind:Variant)
+      variant ~locality ~qualified ~id ctors
 
-let interp ~(locality : Hints.hint_locality) decls =
+let interp ~locality decls =
   decls |> List.iter @@ fun decl ->
     Metasyntax.add_notation_interpretation
-      ~local:(locality = Local)
+      ~local:(locality = Hints.Local)
       (Global.env ())
       decl

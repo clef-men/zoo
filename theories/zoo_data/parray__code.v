@@ -8,8 +8,8 @@ Require Import zoo_std.array.
 Require Import zoo.options.
 
 #[qualified] Zoo type descr :=
-  | Root
-  | Diff.
+  | Root _
+  | Diff _.
 
 #[qualified] Zoo type descr.Root :=
   { equal

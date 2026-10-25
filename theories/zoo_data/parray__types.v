@@ -8,8 +8,8 @@ Require Export zoo_std.array.
 Require Import zoo.options.
 
 Zoo type descr :=
-  | Root
-  | Diff.
+  | Root _
+  | Diff _.
 
 Zoo type descr.Root :=
   { equal

@@ -9,5 +9,5 @@ Require Import zoo.options.
 
 Zoo type state :=
   | Null
-  | Offer
-  | Accept.
+  | Offer _
+  | Accept _.

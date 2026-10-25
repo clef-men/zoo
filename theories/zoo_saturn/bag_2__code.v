@@ -10,7 +10,7 @@ Require Import zoo.options.
 
 #[qualified] Zoo type producers_ :=
   | Null
-  | Node.
+  | Node _.
 
 #[qualified] Zoo type producers_.Node := mutable
   { next

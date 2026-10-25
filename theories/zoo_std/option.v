@@ -37,7 +37,7 @@ Definition option۰of_val 𝑜 :=
   match 𝑜 with
   | ValBlock Nongenerative Tag0 [] =>
       Some None
-  | ValBlock Nongenerative Tag1 [v] =>
+  | ValBlock Nongenerative Tag0 [v] =>
       Some $ Some v
   | _ =>
       None

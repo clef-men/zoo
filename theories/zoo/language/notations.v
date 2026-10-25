@@ -1001,7 +1001,7 @@ Notation "[ ] '𝗮𝘀' x -> e" := (
 Notation "x1 :: x2 -> e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "list" "(::)" Tag1)
+        (in_type "list" "(::)" Tag0)
         (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
         BAnon
     )
@@ -1015,7 +1015,7 @@ Notation "x1 :: x2 -> e" := (
 Notation "x1 :: x2 '𝗮𝘀' y -> e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "list" "(::)" Tag1)
+        (in_type "list" "(::)" Tag0)
         (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
         (BNamed y%string)
     )
@@ -1219,7 +1219,7 @@ Notation "'None'" := (
 )(in custom zoo_constructor
 ).
 Notation "'Some'" := (
-  in_type "option" "Some" Tag1
+  in_type "option" "Some" Tag0
 )(in custom zoo_constructor
 ).
 
@@ -1242,7 +1242,7 @@ Notation "[ ]" := (
 Notation "e1 :: e2" := (
   Block
     ImmutableNongenerative
-    (in_type "list" "(::)" Tag1)
+    (in_type "list" "(::)" Tag0)
     ( @cons expr e1%E
         ( @cons expr e2%E
             (@nil expr)
@@ -1255,7 +1255,7 @@ Notation "e1 :: e2" := (
 Notation "v1 :: v2" := (
   ValBlock
     Nongenerative
-    (in_type "list" "(::)" Tag1)
+    (in_type "list" "(::)" Tag0)
     ( @cons val v1%V
         ( @cons val v2%V
             (@nil val)

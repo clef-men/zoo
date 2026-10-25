@@ -7,8 +7,8 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.options.
 
 #[qualified] Zoo type state :=
-  | Unset
-  | Set.
+  | Unset _
+  | Set _.
 
 Definition ivar_3٠create : val :=
   𝗳𝘂𝗻 ⎽ ->

@@ -9,8 +9,8 @@ Require Import zoo.options.
 
 #[qualified] Zoo type state :=
   | Null
-  | Offer
-  | Accept.
+  | Offer _
+  | Accept _.
 
 Definition exchanger_1٠create : val :=
   𝗳𝘂𝗻 ⎽ ->

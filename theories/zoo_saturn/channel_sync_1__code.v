@@ -9,8 +9,8 @@ Require Import zoo.options.
 
 #[qualified] Zoo type state :=
   | Null
-  | Sender_offer
-  | Sender_accept
+  | Sender_offer _
+  | Sender_accept _
   | Receiver_offer
   | Receiver_accept.
 

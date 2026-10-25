@@ -14,7 +14,7 @@ Require Import zoo.options.
 
 #[qualified] Zoo type descr :=
   | Root
-  | Diff.
+  | Diff _.
 
 #[qualified] Zoo type t := mutable
   { gen

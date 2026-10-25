@@ -9,4 +9,4 @@ Require Import zoo.options.
 Zoo type t :=
   | Closed
   | Open
-  | Cons.
+  | Cons _.

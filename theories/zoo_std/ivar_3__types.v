@@ -7,5 +7,5 @@ Require Import zoo.language.typeclasses.
 Require Import zoo.options.
 
 Zoo type state :=
-  | Unset
-  | Set.
+  | Unset _
+  | Set _.

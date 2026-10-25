@@ -9,7 +9,7 @@ Require Import zoo.options.
 
 Zoo type descr :=
   | Root
-  | Diff.
+  | Diff _.
 
 Zoo type t := mutable
   { equal

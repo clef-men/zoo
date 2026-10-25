@@ -8,5 +8,5 @@ Require Export zoo_data.sstore_2.
 Require Import zoo.options.
 
 Zoo type descr :=
-  | Root
-  | Link.
+  | Root _
+  | Link _.

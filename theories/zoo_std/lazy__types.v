@@ -8,6 +8,6 @@ Require Export zoo_std.mutex.
 Require Import zoo.options.
 
 Zoo type state :=
-  | Unset
-  | Setting
-  | Set.
+  | Unset _
+  | Setting _
+  | Set _.

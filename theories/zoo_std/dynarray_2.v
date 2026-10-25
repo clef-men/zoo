@@ -17,7 +17,7 @@ Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
   #[local] Definition element۰model elem v : iProp Σ :=
-    elem ↦ₕ Header Tag1 §Element ∗
+    elem ↦ₕ Header §Element 1 ∗
     elem.[value] ↦ v.
   #[local] Instance : CustomIpat "element۰model" :=
     " ( Helem_header
@@ -922,7 +922,7 @@ Section zoo۰G.
   Context τ `{!iType (iPropI Σ) τ}.
 
   #[local] Definition itype۰element elem : iProp Σ :=
-    elem ↦ₕ Header Tag1 §Element ∗
+    elem ↦ₕ Header §Element 1 ∗
     inv nroot (
       ∃ v,
       elem.[value] ↦ v ∗

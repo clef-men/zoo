@@ -8,8 +8,8 @@ Require Import zoo_data.sstore_2.
 Require Import zoo.options.
 
 #[qualified] Zoo type descr :=
-  | Root
-  | Link.
+  | Root _
+  | Link _.
 
 Definition suf٠create : val :=
   sstore_2٠create.

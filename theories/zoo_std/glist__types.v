@@ -8,4 +8,4 @@ Require Import zoo.options.
 
 Zoo type t :=
   | Nil
-  | Cons.
+  | Cons _.

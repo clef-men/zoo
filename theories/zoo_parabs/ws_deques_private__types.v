@@ -18,12 +18,12 @@ Zoo type status :=
 Zoo type request :=
   | RequestBlocked
   | RequestNone
-  | RequestSome.
+  | RequestSome _.
 
 Zoo type response :=
   | ResponseWaiting
   | ResponseNone
-  | ResponseSome.
+  | ResponseSome _.
 
 Zoo type t := mutable
   { size

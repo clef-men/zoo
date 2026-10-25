@@ -8,7 +8,7 @@ Require Import zoo.options.
 
 #[qualified] Zoo type t :=
   | Nil
-  | Cons.
+  | Cons _.
 
 Definition glist٠rev_app : val :=
   𝗿𝗲𝗰 "rev_app" "t1" "t2" ->

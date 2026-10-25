@@ -14,7 +14,7 @@ Zoo type ref := mutable
 
 Zoo type descr :=
   | Root
-  | Diff.
+  | Diff _.
 
 Zoo type t := mutable
   { gen

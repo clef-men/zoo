@@ -9,7 +9,7 @@ Require Import zoo.options.
 #[qualified] Zoo type t :=
   | Closed
   | Open
-  | Cons.
+  | Cons _.
 
 Definition clist٠app : val :=
   𝗿𝗲𝗰 "app" "t1" "t2" ->

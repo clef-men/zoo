@@ -15,7 +15,7 @@ Zoo type state := mutable
   }.
 
 Zoo type cas :=
-  | Cas.
+  | Cas _.
 
 Zoo type cas.Cas :=
   { loc
@@ -28,7 +28,7 @@ Zoo type casn := mutable
   }.
 
 Zoo type status :=
-  | Undetermined
+  | Undetermined _
   | Before
   | After.
 

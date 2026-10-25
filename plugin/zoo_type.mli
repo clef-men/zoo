@@ -2,9 +2,18 @@ type mutability =
   | Immutable
   | Mutable
 
+type constancy =
+  | Constant
+  | Nonconstant
+
+type constructor =
+  { constructor_tag: string
+  ; constructor_constancy: constancy
+  }
+
 type declaration =
   | Record of mutability * string list
-  | Variant of string list
+  | Variant of constructor list
 
 val synterp :
   locality:Hints.hint_locality ->

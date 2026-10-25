@@ -9,4 +9,4 @@ Require Import zoo.options.
 #[qualified] Zoo type t :=
   | Nothing
   | Anything
-  | Something.
+  | Something _.

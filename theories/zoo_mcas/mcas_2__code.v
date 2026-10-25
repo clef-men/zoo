@@ -15,7 +15,7 @@ Require Import zoo.options.
   }.
 
 #[qualified] Zoo type cas :=
-  | Cas.
+  | Cas _.
 
 #[qualified] Zoo type cas.Cas :=
   { loc
@@ -28,7 +28,7 @@ Require Import zoo.options.
   }.
 
 #[qualified] Zoo type status :=
-  | Undetermined
+  | Undetermined _
   | Before
   | After.
 

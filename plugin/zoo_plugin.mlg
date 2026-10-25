@@ -138,10 +138,24 @@ VERNAC ARGUMENT EXTEND zoo_type_mutability
 | [ "mutable" ] ->
     { Zoo_type.Mutable }
 END
+VERNAC ARGUMENT EXTEND zoo_type_constancy
+| [ ] ->
+    { Zoo_type.Constant }
+| [ "_" ] ->
+    { Zoo_type.Nonconstant }
+END
+VERNAC ARGUMENT EXTEND zoo_type_constructor
+| [ zoo_ident(tag) zoo_type_constancy(const) ] ->
+    { Zoo_type.
+      { constructor_tag= tag
+      ; constructor_constancy= const
+      }
+    }
+END
 VERNAC ARGUMENT EXTEND zoo_type_declaration
 | [ zoo_type_mutability(mut) "{" zoo_ident_list_sep(flds, ";") "}" ] ->
     { Zoo_type.Record (mut, flds) }
-| [ "|" zoo_ident_list_sep(ctors, "|") ] ->
+| [ "|" zoo_type_constructor_list_sep(ctors, "|") ] ->
     { Zoo_type.Variant ctors }
 END
 

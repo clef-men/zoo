@@ -9,7 +9,7 @@ Require Import zoo.options.
 
 #[qualified] Zoo type list :=
   | Nil
-  | Cons.
+  | Cons _.
 
 #[qualified] Zoo type t := mutable
   { capacity

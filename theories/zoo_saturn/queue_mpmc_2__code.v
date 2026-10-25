@@ -8,12 +8,12 @@ Require Import backoff.backoff.
 Require Import zoo.options.
 
 #[qualified] Zoo type suffix :=
-  | Front
-  | Cons.
+  | Front _
+  | Cons _.
 
 #[qualified] Zoo type prefix :=
-  | Back
-  | Snoc
+  | Back _
+  | Snoc _
   | Used.
 
 #[qualified] Zoo type prefix.Back := mutable
