@@ -113,58 +113,58 @@ End trace۰consistent.
 Please opacify.
 Please end.
 
-Variant state :=
-  | StateCall v
-  | StateLin id v
-  | StateReturn.
-Implicit Type state : state.
+Variant status :=
+  | StatusCall v
+  | StatusLin id v
+  | StatusReturn.
+Implicit Type status : status.
 
-#[local] Definition states :=
-  gmap identifier state.
-Implicit Type states : states.
+#[local] Definition state :=
+  gmap identifier status.
+Implicit Type state : state.
 
 Please begin.
 
 Section trace۰interp.
-  Variant step : states → event → states → Prop :=
-    | stepｰcall states id v states' :
-        states !! id = None →
-        states' = <[id := StateCall v]> states →
-        step states (Call id v) states'
-    | stepｰlin states id1 v1 id2 v2 states' :
+  Variant step : state → event → state → Prop :=
+    | stepｰcall state id v state' :
+        state !! id = None →
+        state' = <[id := StatusCall v]> state →
+        step state (Call id v) state'
+    | stepｰlin state id1 v1 id2 v2 state' :
         id1 ≠ id2 →
-        states !! id1 = Some $ StateCall v1 →
-        states !! id2 = Some $ StateCall v2 →
-        states' = <[id2 := StateLin id1 v1]> $ <[id1 := StateLin id2 v2]> states →
-        step states (Lin id1 v1 id2 v2) states'
-    | stepｰreturnｰSome states id id' v' states' :
-        states !! id = Some $ StateLin id' v' →
-        states' = <[id := StateReturn]> states →
-        step states (Return id (Some v')) states'
-    | stepｰreturnｰNone states id v states' :
-        states !! id = Some $ StateCall v →
-        states' = <[id := StateReturn]> states →
-        step states (Return id None) states'.
+        state !! id1 = Some $ StatusCall v1 →
+        state !! id2 = Some $ StatusCall v2 →
+        state' = <[id2 := StatusLin id1 v1]> $ <[id1 := StatusLin id2 v2]> state →
+        step state (Lin id1 v1 id2 v2) state'
+    | stepｰreturnｰSome state id id' v' state' :
+        state !! id = Some $ StatusLin id' v' →
+        state' = <[id := StatusReturn]> state →
+        step state (Return id (Some v')) state'
+    | stepｰreturnｰNone state id v state' :
+        state !! id = Some $ StatusCall v →
+        state' = <[id := StatusReturn]> state →
+        step state (Return id None) state'.
 
-  Inductive steps : states → trace → states → Prop :=
-    | stepsｰnil states :
-        steps states [] states
-    | stepsｰcons states1 ev states2 tr states3 :
-        step states1 ev states2 →
-        steps states2 tr states3 →
-        steps states1 (ev :: tr) states3.
+  Inductive steps : state → trace → state → Prop :=
+    | stepsｰnil state :
+        steps state [] state
+    | stepsｰcons state1 ev state2 tr state3 :
+        step state1 ev state2 →
+        steps state2 tr state3 →
+        steps state1 (ev :: tr) state3.
 
-  #[local] Lemma stepsｰsnoc states1 tr states2 ev states3 :
-    steps states1 tr states2 →
-    step states2 ev states3 →
-    steps states1 (tr ++ [ev]) states3.
+  #[local] Lemma stepsｰsnoc state1 tr state2 ev state3 :
+    steps state1 tr state2 →
+    step state2 ev state3 →
+    steps state1 (tr ++ [ev]) state3.
   Proof.
     intros Hsteps Hstep.
     induction Hsteps; eauto using steps.
   Qed.
 
-  #[local] Please Definition trace۰interp tr states :=
-    steps ∅ tr states.
+  #[local] Please Definition trace۰interp tr state :=
+    steps ∅ tr state.
 
   #[local] Lemma trace۰interpｰnil :
     trace۰interp [] ∅.
@@ -172,41 +172,41 @@ Section trace۰interp.
     constructor.
   Qed.
 
-  #[local] Lemma trace۰interpｰappｰcall tr states id v :
-    states !! id = None →
-    trace۰interp tr states →
-    trace۰interp (tr ++ [Call id v]) (<[id := StateCall v]> states).
+  #[local] Lemma trace۰interpｰappｰcall tr state id v :
+    state !! id = None →
+    trace۰interp tr state →
+    trace۰interp (tr ++ [Call id v]) (<[id := StatusCall v]> state).
   Proof.
-    intros Hstates_lookup Htr.
+    intros Hstate_lookup Htr.
     eapply stepsｰsnoc. 1: done.
     constructor => //.
   Qed.
-  #[local] Lemma trace۰interpｰappｰlin tr states id1 v1 id2 v2 :
+  #[local] Lemma trace۰interpｰappｰlin tr state id1 v1 id2 v2 :
     id1 ≠ id2 →
-    states !! id1 = Some $ StateCall v1 →
-    states !! id2 = Some $ StateCall v2 →
-    trace۰interp tr states →
-    trace۰interp (tr ++ [Lin id1 v1 id2 v2]) (<[id2 := StateLin id1 v1]> $ <[id1 := StateLin id2 v2]> states).
+    state !! id1 = Some $ StatusCall v1 →
+    state !! id2 = Some $ StatusCall v2 →
+    trace۰interp tr state →
+    trace۰interp (tr ++ [Lin id1 v1 id2 v2]) (<[id2 := StatusLin id1 v1]> $ <[id1 := StatusLin id2 v2]> state).
   Proof.
-    intros Hid Hstates_lookup_1 Hstates_lookup_2 Htr.
+    intros Hid Hstate_lookup_1 Hstate_lookup_2 Htr.
     eapply stepsｰsnoc. 1: done.
     constructor => //.
   Qed.
-  #[local] Lemma trace۰interpｰappｰreturnｰSome tr states id id' v' :
-    states !! id = Some $ StateLin id' v' →
-    trace۰interp tr states →
-    trace۰interp (tr ++ [Return id (Some v')]) (<[id := StateReturn]> states).
+  #[local] Lemma trace۰interpｰappｰreturnｰSome tr state id id' v' :
+    state !! id = Some $ StatusLin id' v' →
+    trace۰interp tr state →
+    trace۰interp (tr ++ [Return id (Some v')]) (<[id := StatusReturn]> state).
   Proof.
-    intros Hstates_lookup Htr.
+    intros Hstate_lookup Htr.
     eapply stepsｰsnoc. 1: done.
     econstructor => //.
   Qed.
-  #[local] Lemma trace۰interpｰappｰreturnｰNone tr states id v :
-    states !! id = Some $ StateCall v →
-    trace۰interp tr states →
-    trace۰interp (tr ++ [Return id None]) (<[id := StateReturn]> states).
+  #[local] Lemma trace۰interpｰappｰreturnｰNone tr state id v :
+    state !! id = Some $ StatusCall v →
+    trace۰interp tr state →
+    trace۰interp (tr ++ [Return id None]) (<[id := StatusReturn]> state).
   Proof.
-    intros Hstates_lookup Htr.
+    intros Hstate_lookup Htr.
     eapply stepsｰsnoc. 1: done.
     econstructor => //.
   Qed.
@@ -218,7 +218,7 @@ Please end.
 Record exchanger_1ˡⁱⁿ۰name :=
   { exchanger_1ˡⁱⁿ۰name۰tracker : tracker۰name
   ; exchanger_1ˡⁱⁿ۰name۰exchanger : val
-  ; exchanger_1ˡⁱⁿ۰name۰states : gname
+  ; exchanger_1ˡⁱⁿ۰name۰state : gname
   }.
 Implicit Type γ : exchanger_1ˡⁱⁿ۰name.
 
@@ -235,13 +235,13 @@ Implicit Type γ : exchanger_1ˡⁱⁿ۰name.
 Class Exchanger1ˡⁱⁿG Σ `{zoo۰G : !ZooG Σ} :=
   { #[local] exchanger_1ˡⁱⁿ۰G۰tracker۰G :: TrackerG Σ tracker
   ; #[local] exchanger_1ˡⁱⁿ۰G۰exchanger۰G :: Exchanger1G Σ identifier
-  ; #[local] exchanger_1ˡⁱⁿ۰G۰states۰G :: ghost_mapG Σ identifier state
+  ; #[local] exchanger_1ˡⁱⁿ۰G۰state۰G :: ghost_mapG Σ identifier status
   }.
 
 Definition exchanger_1ˡⁱⁿ۰Σ :=
   #[tracker۰Σ tracker
   ; exchanger_1۰Σ identifier
-  ; ghost_mapΣ identifier state
+  ; ghost_mapΣ identifier status
   ].
 #[global] Instance subGｰexchanger_1ˡⁱⁿ۰Σ Σ `{zoo۰G : !ZooG Σ} :
   subG exchanger_1ˡⁱⁿ۰Σ Σ →
@@ -253,40 +253,40 @@ Qed.
 Section exchanger_1ˡⁱⁿ۰G.
   Context `{exchanger_1ˡⁱⁿ۰G : Exchanger1ˡⁱⁿG Σ}.
 
-  #[local] Definition states۰auth' γ۰states states :=
-    ghost_map_auth γ۰states Own states.
-  #[local] Definition states۰auth γ states :=
-    states۰auth' γ.(exchanger_1ˡⁱⁿ۰name۰states) states.
-  #[local] Definition states۰at' γ۰states id state :=
-    ghost_map_elem γ۰states id Own state.
-  #[local] Definition states۰at γ id state :=
-    states۰at' γ.(exchanger_1ˡⁱⁿ۰name۰states) id state.
+  #[local] Definition state۰auth' γ۰state state :=
+    ghost_map_auth γ۰state Own state.
+  #[local] Definition state۰auth γ state :=
+    state۰auth' γ.(exchanger_1ˡⁱⁿ۰name۰state) state.
+  #[local] Definition state۰at' γ۰state id status :=
+    ghost_map_elem γ۰state id Own status.
+  #[local] Definition state۰at γ id status :=
+    state۰at' γ.(exchanger_1ˡⁱⁿ۰name۰state) id status.
 
   #[local] Definition pre γ v id :=
-    states۰at γ id (StateCall v).
+    state۰at γ id (StatusCall v).
   #[local] Instance : CustomIpat "pre" :=
-    " Hstates۰at{۰{}}
+    " Hstate۰at{۰{}}
     ".
   #[local] Definition post γ v id v' id' : iProp Σ :=
-    states۰at γ id (StateLin id' v').
+    state۰at γ id (StatusLin id' v').
   #[local] Instance : CustomIpat "post" :=
-    " Hstates۰at{۰{}}
+    " Hstate۰at{۰{}}
     ".
 
   #[local] Definition inv۰inner γ : iProp Σ :=
-    ∃ tr trₗ states,
+    ∃ tr trₗ state,
     tracker۰model tracker γ.(exchanger_1ˡⁱⁿ۰name۰tracker) tr ∗
     ⌜trace۰consistent tr trₗ⌝ ∗
-    states۰auth γ states ∗
-    ⌜trace۰interp trₗ states⌝ ∗
-    ([∗ set] id ∈ dom states, identifier۰model id).
+    state۰auth γ state ∗
+    ⌜trace۰interp trₗ state⌝ ∗
+    ([∗ set] id ∈ dom state, identifier۰model id).
   #[local] Instance : CustomIpat "inv۰inner" :=
     " ( %tr
       & %trₗ
-      & %states
+      & %state
       & >Htracker۰model
       & >%Hconsistent
-      & >Hstates۰auth
+      & >Hstate۰auth
       & >%Hinterp
       & >Hids
       )
@@ -302,40 +302,40 @@ Section exchanger_1ˡⁱⁿ۰G.
 
   Zoo derive Persistent for exchanger_1ˡⁱⁿ۰inv.
 
-  #[local] Lemma statesｰalloc :
+  #[local] Lemma stateｰalloc :
     ⊢ |==>
-      ∃ γ۰states,
-      states۰auth' γ۰states ∅.
+      ∃ γ۰state,
+      state۰auth' γ۰state ∅.
   Proof.
     apply ghost_map_alloc_empty.
   Qed.
-  #[local] Lemma states۰atｰne γ id1 state1 id2 state2 :
-    states۰at γ id1 state1 -∗
-    states۰at γ id2 state2 -∗
+  #[local] Lemma state۰atｰne γ id1 status1 id2 status2 :
+    state۰at γ id1 status1 -∗
+    state۰at γ id2 status2 -∗
     ⌜id1 ≠ id2⌝.
   Proof.
     apply ghost_map_elem_ne.
   Qed.
-  #[local] Lemma statesｰlookup γ states id state :
-    states۰auth γ states -∗
-    states۰at γ id state -∗
-    ⌜states !! id = Some state⌝.
+  #[local] Lemma stateｰlookup γ state id status :
+    state۰auth γ state -∗
+    state۰at γ id status -∗
+    ⌜state !! id = Some status⌝.
   Proof.
     apply ghost_map_lookup.
   Qed.
-  #[local] Lemma statesｰinsert {γ states} id state :
-    states !! id = None →
-    states۰auth γ states ==∗
-      states۰auth γ (<[id := state]> states) ∗
-      states۰at γ id state.
+  #[local] Lemma stateｰinsert {γ state} id status :
+    state !! id = None →
+    state۰auth γ state ==∗
+      state۰auth γ (<[id := status]> state) ∗
+      state۰at γ id status.
   Proof.
     apply ghost_map_insert.
   Qed.
-  #[local] Lemma statesｰupdate {γ states id state} state' :
-    states۰auth γ states -∗
-    states۰at γ id state ==∗
-      states۰auth γ (<[id := state']> states) ∗
-      states۰at γ id state'.
+  #[local] Lemma stateｰupdate {γ state id status} status' :
+    state۰auth γ state -∗
+    state۰at γ id status ==∗
+      state۰auth γ (<[id := status']> state) ∗
+      state۰at γ id status'.
   Proof.
     apply ghost_map_update.
   Qed.
@@ -358,15 +358,15 @@ Section exchanger_1ˡⁱⁿ۰G.
     wp۰apply (trackerｰwpｰproph with "[//]") as (γ۰tracker) "Htracker۰model".
     wp۰pures.
 
-    iMod statesｰalloc as "(%γ۰states & Hstates۰auth)".
+    iMod stateｰalloc as "(%γ۰state & Hstate۰auth)".
 
     pose γ :=
       {|exchanger_1ˡⁱⁿ۰name۰tracker := γ۰tracker
       ; exchanger_1ˡⁱⁿ۰name۰exchanger := exchanger
-      ; exchanger_1ˡⁱⁿ۰name۰states := γ۰states
+      ; exchanger_1ˡⁱⁿ۰name۰state := γ۰state
       |}.
 
-    iMod (inv_alloc (nroot.@"inv") _ (inv۰inner γ) with "[Htracker۰model Hstates۰auth]") as "#Hinv".
+    iMod (inv_alloc (nroot.@"inv") _ (inv۰inner γ) with "[Htracker۰model Hstate۰auth]") as "#Hinv".
     { iFrame. iExists []. iSteps. iPureIntro.
       apply trace۰interpｰnil.
     }
@@ -374,11 +374,11 @@ Section exchanger_1ˡⁱⁿ۰G.
     iMod (exchanger_1۰initｰtoｰinv (nroot.@"exchanger") (pre γ) (post γ) with "Hexchanger۰init []") as "#Hexchanger۰inv".
     { iIntros "!> !> %v1 %id1 %v2 %id2 (:pre =1) (:pre =2)".
       iInv "Hinv" as "(:inv۰inner)".
-      iDestruct (states۰atｰne with "Hstates۰at۰1 Hstates۰at۰2") as %Hid.
-      iDestruct (statesｰlookup with "Hstates۰auth Hstates۰at۰1") as %Hstates_lookup_1.
-      iDestruct (statesｰlookup with "Hstates۰auth Hstates۰at۰2") as %Hstates_lookup_2.
-      iMod (statesｰupdate with "Hstates۰auth Hstates۰at۰1") as "(Hstates۰auth & $)".
-      iMod (statesｰupdate with "Hstates۰auth Hstates۰at۰2") as "(Hstates۰auth & $)".
+      iDestruct (state۰atｰne with "Hstate۰at۰1 Hstate۰at۰2") as %Hid.
+      iDestruct (stateｰlookup with "Hstate۰auth Hstate۰at۰1") as %Hstate_lookup_1.
+      iDestruct (stateｰlookup with "Hstate۰auth Hstate۰at۰2") as %Hstate_lookup_2.
+      iMod (stateｰupdate with "Hstate۰auth Hstate۰at۰1") as "(Hstate۰auth & $)".
+      iMod (stateｰupdate with "Hstate۰auth Hstate۰at۰2") as "(Hstate۰auth & $)".
       iSplitL.
       { iFrame. iExists (trₗ ++ [Lin id1 v1 id2 v2]). iSteps; try iPureIntro.
         - apply trace۰consistentｰappｰlin => //.
@@ -414,13 +414,13 @@ Section exchanger_1ˡⁱⁿ۰G.
     wp۰bind (𝗿𝗲𝘀𝗼𝗹𝘃𝗲 _ _ _)%E.
     iInv "Hinv" as "(:inv۰inner)".
     wp۰apply (trackerｰwpｰresolve with "Htracker۰model") as "Htracker۰model". 1: done.
-    iAssert ⌜states !! id = None⌝%I as %Hstates_lookup.
+    iAssert ⌜state !! id = None⌝%I as %Hstate_lookup.
     { iEval (rewrite eq_None_not_Some). iIntros (Hid%elem_of_dom).
       iDestruct (big_sepS_elem_of with "Hids") as "Hid!". 1: done.
       iApply (identifier۰modelｰexclusive with "Hid Hid!").
     }
-    iMod (statesｰinsert id (StateCall v) with "Hstates۰auth") as "(Hstates۰auth & Hstates۰at)". 1: done.
-    iSplitR "Hstates۰at HΦ".
+    iMod (stateｰinsert id (StatusCall v) with "Hstate۰auth") as "(Hstate۰auth & Hstate۰at)". 1: done.
+    iSplitR "Hstate۰at HΦ".
     { iFrame. iExists (trₗ ++ [Call id v]). iSteps; try iPureIntro.
       - apply trace۰consistentｰappｰcall => //.
       - apply trace۰interpｰappｰcall => //.
@@ -429,7 +429,7 @@ Section exchanger_1ˡⁱⁿ۰G.
     }
     iIntros "!> {%}".
 
-    wp۰apply+ (exchanger_1٠exchangeｰspec with "[$Hexchanger۰inv $Hstates۰at]") as ([v' |]) "H".
+    wp۰apply+ (exchanger_1٠exchangeｰspec with "[$Hexchanger۰inv $Hstate۰at]") as ([v' |]) "H".
 
     - iDestruct "H" as "(%id' & (:post))".
 
@@ -438,8 +438,8 @@ Section exchanger_1ˡⁱⁿ۰G.
       wp۰bind (𝗿𝗲𝘀𝗼𝗹𝘃𝗲 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner)".
       wp۰apply (trackerｰwpｰresolve with "Htracker۰model") as "Htracker۰model". 1: done.
-      iDestruct (statesｰlookup with "Hstates۰auth Hstates۰at") as %Hstates_lookup.
-      iMod (statesｰupdate StateReturn with "Hstates۰auth Hstates۰at") as "(Hstates۰auth & _)".
+      iDestruct (stateｰlookup with "Hstate۰auth Hstate۰at") as %Hstate_lookup.
+      iMod (stateｰupdate StatusReturn with "Hstate۰auth Hstate۰at") as "(Hstate۰auth & _)".
       iSplitR "HΦ".
       { iFrame. iExists (trₗ ++ [Return id (Some v')]). iSteps; try iPureIntro.
         - apply trace۰consistentｰappｰreturn => //.
@@ -460,8 +460,8 @@ Section exchanger_1ˡⁱⁿ۰G.
       wp۰bind (𝗿𝗲𝘀𝗼𝗹𝘃𝗲 _ _ _)%E.
       iInv "Hinv" as "(:inv۰inner)".
       wp۰apply (trackerｰwpｰresolve with "Htracker۰model") as "Htracker۰model". 1: done.
-      iDestruct (statesｰlookup with "Hstates۰auth Hstates۰at") as %Hstates_lookup.
-      iMod (statesｰupdate StateReturn with "Hstates۰auth Hstates۰at") as "(Hstates۰auth & _)".
+      iDestruct (stateｰlookup with "Hstate۰auth Hstate۰at") as %Hstate_lookup.
+      iMod (stateｰupdate StatusReturn with "Hstate۰auth Hstate۰at") as "(Hstate۰auth & _)".
       iSplitR "HΦ".
       { iFrame. iExists (trₗ ++ [Return id None]). iSteps; try iPureIntro.
         - apply trace۰consistentｰappｰreturn => //.
