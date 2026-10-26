@@ -198,6 +198,35 @@ Section auth_dgset۰G.
     iDestruct (auth_dgset۰fragｰdisjoint with "H◯1 H◯2") as %Hdisjoint.
     iCombine "H◯1 H◯2" as "H◯". rewrite gset_disj_union //.
   Qed.
+  Lemma auth_dgset۰fragｰsplit γ y1 y2 :
+    y1 ## y2 →
+    auth_dgset۰frag γ (y1 ∪ y2) ⊢
+      auth_dgset۰frag γ y1 ∗
+      auth_dgset۰frag γ y2.
+  Proof.
+    iIntros "%Hdisjoint H◯".
+    iEval (rewrite /auth_dgset۰frag -gset_disj_union //) in "H◯".
+    iDestruct "H◯" as "($ & $)".
+  Qed.
+  Lemma auth_dgset۰fragｰatomize γ y :
+    auth_dgset۰frag γ y ⊢
+    [∗ set] a ∈ y, auth_dgset۰frag γ {[a]}.
+  Proof.
+    iIntros "H◯".
+    iInduction y as [| a y Ha] using set_ind_L.
+    - auto.
+    - iApply big_sepS_insert. 1: done.
+      iDestruct (auth_dgset۰fragｰsplit with "H◯") as "($ & H◯)". 1: set_solver.
+      iSteps.
+  Qed.
+  Lemma auth_dgset۰fragｰmono {γ y1} y2 :
+    y2 ⊆ y1 →
+    auth_dgset۰frag γ y1 ⊢
+    auth_dgset۰frag γ y2.
+  Proof.
+    intros.
+    apply own_mono, auth_frag_mono, gset_disj_included => //.
+  Qed.
 
   Lemma auth_dgsetｰsubseteq γ dq x y :
     auth_dgset۰auth γ dq x -∗

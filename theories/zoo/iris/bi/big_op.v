@@ -5,6 +5,7 @@ Require Export zoo.iris.bi.big_op.big_sepL_seq.
 Require Export zoo.iris.bi.big_op.big_sepL_seqZ.
 Require Export zoo.iris.bi.big_op.big_sepL3.
 Require Export zoo.iris.bi.big_op.big_sepM.
-Require Export zoo.iris.bi.big_op.big_sepS.
 Require Export zoo.iris.bi.big_op.big_sepMS.
+Require Export zoo.iris.bi.big_op.big_sepS.
+Require Export zoo.iris.bi.big_op.big_sepS_set_seq.
 Require Import zoo.options.
