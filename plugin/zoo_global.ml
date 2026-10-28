@@ -82,12 +82,12 @@ let class_qualid ?kind (theory : Libnames.qualid) : Libnames.qualid =
 let instance_name (theory : string) : string =
   Printf.sprintf "%s%sG"
     theory
-    Separator.cdot
+    Separator.cdot1
 
 let field_name ~theory (fld : string) : string =
   Printf.sprintf "%s%s%s"
     (instance_name theory)
-    Separator.cdot
+    Separator.cdot1
     (instance_name fld)
 
 let gFunctors_name ?(kind = Zoo) (theory : string) : string =
@@ -99,7 +99,7 @@ let gFunctors_name ?(kind = Zoo) (theory : string) : string =
   | Zoo ->
       Printf.sprintf "%s%s%s"
         theory
-        Separator.cdot
+        Separator.cdot1
         Iris._Sigma
 let gFunctors_ident ?kind (theory : Names.Id.t) : Names.Id.t =
   theory

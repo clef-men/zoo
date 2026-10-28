@@ -3,7 +3,7 @@ let record_basename =
 let record_name () : string =
   Printf.sprintf "%s%s%s"
     (Utils.current_unit ())
-    Separator.cdot
+    Separator.cdot1
     record_basename
 let record_ident () : Names.lident =
   record_name ()
@@ -18,7 +18,7 @@ let record_ref () : Constrexpr.constr_expr =
 let field_name (name : string) : string =
   Printf.sprintf "%s%s%s"
     (record_name ())
-    Separator.cdot
+    Separator.cdot1
     name
 let field_ident (id : Names.Id.t) : Names.Id.t =
   id |> Names_.Id.map field_name
@@ -30,7 +30,7 @@ let field_qualid (id : Names.Id.t) : Libnames.qualid =
 let coercion_name () : string =
   Printf.sprintf "%s%s%s"
     (record_name ())
-    Separator.cdot
+    Separator.cdot1
     "to_val"
 let coercion_lname () : Names.lname =
   coercion_name ()
