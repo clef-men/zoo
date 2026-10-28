@@ -10,8 +10,14 @@ Require Import zoo.options.
 
 Implicit Type b : bool.
 Implicit Type cnt : nat.
-Implicit Type l : location.
-Implicit Type t : val.
+Implicit Type γ_tokens : list gname.
+
+Zoo name :=
+  { self : location
+  ; mutex : val
+  ; condition : val
+  ; tokens : list gname
+  }.
 
 Zoo global :=
   { mutex : mutex
@@ -23,21 +29,10 @@ Section semaphore۰G.
 
   Implicit Type P : iProp Σ.
 
-  Record metadata :=
-    { metadata۰mutex : val
-    ; metadata۰condition : val
-    ; metadata۰tokens : list gname
-    }.
-  Implicit Type γ : metadata.
-  Implicit Type γ_tokens : list gname.
-
-  #[local] Please derive EqDecision for metadata.
-  #[local] Please derive Countable for metadata.
-
   #[local] Definition tokens۰auth' γ_tokens cap : iProp Σ :=
     ⌜length γ_tokens = cap⌝.
   #[local] Definition tokens۰auth γ :=
-    tokens۰auth' γ.(metadata۰tokens).
+    tokens۰auth' γ.(semaphore۰name۰tokens).
   #[local] Instance : CustomIpat "tokens۰auth" :=
     " %Htokens
     ".
@@ -46,7 +41,7 @@ Section semaphore۰G.
     ⌜γ_tokens !! i = Some η⌝ ∗
     excl η ().
   #[local] Definition tokens۰frag γ :=
-    tokens۰frag' γ.(metadata۰tokens).
+    tokens۰frag' γ.(semaphore۰name۰tokens).
   #[local] Instance : CustomIpat "tokens۰frag" :=
     " ( %i
       & %η
@@ -55,67 +50,52 @@ Section semaphore۰G.
       )
     ".
 
-  #[local] Definition inv۰inner l γ P : iProp Σ :=
+  #[local] Definition inv۰inner γ P : iProp Σ :=
     ∃ cnt,
-    l.[count] ↦ #cnt ∗
+    γ.(semaphore۰name۰self).[count] ↦ #cnt ∗
     [∗ list] _ ∈ seq 0 ˖cnt,
       tokens۰frag γ ∗
       P.
   #[local] Instance : CustomIpat "inv۰inner" :=
     " ( %cnt
-      & Hl_count
+      & Hself_count
       & H
       )
     ".
-  Please Definition semaphore۰inv t cap P : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    l ↪ γ ∗
-    l.[mutex] ↦□ γ.(metadata۰mutex) ∗
-    mutex۰inv γ.(metadata۰mutex) (inv۰inner l γ P) ∗
-    l.[condition] ↦□ γ.(metadata۰condition) ∗
-    condition۰inv γ.(metadata۰condition) ∗
+  Please Definition semaphore۰inv γ cap P : iProp Σ :=
+    γ.(semaphore۰name۰self).[mutex] ↦□ γ.(semaphore۰name۰mutex) ∗
+    mutex۰inv γ.(semaphore۰name۰mutex) (inv۰inner γ P) ∗
+    γ.(semaphore۰name۰self).[condition] ↦□ γ.(semaphore۰name۰condition) ∗
+    condition۰inv γ.(semaphore۰name۰condition) ∗
     tokens۰auth γ cap.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l
-      & %γ
-      & ->
-      & #Hmeta
-      & #Hl_mutex
+    " ( #Hself_mutex
       & #Hmutex_inv
-      & #Hl_condition
+      & #Hself_condition
       & #Hcondition_inv
       & #Htokens_auth
       )
     ".
 
-  Please Definition semaphore۰locked t : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    l ↪ γ ∗
-    tokens۰frag γ.
+  Please Definition semaphore۰locked :=
+    tokens۰frag.
   #[local] Instance : CustomIpat "locked" :=
-    " ( %l_
-      & %γ_
-      & %Heq
-      & #Hmeta_
-      & Htokens_frag
-      )
+    " Htokens_frag
     ".
 
-  #[global] Instance semaphore۰invｰcontractive t cap :
-    Contractive (semaphore۰inv t cap).
+  #[global] Instance semaphore۰invｰcontractive γ cap :
+    Contractive (semaphore۰inv γ cap).
   Proof.
     rewrite /semaphore۰inv /inv۰inner.
     solve_contractive.
   Qed.
-  #[global] Instance semaphore۰invｰne t cap :
-    NonExpansive (semaphore۰inv t cap).
+  #[global] Instance semaphore۰invｰne γ cap :
+    NonExpansive (semaphore۰inv γ cap).
   Proof.
     apply _.
   Qed.
-  #[global] Instance semaphore۰invｰproper t cap :
-    Proper ((≡) ==> (≡)) (semaphore۰inv t cap).
+  #[global] Instance semaphore۰invｰproper γ cap :
+    Proper ((≡) ==> (≡)) (semaphore۰inv γ cap).
   Proof.
     apply _.
   Qed.
@@ -155,7 +135,7 @@ Section semaphore۰G.
     iIntros "(:tokens۰auth) Htokens_frags %Hn".
     iDestruct (big_sepLｰseqｰexists with "Htokens_frags") as "(%is & %His & Htokens_frags)".
     iDestruct (big_sepLｰexists with "Htokens_frags") as "(%ηs & %Hηs & Htokens_frags)".
-    iAssert ⌜ηs ⊆ γ.(metadata۰tokens)⌝%I as %(i1 & i2 & η & ? & Htokens_lookup_1 & Htokens_lookup_2)%list_pigeonhole; last lia.
+    iAssert ⌜ηs ⊆ γ.(semaphore۰name۰tokens)⌝%I as %(i1 & i2 & η & ? & Htokens_lookup_1 & Htokens_lookup_2)%list_pigeonhole; last lia.
     { iIntros (η Hηs_elem).
       iDestruct (big_sepL2ｰelem_ofｰr' with "Htokens_frags") as "(%i & %His_elem & %Htokens_lookup & _)"; first done.
       rewrite list_elem_of_lookup. iSteps.
@@ -176,9 +156,9 @@ Section semaphore۰G.
     }}}
       semaphore٠create #cap
     {{{
-      t
-    , RET t;
-      semaphore۰inv t ₊cap P
+      γ
+    , RET γ;
+      semaphore۰inv γ ₊cap P
     }}}.
   Proof.
     iIntros "%Hcap %Φ HPs HΦ".
@@ -186,35 +166,37 @@ Section semaphore۰G.
     wp۰rec.
     wp۰apply+ (condition٠createｰspec with "[//]") as (cond) "#Hcondition_inv".
     wp۰apply (mutex٠createｰspecｰinit with "[//]") as (mtx) "Hmutex_init".
-    wp۰block l as "#Hl_mutex #Hl_condition Hl_count" meta:"Hmeta".
+    wp۰block t as "#Ht_mutex #Ht_condition Ht_count".
 
     iMod tokensｰalloc as "(%γ_tokens & Htokens_auth & Htokens_frags)".
 
     pose γ :=
-      {|metadata۰mutex := mtx
-      ; metadata۰condition := cond
-      ; metadata۰tokens := γ_tokens
+      {|semaphore۰name۰self := t
+      ; semaphore۰name۰mutex := mtx
+      ; semaphore۰name۰condition := cond
+      ; semaphore۰name۰tokens := γ_tokens
       |}.
-    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
 
     replace ₊cap with ˖₊(cap - 1) by lia.
-    iMod (mutex۰initｰtoｰinv (inv۰inner l γ P) with "Hmutex_init [Hl_count Htokens_frags HPs]") as "#Hmutex_inv".
+    iMod (mutex۰initｰtoｰinv (inv۰inner γ P) with "Hmutex_init [Ht_count Htokens_frags HPs]") as "#Hmutex_inv".
     { iDestruct (big_sepL_sep_2 with "Htokens_frags HPs") as "H".
       iFrameSteps.
     }
-    iSteps.
+
+    iApply ("HΦ" $! γ).
+    iFrameSteps.
   Qed.
 
-  Lemma semaphore٠try_lockｰspec t cap P :
+  Lemma semaphore٠try_lockｰspec γ cap P :
     {{{
-      semaphore۰inv t cap P
+      semaphore۰inv γ cap P
     }}}
-      semaphore٠try_lock t
+      semaphore٠try_lock γ
     {{{
       b
     , RET #b;
       if b then
-        semaphore۰locked t ∗
+        semaphore۰locked γ ∗
         P
       else
         True
@@ -246,14 +228,14 @@ Section semaphore۰G.
     destruct b; iSteps.
   Qed.
 
-  Lemma semaphore٠lockｰspec t cap P :
+  Lemma semaphore٠lockｰspec γ cap P :
     {{{
-      semaphore۰inv t cap P
+      semaphore۰inv γ cap P
     }}}
-      semaphore٠lock t
+      semaphore٠lock γ
     {{{
       RET ();
-      semaphore۰locked t ∗
+      semaphore۰locked γ ∗
       P
     }}}.
   Proof.
@@ -272,13 +254,13 @@ Section semaphore۰G.
       if b then
         ∃ cnt,
         ⌜0 < cnt⌝ ∗
-        l.[count] ↦ #cnt ∗
+        γ.(semaphore۰name۰self).[count] ↦ #cnt ∗
         [∗ list] _ ∈ seq 0 ˖cnt,
           tokens۰frag γ ∗
           P
       else
         True
-    )%I with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked $Hinv_inner]") as "(Hmutex_locked & (%cnt & %Hcnt & Hl_count & H))".
+    )%I with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked $Hinv_inner]") as "(Hmutex_locked & (%cnt & %Hcnt & Hself_count & H))".
     { iIntros "!> Hmutex_locked (:inv۰inner) _".
       wp۰load. wp۰pures.
       case_bool_decide; iStepFrameSteps.
@@ -291,20 +273,19 @@ Section semaphore۰G.
     iSteps.
   Qed.
 
-  Lemma semaphore٠unlockｰspec t cap P :
+  Lemma semaphore٠unlockｰspec γ cap P :
     {{{
-      semaphore۰inv t cap P ∗
-      semaphore۰locked t ∗
+      semaphore۰inv γ cap P ∗
+      semaphore۰locked γ ∗
       P
     }}}
-      semaphore٠unlock t
+      semaphore٠unlock γ
     {{{
       RET ();
       True
     }}}.
   Proof.
-    iIntros "%Φ ((:inv) & (:locked) & HP) HΦ". injection Heq as <-.
-    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iIntros "%Φ ((:inv) & (:locked) & HP) HΦ".
 
     wp۰rec. wp۰load.
 
