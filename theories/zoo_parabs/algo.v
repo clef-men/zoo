@@ -9,7 +9,8 @@ Require Import zoo_parabs.algo__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.
-Implicit Type v pool ctx task pred found body op zero acc : val.
+Implicit Type v pool ctx task pred body op zero acc : val.
+Implicit Type found : mvar۰name.
 Implicit Type o : option val.
 
 Zoo global ⟨pool⟩ :=
