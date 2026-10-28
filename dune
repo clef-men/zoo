@@ -20,6 +20,15 @@
      --external https://plv.mpi-sws.org/rocqdoc/stdpp/ stdpp
      --external https://plv.mpi-sws.org/rocqdoc/iris/ iris
      --external https://clef-men.github.io/doc/rocq-please/ please
+     --external https://clef-men.github.io/doc/rocq-zoo/backoff/ backoff
+     --external https://clef-men.github.io/doc/rocq-zoo/unix/ unix
+     --external https://clef-men.github.io/doc/rocq-zoo/zoo/ zoo
+     --external https://clef-men.github.io/doc/rocq-zoo/zoo_data/ zoo_data
+     --external https://clef-men.github.io/doc/rocq-zoo/zoo_eio/ zoo_eio
+     --external https://clef-men.github.io/doc/rocq-zoo/zoo_mcas/ zoo_mcas
+     --external https://clef-men.github.io/doc/rocq-zoo/zoo_parabs/ zoo_parabs
+     --external https://clef-men.github.io/doc/rocq-zoo/zoo_saturn/ zoo_saturn
+     --external https://clef-men.github.io/doc/rocq-zoo/zoo_std/ zoo_std
     )
    )
   )
