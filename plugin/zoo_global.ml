@@ -130,7 +130,7 @@ let base spec =
   , Generalized (MaxImplicit, false)
   , mk_app
       (spec.base |> class_qualid |> Constrexpr_.mk_ref)
-      [Iris._Sigma_ref]
+      [Iris._Sigma_constr]
   )
 
 let fields ~theory spec =
@@ -142,7 +142,7 @@ let fields ~theory spec =
       , []
       , mk_app
           (fld.theory |> class_qualid ~kind:fld.kind |> mk_ref)
-          (Iris._Sigma_ref :: fld.arguments)
+          (Iris._Sigma_constr :: fld.arguments)
       )
     , { rfu_attrs= [("local", Attributes.VernacFlagEmpty) |> CAst.make]
       ; rfu_coercion= NoCoercion
@@ -173,13 +173,13 @@ let gFunctors spec =
   List.fold_right (fun fld acc ->
     let open Constrexpr_ in
     mk_app
-      Iris.gFunctors_app_ref
+      Iris.gFunctors_app_constr
       [ mk_app
           (fld.theory |> gFunctors_qualid ~kind:fld.kind |> mk_ref)
           fld.arguments
       ; acc
       ]
-  ) spec.fields Iris.gFunctors_nil_ref
+  ) spec.fields Iris.gFunctors_nil_constr
 let gFunctors ~theory spec =
   let open Vernacexpr in
   ( None
@@ -231,16 +231,16 @@ let subG ~theory spec =
       (Iris._Sigma_binder :: base spec :: spec.parameters)
       ( mk_arrow
           ( mk_app
-              Iris.subG_ref
+              Iris.subG_constr
               [ mk_app
                   (theory |> gFunctors_name |> mk_ref_string)
                   params
-              ; Iris._Sigma_ref
+              ; Iris._Sigma_constr
               ]
           )
           ( mk_app
               (theory |> class_name |> mk_ref_string)
-              (Iris._Sigma_ref :: params)
+              (Iris._Sigma_constr :: params)
           )
       )
       Hints.empty_hint_info

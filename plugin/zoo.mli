@@ -2,39 +2,39 @@ open Ltac_plugin
 
 val location :
   string
-val location_globref :
+val location_gref :
   unit -> Names.GlobRef.t
 
 val prophet_identifier :
   string
-val prophet_identifier_globref :
+val prophet_identifier_gref :
   unit -> Names.GlobRef.t
 
 val _Tag :
   int -> string
-val _Tag_ref :
+val _Tag_constr :
   int -> Constrexpr.constr_expr
 
 val val_ :
   string
 val val_qualid :
   Libnames.qualid
-val val_ref :
+val val_constr :
   Constrexpr.constr_expr
 
 val _ValLoc :
   string
-val _ValLoc_ref :
+val _ValLoc_constr :
   Constrexpr.constr_expr
 
 val _ValProph :
   string
-val _ValProph_ref :
+val _ValProph_constr :
   Constrexpr.constr_expr
 
 val _ToVal :
   string
-val _ToVal_ref :
+val _ToVal_constr :
   Constrexpr.constr_expr
 
 val ghost_state :
@@ -47,7 +47,7 @@ val ownership_constr :
 
 val _Discard :
   string
-val _Discard_ref :
+val _Discard_constr :
   Constrexpr.constr_expr
 
 val solve_inG :
@@ -62,7 +62,7 @@ val solve_iris_typeclass_tactic :
 
 val in_type :
   string
-val in_type_ref :
+val in_type_constr :
   Constrexpr.constr_expr
 
 module Custom_entry : sig

@@ -3,7 +3,7 @@ let location =
 let location_qualid =
   location
   |> Libnames.qualid_of_string
-let location_globref () =
+let location_gref () =
   location_qualid
   |> Nametab.global
 
@@ -12,13 +12,13 @@ let prophet_identifier =
 let prophet_identifier_qualid =
   prophet_identifier
   |> Libnames.qualid_of_string
-let prophet_identifier_globref () =
+let prophet_identifier_gref () =
   prophet_identifier_qualid
   |> Nametab.global
 
 let _Tag =
   Printf.sprintf "zoo.language.tag.Tag%i"
-let _Tag_ref i =
+let _Tag_constr i =
   _Tag i
   |> Constrexpr_.mk_ref_string
 
@@ -27,25 +27,25 @@ let val_ =
 let val_qualid =
   val_
   |> Libnames.qualid_of_string
-let val_ref =
+let val_constr =
   val_
   |> Constrexpr_.mk_ref_string
 
 let _ValLoc =
   "zoo.language.syntax.ValLoc"
-let _ValLoc_ref =
+let _ValLoc_constr =
   _ValLoc
   |> Constrexpr_.mk_ref_string
 
 let _ValProph =
   "zoo.language.syntax.ValProph"
-let _ValProph_ref =
+let _ValProph_constr =
   _ValProph
   |> Constrexpr_.mk_ref_string
 
 let _ToVal =
   "zoo.language.notations.ToVal"
-let _ToVal_ref =
+let _ToVal_constr =
   _ToVal
   |> Constrexpr_.mk_ref_string
 
@@ -63,7 +63,7 @@ let ownership_constr () =
 
 let _Discard =
   "zoo.program_logic.ghost_state.Discard"
-let _Discard_ref =
+let _Discard_constr =
   _Discard
   |> Constrexpr_.mk_ref_string
 
@@ -83,7 +83,7 @@ let solve_iris_typeclass_tactic () =
 
 let in_type =
   "zoo.language.notations.in_type"
-let in_type_ref =
+let in_type_constr =
   in_type
   |> Constrexpr_.mk_ref_string
 

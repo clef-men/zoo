@@ -11,7 +11,7 @@ let record_ident () : Names.lident =
 let record_qualid () : Libnames.qualid =
   record_name ()
   |> Libnames.qualid_of_string
-let record_ref () : Constrexpr.constr_expr =
+let record_constr () : Constrexpr.constr_expr =
   record_qualid ()
   |> Constrexpr_.mk_ref
 
@@ -38,7 +38,7 @@ let coercion_lname () : Names.lname =
 let coercion_qualid () : Libnames.qualid =
   coercion_name ()
   |> Libnames.qualid_of_string
-let coercion_ref () : Constrexpr.constr_expr =
+let coercion_constr () : Constrexpr.constr_expr =
   coercion_qualid ()
   |> Constrexpr_.mk_ref
 
@@ -89,7 +89,7 @@ let record flds =
       ]
     )
   ; ( None
-    , VernacReserve [[Iris.gamma_lident], record_ref ()]
+    , VernacReserve [[Iris.gamma_lident], record_constr ()]
     )
   ]
 
@@ -100,8 +100,8 @@ let instance ~locality =
     , VernacInstance
       ( (instance_lname (), None)
       , []
-      , mk_app Zoo._ToVal_ref [record_ref ()]
-      , Some (false, coercion_ref ())
+      , mk_app Zoo._ToVal_constr [record_constr ()]
+      , Some (false, coercion_constr ())
       , Hints.empty_hint_info
       )
     )
@@ -118,15 +118,15 @@ let coercion fld =
   ( false
   , (fld |> field_qualid, None)
   , []
-  , Iris.gamma_ref
+  , Iris.gamma_constr
   ) |> CAst.make
 let coercion ~kind fld =
   let open Constrexpr_ in
   match kind with
   | Location ->
-      mk_app Zoo._ValLoc_ref [coercion fld]
+      mk_app Zoo._ValLoc_constr [coercion fld]
   | Prophet ->
-      mk_app Zoo._ValProph_ref [coercion fld]
+      mk_app Zoo._ValProph_constr [coercion fld]
   | Other ->
       coercion fld
 let coercion ~locality ~kind fld =
@@ -142,12 +142,12 @@ let coercion ~locality ~kind fld =
             ( [Iris.gamma_lname]
             , None
             , Default Explicit
-            , record_ref ()
+            , record_constr ()
             )
           ]
         , None
         , coercion ~kind fld
-        , Some Zoo.val_ref
+        , Some Zoo.val_constr
         )
       )
     )
@@ -163,9 +163,9 @@ let coercion ~locality ~kind fld =
   ]
 let coercion ~locality fld ty =
   let ty = Nametab.locate ty in
-  if Names.GlobRef.UserOrd.equal ty (Zoo.location_globref ()) then
+  if Names.GlobRef.UserOrd.equal ty (Zoo.location_gref ()) then
     coercion ~locality ~kind:Location fld
-  else if Names.GlobRef.UserOrd.equal ty (Zoo.prophet_identifier_globref ()) then
+  else if Names.GlobRef.UserOrd.equal ty (Zoo.prophet_identifier_gref ()) then
     coercion ~locality ~kind:Prophet fld
   else
     coercion ~locality ~kind:Other fld

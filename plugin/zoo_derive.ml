@@ -11,11 +11,11 @@ module Kind = struct
     | Persistent ->
         "persistent"
 
-  let to_ref = function
+  let to_constr = function
     | Timeless ->
-        Iris._Timeless_ref
+        Iris._Timeless_constr
     | Persistent ->
-        Iris._Persistent_ref
+        Iris._Persistent_constr
 end
 
 module Modifier = struct
@@ -90,9 +90,9 @@ let instance_argument ~(modifier : Modifier.t) (id, ty) =
       instance_argument id
   | Discarded ->
       if Constr.equal ty (Iris.dfrac_constr ()) then
-        Iris._DfracDiscarded_ref
+        Iris._DfracDiscarded_constr
       else if Constr.equal ty (Zoo.ownership_constr ()) then
-        Zoo._Discard_ref
+        Zoo._Discard_constr
       else
         instance_argument id
 let instance_arguments ~modifier params =
@@ -110,7 +110,7 @@ let interp ~locality ~kind ~modifier id =
       (instance_name ~kind id, None)
       (instance_parameters ~modifier params)
       ( mk_app
-          (kind |> Kind.to_ref)
+          (kind |> Kind.to_constr)
           [mk_app (id |> mk_ref) (instance_arguments ~modifier params)]
       )
       Hints.empty_hint_info

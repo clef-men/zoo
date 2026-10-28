@@ -78,14 +78,14 @@ let notation_interp ~id ~(kind : Kind.t) i name =
   let open Constrexpr in
   let open Constrexpr_ in
   mk_app
-    Zoo.in_type_ref
+    Zoo.in_type_constr
     [ id |> type_name |> mk_string
     ; name |> mk_string
     ; match kind with
       | Record _mut ->
           mk_int i
       | Variant ->
-          Zoo._Tag_ref i
+          Zoo._Tag_constr i
     ]
 let notation ~qualified ~id ~kind i name =
   let open Vernacexpr in

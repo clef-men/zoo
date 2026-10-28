@@ -1,38 +1,38 @@
 val gFunctors :
   string
-val gFunctors_ref :
+val gFunctors_constr :
   Constrexpr.constr_expr
 
 val gFunctors_nil :
   string
-val gFunctors_nil_ref :
+val gFunctors_nil_constr :
   Constrexpr.constr_expr
 
 val gFunctors_app :
   string
-val gFunctors_app_ref :
+val gFunctors_app_constr :
   Constrexpr.constr_expr
 
 val _Sigma :
   string
-val _Sigma_ref :
+val _Sigma_constr :
   Constrexpr.constr_expr
 val _Sigma_binder :
   Constrexpr.local_binder_expr
 
 val subG :
   string
-val subG_ref :
+val subG_constr :
   Constrexpr.constr_expr
 
 val _Timeless :
   string
-val _Timeless_ref :
+val _Timeless_constr :
   Constrexpr.constr_expr
 
 val _Persistent :
   string
-val _Persistent_ref :
+val _Persistent_constr :
   Constrexpr.constr_expr
 
 val dfrac :
@@ -42,7 +42,7 @@ val dfrac_constr :
 
 val _DfracDiscarded :
   string
-val _DfracDiscarded_ref :
+val _DfracDiscarded_constr :
   Constrexpr.constr_expr
 
 val gamma :
@@ -51,5 +51,5 @@ val gamma_lident :
   Names.lident
 val gamma_lname :
   Names.lname
-val gamma_ref :
+val gamma_constr :
   Constrexpr.constr_expr
