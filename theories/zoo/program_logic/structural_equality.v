@@ -48,18 +48,24 @@ Please Definition structeq :=
 #[local] Definition structeq۰aux :=
   ValRecs 1 __zoo_recs.
 #[global] Instance :
-  AsValRecs' structeq 0 __zoo_recs [
-    structeq ;
-    structeq۰aux
-  ].
+  AsValRecs'
+    structeq
+    0
+    __zoo_recs
+    [ structeq
+    ; structeq۰aux
+    ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' structeq۰aux 1 __zoo_recs [
-    structeq ;
+  AsValRecs'
     structeq۰aux
-  ].
+    1
+    __zoo_recs
+    [ structeq
+    ; structeq۰aux
+    ].
 Proof.
   done.
 Qed.
