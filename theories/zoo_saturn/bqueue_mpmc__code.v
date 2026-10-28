@@ -88,7 +88,7 @@ Definition bqueue_mpmc٠fix_back : val :=
   𝗳𝘂𝗻 "t" "back" "new_back" ->
     bqueue_mpmc٠fix_back₁ "t" "back" "new_back" backoff٠default.
 
-#[local] Definition __zoo_recs_0 :=
+#[local] Definition __zoo۰recs۰0 :=
   ( 𝗿𝗲𝗰𝘀 "push_1" "t" "back" "cap" "new_back" ->
       𝗺𝗮𝘁𝗰𝗵 "back" 𝘄𝗶𝘁𝗵
       | bqueue_mpmc٠Node ⎽ ⎽ ⎽ ⎽ 𝗮𝘀 "back_r" ->
@@ -145,16 +145,16 @@ Definition bqueue_mpmc٠fix_back : val :=
             "back_r".{bqueue_mpmc٠estimated_capacity}
             "new_back"
       𝗲𝗻𝗱
-  )%zoo_recs.
+  )%zoo۰recs.
 Definition bqueue_mpmc٠push_1 :=
-  ValRecs 0 __zoo_recs_0.
+  ValRecs 0 __zoo۰recs۰0.
 Definition bqueue_mpmc٠push_2 :=
-  ValRecs 1 __zoo_recs_0.
+  ValRecs 1 __zoo۰recs۰0.
 #[global] Instance :
   AsValRecs'
     bqueue_mpmc٠push_1
     0
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ bqueue_mpmc٠push_1
     ; bqueue_mpmc٠push_2
     ].
@@ -165,7 +165,7 @@ Qed.
   AsValRecs'
     bqueue_mpmc٠push_2
     1
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ bqueue_mpmc٠push_1
     ; bqueue_mpmc٠push_2
     ].

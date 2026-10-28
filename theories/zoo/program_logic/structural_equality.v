@@ -14,7 +14,7 @@ Implicit Type v w : val.
 Implicit Type vs : list val.
 Implicit Type lv : lowval.
 
-#[local] Definition __zoo_recs := (
+#[local] Definition __zoo۰recs := (
   𝗿𝗲𝗰𝘀 "structeq" "v1" "v2" ->
     𝗶𝗳 𝗶𝗺𝗺𝗲𝗱𝗶𝗮𝘁𝗲 "v1" 𝘁𝗵𝗲𝗻
       𝗶𝗳 𝗶𝗺𝗺𝗲𝗱𝗶𝗮𝘁𝗲 "v2" 𝘁𝗵𝗲𝗻
@@ -42,16 +42,16 @@ Implicit Type lv : lowval.
       𝗹𝗲𝘁 "i" = "i" - 1 𝗶𝗻
       "structeq" (𝗹𝗼𝗮𝗱 "v1" "i") (𝗹𝗼𝗮𝗱 "v2" "i") 𝗮𝗻𝗱
       "structeq_aux" "v1" "v2" "i"
-)%zoo_recs.
+)%zoo۰recs.
 Please Definition structeq :=
-  ValRecs 0 __zoo_recs.
+  ValRecs 0 __zoo۰recs.
 #[local] Definition structeq۰aux :=
-  ValRecs 1 __zoo_recs.
+  ValRecs 1 __zoo۰recs.
 #[global] Instance :
   AsValRecs'
     structeq
     0
-    __zoo_recs
+    __zoo۰recs
     [ structeq
     ; structeq۰aux
     ].
@@ -62,7 +62,7 @@ Qed.
   AsValRecs'
     structeq۰aux
     1
-    __zoo_recs
+    __zoo۰recs
     [ structeq
     ; structeq۰aux
     ].

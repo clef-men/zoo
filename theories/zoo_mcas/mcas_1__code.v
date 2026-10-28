@@ -80,7 +80,7 @@ Definition mcas_1٠finish : val :=
         mcas_1٠status_to_bool "casn".{mcas_1٠status}
     𝗲𝗻𝗱.
 
-#[local] Definition __zoo_recs_0 :=
+#[local] Definition __zoo۰recs۰0 :=
   ( 𝗿𝗲𝗰𝘀 "determine_as" "casn" "cass" ->
       𝗹𝗲𝘁 "gid" = 𝗶𝗱 𝗶𝗻
       𝗺𝗮𝘁𝗰𝗵 "cass" 𝘄𝗶𝘁𝗵
@@ -134,20 +134,20 @@ Definition mcas_1٠finish : val :=
       | mcas_1٠Undetermined "cass" ->
           "determine_as" "casn" "cass"
       𝗲𝗻𝗱
-  )%zoo_recs.
+  )%zoo۰recs.
 Definition mcas_1٠determine_as :=
-  ValRecs 0 __zoo_recs_0.
+  ValRecs 0 __zoo۰recs۰0.
 Definition mcas_1٠lock :=
-  ValRecs 1 __zoo_recs_0.
+  ValRecs 1 __zoo۰recs۰0.
 Definition mcas_1٠eval :=
-  ValRecs 2 __zoo_recs_0.
+  ValRecs 2 __zoo۰recs۰0.
 Definition mcas_1٠determine :=
-  ValRecs 3 __zoo_recs_0.
+  ValRecs 3 __zoo۰recs۰0.
 #[global] Instance :
   AsValRecs'
     mcas_1٠determine_as
     0
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ mcas_1٠determine_as
     ; mcas_1٠lock
     ; mcas_1٠eval
@@ -160,7 +160,7 @@ Qed.
   AsValRecs'
     mcas_1٠lock
     1
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ mcas_1٠determine_as
     ; mcas_1٠lock
     ; mcas_1٠eval
@@ -173,7 +173,7 @@ Qed.
   AsValRecs'
     mcas_1٠eval
     2
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ mcas_1٠determine_as
     ; mcas_1٠lock
     ; mcas_1٠eval
@@ -186,7 +186,7 @@ Qed.
   AsValRecs'
     mcas_1٠determine
     3
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ mcas_1٠determine_as
     ; mcas_1٠lock
     ; mcas_1٠eval

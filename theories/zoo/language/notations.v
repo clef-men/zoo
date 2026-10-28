@@ -18,9 +18,9 @@ Coercion Val : val >-> expr.
 Coercion Var : string >-> expr.
 Coercion Apply : expr >-> Funclass.
 
-Declare Custom Entry zoo_rec.
-Declare Scope zoo_recs_scope.
-Delimit Scope zoo_recs_scope with zoo_recs.
+Declare Custom Entry zoo۰rec.
+Declare Scope zoo۰recs.
+Delimit Scope zoo۰recs with zoo۰recs.
 
 Declare Custom Entry zoo_field.
 Declare Custom Entry zoo_constructor.
@@ -370,7 +370,7 @@ Notation "f x -> e" := (
   @pair (prod binder binder) expr
     (@pair binder binder f%binder x%binder)
     e%E
-)(in custom zoo_rec at level 200,
+)(in custom zoo۰rec at level 200,
   f constr at level 1,
   x constr at level 1,
   e constr at level 200,
@@ -380,7 +380,7 @@ Notation "f x0 x1 .. xn -> e" := (
   @pair (prod binder binder) expr
     (@pair binder binder f%binder x0%binder)
     (Fun x1%binder .. (Fun xn%binder e%E) ..)
-)(in custom zoo_rec at level 200,
+)(in custom zoo۰rec at level 200,
   f constr at level 1,
   x0 constr at level 1,
   x1 constr at level 1,
@@ -391,10 +391,10 @@ Notation "f x0 x1 .. xn -> e" := (
 Notation "'𝗿𝗲𝗰𝘀' rec_1 '𝘄𝗶𝘁𝗵' .. '𝘄𝗶𝘁𝗵' rec_n" := (
   @cons recursive rec_1 (.. (@cons recursive rec_n (@nil recursive)) ..)
 )(at level 200,
-  rec_1 custom zoo_rec,
-  rec_n custom zoo_rec,
+  rec_1 custom zoo۰rec,
+  rec_n custom zoo۰rec,
   format "'[v' 𝗿𝗲𝗰𝘀  rec_1 '/' '𝘄𝗶𝘁𝗵'  .. '/' '𝘄𝗶𝘁𝗵'  rec_n ']'"
-) : zoo_recs_scope.
+) : zoo۰recs.
 
 Notation "'𝗿𝗲𝗰' f x -> e" := (
   Rec f%binder x%binder e%E

@@ -16,7 +16,7 @@ Definition exchanger_1٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
     𝗿𝗲𝗳 §exchanger_1٠Null.
 
-#[local] Definition __zoo_recs_0 :=
+#[local] Definition __zoo۰recs۰0 :=
   ( 𝗿𝗲𝗰𝘀 "exchange" "t" "v" ->
       𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
       | exchanger_1٠Null ->
@@ -46,16 +46,16 @@ Definition exchanger_1٠create : val :=
       ) 𝗲𝗹𝘀𝗲 (
         "exchange" "t" "v"
       )
-  )%zoo_recs.
+  )%zoo۰recs.
 Definition exchanger_1٠exchange :=
-  ValRecs 0 __zoo_recs_0.
+  ValRecs 0 __zoo۰recs۰0.
 Definition exchanger_1٠exchange_aux :=
-  ValRecs 1 __zoo_recs_0.
+  ValRecs 1 __zoo۰recs۰0.
 #[global] Instance :
   AsValRecs'
     exchanger_1٠exchange
     0
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ exchanger_1٠exchange
     ; exchanger_1٠exchange_aux
     ].
@@ -66,7 +66,7 @@ Qed.
   AsValRecs'
     exchanger_1٠exchange_aux
     1
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ exchanger_1٠exchange
     ; exchanger_1٠exchange_aux
     ].

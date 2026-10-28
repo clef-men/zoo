@@ -112,7 +112,7 @@ Definition queue_mpmc_2٠help : val :=
         queue_mpmc_2٠finish "back"
     𝗲𝗻𝗱.
 
-#[local] Definition __zoo_recs_0 :=
+#[local] Definition __zoo۰recs۰0 :=
   ( 𝗿𝗲𝗰𝘀 "push_aux" "t" "v" "i" "back" "backoff" ->
       𝗹𝗲𝘁 "new_back" = ‘queue_mpmc_2٠Snoc[ "i" + 1, "v", "back" ] 𝗶𝗻
       𝗶𝗳 ~ 𝗰𝗮𝘀 "t".[queue_mpmc_2٠back] "back" "new_back" 𝘁𝗵𝗲𝗻 (
@@ -137,16 +137,16 @@ Definition queue_mpmc_2٠help : val :=
               "push" "t" "v" "backoff"
           𝗲𝗻𝗱
       𝗲𝗻𝗱
-  )%zoo_recs.
+  )%zoo۰recs.
 Definition queue_mpmc_2٠push_aux :=
-  ValRecs 0 __zoo_recs_0.
+  ValRecs 0 __zoo۰recs۰0.
 Definition queue_mpmc_2٠push₁ :=
-  ValRecs 1 __zoo_recs_0.
+  ValRecs 1 __zoo۰recs۰0.
 #[global] Instance :
   AsValRecs'
     queue_mpmc_2٠push_aux
     0
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ queue_mpmc_2٠push_aux
     ; queue_mpmc_2٠push₁
     ].
@@ -157,7 +157,7 @@ Qed.
   AsValRecs'
     queue_mpmc_2٠push₁
     1
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ queue_mpmc_2٠push_aux
     ; queue_mpmc_2٠push₁
     ].
@@ -169,7 +169,7 @@ Definition queue_mpmc_2٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
     queue_mpmc_2٠push₁ "t" "v" backoff٠default.
 
-#[local] Definition __zoo_recs_1 :=
+#[local] Definition __zoo۰recs۰1 :=
   ( 𝗿𝗲𝗰𝘀 "pop_1" "t" "front" "backoff" ->
       𝗺𝗮𝘁𝗰𝗵 "front" 𝘄𝗶𝘁𝗵
       | queue_mpmc_2٠Cons ⎽ "v" "new_front" ->
@@ -225,20 +225,20 @@ Definition queue_mpmc_2٠push : val :=
       )
     𝘄𝗶𝘁𝗵 "pop" "t" "backoff" ->
       "pop_1" "t" "t".{queue_mpmc_2٠front} "backoff"
-  )%zoo_recs.
+  )%zoo۰recs.
 Definition queue_mpmc_2٠pop_1 :=
-  ValRecs 0 __zoo_recs_1.
+  ValRecs 0 __zoo۰recs۰1.
 Definition queue_mpmc_2٠pop_2 :=
-  ValRecs 1 __zoo_recs_1.
+  ValRecs 1 __zoo۰recs۰1.
 Definition queue_mpmc_2٠pop_3 :=
-  ValRecs 2 __zoo_recs_1.
+  ValRecs 2 __zoo۰recs۰1.
 Definition queue_mpmc_2٠pop₁ :=
-  ValRecs 3 __zoo_recs_1.
+  ValRecs 3 __zoo۰recs۰1.
 #[global] Instance :
   AsValRecs'
     queue_mpmc_2٠pop_1
     0
-    __zoo_recs_1
+    __zoo۰recs۰1
     [ queue_mpmc_2٠pop_1
     ; queue_mpmc_2٠pop_2
     ; queue_mpmc_2٠pop_3
@@ -251,7 +251,7 @@ Qed.
   AsValRecs'
     queue_mpmc_2٠pop_2
     1
-    __zoo_recs_1
+    __zoo۰recs۰1
     [ queue_mpmc_2٠pop_1
     ; queue_mpmc_2٠pop_2
     ; queue_mpmc_2٠pop_3
@@ -264,7 +264,7 @@ Qed.
   AsValRecs'
     queue_mpmc_2٠pop_3
     2
-    __zoo_recs_1
+    __zoo۰recs۰1
     [ queue_mpmc_2٠pop_1
     ; queue_mpmc_2٠pop_2
     ; queue_mpmc_2٠pop_3
@@ -277,7 +277,7 @@ Qed.
   AsValRecs'
     queue_mpmc_2٠pop₁
     3
-    __zoo_recs_1
+    __zoo۰recs۰1
     [ queue_mpmc_2٠pop_1
     ; queue_mpmc_2٠pop_2
     ; queue_mpmc_2٠pop_3

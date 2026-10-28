@@ -18,7 +18,7 @@ Definition channel_sync_1٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
     𝗿𝗲𝗳 §channel_sync_1٠Null.
 
-#[local] Definition __zoo_recs_0 :=
+#[local] Definition __zoo۰recs۰0 :=
   ( 𝗿𝗲𝗰𝘀 "send" "t" "v" ->
       𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
       | channel_sync_1٠Null ->
@@ -50,16 +50,16 @@ Definition channel_sync_1٠create : val :=
       ) 𝗲𝗹𝘀𝗲 (
         "send" "t" "v"
       )
-  )%zoo_recs.
+  )%zoo۰recs.
 Definition channel_sync_1٠send :=
-  ValRecs 0 __zoo_recs_0.
+  ValRecs 0 __zoo۰recs۰0.
 Definition channel_sync_1٠send_aux :=
-  ValRecs 1 __zoo_recs_0.
+  ValRecs 1 __zoo۰recs۰0.
 #[global] Instance :
   AsValRecs'
     channel_sync_1٠send
     0
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ channel_sync_1٠send
     ; channel_sync_1٠send_aux
     ].
@@ -70,7 +70,7 @@ Qed.
   AsValRecs'
     channel_sync_1٠send_aux
     1
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ channel_sync_1٠send
     ; channel_sync_1٠send_aux
     ].
@@ -78,7 +78,7 @@ Proof.
   done.
 Qed.
 
-#[local] Definition __zoo_recs_1 :=
+#[local] Definition __zoo۰recs۰1 :=
   ( 𝗿𝗲𝗰𝘀 "recv" "t" ->
       𝗺𝗮𝘁𝗰𝗵 !"t" 𝘄𝗶𝘁𝗵
       | channel_sync_1٠Null ->
@@ -113,16 +113,16 @@ Qed.
       ) 𝗲𝗹𝘀𝗲 (
         "recv" "t"
       )
-  )%zoo_recs.
+  )%zoo۰recs.
 Definition channel_sync_1٠recv :=
-  ValRecs 0 __zoo_recs_1.
+  ValRecs 0 __zoo۰recs۰1.
 Definition channel_sync_1٠recv_aux :=
-  ValRecs 1 __zoo_recs_1.
+  ValRecs 1 __zoo۰recs۰1.
 #[global] Instance :
   AsValRecs'
     channel_sync_1٠recv
     0
-    __zoo_recs_1
+    __zoo۰recs۰1
     [ channel_sync_1٠recv
     ; channel_sync_1٠recv_aux
     ].
@@ -133,7 +133,7 @@ Qed.
   AsValRecs'
     channel_sync_1٠recv_aux
     1
-    __zoo_recs_1
+    __zoo۰recs۰1
     [ channel_sync_1٠recv
     ; channel_sync_1٠recv_aux
     ].

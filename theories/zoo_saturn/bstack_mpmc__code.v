@@ -33,7 +33,7 @@ Definition bstack_mpmc٠is_empty : val :=
   𝗳𝘂𝗻 "t" ->
     "t".{bstack_mpmc٠front} == §bstack_mpmc٠Nil.
 
-#[local] Definition __zoo_recs_0 :=
+#[local] Definition __zoo۰recs۰0 :=
   ( 𝗿𝗲𝗰𝘀 "push_aux" "t" "sz" "v" "front" "backoff" ->
       𝗹𝗲𝘁 "new_front" = ‘bstack_mpmc٠Cons[ "sz" + 1, "v", "front" ] 𝗶𝗻
       𝗶𝗳 𝗰𝗮𝘀 "t".[bstack_mpmc٠front] "front" "new_front" 𝘁𝗵𝗲𝗻 (
@@ -52,16 +52,16 @@ Definition bstack_mpmc٠is_empty : val :=
             "push_aux" "t" "sz" "v" "front" "backoff"
           )
       𝗲𝗻𝗱
-  )%zoo_recs.
+  )%zoo۰recs.
 Definition bstack_mpmc٠push_aux :=
-  ValRecs 0 __zoo_recs_0.
+  ValRecs 0 __zoo۰recs۰0.
 Definition bstack_mpmc٠push₁ :=
-  ValRecs 1 __zoo_recs_0.
+  ValRecs 1 __zoo۰recs۰0.
 #[global] Instance :
   AsValRecs'
     bstack_mpmc٠push_aux
     0
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ bstack_mpmc٠push_aux
     ; bstack_mpmc٠push₁
     ].
@@ -72,7 +72,7 @@ Qed.
   AsValRecs'
     bstack_mpmc٠push₁
     1
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ bstack_mpmc٠push_aux
     ; bstack_mpmc٠push₁
     ].

@@ -51,7 +51,7 @@ Definition vertex٠precede : val :=
       )
     ).
 
-#[local] Definition __zoo_recs_0 :=
+#[local] Definition __zoo۰recs۰0 :=
   ( 𝗿𝗲𝗰𝘀 "release" "ctx" "t" ->
       𝗶𝗳 𝗳𝗮𝗮 "t".[vertex٠preds] (-1) == 1 𝘁𝗵𝗲𝗻 (
         "run" "ctx" "t"
@@ -66,16 +66,16 @@ Definition vertex٠precede : val :=
            ) 𝗲𝗹𝘀𝗲 (
              "release" "ctx" "t"
            ))
-  )%zoo_recs.
+  )%zoo۰recs.
 Definition vertex٠release :=
-  ValRecs 0 __zoo_recs_0.
+  ValRecs 0 __zoo۰recs۰0.
 Definition vertex٠run :=
-  ValRecs 1 __zoo_recs_0.
+  ValRecs 1 __zoo۰recs۰0.
 #[global] Instance :
   AsValRecs'
     vertex٠release
     0
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ vertex٠release
     ; vertex٠run
     ].
@@ -86,7 +86,7 @@ Qed.
   AsValRecs'
     vertex٠run
     1
-    __zoo_recs_0
+    __zoo۰recs۰0
     [ vertex٠release
     ; vertex٠run
     ].
