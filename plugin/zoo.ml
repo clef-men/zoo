@@ -89,19 +89,19 @@ let in_type_ref =
 
 module Custom_entry = struct
   let constructor =
-    "zoo.language.notations.zoo_constructor"
+    "zoo.language.notations.zoo۰constructor"
   let constructor_qualid =
     constructor
     |> Libnames.qualid_of_string
 
   let field =
-    "zoo.language.notations.zoo_field"
+    "zoo.language.notations.zoo۰field"
   let field_qualid =
     field
     |> Libnames.qualid_of_string
 
   let projection =
-    "zoo.language.notations.zoo_projection"
+    "zoo.language.notations.zoo۰projection"
   let projection_qualid =
     projection
     |> Libnames.qualid_of_string

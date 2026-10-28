@@ -22,10 +22,10 @@ Declare Custom Entry zoo۰rec.
 Declare Scope zoo۰recs.
 Delimit Scope zoo۰recs with zoo۰recs.
 
-Declare Custom Entry zoo_field.
-Declare Custom Entry zoo_constructor.
-Declare Custom Entry zoo_projection.
-Declare Custom Entry zoo_branch.
+Declare Custom Entry zoo۰field.
+Declare Custom Entry zoo۰constructor.
+Declare Custom Entry zoo۰projection.
+Declare Custom Entry zoo۰branch.
 
 Number Notation
   val
@@ -109,84 +109,84 @@ Notation "'false'" := (
 
 Notation "0" :=
   0
-( in custom zoo_field
+( in custom zoo۰field
 ).
 Notation "1" :=
   1
-( in custom zoo_field
+( in custom zoo۰field
 ).
 Notation "2" :=
   2
-( in custom zoo_field
+( in custom zoo۰field
 ).
 Notation "3" :=
   3
-( in custom zoo_field
+( in custom zoo۰field
 ).
 Notation "4" :=
   4
-( in custom zoo_field
+( in custom zoo۰field
 ).
 Notation "5" :=
   5
-( in custom zoo_field
+( in custom zoo۰field
 ).
 Notation "6" :=
   6
-( in custom zoo_field
+( in custom zoo۰field
 ).
 Notation "7" :=
   7
-( in custom zoo_field
+( in custom zoo۰field
 ).
 Notation "8" :=
   8
-( in custom zoo_field
+( in custom zoo۰field
 ).
 Notation "9" :=
   9
-( in custom zoo_field
+( in custom zoo۰field
 ).
 
 Notation "0" :=
   0
-( in custom zoo_projection
+( in custom zoo۰projection
 ).
 Notation "1" :=
   1
-( in custom zoo_projection
+( in custom zoo۰projection
 ).
 Notation "2" :=
   2
-( in custom zoo_projection
+( in custom zoo۰projection
 ).
 Notation "3" :=
   3
-( in custom zoo_projection
+( in custom zoo۰projection
 ).
 Notation "4" :=
   4
-( in custom zoo_projection
+( in custom zoo۰projection
 ).
 Notation "5" :=
   5
-( in custom zoo_projection
+( in custom zoo۰projection
 ).
 Notation "6" :=
   6
-( in custom zoo_projection
+( in custom zoo۰projection
 ).
 Notation "7" :=
   7
-( in custom zoo_projection
+( in custom zoo۰projection
 ).
 Notation "8" :=
   8
-( in custom zoo_projection
+( in custom zoo۰projection
 ).
 Notation "9" :=
   9
-( in custom zoo_projection
+( in custom zoo۰projection
 ).
 
 Notation "# x" := (
@@ -664,8 +664,8 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n '𝗲�
     Fail
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e at level 200,
-  br_1 custom zoo_branch at level 200,
-  br_n custom zoo_branch at level 200,
+  br_1 custom zoo۰branch at level 200,
+  br_n custom zoo۰branch at level 200,
   format "'[v' '[hv' '𝗺𝗮𝘁𝗰𝗵'  '/  ' '[' e ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' '𝗲𝗻𝗱' ']'"
 ) : expr_scope.
 Notation "'𝗺𝗮𝘁𝗰𝗵' e '𝘄𝗶𝘁𝗵' br_1 | .. | br_n '𝗲𝗻𝗱'" := (
@@ -675,8 +675,8 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e '𝘄𝗶𝘁𝗵' br_1 | .. | br_n '𝗲𝗻
     Fail
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e at level 200,
-  br_1 custom zoo_branch at level 200,
-  br_n custom zoo_branch at level 200,
+  br_1 custom zoo۰branch at level 200,
+  br_n custom zoo۰branch at level 200,
   only parsing
 ) : expr_scope.
 Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n |⎽ -> e1 '𝗲𝗻𝗱'" := (
@@ -686,8 +686,8 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n |⎽ -
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zoo_branch at level 200,
-  br_n custom zoo_branch at level 200,
+  br_1 custom zoo۰branch at level 200,
+  br_n custom zoo۰branch at level 200,
   format "'[v' '[hv' 𝗺𝗮𝘁𝗰𝗵  '/  ' '[' e0 ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |⎽  ->  '/    ' '[' e1 ']'  '/' '𝗲𝗻𝗱' ']'"
 ) : expr_scope.
 Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n |⎽ -> e1 '𝗲𝗻𝗱'" := (
@@ -697,8 +697,8 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n |⎽ -> 
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zoo_branch at level 200,
-  br_n custom zoo_branch at level 200,
+  br_1 custom zoo۰branch at level 200,
+  br_n custom zoo۰branch at level 200,
   only parsing
 ) : expr_scope.
 Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n |⎽ '𝗮𝘀' x -> e1 '𝗲𝗻𝗱'" := (
@@ -708,8 +708,8 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n |⎽ '
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zoo_branch at level 200,
-  br_n custom zoo_branch at level 200,
+  br_1 custom zoo۰branch at level 200,
+  br_n custom zoo۰branch at level 200,
   x at level 1,
   format "'[v' '[hv' 𝗺𝗮𝘁𝗰𝗵  '/  ' '[' e0 ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |⎽  '𝗮𝘀'  x  ->  '/    ' '[' e1 ']'  '/' '𝗲𝗻𝗱' ']'"
 ) : expr_scope.
@@ -720,8 +720,8 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n |⎽ 'as
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zoo_branch at level 200,
-  br_n custom zoo_branch at level 200,
+  br_1 custom zoo۰branch at level 200,
+  br_n custom zoo۰branch at level 200,
   x at level 1,
   only parsing
 ) : expr_scope.
@@ -732,8 +732,8 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' | br_1 | .. | br_n |⎽ '
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zoo_branch at level 200,
-  br_n custom zoo_branch at level 200,
+  br_1 custom zoo۰branch at level 200,
+  br_n custom zoo۰branch at level 200,
   x at level 1,
   format "'[v' '[hv' 𝗺𝗮𝘁𝗰𝗵  '/  ' '[' e0 ']'  '/' '𝘄𝗶𝘁𝗵'  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |⎽  '𝗮𝘀:'  x  ->  '/    ' '[' e1 ']'  '/' '𝗲𝗻𝗱' ']'"
 ) : expr_scope.
@@ -744,8 +744,8 @@ Notation "'𝗺𝗮𝘁𝗰𝗵' e0 '𝘄𝗶𝘁𝗵' br_1 | .. | br_n |⎽ '�
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zoo_branch at level 200,
-  br_n custom zoo_branch at level 200,
+  br_1 custom zoo۰branch at level 200,
+  br_n custom zoo۰branch at level 200,
   x at level 1,
   only parsing
 ) : expr_scope.
@@ -767,7 +767,7 @@ Notation "'𝗹𝗲𝘁' ‘ tag x1 .. xn = e1 '𝗶𝗻' e2" := (
         (@nil branch)
     )
 )(at level 200,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   x1, xn at level 1,
   e1, e2 at level 200,
   format "'[v' '[hv' '𝗹𝗲𝘁'  ‘ tag  x1  ..  xn  =  '/  ' '[' e1 ']'  '/' '𝗶𝗻'  ']' '/' e2 ']'"
@@ -809,7 +809,7 @@ Notation "‘ tag { e1 , .. , en }" := (
     tag
     (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 0,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   e1, en at level 200,
   format "'[hv' ‘ tag {  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
 ) : expr_scope.
@@ -817,7 +817,7 @@ Notation "‘ tag { e1 , .. , en }" := (
 Notation "§ tag" := (
   tag
 )(at level 2,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   format "§ tag"
 ) : stdpp_scope.
 Notation "§ tag" := (
@@ -828,7 +828,7 @@ Notation "§ tag" := (
     (@nil val)
   )
 )(at level 2,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   format "§ tag"
 ) : expr_scope.
 Notation "§ tag" := (
@@ -837,7 +837,7 @@ Notation "§ tag" := (
     tag
     (@nil val)
 )(at level 2,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   format "§ tag"
 ) : val_scope.
 
@@ -847,7 +847,7 @@ Notation "‘ tag ( e1 , .. , en )" := (
     tag
     (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 0,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   e1, en at level 200,
   format "'[hv' ‘ tag (  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' ) ']'"
 ) : expr_scope.
@@ -859,7 +859,7 @@ Notation "’ tag ( v1 , .. , vn )" := (
       (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
   )
 )(at level 0,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   v1, vn at level 200,
   format "'[hv' ’ tag (  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ) ']'"
 ): expr_scope.
@@ -869,7 +869,7 @@ Notation "‘ tag ( v1 , .. , vn )" := (
     tag
     (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 0,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   v1, vn at level 200,
   format "'[hv' ‘ tag (  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ) ']'"
 ): val_scope.
@@ -880,7 +880,7 @@ Notation "‘ tag [ e1 , .. , en ]" := (
     tag
     (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 0,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   e1, en at level 200,
   format "'[hv' ‘ tag [  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' ] ']'"
 ) : expr_scope.
@@ -892,7 +892,7 @@ Notation "’ tag [ v1 , .. , vn ]" := (
       (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
   )
 )(at level 0,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   v1, vn at level 200,
   format "'[hv' ’ tag [  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ] ']'"
 ): expr_scope.
@@ -902,7 +902,7 @@ Notation "‘ tag [ v1 , .. , vn ]" := (
     tag
     (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 0,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   v1, vn at level 200,
   format "'[hv' ‘ tag [  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ] ']'"
 ): val_scope.
@@ -913,7 +913,7 @@ Notation "‘ tag '@[' e1 , .. , en ]" := (
     tag
     (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 0,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   e1, en at level 200,
   format "'[hv' ‘ tag @[  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' ] ']'"
 ) : expr_scope.
@@ -925,7 +925,7 @@ Notation "’ tag @ bid [ v1 , .. , vn ]" := (
       (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
   )
 )(at level 0,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   bid at level 1,
   v1, vn at level 200,
   format "'[hv' ’ tag @ bid [  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ] ']'"
@@ -936,7 +936,7 @@ Notation "‘ tag @ bid [ v1 , .. , vn ]" := (
     tag
     (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 0,
-  tag custom zoo_constructor,
+  tag custom zoo۰constructor,
   bid at level 1,
   v1, vn at level 200,
   format "'[hv' ‘ tag @ bid [  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ] ']'"
@@ -981,7 +981,7 @@ Notation "[ ] -> e" := (
         BAnon
     )
     e%E
-)(in custom zoo_branch at level 200,
+)(in custom zoo۰branch at level 200,
   e constr at level 200,
   format "[ ]  ->  '/    ' '[' e ']'"
 ).
@@ -993,7 +993,7 @@ Notation "[ ] '𝗮𝘀' x -> e" := (
         (BNamed x%string)
     )
     e%E
-)(in custom zoo_branch at level 200,
+)(in custom zoo۰branch at level 200,
   x constr at level 1,
   e constr at level 200,
   format "[ ]  '𝗮𝘀'  x  ->  '/    ' '[' e ']'"
@@ -1006,7 +1006,7 @@ Notation "x1 :: x2 -> e" := (
         BAnon
     )
     e%E
-)(in custom zoo_branch at level 200,
+)(in custom zoo۰branch at level 200,
   x1 constr at level 1,
   x2 constr at level 1,
   e constr at level 200,
@@ -1020,7 +1020,7 @@ Notation "x1 :: x2 '𝗮𝘀' y -> e" := (
         (BNamed y%string)
     )
     e%E
-)(in custom zoo_branch at level 200,
+)(in custom zoo۰branch at level 200,
   x1 constr at level 1,
   x2 constr at level 1,
   y constr at level 1,
@@ -1035,8 +1035,8 @@ Notation "tag -> e" := (
         BAnon
     )
     e%E
-)(in custom zoo_branch at level 200,
-  tag custom zoo_constructor,
+)(in custom zoo۰branch at level 200,
+  tag custom zoo۰constructor,
   e constr at level 200,
   format "tag  ->  '/    ' '[' e ']'"
 ).
@@ -1048,8 +1048,8 @@ Notation "tag '𝗮𝘀' x -> e" := (
         (BNamed x%string)
     )
     e%E
-)(in custom zoo_branch at level 200,
-  tag custom zoo_constructor,
+)(in custom zoo۰branch at level 200,
+  tag custom zoo۰constructor,
   x constr at level 1,
   e constr at level 200,
   format "tag  '𝗮𝘀'  x  ->  '/    ' '[' e ']'"
@@ -1062,8 +1062,8 @@ Notation "tag '𝗮𝘀:' x -> e" := (
         x%binder
     )
     e%E
-)(in custom zoo_branch at level 200,
-  tag custom zoo_constructor,
+)(in custom zoo۰branch at level 200,
+  tag custom zoo۰constructor,
   x constr at level 1,
   e constr at level 200,
   format "tag  '𝗮𝘀:'  x  ->  '/    ' '[' e ']'"
@@ -1076,8 +1076,8 @@ Notation "tag x1 .. xn -> e" := (
         BAnon
     )
     e%E
-)(in custom zoo_branch at level 200,
-  tag custom zoo_constructor,
+)(in custom zoo۰branch at level 200,
+  tag custom zoo۰constructor,
   x1 constr at level 1,
   xn constr at level 1,
   e constr at level 200,
@@ -1091,8 +1091,8 @@ Notation "tag x1 .. xn '𝗮𝘀' y -> e" := (
         (BNamed y%string)
     )
     e%E
-)(in custom zoo_branch at level 200,
-  tag custom zoo_constructor,
+)(in custom zoo۰branch at level 200,
+  tag custom zoo۰constructor,
   x1 constr at level 1,
   xn constr at level 1,
   y constr at level 1,
@@ -1107,8 +1107,8 @@ Notation "tag x1 .. xn '𝗮𝘀:' y -> e" := (
         y%binder
     )
     e%E
-)(in custom zoo_branch at level 200,
-  tag custom zoo_constructor,
+)(in custom zoo۰branch at level 200,
+  tag custom zoo۰constructor,
   x1 constr at level 1,
   xn constr at level 1,
   y constr at level 1,
@@ -1119,7 +1119,7 @@ Notation "tag x1 .. xn '𝗮𝘀:' y -> e" := (
 Notation "e .{ fld }" := (
   Primitive2 Load e%E (Val (ValNat fld))
 )(at level 1,
-  fld custom zoo_field,
+  fld custom zoo۰field,
   left associativity,
   format "e .{ fld }"
 ) : expr_scope.
@@ -1127,21 +1127,21 @@ Notation "e .{ fld }" := (
 Notation "e .< proj >" := (
   Primitive2 Load e%E (Val (ValNat proj))
 )(at level 1,
-  proj custom zoo_projection,
+  proj custom zoo۰projection,
   format "e .< proj >"
 ) : expr_scope.
 
 Notation "e1 <-{ fld } e2" := (
   Primitive3 Store e1%E (Val (ValNat fld)) e2%E
 )(at level 80,
-  fld custom zoo_field,
+  fld custom zoo۰field,
   format "'[hv' '[hv' '[' e1 ']'  '/  ' <-{ fld }  ']' '/  ' '[' e2 ']' ']'"
 ) : expr_scope.
 
 Notation "l .[ fld ]" := (
   location۰add l (Z.of_nat fld)
 )(at level 1,
-  fld custom zoo_field,
+  fld custom zoo۰field,
   left associativity,
   format "l .[ fld ]"
 ) : stdpp_scope.
@@ -1157,7 +1157,7 @@ Notation "v .[ fld ]" := (
       )
   )
 )(at level 1,
-  fld custom zoo_field,
+  fld custom zoo۰field,
   only printing,
   left associativity,
   format "v .[ fld ]"
@@ -1172,7 +1172,7 @@ Notation "e .[ fld ]" := (
         )
     )
 )(at level 1,
-  fld custom zoo_field,
+  fld custom zoo۰field,
   left associativity,
   format "e .[ fld ]"
 ) : expr_scope.
@@ -1186,14 +1186,14 @@ Notation "v .[ fld ]" := (
         )
     )
 )(at level 1,
-  fld custom zoo_field,
+  fld custom zoo۰field,
   left associativity,
   format "v .[ fld ]"
 ) : val_scope.
 
 Notation "'contents'" := (
   in_type "ref" "contents" 0
-)(in custom zoo_field
+)(in custom zoo۰field
 ).
 Notation "'𝗿𝗲𝗳' e" := (
   Block
@@ -1216,11 +1216,11 @@ Notation "e1 <- e2" := (
 
 Notation "'None'" := (
   in_type "option" "None" Tag0
-)(in custom zoo_constructor
+)(in custom zoo۰constructor
 ).
 Notation "'Some'" := (
   in_type "option" "Some" Tag0
-)(in custom zoo_constructor
+)(in custom zoo۰constructor
 ).
 
 Notation "[ ]" := (
