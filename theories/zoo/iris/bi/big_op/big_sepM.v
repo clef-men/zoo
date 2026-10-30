@@ -8,7 +8,8 @@ Section bi.
   Context {PROP : bi}.
 
   Section big_sepM.
-    Context `{Countable K} {A : Type}.
+    Context `{Countable K}.
+    Context {A : Type}.
 
     Implicit Type m : gmap K A.
     Implicit Type P : PROP.
@@ -119,6 +120,17 @@ Section bi.
     Proof.
       rewrite !big_opM_map_to_list map_to_list_kmap big_sepL_fmap //.
     Qed.
+
+    Lemma big_sepMｰunion₂ Φ m1 m2 :
+      m1 ##ₘ m2 →
+      ([∗ map] k ↦ y ∈ m1, Φ k y) -∗
+      ([∗ map] k ↦ y ∈ m2, Φ k y) -∗
+      [∗ map] k ↦ y ∈ m1 ∪ m2, Φ k y.
+    Proof.
+      intros.
+      rewrite big_sepM_union //.
+      iSteps.
+    Qed.
   End big_sepM.
 
   Section big_sepM.
@@ -145,6 +157,53 @@ Section bi.
       [∗ list] k ↦ x ∈ l, Φ k x.
     Proof.
       apply big_sepMｰmap_seq.
+    Qed.
+  End big_sepM.
+
+  Section big_sepM.
+    Context `{Countable K}.
+    Context `{Countable A}.
+
+    Implicit Type m : gmap K A.
+    Implicit Type P : PROP.
+    Implicit Type Φ : A → PROP.
+
+    Lemma big_sepMｰmap_img `{!BiAffine PROP} Φ m :
+      ([∗ map] x ∈ m, Φ x) ⊢
+      [∗ set] x ∈ map_img m, Φ x.
+    Proof.
+      iInduction m as [| k x m Hlookup] "IH" using map_ind.
+      all: iIntros "H".
+      - rewrite map_img_empty_L. iSteps.
+      - iDestruct (big_sepM_insert with "H") as "(HΦ & H)". 1: done.
+        iEval (rewrite map_img_insert_notin_L //).
+        iApply (big_sepS_insert_2 with "HΦ (IH H)").
+    Qed.
+
+    Lemma big_sepSｰmap_img `{!BiAffine PROP} {Φ} m s :
+      map_img m = s →
+      size m = size s →
+      ([∗ set] x ∈ s, Φ x) ⊢
+      [∗ map] x ∈ m, Φ x.
+    Proof.
+      iInduction s as [| x s Hx] "IH" using set_ind_L forall (m).
+      all: iIntros (Hm Hsize) "H".
+      - apply map_img_empty_inv_L in Hm as ->.
+        iSteps.
+      - iDestruct (big_sepS_insert with "H") as "(HΦ & H)". 1: done.
+        apply map_img_union_inv_L in Hm as (m1 & m2 & -> & Hdisjoint & Hm1 & Hm2). 2: set_solver.
+        rewrite map_size_disj_union // size_union in Hsize. 1: set_solver.
+        rewrite size_singleton in Hsize.
+        pose proof (sizeｰmap_img (SA := gset A) m1) as Hsize_1.
+        rewrite Hm1 size_singleton in Hsize_1.
+        pose proof (sizeｰmap_img (SA := gset A) m2) as Hsize_2.
+        rewrite Hm2 in Hsize_2.
+        assert (size m1 = 1) as (k & x_ & ->)%mapｰsizeｰ1ｰinv by lia.
+        assert (size m2 = size s) by lia.
+        rewrite map_img_singleton_L in Hm1. simp.
+        iApply (big_sepMｰunion₂ with "[HΦ] [H]"). 1: done.
+        { iApply (big_sepM_singleton with "HΦ"). }
+        { iSteps. }
     Qed.
   End big_sepM.
 End bi.

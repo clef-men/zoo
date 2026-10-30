@@ -288,7 +288,7 @@ Section exchanger_1ˡⁱⁿ۰G.
       & >%Hconsistent
       & >Hstate۰auth
       & >%Hinterp
-      & >Hids
+      & >Hstate
       )
     ".
   Please Definition exchanger_1ˡⁱⁿ۰inv γ : iProp Σ :=
@@ -416,7 +416,7 @@ Section exchanger_1ˡⁱⁿ۰G.
     wp۰apply (trackerｰwpｰresolve with "Htracker۰model") as "Htracker۰model". 1: done.
     iAssert ⌜state !! id = None⌝%I as %Hstate_lookup.
     { iEval (rewrite eq_None_not_Some). iIntros (Hid%elem_of_dom).
-      iDestruct (big_sepS_elem_of with "Hids") as "Hid!". 1: done.
+      iDestruct (big_sepS_elem_of with "Hstate") as "Hid!". 1: done.
       iApply (identifier۰modelｰexclusive with "Hid Hid!").
     }
     iMod (stateｰinsert id (StatusCall v) with "Hstate۰auth") as "(Hstate۰auth & Hstate۰at)". 1: done.
@@ -425,7 +425,7 @@ Section exchanger_1ˡⁱⁿ۰G.
       - apply trace۰consistentｰappｰcall => //.
       - apply trace۰interpｰappｰcall => //.
       - iEval (rewrite dom_insert_L).
-        iApply (big_sepS_insert_2 id with "Hid Hids").
+        iApply (big_sepS_insert_2 id with "Hid Hstate").
     }
     iIntros "!> {%}".
 

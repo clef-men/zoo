@@ -4,6 +4,7 @@ Require Export stdpp.fin_maps.
 Require Export stdpp.fin_map_dom.
 
 Require Import zoo.prelude.
+Require Export zoo.common.fin_sets.
 Require Import zoo.common.option.
 Require Import zoo.options.
 
@@ -38,7 +39,40 @@ Section dom.
   Proof.
     rewrite elem_of_dom //.
   Qed.
+
+  Lemma mapｰunionｰdom m1 m2 :
+    dom m2 ⊆ dom m1 →
+    m1 ∪ m2 = m1.
+  Proof.
+    intros Hdom.
+    apply map_eq => k.
+    destruct (m1 !! k) as [x |] eqn:Hm1_lookup.
+    - rewrite lookup_union_l' //.
+    - rewrite lookup_union_r //.
+      rewrite -!not_elem_of_dom in Hm1_lookup |- *.
+      set_solver.
+  Qed.
 End dom.
+
+Section size.
+  Context `{FinMap K M}.
+  Context {A : Type}.
+
+  Implicit Type m : M A.
+
+  Lemma mapｰsizeｰ1ｰinv m :
+    size m = 1 →
+      ∃ k x,
+      m = {[k := x]}.
+  Proof.
+    intros Hsize.
+    destruct m as [| k x m Hlookup _] using map_ind.
+    - rewrite map_size_empty // in Hsize.
+    - rewrite map_size_insert_None // in Hsize. simp.
+      apply map_size_empty_inv in Hsize as ->.
+      eauto.
+  Qed.
+End size.
 
 Section fmap.
   Context `{FinMapDom K M D}.
@@ -360,3 +394,77 @@ Section map۰oflatten.
     rewrite /map۰oflatten omap_insert //.
   Qed.
 End map۰oflatten.
+
+Section map_to_set.
+  Context `{FinMap K M}.
+  Context {A : Type}.
+  Context `{FinSet B SB}.
+
+  Implicit Type m : M A.
+
+  Abbreviation map_to_set := (
+    map_to_set (C := SB)
+  ).
+
+  Lemma sizeｰmap_to_set f m :
+    size (map_to_set f m) ≤ size m.
+  Proof.
+    etrans. 1: apply sizeｰlist_to_setｰle.
+    rewrite length_fmap length_map_to_list //.
+  Qed.
+End map_to_set.
+
+Definition map_inj `{FinMap K M} {A} (m : M A) :=
+  ∀ k1 k2 x,
+  m !! k1 = Some x →
+  m !! k2 = Some x →
+  k1 = k2.
+
+Section map_img.
+  Context `{FinMap K M}.
+  Context `{FinSet A SA}.
+
+  Implicit Type m : M A.
+
+  Abbreviation map_img := (
+    map_img (SA := SA)
+  ).
+
+  Lemma mapｰpigeonhole m :
+    size (map_img m) < size m →
+      ∃ k1 k2 x,
+      m !! k1 = Some x ∧
+      m !! k2 = Some x ∧
+      k1 ≠ k2.
+  Proof.
+    induction m as [| k x m Hlookup IH] using map_ind => Hsize.
+    - rewrite map_size_empty in Hsize. lia.
+    - rewrite map_img_insert_notin // map_size_insert_None // in Hsize.
+      destruct_decide (map_Exists (λ k' x', x = x') m) as Hm.
+      all: rewrite map_Exists_lookup in Hm.
+      + destruct Hm as (k' & x_ & Hlookup' & <-).
+        exists k, k', x.
+        rewrite lookup_insert_eq lookup_insert_ne //. 1: congruence.
+        naive.
+      + rewrite size_union in Hsize.
+        { rewrite disjoint_singleton_l not_elem_of_map_img. naive. }
+        rewrite size_singleton in Hsize.
+        destruct IH as (k1 & k2 & y & Hlookup_1 & Hlookup_2 & Hk). 1: lia.
+        exists k1, k2, y.
+        rewrite !lookup_insert_ne //. 1,2: congruence.
+  Qed.
+
+  Lemma sizeｰmap_img m :
+    size (map_img m) ≤ size m.
+  Proof.
+    apply sizeｰmap_to_set.
+  Qed.
+  Lemma sizeｰmap_imgｰinj m :
+    map_inj m →
+    size (map_img m) = size m.
+  Proof.
+    intros Hinj.
+    pose proof (sizeｰmap_img m) as [(k1 & k2 & x & Hlookup_1 & Hlookup_2 & Hk)%mapｰpigeonhole |]%Nat.le_lteq. 2: done.
+    rewrite /map_inj in Hinj. naive.
+  Qed.
+End map_img.

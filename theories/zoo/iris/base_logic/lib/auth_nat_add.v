@@ -185,6 +185,17 @@ Section auth_nat_add_G.
     - iEval (rewrite auth_nat_add۰fragｰsucc big_sepLｰseqｰsnoc).
       iSteps.
   Qed.
+  Lemma auth_nat_add۰fragｰsum γ m :
+    ([∗ list] _ ∈ seq 0 m, auth_nat_add۰frag γ 1) ⊢ |==>
+    auth_nat_add۰frag γ m.
+  Proof.
+    iIntros "H".
+    iInduction m as [| m] "IH".
+    - iApply auth_nat_add۰fragｰ0.
+    - iApply auth_nat_add۰fragｰsucc.
+      iDestruct (big_sepLｰseqｰsnoc with "H") as "(H & $)".
+      iSteps.
+  Qed.
   Lemma auth_nat_add۰fragｰmono {γ m1} m2 :
     m2 ≤ m1 →
     auth_nat_add۰frag γ m1 ⊢
