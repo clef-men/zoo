@@ -2008,6 +2008,8 @@ Ltac _iDestruct0 lem pat :=
 Ltac _iDestruct lem xs pat :=
   iDestructCore lem as pat (fun H => _iDestructHyp H xs pat).
 
+Tactic Notation "iDestruct" open_constr(lem) :=
+  iDestructCore lem as false (fun H => iDestructHyp H as H).
 Tactic Notation "iDestruct" open_constr(lem) "as" constr(pat) :=
   _iDestruct0 lem pat.
 Tactic Notation "iDestruct" open_constr(lem) "as" "(" ne_simple_intropattern_list(xs) ")"
