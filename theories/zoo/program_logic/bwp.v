@@ -721,7 +721,7 @@ Section zoo۰G.
     iSplit; first iSteps. iIntros "%κ %κs' %e' %σ' %es -> %Hstep H£ !> !>".
     edestruct Hpure as (? & ? & ?); first done. subst.
     iDestruct (state_interpｰsteps۰lbｰvalid with "Hinterp H⧖") as %?.
-    iDestruct (lc_weaken (later۰function ns) with "H£") as "H£"; first auto.
+    iApply (lc_weaken (later۰function ns)) in "H£"; first auto.
     iFrameStep 2.
     iMod "H".
     iSteps.

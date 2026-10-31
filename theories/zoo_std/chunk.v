@@ -1085,8 +1085,8 @@ Section zoo۰G.
       2: iDestruct (chunk۰csliceｰrotationｰleft₁' i2 (i1 - i2) with "Hcslice") as "$"; [lia.. |].
       all: iStep.
       all: iIntros "Hcslice".
-      1: iDestruct (chunk۰csliceｰrotationｰleft₁' i1 (i2 - i1) with "Hcslice") as "Hcslice"; [done | simp_length | lia |].
-      2: iDestruct (chunk۰csliceｰrotationｰright₁' i1 (i1 - i2) with "Hcslice") as "Hcslice"; [done | simp_length | lia |].
+      1: iApply (chunk۰csliceｰrotationｰleft₁' i1 (i2 - i1)) in "Hcslice"; [done | simp_length | lia |].
+      2: iApply (chunk۰csliceｰrotationｰright₁' i1 (i1 - i2)) in "Hcslice"; [done | simp_length | lia |].
       all: rewrite rotationｰadd; first lia.
       all: rewrite rotationｰlength //; first lia.
     Qed.

@@ -382,7 +382,7 @@ Module base.
     Proof.
       iIntros "%δs_lookup Hδs".
       rewrite -{1}(take_drop ˖i δs).
-      iDestruct (deltas۰chainｰapp₁ with "Hδs") as "Hδs".
+      iApply deltas۰chainｰapp₁ in "Hδs".
       rewrite {2 3}(take_S_r δs i δ) // last_snoc //.
     Qed.
     #[local] Lemma deltas۰chainｰlookup' {src δs dst} i δ :

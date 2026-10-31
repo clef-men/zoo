@@ -76,7 +76,7 @@ Section vertex_simple۰G.
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx #Hvtx_d_ready".
 
         wp۰pures credits:"H£".
-        iDestruct (lc_weaken 2 with "H£") as "H£". 1: done.
+        iApply (lc_weaken 2) in "H£". 1: done.
 
         iDestruct (vertexｰpredecessorｰfinished with "Hvtx_b_predecessor Hvtx_d_ready") as "#Hvtx_b_finished".
         iMod (vertexｰinvｰfinishedｰoutput with "Hvtx_b_inv Hvtx_b_finished Hvtx_b_output") as "HP_b".
@@ -95,7 +95,7 @@ Section vertex_simple۰G.
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx #Hvtx_c_ready".
 
         wp۰pures credits:"H£".
-        iDestruct (lc_weaken 2 with "H£") as "H£". 1: done.
+        iApply (lc_weaken 2) in "H£". 1: done.
 
         iDestruct (vertexｰpredecessorｰfinished with "Hvtx_a_predecessor_c Hvtx_c_ready") as "#Hvtx_a_finished".
         iMod (vertexｰinvｰfinishedｰoutput' with "H£ Hvtx_a_inv Hvtx_a_finished Hvtx_a_output_c") as "HP_ac".
@@ -108,7 +108,7 @@ Section vertex_simple۰G.
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx #Hvtx_b_ready".
 
         wp۰pures credits:"H£".
-        iDestruct (lc_weaken 2 with "H£") as "H£". 1: done.
+        iApply (lc_weaken 2) in "H£". 1: done.
 
         iDestruct (vertexｰpredecessorｰfinished with "Hvtx_a_predecessor_b Hvtx_b_ready") as "#Hvtx_a_finished".
         iMod (vertexｰinvｰfinishedｰoutput' with "H£ Hvtx_a_inv Hvtx_a_finished Hvtx_a_output_b") as "HP_ab".

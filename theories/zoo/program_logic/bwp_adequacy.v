@@ -118,7 +118,7 @@ Section zoo۰G.
     iApply (step_fupdN_wand with "H").
     iMod 1 as "(Hinterp & H)".
     iDestruct (big_sepL2ｰlookupｰSomeｰl with "H") as %(Φ & Hposts_lookup); first done.
-    iDestruct (big_sepL2_lookup with "H") as "H"; [done.. |].
+    iApply big_sepL2_lookup in "H"; [done.. |].
     iApply (bwpｰnotｰstuck with "Hinterp H").
   Qed.
 End zoo۰G.

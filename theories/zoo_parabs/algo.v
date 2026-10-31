@@ -413,7 +413,7 @@ Section algo۰G.
     wp۰apply (algo٠for_eachｰspec'
       (λ i, Ψ ₊i)
     with "[$Hpool_inv $Hchunk $Hctx Htask]"); first lia.
-    { iDestruct (big_sepLｰseqｰtoｰseqZ' with "Htask") as "Htask"; [lia.. |].
+    { iApply big_sepLｰseqｰtoｰseqZ' in "Htask"; [lia.. |].
       iApply (big_sepLｰseqZｰimpl with "Htask"). iIntros "!> %k % Htask".
       iEval (rewrite Z2Nat.id; try lia) in "Htask".
       iSteps.
@@ -740,7 +740,7 @@ Section algo۰G.
       (λ i, Χ ₊i)
     with "[$Hpool_inv $Hctx $Hchunk Hbody] HΦ"); first lia.
     { iSplitL "Hbody"; last repeat iSplit.
-      - iDestruct (big_sepLｰseqｰtoｰseqZ' with "Hbody") as "Hbody"; [lia.. |].
+      - iApply big_sepLｰseqｰtoｰseqZ' in "Hbody"; [lia.. |].
         iApply (big_sepLｰseqZｰimpl with "Hbody"). iIntros "!> %k % Hbody".
         iEval (rewrite Z2Nat.id; try lia) in "Hbody".
         iSteps.
@@ -1125,7 +1125,7 @@ Section algo۰G.
       (λ i, Ψ ₊i)
       (λ i, Χ ₊i)
     with "[$Hpool_inv $Hctx $Hchunk Hpred]") as (o) "(Hctx & H)"; first lia.
-    { iDestruct (big_sepLｰseqｰtoｰseqZ' with "Hpred") as "Hpred"; [lia.. |].
+    { iApply big_sepLｰseqｰtoｰseqZ' in "Hpred"; [lia.. |].
       iApply (big_sepLｰseqZｰimpl with "Hpred"). iIntros "!> %k % Hpred".
       iEval (rewrite Z2Nat.id; try lia) in "Hpred".
       iSteps.

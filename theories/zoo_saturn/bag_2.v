@@ -665,7 +665,7 @@ Section bag_2۰G.
     { iDestruct ("Hdescrs" with "[Hnode_queue Hqueue_model]") as "Hdescrs"; first iSteps.
       rewrite insert_id //. iFrameSteps.
     }
-    iDestruct (queuesｰupdateｰproducer 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 descr (.++ [v]) with "Hqueues_auth") as "Hqueues_auth"; [done.. |].
+    iApply (queuesｰupdateｰproducer 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 descr (.++ [v])) in "Hqueues_auth"; [done.. |].
     set descr' :=
       descriptor۰update_vals descr (.++ [v]).
     iDestruct ("Hdescrs" $! descr' with "[Hnode_queue Hqueue_model]") as "Hdescrs"; first iSteps.
@@ -770,7 +770,7 @@ Section bag_2۰G.
           iMod (modelｰupdate vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
           iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ"; first iSteps.
 
-          iDestruct (queuesｰupdate node descr (const vs) with "Hqueues_auth") as "Hqueues_auth"; first done.
+          iApply (queuesｰupdate node descr (const vs)) in "Hqueues_auth"; first done.
           set descr' :=
             descriptor۰update_vals descr (const vs).
           iDestruct ("Hdescrs" $! descr' with "[Hnode_queue Hqueue_model]") as "Hdescrs"; first iFrameSteps.
@@ -893,7 +893,7 @@ Section bag_2۰G.
         iMod (modelｰupdate vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
         iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ"; first iSteps.
 
-        iDestruct (queuesｰupdate node descr (const vs) with "Hqueues_auth") as "Hqueues_auth"; first done.
+        iApply (queuesｰupdate node descr (const vs)) in "Hqueues_auth"; first done.
         set descr' :=
           descriptor۰update_vals descr (const vs).
         iDestruct ("Hdescrs" $! descr' with "[Hnode_queue Hqueue_model]") as "Hdescrs"; first iFrameSteps.

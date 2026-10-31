@@ -76,7 +76,7 @@ Section vertex_fibonacci۰G.
       iIntros "{%- Hif} %pool %ctx %scope %iter'' Hctx #Hvtx_ready Hvtx_model".
 
       wp۰pures credits:"H£".
-      iDestruct (lc_weaken 2 with "H£") as "H£". 1: done.
+      iApply (lc_weaken 2) in "H£". 1: done.
 
       iDestruct (vertexｰpredecessorｰfinished with "Hvtx1_predecessor Hvtx_ready") as "#Hvtx1_finished".
       iMod (vertexｰinvｰfinishedｰoutput with "Hvtx1_inv Hvtx1_finished Hvtx1_output") as "Hr1".
@@ -136,7 +136,7 @@ Section vertex_fibonacci۰G.
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx #Hvtx2_ready".
 
         wp۰pures credits:"H£".
-        iDestruct (lc_weaken 2 with "H£") as "H£". 1: done.
+        iApply (lc_weaken 2) in "H£". 1: done.
 
         iDestruct (vertexｰpredecessorｰfinished with "Hvtx1_predecessor Hvtx2_ready") as "#Hvtx1_finished".
         iMod (vertexｰinvｰfinishedｰoutput' with "H£ Hvtx1_inv Hvtx1_finished Hvtx1_output") as "Hr".

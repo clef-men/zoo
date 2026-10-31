@@ -271,7 +271,7 @@ Section zoo۰G.
       iIntros "Hvs".
       iDestruct (array۰sliceｰcons with "Hvs") as "(Hv & Hvs)".
       rewrite /= Nat.add_0_r. iFrame.
-      iDestruct ("IH" with "Hvs") as "Hvs".
+      iApply "IH" in "Hvs".
       setoid_rewrite Nat.add_succ_comm. iSteps.
     Qed.
 
@@ -721,7 +721,7 @@ Section zoo۰G.
       iIntros "Hvs".
       iDestruct (array۰csliceｰcons with "Hvs") as "(Hv & Hvs)".
       rewrite /= Nat.add_0_r. iFrame.
-      iDestruct ("IH" with "Hvs") as "Hvs".
+      iApply "IH" in "Hvs".
       setoid_rewrite Nat.add_succ_comm. iSteps.
     Qed.
 
@@ -7660,7 +7660,7 @@ Section zoo۰G.
     wp۰rec.
     wp۰apply+ (array٠unsafe_makeｰspec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array۰modelｰtoｰcslice with "Hmodel'") as "Hcslice'". simp_length.
-    iDestruct (array۰csliceｰrotationｰrightｰ0 i_ with "Hcslice'") as "Hcslice'"; [lia | simp_length |].
+    iApply (array۰csliceｰrotationｰrightｰ0 i_) in "Hcslice'"; [lia | simp_length |].
     rewrite rotationｰreplicate.
     wp۰apply+ (array٠unsafe_ccopy_sliceｰspec with "[$Hcslice $Hcslice']") as "(Hcslice & Hcslice')"; [simp_length; lia.. |].
     rewrite !Nat2Z.id Nat.sub_diag firstn_all with_sliceｰ0 drop_replicate.
@@ -7713,7 +7713,7 @@ Section zoo۰G.
     wp۰rec.
     wp۰apply+ (array٠unsafe_allocｰspec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array۰modelｰtoｰcslice with "Hmodel'") as "Hcslice'". simp_length.
-    iDestruct (array۰csliceｰrotationｰrightｰ0 i_ with "Hcslice'") as "Hcslice'"; [lia | simp_length |].
+    iApply (array۰csliceｰrotationｰrightｰ0 i_) in "Hcslice'"; [lia | simp_length |].
     rewrite rotationｰreplicate.
     wp۰apply+ (array٠unsafe_ccopy_sliceｰspec with "[$Hcslice $Hcslice']") as "(Hcslice & Hcslice')"; [simp_length; lia.. |].
     rewrite Nat2Z.id Nat.sub_diag with_sliceｰ0 drop_replicate Nat.sub_diag right_id.
@@ -9495,7 +9495,7 @@ Section zoo۰G.
     wp۰rec.
     wp۰apply+ (array٠unsafe_allocｰspec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array۰modelｰtoｰcslice with "Hmodel'") as "Hcslice'".
-    iDestruct (array۰csliceｰrotationｰrightｰ0 ₊i with "Hcslice'") as "Hcslice'"; simp_length; [lia.. |].
+    iApply (array۰csliceｰrotationｰrightｰ0 ₊i) in "Hcslice'"; simp_length; [lia.. |].
     rewrite rotationｰreplicate.
     wp۰apply+ (array٠unsafe_ccopy_slice۰type' with "[$Htype $Hcslice']") as (vs') "(%Hvs' & Hcslice' & Hvs')"; simp_length; [lia.. |].
     simp_length in Hvs'.

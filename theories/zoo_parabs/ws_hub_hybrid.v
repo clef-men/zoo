@@ -466,7 +466,7 @@ Section ws_hub_hybrid۰G.
       iDestruct (array۰modelｰatomize with "Hrounds_model") as "(_ & Hrounds_model)".
       iDestruct (big_sepL_sep_2 with "Hrounds_model Hrounds") as "H".
       iDestruct (big_sepL_sep_2 with "Hdeques_owner Hemptiness_ats") as "Howners".
-      iDestruct (big_sepLｰseqｰindex₁ with "Howners") as "Howners". 1: done.
+      iApply big_sepLｰseqｰindex₁ in "Howners". 1: done.
       iDestruct (big_sepL_sep_2 with "Howners H") as "H".
       iApply big_sepLｰseqｰindex. 1: done.
       iApply (big_sepL_impl with "H").
@@ -762,7 +762,7 @@ Section ws_hub_hybrid۰G.
 
       + iSplitR "Hemptiness_at".
         { eapply consistentｰqueueｰpop in Hconsistent as (vs' & -> & Hconsistent).
-          iDestruct (emptinessｰupdateｰauth with "Hemptiness_auth") as "Hemptiness_auth".
+          iApply emptinessｰupdateｰauth in "Hemptiness_auth".
           iFrameSteps.
         }
         iSteps.

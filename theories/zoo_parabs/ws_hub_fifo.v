@@ -206,7 +206,7 @@ Section ws_hub_fifo۰G.
     { simp_length in Hlength. naive. }
     iDestruct (big_sepL2_sep_2 with "Hlength H") as "H".
     iDestruct (big_sepL2ｰretractｰr with "H") as "(_ & H)".
-    iDestruct (big_sepLｰseqｰindex₂ with "H") as "H".
+    iApply big_sepLｰseqｰindex₂ in "H".
     { simp_length. }
     iSteps.
   Qed.
@@ -613,7 +613,7 @@ Section ws_hub_fifo۰G.
       iSteps.
 
     - apply consistentｰpop in Hconsistent as (vs' & -> & Hconsistent).
-      iDestruct (emptinessｰupdateｰauth with "Hemptiness_auth") as "Hemptiness_auth".
+      iApply emptinessｰupdateｰauth in "Hemptiness_auth".
       iSteps.
   Qed.
   #[local] Lemma ws_hub_fifo٠pop'ｰspec t ι sz :

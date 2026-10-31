@@ -579,7 +579,7 @@ Module base.
       iIntros "%Hlstates_lookup (:lstates۰auth)".
       iDestruct (big_sepL2_lookup_r with "Hηs") as "(%η & %Hηs_lookup & Hη_auth)"; first done.
       iDestruct (auth_mono۰lbｰget with "Hη_auth") as "Hη_lb".
-      iDestruct (auth_mono۰lbｰmono with "Hη_lb") as "Hη_lb".
+      iApply auth_mono۰lbｰmono in "Hη_lb".
       { apply lstate۰winnerｰlb. }
       iDestruct (mono_list۰atｰget with "Hauth") as "#Hat"; first done.
       iSteps.
@@ -720,7 +720,7 @@ Module base.
     Proof.
       iIntros "% Hauth".
       iDestruct (consumers۰lbｰget with "Hauth") as "Hlb".
-      iDestruct (consumers۰lbｰle with "Hlb") as "Hlb"; first done.
+      iApply consumers۰lbｰle in "Hlb"; first done.
       iSteps.
     Qed.
     #[local] Lemma consumersｰupdate γ i :

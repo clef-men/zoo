@@ -139,7 +139,7 @@ Section subpreds۰G.
       subpreds۰frag γ Χ2.
   Proof.
     iIntros "Hauth Hfrag H".
-    iDestruct (subpreds۰fragｰproper _ _ (λ x, Χ1 x ∗ True)%I with "Hfrag") as "Hfrag".
+    iApply (subpreds۰fragｰproper _ _ (λ x, Χ1 x ∗ True)%I) in "Hfrag".
     { rewrite /pointwise_relation. iSteps. }
     iMod (subpredsｰsplitｰwand Χ2 (λ _, True)%I with "Hauth Hfrag [H]") as "($ & $ & _)" => //. 1: iSteps.
   Qed.

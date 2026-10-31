@@ -854,7 +854,7 @@ Module base.
       wp۰apply (prophet_multiｰwpｰproph prophet_identifier with "[//]") as (γ_prophet prophss) "Hprophet_model".
 
       wp۰apply (inf_array٠createｰspec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
-      iDestruct (inf_array۰modelｰtoｰmodel'ｰconstant 1 with "Hdata_model") as "Hdata_model".
+      iApply (inf_array۰modelｰtoｰmodel'ｰconstant 1) in "Hdata_model".
 
       wp۰block t as "Ht_front Ht_back #Ht_data #Ht_proph" meta:"Hmeta".
 
@@ -1333,7 +1333,7 @@ Module base.
         iMod (historyｰupdate _ (priv 0) with "Hhistory_auth") as "(Hhistory_auth & #Hhistory_at)"; first done.
         iMod (ownerｰupdate Unstable (length hist1) (priv ∘ S) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
 
-        iDestruct (inf_array۰model'ｰshiftｰl' with "Hdata_model") as "Hdata_model".
+        iApply inf_array۰model'ｰshiftｰl' in "Hdata_model".
         iEval (rewrite app_nil_r -(app_nil_r (hist1 ++ [priv 0]))) in "Hdata_model".
 
         iSplitR "Howner₁ HΦ".
@@ -1449,7 +1449,7 @@ Module base.
       set priv1 := priv ∘ S.
       iMod (ownerｰupdate Stable ˖back priv1 with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
 
-      iDestruct (inf_array۰model'ｰshiftｰl with "Hdata_model") as "Hdata_model"; first by intros [].
+      iApply inf_array۰model'ｰshiftｰl in "Hdata_model"; first by intros [].
       iEval (rewrite -assoc) in "Hdata_model".
 
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
@@ -1849,7 +1849,7 @@ Module base.
       - iMod (ownerｰupdate Stable (back - 1) (v .: priv) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
 
         iEval (rewrite assoc) in "Hdata_model".
-        iDestruct (inf_array۰model'ｰshiftｰr with "Hdata_model") as "Hdata_model".
+        iApply inf_array۰model'ｰshiftｰr in "Hdata_model".
 
         iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
         iDestruct (model۰owner₁ｰagree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & ->).

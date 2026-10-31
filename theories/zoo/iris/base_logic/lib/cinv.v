@@ -57,7 +57,7 @@ Section cinv۰G.
         iEval (setoid_rewrite Heq). clear Heq.
         iEval (rewrite Qp۰of_natｰS //) in "Hown Howns".
         iSplitL "Hown". 1: iFrame.
-        iDestruct (big_sepLｰseqｰshiftｰ1₁ with "Howns") as "Howns".
+        iApply big_sepLｰseqｰshiftｰ1₁ in "Howns".
         iEval (rewrite -(Qp.div_mul_cancel_r _ _ (Qp۰of_nat n)) -Qp.div_div) in "Howns".
         iApply ("IH" with "[//] Howns").
   Qed.

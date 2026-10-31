@@ -422,14 +422,14 @@ Section latchˡⁱⁿ۰G.
         iDestruct (state۰atｰne with "Hstate۰at۰1 Hstate۰at۰2") as %[] => //.
       }
 
-      iDestruct (big_sepMｰmap_img with "Hstate۰ats") as "Hstate۰ats".
-      iDestruct (big_sepM_gset_to_gmap with "Hstate۰ats") as "Hstate۰ats".
+      iApply big_sepMｰmap_img in "Hstate۰ats".
+      iApply big_sepM_gset_to_gmap in "Hstate۰ats".
       iDestruct (ghost_map_lookup_big with "Hstate۰auth Hstate۰ats") as %<-%map_subseteq_size_eq; last first.
       { rewrite sizeｰgset_to_gmap sizeｰmap_imgｰinj // -(size_dom ids) Hids size_set_seq. simp. lia. }
       iMod (ghost_map_update_big _ (gset_to_gmap StatusLin $ map_img ids) with "Hstate۰auth Hstate۰ats") as "(Hstate۰auth & Hstate۰ats)". 1: set_solver.
       iEval (rewrite mapｰunionｰdom; first set_solver) in "Hstate۰auth".
-      iDestruct (big_sepM_gset_to_gmap with "Hstate۰ats") as "Hstate۰ats".
-      iDestruct (big_sepSｰmap_img ids with "Hstate۰ats") as "Hstate۰ats". 1: done.
+      iApply big_sepM_gset_to_gmap in "Hstate۰ats".
+      iApply (big_sepSｰmap_img ids) in "Hstate۰ats". 1: done.
       { apply symmetry, sizeｰmap_imgｰinj => //. }
 
       rewrite sizeｰgset_to_gmap sizeｰmap_imgｰinj // in Hsize.

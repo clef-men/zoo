@@ -454,9 +454,9 @@ Section ws_deques_private۰G.
     iDestruct (big_sepL2_sep with "H") as "(H1 & H2)".
     iDestruct (big_sepL2ｰretractｰr with "H1") as "(_ & H1)".
     iDestruct (big_sepL2ｰretractｰr with "H2") as "(_ & H2)".
-    iDestruct (big_sepLｰseqｰindex₂ with "H1") as "H1".
+    iApply big_sepLｰseqｰindex₂ in "H1".
     { simp_length. }
-    iDestruct (big_sepLｰseqｰindex₂ with "H2") as "H2".
+    iApply big_sepLｰseqｰindex₂ in "H2".
     { simp_length. }
     iSteps.
   Qed.
@@ -519,9 +519,9 @@ Section ws_deques_private۰G.
     iDestruct (big_sepL2_sep with "H") as "(H1 & H2)".
     iDestruct (big_sepL2ｰretractｰr with "H1") as "(_ & H1)".
     iDestruct (big_sepL2ｰretractｰr with "H2") as "(_ & H2)".
-    iDestruct (big_sepLｰseqｰindex₂ with "H1") as "H1".
+    iApply big_sepLｰseqｰindex₂ in "H1".
     { simp_length. }
-    iDestruct (big_sepLｰseqｰindex₂ with "H2") as "H2".
+    iApply big_sepLｰseqｰindex₂ in "H2".
     { simp_length. }
     iExists γ_channels. iSplitL "H1".
     1: iApply (big_sepL_impl with "H1").
@@ -832,7 +832,7 @@ Section ws_deques_private۰G.
     - iSteps.
       iDestruct (big_sepL_sep_2 with "Hmodels_ats Howners₁") as "H".
       iDestruct (big_sepL_sep_2 with "H Hchannels_2") as "H".
-      iDestruct (big_sepLｰtoｰseqｰ0 with "Hqueues") as "Hqueues". rewrite Hqueues_length.
+      iApply big_sepLｰtoｰseqｰ0 in "Hqueues". rewrite Hqueues_length.
       iDestruct (big_sepL_sep_2 with "Hqueues H") as "H".
       iApply (big_sepL_impl with "H").
       iSteps.

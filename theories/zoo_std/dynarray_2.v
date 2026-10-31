@@ -475,7 +475,7 @@ Section zoo۰G.
       iDestruct (big_sepL2_sep with "Helems'") as "(Heq & Helems')".
       iDestruct (big_sepL2ｰForall2 with "Heq") as %->%listｰfmapｰaltｰForall2ｰl. iClear "Heq".
       iDestruct (big_sepL2_const_sepL_r with "Helems'") as "(_ & Helems')".
-      iDestruct (big_sepL2ｰreplicateｰr₂ (const element۰model) _ _ (₊sz - length vs) with "Helems'") as "Helems'".
+      iApply (big_sepL2ｰreplicateｰr₂ (const element۰model) _ _ (₊sz - length vs)) in "Helems'".
       { simp_length in H𝑒𝑙𝑒𝑚𝑠. lia. }
       iDestruct (big_sepL2_app with "Helems Helems'") as "Helems".
       rewrite Nat2Z.id with_sliceｰappｰlength'; first simp_length.

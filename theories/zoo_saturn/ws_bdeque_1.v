@@ -915,7 +915,7 @@ Module base.
       wp۰apply (array٠unsafe_makeｰspec with "[//]") as (data) "Hdata_model"; first lia.
       iDestruct (array۰modelｰtoｰcslice with "Hdata_model") as "Hdata_cslice".
       iEval (simp_length) in "Hdata_cslice".
-      iDestruct (array۰csliceｰrotationｰrightｰ0 1 with "Hdata_cslice") as "Hdata_cslice"; [simp_length; lia.. |].
+      iApply (array۰csliceｰrotationｰrightｰ0 1) in "Hdata_cslice"; [simp_length; lia.. |].
       iEval (rewrite rotationｰreplicate) in "Hdata_cslice".
       iDestruct "Hdata_cslice" as "(Hdata_cslice₁ & Hdata_cslice₂)".
 
@@ -1348,7 +1348,7 @@ Module base.
         iMod (modelｰsteal with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂) /=".
         iMod ("HP" with "[$Hmodel₁ $Hhistory_at_front1 //]") as "HP".
 
-        iDestruct (array۰csliceｰrotationｰright₁' ˖front 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [simp_length/=; lia.. |].
+        iApply (array۰csliceｰrotationｰright₁' ˖front 1) in "Hdata_cslice₁"; [simp_length/=; lia.. |].
         eassert (rotation _ _ = vs1 ++ priv1 ++ [v1]) as ->.
         { destruct_decide (γ.(ws_bdeque_1۰name۰capacity) = 1) as Heq | ?.
           - rewrite -> Heq in *.
@@ -1388,7 +1388,7 @@ Module base.
 
       - assert (length vs1 = 0) as ->%nil_length_inv by lia.
 
-        iDestruct (array۰csliceｰrotationｰright₁' ˖back1 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [simp_length; lia.. |].
+        iApply (array۰csliceｰrotationｰright₁' ˖back1 1) in "Hdata_cslice₁"; [simp_length; lia.. |].
         iEval (rewrite /= -(app_nil_l (rotation _ _))) in "Hdata_cslice₁".
 
         iSplitR "HP HΦ".
@@ -1427,7 +1427,7 @@ Module base.
 
       assert (length vs1 = 0) as ->%nil_length_inv by lia.
 
-      iDestruct (array۰csliceｰrotationｰright₁' ˖back1 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [simp_length; lia.. |].
+      iApply (array۰csliceｰrotationｰright₁' ˖back1 1) in "Hdata_cslice₁"; [simp_length; lia.. |].
       iEval (rewrite /= -(app_nil_l (rotation _ _))) in "Hdata_cslice₁".
 
       iSplitR "HΦ".
@@ -1471,7 +1471,7 @@ Module base.
         iMod (historyｰupdate _ inhabitant with "Hhistory_auth") as "(Hhistory_auth & _)"; first done.
         iMod (ownerｰupdate Unstable (length hist1) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
 
-        iDestruct (array۰csliceｰrotationｰright₁' ˖(length hist1) 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [simp_length; lia.. |].
+        iApply (array۰csliceｰrotationｰright₁' ˖(length hist1) 1) in "Hdata_cslice₁"; [simp_length; lia.. |].
         iEval (rewrite -(app_nil_l (rotation _ _ ))) in "Hdata_cslice₁".
 
         iSplitR "Howner₁ HΦ".
@@ -1668,7 +1668,7 @@ Module base.
         iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_cache") as %?.
 
         iAssert ⌜head priv2 = Some v⌝%I as %(priv2' & ->)%head_Some.
-        { iDestruct (array۰csliceｰrotationｰrightｰsmall₁' back (length vs2) with "Hdata_cslice₁") as "Hdata_cslice₁"; [simp_length; lia.. |].
+        { iApply (array۰csliceｰrotationｰrightｰsmall₁' back (length vs2)) in "Hdata_cslice₁"; [simp_length; lia.. |].
           rewrite /rotation drop_app_length.
           rewrite head_lookup -(lookup_app_l _ (take (length vs2) (vs2 ++ priv2))); first lia.
           iDestruct (array۰csliceｰagree with "Hdata_cslice₁ Hdata_cslice₂") as %->.
@@ -2107,7 +2107,7 @@ Module base.
         iMod ("HΦ" $! (Some v) with "[$Hmodel₁]") as "HΦ"; first iSteps.
 
         iAssert ⌜us !! 0 = Some v⌝%I as %Hus_lookup.
-        { iDestruct (array۰csliceｰrotationｰrightｰsmall₁' (back - 1) (length vs1) with "Hdata_cslice₁") as "Hdata_cslice₁"; [simp_length/=; lia.. |].
+        { iApply (array۰csliceｰrotationｰrightｰsmall₁' (back - 1) (length vs1)) in "Hdata_cslice₁"; [simp_length/=; lia.. |].
           iDestruct (array۰csliceｰagree with "Hdata_cslice₁ Hdata_cslice₂") as %<-.
           { simp_length/=. lia. }
           rewrite /rotation drop_app_length //.

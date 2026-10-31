@@ -69,7 +69,7 @@ Section pool_counter۰G.
     ⌜cnt = n⌝.
   Proof.
     iIntros "%Hn Hauth Hfrags".
-    iDestruct (big_sepLｰreplicate₂ (λ _, tokens۰frag γ n) with "Hfrags") as "Hfrags".
+    iApply (big_sepLｰreplicate₂ (λ _, tokens۰frag γ n)) in "Hfrags".
     iDestruct (auth_frac۰fragｰgather with "Hfrags") as "Hfrag". 1: simp_length.
     iEval (simp_length) in "Hfrag".
     iEval (rewrite Qp.mul_div_r) in "Hfrag".

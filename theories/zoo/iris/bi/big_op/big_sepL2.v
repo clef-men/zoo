@@ -238,7 +238,7 @@ Section bi.
     Proof.
       iIntros "%Hlookup1 H".
       iDestruct (big_sepL2ｰlookupｰSomeｰl with "H") as %(x2 & Hlookup2); first done.
-      iDestruct (big_sepL2_lookup_acc with "H") as "H"; [done.. |].
+      iApply big_sepL2_lookup_acc in "H"; [done.. |].
       iSteps.
     Qed.
     Lemma big_sepL2ｰlookupｰaccｰr `{!BiAffine PROP} {Φ} i x2 l1 l2 :
@@ -253,7 +253,7 @@ Section bi.
     Proof.
       iIntros "%Hlookup2 H".
       iDestruct (big_sepL2ｰlookupｰSomeｰr with "H") as %(x1 & Hlookup1); first done.
-      iDestruct (big_sepL2_lookup_acc with "H") as "H"; [done.. |].
+      iApply big_sepL2_lookup_acc in "H"; [done.. |].
       iSteps.
     Qed.
 

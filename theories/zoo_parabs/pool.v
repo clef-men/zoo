@@ -994,7 +994,7 @@ Module base.
       iFrame "#∗". iStep. iSplitL.
       { iIntros "#Hfinished".
         iDestruct (pool۰obligationｰfinished with "Hobligation Hfinished") as "-#HR".
-        iDestruct (lc_weaken 2 with "H£") as "H£". 1: done.
+        iApply (lc_weaken 2) in "H£". 1: done.
         iDestruct "H£" as "(H£_1 & H£_2)".
         iMod (lc_fupd_elim_later with "H£_1 HR") as "(_ & #Hη_resolved)".
         iMod (prop_spscｰconsume with "Hη_inv Hη_consumer Hη_resolved") as "HP". 1: done.

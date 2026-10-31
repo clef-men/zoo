@@ -268,7 +268,7 @@ Section bi.
     Proof.
       iIntros "H".
       iDestruct (big_sepLｰexists with "H") as "(%xs & %Hxs & H)". simp_length in Hxs.
-      iDestruct (big_sepL2ｰseqｰl with "H") as "H".
+      iApply big_sepL2ｰseqｰl in "H".
       iSteps.
     Qed.
 

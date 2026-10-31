@@ -145,7 +145,7 @@ Section zoo۰G.
     ⌝.
   Proof.
     iIntros "(:state_interp) Hl %i %v %Hvs_lookup".
-    iDestruct (big_sepL_lookup with "Hl") as "Hl"; first done.
+    iApply big_sepL_lookup in "Hl"; first done.
     iApply (heapｰlookup with "Hheap_auth Hl").
   Qed.
   Lemma state_interpｰpointstoｰupdate {ns nt σ κs l v} v' :
