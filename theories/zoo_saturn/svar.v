@@ -452,12 +452,7 @@ Section svar_G.
   Zoo derive Timeless for svar۰scanner.
 
   Zoo derive Persistent for svar۰inv.
-  (* Zoo derive Persistent for svar۰scanner. *)
-  #[global] Instance svar۰scanner۰persistent γ vₛ :
-    Persistent (svar۰scanner γ DfracDiscarded vₛ).
-  Proof.
-    apply _.
-  Qed.
+  Zoo derive Persistent for svar۰scanner:discarded.
 
   #[global] Instance svar۰scannerｰfractional γ vₛ :
     Fractional (λ q, svar۰scanner γ (DfracOwn q) vₛ).
