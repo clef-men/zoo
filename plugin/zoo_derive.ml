@@ -52,11 +52,13 @@ let parameters (const : Declarations.constant_body) =
     in
     id, ty
 
-let instance_name ~kind id =
+let instance_name ~kind id : string =
   Printf.sprintf "%s%s%s"
     (id |> Libnames.qualid_basename |> Names.Id.to_string)
     Separator.hyphen
     (kind |> Kind.to_string)
+let instance_lname ~kind id : Names.lname =
+  instance_name ~kind id
   |> Names_.lname_of_string
 
 let instance_parameter id =
@@ -107,7 +109,7 @@ let interp ~locality ~kind ~modifier id =
     Classes.new_instance_interactive
       ~locality
       ~poly:PolyFlags.default
-      (instance_name ~kind id, None)
+      (instance_lname ~kind id, None)
       (instance_parameters ~modifier params)
       ( mk_app
           (kind |> Kind.to_constr)
