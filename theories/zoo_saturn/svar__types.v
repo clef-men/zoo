@@ -12,7 +12,8 @@ Zoo type snapshot :=
 
 Zoo type prophecy :=
   | Forward _
-  | Set _.
+  | Set _
+  | Get _.
 
 Zoo type t := mutable
   { value

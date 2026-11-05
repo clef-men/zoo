@@ -4,6 +4,7 @@ type 'a snapshot =
 type prophecy =
   | Forward : 'a * int -> prophecy
   | Set : Zoo.id * 'a -> prophecy
+  | Get : Zoo.id -> prophecy
 
 type 'a t =
   { mutable value: 'a [@atomic]
@@ -47,8 +48,9 @@ let forward t =
                 ) t.proph (Forward (v, g)) |> ignore
 
 let get t =
+  let id = Zoo.id () in
   forward t ;
-  t.value
+  Zoo.resolve_with t.value t.proph (Get id)
 
 let set t v =
   let id = Zoo.id () in
