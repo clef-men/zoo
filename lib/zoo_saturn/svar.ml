@@ -1,7 +1,5 @@
 type 'a snapshot =
-  { snapshot_value: 'a
-  ; snapshot_gen: int
-  }
+  | Snapshot of 'a * int [@generative] [@zoo.generative_strong]
 
 type prophecy =
   | Forward : 'a * int -> prophecy
@@ -15,39 +13,38 @@ type 'a t =
   }
 
 let make v =
-  let snap = { snapshot_value= v; snapshot_gen= 0 } in
   { value= v
   ; gen= 0
-  ; snapshot= snap
+  ; snapshot= Snapshot (v, 0)
   ; proph= Zoo.proph ()
   }
 
 let forward t =
-  let snap = t.snapshot in
-  let g = t.gen in
-  if snap.snapshot_gen != g then
-    let v = t.value in
-    let snap' = { snapshot_value= v; snapshot_gen= g } in
-    if
-      not @@
-      Zoo.resolve_with (
-        Atomic.Loc.compare_and_set
-          [%atomic.loc t.snapshot]
-          snap
-          snap'
-      ) t.proph (Forward (v, g))
-    then
-      let snap = t.snapshot in
+  match t.snapshot with
+  | Snapshot (_, g_snap) as snap ->
       let g = t.gen in
-      if snap.snapshot_gen != g then
+      if g_snap != g then
         let v = t.value in
-        let snap' = { snapshot_value= v; snapshot_gen= g } in
-        Zoo.resolve_with (
-          Atomic.Loc.compare_and_set
-            [%atomic.loc t.snapshot]
-            snap
-            snap'
-        ) t.proph (Forward (v, g)) |> ignore
+        if
+          not @@
+          Zoo.resolve_with (
+            Atomic.Loc.compare_and_set
+              [%atomic.loc t.snapshot]
+              snap
+              (Snapshot (v, g))
+          ) t.proph (Forward (v, g))
+        then
+          match t.snapshot with
+          | Snapshot (_, g_snap) as snap ->
+              let g = t.gen in
+              if g_snap != g then
+                let v = t.value in
+                Zoo.resolve_with (
+                  Atomic.Loc.compare_and_set
+                    [%atomic.loc t.snapshot]
+                    snap
+                    (Snapshot (v, g))
+                ) t.proph (Forward (v, g)) |> ignore
 
 let get t =
   forward t ;
@@ -63,4 +60,6 @@ let click t =
 
 let observe t =
   forward t ;
-  t.snapshot.snapshot_value
+  match t.snapshot with
+  | Snapshot (v, _) ->
+      v

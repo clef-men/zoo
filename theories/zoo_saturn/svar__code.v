@@ -8,9 +8,7 @@ Require Import zoo.program_logic.identifier.
 Require Import zoo.options.
 
 #[qualified] Zoo type snapshot :=
-  { snapshot_value
-  ; snapshot_gen
-  }.
+  | Snapshot _.
 
 #[qualified] Zoo type prophecy :=
   | Forward _
@@ -25,36 +23,40 @@ Require Import zoo.options.
 
 Definition svar٠make : val :=
   𝗳𝘂𝗻 "v" ->
-    𝗹𝗲𝘁 "snap" = ( "v", 0 ) 𝗶𝗻
-    { "v", 0, "snap", 𝗽𝗿𝗼𝗽𝗵 }.
+    { "v", 0, ‘svar٠Snapshot@[ "v", 0 ], 𝗽𝗿𝗼𝗽𝗵 }.
 
 Definition svar٠forward : val :=
   𝗳𝘂𝗻 "t" ->
-    𝗹𝗲𝘁 "snap" = "t".{svar٠snapshot} 𝗶𝗻
-    𝗹𝗲𝘁 "g" = "t".{svar٠gen} 𝗶𝗻
-    𝗶𝗳 "snap".<svar٠snapshot_gen> != "g" 𝘁𝗵𝗲𝗻 (
-      𝗹𝗲𝘁 "v" = "t".{svar٠value} 𝗶𝗻
-      𝗹𝗲𝘁 "snap'" = ( "v", "g" ) 𝗶𝗻
-      𝗶𝗳
-        ~
-        𝗿𝗲𝘀𝗼𝗹𝘃𝗲
-          (𝗰𝗮𝘀 "t".[svar٠snapshot] "snap" "snap'")
-          "t".{svar٠proph}
-          ‘svar٠Forward( "v", "g" )
-      𝘁𝗵𝗲𝗻 (
-        𝗹𝗲𝘁 "snap" = "t".{svar٠snapshot} 𝗶𝗻
+    𝗺𝗮𝘁𝗰𝗵 "t".{svar٠snapshot} 𝘄𝗶𝘁𝗵
+    | svar٠Snapshot ⎽ "g_snap" 𝗮𝘀 "snap" ->
         𝗹𝗲𝘁 "g" = "t".{svar٠gen} 𝗶𝗻
-        𝗶𝗳 "snap".<svar٠snapshot_gen> != "g" 𝘁𝗵𝗲𝗻 (
+        𝗶𝗳 "g_snap" != "g" 𝘁𝗵𝗲𝗻 (
           𝗹𝗲𝘁 "v" = "t".{svar٠value} 𝗶𝗻
-          𝗹𝗲𝘁 "snap'" = ( "v", "g" ) 𝗶𝗻
-          𝗿𝗲𝘀𝗼𝗹𝘃𝗲
-            (𝗰𝗮𝘀 "t".[svar٠snapshot] "snap" "snap'")
-            "t".{svar٠proph}
-            ‘svar٠Forward( "v", "g" ) ⍮
-          ()
+          𝗶𝗳
+            ~
+            𝗿𝗲𝘀𝗼𝗹𝘃𝗲
+              (𝗰𝗮𝘀 "t".[svar٠snapshot] "snap" ‘svar٠Snapshot@[ "v", "g" ])
+              "t".{svar٠proph}
+              ‘svar٠Forward( "v", "g" )
+          𝘁𝗵𝗲𝗻 (
+            𝗺𝗮𝘁𝗰𝗵 "t".{svar٠snapshot} 𝘄𝗶𝘁𝗵
+            | svar٠Snapshot ⎽ "g_snap" 𝗮𝘀 "snap" ->
+                𝗹𝗲𝘁 "g" = "t".{svar٠gen} 𝗶𝗻
+                𝗶𝗳 "g_snap" != "g" 𝘁𝗵𝗲𝗻 (
+                  𝗹𝗲𝘁 "v" = "t".{svar٠value} 𝗶𝗻
+                  𝗿𝗲𝘀𝗼𝗹𝘃𝗲
+                    (𝗰𝗮𝘀
+                       "t".[svar٠snapshot]
+                       "snap"
+                       ‘svar٠Snapshot@[ "v", "g" ])
+                    "t".{svar٠proph}
+                    ‘svar٠Forward( "v", "g" ) ⍮
+                  ()
+                )
+            𝗲𝗻𝗱
+          )
         )
-      )
-    ).
+    𝗲𝗻𝗱.
 
 Definition svar٠get : val :=
   𝗳𝘂𝗻 "t" ->
@@ -74,4 +76,7 @@ Definition svar٠click : val :=
 Definition svar٠observe : val :=
   𝗳𝘂𝗻 "t" ->
     svar٠forward "t" ⍮
-    "t".{svar٠snapshot}.<svar٠snapshot_value>.
+    𝗺𝗮𝘁𝗰𝗵 "t".{svar٠snapshot} 𝘄𝗶𝘁𝗵
+    | svar٠Snapshot "v" ⎽ ->
+        "v"
+    𝗲𝗻𝗱.
