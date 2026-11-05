@@ -8,9 +8,7 @@ Require Export zoo.program_logic.identifier.
 Require Import zoo.options.
 
 Zoo type snapshot :=
-  { snapshot_value
-  ; snapshot_gen
-  }.
+  | Snapshot _.
 
 Zoo type prophecy :=
   | Forward _
