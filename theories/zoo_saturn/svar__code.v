@@ -12,7 +12,8 @@ Require Import zoo.options.
 
 #[qualified] Zoo type prophecy :=
   | Forward _
-  | Set _.
+  | Set _
+  | Get _.
 
 #[qualified] Zoo type t := mutable
   { value
@@ -60,8 +61,9 @@ Definition svar٠forward : val :=
 
 Definition svar٠get : val :=
   𝗳𝘂𝗻 "t" ->
+    𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
     svar٠forward "t" ⍮
-    "t".{svar٠value}.
+    𝗿𝗲𝘀𝗼𝗹𝘃𝗲 "t".{svar٠value} "t".{svar٠proph} ‘svar٠Get( "id" ).
 
 Definition svar٠set : val :=
   𝗳𝘂𝗻 "t" "v" ->
