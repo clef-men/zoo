@@ -4,6 +4,7 @@ Require Import zoo.prelude.
 Require Import zoo.plugin.
 Require Import zoo.language.notations.
 Require Import zoo.language.typeclasses.
+Require Import zoo.program_logic.identifier.
 Require Import zoo_std.atomic_array.
 Require Import zoo_std.optional.
 Require Import zoo.options.
@@ -13,18 +14,19 @@ Require Import zoo.options.
   ; data
   ; front
   ; back
+  ; proph
   }.
 
 Definition tqueue_mpmc_2٠create : val :=
   𝗳𝘂𝗻 "cap" ->
     𝗹𝗲𝘁 "data" = atomic_array٠make "cap" §optional٠Nothing 𝗶𝗻
-    { "cap", "data", 0, 0 }.
+    { "cap", "data", 0, 0, 𝗽𝗿𝗼𝗽𝗵 }.
 
 Definition tqueue_mpmc_2٠make : val :=
   𝗳𝘂𝗻 "cap" "v" ->
     𝗹𝗲𝘁 "data" = atomic_array٠make "cap" §optional٠Nothing 𝗶𝗻
     atomic_array٠unsafe_set "data" 0 ‘optional٠Something( "v" ) ⍮
-    { "cap", "data", 0, 1 }.
+    { "cap", "data", 0, 1, 𝗽𝗿𝗼𝗽𝗵 }.
 
 Definition tqueue_mpmc_2٠is_empty : val :=
   𝗳𝘂𝗻 "t" ->
@@ -34,15 +36,18 @@ Definition tqueue_mpmc_2٠is_empty : val :=
 
 Definition tqueue_mpmc_2٠push₁ : val :=
   𝗿𝗲𝗰 "push" "t" "v" ->
+    𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
     𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[tqueue_mpmc_2٠back] 1 𝗶𝗻
     𝗶𝗳 "t".{tqueue_mpmc_2٠capacity} ≤ "i" 𝘁𝗵𝗲𝗻 (
       false
     ) 𝗲𝗹𝘀𝗲 𝗶𝗳
-       atomic_array٠unsafe_cas
+       atomic_array٠unsafe_cas_resolve
          "t".{tqueue_mpmc_2٠data}
          "i"
          §optional٠Nothing
          ‘optional٠Something( "v" )
+         "t".{tqueue_mpmc_2٠proph}
+         ( "i", "id" )
      𝘁𝗵𝗲𝗻 (
       true
     ) 𝗲𝗹𝘀𝗲 (
@@ -62,13 +67,16 @@ Definition tqueue_mpmc_2٠pop : val :=
     𝗶𝗳 "t".{tqueue_mpmc_2٠capacity} ≤ "t".{tqueue_mpmc_2٠front} 𝘁𝗵𝗲𝗻 (
       §optional٠Anything
     ) 𝗲𝗹𝘀𝗲 (
+      𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
       𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[tqueue_mpmc_2٠front] 1 𝗶𝗻
       𝗶𝗳 "t".{tqueue_mpmc_2٠capacity} ≤ "i" 𝘁𝗵𝗲𝗻 (
         §optional٠Anything
       ) 𝗲𝗹𝘀𝗲 (
-        atomic_array٠unsafe_xchg
+        atomic_array٠unsafe_xchg_resolve
           "t".{tqueue_mpmc_2٠data}
           "i"
           §optional٠Anything
+          "t".{tqueue_mpmc_2٠proph}
+          ( "i", "id" )
       )
     ).

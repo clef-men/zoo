@@ -4,6 +4,7 @@ Require Import zoo.prelude.
 Require Import zoo.plugin.
 Require Import zoo.language.notations.
 Require Import zoo.language.typeclasses.
+Require Export zoo.program_logic.identifier.
 Require Export zoo_std.atomic_array.
 Require Export zoo_std.optional.
 Require Import zoo.options.
@@ -13,4 +14,5 @@ Zoo type t := mutable
   ; data
   ; front
   ; back
+  ; proph
   }.
