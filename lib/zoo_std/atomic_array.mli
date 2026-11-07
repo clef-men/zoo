@@ -23,9 +23,13 @@ val set :
 
 val unsafe_xchg :
   'a t -> int -> 'a -> 'a
+val unsafe_xchg_resolve :
+  'a t -> int -> 'a -> 'b Zoo.proph -> 'b -> 'a
 
 val unsafe_cas :
   'a t -> int -> 'a -> 'a -> bool
+val unsafe_cas_resolve :
+  'a t -> int -> 'a -> 'a -> 'b Zoo.proph -> 'b -> bool
 
 val unsafe_faa :
   int t -> int -> int -> int

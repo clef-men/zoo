@@ -35,10 +35,16 @@ let set =
 let unsafe_xchg =
   Stdlib.Atomic.Array.unsafe_exchange
 [@@zoo.overwrite_raw "zoo_std.array.unsafe_xchg"]
+let unsafe_xchg_resolve t i v proph v_resolve =
+  Zoo.resolve_with (unsafe_xchg t i v) proph v_resolve
+[@@zoo.overwrite_raw "zoo_std.array.unsafe_xchg_resolve"]
 
 let unsafe_cas =
   Stdlib.Atomic.Array.unsafe_compare_and_set
 [@@zoo.overwrite_raw "zoo_std.array.unsafe_cas"]
+let unsafe_cas_resolve t i v1 v2 proph v_resolve =
+  Zoo.resolve_with (unsafe_cas t i v1 v2) proph v_resolve
+[@@zoo.overwrite_raw "zoo_std.array.unsafe_cas_resolve"]
 
 let unsafe_faa =
   Stdlib.Atomic.Array.unsafe_fetch_and_add

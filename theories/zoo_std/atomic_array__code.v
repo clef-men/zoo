@@ -34,8 +34,14 @@ Definition atomic_array٠set : val :=
 Definition atomic_array٠unsafe_xchg : val :=
   array٠unsafe_xchg.
 
+Definition atomic_array٠unsafe_xchg_resolve : val :=
+  array٠unsafe_xchg_resolve.
+
 Definition atomic_array٠unsafe_cas : val :=
   array٠unsafe_cas.
+
+Definition atomic_array٠unsafe_cas_resolve : val :=
+  array٠unsafe_cas_resolve.
 
 Definition atomic_array٠unsafe_faa : val :=
   array٠unsafe_faa.

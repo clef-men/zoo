@@ -20,9 +20,17 @@ Please Definition array٠unsafe_xchg : val :=
   𝗳𝘂𝗻 "t" "i" "v" ->
     𝘅𝗰𝗵𝗴 ("t", "i") "v".
 
+Please Definition array٠unsafe_xchg_resolve : val :=
+  𝗳𝘂𝗻 "t" "i" "v" "proph" "resolve" ->
+    𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝘅𝗰𝗵𝗴 ("t", "i") "v") "proph" "resolve".
+
 Please Definition array٠unsafe_cas : val :=
   𝗳𝘂𝗻 "t" "i" "v1" "v2" ->
     𝗰𝗮𝘀 ("t", "i") "v1" "v2".
+
+Please Definition array٠unsafe_cas_resolve : val :=
+  𝗳𝘂𝗻 "t" "i" "v1" "v2" "proph" "resolve" ->
+    𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 ("t", "i") "v1" "v2") "proph" "resolve".
 
 Please Definition array٠unsafe_faa : val :=
   𝗳𝘂𝗻 "t" "i" "incr" ->
@@ -2148,6 +2156,79 @@ Section zoo۰G.
     wp۰apply (array٠unsafe_casｰspecｰslice with "Hslice") as (b v) "(%Hlookup & % & Hslice)"; [done.. | lia |].
     rewrite Nat.sub_0_r in Hlookup |- *. iSteps.
     destruct b; simp_length.
+  Qed.
+
+  Lemma array٠unsafe_xchg_resolveｰspec t (i : Z) v (proph resolve : val) Φ :
+    ( ∀ e,
+      ⌜Atomic e⌝ -∗
+      ⌜expr۰to_val e = None⌝ -∗
+      □ (
+        ∀ vs E Ψ,
+        ⌜0 ≤ i < length vs⌝%Z -∗
+        ▷ array۰model t (DfracOwn 1) vs -∗
+        ▷ (
+          ∀ w,
+          ⌜vs !! ₊i = Some w⌝ -∗
+          array۰model t (DfracOwn 1) (<[₊i := v]> vs) -∗
+          Ψ w
+        ) -∗
+        WP e @ E {{ Ψ }}
+      ) -∗
+      £ 1 -∗
+      WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e proph resolve {{ Φ }}
+    ) -∗
+    WP array٠unsafe_xchg_resolve t #i v proph resolve {{ Φ }}.
+  Proof.
+    iIntros "HΦ".
+    wp۰rec credit:"H£". wp۰pures.
+    iApply "HΦ"; [iPureIntro; apply _ | done | | iExact "H£"].
+    iIntros "!> %vs %E %Ψ %Hi Hmodel HΨ".
+    rewrite /array۰model.
+    iDestruct "Hmodel" as "(%l & >-> & #Hheader & >Hmodel)".
+    destruct (lookup_lt_is_Some_2 vs ₊i) as (w & Hlookup); first lia.
+    iDestruct (chunk۰modelｰupdate i with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | done |].
+    wp۰xchg.
+    iApply ("HΨ" with "[//]").
+    iDestruct ("Hmodel" with "H↦") as "Hmodel".
+    simp_length. iSteps.
+  Qed.
+
+  Lemma array٠unsafe_cas_resolveｰspec t (i : Z) v1 v2 (proph resolve : val) Φ :
+    ( ∀ e,
+      ⌜Atomic e⌝ -∗
+      ⌜expr۰to_val e = None⌝ -∗
+      □ (
+        ∀ vs E Ψ,
+        ⌜0 ≤ i < length vs⌝%Z -∗
+        ▷ array۰model t (DfracOwn 1) vs -∗
+        ▷ (
+          ∀ b v,
+          ⌜vs !! ₊i = Some v⌝ -∗
+          ⌜(if b then (≈) else (≉)) v v1⌝ -∗
+          array۰model t (DfracOwn 1) (if b then <[₊i := v2]> vs else vs) -∗
+          Ψ #b
+        ) -∗
+        WP e @ E {{ Ψ }}
+      ) -∗
+      £ 1 -∗
+      WP 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 e proph resolve {{ Φ }}
+    ) -∗
+    WP array٠unsafe_cas_resolve t #i v1 v2 proph resolve {{ Φ }}.
+  Proof.
+    iIntros "HΦ".
+    wp۰rec credit:"H£". wp۰pures.
+    iApply "HΦ"; [iPureIntro; apply _ | done | | iExact "H£"].
+    iIntros "!> %vs %E %Ψ %Hi Hmodel HΨ".
+    rewrite /array۰model.
+    iDestruct "Hmodel" as "(%l & >-> & #Hheader & >Hmodel)".
+    destruct (lookup_lt_is_Some_2 vs ₊i) as (v & Hlookup); first lia.
+    iDestruct (chunk۰modelｰupdate i with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | done |].
+    wp۰cas.
+    all: iDestruct ("Hmodel" with "H↦") as "Hmodel".
+    - iApply ("HΨ" $! false with "[//] [//]").
+      rewrite list_insert_id //. iSteps.
+    - iApply ("HΨ" $! true with "[//] [//]").
+      simp_length. iSteps.
   Qed.
 
   Lemma array٠unsafe_swapｰspecｰslice {t i vs} {i1 : Z} k1 {v1} {i2 : Z} k2 v2 :
