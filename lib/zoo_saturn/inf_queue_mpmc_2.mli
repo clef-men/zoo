@@ -91,3 +91,20 @@ val pop :
   returns
     ?v
 |}]
+
+val try_pop :
+  'a t -> 'a option
+[@@zoo{|
+  arguments
+    t
+  atomically
+    ι
+  requires
+    inv t ι
+  arequires
+    model t ?vs
+  aensures
+    model t (tail ?vs)
+  returns
+    head ?vs
+|}]

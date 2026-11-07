@@ -12,6 +12,7 @@ Require Import zoo.base.
 Require Import zoo.program_logic.prophet_identifier.
 Require Import zoo.program_logic.prophet_multi.
 Require Import zoo.program_logic.prophet_nat.
+Require Import zoo_std.option.
 Require Export zoo_saturn.inf_queue_mpmc_2__code.
 Require Import zoo_saturn.inf_queue_mpmc_2__types.
 Require Import zoo.options.
@@ -1193,26 +1194,28 @@ Section inf_queue_mpmc_2۰G.
         iSteps.
   Qed.
 
-  #[local] Lemma inf_queue_mpmc_2٠pop₁ｰspec γ ι backoff :
+  #[local] Lemma inf_queue_mpmc_2٠try_pop_onceｰspec γ ι :
     <<<
-      inf_queue_mpmc_2۰inv γ ι ∗
-      backoff۰model backoff
+      inf_queue_mpmc_2۰inv γ ι
     | ∀∀ vs,
       inf_queue_mpmc_2۰model γ vs
     >>>
-      inf_queue_mpmc_2٠pop₁ γ backoff
-      @ ↑ι
+      inf_queue_mpmc_2٠try_pop_once γ @ ↑ι
     <<<
-      ∃∃ v vs',
-      ⌜vs = v :: vs'⌝ ∗
-      inf_queue_mpmc_2۰model γ vs'
-    | RET v;
+      ∃∃ o,
+      match o with
+      | None =>
+          inf_queue_mpmc_2۰model γ vs
+      | Some v =>
+          ∃ vs',
+          ⌜vs = v :: vs'⌝ ∗
+          inf_queue_mpmc_2۰model γ vs'
+      end
+    | RET o;
       True
     >>>.
   Proof.
-    iIntros "%Φ ((:inv) & Hbackoff) HΦ".
-
-    iLöb as "HLöb" forall (backoff).
+    iIntros "%Φ (:inv) HΦ".
 
     wp۰rec.
     wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
@@ -1237,7 +1240,7 @@ Section inf_queue_mpmc_2۰G.
           iSteps.
         }
 
-        iSplitR "Hconsumers_at Hbackoff HΦ".
+        iSplitR "Hconsumers_at HΦ".
         { iFrame.
           rewrite (drop_ge hist1); first lia.
           rewrite take_app_le; first lia.
@@ -1265,22 +1268,27 @@ Section inf_queue_mpmc_2۰G.
           iDestruct (consumers۰atｰexclusive with "Hconsumers_at Hconsumers_at_") as %[].
         }
         iMod (consumers۰atｰdiscard with "Hconsumers_at") as "#Hconsumers_at".
-        iMod ("Hclose1" with "[- Hbackoff HΦ]") as "_".
+        iMod ("Hclose1" with "[- HΦ]") as "_".
         { rewrite -(fnｰcomposeｰinsert _ _ _ Anything).
           iFrameSteps.
           rewrite fnｰlookupｰinsert. case_decide.
           - subst. iSteps.
           - rewrite fn_lookup_alter_ne //.
         }
+
+        iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
+        iMod ("HΦ" $! None with "Hmodel [//]") as "HΦ".
+
         iSteps.
 
-      + iMod (saved_predｰalloc Φ) as "(%η & #Hη)".
+      + iMod (saved_predｰalloc (λ v, Φ (Some v))) as "(%η & #Hη)".
         iMod (lstatesｰupdate (ConsumerProducer η) with "Hlstates_auth") as "(Hlstates_auth & _ & #Hlstates_at)". rewrite Hlstates1.
         iDestruct (big_sepLｰsnoc₂ (ConsumerProducer η) with "Hlstates_right [HΦ]") as "Hlstates_right".
         { iSteps.
           rewrite /consumer۰au. iAuIntro.
           iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)".
-          iAaccIntro with "Hmodel₁"; iSteps.
+          iAaccIntro with "Hmodel₁". 1: iSteps. iIntros "%v %vs' (-> & Hmodel₁)".
+          iExists (Some v). iFrameSteps.
         }
 
         iSplitR "Hconsumers_at".
@@ -1357,7 +1365,7 @@ Section inf_queue_mpmc_2۰G.
         iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
         iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %<-.
         iMod (modelｰupdate with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-        iMod ("HΦ" with "[$Hmodel₁ //] [//]") as "HΦ".
+        iMod ("HΦ" $! (Some v) with "[$Hmodel₁ //] [//]") as "HΦ".
 
         iSplitR "Hconsumers_at HΦ". { iFrameSteps. }
         iIntros "!> {%- Hloser}".
@@ -1397,7 +1405,7 @@ Section inf_queue_mpmc_2۰G.
         erewrite drop_S, oflattenｰconsｰNone in Hvs1; last done.
         iDestruct (lstates۰lbｰget with "Hlstates_auth") as "#Hlstates_lb"; first done.
 
-        iSplitR "Hconsumers_at Hbackoff HΦ". { iFrameSteps. }
+        iSplitR "Hconsumers_at HΦ". { iFrameSteps. }
         iIntros "!> {%}".
 
         do 2 wp۰load.
@@ -1418,19 +1426,55 @@ Section inf_queue_mpmc_2۰G.
           iDestruct (consumers۰atｰexclusive with "Hconsumers_at Hconsumers_at_") as %[].
         }
         iMod (consumers۰atｰdiscard with "Hconsumers_at") as "#Hconsumers_at".
-        iMod ("Hclose1" with "[- Hbackoff HΦ]") as "_".
+        iMod ("Hclose1" with "[- HΦ]") as "_".
         { rewrite -(fnｰcomposeｰinsert _ _ _ Anything).
           iFrameSteps.
           rewrite fnｰlookupｰinsert. case_decide.
           - subst. iSteps.
           - rewrite fn_lookup_alter_ne //.
         }
+
+        iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
+        iMod ("HΦ" $! None with "Hmodel [//]") as "HΦ".
+
         iSteps.
 
       + iDestruct "Hlstate" as "(:inv۰lstate۰left۰consumer)".
         iDestruct (consumers۰lbｰvalid with "Hconsumers_auth Hconsumers_lb") as %?. lia.
 
       + iDestruct (consumers۰lbｰvalid with "Hconsumers_auth Hlstate") as %?. lia.
+  Qed.
+
+  #[local] Lemma inf_queue_mpmc_2٠pop₁ｰspec γ ι backoff :
+    <<<
+      inf_queue_mpmc_2۰inv γ ι ∗
+      backoff۰model backoff
+    | ∀∀ vs,
+      inf_queue_mpmc_2۰model γ vs
+    >>>
+      inf_queue_mpmc_2٠pop₁ γ backoff
+      @ ↑ι
+    <<<
+      ∃∃ v vs',
+      ⌜vs = v :: vs'⌝ ∗
+      inf_queue_mpmc_2۰model γ vs'
+    | RET v;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ (#Hinv & Hbackoff) HΦ".
+
+    iLöb as "HLöb" forall (backoff).
+
+    wp۰rec.
+    awp۰apply+ (inf_queue_mpmc_2٠try_pop_onceｰspec with "Hinv").
+    iApply (aaccｰaupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
+    iAaccIntro with "Hmodel". 1: iSteps. iIntros ([v |]) "Hmodel !>".
+
+    - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
+      iRight. iFrameSteps.
+
+    - iLeft. iFrameSteps.
   Qed.
 
   Lemma inf_queue_mpmc_2٠popｰspec γ ι :
@@ -1453,6 +1497,66 @@ Section inf_queue_mpmc_2۰G.
 
     wp۰rec.
     wp۰apply (inf_queue_mpmc_2٠pop₁ｰspec with "[$Hinv] HΦ"). 1: iSteps.
+  Qed.
+
+  #[local] Lemma inf_queue_mpmc_2٠try_pop₁ｰspec γ ι backoff :
+    <<<
+      inf_queue_mpmc_2۰inv γ ι ∗
+      backoff۰model backoff
+    | ∀∀ vs,
+      inf_queue_mpmc_2۰model γ vs
+    >>>
+      inf_queue_mpmc_2٠try_pop₁ γ backoff
+      @ ↑ι
+    <<<
+      inf_queue_mpmc_2۰model γ (tail vs)
+    | RET head vs;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ (#Hinv & Hbackoff) HΦ".
+
+    iLöb as "HLöb" forall (backoff).
+
+    wp۰rec.
+    awp۰apply+ (inf_queue_mpmc_2٠is_emptyｰspec with "Hinv").
+    iApply (aaccｰaupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
+    iAaccIntro with "Hmodel". 1: iSteps. iIntros ([]) "Hmodel !>".
+
+    - iDestruct "Hmodel" as "(-> & Hmodel)".
+      iRight. iFrameSteps.
+
+    - iDestruct "Hmodel" as "(_ & Hmodel)".
+      iLeft. iFrame. iIntros "HΦ !> _".
+
+      awp۰apply+ (inf_queue_mpmc_2٠try_pop_onceｰspec with "Hinv").
+      iApply (aaccｰaupd with "HΦ"). 1: done. iIntros "{% vs} %vs Hmodel".
+      iAaccIntro with "Hmodel". 1: iSteps. iIntros ([v |]) "Hmodel !>".
+
+      + iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
+        iRight. iFrameSteps.
+
+      + iLeft. iFrameSteps.
+  Qed.
+
+  Lemma inf_queue_mpmc_2٠try_popｰspec γ ι :
+    <<<
+      inf_queue_mpmc_2۰inv γ ι
+    | ∀∀ vs,
+      inf_queue_mpmc_2۰model γ vs
+    >>>
+      inf_queue_mpmc_2٠try_pop γ
+      @ ↑ι
+    <<<
+      inf_queue_mpmc_2۰model γ (tail vs)
+    | RET head vs;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ Hinv HΦ".
+
+    wp۰rec.
+    wp۰apply (inf_queue_mpmc_2٠try_pop₁ｰspec with "[$Hinv] HΦ"). 1: iSteps.
   Qed.
 End inf_queue_mpmc_2۰G.
 

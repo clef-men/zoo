@@ -62,8 +62,8 @@ Definition inf_queue_mpmc_2٠push : val :=
       "push" "t" "v"
     ).
 
-Definition inf_queue_mpmc_2٠pop₁ : val :=
-  𝗿𝗲𝗰 "pop" "t" "backoff" ->
+Definition inf_queue_mpmc_2٠try_pop_once : val :=
+  𝗳𝘂𝗻 "t" ->
     𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
     𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[inf_queue_mpmc_2٠front] 1 𝗶𝗻
     𝗺𝗮𝘁𝗰𝗵
@@ -75,13 +75,39 @@ Definition inf_queue_mpmc_2٠pop₁ : val :=
         ( "i", "id" )
     𝘄𝗶𝘁𝗵
     | optional٠Nothing ->
-        "pop" "t" (backoff٠once "backoff")
+        §None
     | optional٠Anything ->
         𝗳𝗮𝗶𝗹
     | optional٠Something "v" ->
+        ‘Some( "v" )
+    𝗲𝗻𝗱.
+
+Definition inf_queue_mpmc_2٠pop₁ : val :=
+  𝗿𝗲𝗰 "pop" "t" "backoff" ->
+    𝗺𝗮𝘁𝗰𝗵 inf_queue_mpmc_2٠try_pop_once "t" 𝘄𝗶𝘁𝗵
+    | None ->
+        "pop" "t" (backoff٠once "backoff")
+    | Some "v" ->
         "v"
     𝗲𝗻𝗱.
 
 Definition inf_queue_mpmc_2٠pop : val :=
   𝗳𝘂𝗻 "t" ->
     inf_queue_mpmc_2٠pop₁ "t" backoff٠default.
+
+Definition inf_queue_mpmc_2٠try_pop₁ : val :=
+  𝗿𝗲𝗰 "try_pop" "t" "backoff" ->
+    𝗶𝗳 inf_queue_mpmc_2٠is_empty "t" 𝘁𝗵𝗲𝗻 (
+      §None
+    ) 𝗲𝗹𝘀𝗲 (
+      𝗺𝗮𝘁𝗰𝗵 inf_queue_mpmc_2٠try_pop_once "t" 𝘄𝗶𝘁𝗵
+      | None ->
+          "try_pop" "t" (backoff٠once "backoff")
+      | Some ⎽ 𝗮𝘀 "res" ->
+          "res"
+      𝗲𝗻𝗱
+    ).
+
+Definition inf_queue_mpmc_2٠try_pop : val :=
+  𝗳𝘂𝗻 "t" ->
+    inf_queue_mpmc_2٠try_pop₁ "t" backoff٠default.

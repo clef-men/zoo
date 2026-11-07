@@ -6,5 +6,8 @@ Require Import zoo_saturn.inf_queue_mpmc_2__code.
 #[global] Opaque inf_queue_mpmc_2٠size.
 #[global] Opaque inf_queue_mpmc_2٠is_empty.
 #[global] Opaque inf_queue_mpmc_2٠push.
+#[global] Opaque inf_queue_mpmc_2٠try_pop_once.
 #[global] Opaque inf_queue_mpmc_2٠pop₁.
 #[global] Opaque inf_queue_mpmc_2٠pop.
+#[global] Opaque inf_queue_mpmc_2٠try_pop₁.
+#[global] Opaque inf_queue_mpmc_2٠try_pop.
