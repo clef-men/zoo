@@ -64,7 +64,7 @@ Section ws_hub_fifo۰G.
 
   Record metadata :=
     { metadata۰size : nat
-    ; metadata۰queue : val
+    ; metadata۰queue : queue_mpmc_1۰name
     ; metadata۰waiters : val
     ; metadata۰owners : list gname
     ; metadata۰emptiness : gname

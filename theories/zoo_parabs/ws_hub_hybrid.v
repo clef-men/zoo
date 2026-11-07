@@ -156,7 +156,7 @@ Section ws_hub_hybrid۰G.
     { metadata۰size : nat
     ; metadata۰deques : val
     ; metadata۰rounds : val
-    ; metadata۰queue : val
+    ; metadata۰queue : queue_mpmc_1۰name
     ; metadata۰waiters : val
     ; metadata۰emptiness : gname
     }.

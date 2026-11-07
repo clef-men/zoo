@@ -21,6 +21,15 @@ Implicit Type vs : list val.
 Implicit Type waiter : gname.
 Implicit Type waiters : gmap gname nat.
 
+Zoo name :=
+  { self : location
+  ; inv : namespace
+  ; history : gname
+  ; front : gname
+  ; model : gname
+  ; waiters : gname
+  }.
+
 Zoo global :=
   { history : mono_list location
   ; front : auth_nat_max
@@ -29,965 +38,253 @@ Zoo global :=
   ; saved_pred : saved_pred bool
   }.
 
-Module base.
-  Section queue_mpmc_1۰G.
-    Context `{queue_mpmc_1۰G : QueueMpmc1G Σ}.
-
-    Implicit Type t : location.
-
-    Record queue_mpmc_1۰name :=
-      { queue_mpmc_1۰name۰inv : namespace
-      ; queue_mpmc_1۰name۰history : gname
-      ; queue_mpmc_1۰name۰front : gname
-      ; queue_mpmc_1۰name۰model : gname
-      ; queue_mpmc_1۰name۰waiters : gname
-      }.
-    Implicit Type γ : queue_mpmc_1۰name.
-
-    Please derive EqDecision for queue_mpmc_1۰name.
-    Please derive Countable for queue_mpmc_1۰name.
-
-    #[local] Definition history۰auth' γ_history hist :=
-      mono_list۰auth γ_history (DfracOwn 1) hist.
-    #[local] Definition history۰auth γ hist :=
-      history۰auth' γ.(queue_mpmc_1۰name۰history) hist.
-    #[local] Definition history۰at γ i node :=
-      mono_list۰at γ.(queue_mpmc_1۰name۰history) i node.
-
-    #[local] Definition front۰auth' γ_front i :=
-      auth_nat_max۰auth γ_front (DfracOwn 1) i.
-    #[local] Definition front۰auth γ i :=
-      front۰auth' γ.(queue_mpmc_1۰name۰front) i.
-    #[local] Definition front۰lb γ i :=
-      auth_nat_max۰lb γ.(queue_mpmc_1۰name۰front) i.
-
-    #[local] Definition model₁' γ_model vs :=
-      twins۰twin₁ γ_model (DfracOwn 1) vs.
-    #[local] Definition model₁ γ vs :=
-      model₁' γ.(queue_mpmc_1۰name۰model) vs.
-    #[local] Definition model₂' γ_model vs :=
-      twins۰twin₂ γ_model vs.
-    #[local] Definition model₂ γ vs :=
-      model₂' γ.(queue_mpmc_1۰name۰model) vs.
-
-    #[local] Definition waiters۰auth' γ_waiters waiters :=
-      ghost_map_auth γ_waiters (DfracOwn 1) waiters.
-    #[local] Definition waiters۰auth γ waiters :=
-      waiters۰auth' γ.(queue_mpmc_1۰name۰waiters) waiters.
-    #[local] Definition waiters۰at γ waiter i :=
-      ghost_map_elem γ.(queue_mpmc_1۰name۰waiters) waiter (DfracOwn 1) i.
-
-    #[local] Definition node۰model γ node i b : iProp Σ :=
-      node ↦ₕ Header §Node 2 ∗
-      history۰at γ i node ∗
-      if b then front۰lb γ i else True%I.
-    #[local] Instance : CustomIpat "node۰model" :=
-      " ( #H{}_header
-        & #Hhistory_at_{}
-        & {{front}#Hfront_lb_{};_}
-        )
-      ".
-
-    #[local] Definition waiter۰au γ (Ψ : bool → iProp Σ) : iProp Σ :=
-      AU <{
-        ∃∃ vs,
-        model₁ γ vs
-      }> @ ⊤ ∖ ↑γ.(queue_mpmc_1۰name۰inv), ∅ <{
-        model₁ γ vs
-      , COMM
-        Ψ (bool_decide (vs = []))
-      }>.
-    #[local] Definition waiter۰model γ past waiter i : iProp Σ :=
-      ∃ Ψ,
-      saved_pred waiter Ψ ∗
-      if decide (i < length past) then
-        Ψ false
-      else
-        waiter۰au γ Ψ.
-
-    #[local] Definition inv۰inner t γ : iProp Σ :=
-      ∃ hist past front nodes back vs waiters,
-      ⌜hist = past ++ front :: nodes⌝ ∗
-      ⌜back ∈ hist⌝ ∗
-      t.[front] ↦ #front ∗
-      t.[back] ↦ #back ∗
-      xtchain (Header §Node 2) (DfracOwn 1) hist §Null ∗
-      ([∗ list] node; v ∈ nodes; vs, node.[data] ↦ v) ∗
-      history۰auth γ hist ∗
-      front۰auth γ (length past) ∗
-      model₂ γ vs ∗
-      waiters۰auth γ waiters ∗
-      ([∗ map] waiter ↦ i ∈ waiters, waiter۰model γ past waiter i).
-    #[local] Instance : CustomIpat "inv۰inner" :=
-      " ( %hist{}
-        & %past{}
-        & %front{}
-        & %nodes{}
-        & %back{}
-        & %vs{}
-        & %waiters{}
-        & >%Hhist{}
-        & >%Hback{}
-        & >Ht_front
-        & >Ht_back
-        & >Hhist
-        & >Hnodes
-        & >Hhistory_auth
-        & >Hfront_auth
-        & >Hmodel₂
-        & >Hwaiters_auth
-        & Hwaiters
-        )
-      ".
-    #[local] Definition inv' t γ :=
-      inv γ.(queue_mpmc_1۰name۰inv) (inv۰inner t γ).
-    Please Definition queue_mpmc_1۰inv t γ ι : iProp Σ :=
-      ⌜ι = γ.(queue_mpmc_1۰name۰inv)⌝ ∗
-      inv' t γ.
-    #[local] Instance : CustomIpat "inv" :=
-      " ( ->
-        & #Hinv
-        )
-      ".
-
-    Please Definition queue_mpmc_1۰model :=
-      model₁.
-    #[local] Instance : CustomIpat "model" :=
-      " Hmodel₁{_{}}
-      ".
-
-    Zoo derive Timeless for queue_mpmc_1۰model.
-
-    Zoo derive Persistent for queue_mpmc_1۰inv.
-
-    #[local] Lemma historyｰalloc front :
-      ⊢ |==>
-        ∃ γ_history,
-        history۰auth' γ_history [front].
-    Proof.
-      apply mono_listｰalloc.
-    Qed.
-    #[local] Lemma history۰atｰget {γ hist} i node :
-      hist !! i = Some node →
-      history۰auth γ hist ⊢
-      history۰at γ i node.
-    Proof.
-      apply mono_list۰atｰget.
-    Qed.
-    #[local] Lemma history۰atｰlookup γ hist i node :
-      history۰auth γ hist -∗
-      history۰at γ i node -∗
-      ⌜hist !! i = Some node⌝.
-    Proof.
-      apply mono_list۰atｰvalid.
-    Qed.
-    #[local] Lemma historyｰupdate {γ hist} node :
-      history۰auth γ hist ⊢ |==>
-        history۰auth γ (hist ++ [node]) ∗
-        history۰at γ (length hist) node.
-    Proof.
-      iIntros "Hauth".
-      iMod (mono_listｰupdateｰsnoc with "Hauth") as "Hauth".
-      iDestruct (history۰atｰget with "Hauth") as "#Hat".
-      { rewrite lookup_snoc_Some. naive. }
-      iSteps.
-    Qed.
-
-    #[local] Lemma frontｰalloc :
-      ⊢ |==>
-        ∃ γ_front,
-        front۰auth' γ_front 0.
-    Proof.
-      apply auth_nat_maxｰalloc.
-    Qed.
-    #[local] Lemma front۰lbｰget γ i :
-      front۰auth γ i ⊢
-      front۰lb γ i.
-    Proof.
-      apply auth_nat_max۰lbｰget.
-    Qed.
-    #[local] Lemma front۰lbｰvalid γ i1 i2 :
-      front۰auth γ i1 -∗
-      front۰lb γ i2 -∗
-      ⌜i2 ≤ i1⌝.
-    Proof.
-      apply auth_nat_max۰lbｰvalid.
-    Qed.
-    #[local] Lemma frontｰupdate {γ i} i' :
-      i ≤ i' →
-      front۰auth γ i ⊢ |==>
-      front۰auth γ i'.
-    Proof.
-      apply auth_nat_maxｰupdate.
-    Qed.
-
-    #[local] Lemma modelｰalloc :
-      ⊢ |==>
-        ∃ γ_model,
-        model₁' γ_model [] ∗
-        model₂' γ_model [].
-    Proof.
-      apply twinsｰalloc'.
-    Qed.
-    #[local] Lemma model₁ｰexclusive γ vs1 vs2 :
-      model₁ γ vs1 -∗
-      model₁ γ vs2 -∗
-      False.
-    Proof.
-      apply twins۰twin₁ｰexclusive.
-    Qed.
-    #[local] Lemma modelｰagree γ vs1 vs2 :
-      model₁ γ vs1 -∗
-      model₂ γ vs2 -∗
-      ⌜vs1 = vs2⌝.
-    Proof.
-      apply: twinsｰagreeｰL.
-    Qed.
-    #[local] Lemma modelｰupdate {γ vs1 vs2} vs :
-      model₁ γ vs1 -∗
-      model₂ γ vs2 ==∗
-        model₁ γ vs ∗
-        model₂ γ vs.
-    Proof.
-      apply twinsｰupdate.
-    Qed.
-
-    #[local] Lemma waitersｰalloc :
-      ⊢ |==>
-        ∃ γ_waiters,
-        waiters۰auth' γ_waiters ∅.
-    Proof.
-      iMod ghost_map_alloc as "(%γ_waiters & Hwaiters_auth & _)".
-      iSteps.
-    Qed.
-    #[local] Lemma waitersｰinsert {γ waiters} i Ψ :
-      waiters۰auth γ waiters ⊢ |==>
-        ∃ waiter,
-        waiters۰auth γ (<[waiter := i]> waiters) ∗
-        saved_pred waiter Ψ ∗
-        waiters۰at γ waiter i.
-    Proof.
-      iIntros "Hwaiters_auth".
-      iMod (saved_predｰallocｰcofinite (dom waiters) Ψ) as "(%waiter & %Hwaiter & $)".
-      rewrite not_elem_of_dom in Hwaiter.
-      iApply (ghost_map_insert with "Hwaiters_auth"); first done.
-    Qed.
-    #[local] Lemma waitersｰdelete γ waiters waiter i :
-      waiters۰auth γ waiters -∗
-      waiters۰at γ waiter i ==∗
-        ⌜waiters !! waiter = Some i⌝ ∗
-        waiters۰auth γ (delete waiter waiters).
-    Proof.
-      iIntros "Hwaiters_auth Hwaiters_at".
-      iDestruct (ghost_map_lookup with "Hwaiters_auth Hwaiters_at") as %?.
-      iMod (ghost_map_delete with "Hwaiters_auth Hwaiters_at") as "$".
-      iSteps.
-    Qed.
-
-    Lemma queue_mpmc_1۰modelｰexclusive γ vs1 vs2 :
-      queue_mpmc_1۰model γ vs1 -∗
-      queue_mpmc_1۰model γ vs2 -∗
-      False.
-    Proof.
-      iIntros "(:model =1) (:model =2)".
-      iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
-    Qed.
-
-    Lemma queue_mpmc_1٠createｰspec ι :
-      {{{
-        True
-      }}}
-        queue_mpmc_1٠create ()
-      {{{
-        t γ
-      , RET #t;
-        meta_token t ⊤ ∗
-        queue_mpmc_1۰inv t γ ι ∗
-        queue_mpmc_1۰model γ []
-      }}}.
-    Proof.
-      iIntros "%Φ _ HΦ".
-
-      wp۰rec.
-      wp۰block front as "Hfront_next" header:"#Hfront_header".
-      wp۰block t as "Ht_front Ht_back" meta:"Hmeta".
-
-      iMod historyｰalloc as "(%γ_history & Hhistory_auth)".
-      iMod frontｰalloc as "(%γ_front & Hfront_auth)".
-      iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
-      iMod waitersｰalloc as "(%γ_waiters & Hwaiters_auth)".
-
-      pose γ :=
-        {|queue_mpmc_1۰name۰inv := ι
-        ; queue_mpmc_1۰name۰history := γ_history
-        ; queue_mpmc_1۰name۰front := γ_front
-        ; queue_mpmc_1۰name۰model := γ_model
-        ; queue_mpmc_1۰name۰waiters := γ_waiters
-        |}.
-
-      iApply ("HΦ" $! t γ).
-      iFrameStep.
-      iApply inv_alloc.
-      iExists [front], [], front, [], front, [], ∅. iFrameSteps.
-      - rewrite list_elem_of_singleton //.
-      - rewrite xtchainｰsingleton. iSteps.
-    Qed.
-
-    #[local] Lemma frontｰspec_strong Ψ t γ :
-      {{{
-        inv' t γ ∗
-        if Ψ is Some Ψ then
-          waiter۰au γ Ψ
-        else
-          True
-      }}}
-        (#t).{front}
-      {{{
-        front i
-      , RET #front;
-        node۰model γ front i true ∗
-        if Ψ is Some Ψ then
-          ∃ waiter,
-          saved_pred waiter Ψ ∗
-          waiters۰at γ waiter i
-        else
-          True
-      }}}.
-    Proof.
-      iIntros "%Φ (#Hinv & HΨ) HΦ".
-
-      iInv "Hinv" as "(:inv۰inner)".
-      wp۰load.
-      assert (hist !! (length past) = Some front) as Hlookup.
-      { rewrite Hhist list_lookup_middle //. }
-      iDestruct (xtchainｰlookupｰheader with "Hhist") as "#Hfront_header"; first done.
-      iDestruct (history۰atｰget _ front with "Hhistory_auth") as "#Hhistory_at_front"; first done.
-      iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb_front".
-      destruct Ψ as [Ψ |]; last iSteps.
-      iMod (waitersｰinsert (length past) Ψ with "Hwaiters_auth") as "(%waiter & Hwaiter_auth & #Hwaiter & Hwaiters_at)".
-      iDestruct (big_sepM_insert_2 _ _ waiter (length past) with "[HΨ] Hwaiters") as "Hwaiters".
-      { iExists Ψ. rewrite decide_False; first lia. iSteps. }
-      iSplitR "Hwaiters_at HΦ". { iFrameSteps. }
-      iSteps.
-    Qed.
-    #[local] Lemma frontｰspec t γ :
-      {{{
-        inv' t γ
-      }}}
-        (#t).{front}
-      {{{
-        front i
-      , RET #front;
-        node۰model γ front i true
-      }}}.
-    Proof.
-      iIntros "%Φ #Hinv HΦ".
-      wp۰apply (frontｰspec_strong None with "[$Hinv]").
-      iSteps.
-    Qed.
-
-    #[local] Lemma backｰspec t γ :
-      {{{
-        inv' t γ
-      }}}
-        (#t).{back}
-      {{{
-        back i
-      , RET #back;
-        node۰model γ back i false
-      }}}.
-    Proof.
-      iIntros "%Φ #Hinv HΦ".
-
-      iInv "Hinv" as "(:inv۰inner)".
-      wp۰load.
-      pose proof Hback as (i & Hlookup)%list_elem_of_lookup.
-      iDestruct (xtchainｰlookupｰheader with "Hhist") as "#Hback_header"; first done.
-      iDestruct (history۰atｰget with "Hhistory_auth") as "#Hhistory_at_back"; first done.
-      iSplitR "HΦ". { iFrameSteps. }
-      iSteps.
-    Qed.
-
-    Variant operation :=
-      | IsEmpty waiter (Ψ : bool → iProp Σ)
-      | Pop (Ψ : option val → iProp Σ)
-      | Other.
-    Implicit Type op : operation.
-    Variant operation' :=
-      | IsEmpty'
-      | Pop'
-      | Other'.
-    #[local] Please derive EqDecision for operation'.
-    #[local] Coercion operation۰to_operation' op :=
-      match op with
-      | IsEmpty _ _ =>
-          IsEmpty'
-      | Pop _ =>
-          Pop'
-      | Other =>
-          Other'
-      end.
-    #[local] Definition pop۰au γ (Ψ : option val → iProp Σ) : iProp Σ :=
-      AU <{
-        ∃∃ vs,
-        model₁ γ vs
-      }> @ ⊤ ∖ ↑γ.(queue_mpmc_1۰name۰inv), ∅ <{
-        model₁ γ (tail vs)
-      , COMM
-        Ψ (head vs)
-      }>.
-    #[local] Lemma nextｰspecｰaux op t γ i node :
-      {{{
-        inv' t γ ∗
-        history۰at γ i node ∗
-        ( if decide (op = Other' :> operation') then True else
-            front۰lb γ i
-        ) ∗
-        match op with
-        | IsEmpty waiter Ψ =>
-            saved_pred waiter Ψ ∗
-            waiters۰at γ waiter i ∗
-            £ 1
-        | Pop Ψ =>
-            pop۰au γ Ψ
-        | Other =>
-            True
-        end
-      }}}
-        (#node).{next}
-      {{{
-        res
-      , RET res;
-          ⌜res = §Null%V⌝ ∗
-          match op with
-          | IsEmpty waiter Ψ =>
-              Ψ true
-          | Pop Ψ =>
-              Ψ None
-          | Other =>
-              True
-          end
-        ∨ ∃ node',
-          ⌜res = #node'⌝ ∗
-          node۰model γ node' ˖i false ∗
-          match op with
-          | IsEmpty waiter Ψ =>
-              Ψ false
-          | Pop Ψ =>
-              pop۰au γ Ψ
-          | Other =>
-              True
-          end
-      }}}.
-    Proof.
-      iIntros "%Φ (#Hinv & #Hhistory_at_node & Hop) HΦ".
-
-      iInv "Hinv" as "(:inv۰inner)".
-      iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_node") as %Hlookup.
-      iDestruct (xtchainｰlookupｰacc with "Hhist") as "(_ & Hnode & Hhist)"; first done.
-      wp۰load.
-      iDestruct ("Hhist" with "Hnode") as "Hhist".
-      destruct (hist !! ˖i) as [node' |] eqn:Hlookup'; simpl.
-
-      - iDestruct (xtchainｰlookupｰheader with "Hhist") as "#Hnode'_header"; first done.
-        iDestruct (history۰atｰget ˖i with "Hhistory_auth") as "#Hhistory_at_node'"; first done.
-        destruct op; [| iSteps..].
-        iDestruct "Hop" as "(#Hfront_lb_node & #Hwaiter & Hwaiters_at & H£)".
-        iMod (waitersｰdelete with "Hwaiters_auth Hwaiters_at") as "(%Hwaiters_lookup & Hwaiters_auth)".
-        iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ_ & Hwaiter_ & HΨ) & Hwaiters)"; first done.
-        iDestruct (saved_predｰagree false with "Hwaiter Hwaiter_") as "Heq".
-        iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
-        destruct_decide (i = length past) as -> | Hi.
-
-        + rewrite decide_False; first lia.
-
-          iMod "HΨ" as "(%vs_ & Hmodel₁ & _ & HΨ)".
-          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-          iMod ("HΨ" with "Hmodel₁") as "HΨ".
-          assert (nodes ≠ []) as Hnodes.
-          { apply lookup_lt_Some in Hlookup'.
-            rewrite Hhist length_app /= in Hlookup'.
-            naive lia.
-          }
-          iAssert ⌜vs ≠ []⌝%I as %Hvs.
-          { destruct_decide (vs = []) as -> | ?; last done.
-            iDestruct (big_sepL2_length with "Hnodes") as %->%nil_length_inv.
-            iSteps.
-          }
-          rewrite bool_decide_eq_false_2 //.
-
-          iSplitR "Heq HΨ HΦ". { iFrameSteps. }
-          iSteps. iRewrite "Heq". iSteps.
-
-        + iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_node") as %Hi_.
-          rewrite decide_True; first lia.
-          iSplitR "Heq HΨ HΦ". { iFrameSteps. }
-          iSteps. iRewrite "Heq". iSteps.
-
-      - destruct_decide (op = Other' :> operation').
-        { destruct op; try done. iSteps. }
-        iDestruct "Hop" as "(#Hfront_lb_node & Hop)".
-        iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_node") as %Hi.
-        opose proof* lengthｰlookupｰlast as Hlength; [done.. |].
-        rewrite Hhist length_app /= in Hlength.
-        assert (i = length past) as -> by lia.
-        assert (length nodes = 0) as ->%nil_length_inv by lia.
-        iDestruct (big_sepL2_length with "Hnodes") as %->%symmetry%nil_length_inv.
-        destruct op; last done.
-
-        + iDestruct "Hop" as "(#Hwaiter & Hwaiters_at & H£)".
-          iMod (waitersｰdelete with "Hwaiters_auth Hwaiters_at") as "(%Hwaiters_lookup & Hwaiters_auth)".
-          iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ_ & Hwaiter_ & HΨ) & Hwaiters)"; first done.
-          iDestruct (saved_predｰagree true with "Hwaiter Hwaiter_") as "Heq".
-          iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
-          rewrite decide_False; first lia.
-
-          iMod "HΨ" as "(%vs & Hmodel₁ & _ & HΨ)".
-          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-          iMod ("HΨ" with "Hmodel₁") as "HΨ".
-
-          iSplitR "Heq HΨ HΦ". { iFrameSteps. }
-          iIntros "!> {%}".
-
-          iApply "HΦ".
-          iLeft. iRewrite "Heq". iSteps.
-
-        + iMod "Hop" as "(%vs & Hmodel₁ & _ & HΨ)".
-          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-          iMod ("HΨ" with "Hmodel₁") as "HΨ".
-
-          iSplitR "HΨ HΦ". { iFrameSteps. }
-          iSteps.
-    Qed.
-    #[local] Lemma nextｰspec {t γ i} node :
-      {{{
-        inv' t γ ∗
-        history۰at γ i node
-      }}}
-        (#node).{next}
-      {{{
-        res
-      , RET res;
-          ⌜res = §Null%V⌝
-        ∨ ∃ node',
-          ⌜res = #node'⌝ ∗
-          node۰model γ node' ˖i false
-      }}}.
-    Proof.
-      iIntros "%Φ (#Hinv & #Hhistory_at_node) HΦ".
-      wp۰apply (nextｰspecｰaux Other); iSteps.
-    Qed.
-    #[local] Lemma nextｰspecｰis_empty {t γ i node} waiter Ψ :
-      {{{
-        inv' t γ ∗
-        history۰at γ i node ∗
-        front۰lb γ i ∗
-        saved_pred waiter Ψ ∗
-        waiters۰at γ waiter i ∗
-        £ 1
-      }}}
-        (#node).{next}
-      {{{
-        res
-      , RET res;
-          ⌜res = §Null%V⌝ ∗
-          Ψ true
-        ∨ ∃ node',
-          ⌜res = #node'⌝ ∗
-          node۰model γ node' ˖i false ∗
-          Ψ false
-      }}}.
-    Proof.
-      iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & #Hwaiter & Hwaiters_at & H£) HΦ".
-      wp۰apply (nextｰspecｰaux (IsEmpty _ _) with "[$]").
-      iSteps.
-    Qed.
-    #[local] Lemma nextｰspecｰpop {t γ i node} Ψ :
-      {{{
-        inv' t γ ∗
-        history۰at γ i node ∗
-        front۰lb γ i ∗
-        pop۰au γ Ψ
-      }}}
-        (#node).{next}
-      {{{
-        res
-      , RET res;
-          ⌜res = §Null%V⌝ ∗
-          Ψ None
-        ∨ ∃ node',
-          ⌜res = #node'⌝ ∗
-          node۰model γ node' ˖i false ∗
-          pop۰au γ Ψ
-      }}}.
-    Proof.
-      iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & Hau) HΦ".
-      wp۰apply (nextｰspecｰaux (Pop _) with "[$]").
-      iSteps.
-    Qed.
-
-    Lemma queue_mpmc_1٠is_emptyｰspec t γ ι :
-      <<<
-        queue_mpmc_1۰inv t γ ι
-      | ∀∀ vs,
-        queue_mpmc_1۰model γ vs
-      >>>
-        queue_mpmc_1٠is_empty #t
-        @ ↑ι
-      <<<
-        queue_mpmc_1۰model γ vs
-      | RET #(bool_decide (vs = []%list));
-        £ 1
-      >>>.
-    Proof.
-      iIntros "%Φ (:inv) HΦ".
-
-      wp۰rec credits:"H£".
-      iDestruct (lc_weaken 2 with "H£") as "(H£1 & H£2)"; first done.
-      iDestruct (aupdｰframeｰl with "[H£1 $HΦ]") as "HΦ"; first iAccu.
-
-      wp۰apply+ (frontｰspec_strong (Some $ λ b, Φ #b) with "[$Hinv HΦ]")
-      as (node i) "((:node۰model =node front=) & %waiter & #Hwaiter & Hwaiters_at)".
-      { rewrite /= /waiter۰au. iAuIntro.
-        iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)".
-        iAaccIntro with "Hmodel₁"; iSteps.
-      }
-      wp۰match.
-      wp۰apply+ (nextｰspecｰis_empty with "[$]"); iSteps.
-    Qed.
-    Lemma queue_mpmc_1٠is_emptyｰspec' t γ ι :
-      {{{
-        queue_mpmc_1۰inv t γ ι
-      }}}
-        queue_mpmc_1٠is_empty #t
-      {{{
-        b
-      , RET #b;
-        True
-      }}}.
-    Proof.
-      iIntros "%Φ (:inv) HΦ".
-
-      wp۰rec.
-      wp۰apply (frontｰspec with "Hinv") as (front i) "(:node۰model =front front=)".
-      wp۰match.
-      wp۰apply (nextｰspec with "[$]") as (res) "[-> | (%node & -> & _)]"; iSteps.
-    Qed.
-
-    #[local] Lemma queue_mpmc_1٠push₂ｰspec t γ i node new_back v backoff :
-      <<<
-        inv' t γ ∗
-        node۰model γ node i false ∗
-        new_back ↦ₕ Header §Node 2 ∗
-        new_back.[next] ↦ §Null ∗
-        new_back.[data] ↦ v ∗
-        backoff۰model backoff
-      | ∀∀ vs,
-        queue_mpmc_1۰model γ vs
-      >>>
-        queue_mpmc_1٠push₂ #node #new_back backoff
-        @ ↑γ.(queue_mpmc_1۰name۰inv)
-      <<<
-        queue_mpmc_1۰model γ (vs ++ [v])
-      | RET ();
-        ∃ j,
-        history۰at γ j new_back
-      >>>.
-    Proof.
-      iIntros "%Φ (#Hinv & (:node۰model =node) & #Hnew_back_header & Hnew_back_next & Hnew_back_data & Hbackoff) HΦ".
-
-      iLöb as "HLöb" forall (i node backoff) "Hnode_header Hhistory_at_node".
-
-      wp۰rec. wp۰match.
-      wp۰apply+ (nextｰspec with "[$]") as (res) "[-> | (%node' & -> & (:node۰model =node'))]"; last iSteps.
-      wp۰pures.
-
-      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
-      iInv "Hinv" as "(:inv۰inner)".
-      iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_node") as %Hlookup.
-      iDestruct (xtchainｰlookup with "Hhist") as "(Hhist1 & _ & Hnode & Hhist2)"; first done.
-      destruct (hist !! ˖i) as [node' |] eqn:Hlookup'; simpl.
-
-      - wp۰cas as _ | [=].
-        iDestruct (xtchainｰlookup₂ with "Hhist1 Hnode_header Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
-        iSplitR "Hnew_back_next Hnew_back_data Hbackoff HΦ". { iFrameSteps. }
-        iSteps.
-
-      - wp۰cas as ? | _; first done.
-        iDestruct (xtchainｰlookup₂ with "Hhist1 Hnode_header Hnode []") as "Hhist"; [done | rewrite Hlookup' // | ..].
-        { rewrite -(lengthｰlookupｰlast hist i) // drop_all.
-          iApply xtchainｰnil.
-        }
-        iDestruct (big_sepL2ｰsnoc₂ with "Hnodes Hnew_back_data") as "Hnodes".
-        iDestruct (xtchainｰsnoc₂ with "Hhist Hnew_back_header Hnew_back_next") as "Hhist".
-        iMod (historyｰupdate new_back with "Hhistory_auth") as "(Hhistory_auth & #Hhistory_at_new_back)".
-
-        iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)".
-        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-        iMod (modelｰupdate (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-        iMod ("HΦ" with "Hmodel₁") as "HΦ".
-
-        iSplitR "HΦ".
-        { iExists (hist ++ [new_back]), past, front, (nodes ++ [new_back]), back, (vs ++ [v]).
-          iSteps; iPureIntro.
-          - rewrite Hhist -assoc //.
-          - set_solver.
-        }
-        iSteps.
-    Qed.
-
-    #[local] Lemma queue_mpmc_1٠push₁ｰspec t γ i node new_back v :
-      <<<
-        inv' t γ ∗
-        node۰model γ node i false ∗
-        new_back ↦ₕ Header §Node 2 ∗
-        new_back.[next] ↦ §Null ∗
-        new_back.[data] ↦ v
-      | ∀∀ vs,
-        queue_mpmc_1۰model γ vs
-      >>>
-        queue_mpmc_1٠push₁ #node #new_back
-        @ ↑γ.(queue_mpmc_1۰name۰inv)
-      <<<
-        queue_mpmc_1۰model γ (vs ++ [v])
-      | RET ();
-        ∃ j,
-        history۰at γ j new_back
-      >>>.
-    Proof.
-      iIntros "%Φ (Hinv & Hnew_back & Hnew_back_header & Hnew_back_next & Hnew_back_data) HΦ".
-
-      wp۰rec.
-      wp۰apply+ (queue_mpmc_1٠push₂ｰspec with "[- HΦ] HΦ"). 1: iFrameSteps.
-    Qed.
-
-    #[local] Lemma queue_mpmc_1٠fix_back₁ｰspec t γ i back j new_back backoff :
-      {{{
-        inv' t γ ∗
-        history۰at γ i back ∗
-        node۰model γ new_back j false ∗
-        backoff۰model backoff
-      }}}
-        queue_mpmc_1٠fix_back₁ #t #back #new_back backoff
-      {{{
-        RET ();
-        True
-      }}}.
-    Proof.
-      iIntros "%Φ (#Hinv & #Hhistory_at_back & (:node۰model =new_back) & Hbackoff) HΦ".
-
-      iLöb as "HLöb" forall (i back backoff) "Hhistory_at_back".
-
-      wp۰rec. wp۰match.
-
-      wp۰bind (_ 𝗮𝗻𝗱 _)%E.
-      wp۰apply (wpｰwand itype۰bool) as (res) "(%b & ->)".
-      { wp۰apply+ (nextｰspec new_back with "[$]") as (res) "[-> | (%new_back' & -> & (:node۰model =new_back'))]"; last iSteps.
-        wp۰pures.
-
-        wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
-        iInv "Hinv" as "(:inv۰inner =1)".
-        wp۰cas as _ | [= ->]; first iSteps.
-        iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_new_back") as %Hnew_back%list_elem_of_lookup_2.
-        iSteps.
-      }
-
-      destruct b; last iSteps.
-      wp۰apply+ (backoff٠onceｰspec with "Hbackoff") as "{% backoff} %backoff Hbackoff".
-      wp۰apply+ (backｰspec with "Hinv") as (back' i') "(:node۰model =back')".
-      iApply ("HLöb" with "Hbackoff HΦ Hhistory_at_back'").
-    Qed.
-
-    #[local] Lemma queue_mpmc_1٠fix_backｰspec t γ i back j new_back :
-      {{{
-        inv' t γ ∗
-        history۰at γ i back ∗
-        node۰model γ new_back j false
-      }}}
-        queue_mpmc_1٠fix_back #t #back #new_back
-      {{{
-        RET ();
-        True
-      }}}.
-    Proof.
-      iIntros "%Φ (Hinv & Hhistory_at_back & Hnew_back) HΦ".
-
-      wp۰rec.
-      wp۰apply+ (queue_mpmc_1٠fix_back₁ｰspec with "[- HΦ] HΦ"). 1: iFrameSteps.
-    Qed.
-
-    Lemma queue_mpmc_1٠pushｰspec t γ ι v :
-      <<<
-        queue_mpmc_1۰inv t γ ι
-      | ∀∀ vs,
-        queue_mpmc_1۰model γ vs
-      >>>
-        queue_mpmc_1٠push #t v
-        @ ↑ι
-      <<<
-        queue_mpmc_1۰model γ (vs ++ [v])
-      | RET ();
-        £ 1
-      >>>.
-    Proof.
-      iIntros "%Φ (:inv) HΦ".
-
-      wp۰rec credit:"H£".
-      iDestruct (aupdｰframeｰl with "[H£ $HΦ]") as "HΦ"; first iAccu.
-      wp۰block new_back as "Hnew_back_next Hnew_back_data" header:"#Hnew_back_header".
-      wp۰match.
-      wp۰apply+ (backｰspec with "Hinv") as (back i) "(:node۰model =back)".
-      wp۰apply+ (queue_mpmc_1٠push₁ｰspec with "[$]").
-      iApply (aupdｰwand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_at_new_back)".
-      wp۰apply+ (queue_mpmc_1٠fix_backｰspec with "[]"); first iSteps.
-      iSteps.
-    Qed.
-
-    #[local] Lemma queue_mpmc_1٠pop₁ｰspec t γ ι backoff :
-      <<<
-        queue_mpmc_1۰inv t γ ι ∗
-        backoff۰model backoff
-      | ∀∀ vs,
-        queue_mpmc_1۰model γ vs
-      >>>
-        queue_mpmc_1٠pop₁ #t backoff
-        @ ↑ι
-      <<<
-        queue_mpmc_1۰model γ (tail vs)
-      | RET head vs;
-        £ 1
-      >>>.
-    Proof.
-      iIntros "%Φ ((:inv) & Hbackoff) HΦ".
-
-      iLöb as "HLöb" forall (backoff).
-
-      wp۰rec credit:"H£".
-      wp۰apply+ (frontｰspec with "Hinv") as (front i) "(:node۰model =front front=)".
-      wp۰match.
-      wp۰apply+ (nextｰspecｰpop (λ o, _ -∗ Φ o)%I with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node۰model =new_front) & HΦ)]"; first iSteps.
-      wp۰match. wp۰pures.
-
-      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
-      iInv "Hinv" as "(:inv۰inner =1)".
-      iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_new_front") as %Hlookup.
-      iDestruct (xtchainｰlookupｰacc with "Hhist") as "(_ & Hnode & Hhist)"; first done.
-      wp۰cas as _ | [= <-]; first iSteps.
-      iDestruct ("Hhist" with "Hnode") as "Hhist".
-      iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_front") as %Hlookup_old.
-      iAssert ⌜length past1 = i⌝%I as %Hpast_length.
-      { iDestruct (xtchainｰNoDup with "Hhist") as %Hnodup.
-        iPureIntro. eapply NoDup_lookup; try done.
-        rewrite Hhist1 list_lookup_middle //.
-      }
-      rewrite Hhist1 (assoc _ _ [_]) lookup_app_r length_app /= in Hlookup; first lia.
-      rewrite Nat.add_1_r Hpast_length Nat.sub_diag in Hlookup.
-      destruct nodes1 as [| node nodes1]; first done. injection Hlookup as ->.
-      rewrite (assoc _ _ [_]) in Hhist1.
-      iDestruct (big_sepL2_cons_inv_l with "Hnodes") as "(%v & %vs' & -> & Hfront_data & Hnodes)".
-      set past := past1 ++ [front].
-      iMod (frontｰupdate (length past) with "Hfront_auth") as "Hfront_auth".
-      { rewrite /past. simp_length. lia. }
-      iDestruct (big_sepMｰimplｰthreadｰfupd _ (waiter۰model γ past)%I with "Hwaiters Hmodel₂ [#]") as ">(Hwaiters & Hmodel₂)".
-      { iIntros "!> %waiter %j %Hlookup (%P & #Hwaiter & HP) Hmodel₂".
-        destruct (Nat.lt_trichotomy j (length past1)) as [Hj | [-> | Hj]].
-        - rewrite decide_True //.
-          rewrite /waiter۰model. setoid_rewrite decide_True; last first.
-          { rewrite /past. simp_length. lia. }
-          iSteps.
-        - rewrite decide_False; first lia.
-          rewrite /waiter۰model. setoid_rewrite decide_True; last first.
-          { rewrite /past. simp_length/=. lia. }
-          iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
-          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-          iSteps.
-        - rewrite decide_False; first lia.
-          rewrite /waiter۰model. setoid_rewrite decide_False; last first.
-          { rewrite /past. simp_length/=. lia. }
-          iSteps.
-      }
-
-      iMod "HΦ" as "(%vs & Hmodel₁ & _ & HΦ)".
-      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (modelｰupdate vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" with "Hmodel₁") as "HΦ".
-
-      iSplitR "Hfront_data H£ HΦ". { iFrameSteps. }
-      iSteps.
-    Qed.
-
-    Lemma queue_mpmc_1٠popｰspec t γ ι :
-      <<<
-        queue_mpmc_1۰inv t γ ι
-      | ∀∀ vs,
-        queue_mpmc_1۰model γ vs
-      >>>
-        queue_mpmc_1٠pop #t
-        @ ↑ι
-      <<<
-        queue_mpmc_1۰model γ (tail vs)
-      | RET head vs;
-        £ 1
-      >>>.
-    Proof.
-      iIntros "%Φ Hinv HΦ".
-
-      wp۰rec.
-      wp۰apply+ (queue_mpmc_1٠pop₁ｰspec with "[$Hinv] HΦ"). 1: iSteps.
-    Qed.
-  End queue_mpmc_1۰G.
-
-  Please opacify.
-End base.
-
-Require zoo_saturn.queue_mpmc_1__opaque.
-
 Section queue_mpmc_1۰G.
   Context `{queue_mpmc_1۰G : QueueMpmc1G Σ}.
 
-  Implicit Type 𝑡 : location.
-  Implicit Type t : val.
+  #[local] Definition history۰auth' γ_history hist :=
+    mono_list۰auth γ_history (DfracOwn 1) hist.
+  #[local] Definition history۰auth γ hist :=
+    history۰auth' γ.(queue_mpmc_1۰name۰history) hist.
+  #[local] Definition history۰at γ i node :=
+    mono_list۰at γ.(queue_mpmc_1۰name۰history) i node.
 
-  Please Definition queue_mpmc_1۰inv t ι : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    𝑡 ↪ γ ∗
-    base.queue_mpmc_1۰inv 𝑡 γ ι.
-  #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{}
-      & %γ{}
-      & {%Heq{};->}
-      & #Hmeta{_{}}
-      & Hinv{_{}}
+  #[local] Definition front۰auth' γ_front i :=
+    auth_nat_max۰auth γ_front (DfracOwn 1) i.
+  #[local] Definition front۰auth γ i :=
+    front۰auth' γ.(queue_mpmc_1۰name۰front) i.
+  #[local] Definition front۰lb γ i :=
+    auth_nat_max۰lb γ.(queue_mpmc_1۰name۰front) i.
+
+  #[local] Definition model₁' γ_model vs :=
+    twins۰twin₁ γ_model (DfracOwn 1) vs.
+  #[local] Definition model₁ γ vs :=
+    model₁' γ.(queue_mpmc_1۰name۰model) vs.
+  #[local] Definition model₂' γ_model vs :=
+    twins۰twin₂ γ_model vs.
+  #[local] Definition model₂ γ vs :=
+    model₂' γ.(queue_mpmc_1۰name۰model) vs.
+
+  #[local] Definition waiters۰auth' γ_waiters waiters :=
+    ghost_map_auth γ_waiters (DfracOwn 1) waiters.
+  #[local] Definition waiters۰auth γ waiters :=
+    waiters۰auth' γ.(queue_mpmc_1۰name۰waiters) waiters.
+  #[local] Definition waiters۰at γ waiter i :=
+    ghost_map_elem γ.(queue_mpmc_1۰name۰waiters) waiter (DfracOwn 1) i.
+
+  #[local] Definition node۰model γ node i b : iProp Σ :=
+    node ↦ₕ Header §Node 2 ∗
+    history۰at γ i node ∗
+    if b then front۰lb γ i else True%I.
+  #[local] Instance : CustomIpat "node۰model" :=
+    " ( #H{}_header
+      & #Hhistory_at_{}
+      & {{front}#Hfront_lb_{};_}
       )
     ".
 
-  Please Definition queue_mpmc_1۰model t vs : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    𝑡 ↪ γ ∗
-    base.queue_mpmc_1۰model γ vs.
-  #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{}
-      & %γ{}
-      & {%Heq{};->}
-      & #Hmeta{_{}}
-      & Hmodel{_{}}
+  #[local] Definition waiter۰au γ (Ψ : bool → iProp Σ) : iProp Σ :=
+    AU <{
+      ∃∃ vs,
+      model₁ γ vs
+    }> @ ⊤ ∖ ↑γ.(queue_mpmc_1۰name۰inv), ∅ <{
+      model₁ γ vs
+    , COMM
+      Ψ (bool_decide (vs = []))
+    }>.
+  #[local] Definition waiter۰model γ past waiter i : iProp Σ :=
+    ∃ Ψ,
+    saved_pred waiter Ψ ∗
+    if decide (i < length past) then
+      Ψ false
+    else
+      waiter۰au γ Ψ.
+
+  #[local] Definition inv۰inner γ : iProp Σ :=
+    ∃ hist past front nodes back vs waiters,
+    ⌜hist = past ++ front :: nodes⌝ ∗
+    ⌜back ∈ hist⌝ ∗
+    γ.(queue_mpmc_1۰name۰self).[front] ↦ #front ∗
+    γ.(queue_mpmc_1۰name۰self).[back] ↦ #back ∗
+    xtchain (Header §Node 2) (DfracOwn 1) hist §Null ∗
+    ([∗ list] node; v ∈ nodes; vs, node.[data] ↦ v) ∗
+    history۰auth γ hist ∗
+    front۰auth γ (length past) ∗
+    model₂ γ vs ∗
+    waiters۰auth γ waiters ∗
+    ([∗ map] waiter ↦ i ∈ waiters, waiter۰model γ past waiter i).
+  #[local] Instance : CustomIpat "inv۰inner" :=
+    " ( %hist{}
+      & %past{}
+      & %front{}
+      & %nodes{}
+      & %back{}
+      & %vs{}
+      & %waiters{}
+      & >%Hhist{}
+      & >%Hback{}
+      & >Ht_front
+      & >Ht_back
+      & >Hhist
+      & >Hnodes
+      & >Hhistory_auth
+      & >Hfront_auth
+      & >Hmodel₂
+      & >Hwaiters_auth
+      & Hwaiters
       )
+    ".
+  #[local] Definition inv' γ :=
+    inv γ.(queue_mpmc_1۰name۰inv) (inv۰inner γ).
+  Please Definition queue_mpmc_1۰inv γ ι : iProp Σ :=
+    ⌜ι = γ.(queue_mpmc_1۰name۰inv)⌝ ∗
+    inv' γ.
+  #[local] Instance : CustomIpat "inv" :=
+    " ( ->
+      & #Hinv
+      )
+    ".
+
+  Please Definition queue_mpmc_1۰model :=
+    model₁.
+  #[local] Instance : CustomIpat "model" :=
+    " Hmodel₁{_{}}
     ".
 
   Zoo derive Timeless for queue_mpmc_1۰model.
 
   Zoo derive Persistent for queue_mpmc_1۰inv.
 
-  Lemma queue_mpmc_1۰modelｰexclusive t vs1 vs2 :
-    queue_mpmc_1۰model t vs1 -∗
-    queue_mpmc_1۰model t vs2 -∗
+  #[local] Lemma historyｰalloc front :
+    ⊢ |==>
+      ∃ γ_history,
+      history۰auth' γ_history [front].
+  Proof.
+    apply mono_listｰalloc.
+  Qed.
+  #[local] Lemma history۰atｰget {γ hist} i node :
+    hist !! i = Some node →
+    history۰auth γ hist ⊢
+    history۰at γ i node.
+  Proof.
+    apply mono_list۰atｰget.
+  Qed.
+  #[local] Lemma history۰atｰlookup γ hist i node :
+    history۰auth γ hist -∗
+    history۰at γ i node -∗
+    ⌜hist !! i = Some node⌝.
+  Proof.
+    apply mono_list۰atｰvalid.
+  Qed.
+  #[local] Lemma historyｰupdate {γ hist} node :
+    history۰auth γ hist ⊢ |==>
+      history۰auth γ (hist ++ [node]) ∗
+      history۰at γ (length hist) node.
+  Proof.
+    iIntros "Hauth".
+    iMod (mono_listｰupdateｰsnoc with "Hauth") as "Hauth".
+    iDestruct (history۰atｰget with "Hauth") as "#Hat".
+    { rewrite lookup_snoc_Some. naive. }
+    iSteps.
+  Qed.
+
+  #[local] Lemma frontｰalloc :
+    ⊢ |==>
+      ∃ γ_front,
+      front۰auth' γ_front 0.
+  Proof.
+    apply auth_nat_maxｰalloc.
+  Qed.
+  #[local] Lemma front۰lbｰget γ i :
+    front۰auth γ i ⊢
+    front۰lb γ i.
+  Proof.
+    apply auth_nat_max۰lbｰget.
+  Qed.
+  #[local] Lemma front۰lbｰvalid γ i1 i2 :
+    front۰auth γ i1 -∗
+    front۰lb γ i2 -∗
+    ⌜i2 ≤ i1⌝.
+  Proof.
+    apply auth_nat_max۰lbｰvalid.
+  Qed.
+  #[local] Lemma frontｰupdate {γ i} i' :
+    i ≤ i' →
+    front۰auth γ i ⊢ |==>
+    front۰auth γ i'.
+  Proof.
+    apply auth_nat_maxｰupdate.
+  Qed.
+
+  #[local] Lemma modelｰalloc :
+    ⊢ |==>
+      ∃ γ_model,
+      model₁' γ_model [] ∗
+      model₂' γ_model [].
+  Proof.
+    apply twinsｰalloc'.
+  Qed.
+  #[local] Lemma model₁ｰexclusive γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₁ γ vs2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.queue_mpmc_1۰modelｰexclusive with "Hmodel_1 Hmodel_2").
+    apply twins۰twin₁ｰexclusive.
+  Qed.
+  #[local] Lemma modelｰagree γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 -∗
+    ⌜vs1 = vs2⌝.
+  Proof.
+    apply: twinsｰagreeｰL.
+  Qed.
+  #[local] Lemma modelｰupdate {γ vs1 vs2} vs :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      model₁ γ vs ∗
+      model₂ γ vs.
+  Proof.
+    apply twinsｰupdate.
+  Qed.
+
+  #[local] Lemma waitersｰalloc :
+    ⊢ |==>
+      ∃ γ_waiters,
+      waiters۰auth' γ_waiters ∅.
+  Proof.
+    iMod ghost_map_alloc as "(%γ_waiters & Hwaiters_auth & _)".
+    iSteps.
+  Qed.
+  #[local] Lemma waitersｰinsert {γ waiters} i Ψ :
+    waiters۰auth γ waiters ⊢ |==>
+      ∃ waiter,
+      waiters۰auth γ (<[waiter := i]> waiters) ∗
+      saved_pred waiter Ψ ∗
+      waiters۰at γ waiter i.
+  Proof.
+    iIntros "Hwaiters_auth".
+    iMod (saved_predｰallocｰcofinite (dom waiters) Ψ) as "(%waiter & %Hwaiter & $)".
+    rewrite not_elem_of_dom in Hwaiter.
+    iApply (ghost_map_insert with "Hwaiters_auth"); first done.
+  Qed.
+  #[local] Lemma waitersｰdelete γ waiters waiter i :
+    waiters۰auth γ waiters -∗
+    waiters۰at γ waiter i ==∗
+      ⌜waiters !! waiter = Some i⌝ ∗
+      waiters۰auth γ (delete waiter waiters).
+  Proof.
+    iIntros "Hwaiters_auth Hwaiters_at".
+    iDestruct (ghost_map_lookup with "Hwaiters_auth Hwaiters_at") as %?.
+    iMod (ghost_map_delete with "Hwaiters_auth Hwaiters_at") as "$".
+    iSteps.
+  Qed.
+
+  Lemma queue_mpmc_1۰modelｰexclusive γ vs1 vs2 :
+    queue_mpmc_1۰model γ vs1 -∗
+    queue_mpmc_1۰model γ vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)".
+    iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
   Lemma queue_mpmc_1٠createｰspec ι :
@@ -996,47 +293,367 @@ Section queue_mpmc_1۰G.
     }}}
       queue_mpmc_1٠create ()
     {{{
-      t
-    , RET t;
-      queue_mpmc_1۰inv t ι ∗
-      queue_mpmc_1۰model t []
+      γ
+    , RET γ;
+      queue_mpmc_1۰inv γ ι ∗
+      queue_mpmc_1۰model γ []
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
 
-    iApply wpｰfupd.
-    wp۰apply (base.queue_mpmc_1٠createｰspec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
-    iMod (metaｰset γ with "Hmeta"); first done.
+    wp۰rec.
+    wp۰block front as "Hfront_next" header:"#Hfront_header".
+    wp۰block t as "Ht_front Ht_back".
+
+    iMod historyｰalloc as "(%γ_history & Hhistory_auth)".
+    iMod frontｰalloc as "(%γ_front & Hfront_auth)".
+    iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod waitersｰalloc as "(%γ_waiters & Hwaiters_auth)".
+
+    pose γ :=
+      {|queue_mpmc_1۰name۰self := t
+      ; queue_mpmc_1۰name۰inv := ι
+      ; queue_mpmc_1۰name۰history := γ_history
+      ; queue_mpmc_1۰name۰front := γ_front
+      ; queue_mpmc_1۰name۰model := γ_model
+      ; queue_mpmc_1۰name۰waiters := γ_waiters
+      |}.
+
+    iApply ("HΦ" $! γ).
+    iFrameStep.
+    iApply inv_alloc.
+    iExists [front], [], front, [], front, [], ∅. iFrameSteps.
+    - rewrite list_elem_of_singleton //.
+    - rewrite xtchainｰsingleton. iSteps.
+  Qed.
+
+  #[local] Lemma frontｰspec_strong Ψ γ :
+    {{{
+      inv' γ ∗
+      if Ψ is Some Ψ then
+        waiter۰au γ Ψ
+      else
+        True
+    }}}
+      (#γ.(queue_mpmc_1۰name۰self)).{front}
+    {{{
+      front i
+    , RET #front;
+      node۰model γ front i true ∗
+      if Ψ is Some Ψ then
+        ∃ waiter,
+        saved_pred waiter Ψ ∗
+        waiters۰at γ waiter i
+      else
+        True
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & HΨ) HΦ".
+
+    iInv "Hinv" as "(:inv۰inner)".
+    wp۰load.
+    assert (hist !! (length past) = Some front) as Hlookup.
+    { rewrite Hhist list_lookup_middle //. }
+    iDestruct (xtchainｰlookupｰheader with "Hhist") as "#Hfront_header"; first done.
+    iDestruct (history۰atｰget _ front with "Hhistory_auth") as "#Hhistory_at_front"; first done.
+    iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb_front".
+    destruct Ψ as [Ψ |]; last iSteps.
+    iMod (waitersｰinsert (length past) Ψ with "Hwaiters_auth") as "(%waiter & Hwaiter_auth & #Hwaiter & Hwaiters_at)".
+    iDestruct (big_sepM_insert_2 _ _ waiter (length past) with "[HΨ] Hwaiters") as "Hwaiters".
+    { iExists Ψ. rewrite decide_False; first lia. iSteps. }
+    iSplitR "Hwaiters_at HΦ". { iFrameSteps. }
+    iSteps.
+  Qed.
+  #[local] Lemma frontｰspec γ :
+    {{{
+      inv' γ
+    }}}
+      (#γ.(queue_mpmc_1۰name۰self)).{front}
+    {{{
+      front i
+    , RET #front;
+      node۰model γ front i true
+    }}}.
+  Proof.
+    iIntros "%Φ #Hinv HΦ".
+    wp۰apply (frontｰspec_strong None with "[$Hinv]").
     iSteps.
   Qed.
 
-  Lemma queue_mpmc_1٠is_emptyｰspec t ι :
+  #[local] Lemma backｰspec γ :
+    {{{
+      inv' γ
+    }}}
+      (#γ.(queue_mpmc_1۰name۰self)).{back}
+    {{{
+      back i
+    , RET #back;
+      node۰model γ back i false
+    }}}.
+  Proof.
+    iIntros "%Φ #Hinv HΦ".
+
+    iInv "Hinv" as "(:inv۰inner)".
+    wp۰load.
+    pose proof Hback as (i & Hlookup)%list_elem_of_lookup.
+    iDestruct (xtchainｰlookupｰheader with "Hhist") as "#Hback_header"; first done.
+    iDestruct (history۰atｰget with "Hhistory_auth") as "#Hhistory_at_back"; first done.
+    iSplitR "HΦ". { iFrameSteps. }
+    iSteps.
+  Qed.
+
+  Variant operation :=
+    | IsEmpty waiter (Ψ : bool → iProp Σ)
+    | Pop (Ψ : option val → iProp Σ)
+    | Other.
+  Implicit Type op : operation.
+  Variant operation' :=
+    | IsEmpty'
+    | Pop'
+    | Other'.
+  #[local] Please derive EqDecision for operation'.
+  #[local] Coercion operation۰to_operation' op :=
+    match op with
+    | IsEmpty _ _ =>
+        IsEmpty'
+    | Pop _ =>
+        Pop'
+    | Other =>
+        Other'
+    end.
+  #[local] Definition pop۰au γ (Ψ : option val → iProp Σ) : iProp Σ :=
+    AU <{
+      ∃∃ vs,
+      model₁ γ vs
+    }> @ ⊤ ∖ ↑γ.(queue_mpmc_1۰name۰inv), ∅ <{
+      model₁ γ (tail vs)
+    , COMM
+      Ψ (head vs)
+    }>.
+  #[local] Lemma nextｰspecｰaux op γ i node :
+    {{{
+      inv' γ ∗
+      history۰at γ i node ∗
+      ( if decide (op = Other' :> operation') then True else
+          front۰lb γ i
+      ) ∗
+      match op with
+      | IsEmpty waiter Ψ =>
+          saved_pred waiter Ψ ∗
+          waiters۰at γ waiter i ∗
+          £ 1
+      | Pop Ψ =>
+          pop۰au γ Ψ
+      | Other =>
+          True
+      end
+    }}}
+      (#node).{next}
+    {{{
+      res
+    , RET res;
+        ⌜res = §Null%V⌝ ∗
+        match op with
+        | IsEmpty waiter Ψ =>
+            Ψ true
+        | Pop Ψ =>
+            Ψ None
+        | Other =>
+            True
+        end
+      ∨ ∃ node',
+        ⌜res = #node'⌝ ∗
+        node۰model γ node' ˖i false ∗
+        match op with
+        | IsEmpty waiter Ψ =>
+            Ψ false
+        | Pop Ψ =>
+            pop۰au γ Ψ
+        | Other =>
+            True
+        end
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & #Hhistory_at_node & Hop) HΦ".
+
+    iInv "Hinv" as "(:inv۰inner)".
+    iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_node") as %Hlookup.
+    iDestruct (xtchainｰlookupｰacc with "Hhist") as "(_ & Hnode & Hhist)"; first done.
+    wp۰load.
+    iDestruct ("Hhist" with "Hnode") as "Hhist".
+    destruct (hist !! ˖i) as [node' |] eqn:Hlookup'; simpl.
+
+    - iDestruct (xtchainｰlookupｰheader with "Hhist") as "#Hnode'_header"; first done.
+      iDestruct (history۰atｰget ˖i with "Hhistory_auth") as "#Hhistory_at_node'"; first done.
+      destruct op; [| iSteps..].
+      iDestruct "Hop" as "(#Hfront_lb_node & #Hwaiter & Hwaiters_at & H£)".
+      iMod (waitersｰdelete with "Hwaiters_auth Hwaiters_at") as "(%Hwaiters_lookup & Hwaiters_auth)".
+      iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ_ & Hwaiter_ & HΨ) & Hwaiters)"; first done.
+      iDestruct (saved_predｰagree false with "Hwaiter Hwaiter_") as "Heq".
+      iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
+      destruct_decide (i = length past) as -> | Hi.
+
+      + rewrite decide_False; first lia.
+
+        iMod "HΨ" as "(%vs_ & Hmodel₁ & _ & HΨ)".
+        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+        iMod ("HΨ" with "Hmodel₁") as "HΨ".
+        assert (nodes ≠ []) as Hnodes.
+        { apply lookup_lt_Some in Hlookup'.
+          rewrite Hhist length_app /= in Hlookup'.
+          naive lia.
+        }
+        iAssert ⌜vs ≠ []⌝%I as %Hvs.
+        { destruct_decide (vs = []) as -> | ?; last done.
+          iDestruct (big_sepL2_length with "Hnodes") as %->%nil_length_inv.
+          iSteps.
+        }
+        rewrite bool_decide_eq_false_2 //.
+
+        iSplitR "Heq HΨ HΦ". { iFrameSteps. }
+        iSteps. iRewrite "Heq". iSteps.
+
+      + iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_node") as %Hi_.
+        rewrite decide_True; first lia.
+        iSplitR "Heq HΨ HΦ". { iFrameSteps. }
+        iSteps. iRewrite "Heq". iSteps.
+
+    - destruct_decide (op = Other' :> operation').
+      { destruct op; try done. iSteps. }
+      iDestruct "Hop" as "(#Hfront_lb_node & Hop)".
+      iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_node") as %Hi.
+      opose proof* lengthｰlookupｰlast as Hlength; [done.. |].
+      rewrite Hhist length_app /= in Hlength.
+      assert (i = length past) as -> by lia.
+      assert (length nodes = 0) as ->%nil_length_inv by lia.
+      iDestruct (big_sepL2_length with "Hnodes") as %->%symmetry%nil_length_inv.
+      destruct op; last done.
+
+      + iDestruct "Hop" as "(#Hwaiter & Hwaiters_at & H£)".
+        iMod (waitersｰdelete with "Hwaiters_auth Hwaiters_at") as "(%Hwaiters_lookup & Hwaiters_auth)".
+        iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ_ & Hwaiter_ & HΨ) & Hwaiters)"; first done.
+        iDestruct (saved_predｰagree true with "Hwaiter Hwaiter_") as "Heq".
+        iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
+        rewrite decide_False; first lia.
+
+        iMod "HΨ" as "(%vs & Hmodel₁ & _ & HΨ)".
+        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+        iMod ("HΨ" with "Hmodel₁") as "HΨ".
+
+        iSplitR "Heq HΨ HΦ". { iFrameSteps. }
+        iIntros "!> {%}".
+
+        iApply "HΦ".
+        iLeft. iRewrite "Heq". iSteps.
+
+      + iMod "Hop" as "(%vs & Hmodel₁ & _ & HΨ)".
+        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+        iMod ("HΨ" with "Hmodel₁") as "HΨ".
+
+        iSplitR "HΨ HΦ". { iFrameSteps. }
+        iSteps.
+  Qed.
+  #[local] Lemma nextｰspec {γ i} node :
+    {{{
+      inv' γ ∗
+      history۰at γ i node
+    }}}
+      (#node).{next}
+    {{{
+      res
+    , RET res;
+        ⌜res = §Null%V⌝
+      ∨ ∃ node',
+        ⌜res = #node'⌝ ∗
+        node۰model γ node' ˖i false
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & #Hhistory_at_node) HΦ".
+    wp۰apply (nextｰspecｰaux Other); iSteps.
+  Qed.
+  #[local] Lemma nextｰspecｰis_empty {γ i node} waiter Ψ :
+    {{{
+      inv' γ ∗
+      history۰at γ i node ∗
+      front۰lb γ i ∗
+      saved_pred waiter Ψ ∗
+      waiters۰at γ waiter i ∗
+      £ 1
+    }}}
+      (#node).{next}
+    {{{
+      res
+    , RET res;
+        ⌜res = §Null%V⌝ ∗
+        Ψ true
+      ∨ ∃ node',
+        ⌜res = #node'⌝ ∗
+        node۰model γ node' ˖i false ∗
+        Ψ false
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & #Hwaiter & Hwaiters_at & H£) HΦ".
+    wp۰apply (nextｰspecｰaux (IsEmpty _ _) with "[$]").
+    iSteps.
+  Qed.
+  #[local] Lemma nextｰspecｰpop {γ i node} Ψ :
+    {{{
+      inv' γ ∗
+      history۰at γ i node ∗
+      front۰lb γ i ∗
+      pop۰au γ Ψ
+    }}}
+      (#node).{next}
+    {{{
+      res
+    , RET res;
+        ⌜res = §Null%V⌝ ∗
+        Ψ None
+      ∨ ∃ node',
+        ⌜res = #node'⌝ ∗
+        node۰model γ node' ˖i false ∗
+        pop۰au γ Ψ
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & Hau) HΦ".
+    wp۰apply (nextｰspecｰaux (Pop _) with "[$]").
+    iSteps.
+  Qed.
+
+  Lemma queue_mpmc_1٠is_emptyｰspec γ ι :
     <<<
-      queue_mpmc_1۰inv t ι
+      queue_mpmc_1۰inv γ ι
     | ∀∀ vs,
-      queue_mpmc_1۰model t vs
+      queue_mpmc_1۰model γ vs
     >>>
-      queue_mpmc_1٠is_empty t
+      queue_mpmc_1٠is_empty γ
       @ ↑ι
     <<<
-      queue_mpmc_1۰model t vs
+      queue_mpmc_1۰model γ vs
     | RET #(bool_decide (vs = []%list));
       £ 1
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.queue_mpmc_1٠is_emptyｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
-      iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
-      iAaccIntro with "Hmodel_1"; iSteps.
+    wp۰rec credits:"H£".
+    iDestruct (lc_weaken 2 with "H£") as "(H£1 & H£2)"; first done.
+    iDestruct (aupdｰframeｰl with "[H£1 $HΦ]") as "HΦ"; first iAccu.
+
+    wp۰apply+ (frontｰspec_strong (Some $ λ b, Φ #b) with "[$Hinv HΦ]")
+    as (node i) "((:node۰model =node front=) & %waiter & #Hwaiter & Hwaiters_at)".
+    { rewrite /= /waiter۰au. iAuIntro.
+      iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)".
+      iAaccIntro with "Hmodel₁"; iSteps.
     }
+    wp۰match.
+    wp۰apply+ (nextｰspecｰis_empty with "[$]"); iSteps.
   Qed.
-  Lemma queue_mpmc_1٠is_emptyｰspec' t ι :
+  Lemma queue_mpmc_1٠is_emptyｰspec' γ ι :
     {{{
-      queue_mpmc_1۰inv t ι
+      queue_mpmc_1۰inv γ ι
     }}}
-      queue_mpmc_1٠is_empty t
+      queue_mpmc_1٠is_empty γ
     {{{
       b
     , RET #b;
@@ -1045,55 +662,276 @@ Section queue_mpmc_1۰G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp۰apply (base.queue_mpmc_1٠is_emptyｰspec' with "[$] HΦ").
+    wp۰rec.
+    wp۰apply (frontｰspec with "Hinv") as (front i) "(:node۰model =front front=)".
+    wp۰match.
+    wp۰apply (nextｰspec with "[$]") as (res) "[-> | (%node & -> & _)]"; iSteps.
   Qed.
 
-  Lemma queue_mpmc_1٠pushｰspec t ι v :
+  #[local] Lemma queue_mpmc_1٠push₂ｰspec γ i node new_back v backoff :
     <<<
-      queue_mpmc_1۰inv t ι
+      inv' γ ∗
+      node۰model γ node i false ∗
+      new_back ↦ₕ Header §Node 2 ∗
+      new_back.[next] ↦ §Null ∗
+      new_back.[data] ↦ v ∗
+      backoff۰model backoff
     | ∀∀ vs,
-      queue_mpmc_1۰model t vs
+      queue_mpmc_1۰model γ vs
     >>>
-      queue_mpmc_1٠push t v
+      queue_mpmc_1٠push₂ #node #new_back backoff
+      @ ↑γ.(queue_mpmc_1۰name۰inv)
+    <<<
+      queue_mpmc_1۰model γ (vs ++ [v])
+    | RET ();
+      ∃ j,
+      history۰at γ j new_back
+    >>>.
+  Proof.
+    iIntros "%Φ (#Hinv & (:node۰model =node) & #Hnew_back_header & Hnew_back_next & Hnew_back_data & Hbackoff) HΦ".
+
+    iLöb as "HLöb" forall (i node backoff) "Hnode_header Hhistory_at_node".
+
+    wp۰rec. wp۰match.
+    wp۰apply+ (nextｰspec with "[$]") as (res) "[-> | (%node' & -> & (:node۰model =node'))]"; last iSteps.
+    wp۰pures.
+
+    wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
+    iInv "Hinv" as "(:inv۰inner)".
+    iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_node") as %Hlookup.
+    iDestruct (xtchainｰlookup with "Hhist") as "(Hhist1 & _ & Hnode & Hhist2)"; first done.
+    destruct (hist !! ˖i) as [node' |] eqn:Hlookup'; simpl.
+
+    - wp۰cas as _ | [=].
+      iDestruct (xtchainｰlookup₂ with "Hhist1 Hnode_header Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
+      iSplitR "Hnew_back_next Hnew_back_data Hbackoff HΦ". { iFrameSteps. }
+      iSteps.
+
+    - wp۰cas as ? | _; first done.
+      iDestruct (xtchainｰlookup₂ with "Hhist1 Hnode_header Hnode []") as "Hhist"; [done | rewrite Hlookup' // | ..].
+      { rewrite -(lengthｰlookupｰlast hist i) // drop_all.
+        iApply xtchainｰnil.
+      }
+      iDestruct (big_sepL2ｰsnoc₂ with "Hnodes Hnew_back_data") as "Hnodes".
+      iDestruct (xtchainｰsnoc₂ with "Hhist Hnew_back_header Hnew_back_next") as "Hhist".
+      iMod (historyｰupdate new_back with "Hhistory_auth") as "(Hhistory_auth & #Hhistory_at_new_back)".
+
+      iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (modelｰupdate (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod ("HΦ" with "Hmodel₁") as "HΦ".
+
+      iSplitR "HΦ".
+      { iExists (hist ++ [new_back]), past, front, (nodes ++ [new_back]), back, (vs ++ [v]).
+        iSteps; iPureIntro.
+        - rewrite Hhist -assoc //.
+        - set_solver.
+      }
+      iSteps.
+  Qed.
+
+  #[local] Lemma queue_mpmc_1٠push₁ｰspec γ i node new_back v :
+    <<<
+      inv' γ ∗
+      node۰model γ node i false ∗
+      new_back ↦ₕ Header §Node 2 ∗
+      new_back.[next] ↦ §Null ∗
+      new_back.[data] ↦ v
+    | ∀∀ vs,
+      queue_mpmc_1۰model γ vs
+    >>>
+      queue_mpmc_1٠push₁ #node #new_back
+      @ ↑γ.(queue_mpmc_1۰name۰inv)
+    <<<
+      queue_mpmc_1۰model γ (vs ++ [v])
+    | RET ();
+      ∃ j,
+      history۰at γ j new_back
+    >>>.
+  Proof.
+    iIntros "%Φ (Hinv & Hnew_back & Hnew_back_header & Hnew_back_next & Hnew_back_data) HΦ".
+
+    wp۰rec.
+    wp۰apply+ (queue_mpmc_1٠push₂ｰspec with "[- HΦ] HΦ"). 1: iFrameSteps.
+  Qed.
+
+  #[local] Lemma queue_mpmc_1٠fix_back₁ｰspec γ i back j new_back backoff :
+    {{{
+      inv' γ ∗
+      history۰at γ i back ∗
+      node۰model γ new_back j false ∗
+      backoff۰model backoff
+    }}}
+      queue_mpmc_1٠fix_back₁ γ #back #new_back backoff
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & #Hhistory_at_back & (:node۰model =new_back) & Hbackoff) HΦ".
+
+    iLöb as "HLöb" forall (i back backoff) "Hhistory_at_back".
+
+    wp۰rec. wp۰match.
+
+    wp۰bind (_ 𝗮𝗻𝗱 _)%E.
+    wp۰apply (wpｰwand itype۰bool) as (res) "(%b & ->)".
+    { wp۰apply+ (nextｰspec new_back with "[$]") as (res) "[-> | (%new_back' & -> & (:node۰model =new_back'))]"; last iSteps.
+      wp۰pures.
+
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
+      iInv "Hinv" as "(:inv۰inner =1)".
+      wp۰cas as _ | [= ->]; first iSteps.
+      iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_new_back") as %Hnew_back%list_elem_of_lookup_2.
+      iSteps.
+    }
+
+    destruct b; last iSteps.
+    wp۰apply+ (backoff٠onceｰspec with "Hbackoff") as "{% backoff} %backoff Hbackoff".
+    wp۰apply+ (backｰspec with "Hinv") as (back' i') "(:node۰model =back')".
+    iApply ("HLöb" with "Hbackoff HΦ Hhistory_at_back'").
+  Qed.
+
+  #[local] Lemma queue_mpmc_1٠fix_backｰspec γ i back j new_back :
+    {{{
+      inv' γ ∗
+      history۰at γ i back ∗
+      node۰model γ new_back j false
+    }}}
+      queue_mpmc_1٠fix_back γ #back #new_back
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iIntros "%Φ (Hinv & Hhistory_at_back & Hnew_back) HΦ".
+
+    wp۰rec.
+    wp۰apply+ (queue_mpmc_1٠fix_back₁ｰspec with "[- HΦ] HΦ"). 1: iFrameSteps.
+  Qed.
+
+  Lemma queue_mpmc_1٠pushｰspec γ ι v :
+    <<<
+      queue_mpmc_1۰inv γ ι
+    | ∀∀ vs,
+      queue_mpmc_1۰model γ vs
+    >>>
+      queue_mpmc_1٠push γ v
       @ ↑ι
     <<<
-      queue_mpmc_1۰model t (vs ++ [v])
+      queue_mpmc_1۰model γ (vs ++ [v])
     | RET ();
       £ 1
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.queue_mpmc_1٠pushｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
-      iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
-      iAaccIntro with "Hmodel_1"; iSteps.
-    }
+    wp۰rec credit:"H£".
+    iDestruct (aupdｰframeｰl with "[H£ $HΦ]") as "HΦ"; first iAccu.
+    wp۰block new_back as "Hnew_back_next Hnew_back_data" header:"#Hnew_back_header".
+    wp۰match.
+    wp۰apply+ (backｰspec with "Hinv") as (back i) "(:node۰model =back)".
+    wp۰apply+ (queue_mpmc_1٠push₁ｰspec with "[$]").
+    iApply (aupdｰwand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_at_new_back)".
+    wp۰apply+ (queue_mpmc_1٠fix_backｰspec with "[]"); first iSteps.
+    iSteps.
   Qed.
 
-  Lemma queue_mpmc_1٠popｰspec t ι :
+  #[local] Lemma queue_mpmc_1٠pop₁ｰspec γ ι backoff :
     <<<
-      queue_mpmc_1۰inv t ι
+      queue_mpmc_1۰inv γ ι ∗
+      backoff۰model backoff
     | ∀∀ vs,
-      queue_mpmc_1۰model t vs
+      queue_mpmc_1۰model γ vs
     >>>
-      queue_mpmc_1٠pop t
+      queue_mpmc_1٠pop₁ γ backoff
       @ ↑ι
     <<<
-      queue_mpmc_1۰model t (tail vs)
+      queue_mpmc_1۰model γ (tail vs)
     | RET head vs;
       £ 1
     >>>.
   Proof.
-    iIntros "%Φ (:inv) HΦ".
+    iIntros "%Φ ((:inv) & Hbackoff) HΦ".
 
-    awp۰apply (base.queue_mpmc_1٠popｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
-      iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
-      iAaccIntro with "Hmodel_1"; iSteps.
+    iLöb as "HLöb" forall (backoff).
+
+    wp۰rec credit:"H£".
+    wp۰apply+ (frontｰspec with "Hinv") as (front i) "(:node۰model =front front=)".
+    wp۰match.
+    wp۰apply+ (nextｰspecｰpop (λ o, _ -∗ Φ o)%I with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node۰model =new_front) & HΦ)]"; first iSteps.
+    wp۰match. wp۰pures.
+
+    wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_new_front") as %Hlookup.
+    iDestruct (xtchainｰlookupｰacc with "Hhist") as "(_ & Hnode & Hhist)"; first done.
+    wp۰cas as _ | [= <-]; first iSteps.
+    iDestruct ("Hhist" with "Hnode") as "Hhist".
+    iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_front") as %Hlookup_old.
+    iAssert ⌜length past1 = i⌝%I as %Hpast_length.
+    { iDestruct (xtchainｰNoDup with "Hhist") as %Hnodup.
+      iPureIntro. eapply NoDup_lookup; try done.
+      rewrite Hhist1 list_lookup_middle //.
     }
+    rewrite Hhist1 (assoc _ _ [_]) lookup_app_r length_app /= in Hlookup; first lia.
+    rewrite Nat.add_1_r Hpast_length Nat.sub_diag in Hlookup.
+    destruct nodes1 as [| node nodes1]; first done. injection Hlookup as ->.
+    rewrite (assoc _ _ [_]) in Hhist1.
+    iDestruct (big_sepL2_cons_inv_l with "Hnodes") as "(%v & %vs' & -> & Hfront_data & Hnodes)".
+    set past := past1 ++ [front].
+    iMod (frontｰupdate (length past) with "Hfront_auth") as "Hfront_auth".
+    { rewrite /past. simp_length. lia. }
+    iDestruct (big_sepMｰimplｰthreadｰfupd _ (waiter۰model γ past)%I with "Hwaiters Hmodel₂ [#]") as ">(Hwaiters & Hmodel₂)".
+    { iIntros "!> %waiter %j %Hlookup (%P & #Hwaiter & HP) Hmodel₂".
+      destruct (Nat.lt_trichotomy j (length past1)) as [Hj | [-> | Hj]].
+      - rewrite decide_True //.
+        rewrite /waiter۰model. setoid_rewrite decide_True; last first.
+        { rewrite /past. simp_length. lia. }
+        iSteps.
+      - rewrite decide_False; first lia.
+        rewrite /waiter۰model. setoid_rewrite decide_True; last first.
+        { rewrite /past. simp_length/=. lia. }
+        iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
+        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+        iSteps.
+      - rewrite decide_False; first lia.
+        rewrite /waiter۰model. setoid_rewrite decide_False; last first.
+        { rewrite /past. simp_length/=. lia. }
+        iSteps.
+    }
+
+    iMod "HΦ" as "(%vs & Hmodel₁ & _ & HΦ)".
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+    iMod (modelｰupdate vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iMod ("HΦ" with "Hmodel₁") as "HΦ".
+
+    iSplitR "Hfront_data H£ HΦ". { iFrameSteps. }
+    iSteps.
+  Qed.
+
+  Lemma queue_mpmc_1٠popｰspec γ ι :
+    <<<
+      queue_mpmc_1۰inv γ ι
+    | ∀∀ vs,
+      queue_mpmc_1۰model γ vs
+    >>>
+      queue_mpmc_1٠pop γ
+      @ ↑ι
+    <<<
+      queue_mpmc_1۰model γ (tail vs)
+    | RET head vs;
+      £ 1
+    >>>.
+  Proof.
+    iIntros "%Φ Hinv HΦ".
+
+    wp۰rec.
+    wp۰apply+ (queue_mpmc_1٠pop₁ｰspec with "[$Hinv] HΦ"). 1: iSteps.
   Qed.
 End queue_mpmc_1۰G.
+
+Require zoo_saturn.queue_mpmc_1__opaque.
 
 Please opacify.
 
@@ -1101,9 +939,9 @@ Section queue_mpmc_1۰G.
   Context `{queue_mpmc_1۰G : QueueMpmc1G Σ}.
   Context τ `{!iType (iProp Σ) τ}.
 
-  #[local] Definition itype۰inner t : iProp Σ :=
+  #[local] Definition itype۰inner γ : iProp Σ :=
     ∃ vs,
-    queue_mpmc_1۰model t vs ∗
+    queue_mpmc_1۰model γ vs ∗
     [∗ list] v ∈ vs, τ v.
   #[local] Instance : CustomIpat "itype۰inner" :=
     " ( %vs
@@ -1111,20 +949,16 @@ Section queue_mpmc_1۰G.
       & #Hvs
       )
     ".
-  Please Definition itype۰queue_mpmc_1 t : iProp Σ :=
-    queue_mpmc_1۰inv t (nroot.@"1") ∗
-    inv (nroot.@"2") (itype۰inner t).
+  Please Definition itype۰queue_mpmc_1 γ : iProp Σ :=
+    queue_mpmc_1۰inv γ (nroot.@"1") ∗
+    inv (nroot.@"2") (itype۰inner γ).
   #[local] Instance : CustomIpat "itype" :=
     " ( #Hinv1
       & #Hinv2
       )
     ".
 
-  #[global] Instance itype۰queue_mpmc_1ｰitype :
-    iType _ itype۰queue_mpmc_1.
-  Proof.
-    split. apply _.
-  Qed.
+  Zoo derive Persistent for itype۰queue_mpmc_1.
 
   Lemma queue_mpmc_1٠createｰtype :
     {{{
