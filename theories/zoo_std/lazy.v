@@ -7,7 +7,8 @@ Require Import zoo_std.lazy__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.
-Implicit Type v fn mtx : val.
+Implicit Type v fn : val.
+Implicit Type mtx : mutex۰name.
 
 Zoo name :=
   { self : location

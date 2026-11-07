@@ -13,6 +13,7 @@ Implicit Type l : location.
 Implicit Type v v_resolve t fn proph resolve : val.
 Implicit Type us : list val.
 Implicit Type vs : nat → val.
+Implicit Type mtx : mutex۰name.
 
 Zoo global :=
   { mutex : mutex

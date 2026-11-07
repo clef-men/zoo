@@ -6,33 +6,32 @@ Require Import zoo_std.mutex__types.
 Require Import zoo.options.
 
 Implicit Type b : bool.
-Implicit Type l : location.
-Implicit Type t fn : val.
+Implicit Type fn : val.
+
+Zoo name :=
+  { self : location
+  ; locked : gname
+  }.
 
 Zoo global :=
-  { excl : excl unitO
+  { locked : excl unitO
   }.
 
 Section mutex۰G.
   Context `{mutex۰G : MutexG Σ}.
 
-  #[local] Definition metadata :=
-    gname.
-  Implicit Type γ : metadata.
-
+  #[local] Definition locked' γ۰locked :=
+    excl γ۰locked ().
   #[local] Definition locked γ :=
-    excl γ ().
+    locked' γ.(mutex۰name۰locked).
 
-  Please Definition mutex۰init t b : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    l ↪ γ ∗
-    l ↦ᵣ #b ∗
-    if b then True else locked γ.
+  Please Definition mutex۰init γ b : iProp Σ :=
+    γ.(mutex۰name۰self) ↦ᵣ #b ∗
+    if b then True%I else locked γ.
 
-  #[local] Definition inv۰inner l γ P : iProp Σ :=
+  #[local] Definition inv۰inner γ P : iProp Σ :=
     ∃ b,
-    l ↦ᵣ #b ∗
+    γ.(mutex۰name۰self) ↦ᵣ #b ∗
     match b with
     | true =>
         True
@@ -40,31 +39,25 @@ Section mutex۰G.
         locked γ ∗
         P
     end.
-  Please Definition mutex۰inv t P : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    l ↪ γ ∗
-    inv nroot (inv۰inner l γ P).
+  Please Definition mutex۰inv γ P :=
+    inv nroot (inv۰inner γ P).
 
-  Please Definition mutex۰locked t : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    l ↪ γ ∗
-    locked γ.
+  Please Definition mutex۰locked :=
+    locked.
 
-  #[global] Instance mutex۰invｰcontractive t :
-    Contractive (mutex۰inv t).
+  #[global] Instance mutex۰invｰcontractive γ :
+    Contractive (mutex۰inv γ).
   Proof.
     rewrite /mutex۰inv /inv۰inner.
     solve_contractive.
   Qed.
-  #[global] Instance mutex۰invｰne t :
-    NonExpansive (mutex۰inv t).
+  #[global] Instance mutex۰invｰne γ :
+    NonExpansive (mutex۰inv γ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mutex۰invｰproper t :
-    Proper ((≡) ==> (≡)) (mutex۰inv t).
+  #[global] Instance mutex۰invｰproper γ :
+    Proper ((≡) ==> (≡)) (mutex۰inv γ).
   Proof.
     apply _.
   Qed.
@@ -74,29 +67,27 @@ Section mutex۰G.
 
   Zoo derive Persistent for mutex۰inv.
 
-  Lemma mutex۰initｰexclusive t b1 b2 :
-    mutex۰init t b1 -∗
-    mutex۰init t b2 -∗
+  Lemma mutex۰initｰexclusive γ b1 b2 :
+    mutex۰init γ b1 -∗
+    mutex۰init γ b2 -∗
     False.
   Proof.
     iSteps.
   Qed.
-  Lemma mutex۰initｰtoｰinv {t b} P E :
-    mutex۰init t b -∗
+  Lemma mutex۰initｰtoｰinv {γ b} P E :
+    mutex۰init γ b -∗
     (if b then True else ▷ P) ={E}=∗
-    mutex۰inv t P.
+    mutex۰inv γ P.
   Proof.
     destruct b; iSteps.
   Qed.
 
-  Lemma mutex۰lockedｰexclusive t :
-    mutex۰locked t -∗
-    mutex۰locked t -∗
+  Lemma mutex۰lockedｰexclusive γ :
+    mutex۰locked γ -∗
+    mutex۰locked γ -∗
     False.
   Proof.
-    iIntros "(%l & %γ & -> & #Hmeta & Hlocked1) (%_l & %_γ & %Heq & _Hmeta & Hlocked2)". injection Heq as <-.
-    iDestruct (metaｰagree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (exclｰexclusive with "Hlocked1 Hlocked2") as %[].
+    apply exclｰexclusive.
   Qed.
 
   Lemma mutex٠createｰspecｰinit :
@@ -105,20 +96,25 @@ Section mutex۰G.
     }}}
       mutex٠create ()
     {{{
-      t
-    , RET t;
-      mutex۰init t false
+      γ
+    , RET γ;
+      mutex۰init γ false
     }}}.
   Proof.
     iIntros "%Φ HP HΦ".
 
     wp۰rec.
-    wp۰ref l as "Hl" meta:"Hmeta".
+    wp۰ref t as "Ht".
 
-    iMod exclｰalloc as "(%γ & Hlocked)".
-    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
+    iMod exclｰalloc as "(%γ۰locked & Hlocked)".
 
-    iSteps.
+    pose γ :=
+      {|mutex۰name۰self := t
+      ; mutex۰name۰locked := γ۰locked
+      |}.
+
+    iApply ("HΦ" $! γ).
+    iFrameSteps.
   Qed.
   Lemma mutex٠createｰspec P :
     {{{
@@ -126,15 +122,15 @@ Section mutex۰G.
     }}}
       mutex٠create ()
     {{{
-      t
-    , RET t;
-      mutex۰inv t P
+      γ
+    , RET γ;
+      mutex۰inv γ P
     }}}.
   Proof.
     iIntros "%Φ HP HΦ".
 
     iApply wpｰfupd.
-    wp۰apply (mutex٠createｰspecｰinit with "[//]") as (t) "Hinit".
+    wp۰apply (mutex٠createｰspecｰinit with "[//]") as (γ) "Hinit".
     iMod (mutex۰initｰtoｰinv with "Hinit HP") as "Hinv".
     iApply ("HΦ" with "Hinv").
   Qed.
@@ -145,21 +141,26 @@ Section mutex۰G.
     }}}
       mutex٠create_lock ()
     {{{
-      t
-    , RET t;
-      mutex۰init t true ∗
-      mutex۰locked t
+      γ
+    , RET γ;
+      mutex۰init γ true ∗
+      mutex۰locked γ
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰ref l as "Hl" meta:"Hmeta".
+    wp۰ref t as "Ht".
 
-    iMod exclｰalloc as "(%γ & Hlocked)".
-    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
+    iMod exclｰalloc as "(%γ۰locked & Hlocked)".
 
-    iSteps.
+    pose γ :=
+      {|mutex۰name۰self := t
+      ; mutex۰name۰locked := γ۰locked
+      |}.
+
+    iApply ("HΦ" $! γ).
+    iFrameSteps.
   Qed.
   Lemma mutex٠create_lockｰspec P :
     {{{
@@ -167,32 +168,32 @@ Section mutex۰G.
     }}}
       mutex٠create_lock ()
     {{{
-      t
-    , RET t;
-      mutex۰inv t P ∗
-      mutex۰locked t
+      γ
+    , RET γ;
+      mutex۰inv γ P ∗
+      mutex۰locked γ
     }}}.
   Proof.
     iIntros "%Φ HP HΦ".
 
     iApply wpｰfupd.
-    wp۰apply (mutex٠create_lockｰspecｰinit with "[//]") as (t) "(Hinit & Hlocked)".
+    wp۰apply (mutex٠create_lockｰspecｰinit with "[//]") as (γ) "(Hinit & Hlocked)".
     iMod (mutex۰initｰtoｰinv P with "Hinit [//]") as "Hinv".
     iApply ("HΦ" with "[$]").
   Qed.
 
-  Lemma mutex٠lockｰspec t P :
+  Lemma mutex٠lockｰspec γ P :
     {{{
-      mutex۰inv t P
+      mutex۰inv γ P
     }}}
-      mutex٠lock t
+      mutex٠lock γ
     {{{
       RET ();
-      mutex۰locked t ∗
+      mutex۰locked γ ∗
       P
     }}}.
   Proof.
-    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+    iIntros "%Φ #Hinv HΦ".
     iLöb as "HLöb".
 
     wp۰rec. wp۰pures.
@@ -207,56 +208,53 @@ Section mutex۰G.
     wp۰pures.
     iApply ("HLöb" with "HΦ").
   Qed.
-  Lemma mutex٠lockｰspecｰinit t :
+  Lemma mutex٠lockｰspecｰinit γ :
     {{{
-      mutex۰init t false
+      mutex۰init γ false
     }}}
-      mutex٠lock t
+      mutex٠lock γ
     {{{
       RET ();
-      mutex۰init t true ∗
-      mutex۰locked t
+      mutex۰init γ true ∗
+      mutex۰locked γ
     }}}.
   Proof.
     rewrite /mutex٠lock. iSteps.
   Qed.
 
-  Lemma mutex٠unlockｰspec t P :
+  Lemma mutex٠unlockｰspec γ P :
     {{{
-      mutex۰inv t P ∗
-      mutex۰locked t ∗
+      mutex۰inv γ P ∗
+      mutex۰locked γ ∗
       P
     }}}
-      mutex٠unlock t
+      mutex٠unlock γ
     {{{
       RET ();
       True
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %_γ & %Heq & #_Hmeta & Hlocked) & HP) HΦ". injection Heq as <-.
-    iDestruct (metaｰagree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-
     iSteps.
   Qed.
-  Lemma mutex٠unlockｰspecｰinit t :
+  Lemma mutex٠unlockｰspecｰinit γ :
     {{{
-      mutex۰init t true ∗
-      mutex۰locked t
+      mutex۰init γ true ∗
+      mutex۰locked γ
     }}}
-      mutex٠unlock t
+      mutex٠unlock γ
     {{{
       RET ();
-      mutex۰init t false
+      mutex۰init γ false
     }}}.
   Proof.
     iSteps.
   Qed.
 
-  Lemma mutex٠synchronizeｰspec t P :
+  Lemma mutex٠synchronizeｰspec γ P :
     {{{
-      mutex۰inv t P
+      mutex۰inv γ P
     }}}
-      mutex٠synchronize t
+      mutex٠synchronize γ
     {{{
       RET ();
       True
@@ -268,12 +266,12 @@ Section mutex۰G.
     wp۰apply (mutex٠lockｰspec with "Hinv") as "(Hlocked & HP)".
     wp۰apply+ (mutex٠unlockｰspec with "[$Hinv $Hlocked $HP] HΦ").
   Qed.
-  #[global] Instance mutex٠synchronizeｰdiaspec t P :
+  #[global] Instance mutex٠synchronizeｰdiaspec γ P :
     DIASPEC
     {{
-      mutex۰inv t P
+      mutex۰inv γ P
     }}
-      mutex٠synchronize t
+      mutex٠synchronize γ
     {{
       RET ();
       True
@@ -283,19 +281,19 @@ Section mutex۰G.
     iApply mutex٠synchronizeｰspec.
   Qed.
 
-  Lemma mutex٠protectｰspec Ψ t P fn :
+  Lemma mutex٠protectｰspec Ψ γ P fn :
     {{{
-      mutex۰inv t P ∗
-      ( mutex۰locked t -∗
+      mutex۰inv γ P ∗
+      ( mutex۰locked γ -∗
         P -∗
         WP fn () {{ v,
-          mutex۰locked t ∗
+          mutex۰locked γ ∗
           P ∗
           Ψ v
         }}
       )
     }}}
-      mutex٠protect t fn
+      mutex٠protect γ fn
     {{{
       v
     , RET v;

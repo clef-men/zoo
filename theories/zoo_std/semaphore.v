@@ -14,7 +14,7 @@ Implicit Type γ_tokens : list gname.
 
 Zoo name :=
   { self : location
-  ; mutex : val
+  ; mutex : mutex۰name
   ; condition : val
   ; tokens : list gname
   }.

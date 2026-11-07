@@ -10,7 +10,7 @@ Implicit Type b : bool.
 
 Zoo name :=
   { self : location
-  ; mutex : val
+  ; mutex : mutex۰name
   ; condition : val
   ; lstate : gname
   ; consumer : gname

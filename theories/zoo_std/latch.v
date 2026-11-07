@@ -15,7 +15,7 @@ Implicit Type pending : gset nat.
 Zoo name :=
   { self : location
   ; size : nat
-  ; mutex : val
+  ; mutex : mutex۰name
   ; condition : val
   ; tokens : gname
   ; receipts : gname

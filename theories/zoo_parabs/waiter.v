@@ -7,7 +7,8 @@ Require Import zoo.options.
 
 Implicit Type b : bool.
 Implicit Type 𝑡 : location.
-Implicit Type v t mtx cond : val.
+Implicit Type v t cond : val.
+Implicit Type mtx : mutex۰name.
 
 Zoo global :=
   { mutex : mutex
