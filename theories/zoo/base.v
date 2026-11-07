@@ -6,3 +6,5 @@ Require Export zoo.program_logic.itype.
 Require Export zoo.diaframe.
 Require Export zoo.plugin.
 Require Import zoo.options.
+
+Please derive Inhabited for namespace.
