@@ -41,7 +41,9 @@ Definition inf_queue_mpmc_2٠size : val :=
 
 Definition inf_queue_mpmc_2٠is_empty : val :=
   𝗳𝘂𝗻 "t" ->
-    inf_queue_mpmc_2٠size "t" == 0.
+    𝗹𝗲𝘁 "front" = "t".{inf_queue_mpmc_2٠front} 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{inf_queue_mpmc_2٠back} 𝗶𝗻
+    "back" ≤ "front".
 
 Definition inf_queue_mpmc_2٠push : val :=
   𝗿𝗲𝗰 "push" "t" "v" ->

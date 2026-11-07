@@ -52,11 +52,10 @@ val is_empty :
   arequires
     model t ?vs
   aensures
-    model t ?vs
+    if ?b then ?vs = []
+  , model t ?vs
   returns
     ?b
-  ensures
-    if ?b then ?vs = [] else True
 |}]
 
 val push :

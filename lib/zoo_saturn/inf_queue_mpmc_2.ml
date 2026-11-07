@@ -22,7 +22,9 @@ let rec size t =
     size t
 
 let is_empty t =
-  size t == 0
+  let front = t.front in
+  let back = t.back in
+  back <= front
 
 let rec push t v =
   let id = Zoo.id () in

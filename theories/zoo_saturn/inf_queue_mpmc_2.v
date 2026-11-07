@@ -900,21 +900,54 @@ Section inf_queue_mpmc_2۰G.
       inf_queue_mpmc_2٠is_empty γ
       @ ↑ι
     <<<
+      ∃∃ b,
+      ⌜if b then vs = [] else True⌝ ∗
       inf_queue_mpmc_2۰model γ vs
-    | b,
-      RET #b;
-      ⌜if b then vs = [] else True⌝
+    | RET #b;
+      True
     >>>.
   Proof.
-    iIntros "%Φ #Hinv HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp۰rec.
 
-    awp۰apply (inf_queue_mpmc_2٠sizeｰspec with "Hinv").
-    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs Hmodel".
-    iAaccIntro with "Hmodel"; iSteps. iPureIntro.
-    case_bool_decide as Hlength; last done.
-    apply nil_length_inv. lia.
+    wp۰bind (_.{front})%E.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰load.
+    iDestruct (consumers۰lbｰget with "Hconsumers_auth") as "#Hconsumers_lb".
+    iSplitR "HΦ". { iFrameSteps. }
+    iIntros "!> {%}".
+
+    wp۰pures.
+
+    wp۰bind (_.{back})%E.
+    iInv "Hinv" as "(:inv۰inner =2)".
+    wp۰load.
+
+    iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+
+    destruct_decide (back2 ≤ front1) as Hif.
+
+    - iDestruct (consumers۰lbｰvalid with "Hconsumers_auth Hconsumers_lb") as %?.
+      iMod ("HΦ" $! true with "[$Hmodel₁]") as "HΦ".
+      { iPureIntro. rewrite skipn_all2 // in Hvs2. 1: lia. }
+
+      iSplitR "HΦ". { iFrameSteps. }
+      iIntros "!> {%- Hif}".
+
+      wp۰pures.
+      rewrite bool_decide_eq_true_2. 1: lia.
+      iSteps.
+
+    - iMod ("HΦ" $! false with "[$Hmodel₁]") as "HΦ".
+
+      iSplitR "HΦ". { iFrameSteps. }
+      iIntros "!> {%- Hif}".
+
+      wp۰pures.
+      rewrite bool_decide_eq_false_2. 1: lia.
+      iSteps.
   Qed.
 
   Lemma inf_queue_mpmc_2٠pushｰspec γ ι v :
