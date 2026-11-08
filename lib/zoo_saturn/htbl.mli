@@ -1,7 +1,7 @@
 type ('k, 'v) t
 
 val create :
-  ('k -> int) -> ('k -> 'k -> bool) -> ('k, 'v) t
+  hash:('k -> int) -> equal:('k -> 'k -> bool) -> ('k, 'v) t
 
 val find :
   ('k, 'v) t -> 'k -> 'v option
