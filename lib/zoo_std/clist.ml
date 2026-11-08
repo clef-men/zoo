@@ -3,7 +3,7 @@ type 'a t =
   | Open
   | Cons of 'a * 'a t [@generative]
 
-let[@tail_mod_cons] rec app t1 t2 =
+let rec app t1 t2 =
   match t1 with
   | Closed ->
       assert false
@@ -11,6 +11,7 @@ let[@tail_mod_cons] rec app t1 t2 =
       t2
   | Cons (v, t1) ->
       Cons (v, app t1 t2)
+[@@tail_mod_cons]
 
 let rec rev_app t1 t2 =
   match t1 with

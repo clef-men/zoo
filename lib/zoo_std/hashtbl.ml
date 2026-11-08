@@ -41,7 +41,7 @@ let[@zoo.ignore] rec bucket_dissoc equal key = function
 let[@zoo.opaque] bucket_dissoc equal key bucket =
   try Some (bucket_dissoc equal key bucket) with Not_found -> None
 
-let[@tail_mod_cons] rec bucket_filter pred = function
+let rec bucket_filter pred = function
   | Nil ->
       Nil
   | Cons (key, v, bucket) ->
@@ -49,12 +49,14 @@ let[@tail_mod_cons] rec bucket_filter pred = function
         Cons (key, v, bucket_filter pred bucket)
       else
         bucket_filter pred bucket
+[@@tail_mod_cons]
 
-let[@tail_mod_cons] rec bucket_merge bucket = function
+let rec bucket_merge bucket = function
   | Nil ->
       bucket
   | Cons (key, v, bucket) ->
       Cons (key, v, bucket_merge bucket bucket)
+[@@tail_mod_cons]
 
 let create hash equal =
   let buckets = Array.make min_buckets Nil in

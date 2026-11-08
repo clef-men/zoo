@@ -28,12 +28,13 @@ let rec get t i =
   else
     get (tail t) (i - 1)
 
-let[@tail_mod_cons] rec initi sz fn i =
+let rec initi sz fn i =
   if sz <= i then
     []
   else
     let v = fn i in
     v :: initi sz fn (i + 1)
+[@@tail_mod_cons]
 let initi sz fn =
   initi sz fn 0
 let init sz fn =
@@ -79,13 +80,14 @@ let iteri fn =
 let iter fn =
   iteri (fun _i -> fn)
 
-let[@tail_mod_cons] rec mapi fn i t =
+let rec mapi fn i t =
   match t with
   | [] ->
       []
   | v :: t ->
       let v = fn i v in
       v :: mapi fn (i + 1) t
+[@@tail_mod_cons]
 let mapi fn =
   mapi fn 0
 let map fn =

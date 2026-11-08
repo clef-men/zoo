@@ -64,7 +64,7 @@ let[@zoo.ignore] rec bucket_dissoc equal key = function
 let[@zoo.opaque] bucket_dissoc equal key bucket =
   try Some (bucket_dissoc equal key bucket) with Not_found -> None
 
-let[@tail_mod_cons] rec bucket_filter pred = function
+let rec bucket_filter pred = function
   | Nil ->
       Nil
   | Cons (key, v, bucket) ->
@@ -74,14 +74,16 @@ let[@tail_mod_cons] rec bucket_filter pred = function
         bucket_filter pred bucket
   | _ ->
       assert false
+[@@tail_mod_cons]
 
-let[@tail_mod_cons] rec bucket_merge bucket = function
+let rec bucket_merge bucket = function
   | Nil ->
       bucket
   | Cons (key, v, bucket) ->
       Cons (key, v, bucket_merge bucket bucket)
   | _ ->
       assert false
+[@@tail_mod_cons]
 
 let create hash equal =
   let sizes = Atomic_array.make (Domain.recommended_domain_count ()) 0 in
