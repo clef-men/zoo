@@ -279,13 +279,6 @@ Section basic.
     { apply lookup_lt_is_Some in Hlookup. lia. }
     rewrite /= Hlookup'. apply lastｰtake. done.
   Qed.
-  Lemma lastｰremovelast l x :
-    last l = Some x →
-    l = removelast l ++ [x].
-  Proof.
-    destruct l as [| y l _] using rev_ind; first done.
-    rewrite last_snoc removelast_last. naive.
-  Qed.
 
   Lemma dropｰlookupｰNone l i :
     l !! i = None →
@@ -340,6 +333,55 @@ Section basic.
     rewrite delete_middle delete_take_drop //.
   Qed.
 End basic.
+
+Section removelast.
+  Context {A : Type}.
+
+  Implicit Type x : A.
+  Implicit Type l : list A.
+
+  Lemma lastｰremovelast l x :
+    last l = Some x →
+    l = removelast l ++ [x].
+  Proof.
+    destruct l as [| y l _] using rev_ind; first done.
+    rewrite last_snoc removelast_last. naive.
+  Qed.
+
+  Lemma lookupｰremovelast l i :
+    S i < length l →
+    removelast l !! i = l !! i.
+  Proof.
+    intros Hi.
+    destruct (last l) as [x |] eqn:Hlast.
+    - apply lastｰremovelast in Hlast.
+      rewrite {2}Hlast lookup_app_l //.
+      rewrite Hlast length_app /= in Hi. lia.
+    - apply last_None in Hlast as ->. simpl in Hi. lia.
+  Qed.
+End removelast.
+
+Section concat.
+  Context {A : Type}.
+
+  Implicit Type x : A.
+  Implicit Type l : list A.
+  Implicit Type ll : list $ list A.
+
+  Lemma concatｰinsertｰsnoc ll i l x :
+    ll !! i = Some l →
+    length ll = S i →
+    concat (<[i := l ++ [x]]> ll) = concat ll ++ [x].
+  Proof.
+    intros Hlookup Hlength.
+    rewrite -(take_drop_middle ll i l) //.
+    assert (drop (S i) ll = []) as ->.
+    { apply drop_ge. lia. }
+    rewrite insert_app_r_alt length_take. 1: lia.
+    rewrite Nat.min_l. 1: lia.
+    rewrite Nat.sub_diag /= !concat_app /= !app_nil_r assoc //.
+  Qed.
+End concat.
 
 Section suffix.
   Context {A : Type}.

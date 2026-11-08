@@ -486,6 +486,8 @@ Section tqueue_mpmc_2۰G.
     " Hmodel₁{_{}}
     ".
 
+  Zoo derive Timeless for tqueue_mpmc_2۰nonfull.
+  Zoo derive Timeless for tqueue_mpmc_2۰full.
   Zoo derive Timeless for tqueue_mpmc_2۰model.
 
   #[local] Zoo derive Persistent for lstates۰at.
@@ -1020,10 +1022,11 @@ Section tqueue_mpmc_2۰G.
       tqueue_mpmc_2٠is_empty γ
       @ ↑ι
     <<<
+      ∃∃ b,
+      ⌜if b then vs = [] else True⌝ ∗
       tqueue_mpmc_2۰model γ vs
-    | b,
-      RET #b;
-      ⌜if b then vs = [] else True⌝
+    | RET #b;
+      True
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
@@ -1045,16 +1048,16 @@ Section tqueue_mpmc_2۰G.
     iDestruct (consumers۰lbｰvalid with "Hconsumers_auth Hconsumers_lb") as %?.
     iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
     iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-    iMod ("HΦ" with "Hmodel₁") as "HΦ".
-    assert (back2 ≤ front1 → vs2 = []) as Hempty.
-    { intros. rewrite Hvs2 drop_ge //. lia. }
+    iMod ("HΦ" $! (bool_decide (⁺back2 ≤ ⁺front1)%Z) with "[$Hmodel₁]") as "HΦ".
+    { iPureIntro.
+      case_bool_decide; last done.
+      rewrite Hvs2 drop_ge //. lia.
+    }
     iSplitR "HΦ". { iFrameSteps. }
-    iIntros "!> {%- Hempty}".
+    iIntros "!> {%}".
 
     wp۰pures.
-    iApply "HΦ". iPureIntro.
-    case_bool_decide; last done.
-    apply Hempty. lia.
+    iSteps.
   Qed.
 
   #[local] Lemma tqueue_mpmc_2٠push₁ｰspec γ ι v E Φ :

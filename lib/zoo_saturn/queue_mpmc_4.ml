@@ -2,8 +2,6 @@
    https://github.com/pramalhe/ConcurrencyFreaks/blob/5b3b9fcd232ccb5417724fa154e948d0f26b6442/CPP/queues/array/FAAArrayQueue.hpp
 *)
 
-[@@@zoo.ignore]
-
 type ('a, _) node =
   | Null :
     ('a, [> `Null]) node
@@ -18,7 +16,7 @@ type 'a t =
   ; mutable back: ('a, [`Node]) node [@atomic]
   }
 
-let[@zoo.opaque] queues_size =
+let queues_size =
   1024
 
 let create () =
