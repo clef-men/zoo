@@ -7,5 +7,7 @@ Require Import zoo_saturn.sstore__code.
 #[global] Opaque sstore٠forward.
 #[global] Opaque sstore٠get.
 #[global] Opaque sstore٠set.
+#[global] Opaque sstore٠xchg.
+#[global] Opaque sstore٠cas.
 #[global] Opaque sstore٠click.
 #[global] Opaque sstore٠observe.

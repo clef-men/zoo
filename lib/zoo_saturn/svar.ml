@@ -5,6 +5,8 @@ type prophecy =
   | Forward : 'a * int -> prophecy
   | Get : Zoo.id -> prophecy
   | Set : Zoo.id * 'a -> prophecy
+  | Xchg : Zoo.id * 'a -> prophecy
+  | Cas : Zoo.id * 'a * 'a -> prophecy
 
 type 'a t =
   { mutable value: 'a [@atomic]
@@ -54,6 +56,20 @@ let set t v =
   let id = Zoo.id () in
   forward t ;
   Zoo.resolve_with (t.value <- v) t.proph (Set (id, v))
+
+let xchg t v =
+  let id = Zoo.id () in
+  forward t ;
+  Zoo.resolve_with (
+    Atomic.Loc.exchange [%atomic.loc t.value] v
+  ) t.proph (Xchg (id, v))
+
+let cas t v1 v2 =
+  let id = Zoo.id () in
+  forward t ;
+  Zoo.resolve_with (
+    Atomic.Loc.compare_and_set [%atomic.loc t.value] v1 v2
+  ) t.proph (Cas (id, v1, v2))
 
 let click t =
   t.gen <- t.gen + 1

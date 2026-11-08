@@ -12,17 +12,107 @@ Implicit Type v vₛ 𝑣 𝑣ₛ w : val.
 Implicit Type id : identifier.
 
 (* ------------------------------------------------------------------------ *)
+(* Operations. *)
+
+(* What an operation asks for: [xchg] is a [set] whose result is the old value. *)
+Variant request :=
+  | RequestGet
+  | RequestSet v
+  | RequestCas v1 v2.
+
+Please derive EqDecision for request.
+
+(* A prophesied operation: a [cas] also carries its prophesied outcome. *)
+Variant opkind :=
+  | OpGet
+  | OpSet v
+  | OpCas v1 v2 b.
+
+Definition opkind۰request k :=
+  match k with
+  | OpGet =>
+      RequestGet
+  | OpSet v =>
+      RequestSet v
+  | OpCas v1 v2 _ =>
+      RequestCas v1 v2
+  end.
+
+(* The relation between the outcome [b] and the value [w] seen by the operation. *)
+Definition request۰rel req b w : Prop :=
+  match req with
+  | RequestCas v1 _ =>
+      (if b then (≈) else (≉)) w v1
+  | _ =>
+      True
+  end.
+Definition request۰apply req b w :=
+  match req with
+  | RequestGet =>
+      w
+  | RequestSet v =>
+      v
+  | RequestCas _ v2 =>
+      if b then v2 else w
+  end.
+Definition request۰result req b w :=
+  match req with
+  | RequestCas _ _ =>
+      ValBool b
+  | _ =>
+      w
+  end.
+
+(* The outcome of a [cas] seeing [w], corrected so as to always agree with
+   physical equality; it is the prophesied outcome whenever the [cas] runs. *)
+Definition cas۰outcome w v1 b :=
+  if b then bool_decide (w ≈ v1) else negb (bool_decide (w ≉ v1)).
+Definition opkind۰outcome k w :=
+  match k with
+  | OpCas v1 _ b =>
+      cas۰outcome w v1 b
+  | _ =>
+      false
+  end.
+Definition opkind۰apply k w :=
+  request۰apply (opkind۰request k) (opkind۰outcome k w) w.
+Definition opkind۰result k w :=
+  request۰result (opkind۰request k) (opkind۰outcome k w) w.
+
+Lemma opkind۰outcomeｰrel k w :
+  request۰rel (opkind۰request k) (opkind۰outcome k w) w.
+Proof.
+  destruct k as [| v | v1 v2 []]; try done.
+  all: rewrite /= /cas۰outcome.
+  all: case_bool_decide; first done.
+  all: destruct (valｰsimilarｰorｰnonsimilar w v1); done.
+Qed.
+Lemma cas۰outcomeｰconsistent w v1 b :
+  (if b then (≈) else (≉)) w v1 →
+  cas۰outcome w v1 b = b.
+Proof.
+  destruct b => /= H; rewrite /cas۰outcome bool_decide_eq_true_2 //.
+Qed.
+Lemma opkind۰applyｰcas w v1 v2 b :
+  (if b then (≈) else (≉)) w v1 →
+    opkind۰apply (OpCas v1 v2 b) w = (if b then v2 else w) ∧
+    opkind۰result (OpCas v1 v2 b) w = ValBool b.
+Proof.
+  intros H. rewrite /opkind۰apply /opkind۰result /= cas۰outcomeｰconsistent //.
+Qed.
+
+(* ------------------------------------------------------------------------ *)
 (* Prophecies. *)
 
 Variant prophecy :=
   | ProphecyForward v g
-  | ProphecyOp id (o : option val).
+  | ProphecyOp id (k : opkind).
 Implicit Type proph : prophecy.
 Implicit Type prophs past q : list prophecy.
 
 Record operation := Operation
   { operation۰id : identifier
-  ; operation۰val : option val
+  ; operation۰kind : opkind
   }.
 Add Printing Constructor operation.
 Implicit Type op : operation.
@@ -50,6 +140,34 @@ Definition prophecies۰forwards prophs :=
 
 Definition operations۰ids ops :=
   operation۰id <$> ops.
+
+(* The value after applying [ops] to [𝑣]. *)
+Definition ops۰apply ops 𝑣 :=
+  foldl (λ w op, opkind۰apply op.(operation۰kind) w) 𝑣 ops.
+(* The successive values after applying each of [ops] to [𝑣]. *)
+Fixpoint ops۰trace 𝑣 ops : list val :=
+  match ops with
+  | [] =>
+      []
+  | op :: ops =>
+      let w := opkind۰apply op.(operation۰kind) 𝑣 in
+      w :: ops۰trace w ops
+  end.
+
+Lemma ops۰applyｰapp ops1 ops2 𝑣 :
+  ops۰apply (ops1 ++ ops2) 𝑣 = ops۰apply ops2 (ops۰apply ops1 𝑣).
+Proof.
+  apply foldl_app.
+Qed.
+Lemma ops۰traceｰlookup ops 𝑣 k w :
+  ops۰trace 𝑣 ops !! k = Some w →
+  ops۰apply (take (S k) ops) 𝑣 = w.
+Proof.
+  move: 𝑣 k. induction ops as [| op ops IH] => 𝑣 k /=; first done.
+  destruct k as [| k] => /=.
+  - intros [= <-]. done.
+  - apply IH.
+Qed.
 
 (* The prophecies preceding the first forward whose generation is at least [g]. *)
 Fixpoint future۰pre g prophs :=
@@ -189,7 +307,7 @@ Qed.
 (* Waiters & snapshots. *)
 
 Record waiter :=
-  { waiter۰val : option val
+  { waiter۰request : request
   ; waiter۰post : gname
   ; waiter۰gen : nat
   }.
@@ -247,18 +365,18 @@ Definition future۰good g v vₛ helped prophs : Prop :=
       q ++ [ProphecyForward 𝑣 g'] `prefix_of` prophs ∧
       length q ≤ length (future۰pre g prophs) ∧
       helped `prefix_of` prophecies۰ops q ∧
-      operation۰val <$> last helped = Some (Some 𝑣)
+      𝑣 = v
   ) ∧ (
     ∀ 𝑣,
     future۰target g prophs = Some (𝑣, g) →
-    𝑣 ∈ v :: omap operation۰val (drop (length helped) (prophecies۰ops (future۰pre g prophs))) →
+    𝑣 ∈ v :: ops۰trace v (drop (length helped) (prophecies۰ops (future۰pre g prophs))) →
     vₛ = 𝑣
   ).
 
 Definition future۰doomed g gₛ waiters past prophs (b : identifier) g_d : Prop :=
   g_d ≤ g ∧
   gₛ < g_d ∧
-    ∃ q (w : option val),
+    ∃ q (w : opkind),
     q ++ [ProphecyOp b w] `prefix_of` prophs ∧
     (∀ 𝑣 g', ProphecyForward 𝑣 g' ∈ q → g' < g_d) ∧
     ∀ waiter,
@@ -266,7 +384,7 @@ Definition future۰doomed g gₛ waiters past prophs (b : identifier) g_d : Prop
       g_d ≤ waiter.(waiter۰gen) ∨
       b ∈ operations۰ids (prophecies۰ops past) ∨
       b ∈ operations۰ids (prophecies۰ops q) ∨
-      waiter.(waiter۰val) ≠ w.
+      waiter.(waiter۰request) ≠ opkind۰request w.
 
 Definition inv۰state g v vₛ snap waiters helped past prophs mode : Prop :=
   if decide (snap.(snap۰gen) = g) then
@@ -315,7 +433,7 @@ Record inv۰pure 𝑣 g v vₛ snaps snap (hist : list (val * nat)) waiters help
       op ∈ prophecies۰ops past →
       op.(operation۰id) ∈ dom waiters
   ; inv۰pure۰model :
-      v = default 𝑣 (last (omap operation۰val helped))
+      v = ops۰apply helped 𝑣
   ; inv۰pure۰helped :
       helped `prefix_of` prophecies۰ops prophs
   ; inv۰pure۰state :
@@ -329,7 +447,7 @@ Fixpoint helpable waiters past helped help : Prop :=
   | op :: help =>
       ( ∃ waiter,
         waiters !! op.(operation۰id) = Some waiter ∧
-        waiter.(waiter۰val) = op.(operation۰val)
+        waiter.(waiter۰request) = opkind۰request op.(operation۰kind)
       ) ∧
       op.(operation۰id) ∉ operations۰ids (prophecies۰ops past) ∧
       op.(operation۰id) ∉ operations۰ids helped ∧
@@ -339,7 +457,7 @@ Fixpoint helpable waiters past helped help : Prop :=
 (* ------------------------------------------------------------------------ *)
 (* Pure lemmas. *)
 
-Lemma prophecies۰opsｰlookup prophs n id (v : option val) :
+Lemma prophecies۰opsｰlookup prophs n id (v : opkind) :
   prophecies۰ops prophs !! n = Some (Operation id v) →
     ∃ q,
     q ++ [ProphecyOp id v] `prefix_of` prophs ∧
@@ -486,15 +604,13 @@ Proof.
   destruct Hstate as (_ & Hhelped & Htarget).
   odestruct (future۰preｰno_forwards g prophs1) as (Hpre & Htarget'); [done.. |].
   apply Htarget in Htarget'. apply Htarget'.
-  pose proof (inv۰pure۰model _ _ _ _ _ _ _ _ _ _ _ _ Hinv) as ->.
-  destruct (decide (helped = [])) as [-> | (q & 𝑣' & g' & Hq & Hq_length & Hhelped_q & Hlast)%Hhelped].
-  - apply list_elem_of_here.
+  destruct (decide (helped = [])) as [-> | (q & 𝑣' & g' & Hq & Hq_length & Hhelped_q & ->)%Hhelped].
+  - rewrite (inv۰pure۰model _ _ _ _ _ _ _ _ _ _ _ _ Hinv).
+    apply list_elem_of_here.
   - rewrite Hpre in Hq_length.
     opose proof* (future۰preｰlength_forward g) as Hq'; [done | rewrite Hpre // | rewrite Hpre // |].
     rewrite Hpre in Hq'. subst q.
     apply prefix_app_inv in Hq as Hq. apply prefix_cons_inv_1 in Hq as [= -> ->].
-    apply fmap_Some in Hlast as (op & Hop & Hval).
-    erewrite last_omap; [| done | symmetry; done].
     apply list_elem_of_here.
 Qed.
 
@@ -519,14 +635,14 @@ Proof.
     + rewrite lookup_insert_ne //. auto.
 Qed.
 
-Lemma inv۰pureｰwrite {𝑣 g v vₛ snaps snap hist waiters helped past prophs mode} id (w : option val) waiter :
+Lemma inv۰pureｰwrite {𝑣 g v vₛ snaps snap hist waiters helped past prophs mode} id (w : opkind) waiter :
   inv۰pure 𝑣 g v vₛ snaps snap hist waiters helped past (ProphecyOp id w :: prophs) mode →
   waiters !! id = Some waiter →
-  waiter.(waiter۰val) = w →
+  waiter.(waiter۰request) = opkind۰request w →
   id ∉ operations۰ids (prophecies۰ops past) →
   waiter.(waiter۰gen) ≤ snap.(snap۰gen) →
     (helped = [] ∨ head helped = Some (Operation id w)) ∧
-    inv۰pure (default 𝑣 w) g (if helped is [] then default v w else v) vₛ snaps snap hist waiters (tail helped) (past ++ [ProphecyOp id w]) prophs mode.
+    inv۰pure (opkind۰apply w 𝑣) g (if helped is [] then opkind۰apply w v else v) vₛ snaps snap hist waiters (tail helped) (past ++ [ProphecyOp id w]) prophs mode.
 Proof.
   intros Hinv Hlookup Hval Hid Hgen.
   pose proof Hinv as [].
@@ -543,10 +659,7 @@ Proof.
     intros op Hop. apply inv۰pure۰helped_dom0. set_solver.
   - rewrite prophecies۰opsｰapp. intros op [Hop | ->%list_elem_of_singleton]%elem_of_app; auto.
     apply elem_of_dom. naive.
-  - destruct Hhelped as [-> | (helped' & ->)].
-    { rewrite inv۰pure۰model0 //. }
-    rewrite inv۰pure۰model0 last_omap_cons /=.
-    destruct (last (omap operation۰val helped')); done.
+  - destruct Hhelped as [-> | (helped' & ->)]; rewrite inv۰pure۰model0 //.
   - destruct Hhelped as [-> | (helped' & ->)].
     + apply prefix_nil.
     + apply prefix_cons_inv_2 in inv۰pure۰helped0. done.
@@ -570,7 +683,7 @@ Proof.
       * intros 𝑣' Htarget' H𝑣'.
         apply Htarget; first done.
         destruct Hhelped as [-> | (helped' & ->)].
-        -- destruct w as [x |]; simpl in *; set_solver.
+        -- rewrite inv۰pure۰model0 /= in H𝑣' |- *. set_solver.
         -- done.
     + destruct Hmode as (Hg_d & Hgₛ_d & q & w_b & Hq & Hq_forwards & Hb).
       split_and!; [done.. |].
@@ -648,9 +761,9 @@ Proof.
       * destruct Hmode as (Hhelped & Htarget).
         rewrite /= decide_False in Hhelped Htarget; first lia.
         split.
-        -- intros (q & 𝑣'' & g'' & Hq & Hq_length & Hhelped_q & Hlast')%Hhelped.
+        -- intros Hne. destruct (Hhelped Hne) as (q & 𝑣'' & g'' & Hq & Hq_length & Hhelped_q & Hlast').
            destruct q as [| proph q].
-           { apply prefix_nil_inv in Hhelped_q as ->. by destruct Hhelped. }
+           { apply prefix_nil_inv in Hhelped_q as ->. done. }
            simpl in Hq. pose proof Hq as ->%prefix_cons_inv_1. apply prefix_cons_inv_2 in Hq.
            exists q, 𝑣'', g''. split_and!; try done.
            simpl in Hq_length. lia.
@@ -687,7 +800,7 @@ Lemma helpableｰdecide waiters past helped help :
   helpable waiters past helped help ∨
     ∃ k op,
     help !! k = Some op ∧
-    ( (∀ waiter, waiters !! op.(operation۰id) = Some waiter → waiter.(waiter۰val) ≠ op.(operation۰val))
+    ( (∀ waiter, waiters !! op.(operation۰id) = Some waiter → waiter.(waiter۰request) ≠ opkind۰request op.(operation۰kind))
     ∨ op.(operation۰id) ∈ operations۰ids (prophecies۰ops past)
     ∨ op.(operation۰id) ∈ operations۰ids (helped ++ take k help)
     ).
@@ -695,11 +808,11 @@ Proof.
   move: helped. induction help as [| op help IH] => helped /=.
   - auto.
   - assert (
-      (∃ waiter, waiters !! op.(operation۰id) = Some waiter ∧ waiter.(waiter۰val) = op.(operation۰val)) ∨
-      (∀ waiter, waiters !! op.(operation۰id) = Some waiter → waiter.(waiter۰val) ≠ op.(operation۰val))
+      (∃ waiter, waiters !! op.(operation۰id) = Some waiter ∧ waiter.(waiter۰request) = opkind۰request op.(operation۰kind)) ∨
+      (∀ waiter, waiters !! op.(operation۰id) = Some waiter → waiter.(waiter۰request) ≠ opkind۰request op.(operation۰kind))
     ) as [Hwaiter | Hwaiter].
     { destruct (waiters !! op.(operation۰id)) as [waiter |].
-      - destruct (decide (waiter.(waiter۰val) = op.(operation۰val))); naive.
+      - destruct (decide (waiter.(waiter۰request) = opkind۰request op.(operation۰kind))); naive.
       - naive.
     }
     2: { right. exists 0, op. naive. }
@@ -715,7 +828,7 @@ Qed.
 
 Lemma inv۰pureｰclick' {𝑣 g v vₛ snaps snap hist waiters helped past prophs mode} help mode' :
   inv۰pure 𝑣 g v vₛ snaps snap hist waiters helped past prophs mode →
-  let v' := default v (last (omap operation۰val help)) in
+  let v' := ops۰apply help v in
   (∀ op, op ∈ help → op.(operation۰id) ∈ dom waiters) →
   helped ++ help `prefix_of` prophecies۰ops prophs →
   inv۰state (S g) v' v' snap waiters (helped ++ help) past prophs mode' →
@@ -734,8 +847,7 @@ Proof.
   - intros h vh idx i snap' [Hlookup | (Hh & (_ & [= _ <-])%list_lookup_singleton_Some)]%lookup_app_Some Hlookup' Hi; eauto.
     apply lookup_lt_Some in Hlookup'. lia.
   - intros op [|]%elem_of_app; auto.
-  - rewrite /v' omap_app last_app inv۰pure۰model0.
-    destruct (last (omap operation۰val help)); done.
+  - rewrite /v' ops۰applyｰapp inv۰pure۰model0 //.
 Qed.
 
 Lemma inv۰pureｰclick {𝑣 g v vₛ snaps snap hist waiters helped past prophs mode} :
@@ -743,7 +855,7 @@ Lemma inv۰pureｰclick {𝑣 g v vₛ snaps snap hist waiters helped past proph
     ∃ help mode',
     helpable waiters past helped help ∧
     mode۰doomed mode ≤ mode۰doomed mode' ∧
-    let v' := default v (last (omap operation۰val help)) in
+    let v' := ops۰apply help v in
     inv۰pure 𝑣 (S g) v' v' snaps snap (hist ++ [(v', pred (length snaps))]) waiters (helped ++ help) past prophs mode'.
 Proof.
   intros Hinv.
@@ -766,7 +878,7 @@ Proof.
       q ++ [ProphecyForward 𝑣' g'] `prefix_of` prophs ∧
       length q ≤ length (future۰pre g prophs) ∧
       helped `prefix_of` prophecies۰ops q ∧
-      operation۰val <$> last helped = Some (Some 𝑣')
+      𝑣' = v
   ) as Hhelped.
   { move: inv۰pure۰state0. rewrite /inv۰state.
     case_decide.
@@ -794,11 +906,11 @@ Proof.
   }
   (* no helping *)
   assert (
-    (∀ 𝑣', future۰target (S g) prophs = Some (𝑣', S g) → 𝑣' ∈ omap operation۰val rest → 𝑣' = v) →
+    (∀ 𝑣', future۰target (S g) prophs = Some (𝑣', S g) → 𝑣' ∈ ops۰trace v rest → 𝑣' = v) →
       ∃ help mode',
       helpable waiters past helped help ∧
       mode۰doomed Good ≤ mode۰doomed mode' ∧
-      let v' := default v (last (omap operation۰val help)) in
+      let v' := ops۰apply help v in
       inv۰pure 𝑣 (S g) v' v' snaps snap (hist ++ [(v', pred (length snaps))]) waiters (helped ++ help) past prophs mode'
   ) as Hno_help.
   { intros Hno.
@@ -814,35 +926,28 @@ Proof.
   }
   destruct (future۰target (S g) prophs) as [(vT & gT) |] eqn:Htarget; last first.
   { apply Hno_help. done. }
-  destruct (decide (gT = S g ∧ vT ≠ v ∧ vT ∈ omap operation۰val rest)) as [(-> & Hne & Hin) | Hnot]; last first.
+  destruct (decide (gT = S g ∧ vT ≠ v ∧ vT ∈ ops۰trace v rest)) as [(-> & Hne & Hin) | Hnot]; last first.
   { apply Hno_help. intros 𝑣' [= <-] H𝑣'.
     destruct (decide (vT = v)); first done.
     exfalso. apply Hnot. split_and!; done.
   }
-  apply list_elem_of_omap in Hin as (op & Hop & Hval).
-  apply list_elem_of_lookup in Hop as (k & Hk).
+  apply list_elem_of_lookup in Hin as (k & Hk).
   set help := take (S k) rest.
   pose proof Htarget as (_ & Htarget')%future۰targetｰSome.
   destruct (helpableｰdecide waiters past helped help) as [Hhelpable | (k' & op' & Hop' & Hbad)].
   - exists help, Good. split_and!; [done | done |].
-    assert (last help = Some op) as Hlast_help.
-    { rewrite /help last_lookup length_take.
-      assert (k < length rest) by (eapply lookup_lt_Some; done).
-      rewrite Nat.min_l; first lia.
-      rewrite lookup_take_lt; first lia.
-      rewrite /= Hk //.
-    }
+    assert (ops۰apply help v = vT) as Hhelp_v.
+    { apply ops۰traceｰlookup. done. }
     assert (helped ++ help `prefix_of` X) as Hhelp.
     { rewrite /help Hrest. apply prefix_take. }
     apply (inv۰pureｰclick' _ _ Hinv).
     + eapply helpableｰdom. done.
     + trans X; done.
-    + rewrite (last_omap _ _ _ _ Hlast_help Hval) /=.
+    + rewrite Hhelp_v.
       rewrite /inv۰state decide_False //.
       split; first lia. split.
       * intros _.
-        exists (future۰pre (S g) prophs), vT, (S g). split_and!; try done.
-        rewrite last_app Hlast_help /= Hval //.
+        exists (future۰pre (S g) prophs), vT, (S g). split_and!; done.
       * intros 𝑣0. rewrite Htarget. intros [= ->] _. done.
   - exists [], (Doomed op'.(operation۰id) (S g)). split_and!; [done | simpl; lia |].
     apply (inv۰pureｰclick' _ _ Hinv); [set_solver | rewrite right_id // |].
@@ -880,20 +985,18 @@ Fixpoint helped۰result 𝑣 helped id : val :=
       𝑣
   | op :: helped =>
       if decide (op.(operation۰id) = id) then
-        𝑣
+        opkind۰result op.(operation۰kind) 𝑣
       else
-        helped۰result (default 𝑣 op.(operation۰val)) helped id
+        helped۰result (opkind۰apply op.(operation۰kind) 𝑣) helped id
   end.
 
 Lemma helped۰resultｰapp_not_in 𝑣 helped help id :
   id ∉ operations۰ids helped →
-  helped۰result 𝑣 (helped ++ help) id = helped۰result (default 𝑣 (last (omap operation۰val helped))) help id.
+  helped۰result 𝑣 (helped ++ help) id = helped۰result (ops۰apply helped 𝑣) help id.
 Proof.
   move: 𝑣. induction helped as [| op helped IH] => 𝑣 /= Hid; first done.
   rewrite decide_False; first set_solver.
-  rewrite IH; first set_solver.
-  rewrite last_omap_cons.
-  destruct (last (omap operation۰val helped)); done.
+  rewrite IH //. set_solver.
 Qed.
 Lemma helped۰resultｰapp_in 𝑣 helped help id :
   id ∈ operations۰ids helped →
