@@ -12,8 +12,8 @@ Require Import zoo.options.
 
 #[qualified] Zoo type prophecy :=
   | Forward _
-  | Set _
-  | Get _.
+  | Get _
+  | Set _.
 
 #[qualified] Zoo type t := mutable
   { value
