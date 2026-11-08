@@ -13,7 +13,9 @@ Require Import zoo.options.
 #[qualified] Zoo type prophecy :=
   | Forward _
   | Get _
-  | Set _.
+  | Set _
+  | Xchg _
+  | Cas _.
 
 #[qualified] Zoo type t := mutable
   { value
@@ -70,6 +72,24 @@ Definition svar٠set : val :=
     𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
     svar٠forward "t" ⍮
     𝗿𝗲𝘀𝗼𝗹𝘃𝗲 ("t" <-{svar٠value} "v") "t".{svar٠proph} ‘svar٠Set( "id", "v" ).
+
+Definition svar٠xchg : val :=
+  𝗳𝘂𝗻 "t" "v" ->
+    𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
+    svar٠forward "t" ⍮
+    𝗿𝗲𝘀𝗼𝗹𝘃𝗲
+      (𝘅𝗰𝗵𝗴 "t".[svar٠value] "v")
+      "t".{svar٠proph}
+      ‘svar٠Xchg( "id", "v" ).
+
+Definition svar٠cas : val :=
+  𝗳𝘂𝗻 "t" "v1" "v2" ->
+    𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
+    svar٠forward "t" ⍮
+    𝗿𝗲𝘀𝗼𝗹𝘃𝗲
+      (𝗰𝗮𝘀 "t".[svar٠value] "v1" "v2")
+      "t".{svar٠proph}
+      ‘svar٠Cas( "id", "v1", "v2" ).
 
 Definition svar٠click : val :=
   𝗳𝘂𝗻 "t" ->

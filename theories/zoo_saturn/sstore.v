@@ -43,7 +43,16 @@ Implicit Type mode : mode.
   ; prophet_typed۰of_val v w :=
       match w with
       | ValBlock _ Tag1 [ValLoc r; ValId id] =>
-          Some $ Some (r, ProphecyOp id None)
+          Some $ Some (r, ProphecyOp id OpGet)
+      | ValBlock _ Tag3 [ValLoc r; ValId id; v'] =>
+          Some $ Some (r, ProphecyOp id (OpSet v'))
+      | ValBlock _ Tag4 [ValLoc r; ValId id; v1; v2] =>
+          match v with
+          | ValBool b =>
+              Some $ Some (r, ProphecyOp id (OpCas v1 v2 b))
+          | _ =>
+              None
+          end
       | _ =>
           match v, w with
           | ValBool false, ValBlock _ Tag0 _ =>
@@ -51,7 +60,7 @@ Implicit Type mode : mode.
           | ValBool true, ValBlock _ Tag0 [ValLoc r; v; ValInt g] =>
               Some $ Some (r, ProphecyForward v ₊g)
           | ()%V, ValBlock _ Tag2 [ValLoc r; ValId id; v] =>
-              Some $ Some (r, ProphecyOp id (Some v))
+              Some $ Some (r, ProphecyOp id (OpSet v))
           | _, _ =>
               None
           end
@@ -273,35 +282,20 @@ Section sstore_G.
   #[local] Definition waiters۰elem ρ id waiter :=
     ghost_map_elem ρ.(ref۰names۰waiters) id (DfracOwn 1) waiter.
 
-  #[local] Definition waiter۰au' γ ι r (w : option val) Ψ : iProp Σ :=
-    match w with
-    | Some w =>
-        AU <{
-          ∃∃ vs,
-          model۰full γ vs
-        }> @ ⊤ ∖ ↑ι, ∅ <{
-          ⌜r ∈ dom vs⌝ ∗
-          model۰full γ (<[r := w]> vs)
-        , COMM
-          Ψ ()%V
-        }>
-    | None =>
-        AU <{
-          ∃∃ vs,
-          model۰full γ vs
-        }> @ ⊤ ∖ ↑ι, ∅ <{
-          ∀∀ v,
-          ⌜vs !! r = Some v⌝ ∗
-          model۰full γ vs
-        , COMM
-          Ψ v
-        }>
-    end.
+  #[local] Definition waiter۰au' γ ι r req Ψ : iProp Σ :=
+    AU <{
+      ∃∃ vs,
+      model۰full γ vs
+    }> @ ⊤ ∖ ↑ι, ∅ <{
+      ∀∀ v b,
+      ⌜vs !! r = Some v⌝ ∗
+      ⌜request۰rel req b v⌝ ∗
+      model۰full γ (<[r := request۰apply req b v]> vs)
+    , COMM
+      Ψ (request۰result req b v)
+    }>.
   #[local] Definition waiter۰au γ ι r waiter Ψ :=
-    waiter۰au' γ ι r waiter.(waiter۰val) Ψ.
-
-  #[local] Definition waiter۰result waiter 𝑣 helped id :=
-    if waiter.(waiter۰val) is Some _ then ()%V else helped۰result 𝑣 helped id.
+    waiter۰au' γ ι r waiter.(waiter۰request) Ψ.
 
   #[local] Definition waiters۰statuses γ ι r ρ waiters 𝑣 helped past : iProp Σ :=
     [∗ map] id ↦ waiter ∈ waiters,
@@ -311,7 +305,7 @@ Section sstore_G.
         ∃ Ψ,
         saved_pred waiter.(waiter۰post) Ψ ∗
         if bool_decide (id ∈ operations۰ids helped) then
-          Ψ (waiter۰result waiter 𝑣 helped id)
+          Ψ (helped۰result 𝑣 helped id)
         else
           waiter۰au γ ι r waiter Ψ.
 
@@ -1251,7 +1245,7 @@ Section sstore_G.
     iSteps.
   Qed.
 
-  #[local] Lemma waiters۰statusesｰwrite γ ι r ρ waiters 𝑣 𝑣' helped helped' past id (w : option val) waiter :
+  #[local] Lemma waiters۰statusesｰwrite γ ι r ρ waiters 𝑣 𝑣' helped helped' past id (w : opkind) waiter :
     waiters !! id = Some waiter →
     id ∉ operations۰ids (prophecies۰ops past) →
     (∀ id', id' ≠ id → (id' ∈ operations۰ids helped' ↔ id' ∈ operations۰ids helped)) →
@@ -1262,7 +1256,7 @@ Section sstore_G.
       ∃ Ψ,
       saved_pred waiter.(waiter۰post) Ψ ∗
       if bool_decide (id ∈ operations۰ids helped) then
-        Ψ (waiter۰result waiter 𝑣 helped id)
+        Ψ (helped۰result 𝑣 helped id)
       else
         waiter۰au γ ι r waiter Ψ.
   Proof.
@@ -1282,17 +1276,17 @@ Section sstore_G.
     rewrite (bool_decide_ext (id' ∈ operations۰ids helped') (id' ∈ operations۰ids helped)); first auto.
     destruct (bool_decide (id' ∈ operations۰ids (prophecies۰ops past))); first done.
     destruct (bool_decide_reflect (id' ∈ operations۰ids helped)) as [Hid' | Hid']; last done.
-    rewrite /waiter۰result Hresult //.
+    rewrite Hresult //.
   Qed.
 
   #[local] Lemma waiters۰statusesｰhelp γ ι r ρ waiters 𝑣 past helped help vs v :
     vs !! r = Some v →
-    v = default 𝑣 (last (omap operation۰val helped)) →
+    v = ops۰apply helped 𝑣 →
     helpable waiters past helped help →
     waiters۰statuses γ ι r ρ waiters 𝑣 helped past -∗
     model₂ γ vs ={⊤ ∖ ↑ι}=∗
       waiters۰statuses γ ι r ρ waiters 𝑣 (helped ++ help) past ∗
-      model₂ γ (<[r := default v (last (omap operation۰val help))]> vs).
+      model₂ γ (<[r := ops۰apply help v]> vs).
   Proof.
     iInduction help as [| op help] "IH" forall (helped vs v).
     - iIntros "%Hvs _ _ Hwaiters Hmodel₂". rewrite right_id insert_id //. iFrame. done.
@@ -1301,25 +1295,22 @@ Section sstore_G.
       iDestruct (big_sepM_delete with "Hwaiters") as "(Hwaiter & Hwaiters)"; first done.
       rewrite bool_decide_eq_false_2 // bool_decide_eq_false_2 //.
       iDestruct "Hwaiter" as "(%Ψ & #Hpost & Hau)".
-      iAssert (|={⊤ ∖ ↑ι}=> Ψ (waiter۰result waiter 𝑣 (helped ++ [op]) op.(operation۰id)) ∗ model₂ γ (<[r := default v waiter.(waiter۰val)]> vs))%I with "[Hau Hmodel₂]" as ">(HΨ & Hmodel₂)".
-      { rewrite /waiter۰au /waiter۰au' /waiter۰result.
-        destruct (waiter.(waiter۰val)) as [w |].
-        - iMod "Hau" as "(%vs' & (Hmodel₁ & Hdom_auth) & _ & HΨ)".
-          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-          iMod (modelｰupdate (<[r := w]> vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & $)".
-          iMod ("HΨ" with "[$Hmodel₁ Hdom_auth]") as "$"; last done.
-          rewrite /dom۰auth dom_insert_lookup_L; first naive.
-          iFrame. iPureIntro. apply elem_of_dom. naive.
-        - iMod "Hau" as "(%vs' & (Hmodel₁ & Hdom_auth) & _ & HΨ)".
-          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-          iMod ("HΨ" $! v with "[$Hmodel₁ $Hdom_auth]") as "HΨ"; first done.
-          rewrite helped۰resultｰapp_not_in // /= decide_True // -Hv insert_id //.
-          iFrame. done.
+      rewrite /waiter۰au /waiter۰au' Hval.
+      iMod "Hau" as "(%vs' & (Hmodel₁ & Hdom_auth) & _ & HΨ)".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (modelｰupdate (<[r := opkind۰apply op.(operation۰kind) v]> vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod ("HΨ" $! v (opkind۰outcome op.(operation۰kind) v) with "[Hmodel₁ Hdom_auth]") as "HΨ".
+      { iSplitR; first done.
+        iSplitR; first (iPureIntro; apply opkind۰outcomeｰrel).
+        iSplitL "Hmodel₁"; first iExact "Hmodel₁".
+        rewrite /dom۰auth dom_insert_lookup_L; first naive.
+        iFrame.
       }
       iAssert (waiters۰statuses γ ι r ρ waiters 𝑣 (helped ++ [op]) past) with "[HΨ Hwaiters]" as "Hwaiters".
       { iApply (big_sepM_delete _ _ op.(operation۰id)); first done.
         rewrite bool_decide_eq_false_2 // bool_decide_eq_true_2.
         { rewrite /operations۰ids fmap_app. set_solver. }
+        rewrite helped۰resultｰapp_not_in // /= decide_True // -Hv.
         iFrame "#∗".
         iApply (big_sepM_impl with "Hwaiters").
         iIntros "!> %id' %waiter' %Hlookup' H".
@@ -1328,27 +1319,23 @@ Section sstore_G.
         { rewrite /operations۰ids fmap_app. set_solver. }
         destruct (bool_decide (id' ∈ operations۰ids (prophecies۰ops past))); first done.
         destruct (bool_decide_reflect (id' ∈ operations۰ids helped)) as [Hid' | Hid']; last done.
-        rewrite /waiter۰result helped۰resultｰapp_in //.
+        rewrite helped۰resultｰapp_in //.
       }
-      assert (default v waiter.(waiter۰val) = default 𝑣 (last (omap operation۰val (helped ++ [op])))) as Hv'.
-      { rewrite omap_app last_app Hval Hv.
-        destruct op as [id_op [x |]]; done.
-      }
-      iMod ("IH" with "[] [//] [//] Hwaiters Hmodel₂") as "(Hwaiters & Hmodel₂)".
+      iMod ("IH" with "[] [] [//] Hwaiters Hmodel₂") as "(Hwaiters & Hmodel₂)".
       { rewrite lookup_insert_eq //. }
-      rewrite insert_insert_eq -assoc /= last_omap_cons Hval.
-      iFrame.
-      destruct (last (omap operation۰val help)), (operation۰val op); done.
+      { rewrite ops۰applyｰapp -Hv //. }
+      rewrite insert_insert_eq -assoc /=.
+      by iFrame.
   Qed.
 
-  #[local] Lemma waiterｰregister γ ι r ρ id (w : option val) Ψ E :
+  #[local] Lemma waiterｰregister γ ι r ρ id req Ψ E :
     ↑ι ⊆ E →
     inv' γ ι -∗
     ref۰elem γ r ρ -∗
     identifier۰model id -∗
-    waiter۰au' γ ι r w Ψ ={E}=∗
+    waiter۰au' γ ι r req Ψ ={E}=∗
       ∃ waiter,
-      ⌜waiter.(waiter۰val) = w⌝ ∗
+      ⌜waiter.(waiter۰request) = req⌝ ∗
       waiters۰elem ρ id waiter ∗
       saved_pred waiter.(waiter۰post) Ψ ∗
       generation۰lb γ waiter.(waiter۰gen).
@@ -1359,7 +1346,7 @@ Section sstore_G.
     iDestruct (ref۰elemｰvalid with "Hrefs_auth Hρ") as %Hrefs_lookup.
     iDestruct (refs۰invｰacc' with "Hrefs") as "((:ref۰inv =2) & Hrefs)"; first done.
     pose waiter :=
-      {|waiter۰val := w
+      {|waiter۰request := req
       ; waiter۰post := γ_post
       ; waiter۰gen := g1
       |}.
@@ -1381,10 +1368,10 @@ Section sstore_G.
   Qed.
 
   (* The common linearization step of [get] and [set]: consuming the prophesied operation [id] on [r]. *)
-  #[local] Lemma waiterｰconsume γ ι r ρ 𝑣 g vs v vₛ snaps snap hist waiters helped past prophs mode id (w : option val) waiter Ψ :
+  #[local] Lemma waiterｰconsume γ ι r ρ 𝑣 g vs v vₛ snaps snap hist waiters helped past prophs mode id (w : opkind) waiter Ψ :
     vs !! r = Some v →
     inv۰pure 𝑣 g v vₛ snaps snap hist waiters helped past (ProphecyOp id w :: prophs) mode →
-    waiter.(waiter۰val) = w →
+    waiter.(waiter۰request) = opkind۰request w →
     waiter.(waiter۰gen) ≤ snap.(snap۰gen) →
     waiters۰auth ρ waiters -∗
     waiters۰elem ρ id waiter -∗
@@ -1392,10 +1379,10 @@ Section sstore_G.
     waiters۰statuses γ ι r ρ waiters 𝑣 helped past -∗
     model₂ γ vs ={⊤ ∖ ↑ι}=∗
       waiters۰auth ρ waiters ∗
-      waiters۰statuses γ ι r ρ waiters (default 𝑣 w) (tail helped) (past ++ [ProphecyOp id w]) ∗
-      model₂ γ (<[r := if helped is [] then default v w else v]> vs) ∗
-      ⌜inv۰pure (default 𝑣 w) g (if helped is [] then default v w else v) vₛ snaps snap hist waiters (tail helped) (past ++ [ProphecyOp id w]) prophs mode⌝ ∗
-      ▷ Ψ (if w is Some _ then ()%V else 𝑣).
+      waiters۰statuses γ ι r ρ waiters (opkind۰apply w 𝑣) (tail helped) (past ++ [ProphecyOp id w]) ∗
+      model₂ γ (<[r := if helped is [] then opkind۰apply w v else v]> vs) ∗
+      ⌜inv۰pure (opkind۰apply w 𝑣) g (if helped is [] then opkind۰apply w v else v) vₛ snaps snap hist waiters (tail helped) (past ++ [ProphecyOp id w]) prophs mode⌝ ∗
+      ▷ Ψ (opkind۰result w 𝑣).
   Proof.
     iIntros "%Hvs %Hinv %Hval %Hgen Hwaiters_auth Helem #Hpost Hwaiters Hmodel₂".
     iDestruct (waiters۰elemｰvalid with "Hwaiters_auth Helem") as %Hlookup.
@@ -1405,7 +1392,7 @@ Section sstore_G.
       iDestruct (waiters۰elemｰexclusive with "Helem Hwaiter") as %[].
     }
     destruct (inv۰pureｰwrite id w waiter Hinv Hlookup Hval Hdone Hgen) as (Hhelped & Hinv').
-    iDestruct (waiters۰statusesｰwrite _ _ _ _ _ 𝑣 (default 𝑣 w) helped (tail helped) _ _ w with "Hwaiters Helem") as "(Hwaiters & %Ψ' & #Hpost' & HΨ)".
+    iDestruct (waiters۰statusesｰwrite _ _ _ _ _ 𝑣 (opkind۰apply w 𝑣) helped (tail helped) _ _ w with "Hwaiters Helem") as "(Hwaiters & %Ψ' & #Hpost' & HΨ)".
     { done. }
     { done. }
     { intros id' Hid'.
@@ -1421,30 +1408,28 @@ Section sstore_G.
       rewrite /= decide_False //.
     }
     iFrame.
-    iAssert (|={⊤ ∖ ↑ι}=> Ψ' (if w is Some _ then ()%V else 𝑣) ∗ model₂ γ (<[r := if helped is [] then default v w else v]> vs))%I with "[HΨ Hmodel₂]" as ">(HΨ & $)".
+    iAssert (|={⊤ ∖ ↑ι}=> Ψ' (opkind۰result w 𝑣) ∗ model₂ γ (<[r := if helped is [] then opkind۰apply w v else v]> vs))%I with "[HΨ Hmodel₂]" as ">(HΨ & $)".
     { destruct Hhelped as [-> | Hhead].
       - assert (bool_decide (id ∈ operations۰ids []) = false) as -> by (apply bool_decide_eq_false_2, not_elem_of_nil).
-        pose proof (inv۰pure۰model _ _ _ _ _ _ _ _ _ _ _ _ Hinv) as Hv. simpl in Hv. subst v.
+        assert (v = 𝑣) as -> by rewrite (inv۰pure۰model _ _ _ _ _ _ _ _ _ _ _ _ Hinv) //.
         rewrite /waiter۰au /waiter۰au' Hval.
-        destruct w as [w |].
-        + iMod "HΨ" as "(%vs' & (Hmodel₁ & Hdom_auth) & _ & HΨ)".
-          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-          iMod (modelｰupdate (<[r := w]> vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & $)".
-          iMod ("HΨ" with "[$Hmodel₁ Hdom_auth]") as "$"; last done.
-          rewrite /dom۰auth dom_insert_lookup_L; first naive.
-          iFrame. iPureIntro. apply elem_of_dom. naive.
-        + iMod "HΨ" as "(%vs' & (Hmodel₁ & Hdom_auth) & _ & HΨ)".
-          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-          iMod ("HΨ" $! 𝑣 with "[$Hmodel₁ $Hdom_auth]") as "$"; first done.
-          rewrite insert_id //.
+        iMod "HΨ" as "(%vs' & (Hmodel₁ & Hdom_auth) & _ & HΨ)".
+        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+        iMod (modelｰupdate (<[r := opkind۰apply w 𝑣]> vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & $)".
+        iMod ("HΨ" $! 𝑣 (opkind۰outcome w 𝑣) with "[Hmodel₁ Hdom_auth]") as "$"; last done.
+        iSplitR; first done.
+        iSplitR; first (iPureIntro; apply opkind۰outcomeｰrel).
+        iSplitL "Hmodel₁"; first iExact "Hmodel₁".
+        rewrite /dom۰auth dom_insert_lookup_L; first naive.
+        iFrame.
       - destruct helped as [| op helped]; first done.
         injection Hhead as ->.
         rewrite bool_decide_eq_true_2.
         { rewrite /operations۰ids /=. set_solver. }
-        rewrite /waiter۰result /= decide_True // Hval insert_id //.
-        iFrame. destruct w; done.
+        rewrite /= decide_True // insert_id //.
+        iFrame. done.
     }
-    iDestruct (saved_predｰagree (if w is Some _ then ()%V else 𝑣) with "Hpost Hpost'") as "Heq".
+    iDestruct (saved_predｰagree (opkind۰result w 𝑣) with "Hpost Hpost'") as "Heq".
     iModIntro. iSplitR; first done.
     iNext. iRewrite "Heq". done.
   Qed.
@@ -1469,7 +1454,12 @@ Section sstore_G.
     iIntros "%Φ ((:inv) & (:ref)) HΦ".
     wp۰rec credit:"H£". wp۰pures.
     wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
-    iMod (waiterｰregister _ _ r ρ id None (λ v, True -∗ Φ v)%I with "Hinv Hρ Hid HΦ") as "(%waiter & %Hval & Helem & #Hpost & #Hgen)"; first done.
+    iMod (waiterｰregister _ _ r ρ id RequestGet (λ v, True -∗ Φ v)%I with "Hinv Hρ Hid [HΦ]") as "(%waiter & %Hval & Helem & #Hpost & #Hgen)"; first done.
+    { rewrite /waiter۰au'. iAuIntro.
+      iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs Hmodel".
+      iAaccIntro with "Hmodel"; first iSteps. iIntros "%v %b (%Hlookup & _ & Hmodel) !>".
+      rewrite insert_id //. iSteps.
+    }
     wp۰apply+ (sstore٠forwardｰspec with "[$Ht_proph $Hinv $Hρ $Hgen]") as "#Hsnapshot_lb"; first done.
     wp۰load. wp۰pures.
     iInv "Hinv" as "(:inv۰inner =1)".
@@ -1477,7 +1467,7 @@ Section sstore_G.
     iDestruct (refs۰invｰacc' with "Hrefs") as "((:ref۰inv =2) & Hrefs)"; first done.
     wp۰apply (prophet_wiseｰwpｰresolve with "Hprophet_model"); [done.. |].
     wp۰load.
-    iExists (Some (r, ProphecyOp id None)). iSplitR; first done.
+    iExists (Some (r, ProphecyOp id OpGet)). iSplitR; first done.
     iIntros "!> %iprophs' -> Hprophet_model".
     rewrite untangleｰconsｰTrue in Hinv2.
     iDestruct (snapshot۰lbｰvalid with "Hsnapshot_auth Hsnapshot_lb") as %Hgen.
@@ -1485,11 +1475,11 @@ Section sstore_G.
     assert (vs1 !! r = Some (vs1 !!! r)) as Hvs_r.
     { apply elem_of_dom in Hr as (? & ?). by apply lookup_lookup_total. }
     iMod (waiterｰconsume with "Hwaiters_auth Helem Hpost Hwaiters Hmodel₂") as "(Hwaiters_auth & Hwaiters & Hmodel₂ & %Hinv' & HΨ)"; [done.. |].
-    assert (∀ iproph, iproph ∈ ipast1 ++ [(r, ProphecyOp id None)] → iproph.1 ∈ dom refs1) as Hipast1'.
+    assert (∀ iproph, iproph ∈ ipast1 ++ [(r, ProphecyOp id OpGet)] → iproph.1 ∈ dom refs1) as Hipast1'.
     { intros iproph [Hiproph | ->%list_elem_of_singleton]%elem_of_app; first auto.
       apply elem_of_dom. naive.
     }
-    iDestruct ("Hrefs" $! (<[r := if helped2 is [] then default (vs1 !!! r) None else vs1 !!! r]> vs1) (ipast1 ++ [(r, ProphecyOp id None)]) iprophs' with "[%] [%] [%] [Hr_value Hr_snapshot Hsnapshot_auth Hsnaps_auth Hhist_auth Hdoom_auth Hwaiters_auth Hwaiters]") as "Hrefs".
+    iDestruct ("Hrefs" $! (<[r := if helped2 is [] then opkind۰apply OpGet (vs1 !!! r) else vs1 !!! r]> vs1) (ipast1 ++ [(r, ProphecyOp id OpGet)]) iprophs' with "[%] [%] [%] [Hr_value Hr_snapshot Hsnapshot_auth Hsnaps_auth Hhist_auth Hdoom_auth Hwaiters_auth Hwaiters]") as "Hrefs".
     { intros r' Hr'. rewrite lookup_total_insert_ne //. }
     { intros r' Hr'. apply untangleｰsnocｰFalse. congruence. }
     { intros r' Hr'. symmetry. apply untangleｰconsｰFalse. congruence. }
@@ -1524,7 +1514,12 @@ Section sstore_G.
     iIntros "%Φ ((:inv) & (:ref)) HΦ".
     wp۰rec credit:"H£". wp۰pures.
     wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
-    iMod (waiterｰregister _ _ r ρ id (Some v) (λ _, True -∗ Φ ()%V)%I with "Hinv Hρ Hid HΦ") as "(%waiter & %Hval & Helem & #Hpost & #Hgen)"; first done.
+    iMod (waiterｰregister _ _ r ρ id (RequestSet v) (λ _, True -∗ Φ ()%V)%I with "Hinv Hρ Hid [HΦ]") as "(%waiter & %Hval & Helem & #Hpost & #Hgen)"; first done.
+    { rewrite /waiter۰au'. iAuIntro.
+      iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs Hmodel".
+      iAaccIntro with "Hmodel"; first iSteps. iIntros "%w %b (%Hlookup & _ & Hmodel) !>".
+      iSteps. iPureIntro. apply elem_of_dom. naive.
+    }
     wp۰apply+ (sstore٠forwardｰspec with "[$Ht_proph $Hinv $Hρ $Hgen]") as "#Hsnapshot_lb"; first done.
     wp۰load. wp۰pures.
     iInv "Hinv" as "(:inv۰inner =1)".
@@ -1532,7 +1527,7 @@ Section sstore_G.
     iDestruct (refs۰invｰacc' with "Hrefs") as "((:ref۰inv =2) & Hrefs)"; first done.
     wp۰apply (prophet_wiseｰwpｰresolve with "Hprophet_model"); [done.. |].
     wp۰store.
-    iExists (Some (r, ProphecyOp id (Some v))). iSplitR; first done.
+    iExists (Some (r, ProphecyOp id (OpSet v))). iSplitR; first done.
     iIntros "!> %iprophs' -> Hprophet_model".
     rewrite untangleｰconsｰTrue in Hinv2.
     iDestruct (snapshot۰lbｰvalid with "Hsnapshot_auth Hsnapshot_lb") as %Hgen.
@@ -1540,15 +1535,142 @@ Section sstore_G.
     assert (vs1 !! r = Some (vs1 !!! r)) as Hvs_r.
     { apply elem_of_dom in Hr as (? & ?). by apply lookup_lookup_total. }
     iMod (waiterｰconsume with "Hwaiters_auth Helem Hpost Hwaiters Hmodel₂") as "(Hwaiters_auth & Hwaiters & Hmodel₂ & %Hinv' & HΨ)"; [done.. |].
-    assert (∀ iproph, iproph ∈ ipast1 ++ [(r, ProphecyOp id (Some v))] → iproph.1 ∈ dom refs1) as Hipast1'.
+    assert (∀ iproph, iproph ∈ ipast1 ++ [(r, ProphecyOp id (OpSet v))] → iproph.1 ∈ dom refs1) as Hipast1'.
     { intros iproph [Hiproph | ->%list_elem_of_singleton]%elem_of_app; first auto.
       apply elem_of_dom. naive.
     }
-    iDestruct ("Hrefs" $! (<[r := if helped2 is [] then default (vs1 !!! r) (Some v) else vs1 !!! r]> vs1) (ipast1 ++ [(r, ProphecyOp id (Some v))]) iprophs' with "[%] [%] [%] [Hr_value Hr_snapshot Hsnapshot_auth Hsnaps_auth Hhist_auth Hdoom_auth Hwaiters_auth Hwaiters]") as "Hrefs".
+    iDestruct ("Hrefs" $! (<[r := if helped2 is [] then opkind۰apply (OpSet v) (vs1 !!! r) else vs1 !!! r]> vs1) (ipast1 ++ [(r, ProphecyOp id (OpSet v))]) iprophs' with "[%] [%] [%] [Hr_value Hr_snapshot Hsnapshot_auth Hsnaps_auth Hhist_auth Hdoom_auth Hwaiters_auth Hwaiters]") as "Hrefs".
     { intros r' Hr'. rewrite lookup_total_insert_ne //. }
     { intros r' Hr'. apply untangleｰsnocｰFalse. congruence. }
     { intros r' Hr'. symmetry. apply untangleｰconsｰFalse. congruence. }
     { iExists v, vₛ2, snaps2, snap2, hist2, waiters2, (tail helped2), mode2.
+      rewrite lookup_total_insert_eq untangleｰsnocｰTrue.
+      iFrame. done.
+    }
+    iSplitR "H£ HΨ".
+    { iModIntro. iNext. iFrameSteps.
+      iPureIntro. rewrite dom_insert_L. set_solver.
+    }
+    iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
+    iModIntro. iApply "HΨ". done.
+  Qed.
+
+  Lemma sstore٠xchgｰspec γ ι r v :
+    <<<
+      sstore۰inv γ ι ∗
+      sstore۰ref γ r
+    | ∀∀ vs,
+      sstore۰model γ vs
+    >>>
+      sstore٠xchg γ #r v
+      @ ↑ι
+    <<<
+      ∃∃ w,
+      ⌜vs !! r = Some w⌝ ∗
+      sstore۰model γ (<[r := v]> vs)
+    | RET w;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ ((:inv) & (:ref)) HΦ".
+    wp۰rec credit:"H£". wp۰pures.
+    wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
+    iMod (waiterｰregister _ _ r ρ id (RequestSet v) (λ w, True -∗ Φ w)%I with "Hinv Hρ Hid [HΦ]") as "(%waiter & %Hval & Helem & #Hpost & #Hgen)"; first done.
+    { rewrite /waiter۰au'. iAuIntro.
+      iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs Hmodel".
+      iAaccIntro with "Hmodel"; first iSteps. iIntros "%w %b (%Hlookup & _ & Hmodel) !>".
+      iSteps.
+    }
+    wp۰apply+ (sstore٠forwardｰspec with "[$Ht_proph $Hinv $Hρ $Hgen]") as "#Hsnapshot_lb"; first done.
+    wp۰load. wp۰pures.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    iDestruct (ref۰elemｰvalid with "Hrefs_auth Hρ") as %Hrefs_lookup.
+    iDestruct (refs۰invｰacc' with "Hrefs") as "((:ref۰inv =2) & Hrefs)"; first done.
+    wp۰apply (prophet_wiseｰwpｰresolve with "Hprophet_model"); [done.. |].
+    wp۰xchg.
+    iExists (Some (r, ProphecyOp id (OpSet v))). iSplitR; first done.
+    iIntros "!> %iprophs' -> Hprophet_model".
+    rewrite untangleｰconsｰTrue in Hinv2.
+    iDestruct (snapshot۰lbｰvalid with "Hsnapshot_auth Hsnapshot_lb") as %Hgen.
+    assert (r ∈ dom vs1) as Hr by (rewrite Hvs1; apply elem_of_dom; eauto).
+    assert (vs1 !! r = Some (vs1 !!! r)) as Hvs_r.
+    { apply elem_of_dom in Hr as (? & ?). by apply lookup_lookup_total. }
+    iMod (waiterｰconsume with "Hwaiters_auth Helem Hpost Hwaiters Hmodel₂") as "(Hwaiters_auth & Hwaiters & Hmodel₂ & %Hinv' & HΨ)"; [done.. |].
+    assert (∀ iproph, iproph ∈ ipast1 ++ [(r, ProphecyOp id (OpSet v))] → iproph.1 ∈ dom refs1) as Hipast1'.
+    { intros iproph [Hiproph | ->%list_elem_of_singleton]%elem_of_app; first auto.
+      apply elem_of_dom. naive.
+    }
+    iDestruct ("Hrefs" $! (<[r := if helped2 is [] then opkind۰apply (OpSet v) (vs1 !!! r) else vs1 !!! r]> vs1) (ipast1 ++ [(r, ProphecyOp id (OpSet v))]) iprophs' with "[%] [%] [%] [Hr_value Hr_snapshot Hsnapshot_auth Hsnaps_auth Hhist_auth Hdoom_auth Hwaiters_auth Hwaiters]") as "Hrefs".
+    { intros r' Hr'. rewrite lookup_total_insert_ne //. }
+    { intros r' Hr'. apply untangleｰsnocｰFalse. congruence. }
+    { intros r' Hr'. symmetry. apply untangleｰconsｰFalse. congruence. }
+    { iExists v, vₛ2, snaps2, snap2, hist2, waiters2, (tail helped2), mode2.
+      rewrite lookup_total_insert_eq untangleｰsnocｰTrue.
+      iFrame. done.
+    }
+    iSplitR "H£ HΨ".
+    { iModIntro. iNext. iFrameSteps.
+      iPureIntro. rewrite dom_insert_L. set_solver.
+    }
+    iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
+    iModIntro. iApply "HΨ". done.
+  Qed.
+
+  Lemma sstore٠casｰspec γ ι r v1 v2 :
+    <<<
+      sstore۰inv γ ι ∗
+      sstore۰ref γ r
+    | ∀∀ vs,
+      sstore۰model γ vs
+    >>>
+      sstore٠cas γ #r v1 v2
+      @ ↑ι
+    <<<
+      ∃∃ b v,
+      ⌜vs !! r = Some v⌝ ∗
+      ⌜(if b then (≈) else (≉)) v v1⌝ ∗
+      sstore۰model γ (if b then <[r := v2]> vs else vs)
+    | RET #b;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ ((:inv) & (:ref)) HΦ".
+    wp۰rec credit:"H£". wp۰pures.
+    wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
+    iMod (waiterｰregister _ _ r ρ id (RequestCas v1 v2) (λ w, True -∗ Φ w)%I with "Hinv Hρ Hid [HΦ]") as "(%waiter & %Hval & Helem & #Hpost & #Hgen)"; first done.
+    { rewrite /waiter۰au'. iAuIntro.
+      iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs Hmodel".
+      iAaccIntro with "Hmodel"; first iSteps. iIntros "%v %b (%Hlookup & %Hrel & Hmodel) !>".
+      simpl in Hrel. destruct b.
+      - iSteps. iExists true. iSteps.
+      - rewrite insert_id //. iSteps. iExists false. iSteps.
+    }
+    wp۰apply+ (sstore٠forwardｰspec with "[$Ht_proph $Hinv $Hρ $Hgen]") as "#Hsnapshot_lb"; first done.
+    wp۰load. wp۰pures.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    iDestruct (ref۰elemｰvalid with "Hrefs_auth Hρ") as %Hrefs_lookup.
+    iDestruct (refs۰invｰacc' with "Hrefs") as "((:ref۰inv =2) & Hrefs)"; first done.
+    wp۰apply (prophet_wiseｰwpｰresolve with "Hprophet_model"); [done.. |].
+    iApply (wpｰcasｰnobranch' with "Hr_value"). iIntros "!> %b %Hcas Hr_value".
+    iExists (Some (r, ProphecyOp id (OpCas v1 v2 b))). iSplitR; first done.
+    iIntros "%iprophs' -> Hprophet_model".
+    rewrite untangleｰconsｰTrue in Hinv2.
+    iDestruct (snapshot۰lbｰvalid with "Hsnapshot_auth Hsnapshot_lb") as %Hgen.
+    assert (r ∈ dom vs1) as Hr by (rewrite Hvs1; apply elem_of_dom; eauto).
+    assert (vs1 !! r = Some (vs1 !!! r)) as Hvs_r.
+    { apply elem_of_dom in Hr as (? & ?). by apply lookup_lookup_total. }
+    iMod (waiterｰconsume with "Hwaiters_auth Helem Hpost Hwaiters Hmodel₂") as "(Hwaiters_auth & Hwaiters & Hmodel₂ & %Hinv' & HΨ)"; [done.. |].
+    destruct (opkind۰applyｰcas 𝑣2 v1 v2 b Hcas) as (Happly & Hresult).
+    rewrite Happly Hresult in Hinv' |- *.
+    assert (∀ iproph, iproph ∈ ipast1 ++ [(r, ProphecyOp id (OpCas v1 v2 b))] → iproph.1 ∈ dom refs1) as Hipast1'.
+    { intros iproph [Hiproph | ->%list_elem_of_singleton]%elem_of_app; first auto.
+      apply elem_of_dom. naive.
+    }
+    iDestruct ("Hrefs" $! (<[r := if helped2 is [] then opkind۰apply (OpCas v1 v2 b) (vs1 !!! r) else vs1 !!! r]> vs1) (ipast1 ++ [(r, ProphecyOp id (OpCas v1 v2 b))]) iprophs' with "[%] [%] [%] [Hr_value Hr_snapshot Hsnapshot_auth Hsnaps_auth Hhist_auth Hdoom_auth Hwaiters_auth Hwaiters]") as "Hrefs".
+    { intros r' Hr'. rewrite lookup_total_insert_ne //. }
+    { intros r' Hr'. apply untangleｰsnocｰFalse. congruence. }
+    { intros r' Hr'. symmetry. apply untangleｰconsｰFalse. congruence. }
+    { iExists (if b then v2 else 𝑣2), vₛ2, snaps2, snap2, hist2, waiters2, (tail helped2), mode2.
       rewrite lookup_total_insert_eq untangleｰsnocｰTrue.
       iFrame. done.
     }
@@ -1575,7 +1697,7 @@ Section sstore_G.
     { apply elem_of_dom in Hr as (? & ?). by apply lookup_lookup_total. }
     { apply (inv۰pure۰model _ _ _ _ _ _ _ _ _ _ _ _ Hinv1). }
     { done. }
-    set v' := default (vs !!! r) (last (omap operation۰val help)).
+    set v' := ops۰apply help (vs !!! r).
     iMod (histｰupdate v' (pred (length snaps1)) with "Hhist_auth") as "Hhist_auth".
     iMod (doomｰupdate mode' with "Hdoom_auth") as "Hdoom_auth"; first done.
     iModIntro. iExists v'. iFrame.

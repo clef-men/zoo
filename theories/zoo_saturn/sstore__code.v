@@ -18,7 +18,9 @@ Require Import zoo.options.
 #[qualified] Zoo type prophecy :=
   | Forward _
   | Get _
-  | Set _.
+  | Set _
+  | Xchg _
+  | Cas _.
 
 #[qualified] Zoo type t := mutable
   { gen
@@ -86,6 +88,24 @@ Definition sstore٠set : val :=
       ("r" <-{sstore٠ref_value} "v")
       "t".{sstore٠proph}
       ‘sstore٠Set( "r", "id", "v" ).
+
+Definition sstore٠xchg : val :=
+  𝗳𝘂𝗻 "t" "r" "v" ->
+    𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
+    sstore٠forward "t" "r" ⍮
+    𝗿𝗲𝘀𝗼𝗹𝘃𝗲
+      (𝘅𝗰𝗵𝗴 "r".[sstore٠ref_value] "v")
+      "t".{sstore٠proph}
+      ‘sstore٠Xchg( "r", "id", "v" ).
+
+Definition sstore٠cas : val :=
+  𝗳𝘂𝗻 "t" "r" "v1" "v2" ->
+    𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
+    sstore٠forward "t" "r" ⍮
+    𝗿𝗲𝘀𝗼𝗹𝘃𝗲
+      (𝗰𝗮𝘀 "r".[sstore٠ref_value] "v1" "v2")
+      "t".{sstore٠proph}
+      ‘sstore٠Cas( "r", "id", "v1", "v2" ).
 
 Definition sstore٠click : val :=
   𝗳𝘂𝗻 "t" ->
