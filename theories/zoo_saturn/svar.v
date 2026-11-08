@@ -606,6 +606,7 @@ Section svar_G.
       hist۰at γ 0 vh idx.
   Proof.
     iIntros "#Hinv".
+
     iInv "Hinv" as "(:inv۰inner)".
     iDestruct (snaps۰lbｰget with "Hsnaps_auth") as "#Hsnaps_lb".
     destruct (hist !! 0) as [(vh & idx) |] eqn:Hhist_lookup; last first.
@@ -633,6 +634,7 @@ Section svar_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hg0) HΦ".
+
     iInv "Hinv" as "(:inv۰inner)".
     wp۰load.
     iDestruct (generation۰lbｰvalid with "Hgeneration_auth Hg0") as %?.
@@ -653,6 +655,7 @@ Section svar_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & Hscanner₁) HΦ".
+
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰load.
     iDestruct (scannerｰagree with "Hscanner₁ Hscanner₂") as %(<- & <-).
@@ -685,6 +688,7 @@ Section svar_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hg0 & #HL & #Hhist_at) HΦ".
+
     iInv "Hinv" as "(:inv۰inner)".
     wp۰load.
     iDestruct (snaps۰lbｰvalid with "Hsnaps_auth HL") as %HL.
@@ -726,6 +730,7 @@ Section svar_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hsnaps_lb & %Hlast & %Hgen & #Hg) HΦ".
+
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰load.
     iDestruct (snaps۰lbｰvalid with "Hsnaps_auth Hsnaps_lb") as %Hsnaps.
@@ -823,7 +828,9 @@ Section svar_G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & #Hsnaps_lb & %Hlast & %Hgen & %Hinst & #Hg & #Hreader) HΦ".
+
     wp۰load. wp۰block۰generative bid. wp۰pures.
+
     iInv "Hinv" as "(:inv۰inner =1)".
     iDestruct (snaps۰lbｰvalid with "Hsnaps_auth Hsnaps_lb") as %Hsnaps.
     iDestruct (generation۰lbｰvalid with "Hgeneration_auth Hg") as %Hg.
@@ -837,6 +844,7 @@ Section svar_G.
     pose proof Hlast1 as Hlast1'%snapsｰlookup_last.
     wp۰apply (prophet_wiseｰwpｰresolve with "Hprophet_model"); [done.. |].
     wp۰cas as Hcas | Hcas.
+
     - iExists None. iSplitR; first done. iIntros "!> Hprophet_model".
       assert (length snaps < length snaps1) as Hlen.
       { pose proof Hsnaps as Hlen%prefix_length.
@@ -860,6 +868,7 @@ Section svar_G.
       iModIntro. iApply "HΦ".
       iExists snaps1. iFrame "#". iSplitR; first done. iSplitR; first done.
       iApply (auth_nat_max۰lbｰle with "Hsnapshot_lb"). lia.
+
     - iExists (Some (ProphecyForward 𝑣 g)). iSplitR.
       { iPureIntro. rewrite /= Nat2Z.id //. }
       iIntros "!> %prophs' -> Hprophet_model".
@@ -895,7 +904,9 @@ Section svar_G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & #Hg0) HΦ".
+
     wp۰rec.
+
     iMod (invｰinit with "Hinv") as "(#Hsnaps_lb0 & %vh0 & %idx0 & #Hhist_at0)".
     wp۰apply (snapshotｰspec with "[$Hinv $Hg0 $Hsnaps_lb0 $Hhist_at0]") as (snaps1 snap1) "(#Hsnaps_lb1 & _ & %Hlast1 & %Hinst1 & #Hinst1_lb & #Hsnapshot_lb1 & _ & %gc1 & %vh1 & %idx1 & #Hhist_at1 & %Hgc1 & %Hidx1)".
     iDestruct (auth_nat_max۰lbｰmax with "Hg0 Hinst1_lb") as "#Hlb1".
@@ -909,6 +920,7 @@ Section svar_G.
     { iFrame "#". iPureIntro. split_and!; [done | lia | lia]. }
     { wp۰pures. iApply "HΦ". iApply (auth_nat_max۰lbｰle with "H"). lia. }
     iDestruct "H" as "(%snaps1' & #Hsnaps_lb1' & %Hpre1 & %Hlen1 & _)".
+
     wp۰apply+ (snapshotｰspec with "[$Hinv $Hg0 $Hsnaps_lb1' $Hhist_at1]") as (snaps2 snap2) "(#Hsnaps_lb2 & %Hpre2 & %Hlast2 & %Hinst2 & #Hinst2_lb & #Hsnapshot_lb2 & %Hhist2 & _)".
     assert (gc1 ≤ snap2.(snap۰inst)) as Hgc2.
     { apply Hhist2. apply prefix_length in Hpre2. lia. }
@@ -1040,7 +1052,9 @@ Section svar_G.
       generation۰lb γ waiter.(waiter۰gen).
   Proof.
     iIntros "#Hinv Hid Hau".
+
     iMod (saved_predｰalloc Ψ) as "(%γ_post & #Hpost)".
+
     iInv "Hinv" as "(:inv۰inner =1)".
     pose waiter :=
       {|waiter۰request := req
@@ -1139,15 +1153,19 @@ Section svar_G.
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
+
     wp۰rec credit:"H£".
     wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
+
     iMod (waiterｰregister _ _ id RequestGet (λ v, True -∗ Φ v)%I with "Hinv Hid [HΦ]") as "(%waiter & %Hval & Helem & #Hpost & #Hgen)".
     { iAuIntro.
       iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%v Hmodel₁".
       iAaccIntro with "Hmodel₁"; iSteps.
     }
+
     wp۰apply+ (svar٠forwardｰspec with "[$Ht_proph $Hinv $Hgen]") as "#Hsnapshot_lb".
     wp۰load. wp۰pures.
+
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰apply (prophet_wiseｰwpｰresolve with "Hprophet_model"); [done.. |].
     wp۰load.
@@ -1176,15 +1194,19 @@ Section svar_G.
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
+
     wp۰rec credit:"H£".
     wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
+
     iMod (waiterｰregister _ _ id (RequestSet v) (λ _, True -∗ Φ ()%V)%I with "Hinv Hid [HΦ]") as "(%waiter & %Hval & Helem & #Hpost & #Hgen)".
     { iAuIntro.
       iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%v' Hmodel₁".
       iAaccIntro with "Hmodel₁"; iSteps.
     }
+
     wp۰apply+ (svar٠forwardｰspec with "[$Ht_proph $Hinv $Hgen]") as "#Hsnapshot_lb".
     wp۰load. wp۰pures.
+
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰apply (prophet_wiseｰwpｰresolve with "Hprophet_model"); [done.. |].
     wp۰store.
@@ -1213,15 +1235,19 @@ Section svar_G.
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
+
     wp۰rec credit:"H£".
     wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
+
     iMod (waiterｰregister _ _ id (RequestSet v) (λ w, True -∗ Φ w)%I with "Hinv Hid [HΦ]") as "(%waiter & %Hval & Helem & #Hpost & #Hgen)".
     { iAuIntro.
       iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%w Hmodel₁".
       iAaccIntro with "Hmodel₁"; iSteps.
     }
+
     wp۰apply+ (svar٠forwardｰspec with "[$Ht_proph $Hinv $Hgen]") as "#Hsnapshot_lb".
     wp۰load. wp۰pures.
+
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰apply (prophet_wiseｰwpｰresolve with "Hprophet_model"); [done.. |].
     wp۰xchg.
@@ -1252,26 +1278,28 @@ Section svar_G.
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
+
     wp۰rec credit:"H£".
     wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
+
     iMod (waiterｰregister _ _ id (RequestCas v1 v2) (λ w, True -∗ Φ w)%I with "Hinv Hid HΦ") as "(%waiter & %Hval & Helem & #Hpost & #Hgen)".
+
     wp۰apply+ (svar٠forwardｰspec with "[$Ht_proph $Hinv $Hgen]") as "#Hsnapshot_lb".
     wp۰load. wp۰pures.
+
     iInv "Hinv" as "(:inv۰inner =0)".
     wp۰apply (prophet_wiseｰwpｰresolve with "Hprophet_model"); [done.. |].
-    wp۰cas as Hcas | Hcas.
-    1: iExists (Some (ProphecyOp id (OpCas v1 v2 false))).
-    2: iExists (Some (ProphecyOp id (OpCas v1 v2 true))).
-    all: iSplitR; first done.
-    all: iIntros "!> %prophs' -> Hprophet_model".
-    all: iDestruct (snapshot۰lbｰvalid with "Hsnapshot_auth Hsnapshot_lb") as %Hgen.
-    all: iMod (waiterｰconsume with "Hwaiters_auth Helem Hpost Hwaiters Hmodel₂") as "(Hwaiters_auth & Hwaiters & Hmodel₂ & %Hinv' & HΨ)"; [done.. |].
-    1: destruct (opkind۰applyｰcas 𝑣0 v1 v2 false Hcas) as (Happly & Hresult).
-    2: destruct (opkind۰applyｰcas 𝑣0 v1 v2 true Hcas) as (Happly & Hresult).
-    all: rewrite Happly Hresult in Hinv' |- *.
-    all: iSplitR "H£ HΨ"; first (iModIntro; iNext; iFrameSteps).
-    all: iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
-    all: iModIntro; iApply "HΨ"; done.
+    iApply (wpｰcasｰnobranch' with "Ht_value"). iIntros "!> %b %Hcas Ht_value".
+    iExists (Some (ProphecyOp id (OpCas v1 v2 b))). iSplitR; first done.
+    iIntros "%prophs' -> Hprophet_model".
+    iDestruct (snapshot۰lbｰvalid with "Hsnapshot_auth Hsnapshot_lb") as %Hgen.
+    iMod (waiterｰconsume with "Hwaiters_auth Helem Hpost Hwaiters Hmodel₂") as "(Hwaiters_auth & Hwaiters & Hmodel₂ & %Hinv' & HΨ)"; [done.. |].
+    destruct (opkind۰applyｰcas 𝑣0 v1 v2 b Hcas) as (Happly & Hresult).
+    rewrite Happly Hresult in Hinv' |- *.
+    iSplitR "H£ HΨ".
+    { iModIntro. iNext. iFrameSteps. }
+    iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
+    iModIntro. iApply "HΨ". done.
   Qed.
 
   Lemma svar٠clickｰspec γ ι vₛ :
@@ -1290,9 +1318,11 @@ Section svar_G.
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:scanner)) HΦ".
+
     wp۰rec.
     wp۰apply (genｰspecｰscanner with "[$Hinv $Hscanner₁]") as "Hscanner₁".
     wp۰pures.
+
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰store.
     iDestruct (scannerｰagree with "Hscanner₁ Hscanner₂") as %(<- & <-).
@@ -1329,7 +1359,9 @@ Section svar_G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & (:scanner)) HΦ".
+
     wp۰rec.
+
     iAssert (|={⊤}=> generation۰lb γ g ∗ scanner₁ γ dq vₛ g)%I with "[Hscanner₁]" as ">(#Hg & Hscanner₁)".
     { iInv "Hinv" as "(:inv۰inner =1)".
       iDestruct (scannerｰagree with "Hscanner₁ Hscanner₂") as %(<- & <-).
@@ -1337,8 +1369,10 @@ Section svar_G.
       iSplitR "Hscanner₁". { iFrameSteps. }
       iFrameSteps.
     }
+
     wp۰apply (svar٠forwardｰspec with "[$Ht_proph $Hinv $Hg]") as "#Hsnapshot_lb".
     wp۰pures.
+
     wp۰bind (_.{snapshot})%E.
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰load.
@@ -1346,7 +1380,9 @@ Section svar_G.
     iDestruct (snapshot۰lbｰvalid with "Hsnapshot_auth Hsnapshot_lb") as %Hgen.
     destruct (inv۰pureｰstable Hinv1 Hgen) as (_ & Hval).
     iSplitR "Hscanner₁ HΦ". { iFrameSteps. }
-    iModIntro. wp۰pures.
+    iModIntro.
+
+    wp۰pures.
     rewrite Hval. iApply "HΦ". iFrameSteps.
   Qed.
 End svar_G.
