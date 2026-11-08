@@ -17,8 +17,8 @@ Zoo type ref := mutable
 
 Zoo type prophecy :=
   | Forward _
-  | Set _
-  | Get _.
+  | Get _
+  | Set _.
 
 Zoo type t := mutable
   { gen

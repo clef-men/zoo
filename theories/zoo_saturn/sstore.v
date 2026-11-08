@@ -42,7 +42,7 @@ Implicit Type mode : mode.
       location * prophecy
   ; prophet_typed۰of_val v w :=
       match w with
-      | ValBlock _ Tag2 [ValLoc r; ValId id] =>
+      | ValBlock _ Tag1 [ValLoc r; ValId id] =>
           Some $ Some (r, ProphecyOp id None)
       | _ =>
           match v, w with
@@ -50,7 +50,7 @@ Implicit Type mode : mode.
               Some None
           | ValBool true, ValBlock _ Tag0 [ValLoc r; v; ValInt g] =>
               Some $ Some (r, ProphecyForward v ₊g)
-          | ()%V, ValBlock _ Tag1 [ValLoc r; ValId id; v] =>
+          | ()%V, ValBlock _ Tag2 [ValLoc r; ValId id; v] =>
               Some $ Some (r, ProphecyOp id (Some v))
           | _, _ =>
               None
@@ -801,7 +801,8 @@ Section sstore_G.
     | ∀∀ vs,
       sstore۰model γ vs
     >>>
-      sstore٠ref γ v @ ↑ι
+      sstore٠ref γ v
+      @ ↑ι
     <<<
       ∃∃ r,
       ⌜vs !! r = None⌝ ∗
@@ -927,7 +928,7 @@ Section sstore_G.
       inv' γ ι ∗
       generation۰lb γ g0
     }}}
-      (#γ.(sstore۰name۰self)).{gen} @ E
+      γ.{gen} @ E
     {{{
       g
     , RET #g;
@@ -1101,7 +1102,7 @@ Section sstore_G.
     }}}
       𝗿𝗲𝘀𝗼𝗹𝘃𝗲
         (𝗰𝗮𝘀 (#r).[ref_snapshot] (snap۰to_val snap) ‘Snapshot@[ 𝑣, #g ])
-        (#γ.(sstore۰name۰self)).{proph}
+        γ.{proph}
         (‘Forward( #r, 𝑣, #g ))%V
       @ E
     {{{
@@ -1118,10 +1119,7 @@ Section sstore_G.
     }}}.
   Proof.
     iIntros "%HE %Φ ((:inv) & #Hρ & #Hsnaps_lb & %Hlast & %Hgen & %Hinst & #Hg & #Hreader) HΦ".
-    wp۰pures.
-    wp۰load.
-    wp۰block۰generative bid.
-    wp۰pures.
+    wp۰load. wp۰block۰generative bid. wp۰pures.
     iInv "Hinv" as "(:inv۰inner =1)".
     iDestruct (ref۰elemｰvalid with "Hrefs_auth Hρ") as %Hrefs_lookup.
     iDestruct (refs۰invｰacc' with "Hrefs") as "((:ref۰inv =2) & Hrefs)"; first done.
@@ -1199,7 +1197,7 @@ Section sstore_G.
       ref۰elem γ r ρ ∗
       generation۰lb γ g0
     }}}
-      sstore٠forward #γ.(sstore۰name۰self) #r @ E
+      sstore٠forward γ #r @ E
     {{{
       RET ();
       snapshot۰lb ρ g0
@@ -1217,25 +1215,21 @@ Section sstore_G.
     { iApply "HΦ". iApply (auth_nat_max۰lbｰle with "Hsnapshot_lb1"). lia. }
     wp۰apply (valueｰspec _ _ r ρ snaps1 snap1 g1 with "[]") as (𝑣1) "#Hreader1"; first done.
     { iFrame "#". iPureIntro. split; [done | lia]. }
-    wp۰pures.
-    wp۰apply (casｰspec _ _ r ρ snaps1 snap1 g1 𝑣1 with "[]") as ([]) "H"; first done.
+    wp۰apply+ (casｰspec _ _ r ρ snaps1 snap1 g1 𝑣1 with "[]") as ([]) "H"; first done.
     { iFrame "#". iPureIntro. split_and!; [done | lia | lia]. }
     { wp۰pures. iApply "HΦ". iApply (auth_nat_max۰lbｰle with "H"). lia. }
     iDestruct "H" as "(%snaps1' & #Hsnaps_lb1' & %Hpre1 & %Hlen1 & _)".
-    wp۰pures.
-    wp۰apply (snapshotｰspec with "[$Hinv $Hρ $Hg0 $Hsnaps_lb1' $Hhist_at1]") as (snaps2 snap2) "(#Hsnaps_lb2 & %Hpre2 & %Hlast2 & %Hinst2 & #Hinst2_lb & #Hsnapshot_lb2 & %Hhist2 & _)"; first done.
+    wp۰apply+ (snapshotｰspec with "[$Hinv $Hρ $Hg0 $Hsnaps_lb1' $Hhist_at1]") as (snaps2 snap2) "(#Hsnaps_lb2 & %Hpre2 & %Hlast2 & %Hinst2 & #Hinst2_lb & #Hsnapshot_lb2 & %Hhist2 & _)"; first done.
     assert (gc1 ≤ snap2.(snap۰inst)) as Hgc2.
     { apply Hhist2. apply prefix_length in Hpre2. lia. }
-    wp۰pures.
     iDestruct (auth_nat_max۰lbｰmax with "Hg0 Hinst2_lb") as "#Hlb2".
-    wp۰apply (genｰspec with "[$Hinv $Hlb2]") as (g2) "(%Hg2 & #Hg2_lb)"; first done.
+    wp۰apply+ (genｰspec with "[$Hinv $Hlb2]") as (g2) "(%Hg2 & #Hg2_lb)"; first done.
     wp۰pures.
     case_bool_decide as Hsnap2; wp۰pures.
     { iApply "HΦ". iApply (auth_nat_max۰lbｰle with "Hsnapshot_lb2"). lia. }
     wp۰apply (valueｰspec _ _ r ρ snaps2 snap2 g2 with "[]") as (𝑣2) "#Hreader2"; first done.
     { iFrame "#". iPureIntro. split; [done | lia]. }
-    wp۰pures.
-    wp۰apply (casｰspec _ _ r ρ snaps2 snap2 g2 𝑣2 with "[]") as ([]) "H"; first done.
+    wp۰apply+ (casｰspec _ _ r ρ snaps2 snap2 g2 𝑣2 with "[]") as ([]) "H"; first done.
     { iFrame "#". iPureIntro. split_and!; [done | lia | lia]. }
     - wp۰pures. iApply "HΦ". iApply (auth_nat_max۰lbｰle with "H"). lia.
     - iDestruct "H" as "(%snaps2' & _ & _ & _ & #Hinst_lb)".
@@ -1462,7 +1456,8 @@ Section sstore_G.
     | ∀∀ vs,
       sstore۰model γ vs
     >>>
-      sstore٠get γ #r @ ↑ι
+      sstore٠get γ #r
+      @ ↑ι
     <<<
       ∃∃ v,
       ⌜vs !! r = Some v⌝ ∗
@@ -1475,11 +1470,8 @@ Section sstore_G.
     wp۰rec credit:"H£". wp۰pures.
     wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
     iMod (waiterｰregister _ _ r ρ id None (λ v, True -∗ Φ v)%I with "Hinv Hρ Hid HΦ") as "(%waiter & %Hval & Helem & #Hpost & #Hgen)"; first done.
-    wp۰pures.
-    wp۰apply (sstore٠forwardｰspec with "[$Ht_proph $Hinv $Hρ $Hgen]") as "#Hsnapshot_lb"; first done.
-    wp۰pures.
-    wp۰load.
-    wp۰pures.
+    wp۰apply+ (sstore٠forwardｰspec with "[$Ht_proph $Hinv $Hρ $Hgen]") as "#Hsnapshot_lb"; first done.
+    wp۰load. wp۰pures.
     iInv "Hinv" as "(:inv۰inner =1)".
     iDestruct (ref۰elemｰvalid with "Hrefs_auth Hρ") as %Hrefs_lookup.
     iDestruct (refs۰invｰacc' with "Hrefs") as "((:ref۰inv =2) & Hrefs)"; first done.
@@ -1520,7 +1512,8 @@ Section sstore_G.
     | ∀∀ vs,
       sstore۰model γ vs
     >>>
-      sstore٠set γ #r v @ ↑ι
+      sstore٠set γ #r v
+      @ ↑ι
     <<<
       ⌜r ∈ dom vs⌝ ∗
       sstore۰model γ (<[r := v]> vs)
@@ -1532,11 +1525,8 @@ Section sstore_G.
     wp۰rec credit:"H£". wp۰pures.
     wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
     iMod (waiterｰregister _ _ r ρ id (Some v) (λ _, True -∗ Φ ()%V)%I with "Hinv Hρ Hid HΦ") as "(%waiter & %Hval & Helem & #Hpost & #Hgen)"; first done.
-    wp۰pures.
-    wp۰apply (sstore٠forwardｰspec with "[$Ht_proph $Hinv $Hρ $Hgen]") as "#Hsnapshot_lb"; first done.
-    wp۰pures.
-    wp۰load.
-    wp۰pures.
+    wp۰apply+ (sstore٠forwardｰspec with "[$Ht_proph $Hinv $Hρ $Hgen]") as "#Hsnapshot_lb"; first done.
+    wp۰load. wp۰pures.
     iInv "Hinv" as "(:inv۰inner =1)".
     iDestruct (ref۰elemｰvalid with "Hrefs_auth Hρ") as %Hrefs_lookup.
     iDestruct (refs۰invｰacc' with "Hrefs") as "((:ref۰inv =2) & Hrefs)"; first done.
@@ -1645,7 +1635,8 @@ Section sstore_G.
     | ∀∀ vs,
       sstore۰model γ vs
     >>>
-      sstore٠click γ @ ↑ι
+      sstore٠click γ
+      @ ↑ι
     <<<
       sstore۰model γ vs
     | RET ();
@@ -1682,7 +1673,8 @@ Section sstore_G.
       sstore۰scanner γ dq ws ∗
       sstore۰ref γ r
     }}}
-      sstore٠observe γ #r @ ↑ι
+      sstore٠observe γ #r
+      @ ↑ι
     {{{
       RET w;
       sstore۰scanner γ dq ws

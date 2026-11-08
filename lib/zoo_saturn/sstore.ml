@@ -8,8 +8,8 @@ type 'a ref =
 
 type prophecy =
   | Forward : 'a ref * 'a * int -> prophecy
-  | Set : 'a ref * Zoo.id * 'a -> prophecy
   | Get : 'a ref * Zoo.id -> prophecy
+  | Set : 'a ref * Zoo.id * 'a -> prophecy
 
 type t =
   { mutable gen: int [@atomic]
@@ -27,31 +27,29 @@ let ref _t v =
   }
 
 let forward t r =
-  match r.ref_snapshot with
-  | Snapshot (_, g_snap) as snap ->
+  let Snapshot (_, g_snap) as snap = r.ref_snapshot in
+  let g = t.gen in
+  if g_snap != g then
+    let v = r.ref_value in
+    if
+      not @@
+      Zoo.resolve_with (
+        Atomic.Loc.compare_and_set
+          [%atomic.loc r.ref_snapshot]
+          snap
+          (Snapshot (v, g))
+      ) t.proph (Forward (r, v, g))
+    then
+      let Snapshot (_, g_snap) as snap = r.ref_snapshot in
       let g = t.gen in
       if g_snap != g then
         let v = r.ref_value in
-        if
-          not @@
-          Zoo.resolve_with (
-            Atomic.Loc.compare_and_set
-              [%atomic.loc r.ref_snapshot]
-              snap
-              (Snapshot (v, g))
-          ) t.proph (Forward (r, v, g))
-        then
-          match r.ref_snapshot with
-          | Snapshot (_, g_snap) as snap ->
-              let g = t.gen in
-              if g_snap != g then
-                let v = r.ref_value in
-                Zoo.resolve_with (
-                  Atomic.Loc.compare_and_set
-                    [%atomic.loc r.ref_snapshot]
-                    snap
-                    (Snapshot (v, g))
-                ) t.proph (Forward (r, v, g)) |> ignore
+        Zoo.resolve_with (
+          Atomic.Loc.compare_and_set
+            [%atomic.loc r.ref_snapshot]
+            snap
+            (Snapshot (v, g))
+        ) t.proph (Forward (r, v, g)) |> ignore
 
 let get t r =
   let id = Zoo.id () in
@@ -68,6 +66,5 @@ let click t =
 
 let observe t r =
   forward t r ;
-  match r.ref_snapshot with
-  | Snapshot (v, _) ->
-      v
+  let Snapshot (v, _) = r.ref_snapshot in
+  v
