@@ -808,7 +808,10 @@ Axiom domain٠self_indexｰspec : ∀ `{zoo۰G : !ZooG Σ} Φ,
   WP domain٠self_index () {{ Φ }}.
 
 Axiom domain٠recommended_domain_countｰspec : ∀ `{zoo۰G : !ZooG Σ} Φ,
-  (∀ (i : nat), ▷ Φ #i) ⊢
+  ( ∀ (n : nat),
+    ⌜0 < n⌝ -∗
+    ▷ Φ #n
+  ) ⊢
   WP domain٠recommended_domain_count () {{ Φ }}.
 
 Section zoo۰G.
@@ -836,8 +839,9 @@ Section zoo۰G.
       True
     }}
       domain٠self_index ()%V
-    {{ (i : nat),
-      RET #i;
+    {{
+      i : nat
+    , RET #i;
       True
     }}.
   Proof.
@@ -852,9 +856,10 @@ Section zoo۰G.
       True
     }}
       domain٠recommended_domain_count ()%V
-    {{ (i : nat),
-      RET #i;
-      True
+    {{
+      n : nat
+    , RET #n;
+      ⌜0 < n⌝
     }}.
   Proof.
     iSteps.
