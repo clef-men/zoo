@@ -8,7 +8,7 @@ module Bucket = struct
   type ('k, 'v) t =
     | Init
     | Nil
-    | Cons of 'k * 'v * ('k, 'v) t
+    | Cons of 'k * 'v * ('k, 'v) t [@generative]
     | Resize of ('k, 'v) t
 
   let rec assoc ~equal key = function
@@ -209,15 +209,16 @@ let rec finish_as t state =
         let new_cap = Buckets.size buckets in
         let step = Random.bits () lor 1 in
         if cap < new_cap then
-          split_buckets t state buckets mask 0 step
+          split_buckets t state buckets state.mask 0 step
         else
           merge_buckets t state buckets mask 0 step
-      then
+      then (
         let new_state = { buckets; mask; status= Normal } in
         if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.state] state new_state then
           finish t
-      else
+      ) else (
         finish t
+      )
 and finish t =
   finish_as t t.state
 
