@@ -261,7 +261,7 @@ Section pure_exec.
 
   #[global] Instance pureｰmatch gen tag vs x_fb e_fb brs e :
     PureExec
-      (eval۰match tag (length vs) (SubjectBlock gen vs) x_fb e_fb brs = Some e)
+      (exec۰match tag (length vs) (SubjectBlock gen vs) x_fb e_fb brs = Some e)
       1
       (Match (Val $ ValBlock gen tag vs) x_fb e_fb brs)
       e.
@@ -271,7 +271,7 @@ Section pure_exec.
 
   #[global] Instance pureｰunop op v lit :
     PureExec
-      (eval۰unop op v = Some lit)
+      (exec۰unop op v = Some lit)
       1
       (Primitive1 (Unop op) (Val v))
       (Val $ ValLit lit).
@@ -294,7 +294,7 @@ Section pure_exec.
       True
       1
       (Primitive2 (Binop op) (Val $ ValInt n1) (Val $ ValInt n2))
-      (Val $ ValLit $ eval۰binop op n1 n2).
+      (Val $ ValLit $ exec۰binop op n1 n2).
   Proof.
     solve_pure_exec.
   Qed.

@@ -249,7 +249,7 @@ Section zoo۰G.
   Lemma tacｰwpｰmatch Δ1 Δ2 id p K l hdr x_fb e_fb brs e tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ1 Δ2 →
     envs_lookup id Δ2 = Some (p, l ↦ₕ hdr)%I →
-    eval۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
+    exec۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
     envs_entails Δ2 (WP fill K e ∷ tid @ E {{ Φ }}) →
     envs_entails Δ1 (WP fill K (Match #l x_fb e_fb brs) ∷ tid @ E {{ Φ }}).
   Proof.

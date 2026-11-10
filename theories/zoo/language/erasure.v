@@ -345,22 +345,22 @@ Proof.
   rewrite eraseｰsubst' IH //.
 Qed.
 
-Lemma eraseｰeval۰apply recs x v e :
-  erase۰expr (eval۰apply recs x v e) = eval۰apply (erase۰recursive <$> recs) x (erase۰val v) (erase۰expr e).
+Lemma eraseｰexec۰apply recs x v e :
+  erase۰expr (exec۰apply recs x v e) = exec۰apply (erase۰recursive <$> recs) x (erase۰val v) (erase۰expr e).
 Proof.
   enough (
     ∀ recs' i,
-    erase۰expr $ eval۰apply' foldri' recs x v e recs' i = eval۰apply' foldri' (erase۰recursive <$> recs) x (erase۰val v) (erase۰expr e) (erase۰recursive <$> recs') i
+    erase۰expr $ exec۰apply' foldri' recs x v e recs' i = exec۰apply' foldri' (erase۰recursive <$> recs) x (erase۰val v) (erase۰expr e) (erase۰recursive <$> recs') i
   ) by eauto.
   induction recs' as [| rec recs' IH] => i.
   - apply eraseｰsubst'.
   - rewrite eraseｰsubst' IH //.
 Qed.
 
-Lemma eraseｰeval۰match tag sz subj x_fb e_fb brs e 𝑠𝑢𝑏𝑗 :
+Lemma eraseｰexec۰match tag sz subj x_fb e_fb brs e 𝑠𝑢𝑏𝑗 :
   𝑠𝑢𝑏𝑗 = erase۰subject subj →
-  eval۰match tag sz subj x_fb e_fb brs = Some e →
-  eval۰match tag sz 𝑠𝑢𝑏𝑗 x_fb (erase۰expr e_fb) (erase۰branch <$> brs) = Some $ erase۰expr e.
+  exec۰match tag sz subj x_fb e_fb brs = Some e →
+  exec۰match tag sz 𝑠𝑢𝑏𝑗 x_fb (erase۰expr e_fb) (erase۰branch <$> brs) = Some $ erase۰expr e.
 Proof.
   intros -> H.
   all: induction brs as [| br brs].
@@ -373,10 +373,10 @@ Proof.
   all: simp.
   all: rewrite ?eraseｰsubst_list ?eraseｰsubst' //.
 Qed.
-Lemma eraseｰeval۰matchｰinv tag sz subj x_fb e_fb brs 𝑒 :
-  eval۰match tag sz (erase۰subject subj) x_fb (erase۰expr e_fb) (erase۰branch <$> brs) = Some 𝑒 →
+Lemma eraseｰexec۰matchｰinv tag sz subj x_fb e_fb brs 𝑒 :
+  exec۰match tag sz (erase۰subject subj) x_fb (erase۰expr e_fb) (erase۰branch <$> brs) = Some 𝑒 →
     ∃ e,
-    eval۰match tag sz subj x_fb e_fb brs = Some e ∧
+    exec۰match tag sz subj x_fb e_fb brs = Some e ∧
     𝑒 = erase۰expr e.
 Proof.
   intros H.
@@ -393,17 +393,17 @@ Proof.
   all: eauto.
 Qed.
 
-Lemma eraseｰeval۰unop op v lit :
-  eval۰unop op v = Some lit →
-  eval۰unop op (erase۰val v) = Some lit.
+Lemma eraseｰexec۰unop op v lit :
+  exec۰unop op v = Some lit →
+  exec۰unop op (erase۰val v) = Some lit.
 Proof.
   all: destruct op.
   all: destruct v as [[] | | gen tag [| v vs]].
   all: naive.
 Qed.
-Lemma eraseｰeval۰unopｰinv op v 𝑙𝑖𝑡 :
-  eval۰unop op (erase۰val v) = Some 𝑙𝑖𝑡 →
-  eval۰unop op v = Some 𝑙𝑖𝑡.
+Lemma eraseｰexec۰unopｰinv op v 𝑙𝑖𝑡 :
+  exec۰unop op (erase۰val v) = Some 𝑙𝑖𝑡 →
+  exec۰unop op v = Some 𝑙𝑖𝑡.
 Proof.
   all: destruct op.
   all: destruct v as [[] | | gen tag [| v vs]].
@@ -564,7 +564,7 @@ Proof.
       do 4 eexists => //=;
       eauto
         using
-          eraseｰeval۰unop,
+          eraseｰexec۰unop,
           erase۰exprsｰvals
         with
           zoo
@@ -572,10 +572,10 @@ Proof.
   - do 5 econstructor.
     eapply list_lookup_fmap_Some. naive.
   - do 5 econstructor => //.
-    eapply eraseｰeval۰match => // //.
+    eapply eraseｰexec۰match => // //.
   - do 5 econstructor.
     rewrite length_fmap.
-    eapply eraseｰeval۰match => // //.
+    eapply eraseｰexec۰match => // //.
   - apply base_reducibleｰequal.
   - apply base_reducibleｰequal.
   - do 5 econstructor.
@@ -675,12 +675,12 @@ Qed.
         destruct vs; first done
     | _: [] = erase۰val <$> ?vs |- _ =>
         destruct vs; last done
-    | H: eval۰unop _ (erase۰val _) = _ |- _ =>
-        apply eraseｰeval۰unopｰinv in H
-    | H: eval۰match _ _ (SubjectLoc _) _ (erase۰expr _) _ = Some _ |- _ =>
-        apply (eraseｰeval۰matchｰinv _ _ (SubjectLoc _)) in H
-    | H: eval۰match _ _ (SubjectBlock _ _) _ (erase۰expr _) _ = Some _ |- _ =>
-        apply (eraseｰeval۰matchｰinv _ _ (SubjectBlock _ _)) in H
+    | H: exec۰unop _ (erase۰val _) = _ |- _ =>
+        apply eraseｰexec۰unopｰinv in H
+    | H: exec۰match _ _ (SubjectLoc _) _ (erase۰expr _) _ = Some _ |- _ =>
+        apply (eraseｰexec۰matchｰinv _ _ (SubjectLoc _)) in H
+    | H: exec۰match _ _ (SubjectBlock _ _) _ (erase۰expr _) _ = Some _ |- _ =>
+        apply (eraseｰexec۰matchｰinv _ _ (SubjectBlock _ _)) in H
     end;
     simp
   ).
@@ -706,7 +706,7 @@ Proof.
       repeat eexists; eauto with zoo;
       try case_match;
       rewrite
-        ?eraseｰeval۰apply
+        ?eraseｰexec۰apply
         ?eraseｰsubst'
         ?eraseｰstate۰update_heapｰinsert
         //

@@ -295,20 +295,20 @@ Proof.
   apply subst'ｰwf; naive.
 Qed.
 
-Lemma eval۰apply۰auxｰwf recs i rec e :
+Lemma exec۰apply۰auxｰwf recs i rec e :
   Forall recursive۰wf recs →
   recursive۰wf rec →
   expr۰wf e →
-  expr۰wf (eval۰apply۰aux recs i rec e).
+  expr۰wf (exec۰apply۰aux recs i rec e).
 Proof.
   intros Hwf_recs Hwf_rec Hwf_e.
   apply subst'ｰwf => //. simp_Forall+/=.
 Qed.
-Lemma eval۰applyｰwf recs x v e :
+Lemma exec۰applyｰwf recs x v e :
   Forall recursive۰wf recs →
   val۰wf v →
   expr۰wf e →
-  expr۰wf (eval۰apply recs x v e).
+  expr۰wf (exec۰apply recs x v e).
 Proof.
   intros Hwf_recs Hwf_v Hwf_e.
   cut (
@@ -318,7 +318,7 @@ Proof.
       Forall recursive۰wf recs →
         ∀ acc i,
         expr۰wf acc →
-        expr۰wf (foldri' (eval۰apply۰aux recs0) acc recs i)
+        expr۰wf (foldri' (exec۰apply۰aux recs0) acc recs i)
   ).
   { intros Hcut.
     apply Hcut. 1,2: done.
@@ -326,7 +326,7 @@ Proof.
   }
   clear. intros recs0 Hwf_recs0.
   induction 1 as [| rec recs Hwf_rec Hwf_recs IH] using Forall_ind => //= acc i Hacc.
-  apply eval۰apply۰auxｰwf.
+  apply exec۰apply۰auxｰwf.
   - done.
   - done.
   - naive.
@@ -340,8 +340,8 @@ Proof.
   simp_Forall+/=.
 Qed.
 
-Lemma eval۰matchｰwf tag sz subj x_fb e_fb brs e :
-  eval۰match tag sz subj x_fb e_fb brs = Some e →
+Lemma exec۰matchｰwf tag sz subj x_fb e_fb brs e :
+  exec۰match tag sz subj x_fb e_fb brs = Some e →
   subject۰wf subj →
   (if subj is SubjectBlock _ vs then sz = length vs else True) →
   expr۰wf e_fb →
@@ -473,7 +473,7 @@ Proof.
   all: try done.
   all: simpl in *.
   all: try (split_and! => //; []).
-  - apply eval۰applyｰwf.
+  - apply exec۰applyｰwf.
     + simp_Forall in *. naive.
     + naive.
     + simp_Forall+ in *. naive.
@@ -481,9 +481,9 @@ Proof.
   - case_match; naive.
   - naive.
   - case_match; naive.
-  - eapply eval۰matchｰwf; try naive.
+  - eapply exec۰matchｰwf; try naive.
     simp_Forall in *. naive.
-  - eapply eval۰matchｰwf; try naive.
+  - eapply exec۰matchｰwf; try naive.
     all: simp_Forall in *; naive.
   - apply state۰allocｰwf => //.
     subst. rewrite /expr۰of_vals in Hwf_e.

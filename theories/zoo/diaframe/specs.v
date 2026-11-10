@@ -154,7 +154,7 @@ Section zoo۰G.
     HINT1 ε₀ ✱ [
       ∃ hdr e,
       ▷ l ↦ₕ hdr ∗
-      ⌜eval۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e⌝ ∗
+      ⌜exec۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e⌝ ∗
       ▷ (
         emp -∗
         WP K e ∷ tid @ E {{ Φ }}

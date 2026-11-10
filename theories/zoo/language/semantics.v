@@ -60,12 +60,12 @@ Definition val۰immediate v :=
   end.
 #[global] Arguments val۰immediate !_ / : assert.
 
-Definition eval۰apply۰aux recs i rec e :=
+Definition exec۰apply۰aux recs i rec e :=
   subst' rec.1.1 (ValRecs i recs) e.
-Definition eval۰apply' {A} foldri recs x v e : A :=
-  foldri (eval۰apply۰aux recs) (subst' x v e).
-Definition eval۰apply recs x v e :=
-  eval۰apply' foldri recs x v e recs.
+Definition exec۰apply' {A} foldri recs x v e : A :=
+  foldri (exec۰apply۰aux recs) (subst' x v e).
+Definition exec۰apply recs x v e :=
+  exec۰apply' foldri recs x v e recs.
 
 Variant subject :=
   | SubjectLoc l
@@ -80,7 +80,7 @@ Definition subject۰to_val tag subj :=
       ValBlock gen tag vs
   end.
 
-Fixpoint eval۰match tag sz subj x_fb e_fb brs :=
+Fixpoint exec۰match tag sz subj x_fb e_fb brs :=
   match brs with
   | [] =>
       Some $ subst' x_fb (subject۰to_val tag subj) e_fb
@@ -98,11 +98,11 @@ Fixpoint eval۰match tag sz subj x_fb e_fb brs :=
             Some $ subst_list pat.(pattern۰fields) vs res
         end
       else
-        eval۰match tag sz subj x_fb e_fb brs
+        exec۰match tag sz subj x_fb e_fb brs
   end.
-#[global] Arguments eval۰match _ _ !_ _ _ !_ / : assert.
+#[global] Arguments exec۰match _ _ !_ _ _ !_ / : assert.
 
-Definition eval۰unop op v :=
+Definition exec۰unop op v :=
   match op, v with
   | UnopNeg, ValBool b =>
       Some $ LitBool (￢ b)
@@ -111,9 +111,9 @@ Definition eval۰unop op v :=
   | _, _ =>
       None
   end.
-#[global] Arguments eval۰unop !_ !_ / : assert.
+#[global] Arguments exec۰unop !_ !_ / : assert.
 
-Definition eval۰binop op n1 n2 :=
+Definition exec۰binop op n1 n2 :=
   match op with
   | BinopPlus =>
       LitInt $ n1 + n2
@@ -142,7 +142,7 @@ Definition eval۰binop op n1 n2 :=
   | BinopGt =>
       LitBool $ bool_decide (n1 > n2)
   end%Z.
-#[global] Arguments eval۰binop !_ _ _ / : assert.
+#[global] Arguments exec۰binop !_ _ _ / : assert.
 
 Definition observation : Set :=
   prophet_identifier * (val * val).
@@ -164,7 +164,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Apply (Val $ ValRecs i recs) (Val v))
         σ
         []
-        (eval۰apply recs rec.1.2 v rec.2)
+        (exec۰apply recs rec.1.2 v rec.2)
         σ
         []
   | base_stepｰlet x v1 e2 σ :
@@ -205,7 +205,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         []
   | base_stepｰmatchｰlocation l hdr x e brs e' σ :
       σ.(state۰headers) !! l = Some hdr →
-      eval۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x e brs = Some e' →
+      exec۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x e brs = Some e' →
       base_step
         tid
         (Match (Val $ ValLoc l) x e brs)
@@ -215,7 +215,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
   | base_stepｰmatchｰblock gen tag vs x e brs e' σ :
-      eval۰match tag (length vs) (SubjectBlock gen vs) x e brs = Some e' →
+      exec۰match tag (length vs) (SubjectBlock gen vs) x e brs = Some e' →
       base_step
         tid
         (Match (Val $ ValBlock gen tag vs) x e brs)
@@ -225,7 +225,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
   | base_stepｰunop op v lit σ :
-      eval۰unop op v = Some lit →
+      exec۰unop op v = Some lit →
       base_step
         tid
         (Primitive1 (Unop op) (Val v))
@@ -249,7 +249,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Primitive2 (Binop op) (Val $ ValInt n1) (Val $ ValInt n2))
         σ
         []
-        (Val $ ValLit $ eval۰binop op n1 n2)
+        (Val $ ValLit $ exec۰binop op n1 n2)
         σ
         []
   | base_stepｰstringｰget str i chr σ :

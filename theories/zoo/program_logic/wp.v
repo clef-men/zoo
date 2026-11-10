@@ -564,7 +564,7 @@ Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
   Lemma wpｰmatch l hdr x_fb e_fb brs e tid E Φ :
-    eval۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
+    exec۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
     ▷ l ↦ₕ hdr -∗
     ▷ WP e ∷ tid @ E {{ Φ }} -∗
     WP Match #l x_fb e_fb brs ∷ tid @ E {{ Φ }}.
@@ -576,7 +576,7 @@ Section zoo۰G.
       iApply (bwpｰmatch with "Hl H"); first done.
   Qed.
   Lemma wpｰmatchｰcontext K `{!Context K} l hdr x_fb e_fb brs e tid E Φ :
-    eval۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
+    exec۰match hdr.(header۰tag) hdr.(header۰size) (SubjectLoc l) x_fb e_fb brs = Some e →
     ▷ l ↦ₕ hdr -∗
     ▷ WP K e ∷ tid @ E {{ Φ }} -∗
     WP K (Match #l x_fb e_fb brs) ∷ tid @ E {{ Φ }}.
