@@ -13,8 +13,8 @@ Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.base.
 Require Import zoo.program_logic.prophet_identifier.
 Require Import zoo.program_logic.prophet_multi.
-Require Export zoo_saturn.tqueue_mpmc_2__code.
-Require Import zoo_saturn.tqueue_mpmc_2__types.
+Require Export zoo_saturn.tqueue_mpmc__code.
+Require Import zoo_saturn.tqueue_mpmc__types.
 Require Import zoo.options.
 
 #[local] Arguments Nat.min : simpl never.
@@ -160,26 +160,26 @@ Zoo global :=
   ; consumers : mono_list gname
   }.
 
-Section tqueue_mpmc_2۰G.
-  Context `{tqueue_mpmc_2۰G : TqueueMpmc2G Σ}.
+Section tqueue_mpmc۰G.
+  Context `{tqueue_mpmc۰G : TqueueMpmcG Σ}.
 
   Implicit Type Ψ : val → iProp Σ.
 
   #[local] Definition model₁' γ_model vs :=
     twins۰twin₁ γ_model (DfracOwn 1) vs.
   #[local] Definition model₁ γ vs :=
-    model₁' γ.(tqueue_mpmc_2۰name۰model) vs.
+    model₁' γ.(tqueue_mpmc۰name۰model) vs.
   #[local] Definition model₂' γ_model vs :=
     twins۰twin₂ γ_model vs.
   #[local] Definition model₂ γ vs :=
-    model₂' γ.(tqueue_mpmc_2۰name۰model) vs.
+    model₂' γ.(tqueue_mpmc۰name۰model) vs.
 
   #[local] Definition history۰auth' γ_history hist :=
     mono_list۰auth γ_history (DfracOwn 1) hist.
   #[local] Definition history۰auth γ :=
-    history۰auth' γ.(tqueue_mpmc_2۰name۰history).
+    history۰auth' γ.(tqueue_mpmc۰name۰history).
   #[local] Definition history۰at γ i (o : option val) :=
-    mono_list۰at γ.(tqueue_mpmc_2۰name۰history) i o.
+    mono_list۰at γ.(tqueue_mpmc۰name۰history) i o.
 
   #[local] Definition lstates۰auth' γ_lstates lstates : iProp Σ :=
     ∃ ηs,
@@ -187,7 +187,7 @@ Section tqueue_mpmc_2۰G.
     [∗ list] η; lstate ∈ ηs; lstates,
       auth_mono۰auth _ η DfracDiscarded lstate.
   #[local] Definition lstates۰auth γ :=
-    lstates۰auth' γ.(tqueue_mpmc_2۰name۰lstates).
+    lstates۰auth' γ.(tqueue_mpmc۰name۰lstates).
   #[local] Instance : CustomIpat "lstates۰auth" :=
     " ( %ηs
       & Hauth
@@ -196,7 +196,7 @@ Section tqueue_mpmc_2۰G.
     ".
   #[local] Definition lstates۰at γ i lstate : iProp Σ :=
     ∃ η,
-    mono_list۰at γ.(tqueue_mpmc_2۰name۰lstates) i η ∗
+    mono_list۰at γ.(tqueue_mpmc۰name۰lstates) i η ∗
     auth_mono۰auth _ η DfracDiscarded lstate.
   #[local] Instance : CustomIpat "lstates۰at" :=
     " ( %η{}
@@ -206,7 +206,7 @@ Section tqueue_mpmc_2۰G.
     ".
   #[local] Definition lstates۰lb γ i lstate : iProp Σ :=
     ∃ η,
-    mono_list۰at γ.(tqueue_mpmc_2۰name۰lstates) i η ∗
+    mono_list۰at γ.(tqueue_mpmc۰name۰lstates) i η ∗
     auth_mono۰lb _ η lstate.
   #[local] Instance : CustomIpat "lstates۰lb" :=
     " ( %η{}
@@ -220,7 +220,7 @@ Section tqueue_mpmc_2۰G.
     mono_list۰auth γ_producers (DfracOwn 1) ηs ∗
     ⌜length ηs = i⌝.
   #[local] Definition producers۰auth γ :=
-    producers۰auth' γ.(tqueue_mpmc_2۰name۰producers).
+    producers۰auth' γ.(tqueue_mpmc۰name۰producers).
   #[local] Instance : CustomIpat "producers۰auth" :=
     " ( %ηs
       & Hauth
@@ -229,7 +229,7 @@ Section tqueue_mpmc_2۰G.
     ".
   #[local] Definition producers۰at γ i own : iProp Σ :=
     ∃ η,
-    mono_list۰at γ.(tqueue_mpmc_2۰name۰producers) i η ∗
+    mono_list۰at γ.(tqueue_mpmc۰name۰producers) i η ∗
     match own with
     | Own =>
         oneshot۰pending η (DfracOwn 1) ()
@@ -248,7 +248,7 @@ Section tqueue_mpmc_2۰G.
     mono_list۰auth γ_consumers (DfracOwn 1) ηs ∗
     ⌜length ηs = i⌝.
   #[local] Definition consumers۰auth γ :=
-    consumers۰auth' γ.(tqueue_mpmc_2۰name۰consumers).
+    consumers۰auth' γ.(tqueue_mpmc۰name۰consumers).
   #[local] Instance : CustomIpat "consumers۰auth" :=
     " ( %ηs{}
       & Hauth{}
@@ -257,7 +257,7 @@ Section tqueue_mpmc_2۰G.
     ".
   #[local] Definition consumers۰at γ i own : iProp Σ :=
     ∃ η,
-    mono_list۰at γ.(tqueue_mpmc_2۰name۰consumers) i η ∗
+    mono_list۰at γ.(tqueue_mpmc۰name۰consumers) i η ∗
     match own with
     | Own =>
         oneshot۰pending η (DfracOwn 1) ()
@@ -272,7 +272,7 @@ Section tqueue_mpmc_2۰G.
     ".
   #[local] Definition consumers۰lb γ i : iProp Σ :=
     ∃ ηs,
-    mono_list۰lb γ.(tqueue_mpmc_2۰name۰consumers) ηs ∗
+    mono_list۰lb γ.(tqueue_mpmc۰name۰consumers) ηs ∗
     ⌜length ηs = i⌝.
   #[local] Instance : CustomIpat "consumers۰lb" :=
     " ( %ηs{}
@@ -283,7 +283,7 @@ Section tqueue_mpmc_2۰G.
 
   #[local] Definition winner γ i : iProp Σ :=
     ∃ id prophs,
-    prophet_multi۰full prophet_identifier γ.(tqueue_mpmc_2۰name۰prophet) i prophs ∗
+    prophet_multi۰full prophet_identifier γ.(tqueue_mpmc۰name۰prophet) i prophs ∗
     ⌜head prophs = Some id⌝ ∗
     identifier۰model id.
   #[local] Instance : CustomIpat "winner" :=
@@ -295,20 +295,20 @@ Section tqueue_mpmc_2۰G.
       )
     ".
 
-  Please Definition tqueue_mpmc_2۰nonfull γ : iProp Σ :=
-    oneshot۰pending γ.(tqueue_mpmc_2۰name۰nonfull) (DfracOwn 1) ().
+  Please Definition tqueue_mpmc۰nonfull γ : iProp Σ :=
+    oneshot۰pending γ.(tqueue_mpmc۰name۰nonfull) (DfracOwn 1) ().
 
-  Please Definition tqueue_mpmc_2۰full γ : iProp Σ :=
-    oneshot۰shot γ.(tqueue_mpmc_2۰name۰nonfull) ().
+  Please Definition tqueue_mpmc۰full γ : iProp Σ :=
+    oneshot۰shot γ.(tqueue_mpmc۰name۰nonfull) ().
 
-  Please Definition tqueue_mpmc_2۰finished γ : iProp Σ :=
-    consumers۰lb γ γ.(tqueue_mpmc_2۰name۰capacity).
+  Please Definition tqueue_mpmc۰finished γ : iProp Σ :=
+    consumers۰lb γ γ.(tqueue_mpmc۰name۰capacity).
 
   #[local] Definition consumer۰au γ Ψ : iProp Σ :=
     AU <{
       ∃∃ vs,
       model₁ γ vs
-    }> @ ⊤ ∖ ↑γ.(tqueue_mpmc_2۰name۰inv), ∅ <{
+    }> @ ⊤ ∖ ↑γ.(tqueue_mpmc۰name۰inv), ∅ <{
       ∀∀ v vs',
       ⌜vs = v :: vs'⌝ ∗
       model₁ γ vs'
@@ -322,7 +322,7 @@ Section tqueue_mpmc_2۰G.
         ∃ v,
         history۰at γ i (Some v) ∗
         ( winner γ i
-        ∨ ⌜i < γ.(tqueue_mpmc_2۰name۰initial)⌝
+        ∨ ⌜i < γ.(tqueue_mpmc۰name۰initial)⌝
         )
     | ProducerConsumer =>
         history۰at γ i None
@@ -376,7 +376,7 @@ Section tqueue_mpmc_2۰G.
   #[local] Definition inv۰slot γ i slot past : iProp Σ :=
     match slot with
     | Nothing =>
-        ⌜past = [] ∧ γ.(tqueue_mpmc_2۰name۰initial) ≤ i⌝
+        ⌜past = [] ∧ γ.(tqueue_mpmc۰name۰initial) ≤ i⌝
     | Something v =>
         history۰at γ i (Some v) ∗
         producers۰at γ i Discard ∗
@@ -407,24 +407,24 @@ Section tqueue_mpmc_2۰G.
     ".
 
   #[local] Definition inv۰nonfull γ back : iProp Σ :=
-    if decide (back < γ.(tqueue_mpmc_2۰name۰capacity)) then
-      tqueue_mpmc_2۰nonfull γ
+    if decide (back < γ.(tqueue_mpmc۰name۰capacity)) then
+      tqueue_mpmc۰nonfull γ
     else
-      tqueue_mpmc_2۰full γ.
+      tqueue_mpmc۰full γ.
 
   #[local] Definition inv۰inner γ : iProp Σ :=
     ∃ front back hist slots vs lstates pasts prophss,
-    γ.(tqueue_mpmc_2۰name۰self).[front] ↦ #front ∗
-    γ.(tqueue_mpmc_2۰name۰self).[back] ↦ #back ∗
-    array۰model γ.(tqueue_mpmc_2۰name۰data) (DfracOwn 1) (optional۰to_val <$> slots) ∗
-    ⌜length slots = γ.(tqueue_mpmc_2۰name۰capacity)⌝ ∗
+    γ.(tqueue_mpmc۰name۰self).[front] ↦ #front ∗
+    γ.(tqueue_mpmc۰name۰self).[back] ↦ #back ∗
+    array۰model γ.(tqueue_mpmc۰name۰data) (DfracOwn 1) (optional۰to_val <$> slots) ∗
+    ⌜length slots = γ.(tqueue_mpmc۰name۰capacity)⌝ ∗
     model₂ γ vs ∗
     ⌜vs = oflatten (drop front hist)⌝ ∗
     history۰auth γ hist ∗
-    ⌜length hist = back `min` γ.(tqueue_mpmc_2۰name۰capacity)⌝ ∗
+    ⌜length hist = back `min` γ.(tqueue_mpmc۰name۰capacity)⌝ ∗
     lstates۰auth γ lstates ∗
-    ⌜length lstates = (front `max` back) `min` γ.(tqueue_mpmc_2۰name۰capacity)⌝ ∗
-    prophet_multi۰model prophet_identifier γ.(tqueue_mpmc_2۰name۰prophet) pasts prophss ∗
+    ⌜length lstates = (front `max` back) `min` γ.(tqueue_mpmc۰name۰capacity)⌝ ∗
+    prophet_multi۰model prophet_identifier γ.(tqueue_mpmc۰name۰prophet) pasts prophss ∗
     producers۰auth γ back ∗
     consumers۰auth γ front ∗
     ( [∗ list] i ↦ lstate ∈ take back lstates,
@@ -465,12 +465,12 @@ Section tqueue_mpmc_2۰G.
       & Hnonfull
       )
     ".
-  Please Definition tqueue_mpmc_2۰inv γ ι : iProp Σ :=
-    ⌜ι = γ.(tqueue_mpmc_2۰name۰inv)⌝ ∗
-    γ.(tqueue_mpmc_2۰name۰self).[capacity] ↦□ #γ.(tqueue_mpmc_2۰name۰capacity) ∗
-    γ.(tqueue_mpmc_2۰name۰self).[data] ↦□ γ.(tqueue_mpmc_2۰name۰data) ∗
-    γ.(tqueue_mpmc_2۰name۰self).[proph] ↦□ γ.(tqueue_mpmc_2۰name۰prophet) ∗
-    inv γ.(tqueue_mpmc_2۰name۰inv) (inv۰inner γ).
+  Please Definition tqueue_mpmc۰inv γ ι : iProp Σ :=
+    ⌜ι = γ.(tqueue_mpmc۰name۰inv)⌝ ∗
+    γ.(tqueue_mpmc۰name۰self).[capacity] ↦□ #γ.(tqueue_mpmc۰name۰capacity) ∗
+    γ.(tqueue_mpmc۰name۰self).[data] ↦□ γ.(tqueue_mpmc۰name۰data) ∗
+    γ.(tqueue_mpmc۰name۰self).[proph] ↦□ γ.(tqueue_mpmc۰name۰prophet) ∗
+    inv γ.(tqueue_mpmc۰name۰inv) (inv۰inner γ).
   #[local] Instance : CustomIpat "inv" :=
     " ( ->
       & #Ht_capacity
@@ -480,15 +480,15 @@ Section tqueue_mpmc_2۰G.
       )
     ".
 
-  Please Definition tqueue_mpmc_2۰model :=
+  Please Definition tqueue_mpmc۰model :=
     model₁.
   #[local] Instance : CustomIpat "model" :=
     " Hmodel₁{_{}}
     ".
 
-  Zoo derive Timeless for tqueue_mpmc_2۰nonfull.
-  Zoo derive Timeless for tqueue_mpmc_2۰full.
-  Zoo derive Timeless for tqueue_mpmc_2۰model.
+  Zoo derive Timeless for tqueue_mpmc۰nonfull.
+  Zoo derive Timeless for tqueue_mpmc۰full.
+  Zoo derive Timeless for tqueue_mpmc۰model.
 
   #[local] Zoo derive Persistent for lstates۰at.
   #[local] Zoo derive Persistent for lstates۰lb.
@@ -500,9 +500,9 @@ Section tqueue_mpmc_2۰G.
   Proof.
     destruct slot; apply _.
   Qed.
-  Zoo derive Persistent for tqueue_mpmc_2۰inv.
-  Zoo derive Persistent for tqueue_mpmc_2۰full.
-  Zoo derive Persistent for tqueue_mpmc_2۰finished.
+  Zoo derive Persistent for tqueue_mpmc۰inv.
+  Zoo derive Persistent for tqueue_mpmc۰full.
+  Zoo derive Persistent for tqueue_mpmc۰finished.
 
   #[local] Lemma modelｰalloc :
     ⊢ |==>
@@ -772,28 +772,28 @@ Section tqueue_mpmc_2۰G.
   Qed.
 
   #[local] Lemma inv۰nonfullｰfull γ back :
-    γ.(tqueue_mpmc_2۰name۰capacity) ≤ back →
+    γ.(tqueue_mpmc۰name۰capacity) ≤ back →
     inv۰nonfull γ back ⊢
-    tqueue_mpmc_2۰full γ.
+    tqueue_mpmc۰full γ.
   Proof.
     intros. rewrite /inv۰nonfull decide_False //. lia.
   Qed.
   #[local] Lemma inv۰nonfullｰfull' γ back :
-    γ.(tqueue_mpmc_2۰name۰capacity) ≤ back →
+    γ.(tqueue_mpmc۰name۰capacity) ≤ back →
     inv۰nonfull γ back ⊢
     inv۰nonfull γ ˖back.
   Proof.
     intros. rewrite /inv۰nonfull !decide_False //; lia.
   Qed.
   #[local] Lemma inv۰nonfullｰnonfull γ back :
-    back < γ.(tqueue_mpmc_2۰name۰capacity) →
+    back < γ.(tqueue_mpmc۰name۰capacity) →
     inv۰nonfull γ back ⊢
-    tqueue_mpmc_2۰nonfull γ.
+    tqueue_mpmc۰nonfull γ.
   Proof.
     intros. rewrite /inv۰nonfull decide_True //.
   Qed.
   #[local] Lemma inv۰nonfullｰupdate γ back :
-    tqueue_mpmc_2۰nonfull γ ⊢ |==>
+    tqueue_mpmc۰nonfull γ ⊢ |==>
     inv۰nonfull γ ˖back.
   Proof.
     iIntros "Hnonfull".
@@ -848,31 +848,31 @@ Section tqueue_mpmc_2۰G.
     - rewrite fn_lookup_alter_ne //.
   Qed.
 
-  Lemma tqueue_mpmc_2۰modelｰexclusive γ vs1 vs2 :
-    tqueue_mpmc_2۰model γ vs1 -∗
-    tqueue_mpmc_2۰model γ vs2 -∗
+  Lemma tqueue_mpmc۰modelｰexclusive γ vs1 vs2 :
+    tqueue_mpmc۰model γ vs1 -∗
+    tqueue_mpmc۰model γ vs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)".
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma tqueue_mpmc_2ｰfullｰnonfull γ :
-    tqueue_mpmc_2۰full γ -∗
-    tqueue_mpmc_2۰nonfull γ -∗
+  Lemma tqueue_mpmcｰfullｰnonfull γ :
+    tqueue_mpmc۰full γ -∗
+    tqueue_mpmc۰nonfull γ -∗
     False.
   Proof.
     iIntros "Hfull Hnonfull".
     iApply (oneshotｰpendingｰshot with "Hnonfull Hfull").
   Qed.
 
-  Lemma tqueue_mpmc_2ｰmodelｰfinished γ ι vs E :
+  Lemma tqueue_mpmcｰmodelｰfinished γ ι vs E :
     ↑ι ⊆ E →
-    tqueue_mpmc_2۰inv γ ι -∗
-    tqueue_mpmc_2۰model γ vs -∗
-    tqueue_mpmc_2۰finished γ ={E}=∗
+    tqueue_mpmc۰inv γ ι -∗
+    tqueue_mpmc۰model γ vs -∗
+    tqueue_mpmc۰finished γ ={E}=∗
       ⌜vs = []⌝ ∗
-      tqueue_mpmc_2۰model γ vs.
+      tqueue_mpmc۰model γ vs.
   Proof.
     iIntros "% (:inv) (:model) #Hfinished".
     iInv "Hinv" as "(:inv۰inner =1)".
@@ -885,17 +885,17 @@ Section tqueue_mpmc_2۰G.
     iFrameSteps.
   Qed.
 
-  Lemma tqueue_mpmc_2٠createｰspec ι cap :
+  Lemma tqueue_mpmc٠createｰspec ι cap :
     (0 ≤ cap)%Z →
     {{{
       True
     }}}
-      tqueue_mpmc_2٠create #cap
+      tqueue_mpmc٠create #cap
     {{{
       γ
     , RET γ;
-      tqueue_mpmc_2۰inv γ ι ∗
-      tqueue_mpmc_2۰model γ []
+      tqueue_mpmc۰inv γ ι ∗
+      tqueue_mpmc۰model γ []
     }}}.
   Proof.
     iIntros "%Hcap %Φ _ HΦ".
@@ -914,18 +914,18 @@ Section tqueue_mpmc_2۰G.
     iMod (oneshotｰalloc ()) as "(%γ_nonfull & Hnonfull)".
 
     pose γ :=
-      {|tqueue_mpmc_2۰name۰self := t
-      ; tqueue_mpmc_2۰name۰capacity := cap
-      ; tqueue_mpmc_2۰name۰initial := 0
-      ; tqueue_mpmc_2۰name۰data := data
-      ; tqueue_mpmc_2۰name۰inv := ι
-      ; tqueue_mpmc_2۰name۰prophet := γ_prophet
-      ; tqueue_mpmc_2۰name۰model := γ_model
-      ; tqueue_mpmc_2۰name۰history := γ_history
-      ; tqueue_mpmc_2۰name۰lstates := γ_lstates
-      ; tqueue_mpmc_2۰name۰producers := γ_producers
-      ; tqueue_mpmc_2۰name۰consumers := γ_consumers
-      ; tqueue_mpmc_2۰name۰nonfull := γ_nonfull
+      {|tqueue_mpmc۰name۰self := t
+      ; tqueue_mpmc۰name۰capacity := cap
+      ; tqueue_mpmc۰name۰initial := 0
+      ; tqueue_mpmc۰name۰data := data
+      ; tqueue_mpmc۰name۰inv := ι
+      ; tqueue_mpmc۰name۰prophet := γ_prophet
+      ; tqueue_mpmc۰name۰model := γ_model
+      ; tqueue_mpmc۰name۰history := γ_history
+      ; tqueue_mpmc۰name۰lstates := γ_lstates
+      ; tqueue_mpmc۰name۰producers := γ_producers
+      ; tqueue_mpmc۰name۰consumers := γ_consumers
+      ; tqueue_mpmc۰name۰nonfull := γ_nonfull
       |}.
 
     iAssert (|==> inv۰nonfull γ 0)%I with "[Hnonfull]" as ">Hnonfull".
@@ -945,17 +945,17 @@ Section tqueue_mpmc_2۰G.
     iFrameSteps.
   Qed.
 
-  Lemma tqueue_mpmc_2٠makeｰspec ι cap v :
+  Lemma tqueue_mpmc٠makeｰspec ι cap v :
     (0 < cap)%Z →
     {{{
       True
     }}}
-      tqueue_mpmc_2٠make #cap v
+      tqueue_mpmc٠make #cap v
     {{{
       γ
     , RET γ;
-      tqueue_mpmc_2۰inv γ ι ∗
-      tqueue_mpmc_2۰model γ [v]
+      tqueue_mpmc۰inv γ ι ∗
+      tqueue_mpmc۰model γ [v]
     }}}.
   Proof.
     iIntros "%Hcap %Φ _ HΦ".
@@ -976,18 +976,18 @@ Section tqueue_mpmc_2۰G.
     iMod (oneshotｰalloc ()) as "(%γ_nonfull & Hnonfull)".
 
     pose γ :=
-      {|tqueue_mpmc_2۰name۰self := t
-      ; tqueue_mpmc_2۰name۰capacity := ˖cap
-      ; tqueue_mpmc_2۰name۰initial := 1
-      ; tqueue_mpmc_2۰name۰data := data
-      ; tqueue_mpmc_2۰name۰inv := ι
-      ; tqueue_mpmc_2۰name۰prophet := γ_prophet
-      ; tqueue_mpmc_2۰name۰model := γ_model
-      ; tqueue_mpmc_2۰name۰history := γ_history
-      ; tqueue_mpmc_2۰name۰lstates := γ_lstates
-      ; tqueue_mpmc_2۰name۰producers := γ_producers
-      ; tqueue_mpmc_2۰name۰consumers := γ_consumers
-      ; tqueue_mpmc_2۰name۰nonfull := γ_nonfull
+      {|tqueue_mpmc۰name۰self := t
+      ; tqueue_mpmc۰name۰capacity := ˖cap
+      ; tqueue_mpmc۰name۰initial := 1
+      ; tqueue_mpmc۰name۰data := data
+      ; tqueue_mpmc۰name۰inv := ι
+      ; tqueue_mpmc۰name۰prophet := γ_prophet
+      ; tqueue_mpmc۰name۰model := γ_model
+      ; tqueue_mpmc۰name۰history := γ_history
+      ; tqueue_mpmc۰name۰lstates := γ_lstates
+      ; tqueue_mpmc۰name۰producers := γ_producers
+      ; tqueue_mpmc۰name۰consumers := γ_consumers
+      ; tqueue_mpmc۰name۰nonfull := γ_nonfull
       |}.
 
     iMod (modelｰupdate (γ := γ) [v] with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
@@ -1001,7 +1001,7 @@ Section tqueue_mpmc_2۰G.
     { iApply big_sepL_intro. iIntros "!> %i %slot %Hlookup".
       apply lookup_replicate in Hlookup as (-> & _). iSteps.
     }
-    iAssert (winner γ 0 ∨ ⌜0 < γ.(tqueue_mpmc_2۰name۰initial)⌝)%I as "Hwinner".
+    iAssert (winner γ 0 ∨ ⌜0 < γ.(tqueue_mpmc۰name۰initial)⌝)%I as "Hwinner".
     { iRight. iSteps. }
     iMod (inv_alloc _ _ (inv۰inner γ) with "[- Hmodel₁ HΦ]") as "#Hinv".
     { iExists 0, 1, [Some v], (Something v :: replicate cap Nothing), [v], [ProducerProducer], (λ _, []), prophss.
@@ -1013,18 +1013,18 @@ Section tqueue_mpmc_2۰G.
     iFrameSteps.
   Qed.
 
-  Lemma tqueue_mpmc_2٠is_emptyｰspec γ ι :
+  Lemma tqueue_mpmc٠is_emptyｰspec γ ι :
     <<<
-      tqueue_mpmc_2۰inv γ ι
+      tqueue_mpmc۰inv γ ι
     | ∀∀ vs,
-      tqueue_mpmc_2۰model γ vs
+      tqueue_mpmc۰model γ vs
     >>>
-      tqueue_mpmc_2٠is_empty γ
+      tqueue_mpmc٠is_empty γ
       @ ↑ι
     <<<
       ∃∃ b,
       ⌜if b then vs = [] else True⌝ ∗
-      tqueue_mpmc_2۰model γ vs
+      tqueue_mpmc۰model γ vs
     | RET #b;
       True
     >>>.
@@ -1060,28 +1060,28 @@ Section tqueue_mpmc_2۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma tqueue_mpmc_2٠push₁ｰspec γ ι v E Φ :
-    tqueue_mpmc_2۰inv γ ι -∗
+  #[local] Lemma tqueue_mpmc٠push₁ｰspec γ ι v E Φ :
+    tqueue_mpmc۰inv γ ι -∗
     ( |={⊤ ∖ ↑ι, E}=>
       ∃ vs,
-      tqueue_mpmc_2۰model γ vs ∗
+      tqueue_mpmc۰model γ vs ∗
         ∀ b,
         ( if b then
-            tqueue_mpmc_2۰model γ (vs ++ [v]) ∗
-            tqueue_mpmc_2۰nonfull γ
+            tqueue_mpmc۰model γ (vs ++ [v]) ∗
+            tqueue_mpmc۰nonfull γ
           else
-            tqueue_mpmc_2۰model γ vs ∗
-            tqueue_mpmc_2۰full γ
+            tqueue_mpmc۰model γ vs ∗
+            tqueue_mpmc۰full γ
         ) ={E}=∗
           ( if b then
-              tqueue_mpmc_2۰nonfull γ
+              tqueue_mpmc۰nonfull γ
             else
               True
           ) ∗
             |={E, ⊤ ∖ ↑ι}=>
             Φ #b
     ) -∗
-    WP tqueue_mpmc_2٠push₁ γ v {{ Φ }}.
+    WP tqueue_mpmc٠push₁ γ v {{ Φ }}.
   Proof.
     iIntros "#Hinv' HΦ".
     iDestruct "Hinv'" as "(:inv)".
@@ -1096,7 +1096,7 @@ Section tqueue_mpmc_2۰G.
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰faa.
     iMod (producersｰupdate with "Hproducers_auth") as "(Hproducers_auth & Hproducers_at)".
-    destruct_decide (γ.(tqueue_mpmc_2۰name۰capacity) ≤ back1) as Hback1 | Hback1.
+    destruct_decide (γ.(tqueue_mpmc۰name۰capacity) ≤ back1) as Hback1 | Hback1.
 
     - iDestruct (inv۰nonfullｰfull with "Hnonfull") as "#Hfull"; first done.
       iDestruct (inv۰nonfullｰfull' with "Hnonfull") as "Hnonfull"; first done.
@@ -1244,7 +1244,7 @@ Section tqueue_mpmc_2۰G.
           wp۰apply ("HLöb" with "HΦ").
 
       + rewrite drop_ge /= in Hvs1; first lia. subst vs1.
-        assert (length lstates1 = front1 `min` γ.(tqueue_mpmc_2۰name۰capacity)) as Hlstates1' by lia.
+        assert (length lstates1 = front1 `min` γ.(tqueue_mpmc۰name۰capacity)) as Hlstates1' by lia.
         iDestruct (consumers۰lbｰget' ˖back1 with "Hconsumers_auth") as "#Hconsumers_lb"; first lia.
         destruct (lookup_lt_is_Some_2 lstates1 back1) as (lstate & Hlstates_lookup); first lia.
         iDestruct (lstates۰lbｰget with "Hlstates_auth") as "#Hlstates_lb"; first done.
@@ -1376,29 +1376,29 @@ Section tqueue_mpmc_2۰G.
           wp۰apply ("HLöb" with "HΦ").
   Qed.
 
-  Lemma tqueue_mpmc_2٠pushｰspec γ ι v E Φ :
-    tqueue_mpmc_2۰inv γ ι -∗
+  Lemma tqueue_mpmc٠pushｰspec γ ι v E Φ :
+    tqueue_mpmc۰inv γ ι -∗
     ▷ (
       |={⊤ ∖ ↑ι, E}=>
       ∃ vs,
-      tqueue_mpmc_2۰model γ vs ∗
+      tqueue_mpmc۰model γ vs ∗
         ∀ b,
         ( if b then
-            tqueue_mpmc_2۰model γ (vs ++ [v]) ∗
-            tqueue_mpmc_2۰nonfull γ
+            tqueue_mpmc۰model γ (vs ++ [v]) ∗
+            tqueue_mpmc۰nonfull γ
           else
-            tqueue_mpmc_2۰model γ vs ∗
-            tqueue_mpmc_2۰full γ
+            tqueue_mpmc۰model γ vs ∗
+            tqueue_mpmc۰full γ
         ) ={E}=∗
           ( if b then
-              tqueue_mpmc_2۰nonfull γ
+              tqueue_mpmc۰nonfull γ
             else
               True
           ) ∗
             |={E, ⊤ ∖ ↑ι}=>
             Φ #b
     ) -∗
-    WP tqueue_mpmc_2٠push γ v {{ Φ }}.
+    WP tqueue_mpmc٠push γ v {{ Φ }}.
   Proof.
     iIntros "#Hinv' HΦ".
     iDestruct "Hinv'" as "(:inv)".
@@ -1408,7 +1408,7 @@ Section tqueue_mpmc_2۰G.
     wp۰bind (_.{back})%E.
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰load.
-    destruct_decide (γ.(tqueue_mpmc_2۰name۰capacity) ≤ back1) as Hback1 | Hback1.
+    destruct_decide (γ.(tqueue_mpmc۰name۰capacity) ≤ back1) as Hback1 | Hback1.
 
     - iDestruct (inv۰nonfullｰfull with "Hnonfull") as "#Hfull"; first done.
       iMod "HΦ" as "(%vs & (:model) & HΦ)".
@@ -1427,21 +1427,21 @@ Section tqueue_mpmc_2۰G.
       wp۰load. wp۰pures.
       rewrite bool_decide_eq_false_2; first lia.
       wp۰pures.
-      wp۰apply (tqueue_mpmc_2٠push₁ｰspec with "[] HΦ").
+      wp۰apply (tqueue_mpmc٠push₁ｰspec with "[] HΦ").
       iSteps.
   Qed.
 
-  Lemma tqueue_mpmc_2٠popｰspec γ ι :
+  Lemma tqueue_mpmc٠popｰspec γ ι :
     <<<
-      tqueue_mpmc_2۰inv γ ι
+      tqueue_mpmc۰inv γ ι
     | ∀∀ vs,
-      tqueue_mpmc_2۰model γ vs
+      tqueue_mpmc۰model γ vs
     >>>
-      tqueue_mpmc_2٠pop γ
+      tqueue_mpmc٠pop γ
       @ ↑ι
     <<<
       ∃∃ o vs',
-      tqueue_mpmc_2۰model γ vs' ∗
+      tqueue_mpmc۰model γ vs' ∗
       ⌜ match o with
         | Something v =>
             vs = v :: vs'
@@ -1454,7 +1454,7 @@ Section tqueue_mpmc_2۰G.
       ⌝
     | RET o;
       if o is Anything then
-        tqueue_mpmc_2۰finished γ
+        tqueue_mpmc۰finished γ
       else
         True
     >>>.
@@ -1466,9 +1466,9 @@ Section tqueue_mpmc_2۰G.
     wp۰bind (_.{front})%E.
     iInv "Hinv" as "(:inv۰inner =1)".
     wp۰load.
-    destruct_decide (γ.(tqueue_mpmc_2۰name۰capacity) ≤ front1) as Hfront1 | Hfront1.
+    destruct_decide (γ.(tqueue_mpmc۰name۰capacity) ≤ front1) as Hfront1 | Hfront1.
 
-    - iDestruct (consumers۰lbｰget' γ.(tqueue_mpmc_2۰name۰capacity) with "Hconsumers_auth") as "#Hfinished"; first done.
+    - iDestruct (consumers۰lbｰget' γ.(tqueue_mpmc۰name۰capacity) with "Hconsumers_auth") as "#Hfinished"; first done.
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
       iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
       assert (vs1 = []) as Hvs1'.
@@ -1494,10 +1494,10 @@ Section tqueue_mpmc_2۰G.
       wp۰bind (𝗳𝗮𝗮 _ _)%E.
       iInv "Hinv" as "(:inv۰inner =2)".
       wp۰faa.
-      destruct_decide (γ.(tqueue_mpmc_2۰name۰capacity) ≤ front2) as Hfront2 | Hfront2.
+      destruct_decide (γ.(tqueue_mpmc۰name۰capacity) ≤ front2) as Hfront2 | Hfront2.
 
       + iMod (consumersｰupdate with "Hconsumers_auth") as "(Hconsumers_auth & _)".
-        iDestruct (consumers۰lbｰget' γ.(tqueue_mpmc_2۰name۰capacity) with "Hconsumers_auth") as "#Hfinished"; first lia.
+        iDestruct (consumers۰lbｰget' γ.(tqueue_mpmc۰name۰capacity) with "Hconsumers_auth") as "#Hfinished"; first lia.
         iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
         iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
         assert (vs2 = []) as Hvs2'.
@@ -1666,7 +1666,7 @@ Section tqueue_mpmc_2۰G.
              iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at") as %Hhist2_lookup.
              erewrite drop_S, oflattenｰconsｰSome in Hvs2; last done.
 
-             iAssert ⌜head prophs ≠ Some id ∨ front2 < γ.(tqueue_mpmc_2۰name۰initial)⌝%I as %Hloser.
+             iAssert ⌜head prophs ≠ Some id ∨ front2 < γ.(tqueue_mpmc۰name۰initial)⌝%I as %Hloser.
              { iDestruct "Hwinner" as "[Hwinner | %]"; last (iPureIntro; right; done).
                iAssert ⌜head prophs ≠ Some id⌝%I as %?.
                { iIntros (Hwinner').
@@ -1779,8 +1779,8 @@ Section tqueue_mpmc_2۰G.
 
           -- iDestruct (consumers۰lbｰvalid with "Hconsumers_auth Hlstate") as %?. lia.
   Qed.
-End tqueue_mpmc_2۰G.
+End tqueue_mpmc۰G.
 
-Require zoo_saturn.tqueue_mpmc_2__opaque.
+Require zoo_saturn.tqueue_mpmc__opaque.
 
 Please opacify.

@@ -5,7 +5,7 @@ Require Import zoo.plugin.
 Require Import zoo.language.notations.
 Require Import zoo.language.typeclasses.
 Require Export backoff.backoff.
-Require Export zoo_saturn.tqueue_mpmc_2.
+Require Export zoo_saturn.tqueue_mpmc.
 Require Export zoo_std.optional.
 Require Import zoo.options.
 

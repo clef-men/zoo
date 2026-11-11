@@ -35,7 +35,7 @@ Zoo name :=
 
 Record descriptor :=
   { descriptor۰node : location
-  ; descriptor۰queue : tqueue_mpmc_2۰name
+  ; descriptor۰queue : tqueue_mpmc۰name
   }.
 Implicit Types descr descr_front descr_back : descriptor.
 Implicit Types hist past descrs : list descriptor.
@@ -43,7 +43,7 @@ Implicit Types hist past descrs : list descriptor.
 #[local] Please derive Inhabited for descriptor.
 
 Zoo global :=
-  { tqueue : tqueue_mpmc_2
+  { tqueue : tqueue_mpmc
   ; history : mono_list descriptor
   ; front : auth_nat_max
   ; model : twins (leibnizO (list val))
@@ -88,7 +88,7 @@ Section queue_mpmc_4۰G.
 
   #[local] Definition descriptor۰model₁ γ descr : iProp Σ :=
     descr.(descriptor۰node).[queue] ↦□ descr.(descriptor۰queue) ∗
-    tqueue_mpmc_2۰inv descr.(descriptor۰queue) (γ.(queue_mpmc_4۰name۰inv).@"queue").
+    tqueue_mpmc۰inv descr.(descriptor۰queue) (γ.(queue_mpmc_4۰name۰inv).@"queue").
   #[local] Instance : CustomIpat "descriptor۰model_1" :=
     " ( #H{;descr}_node_queue
       & #H{;descr}_queue_inv
@@ -121,13 +121,13 @@ Section queue_mpmc_4۰G.
       descriptor۰model₁ γ descr
     ) ∗
     ( [∗ list] descr ∈ removelast hist,
-      tqueue_mpmc_2۰full descr.(descriptor۰queue)
+      tqueue_mpmc۰full descr.(descriptor۰queue)
     ) ∗
     ( [∗ list] descr ∈ past,
-      tqueue_mpmc_2۰model descr.(descriptor۰queue) []
+      tqueue_mpmc۰model descr.(descriptor۰queue) []
     ) ∗
     ( [∗ list] descr; vs ∈ descr_front :: descrs; vss,
-      tqueue_mpmc_2۰model descr.(descriptor۰queue) vs
+      tqueue_mpmc۰model descr.(descriptor۰queue) vs
     ) ∗
     history۰auth γ hist ∗
     front۰auth γ (length past) ∗
@@ -303,7 +303,7 @@ Section queue_mpmc_4۰G.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰apply (tqueue_mpmc_2٠createｰspec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)". 1: done.
+    wp۰apply (tqueue_mpmc٠createｰspec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)". 1: done.
     wp۰block front as "Hfront_next #Hfront_queue" header:"#Hfront_header".
     wp۰block t as "Ht_front Ht_back".
 
@@ -336,9 +336,9 @@ Section queue_mpmc_4۰G.
     hist !! i = Some descr →
     is_Some (hist !! S i) →
     ( [∗ list] descr ∈ removelast hist,
-      tqueue_mpmc_2۰full descr.(descriptor۰queue)
+      tqueue_mpmc۰full descr.(descriptor۰queue)
     ) ⊢
-    tqueue_mpmc_2۰full descr.(descriptor۰queue).
+    tqueue_mpmc۰full descr.(descriptor۰queue).
   Proof.
     iIntros "%Hlookup %Hlookup' H".
     iApply (big_sepL_lookup with "H").
@@ -349,32 +349,32 @@ Section queue_mpmc_4۰G.
   #[local] Lemma inv۰modelｰlookup {past descr_front descrs vss} i descr :
     (past ++ descr_front :: descrs) !! i = Some descr →
     ( [∗ list] descr ∈ past,
-      tqueue_mpmc_2۰model descr.(descriptor۰queue) []
+      tqueue_mpmc۰model descr.(descriptor۰queue) []
     ) -∗
     ( [∗ list] descr; vs ∈ descr_front :: descrs; vss,
-      tqueue_mpmc_2۰model descr.(descriptor۰queue) vs
+      tqueue_mpmc۰model descr.(descriptor۰queue) vs
     ) -∗
       ∃ vs,
-      tqueue_mpmc_2۰model descr.(descriptor۰queue) vs ∗
+      tqueue_mpmc۰model descr.(descriptor۰queue) vs ∗
       ⌜ i < length past ∧ vs = []
       ∨ length past ≤ i ∧ vss !! (i - length past) = Some vs
       ⌝ ∗
-      ( ( tqueue_mpmc_2۰model descr.(descriptor۰queue) vs -∗
+      ( ( tqueue_mpmc۰model descr.(descriptor۰queue) vs -∗
           ( [∗ list] descr ∈ past,
-            tqueue_mpmc_2۰model descr.(descriptor۰queue) []
+            tqueue_mpmc۰model descr.(descriptor۰queue) []
           ) ∗
           ( [∗ list] descr; vs ∈ descr_front :: descrs; vss,
-            tqueue_mpmc_2۰model descr.(descriptor۰queue) vs
+            tqueue_mpmc۰model descr.(descriptor۰queue) vs
           )
         ) ∧ (
           ⌜length past ≤ i⌝ -∗
           ∀ vs',
-          tqueue_mpmc_2۰model descr.(descriptor۰queue) vs' -∗
+          tqueue_mpmc۰model descr.(descriptor۰queue) vs' -∗
             ( [∗ list] descr ∈ past,
-              tqueue_mpmc_2۰model descr.(descriptor۰queue) []
+              tqueue_mpmc۰model descr.(descriptor۰queue) []
             ) ∗
             ( [∗ list] descr; vs ∈ descr_front :: descrs; <[i - length past := vs']> vss,
-              tqueue_mpmc_2۰model descr.(descriptor۰queue) vs
+              tqueue_mpmc۰model descr.(descriptor۰queue) vs
             )
         )
       ).
@@ -538,7 +538,7 @@ Section queue_mpmc_4۰G.
       history۰at γ i descr ∗
       front۰lb γ i ∗
       descriptor۰model₁ γ descr ∗
-      tqueue_mpmc_2۰finished descr.(descriptor۰queue) ∗
+      tqueue_mpmc۰finished descr.(descriptor۰queue) ∗
       pop۰au γ Ψ
     }}}
       (#descr.(descriptor۰node)).{next}
@@ -577,7 +577,7 @@ Section queue_mpmc_4۰G.
       iDestruct (big_sepL2_length with "Hdescrs") as %Hvss_length.
       iDestruct (inv۰modelｰlookup with "Hpast_model Hdescrs") as "(%vs_descr & Hdescr_model & %Hvs_descr & (Hdescrs & _))".
       { rewrite -Hhist //. }
-      iMod (tqueue_mpmc_2ｰmodelｰfinished with "Hdescr_queue_inv Hdescr_model Hfinished") as "(-> & Hdescr_model)"; first solve_ndisj.
+      iMod (tqueue_mpmcｰmodelｰfinished with "Hdescr_queue_inv Hdescr_model Hfinished") as "(-> & Hdescr_model)"; first solve_ndisj.
       iDestruct ("Hdescrs" with "Hdescr_model") as "(Hpast_model & Hdescrs)".
       rewrite Hhist in Hlength.
       opose proof* inv۰lastｰfront as Hvs; [done.. |].
@@ -668,7 +668,7 @@ Section queue_mpmc_4۰G.
     wp۰apply+ (prophet_typed₁ｰwpｰproph prophet_bool₁ with "[//]") as (pid proph) "Hproph".
     wp۰pures. wp۰load.
 
-    awp۰apply (tqueue_mpmc_2٠is_emptyｰspec with "Hdescr_queue_inv").
+    awp۰apply (tqueue_mpmc٠is_emptyｰspec with "Hdescr_queue_inv").
     iInv "Hinv" as "(:inv۰inner =1)".
     iApply (aaccｰaupdｰcommit with "HΦ"); first solve_ndisj.
     iIntros "%vs (:model)".
@@ -747,7 +747,7 @@ Section queue_mpmc_4۰G.
     }
     wp۰load.
 
-    wp۰apply (tqueue_mpmc_2٠pushｰspec _ _ _ (⊤ ∖ ↑γ.(queue_mpmc_4۰name۰inv).@"queue" ∖ ↑γ.(queue_mpmc_4۰name۰inv).@"inv") with "Hdescr_queue_inv").
+    wp۰apply (tqueue_mpmc٠pushｰspec _ _ _ (⊤ ∖ ↑γ.(queue_mpmc_4۰name۰inv).@"queue" ∖ ↑γ.(queue_mpmc_4۰name۰inv).@"inv") with "Hdescr_queue_inv").
     iMod (inv_acc with "Hinv") as "((:inv۰inner =1) & Hclose)"; first solve_ndisj.
     iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at_descr") as %Hlookup1.
     iDestruct (big_sepL2_length with "Hdescrs") as %Hvss1_length.
@@ -758,7 +758,7 @@ Section queue_mpmc_4۰G.
     - iIntros "(Hdescr_model & Hnonfull)".
       destruct (hist1 !! S i) as [descr' |] eqn:Hlookup1'.
       { iDestruct (inv۰fullｰlookup hist1 i descr with "Hhist_full") as "Hfull"; [done | eauto |].
-        iDestruct (tqueue_mpmc_2ｰfullｰnonfull with "Hfull Hnonfull") as %[].
+        iDestruct (tqueue_mpmcｰfullｰnonfull with "Hfull Hnonfull") as %[].
       }
       opose proof* lengthｰlookupｰlast as Hlength; [done.. |].
       rewrite Hhist1 length_app /= in Hlength.
@@ -789,7 +789,7 @@ Section queue_mpmc_4۰G.
       wp۰pures.
       wp۰apply+ (nextｰspec None with "[$]") as (res) "[(-> & _) | (%descr' & -> & ((#Hdescr'_queue & #Hdescr'_queue_inv) & #Hdescr'_header & #Hhistory_at_descr' & _))]".
 
-      + wp۰apply+ (tqueue_mpmc_2٠makeｰspec (γ.(queue_mpmc_4۰name۰inv).@"queue") with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)"; first done.
+      + wp۰apply+ (tqueue_mpmc٠makeｰspec (γ.(queue_mpmc_4۰name۰inv).@"queue") with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)"; first done.
         wp۰block new_back as "Hnew_back_next #Hnew_back_queue" header:"#Hnew_back_header".
         wp۰match. wp۰pures.
 
@@ -836,7 +836,7 @@ Section queue_mpmc_4۰G.
           opose proof* lengthｰlookupｰlast as Hlength; [done.. |].
           assert (hist2 = removelast hist2 ++ [descr]) as Hhist2'.
           { apply lastｰremovelast. rewrite last_lookup Hlength //. }
-          iDestruct (big_sepL_snoc (λ _ descr, tqueue_mpmc_2۰full descr.(descriptor۰queue)) (removelast hist2) descr with "[$Hhist_full $Hfull]") as "Hhist_full".
+          iDestruct (big_sepL_snoc (λ _ descr, tqueue_mpmc۰full descr.(descriptor۰queue)) (removelast hist2) descr with "[$Hhist_full $Hfull]") as "Hhist_full".
           rewrite -Hhist2'.
 
           iSplitR "HΦ".
@@ -942,7 +942,7 @@ Section queue_mpmc_4۰G.
 
       wp۰rec. wp۰match. wp۰load.
 
-      awp۰apply (tqueue_mpmc_2٠popｰspec with "Hdescr_queue_inv").
+      awp۰apply (tqueue_mpmc٠popｰspec with "Hdescr_queue_inv").
       iInv "Hinv" as "(:inv۰inner =1)".
       iApply (aaccｰaupd with "HΦ"); first solve_ndisj.
       iIntros "%vs (:model)".
@@ -1006,11 +1006,11 @@ Section queue_mpmc_4۰G.
           rewrite Nat.add_1_r Nat.sub_diag in Hlookup2'.
           destruct descrs2 as [| descr'' descrs2]; first done. injection Hlookup2' as ->.
           iDestruct (big_sepL2_cons_inv_l with "Hdescrs") as "(%vs_front & %vss2' & -> & Hdescr_model & Hdescrs)".
-          iMod (tqueue_mpmc_2ｰmodelｰfinished with "Hdescr_queue_inv Hdescr_model Hfinished") as "(-> & Hdescr_model)"; first solve_ndisj.
+          iMod (tqueue_mpmcｰmodelｰfinished with "Hdescr_queue_inv Hdescr_model Hfinished") as "(-> & Hdescr_model)"; first solve_ndisj.
           iMod (frontｰupdate (length (past2 ++ [descr])) with "Hfront_auth") as "Hfront_auth".
           { rewrite length_app /=. lia. }
           iDestruct (model₂ｰequiv _ vss2' with "Hmodel₂") as "Hmodel₂"; first done.
-          iDestruct (big_sepL_snoc (λ _ descr, tqueue_mpmc_2۰model descr.(descriptor۰queue) []) past2 descr with "[$Hpast_model $Hdescr_model]") as "Hpast_model".
+          iDestruct (big_sepL_snoc (λ _ descr, tqueue_mpmc۰model descr.(descriptor۰queue) []) past2 descr with "[$Hpast_model $Hdescr_model]") as "Hpast_model".
 
           iSplitR "Hbackoff HΦ".
           { iExists hist2, (past2 ++ [descr]), descr', descrs2, descr_back_2, vss2'.
@@ -1048,7 +1048,7 @@ Section queue_mpmc_4۰G.
       wp۰apply+ (prophet_typed₁ｰwpｰproph prophet_null with "[//]") as (pid proph) "Hproph".
       wp۰pures. wp۰load.
 
-      awp۰apply (tqueue_mpmc_2٠is_emptyｰspec with "Hdescr_queue_inv").
+      awp۰apply (tqueue_mpmc٠is_emptyｰspec with "Hdescr_queue_inv").
       iInv "Hinv" as "(:inv۰inner =1)".
       iApply (aaccｰaupd with "HΦ"); first solve_ndisj.
       iIntros "%vs (:model)".

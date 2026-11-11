@@ -17,36 +17,36 @@ Require Import zoo.options.
   ; proph
   }.
 
-Definition tqueue_mpmc_2٠create : val :=
+Definition tqueue_mpmc٠create : val :=
   𝗳𝘂𝗻 "cap" ->
     𝗹𝗲𝘁 "data" = atomic_array٠make "cap" §optional٠Nothing 𝗶𝗻
     { "cap", "data", 0, 0, 𝗽𝗿𝗼𝗽𝗵 }.
 
-Definition tqueue_mpmc_2٠make : val :=
+Definition tqueue_mpmc٠make : val :=
   𝗳𝘂𝗻 "cap" "v" ->
     𝗹𝗲𝘁 "data" = atomic_array٠make "cap" §optional٠Nothing 𝗶𝗻
     atomic_array٠unsafe_set "data" 0 ‘optional٠Something( "v" ) ⍮
     { "cap", "data", 0, 1, 𝗽𝗿𝗼𝗽𝗵 }.
 
-Definition tqueue_mpmc_2٠is_empty : val :=
+Definition tqueue_mpmc٠is_empty : val :=
   𝗳𝘂𝗻 "t" ->
-    𝗹𝗲𝘁 "front" = "t".{tqueue_mpmc_2٠front} 𝗶𝗻
-    𝗹𝗲𝘁 "back" = "t".{tqueue_mpmc_2٠back} 𝗶𝗻
+    𝗹𝗲𝘁 "front" = "t".{tqueue_mpmc٠front} 𝗶𝗻
+    𝗹𝗲𝘁 "back" = "t".{tqueue_mpmc٠back} 𝗶𝗻
     "back" ≤ "front".
 
-Definition tqueue_mpmc_2٠push₁ : val :=
+Definition tqueue_mpmc٠push₁ : val :=
   𝗿𝗲𝗰 "push" "t" "v" ->
     𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
-    𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[tqueue_mpmc_2٠back] 1 𝗶𝗻
-    𝗶𝗳 "t".{tqueue_mpmc_2٠capacity} ≤ "i" 𝘁𝗵𝗲𝗻 (
+    𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[tqueue_mpmc٠back] 1 𝗶𝗻
+    𝗶𝗳 "t".{tqueue_mpmc٠capacity} ≤ "i" 𝘁𝗵𝗲𝗻 (
       false
     ) 𝗲𝗹𝘀𝗲 𝗶𝗳
        atomic_array٠unsafe_cas_resolve
-         "t".{tqueue_mpmc_2٠data}
+         "t".{tqueue_mpmc٠data}
          "i"
          §optional٠Nothing
          ‘optional٠Something( "v" )
-         "t".{tqueue_mpmc_2٠proph}
+         "t".{tqueue_mpmc٠proph}
          ( "i", "id" )
      𝘁𝗵𝗲𝗻 (
       true
@@ -54,29 +54,29 @@ Definition tqueue_mpmc_2٠push₁ : val :=
       "push" "t" "v"
     ).
 
-Definition tqueue_mpmc_2٠push : val :=
+Definition tqueue_mpmc٠push : val :=
   𝗳𝘂𝗻 "t" "v" ->
-    𝗶𝗳 "t".{tqueue_mpmc_2٠capacity} ≤ "t".{tqueue_mpmc_2٠back} 𝘁𝗵𝗲𝗻 (
+    𝗶𝗳 "t".{tqueue_mpmc٠capacity} ≤ "t".{tqueue_mpmc٠back} 𝘁𝗵𝗲𝗻 (
       false
     ) 𝗲𝗹𝘀𝗲 (
-      tqueue_mpmc_2٠push₁ "t" "v"
+      tqueue_mpmc٠push₁ "t" "v"
     ).
 
-Definition tqueue_mpmc_2٠pop : val :=
+Definition tqueue_mpmc٠pop : val :=
   𝗳𝘂𝗻 "t" ->
-    𝗶𝗳 "t".{tqueue_mpmc_2٠capacity} ≤ "t".{tqueue_mpmc_2٠front} 𝘁𝗵𝗲𝗻 (
+    𝗶𝗳 "t".{tqueue_mpmc٠capacity} ≤ "t".{tqueue_mpmc٠front} 𝘁𝗵𝗲𝗻 (
       §optional٠Anything
     ) 𝗲𝗹𝘀𝗲 (
       𝗹𝗲𝘁 "id" = 𝗶𝗱 𝗶𝗻
-      𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[tqueue_mpmc_2٠front] 1 𝗶𝗻
-      𝗶𝗳 "t".{tqueue_mpmc_2٠capacity} ≤ "i" 𝘁𝗵𝗲𝗻 (
+      𝗹𝗲𝘁 "i" = 𝗳𝗮𝗮 "t".[tqueue_mpmc٠front] 1 𝗶𝗻
+      𝗶𝗳 "t".{tqueue_mpmc٠capacity} ≤ "i" 𝘁𝗵𝗲𝗻 (
         §optional٠Anything
       ) 𝗲𝗹𝘀𝗲 (
         atomic_array٠unsafe_xchg_resolve
-          "t".{tqueue_mpmc_2٠data}
+          "t".{tqueue_mpmc٠data}
           "i"
           §optional٠Anything
-          "t".{tqueue_mpmc_2٠proph}
+          "t".{tqueue_mpmc٠proph}
           ( "i", "id" )
       )
     ).

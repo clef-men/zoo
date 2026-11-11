@@ -7,7 +7,7 @@ type ('a, _) node =
     ('a, [> `Null]) node
   | Node :
     { mutable next: ('a, [`Null | `Node]) node [@atomic]
-    ; queue: 'a Tqueue_mpmc_2.t
+    ; queue: 'a Tqueue_mpmc.t
     } ->
     ('a, [> `Node]) node
 
@@ -23,7 +23,7 @@ let create () =
   let front =
     Node {
       next= Null;
-      queue= Tqueue_mpmc_2.create queues_size;
+      queue= Tqueue_mpmc.create queues_size;
     }
   in
   { front; back= front }
@@ -31,7 +31,7 @@ let create () =
 let is_empty t =
   let Node front_r = t.front in
   let proph = Zoo.proph () in
-  Tqueue_mpmc_2.is_empty front_r.queue &&
+  Tqueue_mpmc.is_empty front_r.queue &&
   Zoo.resolve proph (front_r.next == Null)
 
 let rec fix_back t back new_back backoff =
@@ -48,7 +48,7 @@ let rec push t (node : (_, [`Node]) node) v backoff =
   | Node _ as next ->
       push t next v backoff
   | Null ->
-      if not @@ Tqueue_mpmc_2.push node_r.queue v then
+      if not @@ Tqueue_mpmc.push node_r.queue v then
         match node_r.next with
         | Node _ as next ->
             Atomic.Loc.compare_and_set [%atomic.loc t.back] node next |> ignore ;
@@ -57,7 +57,7 @@ let rec push t (node : (_, [`Node]) node) v backoff =
             let (Node _ as new_back : (_, [`Node]) node) =
               Node {
                 next= Null;
-                queue= Tqueue_mpmc_2.make queues_size v;
+                queue= Tqueue_mpmc.make queues_size v;
               }
             in
             if Atomic.Loc.compare_and_set [%atomic.loc node_r.next] Null new_back then
@@ -69,7 +69,7 @@ let push t v =
 
 let rec pop_aux t front backoff =
   let Node front_r = front in
-  match Tqueue_mpmc_2.pop front_r.queue with
+  match Tqueue_mpmc.pop front_r.queue with
   | Something v ->
       Some v
   | Nothing ->
@@ -84,7 +84,7 @@ let rec pop_aux t front backoff =
 and pop t backoff =
   let Node front_r as front = t.front in
   let proph = Zoo.proph () in
-  if Tqueue_mpmc_2.is_empty front_r.queue then
+  if Tqueue_mpmc.is_empty front_r.queue then
     match Zoo.resolve_with front_r.next proph () with
     | Null ->
         None

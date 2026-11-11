@@ -5,7 +5,7 @@ Require Import zoo.plugin.
 Require Import zoo.language.notations.
 Require Import zoo.language.typeclasses.
 Require Import backoff.backoff.
-Require Import zoo_saturn.tqueue_mpmc_2.
+Require Import zoo_saturn.tqueue_mpmc.
 Require Import zoo_std.optional.
 Require Import zoo.options.
 
@@ -31,7 +31,7 @@ Definition queue_mpmc_4٠create : val :=
     𝗹𝗲𝘁 "front" =
       ‘queue_mpmc_4٠Node{
         §queue_mpmc_4٠Null
-      , tqueue_mpmc_2٠create queue_mpmc_4٠queues_size
+      , tqueue_mpmc٠create queue_mpmc_4٠queues_size
       }
     𝗶𝗻
     { "front", "front" }.
@@ -41,7 +41,7 @@ Definition queue_mpmc_4٠is_empty : val :=
     𝗺𝗮𝘁𝗰𝗵 "t".{queue_mpmc_4٠front} 𝘄𝗶𝘁𝗵
     | queue_mpmc_4٠Node ⎽ ⎽ 𝗮𝘀 "front_r" ->
         𝗹𝗲𝘁 "proph" = 𝗽𝗿𝗼𝗽𝗵 𝗶𝗻
-        tqueue_mpmc_2٠is_empty "front_r".{queue_mpmc_4٠queue}
+        tqueue_mpmc٠is_empty "front_r".{queue_mpmc_4٠queue}
         𝗮𝗻𝗱
         (𝗹𝗲𝘁 "@tmp" = "front_r".{queue_mpmc_4٠next} == §queue_mpmc_4٠Null 𝗶𝗻
          𝗿𝗲𝘀𝗼𝗹𝘃𝗲 𝘀𝗸𝗶𝗽 "proph" "@tmp" ⍮
@@ -77,7 +77,7 @@ Definition queue_mpmc_4٠push₁ : val :=
         | queue_mpmc_4٠Node ⎽ ⎽ 𝗮𝘀 "next" ->
             "push" "t" "next" "v" "backoff"
         | queue_mpmc_4٠Null ->
-            𝗶𝗳 ~ tqueue_mpmc_2٠push "node_r".{queue_mpmc_4٠queue} "v" 𝘁𝗵𝗲𝗻 (
+            𝗶𝗳 ~ tqueue_mpmc٠push "node_r".{queue_mpmc_4٠queue} "v" 𝘁𝗵𝗲𝗻 (
               𝗺𝗮𝘁𝗰𝗵 "node_r".{queue_mpmc_4٠next} 𝘄𝗶𝘁𝗵
               | queue_mpmc_4٠Node ⎽ ⎽ 𝗮𝘀 "next" ->
                   𝗰𝗮𝘀 "t".[queue_mpmc_4٠back] "node" "next" ⍮
@@ -86,7 +86,7 @@ Definition queue_mpmc_4٠push₁ : val :=
                   𝗺𝗮𝘁𝗰𝗵
                     ‘queue_mpmc_4٠Node{
                       §queue_mpmc_4٠Null
-                    , tqueue_mpmc_2٠make queue_mpmc_4٠queues_size "v"
+                    , tqueue_mpmc٠make queue_mpmc_4٠queues_size "v"
                     }
                   𝘄𝗶𝘁𝗵
                   | queue_mpmc_4٠Node ⎽ ⎽ 𝗮𝘀 "new_back" ->
@@ -114,7 +114,7 @@ Definition queue_mpmc_4٠push : val :=
   ( 𝗿𝗲𝗰𝘀 "pop_aux" "t" "front" "backoff" ->
       𝗺𝗮𝘁𝗰𝗵 "front" 𝘄𝗶𝘁𝗵
       | queue_mpmc_4٠Node ⎽ ⎽ 𝗮𝘀 "front_r" ->
-          𝗺𝗮𝘁𝗰𝗵 tqueue_mpmc_2٠pop "front_r".{queue_mpmc_4٠queue} 𝘄𝗶𝘁𝗵
+          𝗺𝗮𝘁𝗰𝗵 tqueue_mpmc٠pop "front_r".{queue_mpmc_4٠queue} 𝘄𝗶𝘁𝗵
           | optional٠Something "v" ->
               ‘Some( "v" )
           | optional٠Nothing ->
@@ -134,7 +134,7 @@ Definition queue_mpmc_4٠push : val :=
       | queue_mpmc_4٠Node ⎽ ⎽ 𝗮𝘀 "front" ->
           𝗹𝗲𝘁 "front_r" = "front" 𝗶𝗻
           𝗹𝗲𝘁 "proph" = 𝗽𝗿𝗼𝗽𝗵 𝗶𝗻
-          𝗶𝗳 tqueue_mpmc_2٠is_empty "front_r".{queue_mpmc_4٠queue} 𝘁𝗵𝗲𝗻 (
+          𝗶𝗳 tqueue_mpmc٠is_empty "front_r".{queue_mpmc_4٠queue} 𝘁𝗵𝗲𝗻 (
             𝗺𝗮𝘁𝗰𝗵 𝗿𝗲𝘀𝗼𝗹𝘃𝗲 "front_r".{queue_mpmc_4٠next} "proph" () 𝘄𝗶𝘁𝗵
             | queue_mpmc_4٠Null ->
                 §None
