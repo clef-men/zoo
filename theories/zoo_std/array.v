@@ -57,6 +57,15 @@ Section zoo۰G.
       iIntros "(%l & -> & #Hheader1) (%_l & %Heq & #Hheader2)". injection Heq as <-.
       iDestruct (headers۰atｰagree with "Hheader1 Hheader2") as %[= ->]. done.
     Qed.
+    Lemma array۰invｰsimilar t sz v :
+      v ≈ t →
+      array۰inv t sz ⊢
+      ⌜v = t⌝.
+    Proof.
+      iIntros "%Hsimilar (%l & -> & _) !%".
+      destruct v as [[] | | gen tag []]; try done.
+      apply valｰsimilarｰlocation in Hsimilar as ->. done.
+    Qed.
   End array۰inv.
 
   Section array۰slice.
@@ -8292,6 +8301,37 @@ Section zoo۰G.
     iExists (<[i := if b then v2 else v]> vs). simp_length. destruct b; iSteps.
   Qed.
 
+  Lemma array٠unsafe_faaｰtype t (sz : nat) (i : Z) (incr : Z) :
+    (0 ≤ i < sz)%Z →
+    {{{
+      itype۰array itype۰int sz t
+    }}}
+      array٠unsafe_faa t #i #incr
+    {{{
+      (n : Z)
+    , RET #n;
+      True
+    }}}.
+  Proof.
+    iIntros "%Hi %Φ (%l & -> & #Hheader & #Htype) HΦ".
+
+    wp۰rec. wp۰pures.
+    Z_to_nat i.
+
+    iInv "Htype" as "(%vs & >%Hvs & >Hmodel & >#Hvs)".
+    destruct (lookup_lt_is_Some_2 vs i) as (v & Hlookup); first lia.
+    iDestruct (big_sepL_lookup with "Hvs") as "Hv"; first done.
+    iDestruct "Hv" as "(%n & ->)".
+    iDestruct (chunk۰modelｰupdate i with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | lia |].
+    wp۰faa.
+    iSplitR "HΦ"; last iSteps.
+    iDestruct (big_sepL_insert_acc with "Hvs") as "(_ & Hvs')"; first done.
+    iExists (<[i := #(n + incr)]> vs). simp_length.
+    iSplitR. { done. }
+    iSplitL "H↦ Hmodel". { iApply ("Hmodel" with "H↦"). }
+    iApply "Hvs'". iSteps.
+  Qed.
+
   Lemma array٠unsafe_fill_sliceｰtype τ `{!iType _ τ} t (sz : nat) (i n : Z) v :
     (0 ≤ i)%Z →
     (0 ≤ n)%Z →
@@ -8444,6 +8484,26 @@ Section zoo۰G.
     iIntros "%Φ (#Htype & #Hacc & #Hfn) HΦ".
     wp۰rec.
     wp۰apply+ (array٠foldliｰtype τ υ with "[$Htype $Hacc] HΦ").
+    iSteps.
+  Qed.
+
+  Lemma array٠sumｰtype t sz :
+    {{{
+      itype۰array itype۰int sz t
+    }}}
+      array٠sum t
+    {{{
+      (n : Z)
+    , RET #n;
+      True
+    }}}.
+  Proof.
+    iIntros "%Φ #Htype HΦ".
+
+    wp۰rec.
+    wp۰apply+ (array٠foldlｰtype itype۰int itype۰int with "[$Htype]") as (acc) "Hacc".
+    { iSteps. }
+    iDestruct "Hacc" as "(%n & ->)".
     iSteps.
   Qed.
 

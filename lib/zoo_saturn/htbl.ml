@@ -2,8 +2,6 @@
    https://github.com/ocaml-multicore/saturn/blob/306bea620cc0cfcc33639c45a56da59add9bdd92/src/htbl/htbl.body.ml
 *)
 
-[@@@zoo.ignore]
-
 module Bucket = struct
   type ('k, 'v) t =
     | Init
@@ -34,11 +32,28 @@ module Bucket = struct
           Cons (key', v, dissoc ~equal key t)
     | _ ->
         assert false
-  let[@zoo.opaque] dissoc ~equal key t =
+  let dissoc ~equal key t =
     try
       Some (dissoc ~equal key t)
     with Not_found ->
       None
+  [@@zoo.overwrite_rec
+    fun ~equal key -> function
+      | Nil ->
+          None
+      | Cons (key', v, t) ->
+          if equal key key' then
+            Some t
+          else
+            begin match dissoc ~equal key t with
+            | None ->
+                None
+            | Some t ->
+                Some (Cons (key', v, t))
+            end
+      | _ ->
+          assert false
+  ]
 
   let rec filter pred = function
     | Nil ->
@@ -137,9 +152,9 @@ type ('k, 'v) t =
   ; mutable state: ('k, 'v) state [@atomic]
   }
 
-let[@zoo.opaque] min_buckets =
-  1 lsl 4
-let[@zoo.opaque] max_buckets =
+let min_buckets =
+  16
+let max_buckets =
   Sys.max_array_length
 
 let create ~hash ~equal =

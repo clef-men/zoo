@@ -102,6 +102,15 @@ Fixpoint exec۰match tag sz subj x_fb e_fb brs :=
   end.
 #[global] Arguments exec۰match _ _ !_ _ _ !_ / : assert.
 
+Lemma exec۰matchｰfallback tag sz subj x_fb e_fb brs :
+  forallb (λ br, negb (br.1.(pattern۰tag) ≟ tag && length br.1.(pattern۰fields) ≟ sz)) brs = true →
+  exec۰match tag sz subj x_fb e_fb brs = Some (subst' x_fb (subject۰to_val tag subj) e_fb).
+Proof.
+  induction brs as [| (pat, e) brs IH]; first done.
+  rewrite /= andb_true_iff negb_true_iff. intros (Hpat & Hbrs).
+  destruct subj; rewrite /= Hpat; apply IH, Hbrs.
+Qed.
+
 Definition exec۰unop op v :=
   match op, v with
   | UnopNeg, ValBool b =>
