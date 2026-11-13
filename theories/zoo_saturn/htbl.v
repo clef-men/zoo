@@ -1868,7 +1868,7 @@ Section htbl۰G.
   Proof.
     iIntros "%Hcell %Φ (#Hequal & #Hkey & #Hentries) HΦ".
     destruct cell as [| entries | entries]; first done; simpl.
-    - iApply (htbl٠bucket٠assocｰspecｰbucket with "[$Hequal $Hkey $Hentries] HΦ").
+    - wp۰apply (htbl٠bucket٠assocｰspecｰbucket with "[$Hequal $Hkey $Hentries] HΦ").
     - wp۰rec.
       wp۰apply+ (htbl٠bucket٠assocｰspecｰbucket with "[$Hequal $Hkey $Hentries] HΦ").
   Qed.
@@ -1907,10 +1907,7 @@ Section htbl۰G.
         iSteps.
 
       + rewrite bool_decide_eq_false_2 //.
-        wp۰pures.
-        wp۰bind (htbl٠bucket٠dissoc _ _ _)%E.
-        iApply ("IH" $! 𝑘𝑒𝑦𝑠 with "[] Hbucket'"); first auto with lia.
-        iIntros "!>".
+        wp۰apply+ ("IH" $! 𝑘𝑒𝑦𝑠 with "[] Hbucket'"); first auto with lia.
         destruct (list_find _ 𝑘𝑒𝑦𝑠) as [(i, 𝑘𝑒𝑦'') |] => /=.
 
         * iSteps.
@@ -2314,9 +2311,7 @@ Section htbl۰G.
 
     wp۰rec.
     rewrite htbl٠min_bucketsｰunfold.
-    wp۰pures.
-    wp۰bind (domain٠recommended_domain_count _)%E.
-    iApply domain٠recommended_domain_countｰspec. iIntros "%sz %Hsz !>".
+    wp۰apply+ domain٠recommended_domain_countｰspec as "%sz %Hsz !>".
     wp۰apply (array٠makeｰtype itype۰int with "[]") as (sizes) "(_ & #Hsizes)".
     { iSteps. }
     wp۰apply+ (array٠makeｰspec with "[//]") as (buckets) "(_ & Hbuckets)".
@@ -2650,15 +2645,10 @@ Section htbl۰G.
       wp۰apply+ (wpｰwand with "(Hvalid_hash Hkey)") as (res) "->".
       iSteps.
     }
-    wp۰bind (htbl٠bucket٠filter _ _)%E.
-    iApply (htbl٠bucket٠filterｰspec (λ entry, Z.land (𝘩𝑎𝑠𝘩 entry.(entry۰𝑘𝑒𝑦)) ⁺cap = 0)%Z _ entries).
+    wp۰apply (htbl٠bucket٠filterｰspec (λ entry, Z.land (𝘩𝑎𝑠𝘩 entry.(entry۰𝑘𝑒𝑦)) ⁺cap = 0)%Z _ entries) as "_".
     { iApply ("Hpred" $! 0%Z). }
-    iIntros "!> _".
-    wp۰pures.
-    wp۰bind (htbl٠bucket٠filter _ _)%E.
-    iApply (htbl٠bucket٠filterｰspec (λ entry, Z.land (𝘩𝑎𝑠𝘩 entry.(entry۰𝑘𝑒𝑦)) ⁺cap = ⁺cap)%Z _ entries).
+    wp۰apply+ (htbl٠bucket٠filterｰspec (λ entry, Z.land (𝘩𝑎𝑠𝘩 entry.(entry۰𝑘𝑒𝑦)) ⁺cap = ⁺cap)%Z _ entries) as "_".
     { iApply ("Hpred" $! ⁺cap). }
-    iIntros "!> _".
     wp۰pures.
 
     wp۰bind (_.{state})%E.
@@ -2849,21 +2839,13 @@ Section htbl۰G.
 
       - iDestruct "Ho" as "((:gen۰witness =next) & %Hcaps)".
         rewrite /state۰to_val /status۰to_val.
-        wp۰pures.
-        wp۰bind (htbl٠buckets٠size _)%E.
-        iApply (array٠sizeｰspecｰinv with "Harray_inv").
-        iIntros "!> _".
-        wp۰pures.
-        wp۰bind (htbl٠buckets٠size _)%E.
-        iApply (array٠sizeｰspecｰinv with "Harray_inv_next").
-        iIntros "!> _".
-        wp۰pures.
-        wp۰bind (random٠bits _)%E.
-        iApply random٠bitsｰspec. iIntros "%k".
+        wp۰apply+ (array٠sizeｰspecｰinv with "Harray_inv") as "_".
+        wp۰apply+ (array٠sizeｰspecｰinv with "Harray_inv_next") as "_".
+        wp۰apply+ random٠bitsｰspec as "%k".
         wp۰pures.
 
         wp۰bind (𝗶𝗳 #(bool_decide (⁺cap < ⁺cap')) 𝘁𝗵𝗲𝗻 _ 𝗲𝗹𝘀𝗲 _)%E.
-        iApply (wpｰwand (λ res,
+        wp۰apply (wpｰwand (λ res,
           ∃ b,
           ⌜res = #b⌝ ∗
           if b then
@@ -2872,20 +2854,18 @@ Section htbl۰G.
             inited۰elem γ ˖g j
           else
             True
-        )%I with "[]").
+        )%I with "[]") as "%res (%b & -> & Hb)".
         { case_bool_decide as Hlt; wp۰pures.
           - assert (cap' = 2 * cap) as -> by lia.
-            wp۰bind (htbl٠split_buckets _ _ _ _ _ _)%E.
-            iApply (htbl٠split_bucketsｰspec γ _ _ g buckets cap buckets' (2 * cap) 0 (Z.lor k 1) with "[]"); [done | apply Zｰlorｰ1ｰodd | |].
+            wp۰apply (htbl٠split_bucketsｰspec γ _ _ g buckets cap buckets' (2 * cap) 0 (Z.lor k 1) with "[]"); [done | apply Zｰlorｰ1ｰodd | |].
             { iFrame "#". iSteps. }
             iSteps.
           - assert (cap = 2 * cap') as -> by lia.
-            wp۰bind (htbl٠merge_buckets _ _ _ _ _ _)%E.
-            iApply (htbl٠merge_bucketsｰspec γ _ _ g buckets (2 * cap') buckets' cap' 0 (Z.lor k 1) with "[]"); [done | apply Zｰlorｰ1ｰodd | |].
+            wp۰apply (htbl٠merge_bucketsｰspec γ _ _ g buckets (2 * cap') buckets' cap' 0 (Z.lor k 1) with "[]"); [done | apply Zｰlorｰ1ｰodd | |].
             { iFrame "#". iSteps. }
             iSteps.
         }
-        iIntros "%res (%b & -> & Hb)".
+
         destruct b; wp۰pures; last first.
         { wp۰apply ("IHfinish" with "Hhtbl HΦ"). }
 
@@ -3090,22 +3070,18 @@ Section htbl۰G.
 
     wp۰rec.
     wp۰load.
-    wp۰bind (atomic_array٠size _)%E.
-    iApply (array٠sizeｰtype itype۰int with "Hsizes"). iIntros "!> _".
-    wp۰bind (domain٠self_index _)%E.
-    iApply domain٠self_indexｰspec. iIntros "%k !>".
+    wp۰apply (array٠sizeｰtype itype۰int with "Hsizes") as "_".
+    wp۰apply domain٠self_indexｰspec as "%k !>".
     wp۰load.
     pose proof (Z.rem_bound_pos ⁺k ⁺sz ltac:(lia) ltac:(lia)) as Hrem.
-    wp۰bind (atomic_array٠unsafe_faa _ _ _)%E.
-    iApply (array٠unsafe_faaｰtype with "Hsizes"); first lia. iIntros "!> %n _".
+    wp۰apply (array٠unsafe_faaｰtype with "Hsizes") as "%n _"; first lia.
     wp۰pures.
     rewrite /state۰to_val.
     destruct o as [(buckets', cap') |]; rewrite /status۰to_val; wp۰pures.
 
     - iApply "HΦ". done.
 
-    - wp۰bind (random٠bits _)%E.
-      iApply random٠bitsｰspec. iIntros "%r".
+    - wp۰apply random٠bitsｰspec as "%r".
       wp۰pures.
       case_bool_decide; wp۰pures; last (iApply "HΦ"; done).
 
@@ -3117,11 +3093,8 @@ Section htbl۰G.
 
       wp۰equal as _ | _; wp۰pures; first (iApply "HΦ"; done).
       wp۰load.
-      wp۰bind (atomic_array٠sum _)%E.
-      iApply (array٠sumｰtype with "Hsizes"). iIntros "!> %total _".
-      wp۰pures.
-      wp۰bind (htbl٠buckets٠size _)%E.
-      iApply (array٠sizeｰspecｰinv with "Harray_inv"). iIntros "!> _".
+      wp۰apply (array٠sumｰtype with "Hsizes") as "%total _".
+      wp۰apply+ (array٠sizeｰspecｰinv with "Harray_inv") as "_".
       destruct htbl٠max_bucketsｰspec as (mx & ->).
       rewrite htbl٠min_bucketsｰunfold.
       wp۰pures.
@@ -3146,7 +3119,7 @@ Section htbl۰G.
         destruct (is_pow2ｰhalf cap Hpow2) as (Hpow2' & Hhalf); first lia.
         assert (Z.shiftr ⁺cap 1 = ⁺(cap / 2))%Z as ->.
         { rewrite Z.shiftr_div_pow2; first lia. rewrite Nat2Z.inj_div //. }
-        iApply (htbl٠resize₁ｰspec _ _ _ g buckets cap (cap / 2) with "[] [HΨ]"); [done | right; done | | iSteps].
+        wp۰apply (htbl٠resize₁ｰspec _ _ _ g buckets cap (cap / 2) with "[] [HΨ]"); [done | right; done | | iSteps].
         iFrame "#". iSteps.
       }
       case_bool_decide as Hcell1; last (wp۰pure; wp۰pure; iApply ("Hshrink" with "HΦ")).
@@ -3155,7 +3128,7 @@ Section htbl۰G.
       wp۰pures.
       assert (Z.shiftl ⁺cap 1 = ⁺(2 * cap))%Z as ->.
       { rewrite Z.shiftl_mul_pow2; lia. }
-      iApply (htbl٠resize₁ｰspec _ _ _ g buckets cap (2 * cap) with "[] HΦ"); [apply is_pow2ｰdouble; done | left; done |].
+      wp۰apply (htbl٠resize₁ｰspec _ _ _ g buckets cap (2 * cap) with "[] HΦ"); [apply is_pow2ｰdouble; done | left; done |].
       iFrame "#". iSteps.
   Qed.
 
@@ -3260,9 +3233,7 @@ Section htbl۰G.
           iIntros "!> H£ Hbackoff".
           iMod (lc_fupd_elim_later with "H£ Hentries") as "#Hentries'".
           wp۰load.
-          wp۰bind (htbl٠bucket٠assoc _ _ _)%E.
-          iApply (htbl٠bucket٠assocｰspecｰbucket _ key 𝑘𝑒𝑦 entries with "[$Hvalid_equal $Hkey $Hentries']").
-          iIntros "!> %node %Hnode".
+          wp۰apply (htbl٠bucket٠assocｰspecｰbucket _ key 𝑘𝑒𝑦 entries with "[$Hvalid_equal $Hkey $Hentries']") as "%node %Hnode".
           rewrite Hlookup in Hnode.
           destruct Hnode as (key'' & rest & ->).
           wp۰pures.
@@ -3274,9 +3245,7 @@ Section htbl۰G.
           iMod (lc_fupd_elim_later with "H£ Hentries") as "#Hentries'".
 
           wp۰load.
-          wp۰bind (htbl٠bucket٠assoc _ _ _)%E.
-          iApply (htbl٠bucket٠assocｰspecｰbucket _ key 𝑘𝑒𝑦 entries with "[$Hvalid_equal $Hkey $Hentries']").
-          iIntros "!> %node %Hnode".
+          wp۰apply (htbl٠bucket٠assocｰspecｰbucket _ key 𝑘𝑒𝑦 entries with "[$Hvalid_equal $Hkey $Hentries']") as "%node %Hnode".
           rewrite Hlookup in Hnode. simpl in Hnode. subst node.
           wp۰pure credit:"H£".
 
@@ -3521,8 +3490,7 @@ Section htbl۰G.
           iMod (lc_fupd_elim_later with "H£ Hentries") as "#Hentries'".
 
           wp۰load.
-          wp۰bind (htbl٠bucket٠dissoc _ _ _)%E.
-          iApply (htbl٠bucket٠dissocｰspec equal key 𝑘𝑒𝑦 (entries۰bucket entries) (entries۰𝑘𝑒𝑦𝑠 entries) with "Hvalid_equal Hkey [] [Hbackoff HΦ]").
+          wp۰apply (htbl٠bucket٠dissocｰspec equal key 𝑘𝑒𝑦 (entries۰bucket entries) (entries۰𝑘𝑒𝑦𝑠 entries) with "Hvalid_equal Hkey [] [Hbackoff HΦ]").
           { rewrite !length_fmap //. }
           { iModIntro. iApply (entries۰modelｰsep2 with "Hentries'"). }
           destruct (list_find (λ 𝑘𝑒𝑦', 𝑘𝑒𝑦 = 𝑘𝑒𝑦') (entries۰𝑘𝑒𝑦𝑠 entries)) as [(k, 𝑘𝑒𝑦'') |] eqn:Hfind; last first.
@@ -3619,8 +3587,7 @@ Section htbl۰G.
           iMod (lc_fupd_elim_later with "H£ Hentries") as "#Hentries'".
 
           wp۰load.
-          wp۰bind (htbl٠bucket٠dissoc _ _ _)%E.
-          iApply (htbl٠bucket٠dissocｰspec equal key 𝑘𝑒𝑦 (entries۰bucket entries) (entries۰𝑘𝑒𝑦𝑠 entries) with "Hvalid_equal Hkey [] [HΦ]").
+          wp۰apply (htbl٠bucket٠dissocｰspec equal key 𝑘𝑒𝑦 (entries۰bucket entries) (entries۰𝑘𝑒𝑦𝑠 entries) with "Hvalid_equal Hkey [] [HΦ]").
           { rewrite !length_fmap //. }
           { iModIntro. iApply (entries۰modelｰsep2 with "Hentries'"). }
           apply entries۰lookupｰlist_find in Hlookup as ->.
