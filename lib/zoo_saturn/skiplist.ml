@@ -1,5 +1,3 @@
-[@@@zoo.ignore]
-
 type ('k, 'v, _) node =
   | Null :
     ('k, 'v, [> `Null]) node
@@ -66,15 +64,19 @@ and find_node t key =
   let lvl = Atomic_array.size prevs - 1 in
   find_node_2 t key prevs lvl
 
+let find_node_resolved t key =
+  let proph = Zoo.proph () in
+  Zoo.resolve proph (find_node t key)
+
 let find t key =
-  match find_node t key with
+  match find_node_resolved t key with
   | Null ->
       None
   | Node (_, value, _) ->
       Some value
 
 let mem t key =
-  match find_node t key with
+  match find_node_resolved t key with
   | Null ->
       false
   | Node _ ->
@@ -154,7 +156,7 @@ and update_nexts t key preds succs nexts node lvl lvl' =
 let rec add t key value preds succs =
   not (find_path t key preds succs 0)
   &&
-  let nexts = Atomic_array.initi (Array.size succs) (Array.unsafe_get succs) in
+  let nexts = Atomic_array.initi (Array.size succs) (fun i -> Array.unsafe_get succs i) in
   let node = Node (key, value, nexts) in
   if
     let succ = Array.unsafe_get succs 0 in
@@ -188,7 +190,8 @@ let rec remove_1 t key nexts lvl = function
 and remove_2 t key nexts lvl =
   remove_1 t key nexts lvl (Atomic_array.unsafe_get nexts lvl)
 let remove t key =
-  match find_node t key with
+  let proph = Zoo.proph () in
+  match Zoo.resolve proph (find_node t key) with
   | Null ->
       false
   | Node (_, _, nexts) ->
