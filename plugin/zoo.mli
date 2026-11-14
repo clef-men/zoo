@@ -32,6 +32,11 @@ val _ValProph :
 val _ValProph_constr :
   Constrexpr.constr_expr
 
+val _ValTuple :
+  string
+val _ValTuple_constr :
+  Constrexpr.constr_expr
+
 val _ToVal :
   string
 val _ToVal_constr :

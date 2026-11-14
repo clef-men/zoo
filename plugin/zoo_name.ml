@@ -1,3 +1,13 @@
+type field_kind =
+  | Normal
+  | Sharp
+
+type field =
+  { kind: field_kind
+  ; name: string
+  ; typ: Constrexpr.constr_expr
+  }
+
 let record_basename =
   "name"
 let record_name () : string =
@@ -20,12 +30,6 @@ let field_name (name : string) : string =
     (record_name ())
     Separator.cdot1
     name
-let field_ident (id : Names.Id.t) : Names.Id.t =
-  id |> Names_.Id.map field_name
-let field_qualid (id : Names.Id.t) : Libnames.qualid =
-  id
-  |> field_ident
-  |> Libnames.qualid_of_ident
 
 let coercion_name () : string =
   Printf.sprintf "%s%s%s"
@@ -54,25 +58,24 @@ let instance_qualid () : Libnames.qualid =
   instance_name ()
   |> Libnames.qualid_of_string
 
-let field (name : Names.Name.t) : Names.Name.t =
-  match name with
-  | Anonymous ->
-      Anonymous
-  | Name id ->
-      Name (id |> field_ident)
-let field (name : Names.lname) =
-  name |> CAst.map field
-let field (decl : Vernacexpr.local_decl_expr) : Vernacexpr.local_decl_expr =
-  match decl with
-  | AssumExpr (name, bdrs, ty) ->
-      AssumExpr (name |> field, bdrs, ty)
-  | DefExpr (name, bdrs, body, ty) ->
-      DefExpr (name |> field, bdrs, body, ty)
-let field (decl, attrs : Vernacexpr.local_decl_expr * Vernacexpr.record_field_attr_unparsed) =
-  decl |> field, attrs
+let field fld =
+  Vernacexpr.AssumExpr
+  ( fld.name |> field_name |> Names_.lname_of_string
+  , []
+  , fld.typ
+  )
 
 let fields =
-  List.map field
+  let attrs =
+    Vernacexpr.
+    { rfu_attrs= []
+    ; rfu_coercion= NoCoercion
+    ; rfu_instance= NoInstance
+    ; rfu_priority= None
+    ; rfu_notation= []
+    }
+  in
+  List.map (fun fld -> fld |> field, attrs)
 
 let record flds =
   let open Vernacexpr in
@@ -107,29 +110,63 @@ let instance ~locality =
     )
   ]
 
+module Category = struct
+  type t =
+    | Location
+    | Prophet
+    | Other
+
+  let of_type (ty : Constrexpr.constr_expr) =
+    match ty.v with
+    | CRef (ty, _inst) ->
+        let ty = Nametab.locate ty in
+        if Names.GlobRef.UserOrd.equal ty (Zoo.location_gref ()) then
+          Location
+        else if Names.GlobRef.UserOrd.equal ty (Zoo.prophet_identifier_gref ()) then
+          Prophet
+        else
+          Other
+    | _ ->
+        Other
+
+  let coercion t constr =
+    let open Constrexpr_ in
+    match t with
+    | Location ->
+        mk_app Zoo._ValLoc_constr [constr]
+    | Prophet ->
+        mk_app Zoo._ValProph_constr [constr]
+    | Other ->
+        constr
+end
+
 type coercion_kind =
-  | Location
-  | Prophet
-  | Other
+  | Single of field
+  | Tuple of field list
 let coercion fld =
   let open Constrexpr in
   let open Constrexpr_ in
   CProj
   ( false
-  , (fld |> field_qualid, None)
+  , (fld.name |> field_name |> Libnames.qualid_of_string, None)
   , []
   , Iris.gamma_constr
   ) |> CAst.make
-let coercion ~kind fld =
-  let open Constrexpr_ in
+let coercion ~kind =
   match kind with
-  | Location ->
-      mk_app Zoo._ValLoc_constr [coercion fld]
-  | Prophet ->
-      mk_app Zoo._ValProph_constr [coercion fld]
-  | Other ->
-      coercion fld
-let coercion ~locality ~kind fld =
+  | Single fld ->
+      Category.(coercion (of_type fld.typ)) (coercion fld)
+  | Tuple flds ->
+      let open Constrexpr_ in
+      mk_app
+        Zoo._ValTuple_constr
+        [ flds
+          |> List.map (fun fld ->
+            Category.(coercion (of_type fld.typ)) (coercion fld)
+          )
+          |> mk_list
+        ]
+let coercion ~locality ~kind =
   let open Vernacexpr in
   let open Constrexpr in
   let open Constrexpr_ in
@@ -146,7 +183,7 @@ let coercion ~locality ~kind fld =
             )
           ]
         , None
-        , coercion ~kind fld
+        , coercion ~kind
         , Some Zoo.val_constr
         )
       )
@@ -160,22 +197,18 @@ let coercion ~locality ~kind fld =
         )
       )
     )
-  ]
-let coercion ~locality fld ty =
-  let ty = Nametab.locate ty in
-  if Names.GlobRef.UserOrd.equal ty (Zoo.location_gref ()) then
-    coercion ~locality ~kind:Location fld
-  else if Names.GlobRef.UserOrd.equal ty (Zoo.prophet_identifier_gref ()) then
-    coercion ~locality ~kind:Prophet fld
+  ] @
+  instance ~locality
+let coercion ~locality flds =
+  let flds_sharp = flds |> List.filter (fun fld -> fld.kind = Sharp) in
+  if flds_sharp <> [] then
+    coercion ~locality ~kind:(Tuple flds_sharp)
   else
-    coercion ~locality ~kind:Other fld
-let coercion ~locality (flds : (Vernacexpr.local_decl_expr * Vernacexpr.record_field_attr_unparsed) list) =
-  match flds with
-  | (AssumExpr ({ v= Name fld; _}, _bdrs, { v= CRef (ty, _inst); _ }), _attrs) :: _ ->
-      coercion ~locality fld ty @
-      instance ~locality
-  | _ ->
-      []
+    match flds with
+    | [] ->
+        []
+    | fld :: _ ->
+        coercion ~locality ~kind:(Single fld)
 
 let interp ~locality ~state flds =
   let state =

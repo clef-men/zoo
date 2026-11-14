@@ -43,6 +43,12 @@ let _ValProph_constr =
   _ValProph
   |> Constrexpr_.mk_ref_string
 
+let _ValTuple =
+  "zoo.language.syntax.ValTuple"
+let _ValTuple_constr =
+  _ValTuple
+  |> Constrexpr_.mk_ref_string
+
 let _ToVal =
   "zoo.language.notations.ToVal"
 let _ToVal_constr =

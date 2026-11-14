@@ -9,9 +9,6 @@ open Procq.Constr
 open Procq.Prim
 open Stdarg
 
-let record_field =
-  G_vernac.record_field
-
 let attribute_qualification =
   Attributes.bool_attribute ~name:"qualified"
 
@@ -111,9 +108,15 @@ VERNAC COMMAND EXTEND zoo_derive
     { Zoo_derive.interp ~locality ~kind ~modifier id }
 END
 
+VERNAC ARGUMENT EXTEND zoo_name_kind
+| [ ] ->
+    { Zoo_name.Normal }
+| [ "#" ] ->
+    { Zoo_name.Sharp }
+END
 VERNAC ARGUMENT EXTEND zoo_name_field
-| [ record_field(fld) ] ->
-    { fld }
+| [ zoo_name_kind(kind) zoo_ident(name) ":" lconstr(typ) ] ->
+    { Zoo_name.{ kind; name; typ } }
 END
 VERNAC ARGUMENT EXTEND zoo_name_fields
 | [ "{" zoo_name_field_list_sep(flds, ";") "}" ] ->
