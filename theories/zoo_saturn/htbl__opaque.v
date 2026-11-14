@@ -2,6 +2,7 @@
 
 Require Import zoo_saturn.htbl__code.
 
+#[global] Opaque htbl٠bucket٠mem.
 #[global] Opaque htbl٠bucket٠assoc.
 #[global] Opaque htbl٠bucket٠dissoc.
 #[global] Opaque htbl٠bucket٠filter.
@@ -17,9 +18,8 @@ Require Import zoo_saturn.htbl__code.
 #[global] Opaque htbl٠max_capacity.
 #[global] Opaque htbl٠create.
 #[global] Opaque htbl٠index.
-#[global] Opaque htbl٠find_node.
-#[global] Opaque htbl٠find.
 #[global] Opaque htbl٠mem.
+#[global] Opaque htbl٠find.
 #[global] Opaque htbl٠split_buckets.
 #[global] Opaque htbl٠merge_buckets.
 #[global] Opaque htbl٠finish_as.

@@ -17,16 +17,33 @@ Require Import zoo.options.
   | Cons _
   | Resize _.
 
-Definition htbl٠bucket٠assoc : val :=
-  𝗿𝗲𝗰 "assoc" "equal" "key" "t" ->
-    𝗺𝗮𝘁𝗰𝗵 "t" 𝘄𝗶𝘁𝗵
+Definition htbl٠bucket٠mem : val :=
+  𝗿𝗲𝗰 "mem" "equal" "key" "param" ->
+    𝗺𝗮𝘁𝗰𝗵 "param" 𝘄𝗶𝘁𝗵
     | htbl٠bucket٠Init ->
         𝗳𝗮𝗶𝗹
     | htbl٠bucket٠Nil ->
-        §htbl٠bucket٠Nil
-    | htbl٠bucket٠Cons "key'" ⎽ "t'" 𝗮𝘀 "t" ->
+        false
+    | htbl٠bucket٠Cons "key'" ⎽ "t'" ->
         𝗶𝗳 "equal" "key" "key'" 𝘁𝗵𝗲𝗻 (
-          "t"
+          true
+        ) 𝗲𝗹𝘀𝗲 (
+          "mem" "equal" "key" "t'"
+        )
+    | htbl٠bucket٠Resize "t" ->
+        "mem" "equal" "key" "t"
+    𝗲𝗻𝗱.
+
+Definition htbl٠bucket٠assoc : val :=
+  𝗿𝗲𝗰 "assoc" "equal" "key" "param" ->
+    𝗺𝗮𝘁𝗰𝗵 "param" 𝘄𝗶𝘁𝗵
+    | htbl٠bucket٠Init ->
+        𝗳𝗮𝗶𝗹
+    | htbl٠bucket٠Nil ->
+        §None
+    | htbl٠bucket٠Cons "key'" "v" "t'" ->
+        𝗶𝗳 "equal" "key" "key'" 𝘁𝗵𝗲𝗻 (
+          ‘Some( "v" )
         ) 𝗲𝗹𝘀𝗲 (
           "assoc" "equal" "key" "t'"
         )
@@ -163,27 +180,19 @@ Definition htbl٠index : val :=
   𝗳𝘂𝗻 "t" "state" "key" ->
     "t".{htbl٠hash} "key" 𝗹𝗮𝗻𝗱 "state".<htbl٠mask>.
 
-Definition htbl٠find_node : val :=
+Definition htbl٠mem : val :=
+  𝗳𝘂𝗻 "t" "key" ->
+    𝗹𝗲𝘁 "state" = "t".{htbl٠state} 𝗶𝗻
+    𝗹𝗲𝘁 "i" = htbl٠index "t" "state" "key" 𝗶𝗻
+    𝗹𝗲𝘁 "bucket" = htbl٠buckets٠get "state".<htbl٠buckets> "i" 𝗶𝗻
+    htbl٠bucket٠mem "t".{htbl٠equal} "key" "bucket".
+
+Definition htbl٠find : val :=
   𝗳𝘂𝗻 "t" "key" ->
     𝗹𝗲𝘁 "state" = "t".{htbl٠state} 𝗶𝗻
     𝗹𝗲𝘁 "i" = htbl٠index "t" "state" "key" 𝗶𝗻
     𝗹𝗲𝘁 "bucket" = htbl٠buckets٠get "state".<htbl٠buckets> "i" 𝗶𝗻
     htbl٠bucket٠assoc "t".{htbl٠equal} "key" "bucket".
-
-Definition htbl٠find : val :=
-  𝗳𝘂𝗻 "t" "key" ->
-    𝗺𝗮𝘁𝗰𝗵 htbl٠find_node "t" "key" 𝘄𝗶𝘁𝗵
-    | htbl٠bucket٠Nil ->
-        §None
-    | htbl٠bucket٠Cons ⎽ "v" ⎽ ->
-        ‘Some( "v" )
-    |⎽ ->
-        𝗳𝗮𝗶𝗹
-    𝗲𝗻𝗱.
-
-Definition htbl٠mem : val :=
-  𝗳𝘂𝗻 "t" "key" ->
-    htbl٠find_node "t" "key" != §htbl٠bucket٠Nil.
 
 Definition htbl٠split_buckets : val :=
   𝗿𝗲𝗰 "split_buckets" "t" "state" "buckets" "mask" "i" "step" ->
@@ -327,11 +336,7 @@ Definition htbl٠resize : val :=
           htbl٠finish "t" ⍮
           "add" "t" "key" "v"
       |⎽ 𝗮𝘀 "bucket" ->
-          𝗶𝗳
-            htbl٠bucket٠assoc "t".{htbl٠equal} "key" "bucket"
-            !=
-            §htbl٠bucket٠Nil
-          𝘁𝗵𝗲𝗻 (
+          𝗶𝗳 htbl٠bucket٠mem "t".{htbl٠equal} "key" "bucket" 𝘁𝗵𝗲𝗻 (
             false
           ) 𝗲𝗹𝘀𝗲 𝗶𝗳
              htbl٠buckets٠cas

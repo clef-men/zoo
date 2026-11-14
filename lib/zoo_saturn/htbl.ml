@@ -9,14 +9,27 @@ module Bucket = struct
     | Cons of 'k * 'v * ('k, 'v) t [@generative]
     | Resize of ('k, 'v) t
 
+  let rec mem ~equal key = function
+    | Init ->
+        assert false
+    | Nil ->
+        false
+    | Cons (key', _, t') ->
+        if equal key key' then
+          true
+        else
+          mem ~equal key t'
+    | Resize t ->
+        mem ~equal key t
+
   let rec assoc ~equal key = function
     | Init ->
         assert false
     | Nil ->
-        Nil
-    | Cons (key', _, t') as t ->
+        None
+    | Cons (key', v, t') ->
         if equal key key' then
-          t
+          Some v
         else
           assoc ~equal key t'
     | Resize t ->
@@ -170,23 +183,17 @@ let create ~hash ~equal =
 let[@inline] index t state key =
   t.hash key land state.mask
 
-let find_node t key =
+let mem t key =
+  let state = t.state in
+  let i = index t state key in
+  let bucket = Buckets.get state.buckets i in
+  Bucket.mem ~equal:t.equal key bucket
+
+let find t key =
   let state = t.state in
   let i = index t state key in
   let bucket = Buckets.get state.buckets i in
   Bucket.assoc ~equal:t.equal key bucket
-
-let find t key =
-  match find_node t key with
-  | Nil ->
-      None
-  | Cons (_, v, _) ->
-      Some v
-  | _ ->
-      assert false
-
-let mem t key =
-  find_node t key != Nil
 
 let rec split_buckets t state buckets mask i step =
   let i = (i + step) land mask in
@@ -272,7 +279,7 @@ let rec add_aux t key v backoff =
       finish t ;
       add t key v
   | bucket ->
-      if Bucket.assoc ~equal:t.equal key bucket != Nil then (
+      if Bucket.mem ~equal:t.equal key bucket then (
         false
       ) else if Buckets.cas state.buckets i bucket (Cons (key, v, bucket)) then (
         resize t state 1 ;

@@ -109,7 +109,7 @@ Section entries.
   Implicit Type entries : list (entry Key).
 
   (* The value of the first binding of [𝑘𝑒𝑦], as found by
-     [htbl٠bucket٠assoc]. *)
+     [htbl٠bucket٠assoc] (and [htbl٠bucket٠mem]). *)
   #[local] Fixpoint entries۰lookup 𝑘𝑒𝑦 entries : option val :=
     match entries with
     | [] =>
@@ -1812,14 +1812,56 @@ Section htbl۰G.
   (* ------------------------------------------------------------------------ *)
   (* Buckets. *)
 
-  #[local] Definition node۰result node (o : option val) :=
-    match o with
-    | None =>
-        node = §htbl٠bucket٠Nil%V
-    | Some v =>
-        ∃ key rest,
-        node = ‘htbl٠bucket٠Cons[ key, v, rest ]%V
-    end.
+  #[local] Lemma htbl٠bucket٠memｰspecｰbucket equal key 𝑘𝑒𝑦 entries :
+    {{{
+      htbl۰valid۰equal key۰model equal ∗
+      key۰model key 𝑘𝑒𝑦 ∗
+      entries۰model entries
+    }}}
+      htbl٠bucket٠mem equal key (bucket۰to_val (entries۰bucket entries))
+    {{{
+      RET #(bool_decide (is_Some (entries۰lookup 𝑘𝑒𝑦 entries)));
+      True
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hequal & #Hkey & #Hentries) HΦ".
+
+    iInduction entries as [| [key' v 𝑘𝑒𝑦'] entries] "IH" forall (Φ).
+
+    - wp۰rec. wp۰pures.
+      iApply "HΦ". done.
+
+    - wp۰rec.
+      rewrite /entries۰model big_sepL_cons.
+      iDestruct "Hentries" as "(Hkey' & Hentries)".
+      wp۰apply+ (wpｰwand with "(Hequal Hkey Hkey')") as (res) "->".
+      rewrite /=. case_decide.
+      + rewrite (bool_decide_eq_true_2 (𝑘𝑒𝑦 = 𝑘𝑒𝑦')) //.
+        wp۰pures.
+        iApply "HΦ". done.
+      + rewrite (bool_decide_eq_false_2 (𝑘𝑒𝑦 = 𝑘𝑒𝑦')) //.
+        wp۰apply+ ("IH" with "Hentries HΦ").
+  Qed.
+
+  #[local] Lemma htbl٠bucket٠memｰspec equal key 𝑘𝑒𝑦 cell :
+    cell ≠ CellInit →
+    {{{
+      htbl۰valid۰equal key۰model equal ∗
+      key۰model key 𝑘𝑒𝑦 ∗
+      entries۰model (cell۰entries cell)
+    }}}
+      htbl٠bucket٠mem equal key (cell۰to_val cell)
+    {{{
+      RET #(bool_decide (is_Some (entries۰lookup 𝑘𝑒𝑦 (cell۰entries cell))));
+      True
+    }}}.
+  Proof.
+    iIntros "%Hcell %Φ (#Hequal & #Hkey & #Hentries) HΦ".
+    destruct cell as [| entries | entries]; first done; simpl.
+    - wp۰apply (htbl٠bucket٠memｰspecｰbucket with "[$Hequal $Hkey $Hentries] HΦ").
+    - wp۰rec.
+      wp۰apply+ (htbl٠bucket٠memｰspecｰbucket with "[$Hequal $Hkey $Hentries] HΦ").
+  Qed.
 
   #[local] Lemma htbl٠bucket٠assocｰspecｰbucket equal key 𝑘𝑒𝑦 entries :
     {{{
@@ -1829,9 +1871,8 @@ Section htbl۰G.
     }}}
       htbl٠bucket٠assoc equal key (bucket۰to_val (entries۰bucket entries))
     {{{
-      node
-    , RET node;
-      ⌜node۰result node (entries۰lookup 𝑘𝑒𝑦 entries)⌝
+      RET entries۰lookup 𝑘𝑒𝑦 entries;
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hequal & #Hkey & #Hentries) HΦ".
@@ -1861,9 +1902,8 @@ Section htbl۰G.
     }}}
       htbl٠bucket٠assoc equal key (cell۰to_val cell)
     {{{
-      node
-    , RET node;
-      ⌜node۰result node (entries۰lookup 𝑘𝑒𝑦 (cell۰entries cell))⌝
+      RET entries۰lookup 𝑘𝑒𝑦 (cell۰entries cell);
+      True
     }}}.
   Proof.
     iIntros "%Hcell %Φ (#Hequal & #Hkey & #Hentries) HΦ".
@@ -2387,27 +2427,35 @@ Section htbl۰G.
   Qed.
 
   (* ------------------------------------------------------------------------ *)
-  (* [find_node]. *)
+  (* [mem]. *)
 
-  #[local] Lemma htbl٠find_nodeｰspec γ ι key 𝑘𝑒𝑦 :
+  Lemma htbl٠memｰspec γ ι key 𝑘𝑒𝑦 :
     <<<
       htbl۰inv γ ι ∗
       key۰model key 𝑘𝑒𝑦
     | ∀∀ m,
       htbl۰model γ m
     >>>
-      htbl٠find_node γ key
+      htbl٠mem γ key
       @ ↑ι
     <<<
       htbl۰model γ m
-    | node,
-      RET node;
-      ⌜node۰result node (m !! 𝑘𝑒𝑦)⌝
+    | RET #(bool_decide (𝑘𝑒𝑦 ∈ dom m));
+      True
     >>>.
   Proof.
     iIntros "%Φ (#Hhtbl & #Hkey) HΦ".
+
     iPoseProof "Hhtbl" as "(:inv)".
-    set Ψ := (λ o, ∀ node, ⌜node۰result node o⌝ -∗ Φ node)%I.
+    pose (Ψ := (λ o : option val, Φ #(bool_decide (is_Some o)))%I).
+    iAssert (waiter۰au γ 𝑘𝑒𝑦 Ψ) with "[HΦ]" as "HΨ".
+    { rewrite /waiter۰au. iAuIntro.
+      iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%m Hmodel".
+      iAaccIntro with "Hmodel"; first iSteps. iIntros "Hmodel !>".
+      iFrame. iIntros "HΦ !>".
+      rewrite /Ψ (bool_decide_ext _ _ (elem_of_dom m 𝑘𝑒𝑦)).
+      iApply "HΦ". done.
+    }
 
     wp۰rec. wp۰pures.
 
@@ -2488,12 +2536,12 @@ Section htbl۰G.
     iMod (lc_fupd_elim_later with "H£3 Hagree") as "#Hagree'".
     iRewrite -"Hagree'" in "HΨ'".
     wp۰load.
-    wp۰apply (htbl٠bucket٠assocｰspec _ key 𝑘𝑒𝑦 cell with "[$Hvalid_equal $Hkey $Hentries']") as (node) "%Hnode"; first done.
-    iApply ("HΨ'" with "[//]").
+    wp۰apply (htbl٠bucket٠memｰspec _ key 𝑘𝑒𝑦 cell with "[$Hvalid_equal $Hkey $Hentries']") as "_"; first done.
+    iApply "HΨ'".
   Qed.
 
   (* ------------------------------------------------------------------------ *)
-  (* [find] and [mem]. *)
+  (* [find]. *)
 
   Lemma htbl٠findｰspec γ ι key 𝑘𝑒𝑦 :
     <<<
@@ -2512,55 +2560,90 @@ Section htbl۰G.
   Proof.
     iIntros "%Φ (#Hhtbl & #Hkey) HΦ".
 
-    wp۰rec.
-    awp۰apply+ (htbl٠find_nodeｰspec with "[$Hhtbl $Hkey]").
-    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%m Hmodel".
-    iAaccIntro with "Hmodel"; first iSteps. iIntros "Hmodel !>".
-    iFrame. iIntros "HΦ !> %node %Hnode".
-    destruct (m !! 𝑘𝑒𝑦) as [v' |]; simpl in Hnode.
+    iPoseProof "Hhtbl" as "(:inv)".
+    pose (Ψ := (λ o : option val, True -∗ Φ o)%I).
 
-    - destruct Hnode as (k & rest & ->).
-      wp۰pures.
-      iApply "HΦ". done.
+    wp۰rec. wp۰pures.
 
-    - subst node.
-      wp۰pures.
-      iApply "HΦ". done.
-  Qed.
+    wp۰bind (_.{state})%E.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰load.
+    iDestruct (state۰witnessｰget with "Hgens_auth Hcurrent_auth Harrays") as "(Hgens_auth & Hcurrent_auth & Harrays & %buckets & %cap & %o & #Hwitness & _)"; first done.
+    iMod (saved_predｰallocｰcofinite (dom waiters1) Ψ) as "(%η & %Hη & #Hη)".
+    apply not_elem_of_dom in Hη.
+    iMod (waitersｰinsert η {| waiter۰generation := cur1; waiter۰key := key |} with "Hwaiters_auth") as "(Hwaiters_auth & Hwaiters_elem)"; first done.
+    iSplitR "Hwaiters_elem".
+    { iIntros "!> !>".
+      iExists gens1, cur1, resizing1, m1, frozen1, inited1, (<[η := {| waiter۰generation := cur1; waiter۰key := key |}]> waiters1).
+      iFrame "∗#".
+      iSplitR. { iPureIntro. apply inv۰pureｰwaitersｰinsert; done. }
+      iApply big_sepM_insert; first done.
+      iFrame.
+      iExists 𝑘𝑒𝑦, Ψ. iFrame "#".
+      rewrite decide_True //.
+    }
+    iIntros "!> {Hfrozen_elems Hentries_models}".
 
-  Lemma htbl٠memｰspec γ ι key 𝑘𝑒𝑦 :
-    <<<
-      htbl۰inv γ ι ∗
-      key۰model key 𝑘𝑒𝑦
-    | ∀∀ m,
-      htbl۰model γ m
-    >>>
-      htbl٠mem γ key
-      @ ↑ι
-    <<<
-      htbl۰model γ m
-    | RET #(bool_decide (𝑘𝑒𝑦 ∈ dom m));
-      True
-    >>>.
-  Proof.
-    iIntros "%Φ (#Hhtbl & #Hkey) HΦ".
+    iPoseProof "Hwitness" as "(:state۰witness)".
+    pose proof (is_pow2ｰpos _ Hpow2).
+    wp۰apply+ (htbl٠indexｰspec with "[$Hself_hash $Hvalid_hash $Hkey]") as "_"; first done.
+    pose proof (entries۰indexｰlt 𝘩𝑎𝑠𝘩 cap 𝑘𝑒𝑦 ltac:(lia)) as Hi.
+    set i := entries۰index 𝘩𝑎𝑠𝘩 cap 𝑘𝑒𝑦.
+    rewrite /state۰to_val.
+    wp۰pure credit:"H£1".
 
-    wp۰rec.
-    awp۰apply+ (htbl٠find_nodeｰspec with "[$Hhtbl $Hkey]").
-    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%m Hmodel".
-    iAaccIntro with "Hmodel"; first iSteps. iIntros "Hmodel !>".
-    iFrame. iIntros "HΦ !> %node %Hnode".
-    destruct (m !! 𝑘𝑒𝑦) as [v' |] eqn:Hlookup; simpl in Hnode.
+    awp۰apply+ (array٠unsafe_getｰspecｰatomicｰinv with "Harray_inv"); first lia.
+    iInv "Hinv" as "(:inv۰inner =2)".
+    iDestruct (generations۰atｰvalid with "Hgens_auth Hgens_at") as %(cells & Hgens2_lookup & <-).
+    iDestruct (big_sepL_lookup_acc with "Harrays") as "(Hmodel & Harrays)"; first exact Hgens2_lookup.
+    iAaccIntro with "Hmodel".
+    { iIntros "Hmodel !>".
+      iDestruct ("Harrays" with "Hmodel") as "Harrays".
+      iFrame "Hwaiters_elem H£1". iFrameSteps.
+    }
+    iIntros "%𝑣 (%Hlookup & Hmodel)".
+    rewrite difference_empty_L.
+    iMod (lc_fupd_elim_later with "H£1 Hwaiters") as "Hwaiters".
+    iDestruct ("Harrays" with "Hmodel") as "Harrays".
+    rewrite Nat2Z.id in Hlookup.
+    apply list_lookup_fmap_Some in Hlookup as (cell & -> & Hcells_lookup).
+    simpl in Hcells_lookup.
+    iDestruct (current۰lbｰvalid with "Hcurrent_auth Hcurrent_lb") as %Hle.
+    pose proof (inv۰pureｰnot_init Hinv2 Hgens2_lookup Hle Hcells_lookup) as Hcell.
+    iDestruct (waiters۰elemｰvalid with "Hwaiters_auth Hwaiters_elem") as %Hwaiters2.
+    iDestruct (big_sepM_delete with "Hwaiters") as "((%𝑘𝑒𝑦' & %Ψ' & #Hkey' & #Hη' & HΨ') & Hwaiters)"; first done.
+    iDestruct ("Hvalid_functional" with "Hkey Hkey'") as %<-.
+    iMod (waitersｰdelete with "Hwaiters_auth Hwaiters_elem") as "Hwaiters_auth".
+    set r := entries۰lookup 𝑘𝑒𝑦 (cell۰entries cell).
+    iAssert (model₂ γ m2 ∗ Ψ' r)%I with "[> HΨ' Hmodel₂]" as "(Hmodel₂ & HΨ')".
+    { simpl.
+      destruct (decide (cur1 = cur2)) as [<- | Hne].
+      - iMod "HΨ'" as "(%m & Hmodel₁ & _ & HΨ')".
+        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+        iMod ("HΨ'" with "Hmodel₁") as "HΨ'".
+        iFrame.
+        rewrite (inv۰pure۰model Hinv2 _ _ Hgens2_lookup) /cells۰lookup /= (list_lookup_total_correct _ _ _ Hcells_lookup) //.
+      - iFrame.
+        rewrite (list_lookup_total_correct _ _ _ Hgens2_lookup) /cells۰lookup /= (list_lookup_total_correct _ _ _ Hcells_lookup) //.
+    }
+    iAssert (▷ entries۰model (cell۰entries cell))%I as "#Hentries".
+    { iNext. iApply (entries۰modelｰlookup Hgens2_lookup Hcells_lookup with "Hentries_models"). }
+    iSplitR "HΨ'".
+    { iIntros "!> !>".
+      iExists gens2, cur2, resizing2, m2, frozen2, inited2, (delete η waiters2).
+      iFrame "∗#".
+      iPureIntro. apply inv۰pureｰwaitersｰdelete. done.
+    }
+    iIntros "!> H£2 {Hfrozen_elems Hentries_models}".
+    iMod (lc_fupd_elim_later with "H£2 Hentries") as "#Hentries'".
 
-    - destruct Hnode as (k & rest & ->).
-      wp۰pures.
-      rewrite bool_decide_eq_true_2; first (apply elem_of_dom; naive).
-      iApply "HΦ". done.
-
-    - subst node.
-      wp۰pures.
-      rewrite bool_decide_eq_false_2; first (apply not_elem_of_dom; done).
-      iApply "HΦ". done.
+    wp۰pure credit:"H£3".
+    iDestruct (saved_predｰagree r with "Hη Hη'") as "Hagree".
+    iMod (lc_fupd_elim_later with "H£3 Hagree") as "#Hagree'".
+    iRewrite -"Hagree'" in "HΨ'".
+    wp۰load.
+    wp۰apply (htbl٠bucket٠assocｰspec _ key 𝑘𝑒𝑦 cell with "[$Hvalid_equal $Hkey $Hentries']") as "_"; first done.
+    iApply ("HΨ'" with "[//]").
   Qed.
 
   (* ------------------------------------------------------------------------ *)
@@ -3233,9 +3316,8 @@ Section htbl۰G.
           iIntros "!> H£ Hbackoff".
           iMod (lc_fupd_elim_later with "H£ Hentries") as "#Hentries'".
           wp۰load.
-          wp۰apply (htbl٠bucket٠assocｰspecｰbucket _ key 𝑘𝑒𝑦 entries with "[$Hvalid_equal $Hkey $Hentries']") as "%node %Hnode".
-          rewrite Hlookup in Hnode.
-          destruct Hnode as (key'' & rest & ->).
+          wp۰apply (htbl٠bucket٠memｰspecｰbucket _ key 𝑘𝑒𝑦 entries with "[$Hvalid_equal $Hkey $Hentries']") as "_".
+          rewrite Hlookup.
           wp۰pures.
           rewrite bool_decide_eq_false_2; first naive.
           iApply "HΦ". done.
@@ -3245,8 +3327,8 @@ Section htbl۰G.
           iMod (lc_fupd_elim_later with "H£ Hentries") as "#Hentries'".
 
           wp۰load.
-          wp۰apply (htbl٠bucket٠assocｰspecｰbucket _ key 𝑘𝑒𝑦 entries with "[$Hvalid_equal $Hkey $Hentries']") as "%node %Hnode".
-          rewrite Hlookup in Hnode. simpl in Hnode. subst node.
+          wp۰apply (htbl٠bucket٠memｰspecｰbucket _ key 𝑘𝑒𝑦 entries with "[$Hvalid_equal $Hkey $Hentries']") as "_".
+          rewrite Hlookup.
           wp۰pure credit:"H£".
 
           awp۰apply+ (array٠unsafe_casｰspecｰatomicｰinv with "Harray_inv") without "Hbackoff"; first lia.

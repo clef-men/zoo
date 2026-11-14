@@ -75,6 +75,20 @@ iInduction entries as [| entry entries] "IH" forall (Φ).
 
 `iInduction` automatically reverts (and re-introduces in each case) the Iris hypotheses that mention the induction variable, so the induction hypothesis takes them as premises. This avoids `all: iIntros …` after the induction. When the induction hypothesis is a plain `WP` rather than a Hoare triple, `wp۰apply+ "IH"` still works.
 
+### Rewriting
+
+In the Iris proof mode, `rewrite` acts on the whole goal, Iris hypotheses included, and rewrites the first match it finds. A lemma with an unconstrained pattern, such as `bool_decide_eq_true_2`, can therefore rewrite a `bool_decide` in `HΦ` instead of the one in the program. To target a single place, use `iEval` (see `theories/zoo/iris/proofmode/ltac_tactics.v`):
+
+- `iEval (rewrite …)` rewrites only in the Iris goal;
+- `iEval (rewrite …) in "H"` rewrites only in the Iris hypothesis `H` (several hypotheses can be given, `"H1 H2"`);
+- `iEval (rewrite …) in "H" |- *` does both.
+
+`iEval tac` runs `tac; reflexivity`, so `tac` must solve the side conditions of the rewrite itself (they come first, before the main goal): write `iEval (rewrite bool_decide_eq_true_2 //)` or `iEval (rewrite bool_decide_eq_true_2; first done)`, not `iEval (rewrite bool_decide_eq_true_2); first done`, which fails. When the side condition is too long to prove inside `iEval`, give the proposition explicitly to `rewrite` instead: `rewrite (bool_decide_eq_true_2 (𝑘𝑒𝑦 = 𝑘𝑒𝑦')) //`.
+
+### Local definitions
+
+`pose x := t` is the ssreflect `pose`: it abstracts over the holes of `t` that are still unresolved, including typeclass instances. For example, `pose Ψ := (λ o, Φ #(bool_decide (is_Some o)))%I` gives `Ψ` an extra `Decision` argument. Use the Ltac form, with a type annotation if needed: `pose (Ψ := (λ o : option val, Φ #(bool_decide (is_Some o)))%I).`
+
 ### Pure facts from Iris hypotheses
 
 - `iIntros "%x"` cannot introduce a universally quantified pure goal `⌜∀ x, …⌝`. To prove such a goal from Iris hypotheses, destruct what is needed first, then `iPureIntro`.
@@ -412,7 +426,7 @@ Large verifications (`htbl`, `skiplist`, …) take minutes to compile, so do not
 
 1. **Work file.** Write the development in a work file outside the repository (in the scratchpad). It is the source of truth and always contains the real proofs.
 2. **Fast file.** Generate from it a temporary file in the same theory, for example `theories/zoo_saturn/<module>_tmp.v`, and build only that file with `dune build theories/zoo_saturn/<module>_tmp.vo`. In the fast file, every `Proof. … Qed.` is replaced by `Proof. Admitted.`, except the lemmas listed in a WIP list (the ones being worked on). Generate it with a small script rather than by hand.
-   - `Zoo global` names its class after the file (`SkiplistG` becomes `SkiplistTmpG` in `skiplist_tmp.v`): the script renames it.
+   - `Zoo global` and `Zoo name` name what they generate after the file (`SkiplistG` becomes `SkiplistTmpG` and `htbl۰name` becomes `htbl_tmp۰name` in the fast file): the script renames them.
    - For a lemma that is too big to recompile at each step (more than a minute), wrap its verified branches between `(* <admit> *)` and `(* </admit> *)` lines. The script replaces each region by `admit.` and ends the lemma with `Admitted.`. A region must be a whole bullet or `{ … }` body.
    - Once a lemma compiles, remove it from the WIP list: it is admitted from then on.
 3. **Consistent signatures.** `please.options` sets `Default Proof Using "Type*"`, so admitted and proved lemmas may not take the same section variables. Typeclass hypotheses (for example `StrictOrder lt`) should be binders of the lemmas that need them, not section `Context`, so that the fast file and the final file agree.
