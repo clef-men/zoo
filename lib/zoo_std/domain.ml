@@ -7,14 +7,17 @@ let[@zoo.ignore] spawn =
 let[@zoo.ignore] join =
   Stdlib.Domain.join
 
-let[@zoo.opaque] yield =
+let yield =
   Stdlib.Domain.cpu_relax
+[@@zoo.opaque]
 
-let[@zoo.opaque] self_index =
+let self_index =
   Stdlib.Domain.self_index
+[@@zoo.opaque]
 
-let[@zoo.opaque] recommended_domain_count =
+let recommended_domain_count =
   Stdlib.Domain.recommended_domain_count
+[@@zoo.opaque]
 
 module Dls = struct
   type 'a key =

@@ -1,12 +1,15 @@
-let[@zoo.opaque] init =
+let init =
   Stdlib.Random.self_init
+[@@zoo.opaque]
 
-let[@zoo.opaque] bits () =
+let bits () =
   Stdlib.Random.nativebits ()
   |> Nativeint.to_int
+[@@zoo.opaque]
 
-let[@zoo.opaque] int =
+let int =
   Stdlib.Random.int
+[@@zoo.opaque]
 
 let int_in_range lb ub =
   lb + int (ub - lb)
@@ -15,16 +18,19 @@ module State = struct
   type t =
     Stdlib.Random.State.t
 
-  let[@zoo.opaque] create =
+  let create =
     Stdlib.Random.State.make_self_init
+  [@@zoo.opaque]
 
-  let[@zoo.opaque] bits t =
+  let bits t =
     t
     |> Stdlib.Random.State.nativebits
     |> Nativeint.to_int
+  [@@zoo.opaque]
 
-  let[@zoo.opaque] int =
+  let int =
     Stdlib.Random.State.int
+  [@@zoo.opaque]
 
   let int_in_range t lb ub =
     lb + int t (ub - lb)

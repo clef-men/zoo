@@ -1,2 +1,3 @@
-let[@zoo.opaque] max_array_length =
+let max_array_length =
   Stdlib.Sys.max_array_length
+[@@zoo.opaque]
