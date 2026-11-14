@@ -50,13 +50,14 @@ let unsafe_faa =
   Stdlib.Atomic.Array.unsafe_fetch_and_add
 [@@zoo.overwrite_raw "zoo_std.array.unsafe_faa"]
 
-let[@zoo.ignore] rec foldli_aux fn t sz i acc =
+let rec foldli_aux fn t sz i acc =
   if sz <= i then (
     acc
   ) else (
     let v = unsafe_get t i in
     foldli_aux fn t sz (i + 1) (fn i acc v)
   )
+[@@zoo.ignore]
 let foldli fn acc t =
   foldli_aux fn t (size t) 0 acc
 [@@zoo.overwrite_raw "zoo_std.array.foldli"]

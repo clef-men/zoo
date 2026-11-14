@@ -1,14 +1,18 @@
 type t =
   bytes
 
-let[@zoo.ignore] create =
+let create =
   Stdlib.Bytes.create
+[@@zoo.ignore]
 
-let[@zoo.ignore] unsafe_get =
+let unsafe_get =
   Stdlib.Bytes.unsafe_get
+[@@zoo.ignore]
 
-let[@zoo.ignore] unsafe_set =
+let unsafe_set =
   Stdlib.Bytes.unsafe_set
+[@@zoo.ignore]
 
-let[@zoo.ignore] equal =
+let equal =
   Stdlib.Bytes.equal
+[@@zoo.ignore]

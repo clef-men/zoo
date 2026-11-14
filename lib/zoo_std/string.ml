@@ -1,8 +1,10 @@
 type t =
   string
 
-let[@zoo.ignore] unsafe_get =
+let unsafe_get =
   Stdlib.String.unsafe_get
+[@@zoo.ignore]
 
-let[@zoo.ignore] equal =
+let equal =
   Stdlib.String.equal
+[@@zoo.ignore]

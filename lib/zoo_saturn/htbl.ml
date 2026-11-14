@@ -25,7 +25,7 @@ module Bucket = struct
   let mem ~equal key t =
     assoc ~equal key t != None
 
-  let[@zoo.ignore] rec dissoc ~equal key = function
+  let rec dissoc ~equal key = function
     | Nil ->
         raise_notrace Not_found
     | Cons (key', v, t) ->
@@ -35,6 +35,7 @@ module Bucket = struct
           Cons (key', v, dissoc ~equal key t)
     | _ ->
         assert false
+  [@@zoo.ignore]
   let dissoc ~equal key t =
     try
       Some (dissoc ~equal key t)

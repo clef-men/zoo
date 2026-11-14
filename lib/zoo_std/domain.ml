@@ -1,11 +1,13 @@
 type 'a t =
   'a Stdlib.Domain.t
 
-let[@zoo.ignore] spawn =
+let spawn =
   Stdlib.Domain.spawn
+[@@zoo.ignore]
 
-let[@zoo.ignore] join =
+let join =
   Stdlib.Domain.join
+[@@zoo.ignore]
 
 let yield =
   Stdlib.Domain.cpu_relax
@@ -23,12 +25,15 @@ module Dls = struct
   type 'a key =
     'a Stdlib.Domain.DLS.key
 
-  let[@zoo.ignore] new_key fn =
+  let new_key fn =
     Stdlib.Domain.DLS.new_key fn
+  [@@zoo.ignore]
 
-  let[@zoo.ignore] get =
+  let get =
     Stdlib.Domain.DLS.get
+  [@@zoo.ignore]
 
-  let[@zoo.ignore] set =
+  let set =
     Stdlib.Domain.DLS.set
+  [@@zoo.ignore]
 end
