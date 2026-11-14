@@ -13,8 +13,8 @@ Require Import zoo_saturn.htbl__code.
 #[global] Opaque htbl٠buckets٠cas_init.
 #[global] Opaque htbl٠buckets٠take₁.
 #[global] Opaque htbl٠buckets٠take.
-#[global] Opaque htbl٠min_buckets.
-#[global] Opaque htbl٠max_buckets.
+#[global] Opaque htbl٠min_capacity.
+#[global] Opaque htbl٠max_capacity.
 #[global] Opaque htbl٠create.
 #[global] Opaque htbl٠index.
 #[global] Opaque htbl٠find_node.

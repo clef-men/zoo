@@ -152,16 +152,16 @@ type ('k, 'v) t =
   ; mutable state: ('k, 'v) state [@atomic]
   }
 
-let min_buckets =
+let min_capacity =
   16
-let max_buckets =
+let max_capacity =
   Sys.max_array_length
 
 let create ~hash ~equal =
   let sizes = Atomic_array.make (Domain.recommended_domain_count ()) 0 in
   let state =
-    { buckets= Buckets.make min_buckets Nil
-    ; mask= min_buckets - 1
+    { buckets= Buckets.make min_capacity Nil
+    ; mask= min_capacity - 1
     ; status= Normal
     }
   in
@@ -257,9 +257,9 @@ let resize t state delta =
   then
     let sz = Atomic_array.sum t.sizes in
     let cap = Buckets.size state.buckets in
-    if cap < sz && cap < max_buckets then
+    if cap < sz && cap < max_capacity then
       resize t state (cap lsl 1)
-    else if min_buckets < cap && 3 * sz < cap then
+    else if min_capacity < cap && 3 * sz < cap then
       resize t state (cap lsr 1)
 
 let rec add_aux t key v backoff =

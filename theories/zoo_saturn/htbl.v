@@ -578,27 +578,27 @@ End htbl۰valid.
 (* ------------------------------------------------------------------------ *)
 (* Constants. *)
 
-#[local] Definition min_buckets :=
-  val۰to_nat' htbl٠min_buckets.
-#[local] Lemma min_bucketsｰis_pow2 :
-  is_pow2 min_buckets.
+#[local] Definition min_capacity :=
+  val۰to_nat' htbl٠min_capacity.
+#[local] Lemma min_capacityｰis_pow2 :
+  is_pow2 min_capacity.
 Proof.
   exists 4. done.
 Qed.
-#[local] Lemma htbl٠min_bucketsｰunfold :
-  htbl٠min_buckets = #min_buckets.
+#[local] Lemma htbl٠min_capacityｰunfold :
+  htbl٠min_capacity = #min_capacity.
 Proof.
   done.
 Qed.
-Opaque htbl٠min_buckets.
-Opaque min_buckets.
+Opaque htbl٠min_capacity.
+Opaque min_capacity.
 
-#[local] Lemma htbl٠max_bucketsｰspec :
+#[local] Lemma htbl٠max_capacityｰspec :
   ∃ n : Z,
-  htbl٠max_buckets = #n.
+  htbl٠max_capacity = #n.
 Proof.
   destruct sys٠max_array_lengthｰspec as (n & Hn).
-  exists n. rewrite /htbl٠max_buckets Hn //.
+  exists n. rewrite /htbl٠max_capacity Hn //.
 Qed.
 
 (* ------------------------------------------------------------------------ *)
@@ -1523,14 +1523,14 @@ Section htbl۰G.
   Qed.
 
   #[local] Lemma inv۰pureｰcreate 𝘩𝑎𝑠𝘩 buckets :
-    inv۰pure 𝘩𝑎𝑠𝘩 [(buckets, replicate min_buckets (CellActive []))] 0 false ∅ ∅ ∅ ∅.
+    inv۰pure 𝘩𝑎𝑠𝘩 [(buckets, replicate min_capacity (CellActive []))] 0 false ∅ ∅ ∅ ∅.
   Proof.
-    pose proof (is_pow2ｰpos _ min_bucketsｰis_pow2).
+    pose proof (is_pow2ｰpos _ min_capacityｰis_pow2).
     split.
     - done.
     - apply NoDup_singleton.
     - intros g gen (-> & <-)%list_lookup_singleton_Some.
-      apply min_bucketsｰis_pow2.
+      apply min_capacityｰis_pow2.
     - intros g gen gen' _ (? & _)%list_lookup_singleton_Some. lia.
     - intros g gen (-> & <-)%list_lookup_singleton_Some i cell (-> & _)%lookup_replicate.
       split; [apply Forall_nil | apply NoDup_nil]; done.
@@ -2310,7 +2310,7 @@ Section htbl۰G.
     iIntros "%Φ (#Hvalid_functional & #Hvalid_hash & #Hvalid_equal) HΦ".
 
     wp۰rec.
-    rewrite htbl٠min_bucketsｰunfold.
+    rewrite htbl٠min_capacityｰunfold.
     wp۰apply+ domain٠recommended_domain_countｰspec as "%sz %Hsz !>".
     wp۰apply (array٠makeｰtype itype۰int with "[]") as (sizes) "(_ & #Hsizes)".
     { iSteps. }
@@ -2319,7 +2319,7 @@ Section htbl۰G.
     wp۰block t as "#Ht_hash #Ht_equal #Ht_sizes Ht_state".
 
     iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
-    iMod (generationsｰalloc [(buckets, replicate min_buckets (CellActive []))]) as "(%γ_generations & Hgens_auth)".
+    iMod (generationsｰalloc [(buckets, replicate min_capacity (CellActive []))]) as "(%γ_generations & Hgens_auth)".
     iMod currentｰalloc as "(%γ_current & Hcurrent_auth)".
     iMod frozenｰalloc as "(%γ_frozen & Hfrozen_auth)".
     iMod initedｰalloc as "(%γ_inited & Hinited_auth)".
@@ -2343,7 +2343,7 @@ Section htbl۰G.
     iSplitR; first done.
     iSplitR; first (iPureIntro; lia).
     iApply inv_alloc. iNext.
-    iExists [(buckets, replicate min_buckets (CellActive []))], 0, false, ∅, ∅, ∅, ∅.
+    iExists [(buckets, replicate min_capacity (CellActive []))], 0, false, ∅, ∅, ∅, ∅.
     rewrite /generations۰state /= length_replicate fmap_replicate.
     iFrame.
     iSplitR. { iApply big_sepM_empty. done. }
@@ -3066,7 +3066,7 @@ Section htbl۰G.
     iPoseProof "Hhtbl" as "(:inv)".
     iPoseProof "Hwitness" as "(:state۰witness)".
     pose proof (is_pow2ｰpos _ Hpow2).
-    pose proof (is_pow2ｰpos _ min_bucketsｰis_pow2).
+    pose proof (is_pow2ｰpos _ min_capacityｰis_pow2).
 
     wp۰rec.
     wp۰load.
@@ -3095,8 +3095,8 @@ Section htbl۰G.
       wp۰load.
       wp۰apply (array٠sumｰtype with "Hsizes") as "%total _".
       wp۰apply+ (array٠sizeｰspecｰinv with "Harray_inv") as "_".
-      destruct htbl٠max_bucketsｰspec as (mx & ->).
-      rewrite htbl٠min_bucketsｰunfold.
+      destruct htbl٠max_capacityｰspec as (mx & ->).
+      rewrite htbl٠min_capacityｰunfold.
       wp۰pures.
 
       iAssert (
@@ -3104,7 +3104,7 @@ Section htbl۰G.
           ∀ Ψ,
           (True -∗ Ψ ()%V) -∗
           WP
-            𝗶𝗳 (𝗶𝗳 #min_buckets < #⁺cap 𝘁𝗵𝗲𝗻 3 * #total < #⁺cap 𝗲𝗹𝘀𝗲 false) 𝘁𝗵𝗲𝗻 (
+            𝗶𝗳 (𝗶𝗳 #min_capacity < #⁺cap 𝘁𝗵𝗲𝗻 3 * #total < #⁺cap 𝗲𝗹𝘀𝗲 false) 𝘁𝗵𝗲𝗻 (
               htbl٠resize₁ γ (buckets, #(⁺cap - 1), §htbl٠Normal)%V (#⁺cap 𝗹𝘀𝗿 1)
             ) 𝗲𝗹𝘀𝗲 (
               ()
