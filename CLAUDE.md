@@ -182,6 +182,24 @@ Pairs are fine. A variable may have the same name as its record type (`Implicit 
 
 ## Rocq ghost state
 
+The name `γ` of a data structure (its locations, ghost names and namespaces) is declared with `Zoo name`. It generates the record `<module>۰name` with fields `<module>۰name۰<field>`, `Implicit Type γ : <module>۰name`, the `Inhabited`, `EqDecision` and `Countable` instances, and a coercion to `val` (with its `ToVal` instance), so that `γ` can be used as the value of the data structure:
+
+- by default, `γ` is coerced to its first field (through `ValLoc` for a `location`, `ValProph` for a `prophet_identifier`);
+- when the value of the data structure is a tuple, mark its components with `#`: `γ` is coerced to the tuple of the marked fields, in order.
+
+```coq
+Zoo name :=
+  { #compare : val
+  ; #root : val
+  ; inv : namespace
+  ; model : gname
+  ; nodes : gname
+  ; waiters : gname
+  }.
+```
+
+Do not write the `Record`, the `Please derive` lines or the coercion by hand (see `theories/zoo_saturn/skiplist.v` and `theories/zoo_std/mutex.v`).
+
 The ghost state of a module is declared once with `Zoo global`, which generates the class `<Module>G Σ …` that clients must provide. When the ghost state depends on a type chosen by the client (for example the type of abstract keys), make it a parameter of `Zoo global` instead of encoding it into a fixed type (`positive` through `encode`, `kmap encode`, …). `Zoo global` accepts type parameters and typeclass constraints on them:
 
 ```coq

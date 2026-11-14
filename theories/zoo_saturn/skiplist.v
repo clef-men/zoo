@@ -1335,26 +1335,14 @@ End inv۰pure.
 (* ------------------------------------------------------------------------ *)
 (* Ghost state. *)
 
-Record skiplist۰name :=
-  { skiplist۰name۰compare : val
-  ; skiplist۰name۰root : val
-  ; skiplist۰name۰inv : namespace
-  ; skiplist۰name۰model : gname
-  ; skiplist۰name۰nodes : gname
-  ; skiplist۰name۰waiters : gname
+Zoo name :=
+  { #compare : val
+  ; #root : val
+  ; inv : namespace
+  ; model : gname
+  ; nodes : gname
+  ; waiters : gname
   }.
-Implicit Type γ : skiplist۰name.
-
-Please derive Inhabited for skiplist۰name.
-Please derive EqDecision for skiplist۰name.
-Please derive Countable for skiplist۰name.
-
-Coercion skiplist۰name۰to_val γ : val :=
-  ( γ.(skiplist۰name۰compare)
-  , γ.(skiplist۰name۰root)
-  ).
-#[global] Instance skiplist۰nameｰto_val : ToVal skiplist۰name :=
-  skiplist۰name۰to_val.
 
 Zoo global Key `{Countable Key} :=
   { model : twins (leibnizO (gmap Key val))
