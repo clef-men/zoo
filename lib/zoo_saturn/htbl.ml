@@ -9,19 +9,6 @@ module Bucket = struct
     | Cons of 'k * 'v * ('k, 'v) t [@generative]
     | Resize of ('k, 'v) t
 
-  let rec mem ~equal key = function
-    | Init ->
-        assert false
-    | Nil ->
-        false
-    | Cons (key', _, t') ->
-        if equal key key' then
-          true
-        else
-          mem ~equal key t'
-    | Resize t ->
-        mem ~equal key t
-
   let rec assoc ~equal key = function
     | Init ->
         assert false
@@ -34,6 +21,9 @@ module Bucket = struct
           assoc ~equal key t'
     | Resize t ->
         assoc ~equal key t
+
+  let mem ~equal key t =
+    assoc ~equal key t != None
 
   let[@zoo.ignore] rec dissoc ~equal key = function
     | Nil ->
@@ -183,17 +173,14 @@ let create ~hash ~equal =
 let[@inline] index t state key =
   t.hash key land state.mask
 
-let mem t key =
-  let state = t.state in
-  let i = index t state key in
-  let bucket = Buckets.get state.buckets i in
-  Bucket.mem ~equal:t.equal key bucket
-
 let find t key =
   let state = t.state in
   let i = index t state key in
   let bucket = Buckets.get state.buckets i in
   Bucket.assoc ~equal:t.equal key bucket
+
+let mem t key =
+  find t key != None
 
 let rec split_buckets t state buckets mask i step =
   let i = (i + step) land mask in
