@@ -2,15 +2,18 @@ type ('k, 'v, _) node =
   | Null :
     ('k, 'v, [> `Null]) node
   | Node :
-    'k * 'v * ('k, 'v, [`Null | `Node | `Mark]) node Atomic_array.t ->
+    'k * 'v * ('k, 'v) nodes ->
     ('k, 'v, [> `Node]) node
   | Mark :
     ('k, 'v, [`Null | `Node | `Mark]) node ->
     ('k, 'v, [> `Mark]) node
 
+and ('k, 'v) nodes =
+  ('k, 'v, [`Null | `Node | `Mark]) node Atomic_array.t
+
 type ('k, 'v) t =
   { compare: 'k -> 'k -> int
-  ; root: ('k, 'v, [`Null | `Node | `Mark]) node Atomic_array.t
+  ; root: ('k, 'v) nodes
   }
 
 let rec random_height max_height =
