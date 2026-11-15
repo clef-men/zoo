@@ -302,7 +302,7 @@ Definition htbl٠resize : val :=
     𝘁𝗵𝗲𝗻 (
       𝗹𝗲𝘁 "sz" = atomic_array٠sum "t".{htbl٠sizes} 𝗶𝗻
       𝗹𝗲𝘁 "cap" = htbl٠buckets٠size "state".<htbl٠buckets> 𝗶𝗻
-      𝗶𝗳 "cap" < "sz" 𝗮𝗻𝗱 "cap" < htbl٠max_capacity 𝘁𝗵𝗲𝗻 (
+      𝗶𝗳 "cap" < "sz" 𝗮𝗻𝗱 "cap" 𝗹𝘀𝗹 1 ≤ htbl٠max_capacity 𝘁𝗵𝗲𝗻 (
         htbl٠resize₁ "t" "state" ("cap" 𝗹𝘀𝗹 1)
       ) 𝗲𝗹𝘀𝗲 𝗶𝗳 htbl٠min_capacity < "cap" 𝗮𝗻𝗱 3 * "sz" < "cap" 𝘁𝗵𝗲𝗻 (
         htbl٠resize₁ "t" "state" ("cap" 𝗹𝘀𝗿 1)

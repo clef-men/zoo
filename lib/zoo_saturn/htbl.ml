@@ -252,7 +252,7 @@ let resize t state delta =
   then
     let sz = Atomic_array.sum t.sizes in
     let cap = Buckets.size state.buckets in
-    if cap < sz && cap < max_capacity then
+    if cap < sz && cap lsl 1 <= max_capacity then
       resize t state (cap lsl 1)
     else if min_capacity < cap && 3 * sz < cap then
       resize t state (cap lsr 1)
