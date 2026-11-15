@@ -1,7 +1,6 @@
 Require Import zoo.prelude.
 Require Import zoo.common.gmultiset.
 Require Import zoo.common.list.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Import zoo_std.option.
 Require Export zoo_parabs.base.

@@ -1,6 +1,5 @@
 Require Import zoo.prelude.
 Require Import zoo.common.relations.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.auth_twins.
 Require Import zoo.base.
 Require Import zoo_std.option.

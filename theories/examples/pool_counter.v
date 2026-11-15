@@ -1,7 +1,6 @@
 Require Import iris.algebra.numbers.
 
 Require Import zoo.prelude.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.cinv.
 Require Import zoo.iris.base_logic.lib.auth_frac.
 Require Import zoo.base.

@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.mono_gmultiset.
 Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.iris.base_logic.lib.subpreds.

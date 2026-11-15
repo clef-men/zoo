@@ -1,6 +1,7 @@
 Require Export iris.base_logic.lib.invariants.
 
 Require Import zoo.prelude.
+Require Export zoo.iris.bi.big_op.
 Require Export zoo.language.notations.
 Require Export zoo.program_logic.itype.
 Require Export zoo.diaframe.

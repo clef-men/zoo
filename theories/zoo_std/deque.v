@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Import zoo_std.option.
 Require Export zoo_std.deque__code.

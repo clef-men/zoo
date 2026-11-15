@@ -1,7 +1,6 @@
 Require Import iris.base_logic.lib.invariants.
 
 Require Import zoo.prelude.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Import zoo.options.
 

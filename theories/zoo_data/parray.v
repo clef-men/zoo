@@ -1,7 +1,6 @@
 Require Import iris.base_logic.lib.ghost_map.
 
 Require Import zoo.prelude.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Export zoo_data.parray__code.
 Require Import zoo_data.parray__types.

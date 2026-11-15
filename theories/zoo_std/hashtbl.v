@@ -1,6 +1,5 @@
 Require Import zoo.prelude.
 Require Import zoo.common.math.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Import zoo_std.option.
 Require Export zoo_std.hashtbl__code.

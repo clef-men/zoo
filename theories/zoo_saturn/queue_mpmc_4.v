@@ -1,6 +1,5 @@
 Require Import zoo.prelude.
 Require Import zoo.common.list.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.mono_list.
 Require Import zoo.iris.base_logic.lib.auth_nat_max.
 Require Import zoo.iris.base_logic.lib.twins.

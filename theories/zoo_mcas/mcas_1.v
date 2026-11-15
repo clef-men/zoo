@@ -2,7 +2,6 @@ Require Import iris.base_logic.lib.ghost_map.
 
 Require Import zoo.prelude.
 Require Import zoo.common.list.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.iris.base_logic.lib.auth_mono.
 Require Import zoo.iris.base_logic.lib.excl.

@@ -3,7 +3,6 @@ Require Import iris.base_logic.lib.ghost_map.
 Require Import zoo.prelude.
 Require Import zoo.common.gset.
 Require Import zoo.iris.base_logic.lib.auth_dgset.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Export zoo_std.latch__code.
 Require Import zoo_std.latch__types.

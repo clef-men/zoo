@@ -1,7 +1,6 @@
 Require Import stdpp.finite.
 
 Require Import zoo.prelude.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.excl.
 Require Import zoo.base.
 Require Export zoo_std.semaphore__code.

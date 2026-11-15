@@ -3,7 +3,6 @@ Require Import Stdlib.micromega.ZifyNat.
 Require Import zoo.prelude.
 Require Import zoo.common.list.
 Require Import zoo.common.math.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Import zoo_std.chunk.
 Require Export zoo_std.array__code.

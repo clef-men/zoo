@@ -1,5 +1,4 @@
 Require Import zoo.prelude.
-Require Import zoo.iris.bi.big_op.
 Require Import zoo.base.
 Require Export zoo.program_logic.biglater.
 Require Export zoo_parabs.base.
