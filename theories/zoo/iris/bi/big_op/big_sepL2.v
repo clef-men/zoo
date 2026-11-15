@@ -396,6 +396,18 @@ Section bi.
       iDestruct (big_sepL2_insert_acc with "H") as "$"; done.
     Qed.
 
+    Lemma big_sepL2ｰinsert `{!BiAffine PROP} {Φ l1 l2} i y1 y2 :
+      i < length l1 →
+      ([∗ list] k ↦ x1; x2 ∈ l1; l2, Φ k x1 x2) -∗
+      Φ i y1 y2 -∗
+      [∗ list] k ↦ x1; x2 ∈ <[i := y1]> l1; <[i := y2]> l2, Φ k x1 x2.
+    Proof.
+      iIntros "%Hi H HΦ".
+      destruct (lookup_lt_is_Some_2 l1 i Hi) as (x1 & Hl1_lookup).
+      iDestruct (big_sepL2ｰinsertｰaccｰl with "H") as "(%x2 & _ & _ & H)"; first done.
+      iApply ("H" with "HΦ").
+    Qed.
+
     Lemma big_sepL2ｰreplicateｰl₁ Φ l x n :
       length l = n →
       ([∗ list] k ↦ x1; x2 ∈ replicate n x; l, Φ k x1 x2) ⊢
