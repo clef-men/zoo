@@ -101,7 +101,7 @@ Record entry Key := Entry
   (entry۰𝑘𝑒𝑦 <$> entries).
 
 Section entries.
-  Context {Key : Type} `{Countable Key}.
+  Context {Key : Type} `{!EqDecision Key}.
 
   Implicit Type 𝑘𝑒𝑦 : Key.
   Implicit Type 𝘩𝑎𝑠𝘩 : Key → Z.
