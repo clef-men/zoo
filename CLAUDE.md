@@ -275,6 +275,8 @@ Section swap.
 End swap.
 ```
 
+Generic lemmas that emerge from a proof (facts about lists, sets, maps, … that do not mention the data structure) should not stay inline or be scattered among the proof-specific lemmas. Isolate them at the beginning of the file, before the definitions of the module, and propose to move them into the relevant common theory (`zoo/common/list.v`, `zoo/common/function.v`, …). Before adding one, check that stdpp or `zoo/common` does not already provide it (for example `head_is_Some`, `lastｰtake`).
+
 ## Rocq abstraction
 
 Do not break the abstraction of library data structures. For example, never unfold `array۰model` or `array۰inv` to reveal that an array is a location. Treat such values as abstract `val`s and only use the lemmas the library exports. If a missing property is needed, state it abstractly (for example, in terms of similarity `≈`) and prove it next to the library, not by exposing the representation in client proofs.
