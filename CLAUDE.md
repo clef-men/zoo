@@ -27,6 +27,8 @@ Avoid redundant `wp۰pures` (tactics are defined in `theories/zoo/proofmode.v`):
 
 A program step (`wp۰pures`, `wp۰rec`, `wp۰apply`, …) is not followed by logical tactics on the same line: write `wp۰pures.` and then `iModIntro. iSplit; first done.` on the next line, not `wp۰pures. iModIntro. iSplit; first done.`. The exception is a branch that ends right away, such as `- wp۰pures. done.`.
 
+Consecutive program steps that form one step of the program go on the same line: `wp۰rec. wp۰pures.`, `wp۰store. wp۰pures.`, `wp۰load. wp۰load. wp۰pures.`. Start a new line when a logical tactic or a `wp۰apply` follows.
+
 ### Applying specs
 
 `wp۰apply` (like `wp۰apply+` and `awp۰apply`) binds the expression and introduces the postcondition, so it replaces the sequence `wp۰bind`, `iApply`, `iIntros` (see commit `ee37be9d`, which polished `theories/zoo_saturn/htbl.v`):
@@ -169,6 +171,8 @@ Lemma names are made of components separated by `ｰ`, for example `array۰model
 
 Variables have intuitive, full names: `entry`/`entries`, `cell`/`cells`, `waiter`/`waiters`, not `e`/`es`, `c`/`cs`, `w`/`ws`. Hypotheses follow the same names (`Hentries`, `Hcells_lookup`). Definitions use full words as well (`generations۰auth`, not `gens۰auth`); short names are fine for local variables that are used everywhere (`gens`, `gen`). Do not use capital letters for variables whose type lives in `Set`/`Type` (maps, sets, lists, …): name the ghost maps of an invariant after what they hold (`frozen`, `inited`), not `F` or `I`. Capital letters remain fine for propositions and predicates (`P`, `Q`, `R`), masks (`E`) and types (`K`, `A`).
 
+Declare all `Implicit Type`s at the top of the file, after the imports, rather than just before their first use. Group the variables of the same type on one line (`Implicit Type elts split_list : list location.`, `Implicit Type elements X cl : gset location.`). Section-local implicit types (for example in a section generic over a type `A`) stay in the section.
+
 ## Rocq implicit arguments
 
 Arguments that are determined by other arguments (typically the parameters of an invariant record, determined by the invariant hypothesis) should be implicit, so that uses do not need long runs of underscores. Write `inv۰pure۰model Hinv _ _ Hlookup`, not `inv۰pure۰model _ _ _ _ _ _ _ _ Hinv _ _ Hlookup`:
@@ -214,6 +218,8 @@ Zoo name :=
 
 Do not write the `Record`, the `Please derive` lines or the coercion by hand (see `theories/zoo_saturn/skiplist.v` and `theories/zoo_std/mutex.v`).
 
+When the data structure has no value of its own (for example `partition`, whose elements are its values), the name `γ` may be a hand-written `Record` of ghost names, with the `Please derive` lines. Prefer it to a bare `gname`, as it keeps names opaque (see `theories/zoo_data/partition.v`).
+
 The ghost state of a module is declared once with `Zoo global`, which generates the class `<Module>G Σ …` that clients must provide. When the ghost state depends on a type chosen by the client (for example the type of abstract keys), make it a parameter of `Zoo global` instead of encoding it into a fixed type (`positive` through `encode`, `kmap encode`, …). `Zoo global` accepts type parameters and typeclass constraints on them:
 
 ```coq
@@ -258,6 +264,17 @@ Everything that is not part of the module API must not pollute clients. Mark it 
 
 A `#[local]` instance declared inside a `Section` disappears at the end of the section. If it is needed after the section, add `#[local] Existing Instances …` right after `End`.
 
+A small auxiliary theory used by the proof (an operation on locations, lists, …) goes in its own section, generic in the type when possible, before the definitions that use it (see `Section swap` in `theories/zoo_data/partition.v`):
+
+```coq
+Section swap.
+  Context {A : Type} `{!EqDecision A}.
+
+  #[local] Definition swap x1 x2 x := …
+  …
+End swap.
+```
+
 ## Rocq abstraction
 
 Do not break the abstraction of library data structures. For example, never unfold `array۰model` or `array۰inv` to reveal that an array is a location. Treat such values as abstract `val`s and only use the lemmas the library exports. If a missing property is needed, state it abstractly (for example, in terms of similarity `≈`) and prove it next to the library, not by exposing the representation in client proofs.
@@ -300,6 +317,17 @@ Statements are laid out one item per line:
     cells' !! j = Some cell' →
     cell' ≠ CellInit
   ⌝%I as %Hinit.
+  ```
+
+  This applies to every `assert` whose statement is quantified, however short, including in helper lemmas: never write `assert (∀ elt, … → …) as H.` on one line. A disjunction inside follows the disjunction layout:
+
+  ```coq
+  assert (
+    ∀ elt,
+    elt ∈ elts ↔
+        elt ∈ take n elts
+      ∨ elt ∈ drop n elts
+  ) as Helts.
   ```
 
 - Conjunctions put one conjunct per line, `∧` ending each line but the last; as a compound conclusion, they are indented:
