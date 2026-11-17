@@ -32,6 +32,8 @@ Definition waiters٠notify_one : val :=
     | Some "waiter" ->
         𝗶𝗳 ~ waiter٠notify "waiter" 𝘁𝗵𝗲𝗻 (
           "notify_one" "t"
+        ) 𝗲𝗹𝘀𝗲 (
+          ()
         )
     𝗲𝗻𝗱.
 

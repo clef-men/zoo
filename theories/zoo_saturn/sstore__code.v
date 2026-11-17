@@ -65,9 +65,15 @@ Definition sstore٠forward : val :=
                     "t".{sstore٠proph}
                     ‘sstore٠Forward( "r", "v", "g" ) ⍮
                   ()
+                ) 𝗲𝗹𝘀𝗲 (
+                  ()
                 )
             𝗲𝗻𝗱
+          ) 𝗲𝗹𝘀𝗲 (
+            ()
           )
+        ) 𝗲𝗹𝘀𝗲 (
+          ()
         )
     𝗲𝗻𝗱.
 

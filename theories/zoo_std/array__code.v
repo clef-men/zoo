@@ -389,6 +389,8 @@ Definition array٠partition : val :=
       𝗶𝗳 array٠unsafe_get "t" "i2" < "pivot" 𝘁𝗵𝗲𝗻 (
         array٠unsafe_swap "t" !"i1" "i2" ⍮
         "i1" <- !"i1" + 1
+      ) 𝗲𝗹𝘀𝗲 (
+        ()
       )
     𝗱𝗼𝗻𝗲 ⍮
     array٠unsafe_swap "t" "i" (!"i1" - 1) ⍮
@@ -400,6 +402,8 @@ Definition array٠sort₁ : val :=
       𝗹𝗲𝘁 "pivot" = array٠partition "t" "i" "sz" 𝗶𝗻
       "sort" "t" "i" ("pivot" - "i") ⍮
       "sort" "t" ("pivot" + 1) ("sz" - ("pivot" - "i") - 1)
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition array٠sort : val :=

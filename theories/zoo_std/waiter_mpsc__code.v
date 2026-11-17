@@ -52,4 +52,6 @@ Definition waiter_mpsc٠wait : val :=
              "cond"
              "mtx"
              (𝗳𝘂𝗻 ⎽ -> "t".{waiter_mpsc٠flag}))
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).

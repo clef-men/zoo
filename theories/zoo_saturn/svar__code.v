@@ -55,9 +55,15 @@ Definition svar٠forward : val :=
                     "t".{svar٠proph}
                     ‘svar٠Forward( "v", "g" ) ⍮
                   ()
+                ) 𝗲𝗹𝘀𝗲 (
+                  ()
                 )
             𝗲𝗻𝗱
+          ) 𝗲𝗹𝘀𝗲 (
+            ()
           )
+        ) 𝗲𝗹𝘀𝗲 (
+          ()
         )
     𝗲𝗻𝗱.
 

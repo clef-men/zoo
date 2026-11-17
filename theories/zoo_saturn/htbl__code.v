@@ -101,6 +101,8 @@ Definition htbl٠buckets٠cas_init : val :=
     𝗶𝗳 htbl٠buckets٠get "t" "i" == §htbl٠bucket٠Init 𝘁𝗵𝗲𝗻 (
       htbl٠buckets٠cas "t" "i" §htbl٠bucket٠Init "bucket" ⍮
       ()
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition htbl٠buckets٠take₁ : val :=
@@ -243,6 +245,8 @@ Definition htbl٠merge_buckets : val :=
             𝗹𝗲𝘁 "new_state" = ( "buckets", "mask", §htbl٠Normal ) 𝗶𝗻
             𝗶𝗳 ~ 𝗰𝗮𝘀 "t".[htbl٠state] "state" "new_state" 𝘁𝗵𝗲𝗻 (
               "finish" "t"
+            ) 𝗲𝗹𝘀𝗲 (
+              ()
             )
           ) 𝗲𝗹𝘀𝗲 (
             "finish" "t"
@@ -287,6 +291,8 @@ Definition htbl٠resize₁ : val :=
     𝗶𝗻
     𝗶𝗳 𝗰𝗮𝘀 "t".[htbl٠state] "state" "new_state" 𝘁𝗵𝗲𝗻 (
       htbl٠finish_as "t" "new_state"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition htbl٠resize : val :=
@@ -306,7 +312,11 @@ Definition htbl٠resize : val :=
         htbl٠resize₁ "t" "state" ("cap" 𝗹𝘀𝗹 1)
       ) 𝗲𝗹𝘀𝗲 𝗶𝗳 htbl٠min_capacity < "cap" 𝗮𝗻𝗱 3 * "sz" < "cap" 𝘁𝗵𝗲𝗻 (
         htbl٠resize₁ "t" "state" ("cap" 𝗹𝘀𝗿 1)
+      ) 𝗲𝗹𝘀𝗲 (
+        ()
       )
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 #[local] Definition __zoo۰recs۰1 :=

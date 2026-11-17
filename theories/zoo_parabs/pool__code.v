@@ -124,6 +124,8 @@ Definition pool٠wait : val :=
       𝗶𝗳 ~ !"notification_registered" 𝘁𝗵𝗲𝗻 (
         "notification_registered" <- true ⍮
         "notification" "notify"
+      ) 𝗲𝗹𝘀𝗲 (
+        ()
       )
     𝗶𝗻
     pool٠wait₁ "ctx" "notification" "pred".

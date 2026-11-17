@@ -62,6 +62,8 @@ Definition queue_mpmc_4٠fix_back₁ : val :=
             "t".{queue_mpmc_4٠back}
             "new_back"
             (backoff٠once "backoff")
+        ) 𝗲𝗹𝘀𝗲 (
+          ()
         )
     𝗲𝗻𝗱.
 
@@ -102,6 +104,8 @@ Definition queue_mpmc_4٠push₁ : val :=
                       )
                   𝗲𝗻𝗱
               𝗲𝗻𝗱
+            ) 𝗲𝗹𝘀𝗲 (
+              ()
             )
         𝗲𝗻𝗱
     𝗲𝗻𝗱.

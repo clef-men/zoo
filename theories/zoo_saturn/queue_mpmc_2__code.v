@@ -107,6 +107,8 @@ Definition queue_mpmc_2٠help : val :=
           𝗰𝗮𝘀 "t".[queue_mpmc_2٠front] "front" (queue_mpmc_2٠rev "move")
         𝘁𝗵𝗲𝗻 (
           queue_mpmc_2٠finish "back"
+        ) 𝗲𝗹𝘀𝗲 (
+          ()
         )
     |⎽ ->
         queue_mpmc_2٠finish "back"
@@ -117,6 +119,8 @@ Definition queue_mpmc_2٠help : val :=
       𝗹𝗲𝘁 "new_back" = ‘queue_mpmc_2٠Snoc[ "i" + 1, "v", "back" ] 𝗶𝗻
       𝗶𝗳 ~ 𝗰𝗮𝘀 "t".[queue_mpmc_2٠back] "back" "new_back" 𝘁𝗵𝗲𝗻 (
         "push" "t" "v" (backoff٠once "backoff")
+      ) 𝗲𝗹𝘀𝗲 (
+        ()
       )
     𝘄𝗶𝘁𝗵 "push" "t" "v" "backoff" ->
       𝗺𝗮𝘁𝗰𝗵 "t".{queue_mpmc_2٠back} 𝘄𝗶𝘁𝗵

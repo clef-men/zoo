@@ -55,6 +55,8 @@ Definition queue_3٠grow : val :=
       𝗹𝗲𝘁 "new_cap" = int٠max ("cap" + 1) (queue_3٠next_capacity "cap") 𝗶𝗻
       𝗹𝗲𝘁 "new_data" = array٠unsafe_cgrow "data" "front" "new_cap" () 𝗶𝗻
       "t" <-{queue_3٠data} "new_data"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition queue_3٠push : val :=
@@ -75,6 +77,8 @@ Definition queue_3٠shrink : val :=
       𝗹𝗲𝘁 "new_cap" = "cap" 𝗹𝘀𝗿 1 + 1 𝗶𝗻
       𝗹𝗲𝘁 "new_data" = array٠unsafe_cshrink_slice "data" "front" "new_cap" 𝗶𝗻
       "t" <-{queue_3٠data} "new_data"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition queue_3٠pop_front : val :=

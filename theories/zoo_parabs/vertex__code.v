@@ -48,13 +48,19 @@ Definition vertex٠precede : val :=
       𝗶𝗳 stack_mpmc_2٠push "succs1" "t2" 𝘁𝗵𝗲𝗻 (
         𝗳𝗮𝗮 "t2".[vertex٠preds] (-1) ⍮
         ()
+      ) 𝗲𝗹𝘀𝗲 (
+        ()
       )
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 #[local] Definition __zoo۰recs۰0 :=
   ( 𝗿𝗲𝗰𝘀 "release" "ctx" "t" ->
       𝗶𝗳 𝗳𝗮𝗮 "t".[vertex٠preds] (-1) == 1 𝘁𝗵𝗲𝗻 (
         "run" "ctx" "t"
+      ) 𝗲𝗹𝘀𝗲 (
+        ()
       )
     𝘄𝗶𝘁𝗵 "run" "ctx" "t" ->
       pool٠async "ctx"

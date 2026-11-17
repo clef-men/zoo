@@ -35,6 +35,8 @@ Definition sarray٠set : val :=
       "t".{sarray٠root} <- ‘sarray٠Diff( "i", "v'", "root" ) ⍮
       "t" <-{sarray٠root} "root" ⍮
       array٠unsafe_set "t".{sarray٠data} "i" "v"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition sarray٠capture : val :=

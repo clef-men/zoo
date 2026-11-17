@@ -35,6 +35,8 @@ Definition queue_mpsc_2٠push_back₁ : val :=
     𝗹𝗲𝘁 "back" = "t".{queue_mpsc_2٠back} 𝗶𝗻
     𝗶𝗳 ~ 𝗰𝗮𝘀 "t".[queue_mpsc_2٠back] "back" ‘glist٠Cons[ "v", "back" ] 𝘁𝗵𝗲𝗻 (
       "push_back" "t" "v" (backoff٠once "backoff")
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition queue_mpsc_2٠push_back : val :=

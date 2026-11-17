@@ -23,6 +23,8 @@ Definition bag_1٠push₁ : val :=
   𝗿𝗲𝗰 "push" "slot" "o" "backoff" ->
     𝗶𝗳 ~ 𝗰𝗮𝘀 "slot".[contents] §goption٠None "o" 𝘁𝗵𝗲𝗻 (
       "push" "slot" "o" (backoff٠once "backoff")
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition bag_1٠push : val :=

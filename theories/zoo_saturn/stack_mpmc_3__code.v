@@ -36,6 +36,8 @@ Definition stack_mpmc_3٠push₁ : val :=
   𝗿𝗲𝗰 "push" "t" "v" "backoff" ->
     𝗶𝗳 ~ stack_mpmc_3٠try_push "t" "v" 𝘁𝗵𝗲𝗻 (
       "push" "t" "v" (backoff٠once "backoff")
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition stack_mpmc_3٠push : val :=

@@ -14,6 +14,8 @@ Definition mutex٠lock : val :=
   𝗿𝗲𝗰 "lock" "t" ->
     𝗶𝗳 ~ 𝗰𝗮𝘀 "t".[contents] false true 𝘁𝗵𝗲𝗻 (
       "lock" "t"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition mutex٠create_lock : val :=

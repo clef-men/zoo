@@ -27,6 +27,8 @@ Definition condition٠wait_until : val :=
     𝗶𝗳 ~ "pred" () 𝘁𝗵𝗲𝗻 (
       condition٠wait "t" "mtx" ⍮
       "wait_until" "t" "mtx" "pred"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition condition٠wait_while : val :=

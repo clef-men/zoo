@@ -60,6 +60,8 @@ Definition inf_queue_mpmc_2٠push : val :=
         ( "i", "id" )
     𝘁𝗵𝗲𝗻 (
       "push" "t" "v"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition inf_queue_mpmc_2٠try_pop_once : val :=

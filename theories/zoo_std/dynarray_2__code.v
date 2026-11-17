@@ -98,6 +98,8 @@ Definition dynarray_2٠reserve : val :=
       𝗹𝗲𝘁 "cap" = int٠max "n" (dynarray_2٠next_capacity "cap") 𝗶𝗻
       𝗹𝗲𝘁 "data" = array٠unsafe_grow "data" "cap" §dynarray_2٠Empty 𝗶𝗻
       dynarray_2٠set_data "t" "data"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition dynarray_2٠reserve_extra : val :=
@@ -130,12 +132,16 @@ Definition dynarray_2٠grow₁ : val :=
     dynarray_2٠reserve "t" "sz" ⍮
     𝗶𝗳 ~ dynarray_2٠try_grow "t" "sz" "v" 𝘁𝗵𝗲𝗻 (
       "grow" "t" "sz" "v"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition dynarray_2٠grow : val :=
   𝗳𝘂𝗻 "t" "sz" "v" ->
     𝗶𝗳 ~ dynarray_2٠try_grow "t" "sz" "v" 𝘁𝗵𝗲𝗻 (
       dynarray_2٠grow₁ "t" "sz" "v"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition dynarray_2٠try_push : val :=
@@ -155,6 +161,8 @@ Definition dynarray_2٠push₁ : val :=
     dynarray_2٠reserve_extra "t" 1 ⍮
     𝗶𝗳 ~ dynarray_2٠try_push "t" "slot" 𝘁𝗵𝗲𝗻 (
       "push" "t" "slot"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition dynarray_2٠push : val :=
@@ -162,6 +170,8 @@ Definition dynarray_2٠push : val :=
     𝗹𝗲𝘁 "slot" = dynarray_2٠element "v" 𝗶𝗻
     𝗶𝗳 ~ dynarray_2٠try_push "t" "slot" 𝘁𝗵𝗲𝗻 (
       dynarray_2٠push₁ "t" "slot"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition dynarray_2٠pop : val :=
@@ -186,6 +196,8 @@ Definition dynarray_2٠fit_capacity : val :=
     𝗹𝗲𝘁 "data" = dynarray_2٠data "t" 𝗶𝗻
     𝗶𝗳 array٠size "data" != "sz" 𝘁𝗵𝗲𝗻 (
       dynarray_2٠set_data "t" (array٠shrink "data" "sz")
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition dynarray_2٠reset : val :=

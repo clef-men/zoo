@@ -52,6 +52,8 @@ Definition partition٠dllist٠swap : val :=
           partition٠dllist٠link "elt1" "next2" ⍮
           partition٠dllist٠link "elt2" "elt1" ⍮
           partition٠dllist٠link "prev1" "elt2"
+        ) 𝗲𝗹𝘀𝗲 (
+          ()
         )
       ) 𝗲𝗹𝘀𝗲 𝗶𝗳 "prev1" == "elt2" 𝘁𝗵𝗲𝗻 (
         partition٠dllist٠link "prev2" "elt1" ⍮
@@ -63,6 +65,8 @@ Definition partition٠dllist٠swap : val :=
         partition٠dllist٠link "elt2" "next1" ⍮
         partition٠dllist٠link "prev1" "elt2"
       )
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition partition٠dllist٠iter : val :=
@@ -70,6 +74,8 @@ Definition partition٠dllist٠iter : val :=
     "fn" "from" ⍮
     𝗶𝗳 "from" != "to_" 𝘁𝗵𝗲𝗻 (
       "iter" "fn" "from".{partition٠next} "to_"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition partition٠class_is_singleton : val :=
@@ -91,13 +97,19 @@ Definition partition٠class_swap : val :=
         "class_" <-{partition٠first} "elt2"
       ) 𝗲𝗹𝘀𝗲 𝗶𝗳 "first" == "elt2" 𝘁𝗵𝗲𝗻 (
         "class_" <-{partition٠first} "elt1"
+      ) 𝗲𝗹𝘀𝗲 (
+        ()
       ) ⍮
       𝗶𝗳 "last" == "elt2" 𝘁𝗵𝗲𝗻 (
         "class_" <-{partition٠last} "elt1"
       ) 𝗲𝗹𝘀𝗲 𝗶𝗳 "last" == "elt1" 𝘁𝗵𝗲𝗻 (
         "class_" <-{partition٠last} "elt2"
+      ) 𝗲𝗹𝘀𝗲 (
+        ()
       ) ⍮
       partition٠dllist٠swap "elt1" "elt2"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition partition٠class_iter : val :=

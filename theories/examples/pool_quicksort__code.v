@@ -17,6 +17,8 @@ Definition pool_quicksort٠main₂ : val :=
         "ctx"
         (𝗳𝘂𝗻 "ctx" ->
            "main" "ctx" "arr" ("pivot" + 1) ("sz" - ("pivot" - "i") - 1))
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition pool_quicksort٠main₁ : val :=

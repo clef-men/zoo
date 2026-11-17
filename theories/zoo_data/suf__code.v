@@ -55,8 +55,12 @@ Definition suf٠union : val :=
         sstore_2٠set "t" "repr2" ‘suf٠Link( "repr1" ) ⍮
         𝗶𝗳 "rank1" == "rank2" 𝘁𝗵𝗲𝗻 (
           sstore_2٠set "t" "repr1" ‘suf٠Root( "rank1" + 1 )
+        ) 𝗲𝗹𝘀𝗲 (
+          ()
         )
       )
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition suf٠capture : val :=

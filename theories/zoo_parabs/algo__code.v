@@ -95,6 +95,8 @@ Definition algo٠find_seq : val :=
         𝗹𝗲𝘁 "beg" = "beg" + 1 𝗶𝗻
         "find_seq" "ctx" "beg" "end_" "pred" "found"
       )
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition algo٠find₁ : val :=
@@ -110,6 +112,8 @@ Definition algo٠find₁ : val :=
       𝗶𝗻
       "find" "ctx" "mid" "end_" "chunk" "pred" "found" ⍮
       future٠wait "ctx" "left"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition algo٠find : val :=

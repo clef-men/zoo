@@ -46,6 +46,8 @@ Definition queue_mpmc_1٠push₂ : val :=
               𝗰𝗮𝘀 "node_r".[queue_mpmc_1٠next] §queue_mpmc_1٠Null "new_back"
             𝘁𝗵𝗲𝗻 (
               "push" "node" "new_back" (backoff٠once "backoff")
+            ) 𝗲𝗹𝘀𝗲 (
+              ()
             )
         𝗲𝗻𝗱
     𝗲𝗻𝗱.
@@ -68,6 +70,8 @@ Definition queue_mpmc_1٠fix_back₁ : val :=
             "t".{queue_mpmc_1٠back}
             "new_back"
             (backoff٠once "backoff")
+        ) 𝗲𝗹𝘀𝗲 (
+          ()
         )
     𝗲𝗻𝗱.
 

@@ -81,6 +81,8 @@ Definition bqueue_mpmc٠fix_back₁ : val :=
             "t".{bqueue_mpmc٠back}
             "new_back"
             (backoff٠once "backoff")
+        ) 𝗲𝗹𝘀𝗲 (
+          ()
         )
     𝗲𝗻𝗱.
 

@@ -30,6 +30,8 @@ Definition rcfd٠finish : val :=
       "t".{rcfd٠ops} == 0 𝗮𝗻𝗱 𝗰𝗮𝘀 "t".[rcfd٠state] "state" rcfd٠closed
     𝘁𝗵𝗲𝗻 (
       "close" ()
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition rcfd٠put : val :=
@@ -42,6 +44,8 @@ Definition rcfd٠put : val :=
       | rcfd٠Closing "close" 𝗮𝘀 "state" ->
           rcfd٠finish "t" "close" "state"
       𝗲𝗻𝗱
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition rcfd٠get : val :=

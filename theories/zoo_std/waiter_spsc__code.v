@@ -40,4 +40,6 @@ Definition waiter_spsc٠wait : val :=
              "cond"
              "mtx"
              (𝗳𝘂𝗻 ⎽ -> "t".{waiter_spsc٠flag}))
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).

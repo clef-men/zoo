@@ -37,6 +37,8 @@ Definition inf_array٠reserve : val :=
       𝗹𝗲𝘁 "cap" = int٠max "n" (inf_array٠next_capacity "cap") 𝗶𝗻
       𝗹𝗲𝘁 "data" = array٠unsafe_grow "data" "cap" "t".{inf_array٠default} 𝗶𝗻
       "t" <-{inf_array٠data} "data"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition inf_array٠get : val :=

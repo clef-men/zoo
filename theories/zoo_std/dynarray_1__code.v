@@ -62,6 +62,8 @@ Definition dynarray_1٠reserve : val :=
       𝗹𝗲𝘁 "new_data" = array٠unsafe_alloc "new_cap" 𝗶𝗻
       array٠unsafe_copy_slice "data" 0 "new_data" 0 "t".{dynarray_1٠size} ⍮
       "t" <-{dynarray_1٠data} "new_data"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition dynarray_1٠reserve_extra : val :=
@@ -79,6 +81,8 @@ Definition dynarray_1٠grow : val :=
         ("sz" - "old_sz")
         "v" ⍮
       "t" <-{dynarray_1٠size} "sz"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition dynarray_1٠push : val :=
@@ -103,6 +107,8 @@ Definition dynarray_1٠fit_capacity : val :=
     𝗹𝗲𝘁 "data" = "t".{dynarray_1٠data} 𝗶𝗻
     𝗶𝗳 "sz" != array٠size "data" 𝘁𝗵𝗲𝗻 (
       "t" <-{dynarray_1٠data} array٠unsafe_shrink "data" "sz"
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition dynarray_1٠reset : val :=

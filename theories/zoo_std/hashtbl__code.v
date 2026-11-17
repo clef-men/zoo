@@ -175,6 +175,8 @@ Definition hashtbl٠resize : val :=
       𝗱𝗼𝗻𝗲 ⍮
       "t" <-{hashtbl٠buckets} "new_buckets" ⍮
       "t" <-{hashtbl٠mask} "new_cap" - 1
+    ) 𝗲𝗹𝘀𝗲 (
+      ()
     ).
 
 Definition hashtbl٠add : val :=
