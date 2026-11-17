@@ -107,15 +107,23 @@ Section swap.
     rewrite fmap_cons IH; [set_solver.. |].
     rewrite swapｰne //; set_solver.
   Qed.
+  #[local] Lemma swapｰfmapｰdiag x xs :
+    swap x x <$> xs = xs.
+  Proof.
+    induction xs as [| x' xs IH]; first done.
+    rewrite fmap_cons IH swapｰdiag //.
+  Qed.
 End swap.
 
 Record descriptor := Descriptor
-  { descriptor۰class : location
-  ; descriptor۰elts : list location
+  { descriptor۰elts : list location
   ; descriptor۰seen : nat
   }.
 Implicit Type descr : descriptor.
 Implicit Type descrs : gmap location descriptor.
+
+#[local] Abbreviation descriptor۰set descr :=
+  (list_to_set (C := gset location) descr.(descriptor۰elts)).
 
 #[local] Definition links۰valid elements prevs nexts :=
   ∀ elt,
@@ -124,6 +132,66 @@ Implicit Type descrs : gmap location descriptor.
     prevs elt ∈ elements ∧
     prevs (nexts elt) = elt ∧
     nexts (prevs elt) = elt.
+
+#[local] Lemma links۰validｰswap {elements prevs nexts} elt1 elt2 :
+  links۰valid elements prevs nexts →
+  elt1 ∈ elements →
+  elt2 ∈ elements →
+  links۰valid elements
+    (swap elt1 elt2 ∘ prevs ∘ swap elt1 elt2)
+    (swap elt1 elt2 ∘ nexts ∘ swap elt1 elt2).
+Proof.
+  intros Hlinks Helt1 Helt2.
+  assert (
+    ∀ elt,
+    swap elt1 elt2 elt ∈ elements ↔
+    elt ∈ elements
+  ) as Helements.
+  { intros elt. rewrite /swap. repeat case_decide; naive. }
+  intros elt Helt.
+  apply Helements in Helt as (Hnext & Hprev & Hprev_next & Hnext_prev)%Hlinks.
+  rewrite /= !swapｰinvolutive Hprev_next Hnext_prev swapｰinvolutive.
+  rewrite !Helements //.
+Qed.
+
+#[local] Lemma links۰validｰmake {elements prevs nexts} elt :
+  links۰valid elements prevs nexts →
+  elt ∉ elements →
+  links۰valid ({[elt]} ∪ elements)
+    (<[elt := elt]> prevs)
+    (<[elt := elt]> nexts).
+Proof.
+  intros Hlinks Helt elt' [->%elem_of_singleton | Helt']%elem_of_union.
+  - rewrite !fn_lookup_insert. set_solver.
+  - destruct (Hlinks elt' Helt') as (? & ? & ? & ?).
+    assert (elt ≠ elt') by set_solver.
+    assert (elt ≠ nexts elt') by set_solver.
+    assert (elt ≠ prevs elt') by set_solver.
+    rewrite /insert /fn_insert.
+    split_and!; repeat case_decide; try congruence; set_solver.
+Qed.
+#[local] Lemma links۰validｰadd {elements prevs nexts} elt last :
+  links۰valid elements prevs nexts →
+  elt ∉ elements →
+  last ∈ elements →
+  links۰valid ({[elt]} ∪ elements)
+    (<[elt := last]> (<[nexts last := elt]> prevs))
+    (<[last := elt]> (<[elt := nexts last]> nexts)).
+Proof.
+  intros Hlinks Helt Hlast.
+  destruct (Hlinks last Hlast) as (? & ? & ? & ?).
+  assert (elt ≠ last) by set_solver.
+  assert (elt ≠ nexts last) by set_solver.
+  intros elt' [->%elem_of_singleton | Helt']%elem_of_union.
+  - rewrite /insert /fn_insert.
+    split_and!; repeat case_decide; try congruence; set_solver.
+  - destruct (Hlinks elt' Helt') as (? & ? & ? & ?).
+    assert (elt ≠ elt') by set_solver.
+    assert (elt ≠ nexts elt') by set_solver.
+    assert (elt ≠ prevs elt') by set_solver.
+    rewrite /insert /fn_insert.
+    split_and!; repeat case_decide; try congruence; set_solver.
+Qed.
 
 #[local] Ltac solve۰swap elt elt1 elt2 :=
   simpl;
@@ -135,60 +203,41 @@ Implicit Type descrs : gmap location descriptor.
   repeat case_decide; congruence.
 
 Record model۰valid elements prevs nexts classes seens descrs : Prop :=
-  { model۰validｰnext elt :
-      elt ∈ elements →
-      nexts elt ∈ elements
-  ; model۰validｰprev elt :
-      elt ∈ elements →
-      prevs elt ∈ elements
-  ; model۰validｰprevｰnext elt :
-      elt ∈ elements →
-      prevs (nexts elt) = elt
-  ; model۰validｰnextｰprev elt :
-      elt ∈ elements →
-      nexts (prevs elt) = elt
+  { model۰validｰlinks :
+      links۰valid elements prevs nexts
   ; model۰validｰelements elt :
       elt ∈ elements ↔
-        ∃ repr descr,
-        descrs !! repr = Some descr ∧
+        ∃ class descr,
+        descrs !! class = Some descr ∧
         elt ∈ descr.(descriptor۰elts)
-  ; model۰validｰhead repr descr :
-      descrs !! repr = Some descr →
-      head descr.(descriptor۰elts) = Some repr
-  ; model۰validｰNoDup repr descr :
-      descrs !! repr = Some descr →
+  ; model۰validｰnonempty class descr :
+      descrs !! class = Some descr →
+      descr.(descriptor۰elts) ≠ []
+  ; model۰validｰNoDup class descr :
+      descrs !! class = Some descr →
       NoDup descr.(descriptor۰elts)
-  ; model۰validｰseen repr descr :
-      descrs !! repr = Some descr →
+  ; model۰validｰseen class descr :
+      descrs !! class = Some descr →
       descr.(descriptor۰seen) ≤ length descr.(descriptor۰elts)
-  ; model۰validｰclass repr1 descr1 repr2 descr2 :
-      descrs !! repr1 = Some descr1 →
-      descrs !! repr2 = Some descr2 →
-      descr1.(descriptor۰class) = descr2.(descriptor۰class) →
-      repr1 = repr2
-  ; model۰validｰclasses repr descr elt :
-      descrs !! repr = Some descr →
+  ; model۰validｰclasses class descr elt :
+      descrs !! class = Some descr →
       elt ∈ descr.(descriptor۰elts) →
-      classes elt = descr.(descriptor۰class)
-  ; model۰validｰseens repr descr elt :
-      descrs !! repr = Some descr →
+      classes elt = class
+  ; model۰validｰseens class descr elt :
+      descrs !! class = Some descr →
       elt ∈ descr.(descriptor۰elts) →
       seens elt = bool_decide (elt ∈ take descr.(descriptor۰seen) descr.(descriptor۰elts))
-  ; model۰validｰchain repr descr i elt1 elt2 :
-      descrs !! repr = Some descr →
+  ; model۰validｰchain class descr i elt1 elt2 :
+      descrs !! class = Some descr →
       descr.(descriptor۰elts) !! i = Some elt1 →
       descr.(descriptor۰elts) !! ˖i = Some elt2 →
       nexts elt1 = elt2
   }.
-#[local] Arguments model۰validｰnext {_ _ _ _ _ _} _ {_}.
-#[local] Arguments model۰validｰprev {_ _ _ _ _ _} _ {_}.
-#[local] Arguments model۰validｰprevｰnext {_ _ _ _ _ _} _ {_}.
-#[local] Arguments model۰validｰnextｰprev {_ _ _ _ _ _} _ {_}.
+#[local] Arguments model۰validｰlinks {_ _ _ _ _ _} _.
 #[local] Arguments model۰validｰelements {_ _ _ _ _ _} _ _.
-#[local] Arguments model۰validｰhead {_ _ _ _ _ _} _ {_ _}.
+#[local] Arguments model۰validｰnonempty {_ _ _ _ _ _} _ {_ _}.
 #[local] Arguments model۰validｰNoDup {_ _ _ _ _ _} _ {_ _}.
 #[local] Arguments model۰validｰseen {_ _ _ _ _ _} _ {_ _}.
-#[local] Arguments model۰validｰclass {_ _ _ _ _ _} _ {_ _ _ _}.
 #[local] Arguments model۰validｰclasses {_ _ _ _ _ _} _ {_ _ _}.
 #[local] Arguments model۰validｰseens {_ _ _ _ _ _} _ {_ _ _}.
 #[local] Arguments model۰validｰchain {_ _ _ _ _ _} _ {_ _ _ _ _}.
@@ -197,54 +246,55 @@ Section model۰valid.
   Context {elements prevs nexts classes seens descrs}.
   Context (Hvalid : model۰valid elements prevs nexts classes seens descrs).
 
-  #[local] Lemma model۰validｰelement {repr descr elt} :
-    descrs !! repr = Some descr →
+  #[local] Lemma model۰validｰnext elt :
+    elt ∈ elements →
+    nexts elt ∈ elements.
+  Proof.
+    intros Helt. apply (model۰validｰlinks Hvalid elt Helt).
+  Qed.
+  #[local] Lemma model۰validｰprevｰnext elt :
+    elt ∈ elements →
+    prevs (nexts elt) = elt.
+  Proof.
+    intros Helt. apply (model۰validｰlinks Hvalid elt Helt).
+  Qed.
+  #[local] Lemma model۰validｰelement {class descr elt} :
+    descrs !! class = Some descr →
     elt ∈ descr.(descriptor۰elts) →
     elt ∈ elements.
   Proof.
     intros. apply (model۰validｰelements Hvalid). naive.
   Qed.
-  #[local] Lemma model۰validｰrepr {repr descr} :
-    descrs !! repr = Some descr →
-    repr ∈ descr.(descriptor۰elts).
-  Proof.
-    intros Hlookup.
-    apply head_Some_elem_of, (model۰validｰhead Hvalid Hlookup).
-  Qed.
-  #[local] Lemma model۰validｰdisjoint {repr1 descr1 repr2 descr2} elt :
-    descrs !! repr1 = Some descr1 →
-    descrs !! repr2 = Some descr2 →
+  #[local] Lemma model۰validｰdisjoint {class1 descr1 class2 descr2} elt :
+    descrs !! class1 = Some descr1 →
+    descrs !! class2 = Some descr2 →
     elt ∈ descr1.(descriptor۰elts) →
     elt ∈ descr2.(descriptor۰elts) →
-      repr1 = repr2 ∧
-      descr1 = descr2.
+    class1 = class2.
   Proof.
     intros Hlookup1 Hlookup2 Helt1 Helt2.
-    assert (repr1 = repr2) as <-.
-    { apply (model۰validｰclass Hvalid Hlookup1 Hlookup2).
-      rewrite -(model۰validｰclasses Hvalid Hlookup1 Helt1) -(model۰validｰclasses Hvalid Hlookup2 Helt2) //.
-    }
-    naive.
+    rewrite -(model۰validｰclasses Hvalid Hlookup1 Helt1) -(model۰validｰclasses Hvalid Hlookup2 Helt2) //.
   Qed.
-  #[local] Lemma model۰validｰlength {repr descr} :
-    descrs !! repr = Some descr →
-    0 < length descr.(descriptor۰elts).
+  #[local] Lemma model۰validｰother {class descr class' descr'} elt :
+    descrs !! class = Some descr →
+    descrs !! class' = Some descr' →
+    class' ≠ class →
+    elt ∈ descr'.(descriptor۰elts) →
+    elt ∉ descr.(descriptor۰elts).
+  Proof.
+    intros Hlookup Hlookup' Hne Helt' Helt.
+    apply Hne, (model۰validｰdisjoint elt Hlookup' Hlookup); done.
+  Qed.
+  #[local] Lemma model۰validｰhead {class descr} :
+    descrs !! class = Some descr →
+      ∃ first,
+      head descr.(descriptor۰elts) = Some first.
   Proof.
     intros Hlookup.
-    pose proof (model۰validｰhead Hvalid Hlookup) as Hhead.
-    destruct (descr.(descriptor۰elts)); [done | simpl; lia].
+    apply headｰis_Some, (model۰validｰnonempty Hvalid Hlookup).
   Qed.
-  #[local] Lemma model۰validｰnextｰinj elt1 elt2 :
-    elt1 ∈ elements →
-    elt2 ∈ elements →
-    nexts elt1 = nexts elt2 →
-    elt1 = elt2.
-  Proof.
-    intros Helt1 Helt2 Heq.
-    rewrite -(model۰validｰprevｰnext Hvalid Helt1) -(model۰validｰprevｰnext Hvalid Helt2) Heq //.
-  Qed.
-  #[local] Lemma model۰validｰnextｰne {repr descr} elt :
-    descrs !! repr = Some descr →
+  #[local] Lemma model۰validｰnextｰne {class descr} elt :
+    descrs !! class = Some descr →
     2 ≤ length descr.(descriptor۰elts) →
     elt ∈ descr.(descriptor۰elts) →
     nexts elt ≠ elt.
@@ -259,128 +309,333 @@ Section model۰valid.
     - destruct i as [| i]; first lia.
       destruct (lookup_lt_is_Some_2 descr.(descriptor۰elts) i) as (elt' & Hlookup_elt'); first lia.
       pose proof (model۰validｰchain Hvalid Hlookup Hlookup_elt' Hlookup_elt) as Hnext'.
+      assert (elt' ∈ elements) as Helt'.
+      { eapply model۰validｰelement; first done. eapply list_elem_of_lookup_2. done. }
+      assert (elt ∈ elements) as Helt.
+      { eapply model۰validｰelement; first done. eapply list_elem_of_lookup_2. done. }
       assert (elt' = elt) as ->.
-      { apply (model۰validｰnextｰinj elt' elt); last congruence.
-        - eapply model۰validｰelement; first done.
-          eapply list_elem_of_lookup_2; done.
-        - eapply model۰validｰelement; first done.
-          eapply list_elem_of_lookup_2; done.
-      }
+      { rewrite -(model۰validｰprevｰnext elt') // -(model۰validｰprevｰnext elt) //. congruence. }
       opose proof* (NoDup_lookup _ i ˖i); [done.. | lia].
   Qed.
-  #[local] Lemma model۰validｰlinks :
-    links۰valid elements prevs nexts.
+
+  #[local] Lemma model۰validｰupdate {class descr} prevs' nexts' seens' descr' :
+    descrs !! class = Some descr →
+    links۰valid elements prevs' nexts' →
+    ( ∀ elt1 elt2,
+      elt1 ∉ descr.(descriptor۰elts) →
+      elt2 ∉ descr.(descriptor۰elts) →
+      nexts elt1 = elt2 →
+      nexts' elt1 = elt2
+    ) →
+    ( ∀ elt,
+      elt ∉ descr.(descriptor۰elts) →
+      seens' elt = seens elt
+    ) →
+    ( ∀ elt,
+      elt ∈ descr'.(descriptor۰elts) ↔
+      elt ∈ descr.(descriptor۰elts)
+    ) →
+    NoDup descr'.(descriptor۰elts) →
+    descr'.(descriptor۰seen) ≤ length descr'.(descriptor۰elts) →
+    ( ∀ elt,
+      elt ∈ descr'.(descriptor۰elts) →
+      seens' elt = bool_decide (elt ∈ take descr'.(descriptor۰seen) descr'.(descriptor۰elts))
+    ) →
+    ( ∀ i elt1 elt2,
+      descr'.(descriptor۰elts) !! i = Some elt1 →
+      descr'.(descriptor۰elts) !! ˖i = Some elt2 →
+      nexts' elt1 = elt2
+    ) →
+    model۰valid elements prevs' nexts' classes seens' (<[class := descr']> descrs).
   Proof.
-    intros elt Helt. split_and!.
-    - apply (model۰validｰnext Hvalid Helt).
-    - apply (model۰validｰprev Hvalid Helt).
-    - apply (model۰validｰprevｰnext Hvalid Helt).
-    - apply (model۰validｰnextｰprev Hvalid Helt).
+    intros Hlookup Hlinks Hnexts Hseens Helts Hnodup Hseen Hseens' Hchain.
+    assert (
+      ∀ class' descr'',
+      <[class := descr']> descrs !! class' = Some descr'' ↔
+          class' = class ∧
+          descr'' = descr'
+        ∨ class' ≠ class ∧
+          descrs !! class' = Some descr''
+    ) as Hlookup'.
+    { intros class' descr''. rewrite lookup_insert_Some. naive. }
+    constructor.
+    - done.
+    - intros elt. rewrite (model۰validｰelements Hvalid).
+      setoid_rewrite Hlookup'. split.
+      + intros (class' & descr'' & Hlookup'' & Helt).
+        destruct (decide (class' = class)) as [-> | Hne].
+        * rewrite Hlookup in Hlookup''. injection Hlookup'' as <-.
+          exists class, descr'. split; first (left; done).
+          apply Helts. done.
+        * exists class', descr''. split; first (right; done). done.
+      + intros (class' & descr'' & [(-> & ->) | (Hne & Hlookup'')] & Helt).
+        * exists class, descr. split; first done.
+          apply Helts. done.
+        * exists class', descr''. done.
+    - intros class' descr'' [(-> & ->) | (Hne & Hlookup'')]%Hlookup'.
+      + destruct (model۰validｰhead Hlookup) as (first & Hfirst%head_Some_elem_of).
+        intros Hnil. apply (not_elem_of_nil first).
+        rewrite -Hnil Helts //.
+      + apply (model۰validｰnonempty Hvalid Hlookup'').
+    - intros class' descr'' [(-> & ->) | (Hne & Hlookup'')]%Hlookup'; first done.
+      apply (model۰validｰNoDup Hvalid Hlookup'').
+    - intros class' descr'' [(-> & ->) | (Hne & Hlookup'')]%Hlookup'; first done.
+      apply (model۰validｰseen Hvalid Hlookup'').
+    - intros class' descr'' elt [(-> & ->) | (Hne & Hlookup'')]%Hlookup' Helt.
+      + apply Helts in Helt. apply (model۰validｰclasses Hvalid Hlookup Helt).
+      + apply (model۰validｰclasses Hvalid Hlookup'' Helt).
+    - intros class' descr'' elt [(-> & ->) | (Hne & Hlookup'')]%Hlookup' Helt; first auto.
+      assert (elt ∉ descr.(descriptor۰elts)).
+      { apply (model۰validｰother elt Hlookup Hlookup''); done. }
+      rewrite Hseens //.
+      apply (model۰validｰseens Hvalid Hlookup'' Helt).
+    - intros class' descr'' i elt1 elt2 [(-> & ->) | (Hne & Hlookup'')]%Hlookup' Hlookup1 Hlookup2; first eauto.
+      apply Hnexts; last apply (model۰validｰchain Hvalid Hlookup'' Hlookup1 Hlookup2).
+      + apply (model۰validｰother elt1 Hlookup Hlookup''); first done.
+        eapply list_elem_of_lookup_2. done.
+      + apply (model۰validｰother elt2 Hlookup Hlookup''); first done.
+        eapply list_elem_of_lookup_2. done.
   Qed.
 
-  #[local] Lemma model۰validｰlookupｰNone repr :
-    repr ∉ elements →
-    descrs !! repr = None.
+  #[local] Lemma model۰validｰmark {class descr} elt :
+    descrs !! class = Some descr →
+    descr.(descriptor۰elts) !! descr.(descriptor۰seen) = Some elt →
+    model۰valid elements prevs nexts classes
+      (<[elt := true]> seens)
+      (<[class := Descriptor descr.(descriptor۰elts) ˖descr.(descriptor۰seen)]> descrs).
   Proof.
-    intros Hrepr.
-    destruct (descrs !! repr) as [descr |] eqn:Hlookup; last done.
-    exfalso. apply Hrepr.
-    eapply model۰validｰelement; first done.
-    apply (model۰validｰrepr Hlookup).
+    intros Hlookup Hlookup_elt.
+    refine (model۰validｰupdate prevs nexts (<[elt := true]> seens) (Descriptor descr.(descriptor۰elts) ˖descr.(descriptor۰seen)) Hlookup _ _ _ _ _ _ _ _).
+    - apply (model۰validｰlinks Hvalid).
+    - naive.
+    - intros elt' Helt'. rewrite fn_lookup_insert_ne //.
+      intros ->. apply Helt'. eapply list_elem_of_lookup_2. done.
+    - naive.
+    - apply (model۰validｰNoDup Hvalid Hlookup).
+    - simpl. apply lookup_lt_Some in Hlookup_elt. lia.
+    - intros elt' Helt'. simpl.
+      rewrite (take_S_r _ _ elt) //.
+      destruct (decide (elt' = elt)) as [-> | Hne].
+      + rewrite fn_lookup_insert bool_decide_eq_true_2 //. set_solver.
+      + rewrite fn_lookup_insert_ne // (model۰validｰseens Hvalid Hlookup Helt').
+        apply bool_decide_ext. set_solver.
+    - intros i elt1 elt2. apply (model۰validｰchain Hvalid Hlookup).
+  Qed.
+
+  #[local] Lemma model۰validｰswapｰmark {class descr} split elt :
+    descrs !! class = Some descr →
+    descr.(descriptor۰elts) !! descr.(descriptor۰seen) = Some split →
+    elt ∈ descr.(descriptor۰elts) →
+    elt ∉ take descr.(descriptor۰seen) descr.(descriptor۰elts) →
+    model۰valid elements
+      (swap split elt ∘ prevs ∘ swap split elt)
+      (swap split elt ∘ nexts ∘ swap split elt)
+      classes
+      (<[elt := true]> seens)
+      (<[class := Descriptor (swap split elt <$> descr.(descriptor۰elts)) ˖descr.(descriptor۰seen)]> descrs).
+  Proof.
+    intros Hlookup Hlookup_split Helt Helt_seen.
+    pose proof (model۰validｰNoDup Hvalid Hlookup) as Hnodup.
+    assert (split ∈ descr.(descriptor۰elts)) as Hsplit.
+    { eapply list_elem_of_lookup_2. done. }
+    assert (split ∉ take descr.(descriptor۰seen) descr.(descriptor۰elts)) as Hsplit_seen.
+    { rewrite elem_of_take. intros (i & Hlookup_i & Hi).
+      opose proof* (NoDup_lookup _ i descr.(descriptor۰seen)); [done.. | lia].
+    }
+    assert (
+      ∀ elt',
+      elt' ∉ descr.(descriptor۰elts) →
+      swap split elt elt' = elt'
+    ) as Hswap.
+    { intros elt' Helt'. apply swapｰne; set_solver. }
+    refine (model۰validｰupdate _ _ (<[elt := true]> seens) (Descriptor (swap split elt <$> descr.(descriptor۰elts)) ˖descr.(descriptor۰seen)) Hlookup _ _ _ _ _ _ _ _).
+    - apply links۰validｰswap; first apply (model۰validｰlinks Hvalid).
+      + eapply model۰validｰelement; done.
+      + eapply model۰validｰelement; done.
+    - intros elt1 elt2 Helt1 Helt2 <-.
+      rewrite /= !Hswap //.
+    - intros elt' Helt'. rewrite fn_lookup_insert_ne //. set_solver.
+    - intros elt'. rewrite swapｰfmapｰelem_of //.
+    - apply NoDup_fmap_2_strong; last done.
+      intros ? ? _ _. apply swapｰinj.
+    - rewrite /= length_fmap.
+      pose proof (lookup_lt_Some _ _ _ Hlookup_split). lia.
+    - intros elt' Helt'. simpl in Helt' |- *.
+      rewrite -fmap_take (take_S_r _ _ split) // fmap_app swapｰfmapｰid // fmap_cons fmap_nil swapｰl.
+      rewrite swapｰfmapｰelem_of // in Helt'.
+      destruct (decide (elt' = elt)) as [-> | Hne].
+      + rewrite fn_lookup_insert bool_decide_eq_true_2 //. set_solver.
+      + rewrite fn_lookup_insert_ne // (model۰validｰseens Hvalid Hlookup Helt').
+        apply bool_decide_ext. set_solver.
+    - intros i elt1 elt2 (elt1_ & -> & Hlookup1)%list_lookup_fmap_Some (elt2_ & -> & Hlookup2)%list_lookup_fmap_Some.
+      rewrite /= swapｰinvolutive (model۰validｰchain Hvalid Hlookup Hlookup1 Hlookup2) //.
+  Qed.
+
+  #[local] Lemma model۰validｰreset {class descr} :
+    descrs !! class = Some descr →
+    model۰valid elements prevs nexts classes
+      (λ elt, if decide (elt ∈ descr.(descriptor۰elts)) then false else seens elt)
+      (<[class := Descriptor descr.(descriptor۰elts) 0]> descrs).
+  Proof.
+    intros Hlookup.
+    refine (model۰validｰupdate prevs nexts _ (Descriptor descr.(descriptor۰elts) 0) Hlookup _ _ _ _ _ _ _ _).
+    - apply (model۰validｰlinks Hvalid).
+    - naive.
+    - intros elt Helt. rewrite decide_False //.
+    - naive.
+    - apply (model۰validｰNoDup Hvalid Hlookup).
+    - simpl. lia.
+    - intros elt Helt. simpl.
+      rewrite decide_True // take_0 bool_decide_eq_false_2 //.
+    - intros i elt1 elt2. apply (model۰validｰchain Hvalid Hlookup).
+  Qed.
+
+  #[local] Lemma model۰validｰsplit {class descr} class' :
+    descrs !! class = Some descr →
+    descrs !! class' = None →
+    0 < descr.(descriptor۰seen) < length descr.(descriptor۰elts) →
+    model۰valid elements prevs nexts
+      (λ elt, if decide (elt ∈ take descr.(descriptor۰seen) descr.(descriptor۰elts)) then class' else classes elt)
+      (λ elt, if decide (elt ∈ take descr.(descriptor۰seen) descr.(descriptor۰elts)) then false else seens elt)
+      ( <[class := Descriptor (drop descr.(descriptor۰seen) descr.(descriptor۰elts)) 0]> $
+        <[class' := Descriptor (take descr.(descriptor۰seen) descr.(descriptor۰elts)) 0]> descrs
+      ).
+  Proof.
+    intros Hlookup Hlookup' Hn.
+    pose proof (model۰validｰseen Hvalid Hlookup) as Hn'.
+    pose proof (model۰validｰNoDup Hvalid Hlookup) as Hnodup.
+    destruct descr as [elts n]. simpl in *.
+    assert (class' ≠ class) as Hne by congruence.
+    assert (
+      ∀ class'' descr',
+      <[class := Descriptor (drop n elts) 0]> (<[class' := Descriptor (take n elts) 0]> descrs) !! class'' = Some descr' ↔
+          class'' = class ∧
+          descr' = Descriptor (drop n elts) 0
+        ∨ class'' = class' ∧
+          descr' = Descriptor (take n elts) 0
+        ∨ class'' ≠ class ∧
+          class'' ≠ class' ∧
+          descrs !! class'' = Some descr'
+    ) as Hlookup''.
+    { intros class'' descr'. rewrite !lookup_insert_Some. naive. }
+    constructor.
+    - apply (model۰validｰlinks Hvalid).
+    - intros elt. rewrite (model۰validｰelements Hvalid).
+      setoid_rewrite Hlookup''. split.
+      + intros (class'' & descr' & Hlookup''' & Helt).
+        destruct (decide (class'' = class)) as [-> | Hne'].
+        * simplify_eq. apply (elem_ofｰtakeｰdrop _ n) in Helt as [Helt | Helt]; naive.
+        * exists class'', descr'. split; last done.
+          right. right. split_and!; try done. congruence.
+      + intros (class'' & descr' & [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup''')]] & Helt).
+        * exists class, (Descriptor elts n). split; first done.
+          apply (elem_ofｰtakeｰdrop elts n). naive.
+        * exists class, (Descriptor elts n). split; first done.
+          apply (elem_ofｰtakeｰdrop elts n). naive.
+        * naive.
+    - intros class'' descr' [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup''')]]%Hlookup''.
+      + simpl. rewrite -length_zero_iff_nil length_drop. lia.
+      + simpl. rewrite -length_zero_iff_nil length_take. lia.
+      + apply (model۰validｰnonempty Hvalid Hlookup''').
+    - intros class'' descr' [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup''')]]%Hlookup''.
+      + apply NoDupｰdrop. done.
+      + apply NoDupｰtake. done.
+      + apply (model۰validｰNoDup Hvalid Hlookup''').
+    - intros class'' descr' [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup''')]]%Hlookup''; [simpl; lia.. |].
+      apply (model۰validｰseen Hvalid Hlookup''').
+    - intros class'' descr' elt [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup''')]]%Hlookup'' Helt; simpl in *.
+      + rewrite decide_False.
+        { intros Helt'. apply (NoDupｰelem_ofｰtakeｰdrop elts n elt); done. }
+        apply (model۰validｰclasses Hvalid Hlookup), (elem_ofｰtakeｰdrop elts n). naive.
+      + rewrite decide_True //.
+      + assert (elt ∉ elts) as Helt'.
+        { apply (model۰validｰother elt Hlookup Hlookup'''); done. }
+        rewrite decide_False.
+        { rewrite (elem_ofｰtakeｰdrop elts n) in Helt'. naive. }
+        apply (model۰validｰclasses Hvalid Hlookup''' Helt).
+    - intros class'' descr' elt [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup''')]]%Hlookup'' Helt; simpl in *.
+      + rewrite decide_False.
+        { intros Helt'. apply (NoDupｰelem_ofｰtakeｰdrop elts n elt); done. }
+        rewrite ?take_0 (model۰validｰseens Hvalid Hlookup).
+        { apply (elem_ofｰtakeｰdrop elts n). naive. }
+        rewrite !bool_decide_eq_false_2 //.
+        intros Helt'. apply (NoDupｰelem_ofｰtakeｰdrop elts n elt); done.
+      + rewrite decide_True // take_0 bool_decide_eq_false_2 //.
+      + assert (elt ∉ elts) as Helt'.
+        { apply (model۰validｰother elt Hlookup Hlookup'''); done. }
+        rewrite decide_False.
+        { rewrite (elem_ofｰtakeｰdrop elts n) in Helt'. naive. }
+        apply (model۰validｰseens Hvalid Hlookup''' Helt).
+    - intros class'' descr' i elt1 elt2 [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup''')]]%Hlookup'' Hlookup1 Hlookup2; simpl in *.
+      + rewrite lookup_drop in Hlookup1.
+        rewrite lookup_drop Nat.add_succ_r in Hlookup2.
+        apply (model۰validｰchain Hvalid Hlookup Hlookup1 Hlookup2).
+      + apply lookup_take_Some in Hlookup1 as (Hlookup1 & _).
+        apply lookup_take_Some in Hlookup2 as (Hlookup2 & _).
+        apply (model۰validｰchain Hvalid Hlookup Hlookup1 Hlookup2).
+      + apply (model۰validｰchain Hvalid Hlookup''' Hlookup1 Hlookup2).
   Qed.
 
   #[local] Lemma model۰validｰmake elt class :
     elt ∉ elements →
-    ( ∀ repr descr,
-      descrs !! repr = Some descr →
-      descr.(descriptor۰class) ≠ class
-    ) →
+    descrs !! class = None →
     model۰valid
       ({[elt]} ∪ elements)
       (<[elt := elt]> prevs)
       (<[elt := elt]> nexts)
       (<[elt := class]> classes)
       (<[elt := false]> seens)
-      (<[elt := Descriptor class [elt] 0]> descrs).
+      (<[class := Descriptor [elt] 0]> descrs).
   Proof.
-    intros Helt Hclass.
-    pose proof (model۰validｰlookupｰNone elt Helt) as Hlookup_elt.
+    intros Helt Hlookup.
+    assert (
+      ∀ class' descr elt',
+      descrs !! class' = Some descr →
+      elt' ∈ descr.(descriptor۰elts) →
+      elt ≠ elt'
+    ) as Hfresh.
+    { intros class' descr elt' Hlookup' Helt' ->. apply Helt. eapply model۰validｰelement; done. }
     constructor.
-    - intros elt' [->%elem_of_singleton | Helt']%elem_of_union.
-      + rewrite fn_lookup_insert. set_solver.
-      + assert (elt ≠ elt') by set_solver.
-        rewrite fn_lookup_insert_ne //.
-        apply elem_of_union_r, (model۰validｰnext Hvalid Helt').
-    - intros elt' [->%elem_of_singleton | Helt']%elem_of_union.
-      + rewrite fn_lookup_insert. set_solver.
-      + assert (elt ≠ elt') by set_solver.
-        rewrite fn_lookup_insert_ne //.
-        apply elem_of_union_r, (model۰validｰprev Hvalid Helt').
-    - intros elt' [->%elem_of_singleton | Helt']%elem_of_union.
-      + rewrite !fn_lookup_insert //.
-      + assert (elt ≠ elt') by set_solver.
-        assert (elt ≠ nexts elt').
-        { intros ->. apply Helt, (model۰validｰnext Hvalid Helt'). }
-        rewrite !fn_lookup_insert_ne //.
-        apply (model۰validｰprevｰnext Hvalid Helt').
-    - intros elt' [->%elem_of_singleton | Helt']%elem_of_union.
-      + rewrite !fn_lookup_insert //.
-      + assert (elt ≠ elt') by set_solver.
-        assert (elt ≠ prevs elt').
-        { intros ->. apply Helt, (model۰validｰprev Hvalid Helt'). }
-        rewrite !fn_lookup_insert_ne //.
-        apply (model۰validｰnextｰprev Hvalid Helt').
+    - apply links۰validｰmake; last done.
+      apply (model۰validｰlinks Hvalid).
     - intros elt'.
       rewrite elem_of_union elem_of_singleton (model۰validｰelements Hvalid).
       setoid_rewrite lookup_insert_Some. split.
-      + intros [-> | (repr & descr & Hlookup & Helt')].
-        * exists elt, (Descriptor class [elt] 0). simpl. set_solver.
-        * exists repr, descr. split; last done.
-          right. split; last done.
-          intros ->. congruence.
-      + intros (repr & descr & [(<- & <-) | (Hne & Hlookup)] & Helt').
+      + intros [-> | (class' & descr & Hlookup' & Helt')].
+        * exists class, (Descriptor [elt] 0). set_solver.
+        * exists class', descr. split; last done.
+          right. split; last done. congruence.
+      + intros (class' & descr & [(<- & <-) | (Hne & Hlookup')] & Helt').
         * left. set_solver.
         * right. naive.
-    - intros repr descr [(<- & <-) | (Hne & Hlookup)]%lookup_insert_Some; first done.
-      apply (model۰validｰhead Hvalid Hlookup).
-    - intros repr descr [(<- & <-) | (Hne & Hlookup)]%lookup_insert_Some.
+    - intros class' descr [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some; first done.
+      apply (model۰validｰnonempty Hvalid Hlookup').
+    - intros class' descr [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some.
       + apply NoDup_singleton.
-      + apply (model۰validｰNoDup Hvalid Hlookup).
-    - intros repr descr [(<- & <-) | (Hne & Hlookup)]%lookup_insert_Some.
+      + apply (model۰validｰNoDup Hvalid Hlookup').
+    - intros class' descr [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some.
       + simpl. lia.
-      + apply (model۰validｰseen Hvalid Hlookup).
-    - intros repr1 descr1 repr2 descr2 [(<- & <-) | (Hne1 & Hlookup1)]%lookup_insert_Some [(<- & <-) | (Hne2 & Hlookup2)]%lookup_insert_Some Heq.
-      + done.
-      + exfalso. apply (Hclass _ _ Hlookup2). done.
-      + exfalso. apply (Hclass _ _ Hlookup1). done.
-      + apply (model۰validｰclass Hvalid Hlookup1 Hlookup2 Heq).
-    - intros repr descr elt' [(<- & <-) | (Hne & Hlookup)]%lookup_insert_Some Helt'.
+      + apply (model۰validｰseen Hvalid Hlookup').
+    - intros class' descr elt' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some Helt'.
       + apply list_elem_of_singleton in Helt' as ->.
-        rewrite fn_lookup_insert //.
-      + assert (elt ≠ elt').
-        { intros ->. apply Helt. eapply model۰validｰelement; done. }
-        rewrite fn_lookup_insert_ne //.
-        apply (model۰validｰclasses Hvalid Hlookup Helt').
-    - intros repr descr elt' [(<- & <-) | (Hne & Hlookup)]%lookup_insert_Some Helt'.
+        rewrite !fn_lookup_insert //.
+      + rewrite !fn_lookup_insert_ne; first (eapply Hfresh; done).
+        apply (model۰validｰclasses Hvalid Hlookup' Helt').
+    - intros class' descr elt' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some Helt'.
       + apply list_elem_of_singleton in Helt' as ->.
         rewrite fn_lookup_insert. symmetry.
         apply bool_decide_eq_false_2, not_elem_of_nil.
-      + assert (elt ≠ elt').
-        { intros ->. apply Helt. eapply model۰validｰelement; done. }
-        rewrite fn_lookup_insert_ne //.
-        apply (model۰validｰseens Hvalid Hlookup Helt').
-    - intros repr descr i elt1 elt2 [(<- & <-) | (Hne & Hlookup)]%lookup_insert_Some Hlookup1 Hlookup2.
+      + rewrite fn_lookup_insert_ne; first (eapply Hfresh; done).
+        apply (model۰validｰseens Hvalid Hlookup' Helt').
+    - intros class' descr i elt1 elt2 [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some Hlookup1 Hlookup2.
       + apply lookup_lt_Some in Hlookup2. simpl in Hlookup2. lia.
-      + assert (elt ≠ elt1).
-        { intros ->. apply Helt. eapply model۰validｰelement; first done.
-          eapply list_elem_of_lookup_2; done.
-        }
-        rewrite fn_lookup_insert_ne //.
-        apply (model۰validｰchain Hvalid Hlookup Hlookup1 Hlookup2).
+      + rewrite fn_lookup_insert_ne.
+        { eapply Hfresh; first done. eapply list_elem_of_lookup_2. done. }
+        apply (model۰validｰchain Hvalid Hlookup' Hlookup1 Hlookup2).
   Qed.
 
-  #[local] Lemma model۰validｰadd {repr descr} elt last :
-    descrs !! repr = Some descr →
+  #[local] Lemma model۰validｰadd {class descr} elt last :
+    descrs !! class = Some descr →
     descr.(descriptor۰seen) = 0 →
     list.last descr.(descriptor۰elts) = Some last →
     elt ∉ elements →
@@ -388,130 +643,66 @@ Section model۰valid.
       ({[elt]} ∪ elements)
       (<[elt := last]> (<[nexts last := elt]> prevs))
       (<[last := elt]> (<[elt := nexts last]> nexts))
-      (<[elt := descr.(descriptor۰class)]> classes)
+      (<[elt := class]> classes)
       (<[elt := false]> seens)
-      (<[repr := Descriptor descr.(descriptor۰class) (descr.(descriptor۰elts) ++ [elt]) 0]> descrs).
+      (<[class := Descriptor (descr.(descriptor۰elts) ++ [elt]) 0]> descrs).
   Proof.
     intros Hlookup Hseen Hlast Helt.
     pose proof (model۰validｰNoDup Hvalid Hlookup) as Hnodup.
     assert (last ∈ descr.(descriptor۰elts)) as Hlast_elts.
     { apply last_Some_elem_of. done. }
-    assert (last ∈ elements) as Hlast_elements.
-    { eapply model۰validｰelement; done. }
-    assert (nexts last ∈ elements) as Hnext_elements.
-    { apply (model۰validｰnext Hvalid Hlast_elements). }
-    assert (elt ≠ last) as Hne_last by set_solver.
-    assert (elt ≠ nexts last) as Hne_next by set_solver.
     assert (
-      ∀ elt',
+      ∀ class' descr elt',
+      descrs !! class' = Some descr →
       elt' ∈ descr.(descriptor۰elts) →
       elt ≠ elt'
-    ) as Hne_elts.
-    { intros elt' Helt' ->. apply Helt. eapply model۰validｰelement; done. }
+    ) as Hfresh.
+    { intros class' descr' elt' Hlookup' Helt' ->. apply Helt. eapply model۰validｰelement; done. }
     constructor.
-    - intros elt' [->%elem_of_singleton | Helt']%elem_of_union.
-      + rewrite fn_lookup_insert_ne // fn_lookup_insert. set_solver.
-      + destruct (decide (elt' = last)) as [-> | Hne].
-        * rewrite fn_lookup_insert. set_solver.
-        * assert (elt ≠ elt') by set_solver.
-          rewrite !fn_lookup_insert_ne //.
-          apply elem_of_union_r, (model۰validｰnext Hvalid Helt').
-    - intros elt' [->%elem_of_singleton | Helt']%elem_of_union.
-      + rewrite fn_lookup_insert. set_solver.
-      + assert (elt ≠ elt') by set_solver.
-        rewrite fn_lookup_insert_ne //.
-        destruct (decide (elt' = nexts last)) as [-> | Hne].
-        * rewrite fn_lookup_insert. set_solver.
-        * rewrite fn_lookup_insert_ne //.
-          apply elem_of_union_r, (model۰validｰprev Hvalid Helt').
-    - intros elt' [->%elem_of_singleton | Helt']%elem_of_union.
-      + rewrite (fn_lookup_insert_ne _ last) // fn_lookup_insert.
-        rewrite fn_lookup_insert_ne // fn_lookup_insert //.
-      + destruct (decide (elt' = last)) as [-> | Hne].
-        * rewrite !fn_lookup_insert //.
-        * assert (elt ≠ elt') by set_solver.
-          assert (<[last := elt]> (<[elt := nexts last]> nexts) elt' = nexts elt') as ->.
-          { rewrite !fn_lookup_insert_ne //. }
-          assert (elt ≠ nexts elt').
-          { intros Heq. apply Helt. rewrite Heq. apply (model۰validｰnext Hvalid Helt'). }
-          assert (nexts last ≠ nexts elt').
-          { intros Heq. apply Hne. symmetry. apply model۰validｰnextｰinj; done. }
-          rewrite !fn_lookup_insert_ne //.
-          apply (model۰validｰprevｰnext Hvalid Helt').
-    - intros elt' [->%elem_of_singleton | Helt']%elem_of_union.
-      + rewrite !fn_lookup_insert //.
-      + assert (elt ≠ elt') by set_solver.
-        destruct (decide (elt' = nexts last)) as [-> | Hne].
-        * assert (<[elt := last]> (<[nexts last := elt]> prevs) (nexts last) = elt) as ->.
-          { rewrite fn_lookup_insert_ne // fn_lookup_insert //. }
-          rewrite fn_lookup_insert_ne // fn_lookup_insert //.
-        * assert (<[elt := last]> (<[nexts last := elt]> prevs) elt' = prevs elt') as ->.
-          { rewrite !fn_lookup_insert_ne //. }
-          assert (prevs elt' ≠ last).
-          { intros Heq. apply Hne. rewrite -Heq (model۰validｰnextｰprev Hvalid Helt') //. }
-          assert (elt ≠ prevs elt').
-          { intros Heq. apply Helt. rewrite Heq. apply (model۰validｰprev Hvalid Helt'). }
-          rewrite !fn_lookup_insert_ne //.
-          apply (model۰validｰnextｰprev Hvalid Helt').
+    - apply links۰validｰadd; [apply (model۰validｰlinks Hvalid) | done |].
+      eapply model۰validｰelement; done.
     - intros elt'.
       rewrite elem_of_union elem_of_singleton (model۰validｰelements Hvalid).
       setoid_rewrite lookup_insert_Some. split.
-      + intros [-> | (repr' & descr' & Hlookup' & Helt')].
-        * exists repr, (Descriptor descr.(descriptor۰class) (descr.(descriptor۰elts) ++ [elt]) 0).
-          simpl. set_solver.
-        * destruct (decide (repr = repr')) as [<- | Hne].
+      + intros [-> | (class' & descr' & Hlookup' & Helt')].
+        * exists class, (Descriptor (descr.(descriptor۰elts) ++ [elt]) 0). set_solver.
+        * destruct (decide (class' = class)) as [-> | Hne].
           -- simplify_eq.
-             exists repr, (Descriptor descr.(descriptor۰class) (descr.(descriptor۰elts) ++ [elt]) 0).
-             simpl. set_solver.
-          -- exists repr', descr'. naive.
-      + intros (repr' & descr' & [(<- & <-) | (Hne & Hlookup')] & Helt').
+             exists class, (Descriptor (descr.(descriptor۰elts) ++ [elt]) 0). set_solver.
+          -- exists class', descr'. naive.
+      + intros (class' & descr' & [(<- & <-) | (Hne & Hlookup')] & Helt').
         * simpl in Helt'. apply elem_of_app in Helt' as [Helt' | ->%list_elem_of_singleton].
           -- right. naive.
           -- left. done.
         * right. naive.
-    - intros repr' descr' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some.
-      + pose proof (model۰validｰhead Hvalid Hlookup) as Hhead.
-        rewrite /= head_app Hhead //.
-      + apply (model۰validｰhead Hvalid Hlookup').
-    - intros repr' descr' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some.
+    - intros class' descr' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some.
+      + simpl. intros (_ & [=])%app_eq_nil.
+      + apply (model۰validｰnonempty Hvalid Hlookup').
+    - intros class' descr' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some.
       + apply NoDup_app. split_and!; [done | | apply NoDup_singleton].
-        intros elt' Helt' ->%list_elem_of_singleton. naive.
+        intros elt' Helt' ->%list_elem_of_singleton. eapply Hfresh; done.
       + apply (model۰validｰNoDup Hvalid Hlookup').
-    - intros repr' descr' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some.
+    - intros class' descr' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some.
       + simpl. lia.
       + apply (model۰validｰseen Hvalid Hlookup').
-    - assert (
-        ∀ repr' descr',
-        <[repr := Descriptor descr.(descriptor۰class) (descr.(descriptor۰elts) ++ [elt]) 0]> descrs !! repr' = Some descr' →
-          ∃ descr'',
-          descrs !! repr' = Some descr'' ∧
-          descr''.(descriptor۰class) = descr'.(descriptor۰class)
-      ) as Hclasses.
-      { intros repr' descr' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some; naive. }
-      intros repr1 descr1 repr2 descr2 (descr1' & Hlookup1 & <-)%Hclasses (descr2' & Hlookup2 & <-)%Hclasses Heq.
-      apply (model۰validｰclass Hvalid Hlookup1 Hlookup2 Heq).
-    - intros repr' descr' elt' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some Helt'.
+    - intros class' descr' elt' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some Helt'.
       + simpl in Helt'. apply elem_of_app in Helt' as [Helt' | ->%list_elem_of_singleton].
-        * rewrite fn_lookup_insert_ne; first naive.
+        * rewrite fn_lookup_insert_ne; first (eapply Hfresh; done).
           apply (model۰validｰclasses Hvalid Hlookup Helt').
         * rewrite fn_lookup_insert //.
-      + assert (elt ≠ elt').
-        { intros ->. apply Helt. eapply model۰validｰelement; done. }
-        rewrite fn_lookup_insert_ne //.
+      + rewrite fn_lookup_insert_ne; first (eapply Hfresh; done).
         apply (model۰validｰclasses Hvalid Hlookup' Helt').
-    - intros repr' descr' elt' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some Helt'.
+    - intros class' descr' elt' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some Helt'.
       + transitivity false; last first.
         { symmetry. apply bool_decide_eq_false_2. simpl. rewrite ?take_0. apply not_elem_of_nil. }
         simpl in Helt'. apply elem_of_app in Helt' as [Helt' | ->%list_elem_of_singleton].
-        * rewrite fn_lookup_insert_ne; first naive.
+        * rewrite fn_lookup_insert_ne; first (eapply Hfresh; done).
           rewrite (model۰validｰseens Hvalid Hlookup Helt') Hseen.
           apply bool_decide_eq_false_2. rewrite ?take_0. apply not_elem_of_nil.
         * rewrite fn_lookup_insert //.
-      + assert (elt ≠ elt').
-        { intros ->. apply Helt. eapply model۰validｰelement; done. }
-        rewrite fn_lookup_insert_ne //.
+      + rewrite fn_lookup_insert_ne; first (eapply Hfresh; done).
         apply (model۰validｰseens Hvalid Hlookup' Helt').
-    - intros repr' descr' i elt1 elt2 [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some Hlookup1 Hlookup2.
+    - intros class' descr' i elt1 elt2 [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some Hlookup1 Hlookup2.
       + simpl in *.
         apply lookup_app_Some in Hlookup1 as [Hlookup1 | (Hi & Hlookup1)]; last first.
         { apply lookup_app_Some in Hlookup2 as [Hlookup2%lookup_lt_Some | (_ & Hlookup2%lookup_lt_Some)]; simpl in *; lia. }
@@ -523,7 +714,8 @@ Section model۰valid.
             opose proof* (NoDup_lookup _ i (pred (length descr.(descriptor۰elts)))); [done.. | lia].
           }
           rewrite fn_lookup_insert_ne; first naive.
-          rewrite fn_lookup_insert_ne; first (apply Hne_elts; eapply list_elem_of_lookup_2; done).
+          rewrite fn_lookup_insert_ne.
+          { eapply Hfresh; first done. eapply list_elem_of_lookup_2. done. }
           apply (model۰validｰchain Hvalid Hlookup Hlookup1 Hlookup2).
         * apply list_lookup_singleton_Some in Hlookup2 as (Hi' & <-).
           assert (elt1 = last) as ->.
@@ -533,499 +725,191 @@ Section model۰valid.
           }
           rewrite fn_lookup_insert //.
       + assert (elt1 ∈ descr'.(descriptor۰elts)) as Helt1.
-        { eapply list_elem_of_lookup_2; done. }
+        { eapply list_elem_of_lookup_2. done. }
         assert (elt1 ≠ last).
-        { intros ->. apply Hne. eapply (model۰validｰdisjoint last Hlookup Hlookup'); done. }
-        assert (elt ≠ elt1).
-        { intros ->. apply Helt. eapply model۰validｰelement; done. }
-        rewrite !fn_lookup_insert_ne //.
+        { intros ->. apply (model۰validｰother last Hlookup Hlookup'); done. }
+        rewrite !fn_lookup_insert_ne //; first (eapply Hfresh; done).
         apply (model۰validｰchain Hvalid Hlookup' Hlookup1 Hlookup2).
-  Qed.
-  #[local] Lemma model۰validｰother {repr descr repr' descr'} elt :
-    descrs !! repr = Some descr →
-    descrs !! repr' = Some descr' →
-    repr' ≠ repr →
-    elt ∈ descr'.(descriptor۰elts) →
-    elt ∉ descr.(descriptor۰elts).
-  Proof.
-    intros Hlookup Hlookup' Hne Helt' Helt.
-    apply Hne. symmetry.
-    apply (model۰validｰdisjoint elt Hlookup Hlookup'); done.
-  Qed.
-
-  #[local] Lemma model۰validｰswap {repr descr} elt1 elt2 :
-    descrs !! repr = Some descr →
-    elt1 ∈ descr.(descriptor۰elts) →
-    elt2 ∈ descr.(descriptor۰elts) →
-    elt1 ∉ take descr.(descriptor۰seen) descr.(descriptor۰elts) →
-    elt2 ∉ take descr.(descriptor۰seen) descr.(descriptor۰elts) →
-    model۰valid
-      elements
-      (swap elt1 elt2 ∘ prevs ∘ swap elt1 elt2)
-      (swap elt1 elt2 ∘ nexts ∘ swap elt1 elt2)
-      classes
-      seens
-      (<[swap elt1 elt2 repr := Descriptor descr.(descriptor۰class) (swap elt1 elt2 <$> descr.(descriptor۰elts)) descr.(descriptor۰seen)]> (delete repr descrs)).
-  Proof.
-    intros Hlookup Helt1 Helt2 Helt1_seen Helt2_seen.
-    pose proof (model۰validｰNoDup Hvalid Hlookup) as Hnodup.
-    pose proof (model۰validｰrepr Hlookup) as Hrepr.
-    assert (elt1 ∈ elements) as Helt1_elements.
-    { eapply model۰validｰelement; done. }
-    assert (elt2 ∈ elements) as Helt2_elements.
-    { eapply model۰validｰelement; done. }
-    assert (
-      ∀ elt,
-      swap elt1 elt2 elt ∈ elements ↔
-      elt ∈ elements
-    ) as Hswap_elements.
-    { intros elt. rewrite /swap. repeat case_decide; naive. }
-    assert (
-      ∀ elt,
-      elt ∉ descr.(descriptor۰elts) →
-      swap elt1 elt2 elt = elt
-    ) as Hswap_other.
-    { intros elt Helt. apply swapｰne; set_solver. }
-    set descr' := Descriptor descr.(descriptor۰class) (swap elt1 elt2 <$> descr.(descriptor۰elts)) descr.(descriptor۰seen).
-    assert (
-      ∀ repr' descr'',
-      <[swap elt1 elt2 repr := descr']> (delete repr descrs) !! repr' = Some descr'' ↔
-          repr' = swap elt1 elt2 repr ∧
-          descr'' = descr'
-        ∨ repr' ≠ repr ∧
-          descrs !! repr' = Some descr''
-    ) as Hlookup'.
-    { intros repr' descr''.
-      rewrite lookup_insert_Some lookup_delete_Some. split.
-      - intros [(<- & <-) | (_ & Hne & Hlookup')]; naive.
-      - intros [(-> & ->) | (Hne & Hlookup')]; first naive.
-        right. split_and!; try done.
-        intros Heq.
-        apply (model۰validｰother repr' Hlookup Hlookup'); first done.
-        + apply (model۰validｰrepr Hlookup').
-        + rewrite -Heq swapｰelem_of //.
-    }
-    constructor.
-    - intros elt Helt. simpl.
-      apply Hswap_elements, (model۰validｰnext Hvalid), Hswap_elements. done.
-    - intros elt Helt. simpl.
-      apply Hswap_elements, (model۰validｰprev Hvalid), Hswap_elements. done.
-    - intros elt Helt. simpl.
-      assert (swap elt1 elt2 elt ∈ elements) by (apply Hswap_elements; done).
-      rewrite swapｰinvolutive (model۰validｰprevｰnext Hvalid) // swapｰinvolutive //.
-    - intros elt Helt. simpl.
-      assert (swap elt1 elt2 elt ∈ elements) by (apply Hswap_elements; done).
-      rewrite swapｰinvolutive (model۰validｰnextｰprev Hvalid) // swapｰinvolutive //.
-    - intros elt. rewrite (model۰validｰelements Hvalid).
-      setoid_rewrite Hlookup'. split.
-      + intros (repr' & descr'' & Hlookup'' & Helt).
-        destruct (decide (repr' = repr)) as [-> | Hne].
-        * simplify_eq. exists (swap elt1 elt2 repr), descr'. split; first naive.
-          rewrite swapｰfmapｰelem_of //.
-        * exists repr', descr''. naive.
-      + intros (repr' & descr'' & [(-> & ->) | (Hne & Hlookup'')] & Helt).
-        * exists repr, descr. split; first done.
-          rewrite swapｰfmapｰelem_of // in Helt.
-        * exists repr', descr''. done.
-    - intros repr' descr'' [(-> & ->) | (Hne & Hlookup'')]%Hlookup'.
-      + rewrite /= head_lookup list_lookup_fmap -head_lookup (model۰validｰhead Hvalid Hlookup) //.
-      + apply (model۰validｰhead Hvalid Hlookup'').
-    - intros repr' descr'' [(-> & ->) | (Hne & Hlookup'')]%Hlookup'.
-      + apply NoDup_fmap_2_strong; last done.
-        intros ? ? _ _. apply swapｰinj.
-      + apply (model۰validｰNoDup Hvalid Hlookup'').
-    - intros repr' descr'' [(-> & ->) | (Hne & Hlookup'')]%Hlookup'.
-      + rewrite /= length_fmap. apply (model۰validｰseen Hvalid Hlookup).
-      + apply (model۰validｰseen Hvalid Hlookup'').
-    - intros repr1 descr1 repr2 descr2 [(-> & ->) | (Hne1 & Hlookup1)]%Hlookup' [(-> & ->) | (Hne2 & Hlookup2)]%Hlookup' Heq.
-      + done.
-      + exfalso. apply Hne2. symmetry. apply (model۰validｰclass Hvalid Hlookup Hlookup2 Heq).
-      + exfalso. apply Hne1. apply (model۰validｰclass Hvalid Hlookup1 Hlookup Heq).
-      + apply (model۰validｰclass Hvalid Hlookup1 Hlookup2 Heq).
-    - intros repr' descr'' elt [(-> & ->) | (Hne & Hlookup'')]%Hlookup' Helt.
-      + rewrite /= swapｰfmapｰelem_of // in Helt.
-        apply (model۰validｰclasses Hvalid Hlookup Helt).
-      + apply (model۰validｰclasses Hvalid Hlookup'' Helt).
-    - intros repr' descr'' elt [(-> & ->) | (Hne & Hlookup'')]%Hlookup' Helt.
-      + rewrite /= swapｰfmapｰelem_of // in Helt.
-        rewrite /= -fmap_take swapｰfmapｰid //.
-        apply (model۰validｰseens Hvalid Hlookup Helt).
-      + apply (model۰validｰseens Hvalid Hlookup'' Helt).
-    - intros repr' descr'' i elt elt' [(-> & ->) | (Hne & Hlookup'')]%Hlookup' Hlookup1 Hlookup2.
-      + simpl in *.
-        apply list_lookup_fmap_Some in Hlookup1 as (elt_ & -> & Hlookup1).
-        apply list_lookup_fmap_Some in Hlookup2 as (elt_' & -> & Hlookup2).
-        rewrite /= swapｰinvolutive (model۰validｰchain Hvalid Hlookup Hlookup1 Hlookup2) //.
-      + assert (elt ∉ descr.(descriptor۰elts)).
-        { eapply (model۰validｰother elt Hlookup Hlookup''); first done.
-          eapply list_elem_of_lookup_2. done.
-        }
-        assert (elt' ∉ descr.(descriptor۰elts)).
-        { eapply (model۰validｰother elt' Hlookup Hlookup''); first done.
-          eapply list_elem_of_lookup_2. done.
-        }
-        rewrite /= (Hswap_other elt) // (model۰validｰchain Hvalid Hlookup'' Hlookup1 Hlookup2) (Hswap_other elt') //.
-  Qed.
-
-  #[local] Lemma model۰validｰupdate {repr descr} descr' seens' :
-    descrs !! repr = Some descr →
-    descr'.(descriptor۰class) = descr.(descriptor۰class) →
-    descr'.(descriptor۰elts) = descr.(descriptor۰elts) →
-    descr'.(descriptor۰seen) ≤ length descr.(descriptor۰elts) →
-    ( ∀ elt,
-      elt ∈ descr.(descriptor۰elts) →
-      seens' elt = bool_decide (elt ∈ take descr'.(descriptor۰seen) descr.(descriptor۰elts))
-    ) →
-    ( ∀ elt,
-      elt ∉ descr.(descriptor۰elts) →
-      seens' elt = seens elt
-    ) →
-    model۰valid elements prevs nexts classes seens' (<[repr := descr']> descrs).
-  Proof.
-    intros Hlookup Hclass Helts Hseen Hseens_in Hseens_out.
-    assert (
-      ∀ repr' descr'',
-      <[repr := descr']> descrs !! repr' = Some descr'' →
-        ∃ descr''',
-        descrs !! repr' = Some descr''' ∧
-        descr''.(descriptor۰class) = descr'''.(descriptor۰class) ∧
-        descr''.(descriptor۰elts) = descr'''.(descriptor۰elts)
-    ) as Hlookup'.
-    { intros repr' descr'' [(<- & <-) | (Hne & Hlookup'')]%lookup_insert_Some; naive. }
-    constructor.
-    - intros elt. apply (model۰validｰnext Hvalid).
-    - intros elt. apply (model۰validｰprev Hvalid).
-    - intros elt. apply (model۰validｰprevｰnext Hvalid).
-    - intros elt. apply (model۰validｰnextｰprev Hvalid).
-    - intros elt. rewrite (model۰validｰelements Hvalid).
-      setoid_rewrite lookup_insert_Some. split.
-      + intros (repr' & descr'' & Hlookup'' & Helt).
-        destruct (decide (repr = repr')) as [<- | Hne].
-        * simplify_eq. exists repr, descr'. rewrite Helts. naive.
-        * exists repr', descr''. naive.
-      + intros (repr' & descr'' & [(<- & <-) | (Hne & Hlookup'')] & Helt).
-        * exists repr, descr. rewrite -Helts //.
-        * exists repr', descr''. done.
-    - intros repr' descr'' (descr''' & Hlookup'' & _ & ->)%Hlookup'.
-      apply (model۰validｰhead Hvalid Hlookup'').
-    - intros repr' descr'' (descr''' & Hlookup'' & _ & ->)%Hlookup'.
-      apply (model۰validｰNoDup Hvalid Hlookup'').
-    - intros repr' descr'' [(<- & <-) | (Hne & Hlookup'')]%lookup_insert_Some.
-      + rewrite Helts //.
-      + apply (model۰validｰseen Hvalid Hlookup'').
-    - intros repr1 descr1 repr2 descr2 (descr1' & Hlookup1 & -> & _)%Hlookup' (descr2' & Hlookup2 & -> & _)%Hlookup'.
-      apply (model۰validｰclass Hvalid Hlookup1 Hlookup2).
-    - intros repr' descr'' elt (descr''' & Hlookup'' & -> & ->)%Hlookup'.
-      apply (model۰validｰclasses Hvalid Hlookup'').
-    - intros repr' descr'' elt [(<- & <-) | (Hne & Hlookup'')]%lookup_insert_Some Helt.
-      + rewrite Helts in Helt |- *. auto.
-      + assert (elt ∉ descr.(descriptor۰elts)).
-        { apply (model۰validｰother elt Hlookup Hlookup''); done. }
-        rewrite Hseens_out //.
-        apply (model۰validｰseens Hvalid Hlookup'' Helt).
-    - intros repr' descr'' i elt1 elt2 (descr''' & Hlookup'' & _ & ->)%Hlookup'.
-      apply (model۰validｰchain Hvalid Hlookup'').
-  Qed.
-
-  #[local] Lemma model۰validｰmark {repr descr} elt :
-    descrs !! repr = Some descr →
-    descr.(descriptor۰elts) !! descr.(descriptor۰seen) = Some elt →
-    model۰valid elements prevs nexts classes
-      (<[elt := true]> seens)
-      (<[repr := Descriptor descr.(descriptor۰class) descr.(descriptor۰elts) ˖descr.(descriptor۰seen)]> descrs).
-  Proof.
-    intros Hlookup Hlookup_elt.
-    pose proof (model۰validｰNoDup Hvalid Hlookup) as Hnodup.
-    apply (model۰validｰupdate _ _ Hlookup); try done.
-    - simpl. apply lookup_lt_Some in Hlookup_elt. lia.
-    - intros elt' Helt'. simpl.
-      rewrite (take_S_r _ _ elt) //.
-      destruct (decide (elt' = elt)) as [-> | Hne].
-      + rewrite fn_lookup_insert bool_decide_eq_true_2 //. set_solver.
-      + rewrite fn_lookup_insert_ne // (model۰validｰseens Hvalid Hlookup Helt').
-        apply bool_decide_ext. set_solver.
-    - intros elt' Helt'.
-      rewrite fn_lookup_insert_ne //.
-      intros ->. apply Helt'. eapply list_elem_of_lookup_2. done.
-  Qed.
-
-  #[local] Lemma model۰validｰreset {repr descr} :
-    descrs !! repr = Some descr →
-    model۰valid elements prevs nexts classes
-      (λ elt, if decide (elt ∈ descr.(descriptor۰elts)) then false else seens elt)
-      (<[repr := Descriptor descr.(descriptor۰class) descr.(descriptor۰elts) 0]> descrs).
-  Proof.
-    intros Hlookup.
-    apply (model۰validｰupdate _ _ Hlookup); [done | done | simpl; lia | |].
-    - intros elt Helt. simpl.
-      rewrite decide_True // take_0 bool_decide_eq_false_2 //.
-    - intros elt Helt. simpl.
-      rewrite decide_False //.
-  Qed.
-
-  #[local] Lemma model۰validｰsplit {repr descr} class split :
-    descrs !! repr = Some descr →
-    0 < descr.(descriptor۰seen) →
-    descr.(descriptor۰elts) !! descr.(descriptor۰seen) = Some split →
-    ( ∀ repr' descr',
-      descrs !! repr' = Some descr' →
-      descr'.(descriptor۰class) ≠ class
-    ) →
-    model۰valid elements prevs nexts
-      (λ elt, if decide (elt ∈ take descr.(descriptor۰seen) descr.(descriptor۰elts)) then class else classes elt)
-      (λ elt, if decide (elt ∈ take descr.(descriptor۰seen) descr.(descriptor۰elts)) then false else seens elt)
-      ( <[repr := Descriptor class (take descr.(descriptor۰seen) descr.(descriptor۰elts)) 0]> $
-        <[split := Descriptor descr.(descriptor۰class) (drop descr.(descriptor۰seen) descr.(descriptor۰elts)) 0]> descrs
-      ).
-  Proof.
-    intros Hlookup Hn Hlookup_split Hclass.
-    destruct descr as [descr_class elts n]. simpl in *.
-    pose proof (model۰validｰNoDup Hvalid Hlookup) as Hnodup.
-    pose proof Hnodup as Hnodup'.
-    rewrite -(take_drop n elts) in Hnodup'.
-    apply NoDup_app in Hnodup' as (Hnodup1 & Hdisjoint & Hnodup2).
-    pose proof (model۰validｰhead Hvalid Hlookup) as Hhead.
-    assert (head (take n elts) = Some repr) as Hhead1.
-    { rewrite head_lookup lookup_take_Some -head_lookup //. }
-    assert (head (drop n elts) = Some split) as Hhead2.
-    { rewrite head_lookup lookup_drop Nat.add_0_r //. }
-    assert (repr ∈ take n elts) as Hrepr.
-    { apply head_Some_elem_of. done. }
-    assert (split ∈ drop n elts) as Hsplit.
-    { apply head_Some_elem_of. done. }
-    assert (repr ≠ split) as Hne_split.
-    { intros ->. apply (Hdisjoint split); done. }
-    assert (descrs !! split = None) as Hlookup_split'.
-    { destruct (descrs !! split) as [descr' |] eqn:Hlookup'; last done.
-      exfalso. apply Hne_split.
-      apply (model۰validｰdisjoint split Hlookup Hlookup').
-      - rewrite -(take_drop n elts). set_solver.
-      - apply (model۰validｰrepr Hlookup').
-    }
-    assert (
-      ∀ elt,
-      elt ∈ elts ↔
-          elt ∈ take n elts
-        ∨ elt ∈ drop n elts
-    ) as Helts.
-    { intros elt. rewrite -elem_of_app take_drop //. }
-    set descr1 := Descriptor class (take n elts) 0.
-    set descr2 := Descriptor descr_class (drop n elts) 0.
-    assert (
-      ∀ repr' descr',
-      <[repr := descr1]> (<[split := descr2]> descrs) !! repr' = Some descr' ↔
-          repr' = repr ∧
-          descr' = descr1
-        ∨ repr' = split ∧
-          descr' = descr2
-        ∨ repr' ≠ repr ∧
-          repr' ≠ split ∧
-          descrs !! repr' = Some descr'
-    ) as Hlookup'.
-    { intros repr' descr'.
-      rewrite !lookup_insert_Some. naive.
-    }
-    constructor.
-    - intros elt. apply (model۰validｰnext Hvalid).
-    - intros elt. apply (model۰validｰprev Hvalid).
-    - intros elt. apply (model۰validｰprevｰnext Hvalid).
-    - intros elt. apply (model۰validｰnextｰprev Hvalid).
-    - intros elt. rewrite (model۰validｰelements Hvalid).
-      setoid_rewrite Hlookup'. split.
-      + intros (repr' & descr' & Hlookup'' & Helt).
-        destruct (decide (repr' = repr)) as [-> | Hne].
-        * simplify_eq.
-          apply Helts in Helt as [Helt | Helt].
-          -- exists repr, descr1. naive.
-          -- exists split, descr2. naive.
-        * exists repr', descr'. split; last done.
-          right. right. split_and!; try done.
-          intros ->. rewrite Hlookup_split' // in Hlookup''.
-      + intros (repr' & descr' & [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup'')]] & Helt).
-        * eexists repr, _. split; first done. naive.
-        * eexists repr, _. split; first done. naive.
-        * exists repr', descr'. done.
-    - intros repr' descr' [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup'')]]%Hlookup'.
-      + done.
-      + done.
-      + apply (model۰validｰhead Hvalid Hlookup'').
-    - intros repr' descr' [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup'')]]%Hlookup'.
-      + done.
-      + done.
-      + apply (model۰validｰNoDup Hvalid Hlookup'').
-    - intros repr' descr' [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup'')]]%Hlookup'.
-      + simpl. lia.
-      + simpl. lia.
-      + apply (model۰validｰseen Hvalid Hlookup'').
-    - intros repr1 descr1' repr2 descr2' [(-> & ->) | [(-> & ->) | (Hne11 & Hne12 & Hlookup1)]]%Hlookup' [(-> & ->) | [(-> & ->) | (Hne21 & Hne22 & Hlookup2)]]%Hlookup' Heq; simpl in Heq.
-      + done.
-      + exfalso. apply (Hclass _ _ Hlookup). done.
-      + exfalso. apply (Hclass _ _ Hlookup2). done.
-      + exfalso. apply (Hclass _ _ Hlookup). done.
-      + done.
-      + exfalso. apply Hne21. symmetry. apply (model۰validｰclass Hvalid Hlookup Hlookup2 Heq).
-      + exfalso. apply (Hclass _ _ Hlookup1). done.
-      + exfalso. apply Hne11. apply (model۰validｰclass Hvalid Hlookup1 Hlookup Heq).
-      + apply (model۰validｰclass Hvalid Hlookup1 Hlookup2 Heq).
-    - intros repr' descr' elt [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup'')]]%Hlookup' Helt; simpl in *.
-      + rewrite decide_True //.
-      + rewrite decide_False.
-        { intros Helt'. apply (Hdisjoint elt); done. }
-        apply (model۰validｰclasses Hvalid Hlookup). naive.
-      + assert (elt ∉ elts).
-        { apply (model۰validｰother elt Hlookup Hlookup''); done. }
-        rewrite decide_False; first set_solver.
-        apply (model۰validｰclasses Hvalid Hlookup'' Helt).
-    - intros repr' descr' elt [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup'')]]%Hlookup' Helt; simpl in *.
-      + rewrite decide_True // take_0 bool_decide_eq_false_2 //.
-      + rewrite decide_False.
-        { intros Helt'. apply (Hdisjoint elt); done. }
-        rewrite ?take_0 (model۰validｰseens Hvalid Hlookup); first naive.
-        rewrite !bool_decide_eq_false_2 //.
-        intros Helt'. apply (Hdisjoint elt); done.
-      + assert (elt ∉ elts).
-        { apply (model۰validｰother elt Hlookup Hlookup''); done. }
-        rewrite decide_False; first set_solver.
-        apply (model۰validｰseens Hvalid Hlookup'' Helt).
-    - intros repr' descr' i elt1 elt2 [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup'')]]%Hlookup' Hlookup1 Hlookup2; simpl in *.
-      + apply lookup_take_Some in Hlookup1 as (Hlookup1 & _).
-        apply lookup_take_Some in Hlookup2 as (Hlookup2 & _).
-        apply (model۰validｰchain Hvalid Hlookup Hlookup1 Hlookup2).
-      + rewrite lookup_drop in Hlookup1.
-        rewrite lookup_drop Nat.add_succ_r in Hlookup2.
-        apply (model۰validｰchain Hvalid Hlookup Hlookup1 Hlookup2).
-      + apply (model۰validｰchain Hvalid Hlookup'' Hlookup1 Hlookup2).
   Qed.
 End model۰valid.
 
-Record record۰inv part X descrs split_list : Prop :=
-  { record۰invｰclass repr descr :
-      descrs !! repr = Some descr →
-        ∃ repr0,
-        part !! repr0 = Some (list_to_set descr.(descriptor۰elts))
-  ; record۰invｰclass' repr0 cl0 :
-      part !! repr0 = Some cl0 →
-        ∃ repr descr,
-        descrs !! repr = Some descr ∧
-        list_to_set descr.(descriptor۰elts) = cl0
-  ; record۰invｰseen repr descr elt :
-      descrs !! repr = Some descr →
+#[local] Definition descriptors۰part descrs part :=
+  ∀ repr cl,
+  part !! repr = Some cl ↔
+    ∃ class descr,
+    descrs !! class = Some descr ∧
+    head descr.(descriptor۰elts) = Some repr ∧
+    cl = descriptor۰set descr.
+
+#[local] Lemma descriptors۰partｰexists descrs :
+  ( ∀ class1 descr1 class2 descr2 repr,
+    descrs !! class1 = Some descr1 →
+    descrs !! class2 = Some descr2 →
+    head descr1.(descriptor۰elts) = Some repr →
+    head descr2.(descriptor۰elts) = Some repr →
+    class1 = class2
+  ) →
+    ∃ part,
+    descriptors۰part descrs part.
+Proof.
+  induction descrs as [| class descr descrs Hlookup IH] using map_ind.
+  - intros _. exists ∅. intros repr cl.
+    rewrite lookup_empty. split; first done.
+    intros (class & descr & Hlookup & _). rewrite lookup_empty // in Hlookup.
+  - intros Hheads.
+    destruct IH as (part & Hpart).
+    { intros class1 descr1 class2 descr2 repr Hlookup1 Hlookup2.
+      apply Hheads; rewrite lookup_insert_ne //; congruence.
+    }
+    destruct (head descr.(descriptor۰elts)) as [repr |] eqn:Hhead.
+    + exists (<[repr := descriptor۰set descr]> part).
+      intros repr' cl. rewrite lookup_insert_Some Hpart.
+      setoid_rewrite lookup_insert_Some. split.
+      * intros [(<- & <-) | (Hne & class' & descr' & Hlookup' & Hhead' & ->)]; first naive.
+        exists class', descr'. split_and!; try done.
+        right. split; last done. congruence.
+      * intros (class' & descr' & [(<- & <-) | (Hne & Hlookup')] & Hhead' & ->).
+        -- left. naive.
+        -- right. split; last naive.
+           intros <-. apply Hne.
+           apply (Hheads class descr class' descr' repr); try done.
+           ++ apply lookup_insert_eq.
+           ++ rewrite lookup_insert_ne //.
+    + exists part.
+      intros repr' cl. rewrite Hpart.
+      setoid_rewrite lookup_insert_Some. split.
+      * intros (class' & descr' & Hlookup' & Hhead' & ->).
+        exists class', descr'. split_and!; try done.
+        right. split; last done.
+        intros <-. congruence.
+      * intros (class' & descr' & [(<- & <-) | (Hne & Hlookup')] & Hhead' & ->).
+        -- congruence.
+        -- exists class', descr'. done.
+Qed.
+
+#[local] Lemma descriptors۰partｰlookup {descrs part repr cl} elt :
+  descriptors۰part descrs part →
+  part !! repr = Some cl →
+  elt ∈ cl →
+    ∃ class descr,
+    descrs !! class = Some descr ∧
+    head descr.(descriptor۰elts) = Some repr ∧
+    cl = descriptor۰set descr ∧
+    elt ∈ descr.(descriptor۰elts).
+Proof.
+  intros Hpart (class & descr & Hlookup & Hhead & ->)%Hpart Helt.
+  exists class, descr. rewrite elem_of_list_to_set in Helt. done.
+Qed.
+#[local] Lemma descriptors۰partｰinsert {descrs part} class descr repr :
+  descriptors۰part descrs part →
+  head descr.(descriptor۰elts) = Some repr →
+  ( ∀ descr',
+    descrs !! class = Some descr' →
+    head descr'.(descriptor۰elts) = Some repr
+  ) →
+  ( ∀ class' descr',
+    descrs !! class' = Some descr' →
+    class' ≠ class →
+    head descr'.(descriptor۰elts) ≠ Some repr
+  ) →
+  descriptors۰part (<[class := descr]> descrs) (<[repr := descriptor۰set descr]> part).
+Proof.
+  intros Hpart Hhead Hclass Hother repr' cl.
+  rewrite lookup_insert_Some Hpart.
+  setoid_rewrite lookup_insert_Some. split.
+  - intros [(<- & <-) | (Hne & class' & descr' & Hlookup' & Hhead' & ->)].
+    + exists class, descr. naive.
+    + exists class', descr'. split_and!; try done.
+      right. split; last done.
+      intros <-. pose proof (Hclass _ Hlookup'). congruence.
+  - intros (class' & descr' & [(<- & <-) | (Hne & Hlookup')] & Hhead' & ->).
+    + left. naive.
+    + right. split.
+      * intros <-. apply (Hother _ _ Hlookup'); [congruence | done].
+      * exists class', descr'. done.
+Qed.
+
+Record record۰inv descrs0 X descrs split_list : Prop :=
+  { record۰invｰdom :
+      dom descrs = dom descrs0
+  ; record۰invｰelts class descr0 descr :
+      descrs0 !! class = Some descr0 →
+      descrs !! class = Some descr →
+        descriptor۰set descr = descriptor۰set descr0 ∧
+        ( descr.(descriptor۰seen) = 0 →
+          descr.(descriptor۰elts) = descr0.(descriptor۰elts)
+        )
+  ; record۰invｰseen class descr elt :
+      descrs !! class = Some descr →
         elt ∈ take descr.(descriptor۰seen) descr.(descriptor۰elts) ↔
           elt ∈ descr.(descriptor۰elts) ∧
           elt ∈ X ∧
           length descr.(descriptor۰elts) ≠ 1
-  ; record۰invｰunseen repr descr :
-      descrs !! repr = Some descr →
-      descr.(descriptor۰seen) = 0 →
-      part !! repr = Some (list_to_set descr.(descriptor۰elts))
   ; record۰invｰNoDup :
       NoDup split_list
   ; record۰invｰsplit_list class :
       class ∈ split_list ↔
-        ∃ repr descr,
-        descrs !! repr = Some descr ∧
-        descr.(descriptor۰class) = class ∧
+        ∃ descr,
+        descrs !! class = Some descr ∧
         descr.(descriptor۰seen) ≠ 0
   }.
-#[local] Arguments record۰invｰclass {_ _ _ _} _ {_ _}.
-#[local] Arguments record۰invｰclass' {_ _ _ _} _ {_ _}.
+#[local] Arguments record۰invｰdom {_ _ _ _} _.
+#[local] Arguments record۰invｰelts {_ _ _ _} _ {_ _ _}.
 #[local] Arguments record۰invｰseen {_ _ _ _} _ {_ _} _ _.
-#[local] Arguments record۰invｰunseen {_ _ _ _} _ {_ _}.
 #[local] Arguments record۰invｰNoDup {_ _ _ _} _.
 #[local] Arguments record۰invｰsplit_list {_ _ _ _} _ _.
+
+#[local] Lemma record۰invｰinit descrs :
+  map_Forall (λ _ descr, descr.(descriptor۰seen) = 0) descrs →
+  record۰inv descrs ∅ descrs [].
+Proof.
+  intros Hunseen.
+  constructor.
+  - done.
+  - intros class descr0 descr Hlookup0 Hlookup. simplify_eq. naive.
+  - intros class descr elt Hlookup.
+    rewrite (Hunseen _ _ Hlookup) take_0. set_solver.
+  - apply NoDup_nil_2.
+  - intros class. split; first set_solver.
+    intros (descr & Hlookup & Hseen).
+    exfalso. apply Hseen, (Hunseen _ _ Hlookup).
+Qed.
 
 Section record۰inv.
   Context {elements prevs nexts classes seens descrs}.
   Context (Hvalid : model۰valid elements prevs nexts classes seens descrs).
-  Context {part X split_list}.
-  Context (Hinv : record۰inv part X descrs split_list).
+  Context {descrs0 X split_list}.
+  Context (Hinv : record۰inv descrs0 X descrs split_list).
 
-  #[local] Lemma record۰invｰsingleton {repr descr} elt :
-    descrs !! repr = Some descr →
+  #[local] Lemma record۰invｰsingleton {class descr} elt :
+    descrs !! class = Some descr →
     length descr.(descriptor۰elts) = 1 →
     elt ∈ descr.(descriptor۰elts) →
-    record۰inv part ({[elt]} ∪ X) descrs split_list.
+    record۰inv descrs0 ({[elt]} ∪ X) descrs split_list.
   Proof.
     intros Hlookup Hlength Helt.
-    constructor.
-    - intros repr' descr'. apply (record۰invｰclass Hinv).
-    - intros repr0 cl0. apply (record۰invｰclass' Hinv).
-    - intros repr' descr' elt' Hlookup'.
-      rewrite (record۰invｰseen Hinv elt' Hlookup').
-      destruct (decide (repr' = repr)) as [-> | Hne].
-      + simplify_eq. rewrite Hlength. naive.
-      + assert (elt' ∈ descr'.(descriptor۰elts) → elt' ≠ elt).
-        { intros Helt' ->. apply (model۰validｰother Hvalid elt Hlookup Hlookup'); done. }
-        set_solver.
-    - intros repr' descr'. apply (record۰invｰunseen Hinv).
-    - apply (record۰invｰNoDup Hinv).
-    - apply (record۰invｰsplit_list Hinv).
+    constructor; try apply Hinv.
+    intros class' descr' elt' Hlookup'.
+    rewrite (record۰invｰseen Hinv elt' Hlookup').
+    destruct (decide (class' = class)) as [-> | Hne].
+    - simplify_eq. rewrite Hlength. naive.
+    - assert (elt' ∈ descr'.(descriptor۰elts) → elt' ≠ elt).
+      { intros Helt' ->. apply (model۰validｰother Hvalid elt Hlookup Hlookup'); done. }
+      set_solver.
   Qed.
 
-  #[local] Lemma record۰invｰreset {repr descr} elt :
-    descrs !! repr = Some descr →
-    descr.(descriptor۰elts) !! descr.(descriptor۰seen) = Some elt →
-    ˖descr.(descriptor۰seen) = length descr.(descriptor۰elts) →
-    length descr.(descriptor۰elts) ≠ 1 →
-    record۰inv part ({[elt]} ∪ X)
-      (<[repr := Descriptor descr.(descriptor۰class) descr.(descriptor۰elts) ˖descr.(descriptor۰seen)]> descrs)
-      split_list.
-  Proof.
-    intros Hlookup Hlookup_elt Hseen Hlength.
-    assert (descr.(descriptor۰seen) ≠ 0) as Hseen' by lia.
-    constructor.
-    - intros repr' descr' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some.
-      + apply (record۰invｰclass Hinv Hlookup).
-      + apply (record۰invｰclass Hinv Hlookup').
-    - intros repr0 cl0 (repr' & descr' & Hlookup' & <-)%(record۰invｰclass' Hinv).
-      destruct (decide (repr' = repr)) as [-> | Hne].
-      + simplify_eq. eexists repr, _. rewrite lookup_insert_eq //.
-      + exists repr', descr'. rewrite lookup_insert_ne //.
-    - intros repr' descr' elt' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some.
-      + simpl. rewrite take_ge; first lia.
-        split; last naive.
-        intros Helt'. split_and!; try done.
-        apply list_elem_of_lookup in Helt' as (i & Hlookup_i).
-        pose proof Hlookup_i as Hi%lookup_lt_Some.
-        destruct (decide (i = descr.(descriptor۰seen))) as [-> | Hi'].
-        * simplify_eq. set_solver.
-        * apply elem_of_union_r.
-          eapply (record۰invｰseen Hinv elt' Hlookup).
-          apply elem_of_take. exists i. split; [done | lia].
-      + rewrite (record۰invｰseen Hinv elt' Hlookup').
-        assert (elt' ∈ descr'.(descriptor۰elts) → elt' ≠ elt).
-        { intros Helt' ->. apply (model۰validｰother Hvalid elt Hlookup Hlookup'); first done.
-          - done.
-          - eapply list_elem_of_lookup_2. done.
-        }
-        set_solver.
-    - intros repr' descr' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some.
-      + simpl. lia.
-      + apply (record۰invｰunseen Hinv Hlookup').
-    - apply (record۰invｰNoDup Hinv).
-    - intros class. rewrite (record۰invｰsplit_list Hinv). split.
-      + intros (repr' & descr' & Hlookup' & <- & Hseen'').
-        destruct (decide (repr' = repr)) as [-> | Hne].
-        * simplify_eq. eexists repr, _. rewrite lookup_insert_eq //.
-        * exists repr', descr'. rewrite lookup_insert_ne //.
-      + intros (repr' & descr' & [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some & <- & Hseen'').
-        * exists repr, descr. done.
-        * exists repr', descr'. done.
-  Qed.
-
-  #[local] Lemma record۰invｰstep {repr descr} split elt :
-    descrs !! repr = Some descr →
+  #[local] Lemma record۰invｰstep {class descr} split elt :
+    descrs !! class = Some descr →
     descr.(descriptor۰elts) !! descr.(descriptor۰seen) = Some split →
     elt ∈ descr.(descriptor۰elts) →
     elt ∉ take descr.(descriptor۰seen) descr.(descriptor۰elts) →
     length descr.(descriptor۰elts) ≠ 1 →
-    record۰inv part ({[elt]} ∪ X)
-      (<[swap split elt repr := Descriptor descr.(descriptor۰class) (swap split elt <$> descr.(descriptor۰elts)) ˖descr.(descriptor۰seen)]> (delete repr descrs))
-      (if decide (descr.(descriptor۰seen) = 0) then descr.(descriptor۰class) :: split_list else split_list).
+    record۰inv descrs0 ({[elt]} ∪ X)
+      (<[class := Descriptor (swap split elt <$> descr.(descriptor۰elts)) ˖descr.(descriptor۰seen)]> descrs)
+      (if decide (descr.(descriptor۰seen) = 0) then class :: split_list else split_list).
   Proof.
     intros Hlookup Hlookup_split Helt Helt_seen Hlength.
     pose proof (model۰validｰNoDup Hvalid Hlookup) as Hnodup.
-    pose proof (model۰validｰrepr Hvalid Hlookup) as Hrepr.
     assert (split ∈ descr.(descriptor۰elts)) as Hsplit.
     { eapply list_elem_of_lookup_2. done. }
     assert (split ∉ take descr.(descriptor۰seen) descr.(descriptor۰elts)) as Hsplit_seen.
@@ -1033,180 +917,125 @@ Section record۰inv.
       opose proof* (NoDup_lookup _ i descr.(descriptor۰seen)); [done.. | lia].
     }
     assert (elt ∉ X) as Helt_X.
-    { intros HX. apply Helt_seen. apply (record۰invｰseen Hinv elt Hlookup). done. }
-    set descr' := Descriptor descr.(descriptor۰class) (swap split elt <$> descr.(descriptor۰elts)) ˖descr.(descriptor۰seen).
+    { intros HX. apply Helt_seen, (record۰invｰseen Hinv elt Hlookup). done. }
     assert (
-      ∀ repr' descr'',
-      <[swap split elt repr := descr']> (delete repr descrs) !! repr' = Some descr'' ↔
-          repr' = swap split elt repr ∧
-          descr'' = descr'
-        ∨ repr' ≠ repr ∧
-          descrs !! repr' = Some descr''
-    ) as Hlookup'.
-    { intros repr' descr''.
-      rewrite lookup_insert_Some lookup_delete_Some. split.
-      - intros [(<- & <-) | (_ & Hne & Hlookup')]; naive.
-      - intros [(-> & ->) | (Hne & Hlookup')]; first naive.
-        right. split_and!; try done.
-        intros Heq.
-        apply (model۰validｰother Hvalid repr' Hlookup Hlookup'); first done.
-        + apply (model۰validｰrepr Hvalid Hlookup').
-        + rewrite -Heq swapｰelem_of //.
-    }
-    assert (list_to_set descr'.(descriptor۰elts) = list_to_set (C := gset location) descr.(descriptor۰elts)) as Hdescr'_elts.
-    { apply set_eq. intros elt'.
-      rewrite /= !elem_of_list_to_set swapｰfmapｰelem_of //.
-    }
-    assert (take ˖descr.(descriptor۰seen) descr'.(descriptor۰elts) = take descr.(descriptor۰seen) descr.(descriptor۰elts) ++ [elt]) as Htake.
-    { rewrite /= -fmap_take (take_S_r _ _ split) // fmap_app swapｰfmapｰid // /= swapｰl //. }
+      take ˖descr.(descriptor۰seen) (swap split elt <$> descr.(descriptor۰elts)) =
+      take descr.(descriptor۰seen) descr.(descriptor۰elts) ++ [elt]
+    ) as Htake.
+    { rewrite -fmap_take (take_S_r _ _ split) // fmap_app swapｰfmapｰid // /= swapｰl //. }
     constructor.
-    - intros repr' descr'' [(-> & ->) | (Hne & Hlookup'')]%Hlookup'.
-      + rewrite Hdescr'_elts. apply (record۰invｰclass Hinv Hlookup).
-      + apply (record۰invｰclass Hinv Hlookup'').
-    - intros repr0 cl0 (repr' & descr'' & Hlookup'' & <-)%(record۰invｰclass' Hinv).
-      destruct (decide (repr' = repr)) as [-> | Hne].
-      + simplify_eq. exists (swap split elt repr), descr'. rewrite Hlookup'. naive.
-      + exists repr', descr''. rewrite Hlookup'. naive.
-    - intros repr' descr'' elt' [(-> & ->) | (Hne & Hlookup'')]%Hlookup'.
-      + rewrite Htake elem_of_app list_elem_of_singleton (record۰invｰseen Hinv _ Hlookup).
-        rewrite /= swapｰfmapｰelem_of // length_fmap.
+    - rewrite dom_insert_lookup_L //. apply (record۰invｰdom Hinv).
+    - intros class' descr0 descr' Hlookup0 [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some.
+      + destruct (record۰invｰelts Hinv Hlookup0 Hlookup) as (<- & _).
+        split; last (simpl; lia).
+        apply set_eq. intros elt'.
+        rewrite /= !elem_of_list_to_set swapｰfmapｰelem_of //.
+      + apply (record۰invｰelts Hinv Hlookup0 Hlookup').
+    - intros class' descr' elt' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some.
+      + rewrite /= Htake elem_of_app list_elem_of_singleton (record۰invｰseen Hinv _ Hlookup).
+        rewrite swapｰfmapｰelem_of // length_fmap.
         set_solver.
-      + rewrite (record۰invｰseen Hinv elt' Hlookup'').
-        assert (elt' ∈ descr''.(descriptor۰elts) → elt' ≠ elt).
-        { intros Helt' ->. apply (model۰validｰother Hvalid elt Hlookup Hlookup''); done. }
+      + rewrite (record۰invｰseen Hinv elt' Hlookup').
+        assert (elt' ∈ descr'.(descriptor۰elts) → elt' ≠ elt).
+        { intros Helt' ->. apply (model۰validｰother Hvalid elt Hlookup Hlookup'); done. }
         set_solver.
-    - intros repr' descr'' [(-> & ->) | (Hne & Hlookup'')]%Hlookup'.
-      + simpl. lia.
-      + apply (record۰invｰunseen Hinv Hlookup'').
     - destruct (decide (descr.(descriptor۰seen) = 0)) as [Hseen | Hseen].
       + apply NoDup_cons. split; last apply (record۰invｰNoDup Hinv).
         rewrite (record۰invｰsplit_list Hinv).
-        intros (repr' & descr'' & Hlookup'' & Hclass & Hseen'').
-        opose proof* (model۰validｰclass Hvalid Hlookup Hlookup''); first done.
-        simplify_eq.
+        intros (descr' & Hlookup' & Hseen'). simplify_eq.
       + apply (record۰invｰNoDup Hinv).
-    - intros class. setoid_rewrite Hlookup'.
+    - intros class'. setoid_rewrite lookup_insert_Some.
+      assert (
+        class' ∈ split_list ↔
+          ∃ descr',
+          descrs !! class' = Some descr' ∧
+          descr'.(descriptor۰seen) ≠ 0
+      ) as Hsplit_list by apply (record۰invｰsplit_list Hinv).
       destruct (decide (descr.(descriptor۰seen) = 0)) as [Hseen | Hseen].
-      + rewrite elem_of_cons (record۰invｰsplit_list Hinv). split.
-        * intros [-> | (repr' & descr'' & Hlookup'' & <- & Hseen'')].
-          -- exists (swap split elt repr), descr'. split_and!; [left; done | done | simpl; lia].
-          -- exists repr', descr''. split_and!; try done.
-             right. split; last done.
-             intros ->. simplify_eq.
-        * intros (repr' & descr'' & [(-> & ->) | (Hne & Hlookup'')] & <- & Hseen'').
-          -- left. done.
-          -- right. exists repr', descr''. done.
-      + rewrite (record۰invｰsplit_list Hinv). split.
-        * intros (repr' & descr'' & Hlookup'' & <- & Hseen'').
-          destruct (decide (repr' = repr)) as [-> | Hne].
-          -- simplify_eq. exists (swap split elt repr), descr'. split_and!; [left; done | done | simpl; lia].
-          -- exists repr', descr''. split_and!; try done. right. done.
-        * intros (repr' & descr'' & [(-> & ->) | (Hne & Hlookup'')] & <- & Hseen'').
-          -- exists repr, descr. done.
-          -- exists repr', descr''. done.
+      + rewrite elem_of_cons Hsplit_list.
+        destruct (decide (class' = class)) as [-> | Hne]; first naive.
+        split.
+        * intros [-> | (descr' & Hlookup' & Hseen')]; naive.
+        * intros (descr' & [(-> & <-) | (_ & Hlookup')] & Hseen'); naive.
+      + rewrite Hsplit_list.
+        destruct (decide (class' = class)) as [-> | Hne].
+        * split; first naive.
+          intros _. exists descr. done.
+        * naive.
   Qed.
 End record۰inv.
 
-#[local] Lemma record۰invｰinit descrs :
-  map_Forall (λ _ descr, descr.(descriptor۰seen) = 0) descrs →
-  record۰inv ((λ descr, list_to_set descr.(descriptor۰elts)) <$> descrs) ∅ descrs [].
-Proof.
-  intros Hunseen.
-  constructor.
-  - intros repr descr Hlookup.
-    exists repr. rewrite lookup_fmap Hlookup //.
-  - intros repr0 cl0 (descr & Hcl0 & Hlookup)%lookup_fmap_Some.
-    exists repr0, descr. done.
-  - intros repr descr elt Hlookup.
-    rewrite (Hunseen _ _ Hlookup) take_0. set_solver.
-  - intros repr descr Hlookup _.
-    rewrite lookup_fmap Hlookup //.
-  - apply NoDup_nil_2.
-  - intros class. split; first set_solver.
-    intros (repr & descr & Hlookup & _ & Hseen).
-    exfalso. apply Hseen, (Hunseen _ _ Hlookup).
-Qed.
-
-Record split۰inv part X descrs split_list : Prop :=
-  { split۰invｰpending repr descr :
-      descrs !! repr = Some descr →
-      descr.(descriptor۰class) ∈ split_list →
+Record split۰inv descrs0 X descrs split_list : Prop :=
+  { split۰invｰpending class :
+      class ∈ split_list →
+        ∃ descr0 descr,
+        descrs0 !! class = Some descr0 ∧
+        descrs !! class = Some descr ∧
         descr.(descriptor۰seen) ≠ 0 ∧
-        ( ∃ repr0,
-          part !! repr0 = Some (list_to_set descr.(descriptor۰elts))
-        ) ∧
+        descriptor۰set descr = descriptor۰set descr0 ∧
         ( ∀ elt,
           elt ∈ take descr.(descriptor۰seen) descr.(descriptor۰elts) ↔
             elt ∈ descr.(descriptor۰elts) ∧
             elt ∈ X
         )
-  ; split۰invｰdone repr descr :
-      descrs !! repr = Some descr →
-      descr.(descriptor۰class) ∉ split_list →
+  ; split۰invｰdone class descr :
+      descrs !! class = Some descr →
+      class ∉ split_list →
         descr.(descriptor۰seen) = 0 ∧
-        ∃ repr0 cl0,
-        part !! repr0 = Some cl0 ∧
-        ( list_to_set descr.(descriptor۰elts) = cl0 ∩ X
-        ∨ list_to_set descr.(descriptor۰elts) = cl0 ∖ X
+        ∃ class0 descr0,
+        descrs0 !! class0 = Some descr0 ∧
+        ( descriptor۰set descr = descriptor۰set descr0 ∩ X
+        ∨ descriptor۰set descr = descriptor۰set descr0 ∖ X
         )
-  ; split۰invｰcomplete repr0 cl0 :
-      part !! repr0 = Some cl0 →
-        ( ∃ repr descr,
-          descrs !! repr = Some descr ∧
-          descr.(descriptor۰class) ∈ split_list ∧
-          list_to_set descr.(descriptor۰elts) = cl0
-        ) ∨ (
-          ∀ cl,
-          (cl = cl0 ∩ X ∨ cl = cl0 ∖ X) →
-          cl ≠ ∅ →
-            ∃ repr descr,
-            descrs !! repr = Some descr ∧
-            descr.(descriptor۰class) ∉ split_list ∧
-            list_to_set descr.(descriptor۰elts) = cl
-        )
-  ; split۰invｰuntouched repr0 cl0 :
-      part !! repr0 = Some cl0 →
-      cl0 ## X →
+  ; split۰invｰcomplete class0 descr0 :
+      descrs0 !! class0 = Some descr0 →
+        class0 ∈ split_list ∨
+        ∀ cl,
+        (cl = descriptor۰set descr0 ∩ X ∨ cl = descriptor۰set descr0 ∖ X) →
+        cl ≠ ∅ →
+          ∃ class descr,
+          descrs !! class = Some descr ∧
+          class ∉ split_list ∧
+          descriptor۰set descr = cl
+  ; split۰invｰuntouched class0 descr0 :
+      descrs0 !! class0 = Some descr0 →
+      descriptor۰set descr0 ## X →
         ∃ descr,
-        descrs !! repr0 = Some descr ∧
-        list_to_set descr.(descriptor۰elts) = cl0
+        descrs !! class0 = Some descr ∧
+        descr.(descriptor۰elts) = descr0.(descriptor۰elts)
   ; split۰invｰNoDup :
       NoDup split_list
-  ; split۰invｰsplit_list class :
-      class ∈ split_list →
-        ∃ repr descr,
-        descrs !! repr = Some descr ∧
-        descr.(descriptor۰class) = class
   }.
-#[local] Arguments split۰invｰpending {_ _ _ _} _ {_ _}.
+#[local] Arguments split۰invｰpending {_ _ _ _} _ {_}.
 #[local] Arguments split۰invｰdone {_ _ _ _} _ {_ _}.
 #[local] Arguments split۰invｰcomplete {_ _ _ _} _ {_ _}.
 #[local] Arguments split۰invｰuntouched {_ _ _ _} _ {_ _}.
 #[local] Arguments split۰invｰNoDup {_ _ _ _} _.
-#[local] Arguments split۰invｰsplit_list {_ _ _ _} _ {_}.
 
 Section split۰inv.
   Context {elements prevs nexts classes seens descrs}.
   Context (Hvalid : model۰valid elements prevs nexts classes seens descrs).
 
-  #[local] Lemma split۰invｰinit {part X split_list} :
-    ( ∀ repr1 repr2 cl,
-      part !! repr1 = Some cl →
-      part !! repr2 = Some cl →
-      repr1 = repr2
-    ) →
-    record۰inv part X descrs split_list →
-    split۰inv part X descrs split_list.
+  #[local] Lemma split۰invｰinit {descrs0 X split_list} :
+    record۰inv descrs0 X descrs split_list →
+    split۰inv descrs0 X descrs split_list.
   Proof.
-    intros Hpart Hinv.
+    intros Hinv.
     assert (
-      ∀ repr descr,
-      descrs !! repr = Some descr →
-      descr.(descriptor۰seen) = 0 →
-        list_to_set (C := gset location) descr.(descriptor۰elts) ∩ X = ∅ ∨
-        list_to_set (C := gset location) descr.(descriptor۰elts) ⊆ X
+      ∀ class descr,
+      descrs !! class = Some descr →
+      class ∉ split_list →
+        descr.(descriptor۰seen) = 0 ∧
+        ( descriptor۰set descr ∩ X = ∅
+        ∨ descriptor۰set descr ⊆ X
+        )
     ) as Hunseen.
-    { intros repr descr Hlookup Hseen.
+    { intros class descr Hlookup Hclass.
+      assert (descr.(descriptor۰seen) = 0) as Hseen.
+      { destruct (decide (descr.(descriptor۰seen) = 0)) as [? | Hseen]; first done.
+        exfalso. apply Hclass, (record۰invｰsplit_list Hinv). naive.
+      }
+      split; first done.
       destruct (decide (length descr.(descriptor۰elts) = 1)) as [Hlength | Hlength].
       - destruct descr.(descriptor۰elts) as [| elt [|]] eqn:Helts; try done.
         destruct (decide (elt ∈ X)); [right | left]; set_solver.
@@ -1218,24 +1047,20 @@ Section split۰inv.
         rewrite Hseen take_0 in Helt'. set_solver.
     }
     assert (
-      ∀ class,
-      class ∉ split_list →
-      ∀ repr descr,
-      descrs !! repr = Some descr →
-      descr.(descriptor۰class) = class →
-      descr.(descriptor۰seen) = 0
-    ) as Hsplit_list.
-    { intros class Hclass repr descr Hlookup <-.
-      destruct (decide (descr.(descriptor۰seen) = 0)) as [? | Hseen]; first done.
-      exfalso. apply Hclass, (record۰invｰsplit_list Hinv). naive.
+      ∀ class descr,
+      descrs !! class = Some descr →
+        ∃ descr0,
+        descrs0 !! class = Some descr0
+    ) as Hdom.
+    { intros class descr Hlookup.
+      apply elem_of_dom. rewrite -(record۰invｰdom Hinv). apply elem_of_dom. done.
     }
     constructor.
-    - intros repr descr Hlookup Hclass.
-      apply (record۰invｰsplit_list Hinv) in Hclass as (repr' & descr' & Hlookup' & Hclass & Hseen).
-      opose proof* (model۰validｰclass Hvalid Hlookup' Hlookup); first done.
-      simplify_eq.
-      split_and!; first done.
-      + apply (record۰invｰclass Hinv Hlookup).
+    - intros class Hclass.
+      apply (record۰invｰsplit_list Hinv) in Hclass as (descr & Hlookup & Hseen).
+      destruct (Hdom _ _ Hlookup) as (descr0 & Hlookup0).
+      exists descr0, descr. split_and!; try done.
+      + apply (record۰invｰelts Hinv Hlookup0 Hlookup).
       + intros elt. rewrite (record۰invｰseen Hinv elt Hlookup).
         split; first naive.
         intros (Helt & HX). split_and!; try done.
@@ -1244,288 +1069,208 @@ Section split۰inv.
         opose proof* (proj1 (record۰invｰseen Hinv elt Hlookup)) as (_ & _ & Hlength').
         { rewrite take_ge //. lia. }
         done.
-    - intros repr descr Hlookup Hclass.
-      pose proof (Hsplit_list _ Hclass _ _ Hlookup eq_refl) as Hseen.
+    - intros class descr Hlookup Hclass.
+      destruct (Hunseen _ _ Hlookup Hclass) as (Hseen & Hpiece).
+      destruct (Hdom _ _ Hlookup) as (descr0 & Hlookup0).
       split; first done.
-      exists repr, (list_to_set descr.(descriptor۰elts)).
-      split; first apply (record۰invｰunseen Hinv Hlookup Hseen).
-      destruct (Hunseen _ _ Hlookup Hseen); [right | left]; set_solver.
-    - intros repr0 cl0 Hlookup0.
-      pose proof Hlookup0 as (repr & descr & Hlookup & Hcl0)%(record۰invｰclass' Hinv).
-      destruct (decide (descr.(descriptor۰class) ∈ split_list)) as [Hclass | Hclass].
-      + left. naive.
-      + right. intros cl Hcl Hcl_ne.
-        pose proof (Hsplit_list _ Hclass _ _ Hlookup eq_refl) as Hseen.
-        exists repr, descr. split_and!; try done.
-        destruct (Hunseen _ _ Hlookup Hseen); set_solver.
-    - intros repr0 cl0 Hlookup0 Hdisjoint.
-      pose proof Hlookup0 as (repr & descr & Hlookup & Hcl0)%(record۰invｰclass' Hinv).
-      exists descr. split; last done.
-      assert (descr.(descriptor۰seen) = 0) as Hseen.
-      { destruct (decide (descr.(descriptor۰seen) = 0)) as [? | Hseen]; first done.
-        exfalso.
-        pose proof (model۰validｰseen Hvalid Hlookup) as Hseen_le.
-        destruct (lookup_lt_is_Some_2 descr.(descriptor۰elts) 0) as (elt & Hlookup_elt); first lia.
-        opose proof* (proj1 (record۰invｰseen Hinv elt Hlookup)) as (Helt & HX & _).
-        { apply elem_of_take. exists 0. split; [done | lia]. }
-        set_solver.
-      }
-      pose proof (record۰invｰunseen Hinv Hlookup Hseen) as Hlookup0'.
-      assert (repr0 = repr) as ->.
-      { apply (Hpart repr0 repr cl0); first done. rewrite -Hcl0 //. }
-      done.
+      exists class, descr0. split; first done.
+      destruct (record۰invｰelts Hinv Hlookup0 Hlookup) as (<- & _).
+      destruct Hpiece; [right | left]; set_solver.
+    - intros class0 descr0 Hlookup0.
+      destruct (decide (class0 ∈ split_list)) as [Hclass | Hclass]; first naive.
+      right. intros cl Hcl Hcl_ne.
+      assert (is_Some (descrs !! class0)) as (descr & Hlookup).
+      { apply elem_of_dom. rewrite (record۰invｰdom Hinv). apply elem_of_dom. done. }
+      destruct (Hunseen _ _ Hlookup Hclass) as (Hseen & Hpiece).
+      destruct (record۰invｰelts Hinv Hlookup0 Hlookup) as (Hset & _).
+      exists class0, descr. split_and!; try done.
+      destruct Hpiece; set_solver.
+    - intros class0 descr0 Hlookup0 Hdisjoint.
+      assert (is_Some (descrs !! class0)) as (descr & Hlookup).
+      { apply elem_of_dom. rewrite (record۰invｰdom Hinv). apply elem_of_dom. done. }
+      exists descr. split; first done.
+      apply (record۰invｰelts Hinv Hlookup0 Hlookup).
+      destruct (decide (descr.(descriptor۰seen) = 0)) as [? | Hseen]; first done.
+      exfalso.
+      destruct (record۰invｰelts Hinv Hlookup0 Hlookup) as (Hset & _).
+      pose proof (model۰validｰseen Hvalid Hlookup) as Hseen_le.
+      destruct (lookup_lt_is_Some_2 descr.(descriptor۰elts) 0) as (elt & Hlookup_elt); first lia.
+      opose proof* (proj1 (record۰invｰseen Hinv elt Hlookup)) as (Helt & HX & _).
+      { apply elem_of_take. exists 0. split; [done | lia]. }
+      apply (Hdisjoint elt); last done.
+      rewrite -Hset elem_of_list_to_set //.
     - apply (record۰invｰNoDup Hinv).
-    - intros class (repr & descr & Hlookup & Hclass & _)%(record۰invｰsplit_list Hinv).
-      naive.
   Qed.
 
-  #[local] Lemma split۰invｰreset {part X class split_list repr descr} :
-    split۰inv part X descrs (class :: split_list) →
-    descrs !! repr = Some descr →
-    descr.(descriptor۰class) = class →
+  #[local] Lemma split۰invｰreset {descrs0 X class split_list descr} :
+    split۰inv descrs0 X descrs (class :: split_list) →
+    descrs !! class = Some descr →
     descr.(descriptor۰seen) = length descr.(descriptor۰elts) →
-    split۰inv part X (<[repr := Descriptor class descr.(descriptor۰elts) 0]> descrs) split_list.
+    split۰inv descrs0 X (<[class := Descriptor descr.(descriptor۰elts) 0]> descrs) split_list.
   Proof.
-    intros Hinv Hlookup Hclass Hseen.
-    pose proof (split۰invｰNoDup Hinv) as (Hclass_split_list & Hnodup)%NoDup_cons.
-    opose proof* (split۰invｰpending Hinv Hlookup) as (Hseen' & (repr0 & Hlookup0) & Htake).
-    { rewrite Hclass. set_solver. }
+    intros Hinv Hlookup Hseen.
+    pose proof (split۰invｰNoDup Hinv) as (Hclass & Hnodup)%NoDup_cons.
+    opose proof* (split۰invｰpending Hinv (class := class)) as (descr0 & descr_ & Hlookup0 & Hlookup_ & Hseen' & Hset & Htake); first set_solver.
+    simplify_eq.
     rewrite take_ge in Htake; first lia.
-    assert (
-      ∀ repr' descr',
-      descrs !! repr' = Some descr' →
-      descr'.(descriptor۰class) = class →
-      repr' = repr
-    ) as Hclass_unique.
-    { intros repr' descr' Hlookup' Hclass'.
-      apply (model۰validｰclass Hvalid Hlookup' Hlookup). congruence.
-    }
-    pose proof (model۰validｰrepr Hvalid Hlookup) as Hrepr.
+    assert (descriptor۰set descr ⊆ X) as HX by set_solver.
+    pose proof (model۰validｰnonempty Hvalid Hlookup) as Hnonempty.
     constructor.
-    - intros repr' descr' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some Hclass'.
-      + done.
-      + apply (split۰invｰpending Hinv Hlookup'). set_solver.
-    - intros repr' descr' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some Hclass'.
-      + split; first done.
-        exists repr0, (list_to_set descr.(descriptor۰elts)). split; first done.
-        left. set_solver.
-      + apply (split۰invｰdone Hinv Hlookup').
-        intros [Hclass'' | Hclass'']%elem_of_cons; last done.
-        apply Hne. symmetry. apply (Hclass_unique _ _ Hlookup' Hclass'').
-    - intros repr0' cl0 Hlookup0'.
-      destruct (split۰invｰcomplete Hinv Hlookup0') as [(repr' & descr' & Hlookup' & Hclass' & Hcl0) | Hcomplete].
-      + destruct (decide (descr'.(descriptor۰class) = class)) as [Hclass'' | Hclass''].
-        * pose proof (Hclass_unique _ _ Hlookup' Hclass'') as ->. simplify_eq.
-          right. intros cl [-> | ->] Hcl.
-          -- exists repr, (Descriptor descr.(descriptor۰class) descr.(descriptor۰elts) 0).
-             rewrite lookup_insert_eq. split_and!; try done.
-             set_solver.
-          -- exfalso. apply Hcl. set_solver.
-        * left. exists repr', descr'.
-          rewrite lookup_insert_ne; first (intros ->; simplify_eq).
-          set_solver.
-      + right. intros cl Hcl Hcl_ne.
-        destruct (Hcomplete cl Hcl Hcl_ne) as (repr' & descr' & Hlookup' & Hclass' & Hcl').
-        exists repr', descr'.
-        rewrite lookup_insert_ne; first (intros ->; simplify_eq; set_solver).
-        set_solver.
-    - intros repr0' cl0 Hlookup0' Hdisjoint.
-      destruct (split۰invｰuntouched Hinv Hlookup0' Hdisjoint) as (descr' & Hlookup' & Hcl0).
-      exists descr'.
-      rewrite lookup_insert_ne; last done.
-      intros ->. simplify_eq.
-      set_solver.
-    - done.
     - intros class' Hclass'.
-      destruct (split۰invｰsplit_list Hinv (class := class')) as (repr' & descr' & Hlookup' & <-); first set_solver.
-      exists repr', descr'.
-      rewrite lookup_insert_ne; first (intros ->; simplify_eq).
-      done.
+      destruct (split۰invｰpending Hinv (class := class')) as (descr0' & descr' & ?); first set_solver.
+      exists descr0', descr'. rewrite lookup_insert_ne //. set_solver.
+    - intros class' descr' [(<- & <-) | (Hne & Hlookup')]%lookup_insert_Some Hclass'.
+      + split; first done.
+        exists class, descr0. split; first done.
+        left. set_solver.
+      + apply (split۰invｰdone Hinv Hlookup'). set_solver.
+    - intros class0 descr0' Hlookup0'.
+      destruct (split۰invｰcomplete Hinv Hlookup0') as [[-> | Hclass0]%elem_of_cons | Hcomplete].
+      + simplify_eq. right. intros cl [-> | ->] Hcl.
+        * exists class, (Descriptor descr.(descriptor۰elts) 0).
+          rewrite lookup_insert_eq. set_solver.
+        * set_solver.
+      + left. done.
+      + right. intros cl Hcl Hcl_ne.
+        destruct (Hcomplete cl Hcl Hcl_ne) as (class' & descr' & Hlookup' & Hclass' & <-).
+        exists class', descr'.
+        rewrite lookup_insert_ne; first set_solver.
+        set_solver.
+    - intros class0 descr0' Hlookup0' Hdisjoint.
+      destruct (split۰invｰuntouched Hinv Hlookup0' Hdisjoint) as (descr' & Hlookup' & Helts).
+      exists descr'. rewrite lookup_insert_ne //.
+      intros ->. simplify_eq.
+      destruct descr.(descriptor۰elts) as [| elt ?] eqn:Helts'; first done.
+      apply (Hdisjoint elt); set_solver.
+    - done.
   Qed.
 
-  #[local] Lemma split۰invｰsplit {part X class split_list repr descr} class' split :
-    split۰inv part X descrs (class :: split_list) →
-    descrs !! repr = Some descr →
-    descr.(descriptor۰class) = class →
+  #[local] Lemma split۰invｰsplit {descrs0 X class split_list descr} class' :
+    split۰inv descrs0 X descrs (class :: split_list) →
+    descrs !! class = Some descr →
+    descrs !! class' = None →
     descr.(descriptor۰seen) < length descr.(descriptor۰elts) →
-    descr.(descriptor۰elts) !! descr.(descriptor۰seen) = Some split →
-    ( ∀ repr' descr',
-      descrs !! repr' = Some descr' →
-      descr'.(descriptor۰class) ≠ class'
-    ) →
-    split۰inv part X
-      ( <[repr := Descriptor class' (take descr.(descriptor۰seen) descr.(descriptor۰elts)) 0]> $
-        <[split := Descriptor class (drop descr.(descriptor۰seen) descr.(descriptor۰elts)) 0]> descrs
+    split۰inv descrs0 X
+      ( <[class := Descriptor (drop descr.(descriptor۰seen) descr.(descriptor۰elts)) 0]> $
+        <[class' := Descriptor (take descr.(descriptor۰seen) descr.(descriptor۰elts)) 0]> descrs
       )
       split_list.
   Proof.
-    intros Hinv Hlookup Hclass Hseen_lt Hlookup_split Hclass'.
-    pose proof (split۰invｰNoDup Hinv) as (Hclass_split_list & Hnodup)%NoDup_cons.
-    opose proof* (split۰invｰpending Hinv Hlookup) as (Hseen & (repr0 & Hlookup0) & Htake).
-    { rewrite Hclass. set_solver. }
-    destruct descr as [descr_class elts n]. simpl in *. subst descr_class.
+    intros Hinv Hlookup Hlookup' Hseen_lt.
+    pose proof (split۰invｰNoDup Hinv) as (Hclass & Hnodup)%NoDup_cons.
+    opose proof* (split۰invｰpending Hinv (class := class)) as (descr0 & descr_ & Hlookup0 & Hlookup_ & Hseen & Hset & Htake); first set_solver.
+    simplify_eq.
     pose proof (model۰validｰNoDup Hvalid Hlookup) as Hnodup_elts.
-    pose proof Hnodup_elts as Hnodup_elts'.
-    rewrite -(take_drop n elts) in Hnodup_elts'.
-    apply NoDup_app in Hnodup_elts' as (_ & Hdisjoint & _).
-    assert (
-      ∀ elt,
-      elt ∈ elts ↔
-          elt ∈ take n elts
-        ∨ elt ∈ drop n elts
-    ) as Helts.
-    { intros elt. rewrite -elem_of_app take_drop //. }
-    assert (split ∈ drop n elts) as Hsplit.
-    { apply head_Some_elem_of. rewrite head_lookup lookup_drop Nat.add_0_r //. }
-    pose proof (model۰validｰrepr Hvalid Hlookup) as Hrepr.
-    assert (repr ∈ take n elts) as Hrepr_take.
-    { apply head_Some_elem_of. rewrite head_lookup lookup_take_Some -head_lookup (model۰validｰhead Hvalid Hlookup). split; [done | lia]. }
-    assert (repr ≠ split) as Hne_split.
-    { intros ->. apply (Hdisjoint split); done. }
-    assert (descrs !! split = None) as Hlookup_split'.
-    { destruct (descrs !! split) as [descr' |] eqn:Hlookup'; last done.
-      exfalso. apply Hne_split.
-      apply (model۰validｰdisjoint Hvalid split Hlookup Hlookup').
-      - simpl. rewrite Helts. naive.
-      - apply (model۰validｰrepr Hvalid Hlookup').
+    destruct descr as [elts n]. simpl in *.
+    assert (class' ≠ class) as Hne.
+    { intros ->. congruence. }
+    assert (class' ∉ split_list) as Hclass'.
+    { intros Hclass'.
+      destruct (split۰invｰpending Hinv (class := class')) as (? & ? & _ & ? & _); [set_solver | congruence].
     }
-    assert (
-      ∀ repr' descr',
-      descrs !! repr' = Some descr' →
-      descr'.(descriptor۰class) = class →
-      repr' = repr
-    ) as Hclass_unique.
-    { intros repr' descr' Hlookup' Hclass''.
-      apply (model۰validｰclass Hvalid Hlookup' Hlookup). done.
-    }
-    assert (class' ∉ split_list) as Hclass'_split_list.
-    { intros Hclass''.
-      destruct (split۰invｰsplit_list Hinv (class := class')) as (repr' & descr' & Hlookup' & Hclass'''); first set_solver.
-      apply (Hclass' _ _ Hlookup' Hclass''').
-    }
-    assert (list_to_set (C := gset location) (take n elts) = list_to_set elts ∩ X) as Htake'.
-    { apply set_eq. intros elt. rewrite elem_of_intersection !elem_of_list_to_set Htake //. }
-    assert (list_to_set (C := gset location) (drop n elts) = list_to_set elts ∖ X) as Hdrop'.
-    { apply set_eq. intros elt.
+    assert (list_to_set (C := gset location) (take n elts) = descriptor۰set descr0 ∩ X) as Htake'.
+    { rewrite -Hset. apply set_eq. intros elt. rewrite elem_of_intersection !elem_of_list_to_set Htake //. }
+    assert (list_to_set (C := gset location) (drop n elts) = descriptor۰set descr0 ∖ X) as Hdrop'.
+    { rewrite -Hset. apply set_eq. intros elt.
       rewrite elem_of_difference !elem_of_list_to_set.
-      split.
-      - intros Helt. split; first (apply Helts; naive).
-        intros HX. apply (Hdisjoint elt); last done.
-        apply Htake. split; last done. apply Helts. naive.
-      - intros (Helt & HX). apply Helts in Helt as [Helt | Helt]; last done.
-        exfalso. apply HX. apply Htake. done.
+      rewrite (elem_ofｰtakeｰdrop elts n) Htake.
+      split; last naive.
+      intros Helt. split; first naive.
+      intros HX. apply (NoDupｰelem_ofｰtakeｰdrop elts n elt Hnodup_elts); last done.
+      apply Htake. split; last done.
+      rewrite (elem_ofｰtakeｰdrop elts n). naive.
     }
-    set descr1 := Descriptor class' (take n elts) 0.
-    set descr2 := Descriptor class (drop n elts) 0.
     assert (
-      ∀ repr' descr',
-      <[repr := descr1]> (<[split := descr2]> descrs) !! repr' = Some descr' ↔
-          repr' = repr ∧
-          descr' = descr1
-        ∨ repr' = split ∧
-          descr' = descr2
-        ∨ repr' ≠ repr ∧
-          repr' ≠ split ∧
-          descrs !! repr' = Some descr'
-    ) as Hlookup'.
-    { intros repr' descr'.
-      rewrite !lookup_insert_Some. naive.
+      ∃ elt,
+      elt ∈ take n elts
+    ) as (elt & Helt).
+    { destruct (lookup_lt_is_Some_2 elts 0) as (elt & Hlookup_elt); first lia.
+      exists elt. apply elem_of_take. exists 0. split; [done | lia].
     }
     constructor.
-    - intros repr' descr' [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup'')]]%Hlookup' Hclass''.
-      + done.
-      + done.
-      + apply (split۰invｰpending Hinv Hlookup''). set_solver.
-    - intros repr' descr' [(-> & ->) | [(-> & ->) | (Hne1 & Hne2 & Hlookup'')]]%Hlookup' Hclass''.
-      + split; first done.
-        exists repr0, (list_to_set elts). naive.
-      + split; first done.
-        exists repr0, (list_to_set elts). naive.
-      + apply (split۰invｰdone Hinv Hlookup'').
-        intros [Hclass''' | Hclass''']%elem_of_cons; last done.
-        apply Hne1. apply (Hclass_unique _ _ Hlookup'' Hclass''').
-    - intros repr0' cl0 Hlookup0'.
-      destruct (split۰invｰcomplete Hinv Hlookup0') as [(repr' & descr' & Hlookup'' & Hclass'' & Hcl0) | Hcomplete].
-      + destruct (decide (descr'.(descriptor۰class) = class)) as [Hclass''' | Hclass'''].
-        * pose proof (Hclass_unique _ _ Hlookup'' Hclass''') as ->.
-          rewrite Hlookup in Hlookup''. injection Hlookup'' as <-.
-          simpl in Hcl0. subst cl0.
-          right. intros cl [-> | ->] Hcl.
-          -- exists repr, descr1. rewrite Hlookup'.
-             split_and!; [left; done | done | done].
-          -- exists split, descr2. rewrite Hlookup'.
-             split_and!; [right; left; done | done | done].
-        * left. exists repr', descr'.
-          rewrite Hlookup'. split_and!.
-          -- right. right. split_and!; try done.
-             ++ intros ->. apply Hclass'''.
-                rewrite Hlookup in Hlookup''. injection Hlookup'' as <-. done.
-             ++ intros ->. congruence.
-          -- apply elem_of_cons in Hclass'' as [? | ?]; done.
-          -- done.
-      + right. intros cl Hcl Hcl_ne.
-        destruct (Hcomplete cl Hcl Hcl_ne) as (repr' & descr' & Hlookup'' & Hclass'' & Hcl').
-        exists repr', descr'.
-        rewrite Hlookup'. split_and!.
-        * right. right. split_and!; try done.
-          -- intros ->. apply Hclass''.
-             rewrite Hlookup in Hlookup''. injection Hlookup'' as <-.
-             apply elem_of_cons. left. done.
-          -- intros ->. congruence.
-        * intros ?. apply Hclass''. apply elem_of_cons. right. done.
-        * done.
-    - intros repr0' cl0 Hlookup0' Hdisjoint'.
-      destruct (split۰invｰuntouched Hinv Hlookup0' Hdisjoint') as (descr' & Hlookup'' & Hcl0).
-      exists descr'. rewrite Hlookup'. split; last done.
-      right. right. split_and!; try done.
-      + intros ->. simplify_eq.
-        apply (Hdisjoint' repr); last first.
-        * apply Htake. done.
-        * apply elem_of_list_to_set. done.
-      + intros ->. congruence.
-    - done.
     - intros class'' Hclass''.
-      destruct (split۰invｰsplit_list Hinv (class := class'')) as (repr' & descr' & Hlookup'' & <-); first set_solver.
-      exists repr', descr'. rewrite Hlookup'. split; last done.
-      right. right. split_and!; try done.
-      + intros ->. simplify_eq.
-      + intros ->. congruence.
-    Qed.
+      destruct (split۰invｰpending Hinv (class := class'')) as (descr0'' & descr'' & Hlookup0'' & Hlookup'' & ?); first set_solver.
+      exists descr0'', descr''.
+      rewrite !lookup_insert_ne; [congruence | set_solver | done].
+    - intros class'' descr'' Hlookup'' Hclass''.
+      rewrite !lookup_insert_Some in Hlookup''.
+      destruct Hlookup'' as [(<- & <-) | (Hne1 & [(<- & <-) | (Hne2 & Hlookup'')])].
+      + split; first done. exists class, descr0. naive.
+      + split; first done. exists class, descr0. naive.
+      + apply (split۰invｰdone Hinv Hlookup''). set_solver.
+    - intros class0 descr0' Hlookup0'.
+      destruct (split۰invｰcomplete Hinv Hlookup0') as [[-> | Hclass0]%elem_of_cons | Hcomplete].
+      + simplify_eq. right. intros cl [-> | ->] Hcl.
+        * exists class', (Descriptor (take n elts) 0).
+          rewrite lookup_insert_ne // lookup_insert_eq. naive.
+        * exists class, (Descriptor (drop n elts) 0).
+          rewrite lookup_insert_eq. naive.
+      + left. done.
+      + right. intros cl Hcl Hcl_ne.
+        destruct (Hcomplete cl Hcl Hcl_ne) as (class'' & descr'' & Hlookup'' & Hclass'' & <-).
+        exists class'', descr''.
+        assert (class'' ≠ class) by (intros ->; set_solver).
+        assert (class'' ≠ class').
+        { intros ->. congruence. }
+        rewrite !lookup_insert_ne //. set_solver.
+    - intros class0 descr0' Hlookup0' Hdisjoint'.
+      destruct (split۰invｰuntouched Hinv Hlookup0' Hdisjoint') as (descr'' & Hlookup'' & Helts).
+      exists descr''.
+      assert (class0 ≠ class').
+      { intros ->. congruence. }
+      assert (class0 ≠ class).
+      { intros ->. simplify_eq.
+        apply Htake in Helt as (Helt & HX).
+        apply (Hdisjoint' elt); last done.
+        rewrite /= -Hset elem_of_list_to_set //.
+      }
+      rewrite !lookup_insert_ne //.
+    - done.
+  Qed.
 
-  #[local] Lemma split۰invｰfinal {part X} :
-    split۰inv part X descrs [] →
+  #[local] Lemma split۰invｰfinal {descrs0 part0 X part} :
+    ( ∀ class0 descr0,
+      descrs0 !! class0 = Some descr0 →
+      descr0.(descriptor۰elts) ≠ []
+    ) →
+    descriptors۰part descrs0 part0 →
+    descriptors۰part descrs part →
+    split۰inv descrs0 X descrs [] →
       map_Forall (λ _ descr, descr.(descriptor۰seen) = 0) descrs ∧
       ( ∀ cl',
-        cl' ∈ map_img (SA := gset (gset location)) ((λ descr, list_to_set descr.(descriptor۰elts)) <$> descrs) ↔
+        cl' ∈ map_img (SA := gset (gset location)) part ↔
           cl' ≠ ∅ ∧
             ∃ repr cl,
-            part !! repr = Some cl ∧
+            part0 !! repr = Some cl ∧
             ( cl' = cl ∩ X
             ∨ cl' = cl ∖ X
             )
       ) ∧
       ( ∀ repr cl,
-        part !! repr = Some cl →
+        part0 !! repr = Some cl →
         cl ## X →
-        ((λ descr, list_to_set descr.(descriptor۰elts)) <$> descrs) !! repr = Some cl
+        part !! repr = Some cl
       ).
   Proof.
-    intros Hinv. split_and!.
-    - intros repr descr Hlookup.
+    intros Hnonempty0 Hpart0 Hpart Hinv. split_and!.
+    - intros class descr Hlookup.
       apply (split۰invｰdone Hinv Hlookup). apply not_elem_of_nil.
     - intros cl'. rewrite elem_of_map_img. split.
-      + intros (repr & (descr & Hcl' & Hlookup)%lookup_fmap_Some). subst cl'.
-        destruct (split۰invｰdone Hinv Hlookup) as (_ & repr0 & cl0 & Hlookup0 & Hcl); first apply not_elem_of_nil.
-        split; last naive.
-        pose proof (model۰validｰrepr Hvalid Hlookup). set_solver.
-      + intros (Hcl'_ne & repr0 & cl0 & Hlookup0 & Hcl').
-        destruct (split۰invｰcomplete Hinv Hlookup0) as [(repr & descr & Hlookup & Hclass & _) | Hcomplete].
-        * set_solver.
-        * destruct (Hcomplete cl' Hcl' Hcl'_ne) as (repr & descr & Hlookup & _ & <-).
-          exists repr. rewrite lookup_fmap Hlookup //.
-    - intros repr cl Hlookup Hdisjoint.
-      destruct (split۰invｰuntouched Hinv Hlookup Hdisjoint) as (descr & Hlookup' & <-).
-      rewrite lookup_fmap Hlookup' //.
+      + intros (repr & (class & descr & Hlookup & Hhead & ->)%Hpart).
+        destruct (split۰invｰdone Hinv Hlookup) as (_ & class0 & descr0 & Hlookup0 & Hcl); first apply not_elem_of_nil.
+        split.
+        * apply head_Some_elem_of in Hhead. set_solver.
+        * destruct (headｰis_Some _ (Hnonempty0 _ _ Hlookup0)) as (repr0 & Hhead0).
+          exists repr0, (descriptor۰set descr0). split; last done.
+          apply Hpart0. naive.
+      + intros (Hcl'_ne & repr0 & cl0 & (class0 & descr0 & Hlookup0 & Hhead0 & ->)%Hpart0 & Hcl').
+        destruct (split۰invｰcomplete Hinv Hlookup0) as [Hclass | Hcomplete]; first set_solver.
+        destruct (Hcomplete cl' Hcl' Hcl'_ne) as (class & descr & Hlookup & _ & <-).
+        destruct (model۰validｰhead Hvalid Hlookup) as (repr & Hhead).
+        exists repr. apply Hpart. naive.
+    - intros repr cl (class0 & descr0 & Hlookup0 & Hhead0 & ->)%Hpart0 Hdisjoint.
+      destruct (split۰invｰuntouched Hinv Hlookup0 Hdisjoint) as (descr & Hlookup & Helts).
+      apply Hpart. exists class0, descr. rewrite Helts. naive.
   Qed.
 End split۰inv.
 
@@ -1544,16 +1289,19 @@ Section partition۰G.
       elt.[class_] ↦ #(classes elt) ∗
       elt.[seen] ↦ #(seens elt).
 
-  #[local] Definition descriptor۰model repr descr : iProp Σ :=
-    ∃ last,
+  #[local] Definition descriptor۰model class descr : iProp Σ :=
+    ∃ first last,
+    ⌜head descr.(descriptor۰elts) = Some first⌝ ∗
     ⌜list.last descr.(descriptor۰elts) = Some last⌝ ∗
-    descr.(descriptor۰class).[first] ↦ #repr ∗
-    descr.(descriptor۰class).[last] ↦ #last ∗
-    descr.(descriptor۰class).[len] ↦ #(length descr.(descriptor۰elts)) ∗
-    descr.(descriptor۰class).[split] ↦ #(default repr (descr.(descriptor۰elts) !! descr.(descriptor۰seen))) ∗
-    descr.(descriptor۰class).[split_len] ↦ #(if decide (descr.(descriptor۰seen) = length descr.(descriptor۰elts)) then 0 else descr.(descriptor۰seen)).
+    class.[first] ↦ #first ∗
+    class.[last] ↦ #last ∗
+    class.[len] ↦ #(length descr.(descriptor۰elts)) ∗
+    class.[split] ↦ #(default first (descr.(descriptor۰elts) !! descr.(descriptor۰seen))) ∗
+    class.[split_len] ↦ #(if decide (descr.(descriptor۰seen) = length descr.(descriptor۰elts)) then 0 else descr.(descriptor۰seen)).
   #[local] Instance : CustomIpat "descriptor۰model" :=
-    " ( %last{}
+    " ( %first{}
+      & %last{}
+      & %Hfirst{}
       & %Hlast{}
       & Hclass{}_first
       & Hclass{}_last
@@ -1567,8 +1315,8 @@ Section partition۰G.
     ⌜model۰valid elements prevs nexts classes seens descrs⌝ ∗
     elements۰auth γ elements ∗
     nodes elements prevs nexts classes seens ∗
-    [∗ map] repr ↦ descr ∈ descrs,
-      descriptor۰model repr descr.
+    [∗ map] class ↦ descr ∈ descrs,
+      descriptor۰model class descr.
   #[local] Instance : CustomIpat "model'" :=
     " ( %Hvalid{}
       & Helements_auth{}
@@ -1579,7 +1327,7 @@ Section partition۰G.
 
   Please Definition partition۰model γ part : iProp Σ :=
     ∃ elements prevs nexts classes seens descrs,
-    ⌜part = (λ descr, list_to_set descr.(descriptor۰elts)) <$> descrs⌝ ∗
+    ⌜descriptors۰part descrs part⌝ ∗
     ⌜map_Forall (λ _ descr, descr.(descriptor۰seen) = 0) descrs⌝ ∗
     model' γ elements prevs nexts classes seens descrs.
   #[local] Instance : CustomIpat "model" :=
@@ -1589,7 +1337,7 @@ Section partition۰G.
       & %classes{}
       & %seens{}
       & %descrs{}
-      & ->
+      & %Hpart{}
       & %Hunseen{}
       & (:model' /={})
       )
@@ -1800,16 +1548,16 @@ Section partition۰G.
     iApply (pointstoｰexclusive with "Helt_prev Helt_prev'").
   Qed.
 
-  #[local] Lemma nodes٠classｰspec {elements prevs nexts classes seens descrs repr descr} elt :
+  #[local] Lemma nodes٠classｰspec {elements prevs nexts classes seens descrs class descr} elt :
     model۰valid elements prevs nexts classes seens descrs →
-    descrs !! repr = Some descr →
+    descrs !! class = Some descr →
     elt ∈ descr.(descriptor۰elts) →
     {{{
       nodes elements prevs nexts classes seens
     }}}
       (#elt).{partition٠class_}
     {{{
-      RET #descr.(descriptor۰class);
+      RET #class;
       nodes elements prevs nexts classes seens
     }}}.
   Proof.
@@ -1877,35 +1625,15 @@ Section partition۰G.
     iApply ("Hnodes" with "Helt_prev Helt_next Helt_class Helt_seen").
   Qed.
 
-  #[local] Lemma descriptor۰modelｰunseen repr descr :
-    descr.(descriptor۰seen) = 0 →
-    head descr.(descriptor۰elts) = Some repr →
-    descriptor۰model repr descr ⊣⊢
-      ∃ last,
-      ⌜list.last descr.(descriptor۰elts) = Some last⌝ ∗
-      descr.(descriptor۰class).[first] ↦ #repr ∗
-      descr.(descriptor۰class).[last] ↦ #last ∗
-      descr.(descriptor۰class).[len] ↦ #(length descr.(descriptor۰elts)) ∗
-      descr.(descriptor۰class).[split] ↦ #repr ∗
-      descr.(descriptor۰class).[split_len] ↦ #0.
-  Proof.
-    intros Hseen Hhead.
-    rewrite /descriptor۰model Hseen -head_lookup Hhead /=.
-    destruct (decide _); done.
-  Qed.
-
   #[local] Lemma descriptorsｰfresh descrs class v :
-    ([∗ map] repr ↦ descr ∈ descrs, descriptor۰model repr descr) -∗
+    ([∗ map] class ↦ descr ∈ descrs, descriptor۰model class descr) -∗
     class.[first] ↦ v -∗
-    ⌜ ∀ repr descr,
-      descrs !! repr = Some descr →
-      descr.(descriptor۰class) ≠ class
-    ⌝.
+    ⌜descrs !! class = None⌝.
   Proof.
-    iIntros "Hdescrs Hclass_first %repr %descr %Hlookup %Hclass".
+    iIntros "Hdescrs Hclass_first".
+    destruct (descrs !! class) as [descr |] eqn:Hlookup; last done.
     iDestruct (big_sepM_lookup with "Hdescrs") as "(:descriptor۰model =')"; first done.
-    rewrite Hclass.
-    iApply (pointstoｰexclusive with "Hclass_first Hclass'_first").
+    iDestruct (pointstoｰexclusive with "Hclass_first Hclass'_first") as %[].
   Qed.
 
   Lemma partition۰modelｰempty :
@@ -1918,20 +1646,26 @@ Section partition۰G.
       {|partition۰name۰elements := γ_elements
       |}.
     iExists γ, ∅, id, id, id, (λ _, false), ∅.
-    rewrite /model' /nodes !big_opS_empty !big_opM_empty fmap_empty.
-    iFrame. iPureIntro. split_and!; [done | apply map_Forall_empty | | done..].
-    constructor; try set_solver; try (intros *; rewrite lookup_empty; done).
+    rewrite /model' /nodes !big_opS_empty !big_opM_empty.
+    iFrame. iPureIntro. split_and!; [| apply map_Forall_empty | | done..].
+    - intros repr cl. rewrite lookup_empty. split; first done.
+      intros (class & descr & Hlookup & _). rewrite lookup_empty // in Hlookup.
+    - constructor; try (intros *; rewrite lookup_empty; done).
+      + intros elt. set_solver.
+      + set_solver.
   Qed.
   Lemma partition۰modelｰvalid γ part :
     partition۰model γ part ⊢
     ⌜partition۰valid part⌝.
   Proof.
     iIntros "(:model)". iPureIntro. split.
-    - intros repr cl (descr & Hcl & Hlookup)%lookup_fmap_Some. subst cl.
-      rewrite elem_of_list_to_set. apply (model۰validｰrepr Hvalid Hlookup).
-    - intros repr1 cl1 repr2 cl2 (descr1 & Hcl1 & Hlookup1)%lookup_fmap_Some (descr2 & Hcl2 & Hlookup2)%lookup_fmap_Some Hne. subst cl1 cl2.
-      apply elem_of_disjoint. simpl. intros elt Helt1%elem_of_list_to_set Helt2%elem_of_list_to_set.
-      apply Hne, (model۰validｰdisjoint Hvalid elt Hlookup1 Hlookup2); done.
+    - intros repr cl (class & descr & Hlookup & Hhead & ->)%Hpart.
+      rewrite elem_of_list_to_set. apply head_Some_elem_of. done.
+    - intros repr1 cl1 repr2 cl2 (class1 & descr1 & Hlookup1 & Hhead1 & ->)%Hpart (class2 & descr2 & Hlookup2 & Hhead2 & ->)%Hpart Hne.
+      apply elem_of_disjoint. intros elt Helt1%elem_of_list_to_set Helt2%elem_of_list_to_set.
+      apply Hne.
+      pose proof (model۰validｰdisjoint Hvalid elt Hlookup1 Hlookup2 Helt1 Helt2) as <-.
+      congruence.
   Qed.
   Lemma partition۰modelｰexclusive γ part1 part2 :
     partition۰model γ part1 -∗
@@ -1950,9 +1684,10 @@ Section partition۰G.
       ⌜elt ∈ cl⌝.
   Proof.
     iIntros "(:model) (:element)".
-    iDestruct (elements۰elemｰvalid with "Helements_auth Helements_elem") as %(repr & descr & Hlookup & Helt)%(model۰validｰelements Hvalid).
-    iExists repr, (list_to_set descr.(descriptor۰elts)). iPureIntro. split.
-    - rewrite lookup_fmap Hlookup //.
+    iDestruct (elements۰elemｰvalid with "Helements_auth Helements_elem") as %(class & descr & Hlookup & Helt)%(model۰validｰelements Hvalid).
+    destruct (model۰validｰhead Hvalid Hlookup) as (repr & Hhead).
+    iExists repr, (descriptor۰set descr). iPureIntro. split.
+    - apply Hpart. naive.
     - rewrite elem_of_list_to_set //.
   Qed.
   Lemma partition۰elementｰagree γ elt v1 v2 :
@@ -2194,9 +1929,7 @@ Section partition۰G.
       { rewrite Helts lookup_app_r; first lia.
         rewrite (_ : ˖(length elts1) - length elts1 = 1); first lia. done.
       }
-      wp۰apply (IH (elts1 ++ [elt]) with "[$Hnodes $HΨ $Hfn] HΦ").
-      { rewrite -assoc //. }
-      all: done.
+      wp۰apply (IH (elts1 ++ [elt]) with "[$Hnodes $HΨ $Hfn] HΦ"); [rewrite -assoc // | done..].
   Qed.
 
   #[local] Lemma partition٠dllist٠iterｰspec Ψ (fn : val) elements prevs nexts classes seens elts elt1 elt2 :
@@ -2440,20 +2173,37 @@ Section partition۰G.
     wp۰store. wp۰pures.
 
     iDestruct (nodesｰfresh with "Hnodes Helt_prev") as %Helt.
-    iDestruct (descriptorsｰfresh with "Hdescrs Hclass_first") as %Hclass.
-    pose proof (model۰validｰlookupｰNone Hvalid elt Helt) as Hlookup.
+    iDestruct (descriptorsｰfresh with "Hdescrs Hclass_first") as %Hlookup.
+    assert (
+      ∀ class' descr',
+      descrs !! class' = Some descr' →
+      head descr'.(descriptor۰elts) ≠ Some elt
+    ) as Hheads.
+    { intros class' descr' Hlookup' Hhead%head_Some_elem_of.
+      apply Helt. eapply (model۰validｰelement Hvalid); done.
+    }
     iMod (elementsｰinsert elt with "Helements_auth") as "(Helements_auth & #Helements_elem)".
     iDestruct (nodesｰinsert elt elt elt class false with "Hnodes Helt_prev Helt_next Helt_class Helt_seen") as "Hnodes"; first done.
 
     iApply "HΦ".
-    iSplitR. { rewrite lookup_fmap Hlookup //. }
+    iSplitR.
+    { iPureIntro.
+      destruct (part !! elt) as [cl |] eqn:Hpart_lookup; last done.
+      apply Hpart in Hpart_lookup as (class' & descr' & Hlookup' & Hhead & _).
+      exfalso. apply (Hheads _ _ Hlookup' Hhead).
+    }
     iSplitL; last iSteps.
-    iExists _, _, _, _, _, (<[elt := Descriptor class [elt] 0]> descrs). iFrame.
-    iSplitR. { rewrite fmap_insert /= right_id_L //. }
+    iExists _, _, _, _, _, (<[class := Descriptor [elt] 0]> descrs). iFrame.
+    iSplitR.
+    { iPureIntro.
+      rewrite (_ : {[elt]} = descriptor۰set (Descriptor [elt] 0)); first set_solver.
+      apply descriptors۰partｰinsert; [done | done | congruence |].
+      intros class' descr' Hlookup' _. apply (Hheads _ _ Hlookup').
+    }
     iSplitR. { iPureIntro. apply map_Forall_insert_2; done. }
     iSplitR. { iPureIntro. apply (model۰validｰmake Hvalid); done. }
     iApply (big_sepM_insert_2 with "[- Hdescrs] Hdescrs").
-    iExists elt. iSteps.
+    iExists elt, elt. iSteps.
   Qed.
 
   (* ------------------------------------------------------------------------ *)
@@ -2476,27 +2226,23 @@ Section partition۰G.
   Proof.
     iIntros "%Hpart_lookup %Helt %Φ ((:model) & (:element)) HΦ".
 
-    apply lookup_fmap_Some in Hpart_lookup as (descr & Hcl & Hlookup). subst cl.
-    rewrite elem_of_list_to_set in Helt.
+    destruct (descriptors۰partｰlookup elt Hpart Hpart_lookup Helt) as (class & descr & Hlookup & Hhead & -> & Helt').
     pose proof (Hunseen _ _ Hlookup) as Hseen. simpl in Hseen.
-    assert (elt ∈ elements) as Helt_elements.
-    { eapply (model۰validｰelement Hvalid); done. }
 
     wp۰rec.
-    wp۰apply+ (nodes٠classｰspec elt Hvalid Hlookup Helt with "Hnodes") as "Hnodes".
+    wp۰apply+ (nodes٠classｰspec elt Hvalid Hlookup Helt' with "Hnodes") as "Hnodes".
     wp۰apply+ (partition٠dllist٠createｰspec with "[//]") as (elt') "(Helt'_prev & Helt'_next & #Helt'_data & Helt'_class & Helt'_seen)".
-    iDestruct (nodesｰfresh with "Hnodes Helt'_prev") as %Helt'.
-    iDestruct (nodesｰinsert elt' elt' elt' descr.(descriptor۰class) false with "Hnodes Helt'_prev Helt'_next Helt'_class Helt'_seen") as "Hnodes"; first done.
-    iDestruct (big_sepM_insert_acc with "Hdescrs") as "(Hdescr & Hdescrs)"; first done.
-    iEval (rewrite descriptor۰modelｰunseen //; first apply (model۰validｰhead Hvalid Hlookup)) in "Hdescr".
-    iDestruct "Hdescr" as "(%last & %Hlast & Hclass_first & Hclass_last & Hclass_len & Hclass_split & Hclass_split_len)".
+    iDestruct (nodesｰfresh with "Hnodes Helt'_prev") as %Helt''.
+    iDestruct (nodesｰinsert elt' elt' elt' class false with "Hnodes Helt'_prev Helt'_next Helt'_class Helt'_seen") as "Hnodes"; first done.
+    iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor۰model) & Hdescrs)"; first done.
+    assert (first = repr) as -> by congruence.
     assert (last ∈ elements) as Hlast_elements.
     { eapply (model۰validｰelement Hvalid); first done. apply last_Some_elem_of. done. }
     assert (elt' ≠ last) by set_solver.
     wp۰apply+ (partition٠class_addｰspec with "[$Hnodes $Hclass_last $Hclass_len]") as "(Hnodes & Hclass_last & Hclass_len)".
     { set_solver. }
     { set_solver. }
-    { rewrite fn_lookup_insert_ne //. apply elem_of_union_r, (model۰validｰnext Hvalid Hlast_elements). }
+    { rewrite fn_lookup_insert_ne //. apply elem_of_union_r, (model۰validｰnext Hvalid _ Hlast_elements). }
     rewrite fn_lookup_insert_ne //.
     iMod (elementsｰinsert elt' with "Helements_auth") as "(Helements_auth & #Helements_elem')".
 
@@ -2506,11 +2252,19 @@ Section partition۰G.
     iExists ({[elt']} ∪ elements),
       (<[elt' := last]> (<[nexts last := elt']> prevs)),
       (<[last := elt']> (<[elt' := nexts last]> nexts)),
-      (<[elt' := descr.(descriptor۰class)]> classes),
+      (<[elt' := class]> classes),
       (<[elt' := false]> seens),
-      (<[repr := Descriptor descr.(descriptor۰class) (descr.(descriptor۰elts) ++ [elt']) 0]> descrs).
+      (<[class := Descriptor (descr.(descriptor۰elts) ++ [elt']) 0]> descrs).
     iFrame "Helements_auth". iSplitR.
-    { rewrite fmap_insert /= list_to_set_app_L /= right_id_L //. }
+    { iPureIntro.
+      rewrite (_ : descriptor۰set descr ∪ {[elt']} = descriptor۰set (Descriptor (descr.(descriptor۰elts) ++ [elt']) 0)).
+      { rewrite /= list_to_set_app_L. set_solver. }
+      apply descriptors۰partｰinsert; first done.
+      - rewrite /= head_app Hhead //.
+      - intros descr' Hlookup'. simplify_eq. done.
+      - intros class' descr' Hlookup' Hne Hhead'. apply Hne.
+        apply (model۰validｰdisjoint Hvalid repr Hlookup' Hlookup); apply head_Some_elem_of; done.
+    }
     iSplitR. { iPureIntro. apply map_Forall_insert_2; done. }
     iSplitR. { iPureIntro. apply (model۰validｰadd Hvalid); done. }
     iSplitL "Hnodes".
@@ -2518,9 +2272,14 @@ Section partition۰G.
       rewrite /insert /fn_insert. repeat case_decide; naive.
     }
     iApply "Hdescrs".
-    rewrite descriptor۰modelｰunseen //=.
-    { rewrite head_app (model۰validｰhead Hvalid Hlookup) //. }
-    iExists elt'. rewrite last_snoc length_app /=. iSteps.
+    iExists repr, elt'.
+    rewrite /= head_app Hhead last_snoc length_app /= Hseen -!head_lookup head_app Hhead /=.
+    pose proof (model۰validｰnonempty Hvalid Hlookup) as Hnonempty.
+    assert (length descr.(descriptor۰elts) ≠ 0).
+    { rewrite length_zero_iff_nil //. }
+    rewrite Nat2Z.inj_add (decide_False (P := (0 = length _ + 1)%nat)); first lia.
+    rewrite decide_False; first lia.
+    iFrameSteps.
   Qed.
 
   (* ------------------------------------------------------------------------ *)
@@ -2576,19 +2335,18 @@ Section partition۰G.
   Proof.
     iIntros "%Hpart_lookup_1 %Helt1 %Hpart_lookup_2 %Helt2 %Φ ((:model) & (:element =1) & (:element =2)) HΦ".
 
-    apply lookup_fmap_Some in Hpart_lookup_1 as (descr1 & Hcl1 & Hlookup1). subst cl1.
-    apply lookup_fmap_Some in Hpart_lookup_2 as (descr2 & Hcl2 & Hlookup2). subst cl2.
-    rewrite elem_of_list_to_set in Helt1.
-    rewrite elem_of_list_to_set in Helt2.
+    destruct (descriptors۰partｰlookup elt1 Hpart Hpart_lookup_1 Helt1) as (class1 & descr1 & Hlookup1 & Hhead1 & -> & Helt1').
+    destruct (descriptors۰partｰlookup elt2 Hpart Hpart_lookup_2 Helt2) as (class2 & descr2 & Hlookup2 & Hhead2 & -> & Helt2').
 
     wp۰rec.
-    wp۰apply+ (nodes٠classｰspec elt2 Hvalid Hlookup2 Helt2 with "Hnodes") as "Hnodes".
-    wp۰apply (nodes٠classｰspec elt1 Hvalid Hlookup1 Helt1 with "Hnodes") as "Hnodes".
+    wp۰apply+ (nodes٠classｰspec elt2 Hvalid Hlookup2 Helt2' with "Hnodes") as "Hnodes".
+    wp۰apply (nodes٠classｰspec elt1 Hvalid Hlookup1 Helt1' with "Hnodes") as "Hnodes".
     wp۰pures.
-    rewrite (bool_decide_ext (descr1.(descriptor۰class) = descr2.(descriptor۰class)) (repr1 = repr2)).
+    rewrite (bool_decide_ext (class1 = class2) (repr1 = repr2)).
     { split.
-      - apply (model۰validｰclass Hvalid Hlookup1 Hlookup2).
       - intros <-. congruence.
+      - intros <-.
+        apply (model۰validｰdisjoint Hvalid repr1 Hlookup1 Hlookup2); apply head_Some_elem_of; done.
     }
     iApply "HΦ".
     iFrameSteps.
@@ -2612,12 +2370,12 @@ Section partition۰G.
   Proof.
     iIntros "%Hpart_lookup %Helt %Φ ((:model) & (:element)) HΦ".
 
-    apply lookup_fmap_Some in Hpart_lookup as (descr & Hcl & Hlookup). subst cl.
-    rewrite elem_of_list_to_set in Helt.
+    destruct (descriptors۰partｰlookup elt Hpart Hpart_lookup Helt) as (class & descr & Hlookup & Hhead & -> & Helt').
 
     wp۰rec.
-    wp۰apply+ (nodes٠classｰspec elt Hvalid Hlookup Helt with "Hnodes") as "Hnodes".
+    wp۰apply+ (nodes٠classｰspec elt Hvalid Hlookup Helt' with "Hnodes") as "Hnodes".
     iDestruct (big_sepM_lookup_acc with "Hdescrs") as "((:descriptor۰model) & Hdescrs)"; first done.
+    assert (first = repr) as -> by congruence.
     wp۰load.
     iDestruct ("Hdescrs" with "[Hclass_first Hclass_last Hclass_len Hclass_split Hclass_split_len]") as "Hdescrs"; first iSteps.
     iApply "HΦ".
@@ -2642,11 +2400,10 @@ Section partition۰G.
   Proof.
     iIntros "%Hpart_lookup %Helt %Φ ((:model) & (:element)) HΦ".
 
-    apply lookup_fmap_Some in Hpart_lookup as (descr & Hcl & Hlookup). subst cl.
-    rewrite elem_of_list_to_set in Helt.
+    destruct (descriptors۰partｰlookup elt Hpart Hpart_lookup Helt) as (class & descr & Hlookup & Hhead & -> & Helt').
 
     wp۰rec.
-    wp۰apply+ (nodes٠classｰspec elt Hvalid Hlookup Helt with "Hnodes") as "Hnodes".
+    wp۰apply+ (nodes٠classｰspec elt Hvalid Hlookup Helt' with "Hnodes") as "Hnodes".
     iDestruct (big_sepM_lookup_acc with "Hdescrs") as "((:descriptor۰model) & Hdescrs)"; first done.
     wp۰load.
     iDestruct ("Hdescrs" with "[Hclass_first Hclass_last Hclass_len Hclass_split Hclass_split_len]") as "Hdescrs"; first iSteps.
@@ -2658,8 +2415,8 @@ Section partition۰G.
   (* ------------------------------------------------------------------------ *)
   (* [record₁]. *)
 
-  #[local] Lemma partition٠record₁ｰspec γ part X elements prevs nexts classes seens descrs split_list elt v :
-    record۰inv part X descrs split_list →
+  #[local] Lemma partition٠record₁ｰspec γ descrs0 X elements prevs nexts classes seens descrs split_list elt v :
+    record۰inv descrs0 X descrs split_list →
     {{{
       model' γ elements prevs nexts classes seens descrs ∗
       partition۰element γ elt v
@@ -2669,18 +2426,16 @@ Section partition۰G.
       prevs' nexts' seens' descrs' split_list'
     , RET list۰to_val (#*ˡ split_list');
       model' γ elements prevs' nexts' classes seens' descrs' ∗
-      ⌜record۰inv part ({[elt]} ∪ X) descrs' split_list'⌝
+      ⌜record۰inv descrs0 ({[elt]} ∪ X) descrs' split_list'⌝
     }}}.
   Proof.
     iIntros "%Hinv %Φ ((:model') & (:element)) HΦ".
 
-    iDestruct (elements۰elemｰvalid with "Helements_auth Helements_elem") as %(repr & descr & Hlookup & Helt)%(model۰validｰelements Hvalid).
+    iDestruct (elements۰elemｰvalid with "Helements_auth Helements_elem") as %(class & descr & Hlookup & Helt)%(model۰validｰelements Hvalid).
     pose proof (model۰validｰelement Hvalid Hlookup Helt) as Helt_elements.
     pose proof (model۰validｰNoDup Hvalid Hlookup) as Hnodup.
     pose proof (model۰validｰseen Hvalid Hlookup) as Hseen.
-    pose proof (model۰validｰhead Hvalid Hlookup) as Hhead.
-    pose proof (model۰validｰlength Hvalid Hlookup) as Hlength_pos.
-    iDestruct (big_sepM_delete with "Hdescrs") as "((:descriptor۰model) & Hdescrs)"; first done.
+    iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor۰model) & Hdescrs)"; first done.
 
     wp۰rec.
     wp۰apply+ (nodes٠classｰspec elt Hvalid Hlookup Helt with "Hnodes") as "Hnodes".
@@ -2689,10 +2444,11 @@ Section partition۰G.
 
     - rewrite bool_decide_eq_true_2 //.
       wp۰pures.
+      iDestruct ("Hdescrs" $! descr with "[Hclass_first Hclass_last Hclass_len Hclass_split Hclass_split_len]") as "Hdescrs"; first iFrameSteps.
+      rewrite insert_id //.
       iApply ("HΦ" $! prevs nexts seens descrs split_list).
-      iSplitL.
-      { iFrame "%∗". iApply (big_sepM_delete _ _ repr); first done. iFrameSteps. }
-      iPureIntro. apply (record۰invｰsingleton Hvalid Hinv elt Hlookup Hlength Helt).
+      iFrameSteps. iPureIntro.
+      apply (record۰invｰsingleton Hvalid Hinv elt Hlookup Hlength Helt).
 
     - rewrite bool_decide_eq_false_2 //.
       wp۰apply+ (nodes٠seenｰspec with "Hnodes") as "Hnodes"; first done.
@@ -2703,9 +2459,10 @@ Section partition۰G.
         wp۰pures.
         assert ({[elt]} ∪ X = X) as ->.
         { apply (record۰invｰseen Hinv elt Hlookup) in Helt_seen. set_solver. }
+        iDestruct ("Hdescrs" $! descr with "[Hclass_first Hclass_last Hclass_len Hclass_split Hclass_split_len]") as "Hdescrs"; first iFrameSteps.
+        rewrite insert_id //.
         iApply ("HΦ" $! prevs nexts seens descrs split_list).
-        iSplitL; last done.
-        iFrame "%∗". iApply (big_sepM_delete _ _ repr); first done. iFrameSteps.
+        iFrameSteps.
 
       + rewrite bool_decide_eq_false_2 //.
         wp۰pures.
@@ -2714,12 +2471,6 @@ Section partition۰G.
           rewrite take_ge in Helt_seen; [lia | done].
         }
         destruct (lookup_lt_is_Some_2 descr.(descriptor۰elts) descr.(descriptor۰seen)) as (split & Hlookup_split); first done.
-        assert (split ∈ descr.(descriptor۰elts)) as Hsplit.
-        { eapply list_elem_of_lookup_2. done. }
-        assert (split ∉ take descr.(descriptor۰seen) descr.(descriptor۰elts)) as Hsplit_seen.
-        { rewrite elem_of_take. intros (i & Hlookup_i & Hi).
-          opose proof* (NoDup_lookup _ i descr.(descriptor۰seen)); [done.. | lia].
-        }
         apply list_elem_of_lookup in Helt as Helt'. destruct Helt' as (k & Hlookup_k).
         assert (descr.(descriptor۰seen) ≤ k) as Hk.
         { destruct (decide (descr.(descriptor۰seen) ≤ k)) as [? | Hk]; first done.
@@ -2731,6 +2482,7 @@ Section partition۰G.
         rewrite Hlookup_split /=.
         wp۰load. wp۰load. wp۰pures.
         pose proof Hlast as Hlast_lookup. rewrite last_lookup in Hlast_lookup.
+        pose proof (record۰invｰstep Hvalid Hinv split elt Hlookup Hlookup_split Helt Helt_seen Hlength) as Hinv'.
         destruct (decide (split = last)) as [<- | Hsplit_last].
 
         * rewrite bool_decide_eq_true_2 //.
@@ -2739,17 +2491,16 @@ Section partition۰G.
           assert (k = descr.(descriptor۰seen)) as ->.
           { apply lookup_lt_Some in Hlookup_k. lia. }
           simplify_eq.
+          rewrite swapｰfmapｰdiag decide_False in Hinv'; first lia.
           wp۰pures. wp۰load. wp۰store. wp۰store. wp۰pures.
-          iApply ("HΦ" $! prevs nexts (<[split := true]> seens) (<[repr := Descriptor descr.(descriptor۰class) descr.(descriptor۰elts) ˖descr.(descriptor۰seen)]> descrs) split_list).
-          iSplitL.
-          { iFrame. iModIntro. iSplit.
-            { iPureIntro. apply (model۰validｰmark Hvalid split Hlookup Hlookup_split). }
-            iApply big_sepM_insert_delete. iFrame.
-            rewrite /= lookup_ge_None_2; first lia.
+          iDestruct ("Hdescrs" $! (Descriptor descr.(descriptor۰elts) ˖descr.(descriptor۰seen)) with "[Hclass_first Hclass_last Hclass_len Hclass_split Hclass_split_len]") as "Hdescrs".
+          { rewrite /descriptor۰model /= lookup_ge_None_2; first lia.
             rewrite decide_True; first lia.
-            iFrame. done.
+            iFrameSteps.
           }
-          iPureIntro. apply (record۰invｰreset Hvalid Hinv split Hlookup Hlookup_split); lia.
+          iApply ("HΦ" $! prevs nexts (<[split := true]> seens) _ split_list).
+          iFrameSteps. iPureIntro.
+          apply (model۰validｰmark Hvalid split Hlookup Hlookup_split).
 
         * rewrite bool_decide_eq_false_2 //.
           assert (˖descr.(descriptor۰seen) < length descr.(descriptor۰elts)) as Hseen_lt'.
@@ -2760,79 +2511,51 @@ Section partition۰G.
           }
           destruct (lookup_lt_is_Some_2 descr.(descriptor۰elts) ˖descr.(descriptor۰seen)) as (split' & Hlookup_split'); first done.
           assert (2 ≤ length descr.(descriptor۰elts)) as Hlength2 by lia.
+          assert (split = first ↔ descr.(descriptor۰seen) = 0) as Hrecord_class.
+          { rewrite head_lookup in Hfirst. split.
+            - intros ->. apply (NoDup_lookup descr.(descriptor۰elts) _ _ first); done.
+            - intros Hzero. rewrite Hzero in Hlookup_split. congruence.
+          }
           wp۰pures. wp۰load. wp۰pures.
           wp۰apply+ (partition٠class_swapｰspec with "[$Hnodes $Hclass_first $Hclass_last]") as "(Hnodes & Hclass_first & Hclass_last)".
           { apply (model۰validｰlinks Hvalid). }
-          { apply (model۰validｰelement Hvalid Hlookup Hsplit). }
+          { apply (model۰validｰelement Hvalid Hlookup). eapply list_elem_of_lookup_2. done. }
           { done. }
-          { apply (model۰validｰnextｰne Hvalid split Hlookup); done. }
+          { apply (model۰validｰnextｰne Hvalid split Hlookup); first done.
+            eapply list_elem_of_lookup_2. done.
+          }
           { apply (model۰validｰnextｰne Hvalid elt Hlookup); done. }
           wp۰apply+ (nodes٠nextｰspec elt with "Hnodes") as "Hnodes"; first done.
           rewrite /= swapｰr (model۰validｰchain Hvalid Hlookup Hlookup_split Hlookup_split').
           wp۰store. wp۰load.
           rewrite decide_False; first lia.
           wp۰store. wp۰pures.
-          pose proof (model۰validｰswap Hvalid split elt Hlookup Hsplit Helt Hsplit_seen Helt_seen) as Hvalid'.
-          opose proof* (model۰validｰmark Hvalid' elt) as Hvalid''.
-          { apply lookup_insert_eq. }
-          { rewrite /= list_lookup_fmap Hlookup_split /= swapｰl //. }
-          rewrite insert_insert_eq in Hvalid''.
-          assert (delete repr descrs !! swap split elt repr = None) as Hlookup_repr'.
-          { rewrite lookup_delete_None.
-            destruct (decide (repr = swap split elt repr)) as [? | Hne]; first naive.
-            right.
-            destruct (descrs !! swap split elt repr) as [descr' |] eqn:Hlookup'; last done.
-            exfalso. apply Hne.
-            apply (model۰validｰdisjoint Hvalid (swap split elt repr) Hlookup Hlookup').
-            - rewrite swapｰelem_of //. apply (model۰validｰrepr Hvalid Hlookup).
-            - apply (model۰validｰrepr Hvalid Hlookup').
-          }
-          set descrs' := <[swap split elt repr := Descriptor descr.(descriptor۰class) (swap split elt <$> descr.(descriptor۰elts)) ˖descr.(descriptor۰seen)]> (delete repr descrs).
-          assert (split = repr ↔ descr.(descriptor۰seen) = 0) as Hrecord_class.
-          { rewrite head_lookup in Hhead. split.
-            - intros ->. apply (NoDup_lookup descr.(descriptor۰elts) _ _ repr); done.
-            - intros Hzero. rewrite Hzero in Hlookup_split. congruence.
-          }
-          iAssert (
-            model' γ elements
-              (swap split elt ∘ prevs ∘ swap split elt)
-              (swap split elt ∘ nexts ∘ swap split elt)
-              classes
-              (<[elt := true]> seens)
-              descrs'
-          )%I with "[- HΦ]" as "Hmodel".
-          { rewrite /model'.
-            iSplitR; first done.
-            iFrame "Helements_auth Hnodes".
-            iApply big_sepM_insert; first done.
-            iFrame "Hdescrs".
-            iExists (swap split elt last).
-            rewrite /= fmap_last Hlast ?length_fmap list_lookup_fmap Hlookup_split' /=.
+          iDestruct ("Hdescrs" $! (Descriptor (swap split elt <$> descr.(descriptor۰elts)) ˖descr.(descriptor۰seen)) with "[Hclass_first Hclass_last Hclass_len Hclass_split Hclass_split_len]") as "Hdescrs".
+          { iExists (swap split elt first), (swap split elt last).
+            rewrite /= head_lookup list_lookup_fmap -head_lookup Hfirst fmap_last Hlast.
+            rewrite ?length_fmap list_lookup_fmap Hlookup_split' /=.
             rewrite decide_False; first (rewrite ?length_fmap; lia).
             rewrite Nat2Z.inj_succ -Z.add_1_r.
-            iFrame. done.
+            iFrameSteps.
           }
+          pose proof (model۰validｰswapｰmark Hvalid split elt Hlookup Hlookup_split Helt Helt_seen) as Hvalid'.
           destruct (decide (descr.(descriptor۰seen) = 0)) as [Hzero | Hzero].
           -- rewrite bool_decide_eq_true_2; first naive.
              wp۰pures.
-             iApply ("HΦ" $! _ _ _ descrs' (descr.(descriptor۰class) :: split_list) with "[$Hmodel]").
-             iPureIntro.
-             pose proof (record۰invｰstep Hvalid Hinv split elt Hlookup Hlookup_split Helt Helt_seen Hlength) as Hinv'.
-             rewrite decide_True // in Hinv'.
+             iApply ("HΦ" $! _ _ _ _ (class :: split_list)).
+             iFrameSteps.
           -- rewrite bool_decide_eq_false_2; first naive.
              wp۰pures.
-             iApply ("HΦ" $! _ _ _ descrs' split_list with "[$Hmodel]").
-             iPureIntro.
-             pose proof (record۰invｰstep Hvalid Hinv split elt Hlookup Hlookup_split Helt Helt_seen Hlength) as Hinv'.
-             rewrite decide_False // in Hinv'.
+             iApply ("HΦ" $! _ _ _ _ split_list).
+             iFrameSteps.
   Qed.
 
   (* ------------------------------------------------------------------------ *)
   (* [record]. *)
 
-  #[local] Lemma partition٠recordｰspec γ part elements prevs nexts classes seens descrs 𝑒𝑙𝑡𝑠 elts :
+  #[local] Lemma partition٠recordｰspec γ descrs0 elements prevs nexts classes seens descrs 𝑒𝑙𝑡𝑠 elts :
     list۰model' 𝑒𝑙𝑡𝑠 (#*ˡ elts) →
-    record۰inv part ∅ descrs [] →
+    record۰inv descrs0 ∅ descrs [] →
     {{{
       model' γ elements prevs nexts classes seens descrs ∗
       [∗ list] elt ∈ elts,
@@ -2844,19 +2567,18 @@ Section partition۰G.
       prevs' nexts' seens' descrs' split_list
     , RET list۰to_val (#*ˡ split_list);
       model' γ elements prevs' nexts' classes seens' descrs' ∗
-      ⌜record۰inv part (list_to_set elts) descrs' split_list⌝
+      ⌜record۰inv descrs0 (list_to_set elts) descrs' split_list⌝
     }}}.
   Proof.
     iIntros "%H𝑒𝑙𝑡𝑠 %Hinv %Φ (Hmodel & #Helts) HΦ".
 
     wp۰rec.
-    pose (Ψ := (λ i (_ : list val) acc,
+    wp۰apply (list٠foldlｰspec (λ i _ acc,
       ∃ prevs nexts seens descrs split_list,
       ⌜acc = list۰to_val (#*ˡ split_list)⌝ ∗
       model' γ elements prevs nexts classes seens descrs ∗
-      ⌜record۰inv part (list_to_set (take i elts)) descrs split_list⌝
-    )%I).
-    wp۰apply (list٠foldlｰspec Ψ with "[Hmodel]") as (acc) "(%prevs' & %nexts' & %seens' & %descrs' & %split_list & -> & Hmodel & %Hinv')"; first done.
+      ⌜record۰inv descrs0 (list_to_set (take i elts)) descrs split_list⌝
+    )%I with "[Hmodel]") as (acc) "(%prevs' & %nexts' & %seens' & %descrs' & %split_list & -> & Hmodel & %Hinv')"; first done.
     { iSplitL.
       - iExists prevs, nexts, seens, descrs, []. iFrame.
         rewrite take_0. iSteps.
@@ -2877,8 +2599,8 @@ Section partition۰G.
   (* ------------------------------------------------------------------------ *)
   (* [split₁]. *)
 
-  #[local] Lemma partition٠split₁ｰspec γ part X elements prevs nexts classes seens descrs class split_list :
-    split۰inv part X descrs (class :: split_list) →
+  #[local] Lemma partition٠split₁ｰspec γ descrs0 X elements prevs nexts classes seens descrs class split_list :
+    split۰inv descrs0 X descrs (class :: split_list) →
     {{{
       model' γ elements prevs nexts classes seens descrs
     }}}
@@ -2887,17 +2609,14 @@ Section partition۰G.
       classes' seens' descrs'
     , RET ();
       model' γ elements prevs nexts classes' seens' descrs' ∗
-      ⌜split۰inv part X descrs' split_list⌝
+      ⌜split۰inv descrs0 X descrs' split_list⌝
     }}}.
   Proof.
     iIntros "%Hinv %Φ (:model') HΦ".
 
-    destruct (split۰invｰsplit_list Hinv (class := class)) as (repr & descr & Hlookup & Hclass); first set_solver.
-    opose proof* (split۰invｰpending Hinv Hlookup) as (Hseen & _ & Htake).
-    { rewrite Hclass. set_solver. }
+    destruct (split۰invｰpending Hinv (class := class)) as (descr0 & descr & _ & Hlookup & Hseen & _ & Htake); first set_solver.
     pose proof (model۰validｰNoDup Hvalid Hlookup) as Hnodup.
     pose proof (model۰validｰseen Hvalid Hlookup) as Hseen_le.
-    pose proof (model۰validｰhead Hvalid Hlookup) as Hhead.
     pose proof (λ i elt elt', @model۰validｰchain _ _ _ _ _ _ Hvalid _ _ i elt elt' Hlookup) as Hchain.
     assert (
       ∀ elt,
@@ -2905,9 +2624,9 @@ Section partition۰G.
       elt ∈ elements
     ) as Hsubset.
     { intros elt Helt. apply (model۰validｰelement Hvalid Hlookup Helt). }
-    destruct descr as [descr_class elts n]. simpl in *. subst descr_class.
+    destruct descr as [elts n]. simpl in *.
     iDestruct (big_sepM_delete with "Hdescrs") as "((:descriptor۰model) & Hdescrs)"; first done.
-    cbn [descriptor۰class descriptor۰elts descriptor۰seen].
+    cbn [descriptor۰elts descriptor۰seen].
 
     wp۰rec. wp۰load. wp۰load. wp۰pures.
     destruct (decide (n = length elts)) as [-> | Hn].
@@ -2940,7 +2659,7 @@ Section partition۰G.
           + rewrite fn_lookup_insert_ne // Hseens.
             repeat case_decide; set_solver.
       }
-      iApply ("HΦ" $! classes (λ elt, if decide (elt ∈ elts) then false else seens elt) (<[repr := Descriptor class elts 0]> descrs)).
+      iApply ("HΦ" $! classes (λ elt, if decide (elt ∈ elts) then false else seens elt) (<[class := Descriptor elts 0]> descrs)).
       iSplitL.
       + iFrame. iSplitR.
         { iPureIntro. apply (model۰validｰreset Hvalid Hlookup). }
@@ -2949,7 +2668,7 @@ Section partition۰G.
           destruct (HΨ elt Helt) as (-> & ->). done.
         }
         iApply big_sepM_insert_delete. iFrame.
-        rewrite /= -head_lookup Hhead /=.
+        rewrite /= -head_lookup Hfirst /=.
         rewrite decide_False; first lia.
         iFrame. done.
       + iPureIntro. apply (split۰invｰreset Hvalid Hinv Hlookup); done.
@@ -2957,8 +2676,12 @@ Section partition۰G.
     - assert (n < length elts) as Hn' by lia.
       destruct (lookup_lt_is_Some_2 elts n) as (split & Hlookup_split); first done.
       destruct (lookup_lt_is_Some_2 elts (pred n)) as (prev & Hlookup_prev); first lia.
-      assert (repr ≠ split) as Hne_split.
-      { intros ->. rewrite head_lookup in Hhead.
+      assert (head (take n elts) = Some first) as Hfirst_take.
+      { rewrite headｰtake //; lia. }
+      assert (list.last (take n elts) = Some prev) as Hlast_take.
+      { rewrite (_ : n = ˖(pred n)); first lia. apply lastｰtake. done. }
+      assert (first ≠ split) as Hne_split.
+      { intros ->. rewrite head_lookup in Hfirst.
         opose proof* (NoDup_lookup elts 0 n); [done.. | lia].
       }
       rewrite Hlookup_split. cbn [default].
@@ -2979,16 +2702,10 @@ Section partition۰G.
       wp۰block class' as "Hclass'_first Hclass'_last Hclass'_len Hclass'_split Hclass'_split_len".
       iDestruct (descriptorsｰfresh with "Hdescrs Hclass'_first") as %Hfresh.
       iDestruct (pointstoｰne with "Hclass'_first Hclass_first") as %Hne_class.
-      assert (
-        ∀ repr' descr',
-        descrs !! repr' = Some descr' →
-        descr'.(descriptor۰class) ≠ class'
-      ) as Hfresh'.
-      { intros repr' descr' Hlookup'.
-        destruct (decide (repr' = repr)) as [-> | Hne].
-        - simplify_eq. simpl. intros <-. done.
-        - apply (Hfresh repr'). rewrite lookup_delete_ne //.
-      }
+      assert (class ≠ class') as Hne_classes.
+      { intros ->. done. }
+      assert (descrs !! class' = None) as Hlookup'.
+      { rewrite lookup_delete_ne // in Hfresh. }
       wp۰apply+ (partition٠dllist٠iterｰspec (λ elts1 classes' seens',
         ⌜ ∀ elt,
           elt ∈ elements →
@@ -2996,13 +2713,9 @@ Section partition۰G.
             seens' elt = if decide (elt ∈ elts1) then false else seens elt
         ⌝
       )%I _ _ _ _ _ _ (take n elts) with "[$Hnodes]") as (classes' seens') "(Hnodes & %HΨ)".
-      { pose proof Hnodup as Hnodup'.
-        rewrite -(take_drop n elts) NoDup_app in Hnodup'. naive.
-      }
-      { rewrite head_lookup lookup_take_Some -head_lookup Hhead. split; [done | lia]. }
-      { rewrite last_lookup length_take_le; first lia.
-        rewrite lookup_take_Some. split; [done | lia].
-      }
+      { apply NoDupｰtake. done. }
+      { done. }
+      { done. }
       { intros i elt elt' (Hlookup1 & _)%lookup_take_Some (Hlookup2 & _)%lookup_take_Some.
         apply (Hchain i); done.
       }
@@ -3031,55 +2744,40 @@ Section partition۰G.
       iApply ("HΦ" $!
         (λ elt, if decide (elt ∈ take n elts) then class' else classes elt)
         (λ elt, if decide (elt ∈ take n elts) then false else seens elt)
-        (<[repr := Descriptor class' (take n elts) 0]> (<[split := Descriptor class (drop n elts) 0]> descrs))
+        (<[class := Descriptor (drop n elts) 0]> (<[class' := Descriptor (take n elts) 0]> descrs))
       ).
       iSplitL.
       + iFrame. iSplitR.
-        { iPureIntro. apply (model۰validｰsplit Hvalid class' split Hlookup); simpl; [lia | done | done]. }
+        { iPureIntro. apply (model۰validｰsplit Hvalid class' Hlookup Hlookup'). simpl. lia. }
         iSplitL "Hnodes".
         { iApply (nodesｰproper with "Hnodes"). intros elt Helt.
           destruct (HΨ elt Helt) as (-> & ->). done.
         }
         iApply big_sepM_insert_delete.
         rewrite delete_insert_ne //.
-        assert (list.last (take n elts) = Some prev) as Hlast_take.
-        { rewrite last_lookup length_take_le; first lia.
-          rewrite lookup_take_Some. split; [done | lia].
-        }
-        assert (take n elts !! 0 = Some repr) as Hhead_take.
-        { rewrite lookup_take_Some -head_lookup Hhead. split; [done | lia]. }
         assert (list.last (drop n elts) = Some last) as Hlast_drop.
-        { rewrite last_lookup length_drop lookup_drop.
-          rewrite last_lookup in Hlast.
-          rewrite (_ : n + pred (length elts - n) = pred (length elts)) //. lia.
-        }
-        iSplitL "Hclass'_first Hclass'_last Hclass'_len Hclass'_split Hclass'_split_len".
-        * iExists prev.
-          rewrite /= length_take_le; first lia.
-          rewrite Hhead_take decide_False; first lia.
-          iFrame. done.
-        * iApply big_sepM_insert.
-          { rewrite lookup_delete_ne //.
-            destruct (descrs !! split) as [descr' |] eqn:Hlookup'; last done.
-            exfalso. apply Hne_split.
-            apply (model۰validｰdisjoint Hvalid split Hlookup Hlookup').
-            - eapply list_elem_of_lookup_2. done.
-            - apply (model۰validｰrepr Hvalid Hlookup').
-          }
-          iFrame "Hdescrs".
-          iExists last.
-          rewrite /= length_drop decide_False; first lia.
-          rewrite lookup_drop Nat.add_0_r Hlookup_split /=.
+        { rewrite lastｰdrop //. }
+        iSplitL "Hclass_first Hclass_last Hclass_len Hclass_split Hclass_split_len".
+        * iExists split, last.
+          rewrite /= head_lookup length_drop decide_False; first lia.
+          rewrite !lookup_drop Nat.add_0_r Hlookup_split /=.
           rewrite Nat2Z.inj_sub; first lia.
           iFrame. done.
-      + iPureIntro. apply (split۰invｰsplit Hvalid class' split Hinv Hlookup); simpl; done.
+        * iApply big_sepM_insert.
+          { rewrite lookup_delete_ne //. }
+          iFrame "Hdescrs".
+          iExists first, prev.
+          rewrite /= -head_lookup Hfirst_take length_take_le; first lia.
+          rewrite decide_False; first lia.
+          iFrame. done.
+      + iPureIntro. apply (split۰invｰsplit Hvalid class' Hinv Hlookup); simpl; done.
   Qed.
 
   (* ------------------------------------------------------------------------ *)
   (* [split]. *)
 
-  #[local] Lemma partition٠splitｰspec γ part X elements prevs nexts classes seens descrs split_list :
-    split۰inv part X descrs split_list →
+  #[local] Lemma partition٠splitｰspec γ descrs0 X elements prevs nexts classes seens descrs split_list :
+    split۰inv descrs0 X descrs split_list →
     {{{
       model' γ elements prevs nexts classes seens descrs
     }}}
@@ -3088,7 +2786,7 @@ Section partition۰G.
       classes' seens' descrs'
     , RET ();
       model' γ elements prevs nexts classes' seens' descrs' ∗
-      ⌜split۰inv part X descrs' []⌝
+      ⌜split۰inv descrs0 X descrs' []⌝
     }}}.
   Proof.
     iIntros "%Hinv %Φ Hmodel HΦ".
@@ -3097,7 +2795,7 @@ Section partition۰G.
     wp۰apply (list٠iterｰspec (λ i _,
       ∃ classes seens descrs,
       model' γ elements prevs nexts classes seens descrs ∗
-      ⌜split۰inv part X descrs (drop i split_list)⌝
+      ⌜split۰inv descrs0 X descrs (drop i split_list)⌝
     )%I with "[Hmodel]") as "(%classes' & %seens' & %descrs' & Hmodel & %Hinv')"; first done.
     { iSplitL.
       - iExists classes, seens, descrs. iFrame. rewrite drop_0 //.
@@ -3146,33 +2844,23 @@ Section partition۰G.
   Proof.
     iIntros "%H𝑒𝑙𝑡𝑠 %Φ ((:model) & #Helts) HΦ".
 
-    assert (
-      ∀ repr1 repr2 cl,
-      ((λ descr, list_to_set descr.(descriptor۰elts)) <$> descrs) !! repr1 = Some cl →
-      ((λ descr, list_to_set descr.(descriptor۰elts)) <$> descrs) !! repr2 = Some cl →
-      repr1 = repr2
-    ) as Hpart.
-    { intros repr1 repr2 cl (descr1 & Hcl1 & Hlookup1)%lookup_fmap_Some (descr2 & Hcl2 & Hlookup2)%lookup_fmap_Some.
-      apply (model۰validｰdisjoint Hvalid repr1 Hlookup1 Hlookup2).
-      - apply (model۰validｰrepr Hvalid Hlookup1).
-      - rewrite -(elem_of_list_to_set (C := gset location)) Hcl2 -Hcl1 elem_of_list_to_set.
-        apply (model۰validｰrepr Hvalid Hlookup1).
-    }
-
     wp۰rec.
-    wp۰apply+ (partition٠recordｰspec with "[Helements_auth Hnodes Hdescrs]") as (prevs' nexts' seens' descrs' split_list) "(Hmodel & %Hinv)".
+    wp۰apply+ (partition٠recordｰspec with "[Helements_auth Hnodes Hdescrs]") as (prevs' nexts' seens' descrs' split_list) "((:model' =') & %Hinv)".
     { done. }
     { apply record۰invｰinit. done. }
     { iFrame "∗ # %". }
-    iDestruct "Hmodel" as "(:model' =')".
     wp۰apply (partition٠splitｰspec with "[Helements_auth' Hnodes' Hdescrs']") as (classes'' seens'' descrs'') "((:model' ='') & %Hinv')".
-    { apply (split۰invｰinit Hvalid' Hpart Hinv). }
+    { apply (split۰invｰinit Hvalid' Hinv). }
     { iFrame "∗ %". }
-    destruct (split۰invｰfinal Hvalid'' Hinv') as (Hunseen'' & Hpart' & Huntouched).
-    iApply ("HΦ" $! ((λ descr, list_to_set descr.(descriptor۰elts)) <$> descrs'')).
-    iSplitL.
-    - iExists _, _, _, _, _, descrs''. iFrame "∗ %". done.
-    - iPureIntro. split; done.
+    destruct (descriptors۰partｰexists descrs'') as (part' & Hpart').
+    { intros class1 descr1 class2 descr2 repr Hlookup1 Hlookup2 Hhead1 Hhead2.
+      refine (model۰validｰdisjoint Hvalid'' repr Hlookup1 Hlookup2 _ _); apply head_Some_elem_of; done.
+    }
+    opose proof* (split۰invｰfinal Hvalid'' _ Hpart Hpart' Hinv') as (Hunseen'' & Himg & Huntouched).
+    { intros class0 descr0. apply (model۰validｰnonempty Hvalid). }
+    iApply ("HΦ" $! part').
+    iSplitL; last done.
+    iExists _, _, _, _, _, descrs''. iFrame "∗ %".
   Qed.
 End partition۰G.
 

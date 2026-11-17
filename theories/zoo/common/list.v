@@ -131,6 +131,13 @@ Section basic.
   Proof.
     rewrite elem_of_app. auto.
   Qed.
+  Lemma elem_ofｰtakeｰdrop l n x :
+    x ∈ l ↔
+        x ∈ take n l
+      ∨ x ∈ drop n l.
+  Proof.
+    rewrite -{1}(take_drop n l) elem_of_app //.
+  Qed.
 
   Lemma reverseｰnilｰiff l :
     reverse l = [] ↔
@@ -194,6 +201,12 @@ Section basic.
     destruct l => /=; lia.
   Qed.
 
+  Lemma headｰis_Some l :
+    l ≠ [] →
+    is_Some (head l).
+  Proof.
+    apply head_is_Some.
+  Qed.
   Lemma headｰapp l1 l2 :
     0 < length l1 →
     head (l1 ++ l2) = head l1.
@@ -205,6 +218,14 @@ Section basic.
   Proof.
     rewrite (assoc _ _ [_]) headｰapp //.
     { rewrite length_app /=. lia. }
+  Qed.
+  Lemma headｰtake l n :
+    0 < n →
+    head (take n l) = head l.
+  Proof.
+    intros Hn.
+    destruct n as [| n]; first lia.
+    destruct l; done.
   Qed.
   Lemma headｰdropｰSome l i x :
     l !! i = Some x →
@@ -278,6 +299,14 @@ Section basic.
     odestruct (lookup_lt_is_Some_2 l i) as (x & Hlookup').
     { apply lookup_lt_is_Some in Hlookup. lia. }
     rewrite /= Hlookup'. apply lastｰtake. done.
+  Qed.
+  Lemma lastｰdrop l n :
+    n < length l →
+    last (drop n l) = last l.
+  Proof.
+    intros Hn.
+    rewrite !last_lookup length_drop lookup_drop.
+    f_equal. lia.
   Qed.
 
   Lemma dropｰlookupｰNone l i :
@@ -607,6 +636,33 @@ Section foldr2.
       simpl. f_equal. naive.
   Qed.
 End foldr2.
+
+Section NoDup.
+  Context {A : Type}.
+
+  Implicit Type x : A.
+  Implicit Type l : list A.
+
+  Lemma NoDupｰtake l n :
+    NoDup l →
+    NoDup (take n l).
+  Proof.
+    rewrite -{1}(take_drop n l) NoDup_app. naive.
+  Qed.
+  Lemma NoDupｰdrop l n :
+    NoDup l →
+    NoDup (drop n l).
+  Proof.
+    rewrite -{1}(take_drop n l) NoDup_app. naive.
+  Qed.
+  Lemma NoDupｰelem_ofｰtakeｰdrop l n x :
+    NoDup l →
+    x ∈ take n l →
+    x ∉ drop n l.
+  Proof.
+    rewrite -{1}(take_drop n l) NoDup_app. naive.
+  Qed.
+End NoDup.
 
 Section Forall.
   Context `(P : A → Prop).
