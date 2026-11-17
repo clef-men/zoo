@@ -853,7 +853,7 @@ Module base.
             iFrameSteps. iPureIntro.
             rewrite gmultiset_size_difference; first multiset_solver.
             rewrite gmultiset_size_singleton.
-            apply gmultisetｰelem_ofｰsizeｰnon_empty in Hγ1.
+            apply gmultisetｰelem_ofｰsizeｰnonempty in Hγ1.
             lia.
           }
           iSteps.
@@ -967,7 +967,7 @@ Module base.
 
         - iDestruct "Hinv_state" as "(:inv۰state۰init)".
           iDestruct (big_sepMSｰinsert₂ with "HΔ Hπ") as "HΔ".
-          apply gmultisetｰelem_ofｰsizeｰnon_empty in Hπ as ?.
+          apply gmultisetｰelem_ofｰsizeｰnonempty in Hπ as ?.
           iSplitR "Hctx".
           { replace (Δ ⊎ Π) with (({[+π+]} ⊎ Δ) ⊎ (Π ∖ {[+π+]})) by multiset_solver.
             iFrameSteps. iPureIntro.
@@ -996,7 +996,7 @@ Module base.
             wp۰apply+ ("IHrun" with "[$]").
             iSteps.
 
-          + apply gmultisetｰelem_ofｰsizeｰnon_empty in Hπ as ?.
+          + apply gmultisetｰelem_ofｰsizeｰnonempty in Hπ as ?.
             iSplitR "Hctx".
             { replace (Δ ⊎ Π) with ((Δ ⊎ {[+π+]}) ⊎ (Π ∖ {[+π+]})) by multiset_solver.
               iFrameSteps. iPureIntro.

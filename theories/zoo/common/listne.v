@@ -25,7 +25,7 @@ Section listne.
   Definition listne۰Forall P l :=
     Forall P (`l).
 
-  Lemma listneｰnon_empty l :
+  Lemma listneｰnonempty l :
     ∃ x,
     x ∈ l.
   Proof.

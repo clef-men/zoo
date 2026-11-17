@@ -76,7 +76,7 @@ Section size.
     rewrite -gmultiset_size_empty_iff gmultiset_size_difference // gmultiset_size_singleton. lia.
   Qed.
 
-  Lemma gmultisetｰelem_ofｰsizeｰnon_empty x X :
+  Lemma gmultisetｰelem_ofｰsizeｰnonempty x X :
     x ∈ X →
     size X ≠ 0.
   Proof.

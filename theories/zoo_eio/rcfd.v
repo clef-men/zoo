@@ -353,7 +353,7 @@ Section rcfd۰G.
     iFrameSteps; iPureIntro.
     - rewrite gmultiset_size_difference; first multiset_solver.
       rewrite gmultiset_size_singleton.
-      apply gmultisetｰelem_ofｰsizeｰnon_empty in Hq. lia.
+      apply gmultisetｰelem_ofｰsizeｰnonempty in Hq. lia.
     - rewrite (gmultiset_disj_union_difference' q qs) // gmultiset_set_fold_disj_union gmultiset_set_fold_singleton // in Hqs.
   Qed.
 

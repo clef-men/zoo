@@ -132,7 +132,7 @@ Section relation.
     - intros x a.
       split.
       + intros (b & [->%listneｰelem_ofｰsingleton | Hb]%listneｰelem_ofｰapp & ?).
-        * destruct (listneｰnon_empty x) as (b & Hb).
+        * destruct (listneｰnonempty x) as (b & Hb).
           exists b. split; first done.
           trans initial; first done.
           apply initialｰlb.
