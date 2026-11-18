@@ -14,7 +14,7 @@ Implicit Type η μ : gname.
 
 Zoo name :=
   { #stack : val
-  ; #channel : val
+  ; #channel : channel_sync_2۰name
   ; inv : namespace
   ; model : gname
   }.

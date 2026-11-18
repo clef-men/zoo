@@ -20,15 +20,25 @@ Module internal.
     populate $ Sender inhabitant inhabitant.
 End internal.
 
+Zoo name :=
+  { self : location
+  ; token : gname
+  }.
+
 Zoo global X Y :=
   { token : twins (leibnizO (internal.offer X Y))
   }.
 
 Section channel_sync_1۰G.
   Context `{channel_sync_1۰G : ChannelSync1G Σ X Y}.
+  Context `{!Inhabited X}.
+  Context `{!Inhabited Y}.
+
+  Import internal.
 
   Implicit Type x 𝑥 : X.
   Implicit Type y 𝑦 : Y.
+  Implicit Type offer : offer X Y.
   Implicit Type Ψₛ : val → X → iProp Σ.
   Implicit Type Ψᵣ : Y → iProp Σ.
   Implicit Type Χₛ Χᵣ : val → X → Y → iProp Σ.
@@ -40,400 +50,272 @@ Section channel_sync_1۰G.
       Ψᵣ y ={⊤ ∖ ↑ι}=∗
         Χₛ v x y ∗
         Χᵣ v x y.
-End channel_sync_1۰G.
 
-Module base.
-  Section channel_sync_1۰G.
-    Context `{channel_sync_1۰G : ChannelSync1G Σ X Y}.
-    Context `{!Inhabited X}.
-    Context `{!Inhabited Y}.
+  Variant state :=
+    | Null
+    | Sender_offer v x
+    | Sender_accept v x y
+    | Receiver_offer y
+    | Receiver_accept v x y.
+  Implicit Type state : state.
 
-    Import internal.
+  #[local] Please derive Inhabited for state.
 
-    Implicit Type t : location.
-    Implicit Type x 𝑥 : X.
-    Implicit Type y 𝑦 : Y.
-    Implicit Type offer : offer X Y.
-    Implicit Type Ψₛ : val → X → iProp Σ.
-    Implicit Type Ψᵣ : Y → iProp Σ.
-    Implicit Type Χₛ Χᵣ : val → X → Y → iProp Σ.
+  Coercion state۰to_val state : val :=
+    match state with
+    | Null =>
+        §Null
+    | Sender_offer v _ =>
+        ‘Sender_offer[ v ]
+    | Sender_accept v _ _ =>
+        ‘Sender_accept[ v ]
+    | Receiver_offer _ =>
+        §Receiver_offer
+    | Receiver_accept _ _ _ =>
+        §Receiver_accept
+    end.
 
-    Variant state :=
-      | Null
-      | Sender_offer v x
-      | Sender_accept v x y
-      | Receiver_offer y
-      | Receiver_accept v x y.
-    Implicit Type state : state.
+  #[local] Definition token₁' γ_token offer :=
+    twins۰twin₁ γ_token Own offer.
+  #[local] Definition token₁ γ offer :=
+    token₁' γ.(channel_sync_1۰name۰token) offer.
+  #[local] Definition token₂' γ_token offer :=
+    twins۰twin₂ γ_token offer.
+  #[local] Definition token₂ γ offer :=
+    token₂' γ.(channel_sync_1۰name۰token) offer.
+  #[local] Definition token γ : iProp Σ :=
+    ∃ offer,
+    token₁ γ offer ∗
+    token₂ γ offer.
+  #[local] Instance : CustomIpat "token" :=
+    " ( %{offer}
+      & Htoken₁
+      & Htoken₂{{!}_}
+      )
+    ".
 
-    #[local] Please derive Inhabited for state.
+  Please Definition channel_sync_1۰init γ : iProp Σ :=
+    γ.(channel_sync_1۰name۰self) ↦ᵣ §Null ∗
+    token γ.
+  #[local] Instance : CustomIpat "init" :=
+    " ( Ht
+      & Htoken
+      )
+    ".
 
-    Coercion state۰to_val state : val :=
-      match state with
-      | Null =>
-          §Null
-      | Sender_offer v _ =>
-          ‘Sender_offer[ v ]
-      | Sender_accept v _ _ =>
-          ‘Sender_accept[ v ]
-      | Receiver_offer _ =>
-          §Receiver_offer
-      | Receiver_accept _ _ _ =>
-          §Receiver_accept
-      end.
+  #[local] Definition inv۰state۰null γ :=
+    token γ.
+  #[local] Instance : CustomIpat "inv۰state۰null" :=
+    " (:token)
+    ".
+  #[local] Definition inv۰state۰sender_offer γ Ψₛ v x : iProp Σ :=
+    token₁ γ (Sender v x) ∗
+    Ψₛ v x.
+  #[local] Instance : CustomIpat "inv۰state۰sender_offer" :=
+    " ( Htoken₁
+      & HΨₛ
+      )
+    ".
+  #[local] Definition inv۰state۰sender_accept γ Χᵣ v x y : iProp Σ :=
+    token₁ γ (Receiver y) ∗
+    Χᵣ v x y.
+  #[local] Instance : CustomIpat "inv۰state۰sender_accept" :=
+    " ( Htoken₁
+      & HΧᵣ
+      )
+    ".
+  #[local] Definition inv۰state۰receiver_offer γ Ψᵣ y : iProp Σ :=
+    token₁ γ (Receiver y) ∗
+    Ψᵣ y.
+  #[local] Instance : CustomIpat "inv۰state۰receiver_offer" :=
+    " ( Htoken₁
+      & HΨᵣ
+      )
+    ".
+  #[local] Definition inv۰state۰receiver_accept γ Χₛ v x y : iProp Σ :=
+    token₁ γ (Sender v x) ∗
+    Χₛ v x y.
+  #[local] Instance : CustomIpat "inv۰state۰receiver_accept" :=
+    " ( Htoken₁
+      & HΧₛ
+      )
+    ".
+  #[local] Definition inv۰state γ Ψₛ Ψᵣ Χₛ Χᵣ state :=
+    match state with
+    | Null =>
+        inv۰state۰null γ
+    | Sender_offer v x =>
+        inv۰state۰sender_offer γ Ψₛ v x
+    | Sender_accept v x y =>
+        inv۰state۰sender_accept γ Χᵣ v x y
+    | Receiver_offer y =>
+        inv۰state۰receiver_offer γ Ψᵣ y
+    | Receiver_accept v x y =>
+        inv۰state۰receiver_accept γ Χₛ v x y
+    end.
 
-    Record channel_sync_1۰name :=
-      { channel_sync_1۰name۰token : gname
-      }.
-    Implicit Type γ : channel_sync_1۰name.
+  #[local] Definition inv۰inner γ Ψₛ Ψᵣ Χₛ Χᵣ : iProp Σ :=
+    ∃ state,
+    γ.(channel_sync_1۰name۰self) ↦ᵣ state ∗
+    inv۰state γ Ψₛ Ψᵣ Χₛ Χᵣ state.
+  #[local] Instance : CustomIpat "inv۰inner" :=
+    " ( %state
+      & Ht
+      & Hstate
+      )
+    ".
+  Please Definition channel_sync_1۰inv γ ι Ψₛ Ψᵣ Χₛ Χᵣ : iProp Σ :=
+    channel_sync_1۰valid ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
+    inv ι (inv۰inner γ Ψₛ Ψᵣ Χₛ Χᵣ).
+  #[local] Instance : CustomIpat "inv" :=
+    " ( #Hvalid
+      & #Hinv
+      )
+    ".
 
-    Please derive EqDecision for channel_sync_1۰name.
-    Please derive Countable for channel_sync_1۰name.
+  #[global] Instance channel_sync_1۰invｰcontractive γ ι n :
+    Proper (
+      (pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
+      (pointwise_relation _ $ dist_later n) ==>
+      (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
+      (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
+      (≡{n}≡)
+    ) (channel_sync_1۰inv γ ι).
+  Proof.
+    rewrite /channel_sync_1۰inv /channel_sync_1۰valid /inv۰inner /inv۰state /inv۰state۰sender_offer /inv۰state۰sender_accept /inv۰state۰receiver_offer /inv۰state۰receiver_accept.
+    solve_contractive.
+  Qed.
+  #[global] Instance channel_sync_1۰invｰproper γ ι :
+    Proper (
+      (pointwise_relation _ $ pointwise_relation _ (≡)) ==>
+      pointwise_relation _ (≡) ==>
+      (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ (≡)) ==>
+      (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ (≡)) ==>
+      (≡)
+    ) (channel_sync_1۰inv γ ι).
+  Proof.
+    rewrite /channel_sync_1۰inv /channel_sync_1۰valid /inv۰inner /inv۰state /inv۰state۰sender_offer /inv۰state۰sender_accept /inv۰state۰receiver_offer /inv۰state۰receiver_accept.
+    solve_proper.
+  Qed.
 
-    #[local] Definition token₁' γ_token offer :=
-      twins۰twin₁ γ_token Own offer.
-    #[local] Definition token₁ γ offer :=
-      token₁' γ.(channel_sync_1۰name۰token) offer.
-    #[local] Definition token₂' γ_token offer :=
-      twins۰twin₂ γ_token offer.
-    #[local] Definition token₂ γ offer :=
-      token₂' γ.(channel_sync_1۰name۰token) offer.
-    #[local] Definition token γ : iProp Σ :=
-      ∃ offer,
+  Zoo derive Timeless for channel_sync_1۰init.
+
+  Zoo derive Persistent for channel_sync_1۰inv.
+
+  #[local] Lemma tokenｰalloc :
+    ⊢ |==>
+      ∃ γ_token,
+      token₁' γ_token inhabitant ∗
+      token₂' γ_token inhabitant.
+  Proof.
+    apply twinsｰalloc'.
+  Qed.
+  #[local] Lemma token₁ｰexclusive γ offer1 offer2 :
+    token₂ γ offer1 -∗
+    token₂ γ offer2 -∗
+    False.
+  Proof.
+    apply twins۰twin₂ｰexclusive.
+  Qed.
+  #[local] Lemma tokenｰagree γ offer1 offer2 :
+    token₁ γ offer1 -∗
+    token₂ γ offer2 -∗
+    ⌜offer1 = offer2⌝.
+  Proof.
+    apply: twinsｰagreeｰL.
+  Qed.
+  #[local] Lemma tokenｰupdate {γ offer1 offer2} offer :
+    token₁ γ offer1 -∗
+    token₂ γ offer2 ==∗
       token₁ γ offer ∗
       token₂ γ offer.
-    #[local] Instance : CustomIpat "token" :=
-      " ( %{offer}
-        & Htoken₁
-        & Htoken₂{{!}_}
-        )
-      ".
+  Proof.
+    apply twinsｰupdate.
+  Qed.
 
-    Please Definition channel_sync_1۰init t γ : iProp Σ :=
-      t ↦ᵣ §Null ∗
-      token γ.
-    #[local] Instance : CustomIpat "init" :=
-      " ( Ht
-        & Htoken
-        )
-      ".
+  Lemma channel_sync_1۰initｰexclusive γ :
+    channel_sync_1۰init γ -∗
+    channel_sync_1۰init γ -∗
+    False.
+  Proof.
+    iSteps.
+  Qed.
+  Lemma channel_sync_1۰initｰtoｰinv {γ} ι Ψₛ Ψᵣ Χₛ Χᵣ E :
+    channel_sync_1۰init γ -∗
+    channel_sync_1۰valid ι Ψₛ Ψᵣ Χₛ Χᵣ ={E}=∗
+    channel_sync_1۰inv γ ι Ψₛ Ψᵣ Χₛ Χᵣ.
+  Proof.
+    iIntros "(:init) Hvalid".
+    iFrame.
+    iApply inv_alloc.
+    iExists Null. iFrame.
+  Qed.
 
-    #[local] Definition inv۰state۰null γ :=
-      token γ.
-    #[local] Instance : CustomIpat "inv۰state۰null" :=
-      " (:token)
-      ".
-    #[local] Definition inv۰state۰sender_offer γ Ψₛ v x : iProp Σ :=
-      token₁ γ (Sender v x) ∗
-      Ψₛ v x.
-    #[local] Instance : CustomIpat "inv۰state۰sender_offer" :=
-      " ( Htoken₁
-        & HΨₛ
-        )
-      ".
-    #[local] Definition inv۰state۰sender_accept γ Χᵣ v x y : iProp Σ :=
-      token₁ γ (Receiver y) ∗
-      Χᵣ v x y.
-    #[local] Instance : CustomIpat "inv۰state۰sender_accept" :=
-      " ( Htoken₁
-        & HΧᵣ
-        )
-      ".
-    #[local] Definition inv۰state۰receiver_offer γ Ψᵣ y : iProp Σ :=
-      token₁ γ (Receiver y) ∗
-      Ψᵣ y.
-    #[local] Instance : CustomIpat "inv۰state۰receiver_offer" :=
-      " ( Htoken₁
-        & HΨᵣ
-        )
-      ".
-    #[local] Definition inv۰state۰receiver_accept γ Χₛ v x y : iProp Σ :=
-      token₁ γ (Sender v x) ∗
-      Χₛ v x y.
-    #[local] Instance : CustomIpat "inv۰state۰receiver_accept" :=
-      " ( Htoken₁
-        & HΧₛ
-        )
-      ".
-    #[local] Definition inv۰state γ Ψₛ Ψᵣ Χₛ Χᵣ state :=
-      match state with
-      | Null =>
-          inv۰state۰null γ
-      | Sender_offer v x =>
-          inv۰state۰sender_offer γ Ψₛ v x
-      | Sender_accept v x y =>
-          inv۰state۰sender_accept γ Χᵣ v x y
-      | Receiver_offer y =>
-          inv۰state۰receiver_offer γ Ψᵣ y
-      | Receiver_accept v x y =>
-          inv۰state۰receiver_accept γ Χₛ v x y
-      end.
+  Lemma channel_sync_1٠createｰspecｰinit :
+    {{{
+      True
+    }}}
+      channel_sync_1٠create ()
+    {{{
+      γ
+    , RET γ;
+      channel_sync_1۰init γ
+    }}}.
+  Proof.
+    iIntros "%Φ _ HΦ".
 
-    #[local] Definition inv۰inner t ι Ψₛ Ψᵣ Χₛ Χᵣ : iProp Σ :=
-      ∃ state,
-      t ↦ᵣ state ∗
-      inv۰state ι Ψₛ Ψᵣ Χₛ Χᵣ state.
-    #[local] Instance : CustomIpat "inv۰inner" :=
-      " ( %state
-        & Ht
-        & Hstate
-        )
-      ".
-    Please Definition channel_sync_1۰inv t γ ι Ψₛ Ψᵣ Χₛ Χᵣ : iProp Σ :=
-      channel_sync_1۰valid ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
-      inv ι (inv۰inner t γ Ψₛ Ψᵣ Χₛ Χᵣ).
-    #[local] Instance : CustomIpat "inv" :=
-      " ( #Hvalid
-        & #Hinv
-        )
-      ".
+    wp۰rec.
+    wp۰ref t as "Ht".
 
-    #[global] Instance channel_sync_1۰invｰcontractive t γ ι n :
-      Proper (
-        (pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
-        (pointwise_relation _ $ dist_later n) ==>
-        (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
-        (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
-        (≡{n}≡)
-      ) (channel_sync_1۰inv t γ ι).
-    Proof.
-      rewrite /channel_sync_1۰inv /channel_sync_1۰valid /inv۰inner /inv۰state /inv۰state۰sender_offer /inv۰state۰sender_accept /inv۰state۰receiver_offer /inv۰state۰receiver_accept.
-      solve_contractive.
-    Qed.
-    #[global] Instance channel_sync_1۰invｰproper t γ ι :
-      Proper (
-        (pointwise_relation _ $ pointwise_relation _ (≡)) ==>
-        pointwise_relation _ (≡) ==>
-        (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ (≡)) ==>
-        (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ (≡)) ==>
-        (≡)
-      ) (channel_sync_1۰inv t γ ι).
-    Proof.
-      rewrite /channel_sync_1۰inv /channel_sync_1۰valid /inv۰inner /inv۰state /inv۰state۰sender_offer /inv۰state۰sender_accept /inv۰state۰receiver_offer /inv۰state۰receiver_accept.
-      solve_proper.
-    Qed.
+    iMod tokenｰalloc as "(%γ۰token & Htoken₁ & Htoken₂)".
 
-    Zoo derive Timeless for channel_sync_1۰init.
+    pose γ :=
+      {|channel_sync_1۰name۰self := t
+      ; channel_sync_1۰name۰token := γ۰token
+      |}.
 
-    Zoo derive Persistent for channel_sync_1۰inv.
+    iApply ("HΦ" $! γ).
+    iFrameSteps.
+  Qed.
+  Lemma channel_sync_1٠createｰspec ι Ψₛ Ψᵣ Χₛ Χᵣ :
+    {{{
+      channel_sync_1۰valid ι Ψₛ Ψᵣ Χₛ Χᵣ
+    }}}
+      channel_sync_1٠create ()
+    {{{
+      γ
+    , RET γ;
+      channel_sync_1۰inv γ ι Ψₛ Ψᵣ Χₛ Χᵣ
+    }}}.
+  Proof.
+    iIntros "%Φ Hvalid HΦ".
 
-    #[local] Lemma tokenｰalloc :
-      ⊢ |==>
-        ∃ γ_token,
-        token₁' γ_token inhabitant ∗
-        token₂' γ_token inhabitant.
-    Proof.
-      apply twinsｰalloc'.
-    Qed.
-    #[local] Lemma token₁ｰexclusive γ offer1 offer2 :
-      token₂ γ offer1 -∗
-      token₂ γ offer2 -∗
-      False.
-    Proof.
-      apply twins۰twin₂ｰexclusive.
-    Qed.
-    #[local] Lemma tokenｰagree γ offer1 offer2 :
-      token₁ γ offer1 -∗
-      token₂ γ offer2 -∗
-      ⌜offer1 = offer2⌝.
-    Proof.
-      apply: twinsｰagreeｰL.
-    Qed.
-    #[local] Lemma tokenｰupdate {γ offer1 offer2} offer :
-      token₁ γ offer1 -∗
-      token₂ γ offer2 ==∗
-        token₁ γ offer ∗
-        token₂ γ offer.
-    Proof.
-      apply twinsｰupdate.
-    Qed.
+    iApply wpｰfupd.
+    wp۰apply (channel_sync_1٠createｰspecｰinit with "[//]") as (γ) "Hinit".
+    iMod (channel_sync_1۰initｰtoｰinv with "Hinit Hvalid") as "Hinv".
+    iSteps.
+  Qed.
 
-    Lemma channel_sync_1۰initｰexclusive t γ1 γ2 :
-      channel_sync_1۰init t γ1 -∗
-      channel_sync_1۰init t γ2 -∗
-      False.
-    Proof.
-      iSteps.
-    Qed.
-    Lemma channel_sync_1۰initｰtoｰinv {t γ} ι Ψₛ Ψᵣ Χₛ Χᵣ E :
-      channel_sync_1۰init t γ -∗
-      channel_sync_1۰valid ι Ψₛ Ψᵣ Χₛ Χᵣ ={E}=∗
-      channel_sync_1۰inv t γ ι Ψₛ Ψᵣ Χₛ Χᵣ.
-    Proof.
-      iIntros "(:init) Hvalid".
-      iFrame.
-      iApply inv_alloc.
-      iExists Null. iFrame.
-    Qed.
-
-    Lemma channel_sync_1٠createｰspecｰinit :
-      {{{
-        True
-      }}}
-        channel_sync_1٠create ()
-      {{{
-        t γ
-      , RET #t;
-        meta_token t ⊤ ∗
-        channel_sync_1۰init t γ
-      }}}.
-    Proof.
-      iIntros "%Φ _ HΦ".
-
-      wp۰rec.
-      wp۰ref t as "Ht" meta:"Hmeta".
-
-      iMod tokenｰalloc as "(%γ۰token & Htoken₁ & Htoken₂)".
-
-      pose γ :=
-        {|channel_sync_1۰name۰token := γ۰token
-        |}.
-
-      iApply ("HΦ" $! t γ).
-      iFrameSteps.
-    Qed.
-    Lemma channel_sync_1٠createｰspec ι Ψₛ Ψᵣ Χₛ Χᵣ :
-      {{{
-        channel_sync_1۰valid ι Ψₛ Ψᵣ Χₛ Χᵣ
-      }}}
-        channel_sync_1٠create ()
-      {{{
-        t γ
-      , RET #t;
-        meta_token t ⊤ ∗
-        channel_sync_1۰inv t γ ι Ψₛ Ψᵣ Χₛ Χᵣ
-      }}}.
-    Proof.
-      iIntros "%Φ Hvalid HΦ".
-
-      iApply wpｰfupd.
-      wp۰apply (channel_sync_1٠createｰspecｰinit with "[//]") as (t γ) "(Hmeta & Hinit)".
-      iMod (channel_sync_1۰initｰtoｰinv with "Hinit Hvalid") as "Hinv".
-      iSteps.
-    Qed.
-
-    #[local] Lemma channel_sync_1٠sendｰspecｰaux t γ ι Ψₛ Ψᵣ Χₛ Χᵣ v x :
-      ⊢ {{{
-          channel_sync_1۰inv t γ ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
-          Ψₛ v x
-        }}}
-          channel_sync_1٠send #t v
-        {{{
-          b
-        , RET #b;
-          if b then
-            ∃ y,
-            Χₛ v x y
-          else
-            Ψₛ v x
-        }}}
-      ∧ {{{
-          channel_sync_1۰inv t γ ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
-          Ψₛ v x
-        }}}
-          channel_sync_1٠send_aux #t v
-        {{{
-          b
-        , RET #b;
-          if b then
-            ∃ y,
-            Χₛ v x y
-          else
-            Ψₛ v x
-        }}}.
-    Proof.
-      iLöb as "HLöb".
-      iDestruct "HLöb" as "(IHsend & IHsend_aux)".
-      iSplit.
-
-      { iClear "IHsend".
-        iIntros "!> %Φ ((:inv) & HΨₛ) HΦ".
-
-        wp۰rec. wp۰pures.
-
-        wp۰bind (!_)%E.
-        iInv "Hinv" as "(:inv۰inner)".
-        wp۰load.
-        iSplitR "HΨₛ HΦ". { iFrameSteps. }
-        iModIntro.
-
-        destruct state as [| v' x' | v' x' y | y | v' x' y]; wp۰pures.
-
-        - wp۰apply ("IHsend_aux" with "[$] HΦ").
-
-        - iSteps.
-
-        - iSteps.
-
-        - wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
-          iInv "Hinv" as "(:inv۰inner)".
-          wp۰cas.
-
-          + iSplitR "HΨₛ HΦ". { iFrameSteps. }
-            iSteps.
-
-          + destruct state; zoo۰simp.
-            iDestruct "Hstate" as "(:inv۰state۰receiver_offer)".
-            iMod ("Hvalid" with "HΨₛ HΨᵣ") as "(HΧₛ & HΧᵣ)".
-            iSplitR "HΧₛ HΦ". { iExists (Sender_accept v x _). iFrameSteps. }
-            iSteps.
-
-        - iSteps.
-      }
-
-      { iClear "IHsend_aux".
-        iIntros "!> %Φ ((:inv) & HΨ) HΦ".
-
-        wp۰rec. wp۰pures.
-
-        wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
-        iInv "Hinv" as "(:inv۰inner)".
-        wp۰cas.
-
-        - iSplitR "HΨ HΦ". { iFrameSteps. }
-          iModIntro.
-
-          wp۰apply+ ("IHsend" with "[$] HΦ").
-
-        - destruct state; zoo۰simp.
-          iDestruct "Hstate" as "(:inv۰state۰null)".
-          iMod (tokenｰupdate with "Htoken₁ Htoken₂") as "(Htoken₁ & Htoken₂)".
-          iSplitR "Htoken₂ HΦ". { iExists (Sender_offer v x). iFrameSteps. }
-          iIntros "!> {% offer}".
-
-          iStep 11.
-
-          wp۰bind (𝘅𝗰𝗵𝗴 _ _)%E.
-          iInv "Hinv" as "(:inv۰inner)".
-          wp۰xchg.
-          destruct state as [| v_ x_ | v' x' y | y | v_ x_ y]; wp۰pures.
-
-          + iDestruct "Hstate" as "(:inv۰state۰null !=)".
-            iDestruct (token₁ｰexclusive with "Htoken₂ Htoken₂_") as %[].
-
-          + iDestruct "Hstate" as "(:inv۰state۰sender_offer)".
-            iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[= -> ->].
-            iSplitR "HΨₛ HΦ". { iExists Null. iFrameSteps. }
-            iSteps.
-
-          + iDestruct "Hstate" as "(:inv۰state۰sender_accept)".
-            iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[=].
-
-          + iDestruct "Hstate" as "(:inv۰state۰receiver_offer)".
-            iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[=].
-
-          + iDestruct "Hstate" as "(:inv۰state۰receiver_accept v=v_)".
-            iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[= -> ->].
-            iSplitR "HΧₛ HΦ". { iExists Null. iFrameSteps. }
-            iSteps.
-      }
-    Qed.
-    Lemma channel_sync_1٠sendｰspec {t γ ι Ψₛ Ψᵣ Χₛ Χᵣ v} x :
-      {{{
-        channel_sync_1۰inv t γ ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
+  #[local] Lemma channel_sync_1٠sendｰspecｰaux γ ι Ψₛ Ψᵣ Χₛ Χᵣ v x :
+    ⊢ {{{
+        channel_sync_1۰inv γ ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
         Ψₛ v x
       }}}
-        channel_sync_1٠send #t v
+        channel_sync_1٠send γ v
+      {{{
+        b
+      , RET #b;
+        if b then
+          ∃ y,
+          Χₛ v x y
+        else
+          Ψₛ v x
+      }}}
+    ∧ {{{
+        channel_sync_1۰inv γ ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
+        Ψₛ v x
+      }}}
+        channel_sync_1٠send_aux γ v
       {{{
         b
       , RET #b;
@@ -443,299 +325,99 @@ Module base.
         else
           Ψₛ v x
       }}}.
-    Proof.
-      iPoseProof channel_sync_1٠sendｰspecｰaux as "(H & _)".
-      iApply "H".
-    Qed.
+  Proof.
+    iLöb as "HLöb".
+    iDestruct "HLöb" as "(IHsend & IHsend_aux)".
+    iSplit.
 
-    #[local] Lemma channel_sync_1٠recvｰspecｰaux t γ ι Ψₛ Ψᵣ Χₛ Χᵣ y :
-      ⊢ {{{
-          channel_sync_1۰inv t γ ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
-          Ψᵣ y
-        }}}
-          channel_sync_1٠recv #t
-        {{{
-          o
-        , RET o;
-          if o is Some v then
-            ∃ x,
-            Χᵣ v x y
-          else
-            Ψᵣ y
-        }}}
-      ∧ {{{
-          channel_sync_1۰inv t γ ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
-          Ψᵣ y
-        }}}
-          channel_sync_1٠recv_aux #t
-        {{{
-          o
-        , RET o;
-          if o is Some v then
-            ∃ x,
-            Χᵣ v x y
-          else
-            Ψᵣ y
-        }}}.
-    Proof.
-      iLöb as "HLöb".
-      iDestruct "HLöb" as "(IHrecv & IHrecv_aux)".
-      iSplit.
+    { iClear "IHsend".
+      iIntros "!> %Φ ((:inv) & HΨₛ) HΦ".
 
-      { iClear "IHrecv".
-        iIntros "!> %Φ ((:inv) & HΨᵣ) HΦ".
+      wp۰rec. wp۰pures.
 
-        wp۰rec. wp۰pures.
+      wp۰bind (!_)%E.
+      iInv "Hinv" as "(:inv۰inner)".
+      wp۰load.
+      iSplitR "HΨₛ HΦ". { iFrameSteps. }
+      iModIntro.
 
-        wp۰bind (!_)%E.
-        iInv "Hinv" as "(:inv۰inner)".
-        wp۰load.
-        iSplitR "HΨᵣ HΦ". { iFrameSteps. }
-        iModIntro.
+      destruct state as [| v' x' | v' x' y | y | v' x' y]; wp۰pures.
 
-        destruct state as [| v x | v x y' | y' | x v y']; wp۰pures.
+      - wp۰apply ("IHsend_aux" with "[$] HΦ").
 
-        - wp۰apply ("IHrecv_aux" with "[$] HΦ").
+      - iSteps.
 
-        - wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
-          iInv "Hinv" as "(:inv۰inner)".
-          wp۰cas.
+      - iSteps.
 
-          + iSplitR "HΨᵣ HΦ". { iFrameSteps. }
-            iModIntro.
-
-            wp۰pures.
-
-            iApply ("HΦ" $! None with "HΨᵣ").
-
-          + destruct state; zoo۰simp.
-            iDestruct "Hstate" as "(:inv۰state۰sender_offer)".
-            iMod ("Hvalid" with "HΨₛ HΨᵣ") as "(HΧₛ & HΧᵣ)".
-            iSplitR "HΧᵣ HΦ". { iExists (Receiver_accept v _ y). iFrameSteps. }
-            iModIntro.
-
-            wp۰pures.
-
-            iApply ("HΦ" $! (Some v) with "[$HΧᵣ]").
-
-        - iApply ("HΦ" $! None with "HΨᵣ").
-
-        - iApply ("HΦ" $! None with "HΨᵣ").
-
-        - iApply ("HΦ" $! None with "HΨᵣ").
-      }
-
-      { iClear "IHrecv_aux".
-        iIntros "!> %Φ ((:inv) & HΨᵣ) HΦ".
-
-        wp۰rec. wp۰pures.
-
-        wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
+      - wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
         iInv "Hinv" as "(:inv۰inner)".
         wp۰cas.
 
-        - iSplitR "HΨᵣ HΦ". { iFrameSteps. }
-          iModIntro.
+        + iSplitR "HΨₛ HΦ". { iFrameSteps. }
+          iSteps.
 
-          wp۰apply+ ("IHrecv" with "[$] HΦ").
+        + destruct state; zoo۰simp.
+          iDestruct "Hstate" as "(:inv۰state۰receiver_offer)".
+          iMod ("Hvalid" with "HΨₛ HΨᵣ") as "(HΧₛ & HΧᵣ)".
+          iSplitR "HΧₛ HΦ". { iExists (Sender_accept v x _). iFrameSteps. }
+          iSteps.
 
-        - destruct state; zoo۰simp.
-          iDestruct "Hstate" as "(:inv۰state۰null)".
-          iMod (tokenｰupdate with "Htoken₁ Htoken₂") as "(Htoken₁ & Htoken₂)".
-          iSplitR "Htoken₂ HΦ". { iExists (Receiver_offer y). iFrameSteps. }
-          iIntros "!> {% offer}".
+      - iSteps.
+    }
 
-          iStep 11.
+    { iClear "IHsend_aux".
+      iIntros "!> %Φ ((:inv) & HΨ) HΦ".
 
-          wp۰bind (𝘅𝗰𝗵𝗴 _ _)%E.
-          iInv "Hinv" as "(:inv۰inner)".
-          wp۰xchg.
-          destruct state as [| v x | v x y_ | y_ | v x y']; wp۰pures.
+      wp۰rec. wp۰pures.
 
-          + iDestruct "Hstate" as "(:inv۰state۰null !=)".
-            iDestruct (token₁ｰexclusive with "Htoken₂ Htoken₂_") as %[].
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
+      iInv "Hinv" as "(:inv۰inner)".
+      wp۰cas.
 
-          + iDestruct "Hstate" as "(:inv۰state۰sender_offer)".
-            iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[=].
+      - iSplitR "HΨ HΦ". { iFrameSteps. }
+        iModIntro.
 
-          + iDestruct "Hstate" as "(:inv۰state۰sender_accept)".
-            iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[= ->].
-            iSplitR "HΧᵣ HΦ". { iExists Null. iFrameSteps. }
-            iModIntro.
+        wp۰apply+ ("IHsend" with "[$] HΦ").
 
-            wp۰pures.
+      - destruct state; zoo۰simp.
+        iDestruct "Hstate" as "(:inv۰state۰null)".
+        iMod (tokenｰupdate with "Htoken₁ Htoken₂") as "(Htoken₁ & Htoken₂)".
+        iSplitR "Htoken₂ HΦ". { iExists (Sender_offer v x). iFrameSteps. }
+        iIntros "!> {% offer}".
 
-            iApply ("HΦ" $! (Some v) with "[$HΧᵣ]").
+        iStep 11.
 
-          + iDestruct "Hstate" as "(:inv۰state۰receiver_offer)".
-            iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[= ->].
-            iSplitR "HΨᵣ HΦ". { iExists Null. iFrameSteps. }
-            iModIntro.
+        wp۰bind (𝘅𝗰𝗵𝗴 _ _)%E.
+        iInv "Hinv" as "(:inv۰inner)".
+        wp۰xchg.
+        destruct state as [| v_ x_ | v' x' y | y | v_ x_ y]; wp۰pures.
 
-            wp۰pures.
+        + iDestruct "Hstate" as "(:inv۰state۰null !=)".
+          iDestruct (token₁ｰexclusive with "Htoken₂ Htoken₂_") as %[].
 
-            iApply ("HΦ" $! None with "HΨᵣ").
+        + iDestruct "Hstate" as "(:inv۰state۰sender_offer)".
+          iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[= -> ->].
+          iSplitR "HΨₛ HΦ". { iExists Null. iFrameSteps. }
+          iSteps.
 
-          + iDestruct "Hstate" as "(:inv۰state۰receiver_accept)".
-            iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[=].
-      }
-    Qed.
-    Lemma channel_sync_1٠recvｰspec {t γ ι Ψₛ Ψᵣ Χₛ Χᵣ} y :
-      {{{
-        channel_sync_1۰inv t γ ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
-        Ψᵣ y
-      }}}
-        channel_sync_1٠recv #t
-      {{{
-        o
-      , RET o;
-        if o is Some v then
-          ∃ x,
-          Χᵣ v x y
-        else
-          Ψᵣ y
-      }}}.
-    Proof.
-      iPoseProof channel_sync_1٠recvｰspecｰaux as "(H & _)".
-      iApply "H".
-    Qed.
-  End channel_sync_1۰G.
+        + iDestruct "Hstate" as "(:inv۰state۰sender_accept)".
+          iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[=].
 
-  Please opacify.
-End base.
+        + iDestruct "Hstate" as "(:inv۰state۰receiver_offer)".
+          iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[=].
 
-Require zoo_saturn.channel_sync_1__opaque.
-
-Section channel_sync_1۰G.
-  Context `{channel_sync_1۰G : ChannelSync1G Σ X Y}.
-  Context `{!Inhabited X}.
-  Context `{!Inhabited Y}.
-
-  Implicit Type 𝑡 : location.
-  Implicit Type t : val.
-  Implicit Type γ : base.channel_sync_1۰name.
-  Implicit Type x 𝑥 : X.
-  Implicit Type y 𝑦 : Y.
-  Implicit Type Ψₛ : val → X → iProp Σ.
-  Implicit Type Ψᵣ : Y → iProp Σ.
-  Implicit Type Χₛ Χᵣ : val → X → Y → iProp Σ.
-
-  Please Definition channel_sync_1۰init t : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    𝑡 ↪ γ ∗
-    base.channel_sync_1۰init 𝑡 γ.
-  #[local] Instance : CustomIpat "init" :=
-    " ( %𝑡{}
-      & %γ{}
-      & {%Heq{};->}
-      & #Hmeta{_{}}
-      & Hinit{_{}}
-      )
-    ".
-
-  Please Definition channel_sync_1۰inv t ι Ψₛ Ψᵣ Χₛ Χᵣ : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    𝑡 ↪ γ ∗
-    base.channel_sync_1۰inv 𝑡 γ ι Ψₛ Ψᵣ Χₛ Χᵣ.
-  #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{}
-      & %γ{}
-      & {%Heq{};->}
-      & #Hmeta{_{}}
-      & Hinv{_{}}
-      )
-    ".
-
-  #[global] Instance channel_sync_1۰invｰcontractive t ι n :
-    Proper (
-      (pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
-      (pointwise_relation _ $ dist_later n) ==>
-      (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
-      (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
-      (≡{n}≡)
-    ) (channel_sync_1۰inv t ι).
-  Proof.
-    solve_proper.
+        + iDestruct "Hstate" as "(:inv۰state۰receiver_accept v=v_)".
+          iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[= -> ->].
+          iSplitR "HΧₛ HΦ". { iExists Null. iFrameSteps. }
+          iSteps.
+    }
   Qed.
-  #[global] Instance channel_sync_1۰invｰproper t ι :
-    Proper (
-      (pointwise_relation _ $ pointwise_relation _ (≡)) ==>
-      pointwise_relation _ (≡) ==>
-      (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ (≡)) ==>
-      (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ (≡)) ==>
-      (≡)
-    ) (channel_sync_1۰inv t ι).
-  Proof.
-    solve_proper.
-  Qed.
-
-  Zoo derive Timeless for channel_sync_1۰init.
-
-  Zoo derive Persistent for channel_sync_1۰inv.
-
-  Lemma channel_sync_1۰initｰexclusive t :
-    channel_sync_1۰init t -∗
-    channel_sync_1۰init t -∗
-    False.
-  Proof.
-    iIntros "(:init =1) (:init =2)". simp.
-    iApply (base.channel_sync_1۰initｰexclusive with "Hinit_1 Hinit_2").
-  Qed.
-  Lemma channel_sync_1۰initｰtoｰinv {t} ι Ψₛ Ψᵣ Χₛ Χᵣ E :
-    channel_sync_1۰init t -∗
-    channel_sync_1۰valid ι Ψₛ Ψᵣ Χₛ Χᵣ ={E}=∗
-    channel_sync_1۰inv t ι Ψₛ Ψᵣ Χₛ Χᵣ.
-  Proof.
-    iIntros "(:init) Hvalid".
-    iMod (base.channel_sync_1۰initｰtoｰinv with "Hinit Hvalid") as "Hinv".
-    iFrameSteps.
-  Qed.
-
-  Lemma channel_sync_1٠createｰspecｰinit :
+  Lemma channel_sync_1٠sendｰspec {γ ι Ψₛ Ψᵣ Χₛ Χᵣ v} x :
     {{{
-      True
-    }}}
-      channel_sync_1٠create ()
-    {{{
-      t
-    , RET t;
-      channel_sync_1۰init t
-    }}}.
-  Proof.
-    iIntros "%Φ _ HΦ".
-
-    iApply wpｰfupd.
-    wp۰apply (base.channel_sync_1٠createｰspecｰinit with "[//]") as (𝑡 γ) "(Hmeta & Hinit)".
-    iMod (metaｰset γ with "Hmeta"). 1: done.
-    iSteps.
-  Qed.
-  Lemma channel_sync_1٠createｰspec ι Ψₛ Ψᵣ Χₛ Χᵣ :
-    {{{
-      channel_sync_1۰valid ι Ψₛ Ψᵣ Χₛ Χᵣ
-    }}}
-      channel_sync_1٠create ()
-    {{{
-      t
-    , RET t;
-      channel_sync_1۰inv t ι Ψₛ Ψᵣ Χₛ Χᵣ
-    }}}.
-  Proof.
-    iIntros "%Φ Hvalid HΦ".
-
-    iApply wpｰfupd.
-    wp۰apply (base.channel_sync_1٠createｰspec with "Hvalid") as (𝑡 γ) "(Hmeta & Hinv)".
-    iMod (metaｰset γ with "Hmeta") as "#Hmeta". 1: done.
-    iSteps.
-  Qed.
-
-  Lemma channel_sync_1٠sendｰspec {t ι Ψₛ Ψᵣ Χₛ Χᵣ v} x :
-    {{{
-      channel_sync_1۰inv t ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
+      channel_sync_1۰inv γ ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
       Ψₛ v x
     }}}
-      channel_sync_1٠send t v
+      channel_sync_1٠send γ v
     {{{
       b
     , RET #b;
@@ -746,17 +428,148 @@ Section channel_sync_1۰G.
         Ψₛ v x
     }}}.
   Proof.
-    iIntros "%Φ ((:inv) & HΨₛ) HΦ".
-
-    wp۰apply (base.channel_sync_1٠sendｰspec with "[$Hinv $HΨₛ] HΦ").
+    iPoseProof channel_sync_1٠sendｰspecｰaux as "(H & _)".
+    iApply "H".
   Qed.
 
-  Lemma channel_sync_1٠recvｰspec {t ι Ψₛ Ψᵣ Χₛ Χᵣ} y :
+  #[local] Lemma channel_sync_1٠recvｰspecｰaux γ ι Ψₛ Ψᵣ Χₛ Χᵣ y :
+    ⊢ {{{
+        channel_sync_1۰inv γ ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
+        Ψᵣ y
+      }}}
+        channel_sync_1٠recv γ
+      {{{
+        o
+      , RET o;
+        if o is Some v then
+          ∃ x,
+          Χᵣ v x y
+        else
+          Ψᵣ y
+      }}}
+    ∧ {{{
+        channel_sync_1۰inv γ ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
+        Ψᵣ y
+      }}}
+        channel_sync_1٠recv_aux γ
+      {{{
+        o
+      , RET o;
+        if o is Some v then
+          ∃ x,
+          Χᵣ v x y
+        else
+          Ψᵣ y
+      }}}.
+  Proof.
+    iLöb as "HLöb".
+    iDestruct "HLöb" as "(IHrecv & IHrecv_aux)".
+    iSplit.
+
+    { iClear "IHrecv".
+      iIntros "!> %Φ ((:inv) & HΨᵣ) HΦ".
+
+      wp۰rec. wp۰pures.
+
+      wp۰bind (!_)%E.
+      iInv "Hinv" as "(:inv۰inner)".
+      wp۰load.
+      iSplitR "HΨᵣ HΦ". { iFrameSteps. }
+      iModIntro.
+
+      destruct state as [| v x | v x y' | y' | x v y']; wp۰pures.
+
+      - wp۰apply ("IHrecv_aux" with "[$] HΦ").
+
+      - wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
+        iInv "Hinv" as "(:inv۰inner)".
+        wp۰cas.
+
+        + iSplitR "HΨᵣ HΦ". { iFrameSteps. }
+          iModIntro.
+
+          wp۰pures.
+
+          iApply ("HΦ" $! None with "HΨᵣ").
+
+        + destruct state; zoo۰simp.
+          iDestruct "Hstate" as "(:inv۰state۰sender_offer)".
+          iMod ("Hvalid" with "HΨₛ HΨᵣ") as "(HΧₛ & HΧᵣ)".
+          iSplitR "HΧᵣ HΦ". { iExists (Receiver_accept v _ y). iFrameSteps. }
+          iModIntro.
+
+          wp۰pures.
+
+          iApply ("HΦ" $! (Some v) with "[$HΧᵣ]").
+
+      - iApply ("HΦ" $! None with "HΨᵣ").
+
+      - iApply ("HΦ" $! None with "HΨᵣ").
+
+      - iApply ("HΦ" $! None with "HΨᵣ").
+    }
+
+    { iClear "IHrecv_aux".
+      iIntros "!> %Φ ((:inv) & HΨᵣ) HΦ".
+
+      wp۰rec. wp۰pures.
+
+      wp۰bind (𝗰𝗮𝘀 _ _ _)%E.
+      iInv "Hinv" as "(:inv۰inner)".
+      wp۰cas.
+
+      - iSplitR "HΨᵣ HΦ". { iFrameSteps. }
+        iModIntro.
+
+        wp۰apply+ ("IHrecv" with "[$] HΦ").
+
+      - destruct state; zoo۰simp.
+        iDestruct "Hstate" as "(:inv۰state۰null)".
+        iMod (tokenｰupdate with "Htoken₁ Htoken₂") as "(Htoken₁ & Htoken₂)".
+        iSplitR "Htoken₂ HΦ". { iExists (Receiver_offer y). iFrameSteps. }
+        iIntros "!> {% offer}".
+
+        iStep 11.
+
+        wp۰bind (𝘅𝗰𝗵𝗴 _ _)%E.
+        iInv "Hinv" as "(:inv۰inner)".
+        wp۰xchg.
+        destruct state as [| v x | v x y_ | y_ | v x y']; wp۰pures.
+
+        + iDestruct "Hstate" as "(:inv۰state۰null !=)".
+          iDestruct (token₁ｰexclusive with "Htoken₂ Htoken₂_") as %[].
+
+        + iDestruct "Hstate" as "(:inv۰state۰sender_offer)".
+          iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[=].
+
+        + iDestruct "Hstate" as "(:inv۰state۰sender_accept)".
+          iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[= ->].
+          iSplitR "HΧᵣ HΦ". { iExists Null. iFrameSteps. }
+          iModIntro.
+
+          wp۰pures.
+
+          iApply ("HΦ" $! (Some v) with "[$HΧᵣ]").
+
+        + iDestruct "Hstate" as "(:inv۰state۰receiver_offer)".
+          iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[= ->].
+          iSplitR "HΨᵣ HΦ". { iExists Null. iFrameSteps. }
+          iModIntro.
+
+          wp۰pures.
+
+          iApply ("HΦ" $! None with "HΨᵣ").
+
+        + iDestruct "Hstate" as "(:inv۰state۰receiver_accept)".
+          iDestruct (tokenｰagree with "Htoken₁ Htoken₂") as %[=].
+    }
+  Qed.
+  Lemma channel_sync_1٠recvｰspec {γ ι Ψₛ Ψᵣ Χₛ Χᵣ} y :
     {{{
-      channel_sync_1۰inv t ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
+      channel_sync_1۰inv γ ι Ψₛ Ψᵣ Χₛ Χᵣ ∗
       Ψᵣ y
     }}}
-      channel_sync_1٠recv t
+      channel_sync_1٠recv γ
     {{{
       o
     , RET o;
@@ -767,10 +580,11 @@ Section channel_sync_1۰G.
         Ψᵣ y
     }}}.
   Proof.
-    iIntros "%Φ ((:inv) & HΨᵣ) HΦ".
-
-    wp۰apply (base.channel_sync_1٠recvｰspec with "[$Hinv $HΨᵣ] HΦ").
+    iPoseProof channel_sync_1٠recvｰspecｰaux as "(H & _)".
+    iApply "H".
   Qed.
 End channel_sync_1۰G.
+
+Require zoo_saturn.channel_sync_1__opaque.
 
 Please opacify.
