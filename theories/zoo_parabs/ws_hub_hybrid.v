@@ -153,7 +153,7 @@ Section ws_hub_hybrid۰G.
 
   Record metadata :=
     { metadata۰size : nat
-    ; metadata۰deques : val
+    ; metadata۰deques : ws_bdeques_public۰name
     ; metadata۰rounds : val
     ; metadata۰queue : queue_mpmc_1۰name
     ; metadata۰waiters : val
