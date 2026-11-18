@@ -278,4 +278,6 @@ Section zoo۰G.
   Qed.
 End zoo۰G.
 
+Require zoo_std.chain__opaque.
+
 #[global] Opaque chain۰model.

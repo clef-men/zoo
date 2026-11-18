@@ -85,3 +85,5 @@ Section zoo۰G.
     all: iSteps.
   Qed.
 End zoo۰G.
+
+Require zoo_std.goptional__opaque.

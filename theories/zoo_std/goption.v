@@ -55,3 +55,5 @@ Section zoo۰G.
       iSteps.
   Qed.
 End zoo۰G.
+
+Require zoo_std.goption__opaque.
