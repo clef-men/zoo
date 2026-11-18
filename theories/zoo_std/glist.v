@@ -47,14 +47,12 @@ Qed.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition glist۰model' t vs :=
-    t = glist۰to_val vs.
   Definition glist۰model t vs : iProp Σ :=
-    ⌜glist۰model' t vs⌝.
+    ⌜t = glist۰to_val vs⌝.
 
   Lemma glist٠rev_appｰspec {t1} vs1 {t2} vs2 :
-    glist۰model' t1 vs1 →
-    glist۰model' t2 vs2 →
+    t1 = glist۰to_val vs1 →
+    t2 = glist۰to_val vs2 →
     {{{
       True
     }}}
@@ -74,7 +72,7 @@ Section zoo۰G.
   Qed.
 
   Lemma glist٠revｰspec {t} vs :
-    glist۰model' t vs →
+    t = glist۰to_val vs →
     {{{
       True
     }}}
