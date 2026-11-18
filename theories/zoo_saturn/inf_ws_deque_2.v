@@ -7,464 +7,73 @@ Require Export zoo_saturn.inf_ws_deque_2__code.
 Require Import zoo_saturn.inf_ws_deque_2__types.
 Require Import zoo.options.
 
-Import inf_ws_deque_1.base.
-
 Implicit Type slot : location.
 Implicit Type slots : list location.
 Implicit Type v : val.
 Implicit Type vs ws : list val.
+
+Zoo name :=
+  { base : inf_ws_deque_1۰name
+  ; model : auth_twins۰name
+  }.
 
 Zoo global :=
   { base : inf_ws_deque_1
   ; model : auth_twins (leibnizO (list val)) suffix
   }.
 
-Module base.
-  Section inf_ws_deque_2۰G.
-    Context `{inf_ws_deque_2۰G : InfWsDeque2G Σ}.
-
-    Implicit Type t : location.
-
-    Record inf_ws_deque_2۰name :=
-      { inf_ws_deque_2۰name۰base : inf_ws_deque_1۰name
-      ; inf_ws_deque_2۰name۰model : auth_twins۰name
-      }.
-    Implicit Type γ : inf_ws_deque_2۰name.
-
-    Please derive EqDecision for inf_ws_deque_2۰name.
-    Please derive Countable for inf_ws_deque_2۰name.
-
-    #[local] Definition model₁' γ_model vs :=
-      auth_twins۰twin₁ _ γ_model vs.
-    #[local] Definition model₁ γ :=
-      model₁' γ.(inf_ws_deque_2۰name۰model).
-    #[local] Definition model₂' γ_model vs :=
-      auth_twins۰twin₂ _ γ_model vs.
-    #[local] Definition model₂ γ :=
-      model₂' γ.(inf_ws_deque_2۰name۰model).
-
-    #[local] Definition owner' γ_owner ws :=
-      auth_twins۰auth _ γ_owner ws.
-    #[local] Definition owner γ :=
-      owner' γ.(inf_ws_deque_2۰name۰model).
-
-    #[local] Definition inv۰inner γ : iProp Σ :=
-      ∃ vs slots,
-      inf_ws_deque_1۰model γ.(inf_ws_deque_2۰name۰base) (#*ˡ slots) ∗
-      model₂ γ vs ∗
-      [∗ list] slot; v ∈ slots; vs, slot ↦ᵣ v.
-    #[local] Instance : CustomIpat "inv۰inner" :=
-      " ( %vs{}
-        & %slots{}
-        & >Hbase_model
-        & >Hmodel₂
-        & >Hslots
-        )
-      ".
-    Please Definition inf_ws_deque_2۰inv t γ ι : iProp Σ :=
-      inf_ws_deque_1۰inv t γ.(inf_ws_deque_2۰name۰base) (ι.@"base") ∗
-      inv (ι.@"inv") (inv۰inner γ).
-    #[local] Instance : CustomIpat "inv" :=
-      " ( #Hbase_inv
-        & #Hinv
-        )
-      ".
-
-    Please Definition inf_ws_deque_2۰model :=
-      model₁.
-    #[local] Instance : CustomIpat "model" :=
-      " Hmodel₁{_{}}
-      ".
-
-    Please Definition inf_ws_deque_2۰owner γ ws : iProp Σ :=
-      ∃ slots_owner,
-      inf_ws_deque_1۰owner γ.(inf_ws_deque_2۰name۰base) (#*ˡ slots_owner) ∗
-      owner γ ws.
-    #[local] Instance : CustomIpat "owner" :=
-      " ( %slots_owner{_{}}
-        & Hbase_owner{_{}}
-        & Howner{_{}}
-        )
-      ".
-
-    Zoo derive Timeless for inf_ws_deque_2۰model.
-    Zoo derive Timeless for inf_ws_deque_2۰owner.
-
-    Zoo derive Persistent for inf_ws_deque_2۰inv.
-
-    #[local] Lemma modelｰownerｰalloc :
-      ⊢ |==>
-        ∃ γ_model,
-        model₁' γ_model [] ∗
-        model₂' γ_model [] ∗
-        owner' γ_model [].
-    Proof.
-      iMod (auth_twinsｰalloc (auth_twins۰G := inf_ws_deque_2۰G۰model۰G) _ []) as "(%γ_model & $ & $ & $)".
-      iSteps.
-    Qed.
-    #[local] Lemma model₁ｰvalid γ ws vs :
-      owner γ ws -∗
-      model₁ γ vs -∗
-      ⌜vs `suffix_of` ws⌝.
-    Proof.
-      rewrite -preorderｰrtc.
-      apply: auth_twinsｰvalid₁.
-    Qed.
-    #[local] Lemma model₁ｰexclusive γ vs1 vs2 :
-      model₁ γ vs1 -∗
-      model₁ γ vs2 -∗
-      False.
-    Proof.
-      apply auth_twins۰twin₁ｰexclusive.
-    Qed.
-    #[local] Lemma modelｰagree γ vs1 vs2 :
-      model₁ γ vs1 -∗
-      model₂ γ vs2 -∗
-      ⌜vs1 = vs2⌝.
-    Proof.
-      apply: auth_twinsｰagreeｰL.
-    Qed.
-    #[local] Lemma modelｰownerｰagree γ ws vs1 vs2 :
-      owner γ ws -∗
-      model₁ γ vs1 -∗
-      model₂ γ vs2 -∗
-        ⌜vs1 `suffix_of` ws⌝ ∗
-        ⌜vs1 = vs2⌝.
-    Proof.
-      iIntros "Howner Hmodel₁ Hmodel₂".
-      iDestruct (model₁ｰvalid with "Howner Hmodel₁") as %Hsuffix.
-      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-      iSteps.
-    Qed.
-    #[local] Lemma modelｰpush {γ ws vs1 vs2} v :
-      owner γ ws -∗
-      model₁ γ vs1 -∗
-      model₂ γ vs2 ==∗
-        owner γ (vs1 ++ [v]) ∗
-        model₁ γ (vs1 ++ [v]) ∗
-        model₂ γ (vs1 ++ [v]).
-    Proof.
-      apply auth_twinsｰupdateｰauth.
-    Qed.
-    #[local] Lemma modelｰsteal γ vs1 vs2 :
-      model₁ γ vs1 -∗
-      model₂ γ vs2 ==∗
-        model₁ γ (tail vs1) ∗
-        model₂ γ (tail vs1).
-    Proof.
-      apply: auth_twinsｰupdateｰtwinsｰL.
-      rewrite preorderｰrtc. apply suffixｰtail. done.
-    Qed.
-    #[local] Lemma modelｰpop γ ws vs1 vs2 :
-      owner γ ws -∗
-      model₁ γ vs1 -∗
-      model₂ γ vs2 ==∗
-        owner γ (removelast vs1) ∗
-        model₁ γ (removelast vs1) ∗
-        model₂ γ (removelast vs1).
-    Proof.
-      apply auth_twinsｰupdateｰauth.
-    Qed.
-
-    #[local] Lemma ownerｰupdate γ ws vs :
-      owner γ ws -∗
-      model₁ γ vs -∗
-      model₂ γ vs ==∗
-        owner γ vs ∗
-        model₁ γ vs ∗
-        model₂ γ vs.
-    Proof.
-      apply auth_twinsｰupdateｰauth.
-    Qed.
-    #[local] Lemma ownerｰexclusive γ ws1 ws2 :
-      owner γ ws1 -∗
-      owner γ ws2 -∗
-      False.
-    Proof.
-      apply: auth_twins۰authｰexclusive.
-    Qed.
-
-    Lemma inf_ws_deque_2۰modelｰexclusive γ vs1 vs2 :
-      inf_ws_deque_2۰model γ vs1 -∗
-      inf_ws_deque_2۰model γ vs2 -∗
-      False.
-    Proof.
-      iIntros "(:model =1) (:model =2)".
-      iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
-    Qed.
-
-    Lemma inf_ws_deque_2۰ownerｰexclusive γ ws1 ws2 :
-      inf_ws_deque_2۰owner γ ws1 -∗
-      inf_ws_deque_2۰owner γ ws2 -∗
-      False.
-    Proof.
-      iIntros "(:owner =1) (:owner =2)".
-      iApply (ownerｰexclusive with "Howner_1 Howner_2").
-    Qed.
-    Lemma inf_ws_deque_2ｰownerｰmodel γ ws vs :
-      inf_ws_deque_2۰owner γ ws -∗
-      inf_ws_deque_2۰model γ vs -∗
-      ⌜vs `suffix_of` ws⌝.
-    Proof.
-      iIntros "(:owner =1) (:model =2)".
-      iApply (model₁ｰvalid with "Howner_1 Hmodel₁_2").
-    Qed.
-
-    Lemma inf_ws_deque_2٠createｰspec ι :
-      {{{
-        True
-      }}}
-        inf_ws_deque_2٠create ()
-      {{{
-        t γ
-      , RET #t;
-        meta_token t ⊤ ∗
-        inf_ws_deque_2۰inv t γ ι ∗
-        inf_ws_deque_2۰model γ [] ∗
-        inf_ws_deque_2۰owner γ []
-      }}}.
-    Proof.
-      iIntros "%Φ _ HΦ".
-
-      iApply wpｰfupd.
-      wp۰apply (inf_ws_deque_1٠createｰspec with "[//]") as (t γ_base) "(Hmeta & #Hbase_inv & Hbase_model & Hbase_owner)".
-
-      iMod modelｰownerｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂ & Howner)".
-
-      pose γ :=
-        {|inf_ws_deque_2۰name۰base := γ_base
-        ; inf_ws_deque_2۰name۰model := γ_model
-        |}.
-
-      iApply ("HΦ" $! t γ).
-      (* FIXME: For some reason, [iFrame "#∗"] is very slow. *)
-      iFrame "# Hmeta Hmodel₁ Howner". iSplitR "Hbase_owner".
-      - iApply inv_alloc.
-        iExists [], []. iFrameSteps.
-      - iExists []. iFrameSteps.
-    Qed.
-
-    Lemma inf_ws_deque_2٠sizeｰspec t γ ι ws :
-      <<<
-        inf_ws_deque_2۰inv t γ ι ∗
-        inf_ws_deque_2۰owner γ ws
-      | ∀∀ vs,
-        inf_ws_deque_2۰model γ vs
-      >>>
-        inf_ws_deque_2٠size #t
-        @ ↑ι
-      <<<
-        ⌜vs `suffix_of` ws⌝ ∗
-        inf_ws_deque_2۰model γ vs
-      | RET #(length vs);
-        inf_ws_deque_2۰owner γ vs
-      >>>.
-    Proof.
-      iIntros "%Φ ((:inv) & (:owner)) HΦ".
-
-      awp۰apply (inf_ws_deque_1٠sizeｰspec with "[$]").
-      iInv "Hinv" as "(:inv۰inner)".
-      iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
-      iAaccIntro with "Hbase_model". 1: iSteps.
-      iDestruct (modelｰownerｰagree with "Howner Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
-      iMod (ownerｰupdate with "Howner Hmodel₁ Hmodel₂") as "(Howner & $ & Hmodel₂)".
-      rewrite length_fmap.
-      iDestruct (big_sepL2_length with "Hslots") as %->.
-      iSteps.
-    Qed.
-
-    Lemma inf_ws_deque_2٠is_emptyｰspec t γ ι ws :
-      <<<
-        inf_ws_deque_2۰inv t γ ι ∗
-        inf_ws_deque_2۰owner γ ws
-      | ∀∀ vs,
-        inf_ws_deque_2۰model γ vs
-      >>>
-        inf_ws_deque_2٠is_empty #t
-        @ ↑ι
-      <<<
-        ⌜vs `suffix_of` ws⌝ ∗
-        inf_ws_deque_2۰model γ vs
-      | RET #(bool_decide (vs = []%list));
-        inf_ws_deque_2۰owner γ vs
-      >>>.
-    Proof.
-      iIntros "%Φ ((:inv) & (:owner)) HΦ".
-
-      awp۰apply (inf_ws_deque_1٠is_emptyｰspec with "[$]").
-      iInv "Hinv" as "(:inv۰inner)".
-      iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
-      iAaccIntro with "Hbase_model". 1: iSteps.
-      iDestruct (modelｰownerｰagree with "Howner Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
-      iMod (ownerｰupdate with "Howner Hmodel₁ Hmodel₂") as "(Howner & $ & Hmodel₂)".
-      erewrite (bool_decide_ext (_ <$> _ = []) (length _ = 0)). 2: rewrite length_zero_iff_nil //.
-      rewrite length_fmap.
-      iDestruct (big_sepL2_length with "Hslots") as %->.
-      erewrite (bool_decide_ext (length _ = 0)). 2: apply length_zero_iff_nil.
-      iSteps.
-    Qed.
-
-    Lemma inf_ws_deque_2٠pushｰspec t γ ι ws v :
-      <<<
-        inf_ws_deque_2۰inv t γ ι ∗
-        inf_ws_deque_2۰owner γ ws
-      | ∀∀ vs,
-        inf_ws_deque_2۰model γ vs
-      >>>
-        inf_ws_deque_2٠push #t v
-        @ ↑ι
-      <<<
-        ⌜vs `suffix_of` ws⌝ ∗
-        inf_ws_deque_2۰model γ (vs ++ [v])
-      | RET ();
-        inf_ws_deque_2۰owner γ (vs ++ [v])
-      >>>.
-    Proof.
-      iIntros "%Φ ((:inv) & (:owner)) HΦ".
-
-      wp۰rec.
-      wp۰ref slot as "Hslot".
-
-      awp۰apply (inf_ws_deque_1٠pushｰspec with "[$]").
-      iInv "Hinv" as "(:inv۰inner)".
-      iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
-      iAaccIntro with "Hbase_model". 1: iSteps.
-      iDestruct (modelｰownerｰagree with "Howner Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
-      iMod (modelｰpush with "Howner Hmodel₁ Hmodel₂") as "(Howner & $ & Hmodel₂)".
-      iDestruct (big_sepL2ｰsnoc₂ with "Hslots Hslot") as "Hslots".
-      rewrite -fmap_snoc. iSteps.
-    Qed.
-
-    Lemma inf_ws_deque_2٠stealｰspec t γ ι :
-      <<<
-        inf_ws_deque_2۰inv t γ ι
-      | ∀∀ vs,
-        inf_ws_deque_2۰model γ vs
-      >>>
-        inf_ws_deque_2٠steal #t
-        @ ↑ι
-      <<<
-        inf_ws_deque_2۰model γ (tail vs)
-      | RET head vs;
-        True
-      >>>.
-    Proof.
-      iIntros "%Φ (:inv) HΦ".
-
-      wp۰rec.
-
-      awp۰apply (inf_ws_deque_1٠stealｰspec with "[$]").
-      iInv "Hinv" as "(:inv۰inner)".
-      iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
-      iAaccIntro with "Hbase_model". 1: iSteps. iIntros "Hbase_model".
-      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (modelｰsteal with "Hmodel₁ Hmodel₂") as "($ & Hmodel₂)".
-      iIntros "!> HΦ !>".
-      destruct slots as [| slot slots], vs as [| v vs] => //.
-      all: iFrameSteps.
-    Qed.
-
-    Lemma inf_ws_deque_2٠popｰspec t γ ι ws :
-      <<<
-        inf_ws_deque_2۰inv t γ ι ∗
-        inf_ws_deque_2۰owner γ ws
-      | ∀∀ vs,
-        inf_ws_deque_2۰model γ vs
-      >>>
-        inf_ws_deque_2٠pop #t
-        @ ↑ι
-      <<<
-        ∃∃ o ws',
-        ⌜vs `suffix_of` ws⌝ ∗
-        match o with
-        | None =>
-            ⌜vs = []⌝ ∗
-            ⌜ws' = []⌝ ∗
-            inf_ws_deque_2۰model γ []
-        | Some v =>
-            ∃ vs',
-            ⌜vs = vs' ++ [v]⌝ ∗
-            ⌜ws' = vs'⌝ ∗
-            inf_ws_deque_2۰model γ vs'
-        end
-      | RET o;
-        inf_ws_deque_2۰owner γ ws'
-      >>>.
-    Proof.
-      iIntros "%Φ ((:inv) & (:owner)) HΦ".
-
-      wp۰rec.
-
-      awp۰apply+ (inf_ws_deque_1٠popｰspec with "[$]").
-      iInv "Hinv" as "(:inv۰inner)".
-      iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
-      iAaccIntro with "Hbase_model". 1: iSteps. iIntros "%o %𝑠𝑙𝑜𝑡s_owner (_ & Ho)".
-      iDestruct (modelｰownerｰagree with "Howner Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
-      iMod (modelｰpop with "Howner Hmodel₁ Hmodel₂") as "(Howner & Hmodel₁ & Hmodel₂)".
-      destruct o as [𝑠𝑙𝑜𝑡 |].
-
-      - iDestruct "Ho" as "(%𝑠𝑙𝑜𝑡s' & %Hslots & -> & Hbase_model)".
-        apply fmapｰsnocｰinv in Hslots as (slots' & slot & -> & -> & ->).
-        iDestruct (big_sepL2ｰsnocｰinvｰl with "Hslots") as "(%vs' & %v & -> & Hslots & Hslot)".
-        rewrite removelast_last.
-        iExists (Some v), vs'. iFrameSteps.
-
-      - iDestruct "Ho" as "(%Hslots & -> & Hbase_model)".
-        apply fmap_nil_inv in Hslots as ->.
-        iDestruct (big_sepL2_nil_inv_l with "Hslots") as %->.
-        iExists None. iFrameSteps. do 2 (iExists []; iSteps).
-    Qed.
-  End inf_ws_deque_2۰G.
-
-  Please opacify.
-End base.
-
-Require zoo_saturn.inf_ws_deque_2__opaque.
-
 Section inf_ws_deque_2۰G.
   Context `{inf_ws_deque_2۰G : InfWsDeque2G Σ}.
 
-  Implicit Type 𝑡 : location.
-  Implicit Type t : val.
+  #[local] Definition model₁' γ_model vs :=
+    auth_twins۰twin₁ _ γ_model vs.
+  #[local] Definition model₁ γ :=
+    model₁' γ.(inf_ws_deque_2۰name۰model).
+  #[local] Definition model₂' γ_model vs :=
+    auth_twins۰twin₂ _ γ_model vs.
+  #[local] Definition model₂ γ :=
+    model₂' γ.(inf_ws_deque_2۰name۰model).
 
-  Please Definition inf_ws_deque_2۰inv t ι : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    𝑡 ↪ γ ∗
-    base.inf_ws_deque_2۰inv 𝑡 γ ι.
+  #[local] Definition owner' γ_owner ws :=
+    auth_twins۰auth _ γ_owner ws.
+  #[local] Definition owner γ :=
+    owner' γ.(inf_ws_deque_2۰name۰model).
+
+  #[local] Definition inv۰inner γ : iProp Σ :=
+    ∃ vs slots,
+    inf_ws_deque_1۰model γ.(inf_ws_deque_2۰name۰base) (#*ˡ slots) ∗
+    model₂ γ vs ∗
+    [∗ list] slot; v ∈ slots; vs, slot ↦ᵣ v.
+  #[local] Instance : CustomIpat "inv۰inner" :=
+    " ( %vs{}
+      & %slots{}
+      & >Hbase_model
+      & >Hmodel₂
+      & >Hslots
+      )
+    ".
+  Please Definition inf_ws_deque_2۰inv γ ι : iProp Σ :=
+    inf_ws_deque_1۰inv γ.(inf_ws_deque_2۰name۰base) (ι.@"base") ∗
+    inv (ι.@"inv") (inv۰inner γ).
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{}
-      & %γ{}
-      & {%Heq{};->}
-      & #Hmeta{_{}}
-      & Hinv{_{}}
+    " ( #Hbase_inv
+      & #Hinv
       )
     ".
 
-  Please Definition inf_ws_deque_2۰model t vs : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    𝑡 ↪ γ ∗
-    base.inf_ws_deque_2۰model γ vs.
+  Please Definition inf_ws_deque_2۰model :=
+    model₁.
   #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{}
-      & %γ{}
-      & {%Heq{};->}
-      & #Hmeta{_{}}
-      & Hmodel{_{}}
-      )
+    " Hmodel₁{_{}}
     ".
 
-  Please Definition inf_ws_deque_2۰owner t ws : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    𝑡 ↪ γ ∗
-    base.inf_ws_deque_2۰owner γ ws.
+  Please Definition inf_ws_deque_2۰owner γ ws : iProp Σ :=
+    ∃ slots_owner,
+    inf_ws_deque_1۰owner γ.(inf_ws_deque_2۰name۰base) (#*ˡ slots_owner) ∗
+    owner γ ws.
   #[local] Instance : CustomIpat "owner" :=
-    " ( %𝑡{}
-      & %γ{}
-      & {%Heq{};->}
-      & #Hmeta{_{}}
+    " ( %slots_owner{_{}}
+      & Hbase_owner{_{}}
       & Howner{_{}}
       )
     ".
@@ -474,33 +83,122 @@ Section inf_ws_deque_2۰G.
 
   Zoo derive Persistent for inf_ws_deque_2۰inv.
 
-  Lemma inf_ws_deque_2۰modelｰexclusive t vs1 vs2 :
-    inf_ws_deque_2۰model t vs1 -∗
-    inf_ws_deque_2۰model t vs2 -∗
+  #[local] Lemma modelｰownerｰalloc :
+    ⊢ |==>
+      ∃ γ_model,
+      model₁' γ_model [] ∗
+      model₂' γ_model [] ∗
+      owner' γ_model [].
+  Proof.
+    iMod (auth_twinsｰalloc (auth_twins۰G := inf_ws_deque_2۰G۰model۰G) _ []) as "(%γ_model & $ & $ & $)".
+    iSteps.
+  Qed.
+  #[local] Lemma model₁ｰvalid γ ws vs :
+    owner γ ws -∗
+    model₁ γ vs -∗
+    ⌜vs `suffix_of` ws⌝.
+  Proof.
+    rewrite -preorderｰrtc.
+    apply: auth_twinsｰvalid₁.
+  Qed.
+  #[local] Lemma model₁ｰexclusive γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₁ γ vs2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.inf_ws_deque_2۰modelｰexclusive with "Hmodel_1 Hmodel_2").
+    apply auth_twins۰twin₁ｰexclusive.
+  Qed.
+  #[local] Lemma modelｰagree γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 -∗
+    ⌜vs1 = vs2⌝.
+  Proof.
+    apply: auth_twinsｰagreeｰL.
+  Qed.
+  #[local] Lemma modelｰownerｰagree γ ws vs1 vs2 :
+    owner γ ws -∗
+    model₁ γ vs1 -∗
+    model₂ γ vs2 -∗
+      ⌜vs1 `suffix_of` ws⌝ ∗
+      ⌜vs1 = vs2⌝.
+  Proof.
+    iIntros "Howner Hmodel₁ Hmodel₂".
+    iDestruct (model₁ｰvalid with "Howner Hmodel₁") as %Hsuffix.
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+    iSteps.
+  Qed.
+  #[local] Lemma modelｰpush {γ ws vs1 vs2} v :
+    owner γ ws -∗
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      owner γ (vs1 ++ [v]) ∗
+      model₁ γ (vs1 ++ [v]) ∗
+      model₂ γ (vs1 ++ [v]).
+  Proof.
+    apply auth_twinsｰupdateｰauth.
+  Qed.
+  #[local] Lemma modelｰsteal γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      model₁ γ (tail vs1) ∗
+      model₂ γ (tail vs1).
+  Proof.
+    apply: auth_twinsｰupdateｰtwinsｰL.
+    rewrite preorderｰrtc. apply suffixｰtail. done.
+  Qed.
+  #[local] Lemma modelｰpop γ ws vs1 vs2 :
+    owner γ ws -∗
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      owner γ (removelast vs1) ∗
+      model₁ γ (removelast vs1) ∗
+      model₂ γ (removelast vs1).
+  Proof.
+    apply auth_twinsｰupdateｰauth.
   Qed.
 
-  Lemma inf_ws_deque_2۰ownerｰexclusive t ws1 ws2 :
-    inf_ws_deque_2۰owner t ws1 -∗
-    inf_ws_deque_2۰owner t ws2 -∗
+  #[local] Lemma ownerｰupdate γ ws vs :
+    owner γ ws -∗
+    model₁ γ vs -∗
+    model₂ γ vs ==∗
+      owner γ vs ∗
+      model₁ γ vs ∗
+      model₂ γ vs.
+  Proof.
+    apply auth_twinsｰupdateｰauth.
+  Qed.
+  #[local] Lemma ownerｰexclusive γ ws1 ws2 :
+    owner γ ws1 -∗
+    owner γ ws2 -∗
     False.
   Proof.
-    iIntros "(:owner =1) (:owner =2)". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.inf_ws_deque_2۰ownerｰexclusive with "Howner_1 Howner_2").
+    apply: auth_twins۰authｰexclusive.
+  Qed.
+
+  Lemma inf_ws_deque_2۰modelｰexclusive γ vs1 vs2 :
+    inf_ws_deque_2۰model γ vs1 -∗
+    inf_ws_deque_2۰model γ vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)".
+    iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
+  Qed.
+
+  Lemma inf_ws_deque_2۰ownerｰexclusive γ ws1 ws2 :
+    inf_ws_deque_2۰owner γ ws1 -∗
+    inf_ws_deque_2۰owner γ ws2 -∗
+    False.
+  Proof.
+    iIntros "(:owner =1) (:owner =2)".
+    iApply (ownerｰexclusive with "Howner_1 Howner_2").
   Qed.
   Lemma inf_ws_deque_2ｰownerｰmodel γ ws vs :
     inf_ws_deque_2۰owner γ ws -∗
     inf_ws_deque_2۰model γ vs -∗
     ⌜vs `suffix_of` ws⌝.
   Proof.
-    iIntros "(:owner =1) (:model =2)". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.inf_ws_deque_2ｰownerｰmodel with "Howner_1 Hmodel_2").
+    iIntros "(:owner =1) (:model =2)".
+    iApply (model₁ｰvalid with "Howner_1 Hmodel₁_2").
   Qed.
 
   Lemma inf_ws_deque_2٠createｰspec ι :
@@ -509,130 +207,161 @@ Section inf_ws_deque_2۰G.
     }}}
       inf_ws_deque_2٠create ()
     {{{
-      t
-    , RET t;
-      inf_ws_deque_2۰inv t ι ∗
-      inf_ws_deque_2۰model t [] ∗
-      inf_ws_deque_2۰owner t []
+      γ
+    , RET γ;
+      inf_ws_deque_2۰inv γ ι ∗
+      inf_ws_deque_2۰model γ [] ∗
+      inf_ws_deque_2۰owner γ []
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
 
     iApply wpｰfupd.
-    wp۰apply (base.inf_ws_deque_2٠createｰspec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
-    iMod (metaｰset γ with "Hmeta"); first done.
+    wp۰apply (inf_ws_deque_1٠createｰspec with "[//]") as (γ_base) "(#Hbase_inv & Hbase_model & Hbase_owner)".
+
+    iMod modelｰownerｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂ & Howner)".
+
+    pose γ :=
+      {|inf_ws_deque_2۰name۰base := γ_base
+      ; inf_ws_deque_2۰name۰model := γ_model
+      |}.
+
+    iApply ("HΦ" $! γ).
+    (* FIXME: For some reason, [iFrame "#∗"] is very slow. *)
+    iFrame "# Hmodel₁ Howner". iSplitR "Hbase_owner".
+    - iApply inv_alloc.
+      iExists [], []. iFrameSteps.
+    - iExists []. iFrameSteps.
+  Qed.
+
+  Lemma inf_ws_deque_2٠sizeｰspec γ ι ws :
+    <<<
+      inf_ws_deque_2۰inv γ ι ∗
+      inf_ws_deque_2۰owner γ ws
+    | ∀∀ vs,
+      inf_ws_deque_2۰model γ vs
+    >>>
+      inf_ws_deque_2٠size γ
+      @ ↑ι
+    <<<
+      ⌜vs `suffix_of` ws⌝ ∗
+      inf_ws_deque_2۰model γ vs
+    | RET #(length vs);
+      inf_ws_deque_2۰owner γ vs
+    >>>.
+  Proof.
+    iIntros "%Φ ((:inv) & (:owner)) HΦ".
+
+    awp۰apply (inf_ws_deque_1٠sizeｰspec with "[$]").
+    iInv "Hinv" as "(:inv۰inner)".
+    iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
+    iAaccIntro with "Hbase_model". 1: iSteps.
+    iDestruct (modelｰownerｰagree with "Howner Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
+    iMod (ownerｰupdate with "Howner Hmodel₁ Hmodel₂") as "(Howner & $ & Hmodel₂)".
+    rewrite length_fmap.
+    iDestruct (big_sepL2_length with "Hslots") as %->.
     iSteps.
   Qed.
 
-  Lemma inf_ws_deque_2٠sizeｰspec t ι ws :
+  Lemma inf_ws_deque_2٠is_emptyｰspec γ ι ws :
     <<<
-      inf_ws_deque_2۰inv t ι ∗
-      inf_ws_deque_2۰owner t ws
+      inf_ws_deque_2۰inv γ ι ∗
+      inf_ws_deque_2۰owner γ ws
     | ∀∀ vs,
-      inf_ws_deque_2۰model t vs
+      inf_ws_deque_2۰model γ vs
     >>>
-      inf_ws_deque_2٠size t
+      inf_ws_deque_2٠is_empty γ
       @ ↑ι
     <<<
       ⌜vs `suffix_of` ws⌝ ∗
-      inf_ws_deque_2۰model t vs
-    | RET #(length vs);
-      inf_ws_deque_2۰owner t vs
-    >>>.
-  Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
-
-    awp۰apply (base.inf_ws_deque_2٠sizeｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
-      iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
-      iAaccIntro with "Hmodel_1"; iSteps.
-    }
-  Qed.
-
-  Lemma inf_ws_deque_2٠is_emptyｰspec t ι ws :
-    <<<
-      inf_ws_deque_2۰inv t ι ∗
-      inf_ws_deque_2۰owner t ws
-    | ∀∀ vs,
-      inf_ws_deque_2۰model t vs
-    >>>
-      inf_ws_deque_2٠is_empty t
-      @ ↑ι
-    <<<
-      ⌜vs `suffix_of` ws⌝ ∗
-      inf_ws_deque_2۰model t vs
+      inf_ws_deque_2۰model γ vs
     | RET #(bool_decide (vs = []%list));
-      inf_ws_deque_2۰owner t vs
+      inf_ws_deque_2۰owner γ vs
     >>>.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iIntros "%Φ ((:inv) & (:owner)) HΦ".
 
-    awp۰apply (base.inf_ws_deque_2٠is_emptyｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
-      iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
-      iAaccIntro with "Hmodel_1"; iSteps.
-    }
+    awp۰apply (inf_ws_deque_1٠is_emptyｰspec with "[$]").
+    iInv "Hinv" as "(:inv۰inner)".
+    iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
+    iAaccIntro with "Hbase_model". 1: iSteps.
+    iDestruct (modelｰownerｰagree with "Howner Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
+    iMod (ownerｰupdate with "Howner Hmodel₁ Hmodel₂") as "(Howner & $ & Hmodel₂)".
+    erewrite (bool_decide_ext (_ <$> _ = []) (length _ = 0)). 2: rewrite length_zero_iff_nil //.
+    rewrite length_fmap.
+    iDestruct (big_sepL2_length with "Hslots") as %->.
+    erewrite (bool_decide_ext (length _ = 0)). 2: apply length_zero_iff_nil.
+    iSteps.
   Qed.
 
-  Lemma inf_ws_deque_2٠pushｰspec t ι ws v :
+  Lemma inf_ws_deque_2٠pushｰspec γ ι ws v :
     <<<
-      inf_ws_deque_2۰inv t ι ∗
-      inf_ws_deque_2۰owner t ws
+      inf_ws_deque_2۰inv γ ι ∗
+      inf_ws_deque_2۰owner γ ws
     | ∀∀ vs,
-      inf_ws_deque_2۰model t vs
+      inf_ws_deque_2۰model γ vs
     >>>
-      inf_ws_deque_2٠push t v
+      inf_ws_deque_2٠push γ v
       @ ↑ι
     <<<
       ⌜vs `suffix_of` ws⌝ ∗
-      inf_ws_deque_2۰model t (vs ++ [v])
+      inf_ws_deque_2۰model γ (vs ++ [v])
     | RET ();
-      inf_ws_deque_2۰owner t (vs ++ [v])
+      inf_ws_deque_2۰owner γ (vs ++ [v])
     >>>.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iIntros "%Φ ((:inv) & (:owner)) HΦ".
 
-    awp۰apply (base.inf_ws_deque_2٠pushｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
-      iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
-      iAaccIntro with "Hmodel_1"; iSteps.
-    }
+    wp۰rec.
+    wp۰ref slot as "Hslot".
+
+    awp۰apply (inf_ws_deque_1٠pushｰspec with "[$]").
+    iInv "Hinv" as "(:inv۰inner)".
+    iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
+    iAaccIntro with "Hbase_model". 1: iSteps.
+    iDestruct (modelｰownerｰagree with "Howner Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
+    iMod (modelｰpush with "Howner Hmodel₁ Hmodel₂") as "(Howner & $ & Hmodel₂)".
+    iDestruct (big_sepL2ｰsnoc₂ with "Hslots Hslot") as "Hslots".
+    rewrite -fmap_snoc. iSteps.
   Qed.
 
-  Lemma inf_ws_deque_2٠stealｰspec t ι :
+  Lemma inf_ws_deque_2٠stealｰspec γ ι :
     <<<
-      inf_ws_deque_2۰inv t ι
+      inf_ws_deque_2۰inv γ ι
     | ∀∀ vs,
-      inf_ws_deque_2۰model t vs
+      inf_ws_deque_2۰model γ vs
     >>>
-      inf_ws_deque_2٠steal t
+      inf_ws_deque_2٠steal γ
       @ ↑ι
     <<<
-      inf_ws_deque_2۰model t (tail vs)
+      inf_ws_deque_2۰model γ (tail vs)
     | RET head vs;
       True
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp۰apply (base.inf_ws_deque_2٠stealｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
-      iDestruct (metaｰagree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
-      iAaccIntro with "Hmodel_1"; iSteps.
-    }
+    wp۰rec.
+
+    awp۰apply (inf_ws_deque_1٠stealｰspec with "[$]").
+    iInv "Hinv" as "(:inv۰inner)".
+    iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
+    iAaccIntro with "Hbase_model". 1: iSteps. iIntros "Hbase_model".
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+    iMod (modelｰsteal with "Hmodel₁ Hmodel₂") as "($ & Hmodel₂)".
+    iIntros "!> HΦ !>".
+    destruct slots as [| slot slots], vs as [| v vs] => //.
+    all: iFrameSteps.
   Qed.
 
-  Lemma inf_ws_deque_2٠popｰspec t ι ws :
+  Lemma inf_ws_deque_2٠popｰspec γ ι ws :
     <<<
-      inf_ws_deque_2۰inv t ι ∗
-      inf_ws_deque_2۰owner t ws
+      inf_ws_deque_2۰inv γ ι ∗
+      inf_ws_deque_2۰owner γ ws
     | ∀∀ vs,
-      inf_ws_deque_2۰model t vs
+      inf_ws_deque_2۰model γ vs
     >>>
-      inf_ws_deque_2٠pop t
+      inf_ws_deque_2٠pop γ
       @ ↑ι
     <<<
       ∃∃ o ws',
@@ -641,29 +370,42 @@ Section inf_ws_deque_2۰G.
       | None =>
           ⌜vs = []⌝ ∗
           ⌜ws' = []⌝ ∗
-          inf_ws_deque_2۰model t []
+          inf_ws_deque_2۰model γ []
       | Some v =>
           ∃ vs',
           ⌜vs = vs' ++ [v]⌝ ∗
           ⌜ws' = vs'⌝ ∗
-          inf_ws_deque_2۰model t vs'
+          inf_ws_deque_2۰model γ vs'
       end
     | RET o;
-      inf_ws_deque_2۰owner t ws'
+      inf_ws_deque_2۰owner γ ws'
     >>>.
   Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+    iIntros "%Φ ((:inv) & (:owner)) HΦ".
 
-    awp۰apply (base.inf_ws_deque_2٠popｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
-      iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
-      iAaccIntro with "Hmodel_1". 1: iSteps. iIntros "%o %ws' ($ & Ho)".
-      iExists o, ws'. destruct o.
-      all: iDecompose "Ho".
-      all: iFrameSteps.
-    }
+    wp۰rec.
+
+    awp۰apply+ (inf_ws_deque_1٠popｰspec with "[$]").
+    iInv "Hinv" as "(:inv۰inner)".
+    iApply (aaccｰaupdｰcommit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
+    iAaccIntro with "Hbase_model". 1: iSteps. iIntros "%o %𝑠𝑙𝑜𝑡s_owner (_ & Ho)".
+    iDestruct (modelｰownerｰagree with "Howner Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
+    iMod (modelｰpop with "Howner Hmodel₁ Hmodel₂") as "(Howner & Hmodel₁ & Hmodel₂)".
+    destruct o as [𝑠𝑙𝑜𝑡 |].
+
+    - iDestruct "Ho" as "(%𝑠𝑙𝑜𝑡s' & %Hslots & -> & Hbase_model)".
+      apply fmapｰsnocｰinv in Hslots as (slots' & slot & -> & -> & ->).
+      iDestruct (big_sepL2ｰsnocｰinvｰl with "Hslots") as "(%vs' & %v & -> & Hslots & Hslot)".
+      rewrite removelast_last.
+      iExists (Some v), vs'. iFrameSteps.
+
+    - iDestruct "Ho" as "(%Hslots & -> & Hbase_model)".
+      apply fmap_nil_inv in Hslots as ->.
+      iDestruct (big_sepL2_nil_inv_l with "Hslots") as %->.
+      iExists None. iFrameSteps. do 2 (iExists []; iSteps).
   Qed.
 End inf_ws_deque_2۰G.
+
+Require zoo_saturn.inf_ws_deque_2__opaque.
 
 Please opacify.

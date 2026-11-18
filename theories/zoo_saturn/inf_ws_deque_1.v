@@ -38,6 +38,18 @@ Implicit Type stable : stability.
 
 #[local] Please derive Inhabited for stability.
 
+Zoo name :=
+  { self : location
+  ; data : val
+  ; inv : namespace
+  ; prophet : prophet_multi۰name
+  ; model : auth_twins۰name
+  ; owner : gname
+  ; front : gname
+  ; history : gname
+  ; winner : gname
+  }.
+
 Zoo global :=
   { inf_array : inf_array
   ; prophet : prophet_multi prophet_identifier
@@ -48,1117 +60,1136 @@ Zoo global :=
   ; winner : twins (natO * ▶ ∙)
   }.
 
-Module base.
-  Section inf_ws_deque_1۰G.
-    Context `{inf_ws_deque_1۰G : InfWsDeque1G Σ}.
+Section inf_ws_deque_1۰G.
+  Context `{inf_ws_deque_1۰G : InfWsDeque1G Σ}.
 
-    Implicit Type t : location.
-    Implicit Type P : iProp Σ.
+  Implicit Type P : iProp Σ.
 
-    Record inf_ws_deque_1۰name :=
-      { inf_ws_deque_1۰name۰data : val
-      ; inf_ws_deque_1۰name۰inv : namespace
-      ; inf_ws_deque_1۰name۰prophet : prophet_multi۰name
-      ; inf_ws_deque_1۰name۰model : auth_twins۰name
-      ; inf_ws_deque_1۰name۰owner : gname
-      ; inf_ws_deque_1۰name۰front : gname
-      ; inf_ws_deque_1۰name۰history : gname
-      ; inf_ws_deque_1۰name۰winner : gname
-      }.
-    Implicit Type γ : inf_ws_deque_1۰name.
+  #[local] Definition model₁' γ_model vs :=
+    auth_twins۰twin₁ _ γ_model vs.
+  #[local] Definition model₁ γ :=
+    model₁' γ.(inf_ws_deque_1۰name۰model).
+  #[local] Definition model₂' γ_model vs :=
+    auth_twins۰twin₂ _ γ_model vs.
+  #[local] Definition model₂ γ :=
+    model₂' γ.(inf_ws_deque_1۰name۰model).
 
-    Please derive EqDecision for inf_ws_deque_1۰name.
-    Please derive Countable for inf_ws_deque_1۰name.
+  #[local] Definition owner₁' γ_owner γ_model stable back priv ws : iProp Σ :=
+    twins۰twin₁ (twins۰G := inf_ws_deque_1۰G۰owner۰G) γ_owner (DfracOwn 1) (stable, back, priv) ∗
+    auth_twins۰auth _ γ_model ws.
+  #[local] Definition owner₁ γ :=
+    owner₁' γ.(inf_ws_deque_1۰name۰owner) γ.(inf_ws_deque_1۰name۰model).
+  #[local] Instance : CustomIpat "owner₁" :=
+    " ( Howner₁{_{}}
+      & Hmodel_auth{_{}}
+      )
+    ".
+  #[local] Definition owner₂' γ_owner stable back priv :=
+    twins۰twin₂ (twins۰G := inf_ws_deque_1۰G۰owner۰G) γ_owner (stable, back, priv).
+  #[local] Definition owner₂ γ :=
+    owner₂' γ.(inf_ws_deque_1۰name۰owner).
 
-    #[local] Definition model₁' γ_model vs :=
-      auth_twins۰twin₁ _ γ_model vs.
-    #[local] Definition model₁ γ :=
-      model₁' γ.(inf_ws_deque_1۰name۰model).
-    #[local] Definition model₂' γ_model vs :=
-      auth_twins۰twin₂ _ γ_model vs.
-    #[local] Definition model₂ γ :=
-      model₂' γ.(inf_ws_deque_1۰name۰model).
+  #[local] Definition front۰auth' γ_front :=
+    auth_nat_max۰auth γ_front (DfracOwn 1).
+  #[local] Definition front۰auth γ :=
+    front۰auth' γ.(inf_ws_deque_1۰name۰front).
+  #[local] Definition front۰lb γ :=
+    auth_nat_max۰lb γ.(inf_ws_deque_1۰name۰front).
 
-    #[local] Definition owner₁' γ_owner γ_model stable back priv ws : iProp Σ :=
-      twins۰twin₁ (twins۰G := inf_ws_deque_1۰G۰owner۰G) γ_owner (DfracOwn 1) (stable, back, priv) ∗
-      auth_twins۰auth _ γ_model ws.
-    #[local] Definition owner₁ γ :=
-      owner₁' γ.(inf_ws_deque_1۰name۰owner) γ.(inf_ws_deque_1۰name۰model).
-    #[local] Instance : CustomIpat "owner₁" :=
-      " ( Howner₁{_{}}
-        & Hmodel_auth{_{}}
-        )
-      ".
-    #[local] Definition owner₂' γ_owner stable back priv :=
-      twins۰twin₂ (twins۰G := inf_ws_deque_1۰G۰owner۰G) γ_owner (stable, back, priv).
-    #[local] Definition owner₂ γ :=
-      owner₂' γ.(inf_ws_deque_1۰name۰owner).
+  #[local] Definition history۰auth' γ_history :=
+    mono_list۰auth γ_history (DfracOwn 1).
+  #[local] Definition history۰auth γ :=
+    history۰auth' γ.(inf_ws_deque_1۰name۰history).
+  #[local] Definition history۰at γ :=
+    mono_list۰at γ.(inf_ws_deque_1۰name۰history).
 
-    #[local] Definition front۰auth' γ_front :=
-      auth_nat_max۰auth γ_front (DfracOwn 1).
-    #[local] Definition front۰auth γ :=
-      front۰auth' γ.(inf_ws_deque_1۰name۰front).
-    #[local] Definition front۰lb γ :=
-      auth_nat_max۰lb γ.(inf_ws_deque_1۰name۰front).
+  #[local] Definition winner۰pop' γ_winner front P : iProp Σ :=
+    twins۰twin₁ γ_winner (DfracOwn 1) (front, Next P).
+  #[local] Definition winner۰pop γ :=
+    winner۰pop' γ.(inf_ws_deque_1۰name۰winner).
+  #[local] Definition winner۰steal' γ_winner front P :=
+    twins۰twin₂ γ_winner (front, Next P).
+  #[local] Definition winner۰steal γ :=
+    winner۰steal' γ.(inf_ws_deque_1۰name۰winner).
+  #[local] Definition winner γ : iProp Σ :=
+    ∃ front P1 P2,
+    winner۰pop γ front P1 ∗
+    winner۰steal γ front P2.
+  #[local] Instance : CustomIpat "winner" :=
+    " ( %front_winner
+      & %P_winner_1
+      & %P_winner_2
+      & Hwinner_pop{_{}}
+      & Hwinner_steal{_{}}
+      )
+    ".
 
-    #[local] Definition history۰auth' γ_history :=
-      mono_list۰auth γ_history (DfracOwn 1).
-    #[local] Definition history۰auth γ :=
-      history۰auth' γ.(inf_ws_deque_1۰name۰history).
-    #[local] Definition history۰at γ :=
-      mono_list۰at γ.(inf_ws_deque_1۰name۰history).
+  #[local] Definition winner۰au γ front P : iProp Σ :=
+    AU <{
+      ∃∃ vs,
+      model₁ γ vs
+    }> @ ⊤ ∖ ↑γ.(inf_ws_deque_1۰name۰inv), ∅ <{
+      ∀∀ v vs',
+      ⌜vs = v :: vs'⌝ ∗
+      model₁ γ vs' ∗
+      history۰at γ front v
+    , COMM
+      P
+    }>.
+  #[local] Definition winner۰pending₁ γ front P id : iProp Σ :=
+    winner۰steal γ front P ∗
+    identifier۰model id ∗
+    winner۰au γ front P.
+  #[local] Instance : CustomIpat "winner۰pending₁" :=
+    " ( Hwinner_steal{_{!}}
+      & Hid{_{!}}
+      & HP
+      )
+    ".
+  #[local] Definition winner۰pending₂ γ front id : iProp Σ :=
+    ∃ P,
+    winner۰pending₁ γ front P id.
+  #[local] Instance : CustomIpat "winner۰pending₂" :=
+    " ( %P{}
+      & (:winner۰pending₁)
+      )
+    ".
+  #[local] Definition winner۰linearized γ front P : iProp Σ :=
+    winner۰steal γ front P ∗
+    P.
+  #[local] Instance : CustomIpat "winner۰linearized" :=
+    " ( Hwinner_steal{_{!}}
+      & HP
+      )
+    ".
 
-    #[local] Definition winner۰pop' γ_winner front P : iProp Σ :=
-      twins۰twin₁ γ_winner (DfracOwn 1) (front, Next P).
-    #[local] Definition winner۰pop γ :=
-      winner۰pop' γ.(inf_ws_deque_1۰name۰winner).
-    #[local] Definition winner۰steal' γ_winner front P :=
-      twins۰twin₂ γ_winner (front, Next P).
-    #[local] Definition winner۰steal γ :=
-      winner۰steal' γ.(inf_ws_deque_1۰name۰winner).
-    #[local] Definition winner γ : iProp Σ :=
-      ∃ front P1 P2,
-      winner۰pop γ front P1 ∗
-      winner۰steal γ front P2.
-    #[local] Instance : CustomIpat "winner" :=
-      " ( %front_winner
-        & %P_winner_1
-        & %P_winner_2
-        & Hwinner_pop{_{}}
-        & Hwinner_steal{_{}}
-        )
-      ".
-
-    #[local] Definition winner۰au γ front P : iProp Σ :=
-      AU <{
-        ∃∃ vs,
-        model₁ γ vs
-      }> @ ⊤ ∖ ↑γ.(inf_ws_deque_1۰name۰inv), ∅ <{
-        ∀∀ v vs',
-        ⌜vs = v :: vs'⌝ ∗
-        model₁ γ vs' ∗
-        history۰at γ front v
-      , COMM
-        P
-      }>.
-    #[local] Definition winner۰pending₁ γ front P id : iProp Σ :=
-      winner۰steal γ front P ∗
-      identifier۰model id ∗
-      winner۰au γ front P.
-    #[local] Instance : CustomIpat "winner۰pending₁" :=
-      " ( Hwinner_steal{_{!}}
-        & Hid{_{!}}
-        & HP
-        )
-      ".
-    #[local] Definition winner۰pending₂ γ front id : iProp Σ :=
-      ∃ P,
-      winner۰pending₁ γ front P id.
-    #[local] Instance : CustomIpat "winner۰pending₂" :=
-      " ( %P{}
-        & (:winner۰pending₁)
-        )
-      ".
-    #[local] Definition winner۰linearized γ front P : iProp Σ :=
-      winner۰steal γ front P ∗
-      P.
-    #[local] Instance : CustomIpat "winner۰linearized" :=
-      " ( Hwinner_steal{_{!}}
-        & HP
-        )
-      ".
-
-    #[local] Definition inv۰state۰empty γ stable front back hist lhist : iProp Σ :=
-      ⌜stable = Stable⌝ ∗
-      ⌜front = back⌝ ∗
-      ⌜lhist = hist⌝ ∗
-      ⌜length hist = front⌝ ∗
-      winner γ.
-    #[local] Instance : CustomIpat "inv۰state۰empty" :=
-      " ( { {lazy}{>}%
-          ; {lazy}%
-          ; {>}->
-          ; ->
-          }
-        & {>;}->
-        & {>;}->
-        & {>;}%Hhist{}
-        & Hwinner
-        )
-      ".
-    #[local] Definition inv۰state۰nonempty γ stable front back hist lhist vs prophs : iProp Σ :=
-      ⌜stable = Stable⌝ ∗
-      ⌜front < back⌝ ∗
-      ⌜lhist = hist ++ take 1 vs⌝ ∗
-      ⌜length hist = front⌝ ∗
-      ( winner γ
-      ∨ match prophs with
-        | [] =>
-            False
-        | id :: _ =>
-            winner۰pending₂ γ front id
-        end
-      ).
-    #[local] Instance : CustomIpat "inv۰state۰nonempty" :=
-      " ( { {lazy}{>}%
-          ; {lazy}%
-          ; {>}->
-          ; ->
-          }
-        & {>;}%
-        & {>;}->
-        & {>;}%Hhist{}
-        & Hwinner
-        )
-      ".
-    #[local] Definition inv۰state۰nonempty۰steal γ state stable front back hist lhist vs prophs P : iProp Σ :=
-      ⌜state = Nonempty⌝ ∗
-      ⌜stable = Stable⌝ ∗
-      ⌜front < back⌝ ∗
-      ⌜lhist = hist ++ take 1 vs⌝ ∗
-      ⌜length hist = front⌝ ∗
-      match prophs with
+  #[local] Definition inv۰state۰empty γ stable front back hist lhist : iProp Σ :=
+    ⌜stable = Stable⌝ ∗
+    ⌜front = back⌝ ∗
+    ⌜lhist = hist⌝ ∗
+    ⌜length hist = front⌝ ∗
+    winner γ.
+  #[local] Instance : CustomIpat "inv۰state۰empty" :=
+    " ( { {lazy}{>}%
+        ; {lazy}%
+        ; {>}->
+        ; ->
+        }
+      & {>;}->
+      & {>;}->
+      & {>;}%Hhist{}
+      & Hwinner
+      )
+    ".
+  #[local] Definition inv۰state۰nonempty γ stable front back hist lhist vs prophs : iProp Σ :=
+    ⌜stable = Stable⌝ ∗
+    ⌜front < back⌝ ∗
+    ⌜lhist = hist ++ take 1 vs⌝ ∗
+    ⌜length hist = front⌝ ∗
+    ( winner γ
+    ∨ match prophs with
       | [] =>
           False
       | id :: _ =>
-          winner۰pending₁ γ front P id
-      end.
-    #[local] Instance : CustomIpat "inv۰state۰nonempty۰steal" :=
-      " ( {>;}->
-        & { {lazy}{>}%
-          ; {lazy}%
-          ; {>}->
-          ; ->
-          }
-        & {>;}%
-        & {>;}->
-        & {>;}%Hhist{}
-        & (:winner۰pending₁)
-        )
-      ".
-    #[local] Definition inv۰state۰emptyish γ stable front back hist lhist : iProp Σ :=
-      ∃ P,
-      ⌜stable = Unstable⌝ ∗
-      ⌜front = back⌝ ∗
-      ⌜lhist = hist⌝ ∗
-      ⌜length hist = ˖front⌝ ∗
-      ( winner۰pop γ front P
-      ∨ winner۰linearized γ front P
-      ).
-    #[local] Instance : CustomIpat "inv۰state۰emptyish" :=
-      " ( %P_
-        & { {lazy}{>}%
-          ; {lazy}%
-          ; {>}->
-          ; ->
-          }
-        & {>;}->
-        & {>;}->
-        & {>;}%Hhist{}
-        & Hwinner
-        )
-      ".
-    #[local] Definition inv۰state۰emptyish۰pop γ state stable front back hist lhist P : iProp Σ :=
-      ⌜state = Emptyish⌝ ∗
-      ⌜stable = Unstable⌝ ∗
-      ⌜front = back⌝ ∗
-      ⌜lhist = hist⌝ ∗
-      ⌜length hist = ˖front⌝ ∗
-      winner۰pop γ front P.
-    #[local] Instance : CustomIpat "inv۰state۰emptyish۰pop" :=
-      " ( {>;}->
-        & { {lazy}{>}%
-          ; {lazy}%
-          ; {>}->
-          ; ->
-          }
-        & {>;}->
-        & {>;}->
-        & {>;}%Hhist{}
-        & Hwinner_pop
-        )
-      ".
-    #[local] Definition inv۰state۰emptyish۰steal γ state stable front back hist lhist P : iProp Σ :=
-      ⌜state = Emptyish⌝ ∗
-      ⌜stable = Unstable⌝ ∗
-      ⌜front = back⌝ ∗
-      ⌜lhist = hist⌝ ∗
-      ⌜length hist = ˖front⌝ ∗
-      winner۰linearized γ front P.
-    #[local] Instance : CustomIpat "inv۰state۰emptyish۰steal" :=
-      " ( {>;}->
-        & { {lazy}{>}%
-          ; {lazy}%
-          ; {>}->
-          ; ->
-          }
-        & {>;}->
-        & {>;}->
-        & {>;}%Hhist{}
-        & (:winner۰linearized)
-        )
-      ".
-    #[local] Definition inv۰state۰superempty γ stable front back hist lhist : iProp Σ :=
-      ⌜stable = Unstable⌝ ∗
-      ⌜front = ˖back⌝ ∗
-      ⌜lhist = hist⌝ ∗
-      ⌜length hist = front⌝ ∗
-      winner γ.
-    #[local] Instance : CustomIpat "inv۰state۰superempty" :=
-      " ( { {lazy}{>}%
-          ; {lazy}%
-          ; {>}->
-          ; ->
-          }
-        & {>;}->
-        & {>;}->
-        & {>;}%Hhist{}
-        & Hwinner
-        )
-      ".
-    #[local] Definition inv۰state γ state stable front back hist lhist vs prophs : iProp Σ :=
-      match state with
-      | Empty =>
-          inv۰state۰empty γ stable front back hist lhist
-      | Nonempty =>
-          inv۰state۰nonempty γ stable front back hist lhist vs prophs
-      | Emptyish =>
-          inv۰state۰emptyish γ stable front back hist lhist
-      | Superempty =>
-          inv۰state۰superempty γ stable front back hist lhist
-      end.
+          winner۰pending₂ γ front id
+      end
+    ).
+  #[local] Instance : CustomIpat "inv۰state۰nonempty" :=
+    " ( { {lazy}{>}%
+        ; {lazy}%
+        ; {>}->
+        ; ->
+        }
+      & {>;}%
+      & {>;}->
+      & {>;}%Hhist{}
+      & Hwinner
+      )
+    ".
+  #[local] Definition inv۰state۰nonempty۰steal γ state stable front back hist lhist vs prophs P : iProp Σ :=
+    ⌜state = Nonempty⌝ ∗
+    ⌜stable = Stable⌝ ∗
+    ⌜front < back⌝ ∗
+    ⌜lhist = hist ++ take 1 vs⌝ ∗
+    ⌜length hist = front⌝ ∗
+    match prophs with
+    | [] =>
+        False
+    | id :: _ =>
+        winner۰pending₁ γ front P id
+    end.
+  #[local] Instance : CustomIpat "inv۰state۰nonempty۰steal" :=
+    " ( {>;}->
+      & { {lazy}{>}%
+        ; {lazy}%
+        ; {>}->
+        ; ->
+        }
+      & {>;}%
+      & {>;}->
+      & {>;}%Hhist{}
+      & (:winner۰pending₁)
+      )
+    ".
+  #[local] Definition inv۰state۰emptyish γ stable front back hist lhist : iProp Σ :=
+    ∃ P,
+    ⌜stable = Unstable⌝ ∗
+    ⌜front = back⌝ ∗
+    ⌜lhist = hist⌝ ∗
+    ⌜length hist = ˖front⌝ ∗
+    ( winner۰pop γ front P
+    ∨ winner۰linearized γ front P
+    ).
+  #[local] Instance : CustomIpat "inv۰state۰emptyish" :=
+    " ( %P_
+      & { {lazy}{>}%
+        ; {lazy}%
+        ; {>}->
+        ; ->
+        }
+      & {>;}->
+      & {>;}->
+      & {>;}%Hhist{}
+      & Hwinner
+      )
+    ".
+  #[local] Definition inv۰state۰emptyish۰pop γ state stable front back hist lhist P : iProp Σ :=
+    ⌜state = Emptyish⌝ ∗
+    ⌜stable = Unstable⌝ ∗
+    ⌜front = back⌝ ∗
+    ⌜lhist = hist⌝ ∗
+    ⌜length hist = ˖front⌝ ∗
+    winner۰pop γ front P.
+  #[local] Instance : CustomIpat "inv۰state۰emptyish۰pop" :=
+    " ( {>;}->
+      & { {lazy}{>}%
+        ; {lazy}%
+        ; {>}->
+        ; ->
+        }
+      & {>;}->
+      & {>;}->
+      & {>;}%Hhist{}
+      & Hwinner_pop
+      )
+    ".
+  #[local] Definition inv۰state۰emptyish۰steal γ state stable front back hist lhist P : iProp Σ :=
+    ⌜state = Emptyish⌝ ∗
+    ⌜stable = Unstable⌝ ∗
+    ⌜front = back⌝ ∗
+    ⌜lhist = hist⌝ ∗
+    ⌜length hist = ˖front⌝ ∗
+    winner۰linearized γ front P.
+  #[local] Instance : CustomIpat "inv۰state۰emptyish۰steal" :=
+    " ( {>;}->
+      & { {lazy}{>}%
+        ; {lazy}%
+        ; {>}->
+        ; ->
+        }
+      & {>;}->
+      & {>;}->
+      & {>;}%Hhist{}
+      & (:winner۰linearized)
+      )
+    ".
+  #[local] Definition inv۰state۰superempty γ stable front back hist lhist : iProp Σ :=
+    ⌜stable = Unstable⌝ ∗
+    ⌜front = ˖back⌝ ∗
+    ⌜lhist = hist⌝ ∗
+    ⌜length hist = front⌝ ∗
+    winner γ.
+  #[local] Instance : CustomIpat "inv۰state۰superempty" :=
+    " ( { {lazy}{>}%
+        ; {lazy}%
+        ; {>}->
+        ; ->
+        }
+      & {>;}->
+      & {>;}->
+      & {>;}%Hhist{}
+      & Hwinner
+      )
+    ".
+  #[local] Definition inv۰state γ state stable front back hist lhist vs prophs : iProp Σ :=
+    match state with
+    | Empty =>
+        inv۰state۰empty γ stable front back hist lhist
+    | Nonempty =>
+        inv۰state۰nonempty γ stable front back hist lhist vs prophs
+    | Emptyish =>
+        inv۰state۰emptyish γ stable front back hist lhist
+    | Superempty =>
+        inv۰state۰superempty γ stable front back hist lhist
+    end.
 
-    #[local] Definition inv۰inner t γ : iProp Σ :=
-      ∃ state stable front back hist lhist vs priv pasts prophss,
-      t.[front] ↦ #front ∗
-      t.[back] ↦ #back ∗
-      owner₂ γ stable back priv ∗
-      front۰auth γ front ∗
-      ⌜0 < front⌝ ∗
-      model₂ γ vs ∗
-      ⌜length vs = back - front⌝ ∗
-      inf_array۰model' γ.(inf_ws_deque_1۰name۰data) (hist ++ vs) priv ∗
-      history۰auth γ lhist ∗
-      prophet_multi۰model prophet_identifier γ.(inf_ws_deque_1۰name۰prophet) pasts prophss ∗
-      ⌜∀ i, front ≤ i → pasts i = []⌝ ∗
-      inv۰state γ state stable front back hist lhist vs (prophss front).
-    #[local] Instance : CustomIpat "inv۰inner" :=
-      " ( %state{}
-        & %stable{}
-        & %front{}
-        & %back{}
-        & %hist{}
-        & %lhist{}
-        & %vs{}
-        & %priv{}
-        & %pasts{}
-        & %prophss{}
-        & >Ht_front
-        & >Ht_back
-        & >Howner₂
-        & >Hfront_auth
-        & >%Hfront{}
-        & >Hmodel₂
-        & >%Hvs{}
-        & >Hdata_model
-        & >Hhistory_auth
-        & >Hprophet_model
-        & >%Hpasts{}
-        & Hstate
-        )
-      ".
-    #[local] Definition inv' t γ : iProp Σ :=
-      t.[data] ↦□ γ.(inf_ws_deque_1۰name۰data) ∗
-      t.[proph] ↦□ γ.(inf_ws_deque_1۰name۰prophet) ∗
-      inf_array۰inv γ.(inf_ws_deque_1۰name۰data) ∗
-      inv γ.(inf_ws_deque_1۰name۰inv) (inv۰inner t γ).
-    #[local] Instance : CustomIpat "inv'" :=
-      " ( #Ht_data
-        & #Ht_proph
-        & #Hdata_inv
-        & #Hinv
-        )
-      ".
-    Please Definition inf_ws_deque_1۰inv t γ ι : iProp Σ :=
-      ⌜ι = γ.(inf_ws_deque_1۰name۰inv)⌝ ∗
-      inv' t γ.
-    #[local] Instance : CustomIpat "inv" :=
-      " ( ->
-        & (:inv')
-        )
-      ".
+  #[local] Definition inv۰inner γ : iProp Σ :=
+    ∃ state stable front back hist lhist vs priv pasts prophss,
+    γ.(inf_ws_deque_1۰name۰self).[front] ↦ #front ∗
+    γ.(inf_ws_deque_1۰name۰self).[back] ↦ #back ∗
+    owner₂ γ stable back priv ∗
+    front۰auth γ front ∗
+    ⌜0 < front⌝ ∗
+    model₂ γ vs ∗
+    ⌜length vs = back - front⌝ ∗
+    inf_array۰model' γ.(inf_ws_deque_1۰name۰data) (hist ++ vs) priv ∗
+    history۰auth γ lhist ∗
+    prophet_multi۰model prophet_identifier γ.(inf_ws_deque_1۰name۰prophet) pasts prophss ∗
+    ⌜∀ i, front ≤ i → pasts i = []⌝ ∗
+    inv۰state γ state stable front back hist lhist vs (prophss front).
+  #[local] Instance : CustomIpat "inv۰inner" :=
+    " ( %state{}
+      & %stable{}
+      & %front{}
+      & %back{}
+      & %hist{}
+      & %lhist{}
+      & %vs{}
+      & %priv{}
+      & %pasts{}
+      & %prophss{}
+      & >Ht_front
+      & >Ht_back
+      & >Howner₂
+      & >Hfront_auth
+      & >%Hfront{}
+      & >Hmodel₂
+      & >%Hvs{}
+      & >Hdata_model
+      & >Hhistory_auth
+      & >Hprophet_model
+      & >%Hpasts{}
+      & Hstate
+      )
+    ".
+  #[local] Definition inv' γ : iProp Σ :=
+    γ.(inf_ws_deque_1۰name۰self).[data] ↦□ γ.(inf_ws_deque_1۰name۰data) ∗
+    γ.(inf_ws_deque_1۰name۰self).[proph] ↦□ γ.(inf_ws_deque_1۰name۰prophet) ∗
+    inf_array۰inv γ.(inf_ws_deque_1۰name۰data) ∗
+    inv γ.(inf_ws_deque_1۰name۰inv) (inv۰inner γ).
+  #[local] Instance : CustomIpat "inv'" :=
+    " ( #Ht_data
+      & #Ht_proph
+      & #Hdata_inv
+      & #Hinv
+      )
+    ".
+  Please Definition inf_ws_deque_1۰inv γ ι : iProp Σ :=
+    ⌜ι = γ.(inf_ws_deque_1۰name۰inv)⌝ ∗
+    inv' γ.
+  #[local] Instance : CustomIpat "inv" :=
+    " ( ->
+      & (:inv')
+      )
+    ".
 
-    Please Definition inf_ws_deque_1۰model :=
-      model₁.
-    #[local] Instance : CustomIpat "model" :=
-      " Hmodel₁{_{}}
-      ".
+  Please Definition inf_ws_deque_1۰model :=
+    model₁.
+  #[local] Instance : CustomIpat "model" :=
+    " Hmodel₁{_{}}
+    ".
 
-    Please Definition inf_ws_deque_1۰owner γ ws : iProp Σ :=
-      ∃ back priv,
-      owner₁ γ Stable back priv ws.
-    #[local] Instance : CustomIpat "owner" :=
-      " ( %back{}
-        & %priv{}
-        & Howner₁{_{}}
-        )
-      ".
+  Please Definition inf_ws_deque_1۰owner γ ws : iProp Σ :=
+    ∃ back priv,
+    owner₁ γ Stable back priv ws.
+  #[local] Instance : CustomIpat "owner" :=
+    " ( %back{}
+      & %priv{}
+      & Howner₁{_{}}
+      )
+    ".
 
-    Zoo derive Timeless for inf_ws_deque_1۰model.
-    Zoo derive Timeless for inf_ws_deque_1۰owner.
+  Zoo derive Timeless for inf_ws_deque_1۰model.
+  Zoo derive Timeless for inf_ws_deque_1۰owner.
 
-    Zoo derive Persistent for inf_ws_deque_1۰inv.
+  Zoo derive Persistent for inf_ws_deque_1۰inv.
 
-    #[local] Lemma modelｰownerｰalloc :
-      ⊢ |==>
-        ∃ γ_model γ_owner,
-        model₁' γ_model [] ∗
-        model₂' γ_model [] ∗
-        owner₁' γ_owner γ_model Stable 1 (λ _, ()%V) [] ∗
-        owner₂' γ_owner Stable 1 (λ _, ()%V).
-    Proof.
-      iMod (auth_twinsｰalloc _ (auth_twins۰G := inf_ws_deque_1۰G۰model۰G)) as "(%γ_model & Hmodel_auth & Hmodel₁ & Hmodel₂)".
-      iMod (twinsｰalloc' (twins۰G := inf_ws_deque_1۰G۰owner۰G)) as "(%γ_owner & Howner₁ & Howner₂)".
-      iFrameSteps.
-    Qed.
-    #[local] Lemma model₁ｰvalid γ stable back priv ws vs :
-      owner₁ γ stable back priv ws -∗
-      model₁ γ vs -∗
-      ⌜vs `suffix_of` ws⌝.
-    Proof.
-      iIntros "(:owner₁) Hmodel₁".
-      iDestruct (auth_twinsｰvalid₁ with "Hmodel_auth Hmodel₁") as %H.
-      rewrite preorderｰrtc in H. iSteps.
-    Qed.
-    #[local] Lemma model₁ｰexclusive γ vs1 vs2 :
-      model₁ γ vs1 -∗
-      model₁ γ vs2 -∗
-      False.
-    Proof.
-      apply auth_twins۰twin₁ｰexclusive.
-    Qed.
-    #[local] Lemma modelｰagree γ vs1 vs2 :
-      model₁ γ vs1 -∗
-      model₂ γ vs2 -∗
+  #[local] Lemma modelｰownerｰalloc :
+    ⊢ |==>
+      ∃ γ_model γ_owner,
+      model₁' γ_model [] ∗
+      model₂' γ_model [] ∗
+      owner₁' γ_owner γ_model Stable 1 (λ _, ()%V) [] ∗
+      owner₂' γ_owner Stable 1 (λ _, ()%V).
+  Proof.
+    iMod (auth_twinsｰalloc _ (auth_twins۰G := inf_ws_deque_1۰G۰model۰G)) as "(%γ_model & Hmodel_auth & Hmodel₁ & Hmodel₂)".
+    iMod (twinsｰalloc' (twins۰G := inf_ws_deque_1۰G۰owner۰G)) as "(%γ_owner & Howner₁ & Howner₂)".
+    iFrameSteps.
+  Qed.
+  #[local] Lemma model₁ｰvalid γ stable back priv ws vs :
+    owner₁ γ stable back priv ws -∗
+    model₁ γ vs -∗
+    ⌜vs `suffix_of` ws⌝.
+  Proof.
+    iIntros "(:owner₁) Hmodel₁".
+    iDestruct (auth_twinsｰvalid₁ with "Hmodel_auth Hmodel₁") as %H.
+    rewrite preorderｰrtc in H. iSteps.
+  Qed.
+  #[local] Lemma model₁ｰexclusive γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₁ γ vs2 -∗
+    False.
+  Proof.
+    apply auth_twins۰twin₁ｰexclusive.
+  Qed.
+  #[local] Lemma modelｰagree γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 -∗
+    ⌜vs1 = vs2⌝.
+  Proof.
+    apply: auth_twinsｰagreeｰL.
+  Qed.
+  #[local] Lemma model۰owner₁ｰagree γ stable back priv ws vs1 vs2 :
+    owner₁ γ stable back priv ws -∗
+    model₁ γ vs1 -∗
+    model₂ γ vs2 -∗
+      ⌜vs1 `suffix_of` ws⌝ ∗
       ⌜vs1 = vs2⌝.
-    Proof.
-      apply: auth_twinsｰagreeｰL.
-    Qed.
-    #[local] Lemma model۰owner₁ｰagree γ stable back priv ws vs1 vs2 :
-      owner₁ γ stable back priv ws -∗
-      model₁ γ vs1 -∗
-      model₂ γ vs2 -∗
-        ⌜vs1 `suffix_of` ws⌝ ∗
-        ⌜vs1 = vs2⌝.
-    Proof.
-      iIntros "Howner₁ Hmodel₁ Hmodel₂".
-      iDestruct (model₁ｰvalid with "Howner₁ Hmodel₁") as %Hsuffix.
-      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-      iSteps.
-    Qed.
-    #[local] Lemma modelｰempty {γ stable back priv ws vs1 vs2} :
-      owner₁ γ stable back priv ws -∗
-      model₁ γ vs1 -∗
-      model₂ γ vs2 ==∗
-        owner₁ γ stable back priv [] ∗
-        model₁ γ [] ∗
-        model₂ γ [].
-    Proof.
-      iIntros "(:owner₁) Hmodel₁ Hmodel₂".
-      iMod (auth_twinsｰupdateｰauth with "Hmodel_auth Hmodel₁ Hmodel₂") as "(Hmodel_auth & Hmodel₁ & Hmodel₂)".
-      iSteps.
-    Qed.
-    #[local] Lemma modelｰpush {γ stable back priv ws vs1 vs2} v :
-      owner₁ γ stable back priv ws -∗
-      model₁ γ vs1 -∗
-      model₂ γ vs2 ==∗
-        owner₁ γ stable back priv (vs1 ++ [v]) ∗
-        model₁ γ (vs1 ++ [v]) ∗
-        model₂ γ (vs1 ++ [v]).
-    Proof.
-      iIntros "(:owner₁) Hmodel₁ Hmodel₂".
-      iMod (auth_twinsｰupdateｰauth with "Hmodel_auth Hmodel₁ Hmodel₂") as "(Hmodel_auth & Hmodel₁ & Hmodel₂)".
-      iSteps.
-    Qed.
-    #[local] Lemma modelｰsteal γ vs1 vs2 :
-      model₁ γ vs1 -∗
-      model₂ γ vs2 ==∗
-        model₁ γ (tail vs1) ∗
-        model₂ γ (tail vs1).
-    Proof.
-      apply: auth_twinsｰupdateｰtwinsｰL.
-      rewrite preorderｰrtc. apply suffixｰtail. done.
-    Qed.
-    #[local] Lemma modelｰpop γ stable back priv ws vs1 vs2 :
-      owner₁ γ stable back priv ws -∗
-      model₁ γ vs1 -∗
-      model₂ γ vs2 ==∗
-        owner₁ γ stable back priv (removelast vs1) ∗
-        model₁ γ (removelast vs1) ∗
-        model₂ γ (removelast vs1).
-    Proof.
-      iIntros "(:owner₁) Hmodel₁ Hmodel₂".
-      iMod (auth_twinsｰupdateｰauth with "Hmodel_auth Hmodel₁ Hmodel₂") as "(Hmodel_auth & Hmodel₁ & Hmodel₂)".
-      iSteps.
-    Qed.
-    #[local] Lemma modelｰpop' γ stable back priv ws vs1 v vs2 :
-      owner₁ γ stable back priv ws -∗
-      model₁ γ (vs1 ++ [v]) -∗
-      model₂ γ vs2 ==∗
-        owner₁ γ stable back priv vs1 ∗
-        model₁ γ vs1 ∗
-        model₂ γ vs1.
-    Proof.
-      rewrite -{2 3 4}(removelast_last vs1 v).
-      apply modelｰpop.
-    Qed.
+  Proof.
+    iIntros "Howner₁ Hmodel₁ Hmodel₂".
+    iDestruct (model₁ｰvalid with "Howner₁ Hmodel₁") as %Hsuffix.
+    iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+    iSteps.
+  Qed.
+  #[local] Lemma modelｰempty {γ stable back priv ws vs1 vs2} :
+    owner₁ γ stable back priv ws -∗
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      owner₁ γ stable back priv [] ∗
+      model₁ γ [] ∗
+      model₂ γ [].
+  Proof.
+    iIntros "(:owner₁) Hmodel₁ Hmodel₂".
+    iMod (auth_twinsｰupdateｰauth with "Hmodel_auth Hmodel₁ Hmodel₂") as "(Hmodel_auth & Hmodel₁ & Hmodel₂)".
+    iSteps.
+  Qed.
+  #[local] Lemma modelｰpush {γ stable back priv ws vs1 vs2} v :
+    owner₁ γ stable back priv ws -∗
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      owner₁ γ stable back priv (vs1 ++ [v]) ∗
+      model₁ γ (vs1 ++ [v]) ∗
+      model₂ γ (vs1 ++ [v]).
+  Proof.
+    iIntros "(:owner₁) Hmodel₁ Hmodel₂".
+    iMod (auth_twinsｰupdateｰauth with "Hmodel_auth Hmodel₁ Hmodel₂") as "(Hmodel_auth & Hmodel₁ & Hmodel₂)".
+    iSteps.
+  Qed.
+  #[local] Lemma modelｰsteal γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      model₁ γ (tail vs1) ∗
+      model₂ γ (tail vs1).
+  Proof.
+    apply: auth_twinsｰupdateｰtwinsｰL.
+    rewrite preorderｰrtc. apply suffixｰtail. done.
+  Qed.
+  #[local] Lemma modelｰpop γ stable back priv ws vs1 vs2 :
+    owner₁ γ stable back priv ws -∗
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      owner₁ γ stable back priv (removelast vs1) ∗
+      model₁ γ (removelast vs1) ∗
+      model₂ γ (removelast vs1).
+  Proof.
+    iIntros "(:owner₁) Hmodel₁ Hmodel₂".
+    iMod (auth_twinsｰupdateｰauth with "Hmodel_auth Hmodel₁ Hmodel₂") as "(Hmodel_auth & Hmodel₁ & Hmodel₂)".
+    iSteps.
+  Qed.
+  #[local] Lemma modelｰpop' γ stable back priv ws vs1 v vs2 :
+    owner₁ γ stable back priv ws -∗
+    model₁ γ (vs1 ++ [v]) -∗
+    model₂ γ vs2 ==∗
+      owner₁ γ stable back priv vs1 ∗
+      model₁ γ vs1 ∗
+      model₂ γ vs1.
+  Proof.
+    rewrite -{2 3 4}(removelast_last vs1 v).
+    apply modelｰpop.
+  Qed.
 
-    #[local] Lemma owner₁ｰexclusive γ stable1 back1 priv1 ws1 stable2 back2 priv2 ws2 :
-      owner₁ γ stable1 back1 priv1 ws1 -∗
-      owner₁ γ stable2 back2 priv2 ws2 -∗
-      False.
-    Proof.
-      iIntros "(:owner₁ =1) (:owner₁ =2)".
-      iApply (twins۰twin₁ｰexclusive with "Howner₁_1 Howner₁_2").
-    Qed.
-    #[local] Lemma ownerｰagree γ stable1 back1 priv1 ws stable2 back2 priv2 :
-      owner₁ γ stable1 back1 priv1 ws -∗
-      owner₂ γ stable2 back2 priv2 -∗
-        ⌜stable1 = stable2⌝ ∗
-        ⌜back1 = back2⌝ ∗
-        ⌜priv1 = priv2⌝.
-    Proof.
-      iIntros "(:owner₁) Howner₂".
-      iDestruct (twinsｰagreeｰL with "Howner₁ Howner₂") as %[= <- <- <-].
-      iSteps.
-    Qed.
-    #[local] Lemma owner₁ｰupdate γ stable back priv ws vs :
-      owner₁ γ stable back priv ws -∗
-      model₁ γ vs -∗
-      model₂ γ vs ==∗
-        owner₁ γ stable back priv vs ∗
-        model₁ γ vs ∗
-        model₂ γ vs.
-    Proof.
-      iIntros "(:owner₁) Hmodel₁ Hmodel₂".
-      iMod (auth_twinsｰupdateｰauth with "Hmodel_auth Hmodel₁ Hmodel₂") as "($ & $ & $)".
-      iSteps.
-    Qed.
-    #[local] Lemma ownerｰupdate {γ stable1 back1 priv1 ws stable2 back2 priv2} stable back priv :
-      owner₁ γ stable1 back1 priv1 ws -∗
-      owner₂ γ stable2 back2 priv2 ==∗
-        owner₁ γ stable back priv ws ∗
-        owner₂ γ stable back priv.
-    Proof.
-      iIntros "(:owner₁) Howner₂".
-      iMod (twinsｰupdate with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
-      iSteps.
-    Qed.
+  #[local] Lemma owner₁ｰexclusive γ stable1 back1 priv1 ws1 stable2 back2 priv2 ws2 :
+    owner₁ γ stable1 back1 priv1 ws1 -∗
+    owner₁ γ stable2 back2 priv2 ws2 -∗
+    False.
+  Proof.
+    iIntros "(:owner₁ =1) (:owner₁ =2)".
+    iApply (twins۰twin₁ｰexclusive with "Howner₁_1 Howner₁_2").
+  Qed.
+  #[local] Lemma ownerｰagree γ stable1 back1 priv1 ws stable2 back2 priv2 :
+    owner₁ γ stable1 back1 priv1 ws -∗
+    owner₂ γ stable2 back2 priv2 -∗
+      ⌜stable1 = stable2⌝ ∗
+      ⌜back1 = back2⌝ ∗
+      ⌜priv1 = priv2⌝.
+  Proof.
+    iIntros "(:owner₁) Howner₂".
+    iDestruct (twinsｰagreeｰL with "Howner₁ Howner₂") as %[= <- <- <-].
+    iSteps.
+  Qed.
+  #[local] Lemma owner₁ｰupdate γ stable back priv ws vs :
+    owner₁ γ stable back priv ws -∗
+    model₁ γ vs -∗
+    model₂ γ vs ==∗
+      owner₁ γ stable back priv vs ∗
+      model₁ γ vs ∗
+      model₂ γ vs.
+  Proof.
+    iIntros "(:owner₁) Hmodel₁ Hmodel₂".
+    iMod (auth_twinsｰupdateｰauth with "Hmodel_auth Hmodel₁ Hmodel₂") as "($ & $ & $)".
+    iSteps.
+  Qed.
+  #[local] Lemma ownerｰupdate {γ stable1 back1 priv1 ws stable2 back2 priv2} stable back priv :
+    owner₁ γ stable1 back1 priv1 ws -∗
+    owner₂ γ stable2 back2 priv2 ==∗
+      owner₁ γ stable back priv ws ∗
+      owner₂ γ stable back priv.
+  Proof.
+    iIntros "(:owner₁) Howner₂".
+    iMod (twinsｰupdate with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+    iSteps.
+  Qed.
 
-    #[local] Lemma frontｰalloc :
-      ⊢ |==>
-        ∃ γ_front,
-        front۰auth' γ_front 1.
-    Proof.
-      apply auth_nat_maxｰalloc.
-    Qed.
-    #[local] Lemma front۰lbｰget γ front :
-      front۰auth γ front ⊢
-      front۰lb γ front.
-    Proof.
-      apply auth_nat_max۰lbｰget.
-    Qed.
-    #[local] Lemma front۰lbｰle {γ front} front' :
-      front' ≤ front →
-      front۰lb γ front ⊢
-      front۰lb γ front'.
-    Proof.
-      apply auth_nat_max۰lbｰle.
-    Qed.
-    #[local] Lemma front۰lbｰvalid γ front1 front2 :
-      front۰auth γ front1 -∗
-      front۰lb γ front2 -∗
-      ⌜front2 ≤ front1⌝.
-    Proof.
-      apply auth_nat_max۰lbｰvalid.
-    Qed.
-    #[local] Lemma frontｰupdate γ front :
-      front۰auth γ front ⊢ |==>
-      front۰auth γ ˖front.
-    Proof.
-      apply auth_nat_maxｰupdate; first lia.
-    Qed.
+  #[local] Lemma frontｰalloc :
+    ⊢ |==>
+      ∃ γ_front,
+      front۰auth' γ_front 1.
+  Proof.
+    apply auth_nat_maxｰalloc.
+  Qed.
+  #[local] Lemma front۰lbｰget γ front :
+    front۰auth γ front ⊢
+    front۰lb γ front.
+  Proof.
+    apply auth_nat_max۰lbｰget.
+  Qed.
+  #[local] Lemma front۰lbｰle {γ front} front' :
+    front' ≤ front →
+    front۰lb γ front ⊢
+    front۰lb γ front'.
+  Proof.
+    apply auth_nat_max۰lbｰle.
+  Qed.
+  #[local] Lemma front۰lbｰvalid γ front1 front2 :
+    front۰auth γ front1 -∗
+    front۰lb γ front2 -∗
+    ⌜front2 ≤ front1⌝.
+  Proof.
+    apply auth_nat_max۰lbｰvalid.
+  Qed.
+  #[local] Lemma frontｰupdate γ front :
+    front۰auth γ front ⊢ |==>
+    front۰auth γ ˖front.
+  Proof.
+    apply auth_nat_maxｰupdate; first lia.
+  Qed.
 
-    #[local] Lemma historyｰalloc :
-      ⊢ |==>
-        ∃ γ_hist,
-        history۰auth' γ_hist [()%V].
-    Proof.
-      apply mono_listｰalloc.
-    Qed.
-    #[local] Lemma history۰atｰget {γ hist v} i :
-      i = length hist →
-      history۰auth γ (hist ++ [v]) ⊢
+  #[local] Lemma historyｰalloc :
+    ⊢ |==>
+      ∃ γ_hist,
+      history۰auth' γ_hist [()%V].
+  Proof.
+    apply mono_listｰalloc.
+  Qed.
+  #[local] Lemma history۰atｰget {γ hist v} i :
+    i = length hist →
+    history۰auth γ (hist ++ [v]) ⊢
+    history۰at γ i v.
+  Proof.
+    intros ->.
+    apply mono_list۰atｰget, list_lookup_middle. done.
+  Qed.
+  #[local] Lemma history۰atｰlookup γ hist i v :
+    history۰auth γ hist -∗
+    history۰at γ i v -∗
+    ⌜hist !! i = Some v⌝.
+  Proof.
+    apply mono_list۰atｰvalid.
+  Qed.
+  #[local] Lemma history۰atｰagree γ i v1 v2 :
+    history۰at γ i v1 -∗
+    history۰at γ i v2 -∗
+    ⌜v1 = v2⌝.
+  Proof.
+    apply mono_list۰atｰagree.
+  Qed.
+  #[local] Lemma historyｰupdate {γ hist} i v :
+    i = length hist →
+    history۰auth γ hist ⊢ |==>
+      history۰auth γ (hist ++ [v]) ∗
       history۰at γ i v.
-    Proof.
-      intros ->.
-      apply mono_list۰atｰget, list_lookup_middle. done.
-    Qed.
-    #[local] Lemma history۰atｰlookup γ hist i v :
-      history۰auth γ hist -∗
-      history۰at γ i v -∗
-      ⌜hist !! i = Some v⌝.
-    Proof.
-      apply mono_list۰atｰvalid.
-    Qed.
-    #[local] Lemma history۰atｰagree γ i v1 v2 :
-      history۰at γ i v1 -∗
-      history۰at γ i v2 -∗
-      ⌜v1 = v2⌝.
-    Proof.
-      apply mono_list۰atｰagree.
-    Qed.
-    #[local] Lemma historyｰupdate {γ hist} i v :
-      i = length hist →
-      history۰auth γ hist ⊢ |==>
-        history۰auth γ (hist ++ [v]) ∗
-        history۰at γ i v.
-    Proof.
-      iIntros (->) "Hauth".
-      iMod (mono_listｰupdateｰsnoc with "Hauth") as "Hauth".
-      iDestruct (history۰atｰget with "Hauth") as "#Hat"; first done.
+  Proof.
+    iIntros (->) "Hauth".
+    iMod (mono_listｰupdateｰsnoc with "Hauth") as "Hauth".
+    iDestruct (history۰atｰget with "Hauth") as "#Hat"; first done.
+    iSteps.
+  Qed.
+
+  #[local] Lemma winnerｰalloc :
+    ⊢ |==>
+      ∃ γ_winner,
+      winner۰pop' γ_winner 1 True ∗
+      winner۰steal' γ_winner 1 True.
+  Proof.
+    apply twinsｰalloc'.
+  Qed.
+  #[local] Lemma winner۰popｰexclusive γ front1 P1 front2 P2 :
+    winner۰pop γ front1 P1 -∗
+    winner۰pop γ front2 P2 -∗
+    False.
+  Proof.
+    apply twins۰twin₁ｰexclusive.
+  Qed.
+  #[local] Lemma winner۰popｰexclusive' γ front P :
+    winner۰pop γ front P -∗
+    winner γ -∗
+    False.
+  Proof.
+    iIntros "Hwinner_pop_1 (:winner =2)".
+    iApply (winner۰popｰexclusive with "Hwinner_pop_1 Hwinner_pop_2").
+  Qed.
+  #[local] Lemma winner۰stealｰexclusive γ front1 P1 front2 P2 :
+    winner۰steal γ front1 P1 -∗
+    winner۰steal γ front2 P2 -∗
+    False.
+  Proof.
+    apply twins۰twin₂ｰexclusive.
+  Qed.
+  #[local] Lemma winner۰stealｰexclusive' γ front P :
+    winner۰steal γ front P -∗
+    winner γ -∗
+    False.
+  Proof.
+    iIntros "Hwinner_steal_1 (:winner =2)".
+    iApply (winner۰stealｰexclusive with "Hwinner_steal_1 Hwinner_steal_2").
+  Qed.
+  #[local] Lemma winnerｰagree γ front1 P1 front2 P2 :
+    winner۰pop γ front1 P1 -∗
+    winner۰steal γ front2 P2 -∗
+      ⌜front1 = front2⌝ ∗
+      ▷ (P1 ≡ P2).
+  Proof.
+    iIntros "Hwinner_pop Hwinner_steal".
+    iDestruct (twinsｰagree with "Hwinner_pop Hwinner_steal") as "#Heq".
+    rewrite prod_equivI /= discrete_eq_1.
+    iDestruct "Heq" as "($ & $)".
+  Qed.
+  #[local] Lemma winnerｰupdate {γ front1 P1 front2 P2} front P :
+    winner۰pop γ front1 P1 -∗
+    winner۰steal γ front2 P2 ==∗
+      winner۰pop γ front P ∗
+      winner۰steal γ front P.
+  Proof.
+    apply twinsｰupdate.
+  Qed.
+
+  Opaque owner₁'.
+
+  Lemma inf_ws_deque_1۰modelｰexclusive γ vs1 vs2 :
+    inf_ws_deque_1۰model γ vs1 -∗
+    inf_ws_deque_1۰model γ vs2 -∗
+    False.
+  Proof.
+    apply model₁ｰexclusive.
+  Qed.
+
+  Lemma inf_ws_deque_1۰ownerｰexclusive γ ws1 ws2 :
+    inf_ws_deque_1۰owner γ ws1 -∗
+    inf_ws_deque_1۰owner γ ws2 -∗
+    False.
+  Proof.
+    iIntros "(:owner =1) (:owner =2)".
+    iApply (owner₁ｰexclusive with "Howner₁_1 Howner₁_2").
+  Qed.
+  Lemma inf_ws_deque_1ｰownerｰmodel γ ws vs :
+    inf_ws_deque_1۰owner γ ws -∗
+    inf_ws_deque_1۰model γ vs -∗
+    ⌜vs `suffix_of` ws⌝.
+  Proof.
+    iIntros "(:owner =1) (:model =2)".
+    iApply (model₁ｰvalid with "Howner₁_1 Hmodel₁_2").
+  Qed.
+
+  #[local] Lemma inv۰stateｰStable γ state front back hist lhist vs prophs :
+    length vs = back - front →
+    inv۰state γ state Stable front back hist lhist vs prophs ⊢
+      ⌜state = Empty ∨ state = Nonempty⌝ ∗
+      ⌜front ≤ back⌝ ∗
+      ⌜length (hist ++ vs) = back⌝.
+  Proof.
+    iIntros "%Hvs Hstate".
+    rewrite length_app.
+    destruct state.
+    - iDestruct "Hstate" as "(:inv۰state۰empty lazy=)".
       iSteps.
-    Qed.
-
-    #[local] Lemma winnerｰalloc :
-      ⊢ |==>
-        ∃ γ_winner,
-        winner۰pop' γ_winner 1 True ∗
-        winner۰steal' γ_winner 1 True.
-    Proof.
-      apply twinsｰalloc'.
-    Qed.
-    #[local] Lemma winner۰popｰexclusive γ front1 P1 front2 P2 :
-      winner۰pop γ front1 P1 -∗
-      winner۰pop γ front2 P2 -∗
-      False.
-    Proof.
-      apply twins۰twin₁ｰexclusive.
-    Qed.
-    #[local] Lemma winner۰popｰexclusive' γ front P :
-      winner۰pop γ front P -∗
-      winner γ -∗
-      False.
-    Proof.
-      iIntros "Hwinner_pop_1 (:winner =2)".
-      iApply (winner۰popｰexclusive with "Hwinner_pop_1 Hwinner_pop_2").
-    Qed.
-    #[local] Lemma winner۰stealｰexclusive γ front1 P1 front2 P2 :
-      winner۰steal γ front1 P1 -∗
-      winner۰steal γ front2 P2 -∗
-      False.
-    Proof.
-      apply twins۰twin₂ｰexclusive.
-    Qed.
-    #[local] Lemma winner۰stealｰexclusive' γ front P :
-      winner۰steal γ front P -∗
-      winner γ -∗
-      False.
-    Proof.
-      iIntros "Hwinner_steal_1 (:winner =2)".
-      iApply (winner۰stealｰexclusive with "Hwinner_steal_1 Hwinner_steal_2").
-    Qed.
-    #[local] Lemma winnerｰagree γ front1 P1 front2 P2 :
-      winner۰pop γ front1 P1 -∗
-      winner۰steal γ front2 P2 -∗
-        ⌜front1 = front2⌝ ∗
-        ▷ (P1 ≡ P2).
-    Proof.
-      iIntros "Hwinner_pop Hwinner_steal".
-      iDestruct (twinsｰagree with "Hwinner_pop Hwinner_steal") as "#Heq".
-      rewrite prod_equivI /= discrete_eq_1.
-      iDestruct "Heq" as "($ & $)".
-    Qed.
-    #[local] Lemma winnerｰupdate {γ front1 P1 front2 P2} front P :
-      winner۰pop γ front1 P1 -∗
-      winner۰steal γ front2 P2 ==∗
-        winner۰pop γ front P ∗
-        winner۰steal γ front P.
-    Proof.
-      apply twinsｰupdate.
-    Qed.
-
-    Opaque owner₁'.
-
-    Lemma inf_ws_deque_1۰modelｰexclusive γ vs1 vs2 :
-      inf_ws_deque_1۰model γ vs1 -∗
-      inf_ws_deque_1۰model γ vs2 -∗
-      False.
-    Proof.
-      apply model₁ｰexclusive.
-    Qed.
-
-    Lemma inf_ws_deque_1۰ownerｰexclusive γ ws1 ws2 :
-      inf_ws_deque_1۰owner γ ws1 -∗
-      inf_ws_deque_1۰owner γ ws2 -∗
-      False.
-    Proof.
-      iIntros "(:owner =1) (:owner =2)".
-      iApply (owner₁ｰexclusive with "Howner₁_1 Howner₁_2").
-    Qed.
-    Lemma inf_ws_deque_1۰ownerｰmodel γ ws vs :
-      inf_ws_deque_1۰owner γ ws -∗
-      inf_ws_deque_1۰model γ vs -∗
-      ⌜vs `suffix_of` ws⌝.
-    Proof.
-      iIntros "(:owner =1) (:model =2)".
-      iApply (model₁ｰvalid with "Howner₁_1 Hmodel₁_2").
-    Qed.
-
-    #[local] Lemma inv۰stateｰStable γ state front back hist lhist vs prophs :
-      length vs = back - front →
-      inv۰state γ state Stable front back hist lhist vs prophs ⊢
-        ⌜state = Empty ∨ state = Nonempty⌝ ∗
-        ⌜front ≤ back⌝ ∗
-        ⌜length (hist ++ vs) = back⌝.
-    Proof.
-      iIntros "%Hvs Hstate".
-      rewrite length_app.
-      destruct state.
-      - iDestruct "Hstate" as "(:inv۰state۰empty lazy=)".
+    - iDestruct "Hstate" as "(:inv۰state۰nonempty lazy=)".
+      iSteps.
+    - iDestruct "Hstate" as "(:inv۰state۰emptyish lazy=)". done.
+    - iDestruct "Hstate" as "(:inv۰state۰superempty lazy=)". done.
+  Qed.
+  #[local] Lemma inv۰stateｰUnstable γ state front back hist lhist vs prophs :
+    inv۰state γ state Unstable front back hist lhist vs prophs ⊢
+      ⌜state = Emptyish ∨ state = Superempty⌝ ∗
+      ⌜front = back ∨ front = ˖back⌝.
+  Proof.
+    iIntros "Hstate".
+    destruct state.
+    - iDestruct "Hstate" as "(:inv۰state۰empty lazy=)". done.
+    - iDestruct "Hstate" as "(:inv۰state۰nonempty lazy=)". done.
+    - iDestruct "Hstate" as "(:inv۰state۰emptyish lazy=)".
+      iSteps.
+    - iDestruct "Hstate" as "(:inv۰state۰superempty lazy=)".
+      iSteps.
+  Qed.
+  #[local] Lemma inv۰stateｰNonempty γ state stable front back hist lhist vs prophs :
+    front < back →
+    inv۰state γ state stable front back hist lhist vs prophs ⊢
+    ⌜state = Nonempty⌝.
+  Proof.
+    iIntros "% Hstate".
+    destruct state.
+    - iDestruct "Hstate" as "(:inv۰state۰empty)". lia.
+    - done.
+    - iDestruct "Hstate" as "(:inv۰state۰emptyish)". lia.
+    - iDestruct "Hstate" as "(:inv۰state۰superempty)". lia.
+  Qed.
+  #[local] Lemma inv۰stateｰSuperempty γ state front back hist lhist vs prophs :
+    back < front →
+    inv۰state γ state Unstable front back hist lhist vs prophs -∗
+    ⌜state = Superempty⌝.
+  Proof.
+    iIntros "% Hstate".
+    destruct state.
+    - iDestruct "Hstate" as "(:inv۰state۰empty lazy=)". done.
+    - iDestruct "Hstate" as "(:inv۰state۰nonempty lazy=)". done.
+    - iDestruct "Hstate" as "(:inv۰state۰emptyish lazy=)". lia.
+    - done.
+  Qed.
+  #[local] Lemma inv۰stateｰwinner۰pop γ state stable front1 back hist lhist vs prophs front2 P :
+    inv۰state γ state stable front1 back hist lhist vs prophs -∗
+    winner۰pop γ front2 P -∗
+      ∃ P_,
+      ⌜front1 = front2⌝ ∗
+      ▷ (P ≡ P_) ∗
+      ( inv۰state۰nonempty۰steal γ state stable front2 back hist lhist vs prophs P_
+      ∨ inv۰state۰emptyish۰steal γ state stable front2 back hist lhist P_
+      ) ∗
+      winner۰pop γ front2 P.
+  Proof.
+    iIntros "Hstate Hwinner_pop".
+    destruct state.
+    - iDestruct "Hstate" as "(:inv۰state۰empty)".
+      iDestruct "Hwinner" as "(:winner =3)".
+      iDestruct (winner۰popｰexclusive with "Hwinner_pop Hwinner_pop_3") as %[].
+    - iDestruct "Hstate" as "(:inv۰state۰nonempty)".
+      iDestruct "Hwinner" as "[(:winner =3) | Hwinner]".
+      + iDestruct (winner۰popｰexclusive with "Hwinner_pop Hwinner_pop_3") as %[].
+      + destruct prophs as [| id prophs]; first done.
+        iDestruct "Hwinner" as "(:winner۰pending₂ =_)".
+        iDestruct (winnerｰagree with "Hwinner_pop Hwinner_steal") as "#(<- & $)".
         iSteps.
-      - iDestruct "Hstate" as "(:inv۰state۰nonempty lazy=)".
+    - iDestruct "Hstate" as "(:inv۰state۰emptyish)".
+      iDestruct "Hwinner" as "[Hwinner_pop_ | (:winner۰linearized)]".
+      + iDestruct (winner۰popｰexclusive with "Hwinner_pop Hwinner_pop_") as %[].
+      + iDestruct (winnerｰagree with "Hwinner_pop Hwinner_steal") as "#(<- & $)".
         iSteps.
-      - iDestruct "Hstate" as "(:inv۰state۰emptyish lazy=)". done.
-      - iDestruct "Hstate" as "(:inv۰state۰superempty lazy=)". done.
-    Qed.
-    #[local] Lemma inv۰stateｰUnstable γ state front back hist lhist vs prophs :
-      inv۰state γ state Unstable front back hist lhist vs prophs ⊢
-        ⌜state = Emptyish ∨ state = Superempty⌝ ∗
-        ⌜front = back ∨ front = ˖back⌝.
-    Proof.
-      iIntros "Hstate".
-      destruct state.
-      - iDestruct "Hstate" as "(:inv۰state۰empty lazy=)". done.
-      - iDestruct "Hstate" as "(:inv۰state۰nonempty lazy=)". done.
-      - iDestruct "Hstate" as "(:inv۰state۰emptyish lazy=)".
-        iSteps.
-      - iDestruct "Hstate" as "(:inv۰state۰superempty lazy=)".
-        iSteps.
-    Qed.
-    #[local] Lemma inv۰stateｰNonempty γ state stable front back hist lhist vs prophs :
-      front < back →
-      inv۰state γ state stable front back hist lhist vs prophs ⊢
-      ⌜state = Nonempty⌝.
-    Proof.
-      iIntros "% Hstate".
-      destruct state.
-      - iDestruct "Hstate" as "(:inv۰state۰empty)". lia.
-      - done.
-      - iDestruct "Hstate" as "(:inv۰state۰emptyish)". lia.
-      - iDestruct "Hstate" as "(:inv۰state۰superempty)". lia.
-    Qed.
-    #[local] Lemma inv۰stateｰSuperempty γ state front back hist lhist vs prophs :
-      back < front →
-      inv۰state γ state Unstable front back hist lhist vs prophs -∗
-      ⌜state = Superempty⌝.
-    Proof.
-      iIntros "% Hstate".
-      destruct state.
-      - iDestruct "Hstate" as "(:inv۰state۰empty lazy=)". done.
-      - iDestruct "Hstate" as "(:inv۰state۰nonempty lazy=)". done.
-      - iDestruct "Hstate" as "(:inv۰state۰emptyish lazy=)". lia.
-      - done.
-    Qed.
-    #[local] Lemma inv۰stateｰwinner۰pop γ state stable front1 back hist lhist vs prophs front2 P :
-      inv۰state γ state stable front1 back hist lhist vs prophs -∗
-      winner۰pop γ front2 P -∗
-        ∃ P_,
-        ⌜front1 = front2⌝ ∗
-        ▷ (P ≡ P_) ∗
-        ( inv۰state۰nonempty۰steal γ state stable front2 back hist lhist vs prophs P_
-        ∨ inv۰state۰emptyish۰steal γ state stable front2 back hist lhist P_
-        ) ∗
-        winner۰pop γ front2 P.
-    Proof.
-      iIntros "Hstate Hwinner_pop".
-      destruct state.
-      - iDestruct "Hstate" as "(:inv۰state۰empty)".
-        iDestruct "Hwinner" as "(:winner =3)".
-        iDestruct (winner۰popｰexclusive with "Hwinner_pop Hwinner_pop_3") as %[].
-      - iDestruct "Hstate" as "(:inv۰state۰nonempty)".
-        iDestruct "Hwinner" as "[(:winner =3) | Hwinner]".
-        + iDestruct (winner۰popｰexclusive with "Hwinner_pop Hwinner_pop_3") as %[].
-        + destruct prophs as [| id prophs]; first done.
-          iDestruct "Hwinner" as "(:winner۰pending₂ =_)".
-          iDestruct (winnerｰagree with "Hwinner_pop Hwinner_steal") as "#(<- & $)".
-          iSteps.
-      - iDestruct "Hstate" as "(:inv۰state۰emptyish)".
-        iDestruct "Hwinner" as "[Hwinner_pop_ | (:winner۰linearized)]".
-        + iDestruct (winner۰popｰexclusive with "Hwinner_pop Hwinner_pop_") as %[].
-        + iDestruct (winnerｰagree with "Hwinner_pop Hwinner_steal") as "#(<- & $)".
-          iSteps.
-      - iDestruct "Hstate" as "(:inv۰state۰superempty)".
-        iDestruct "Hwinner" as "(:winner =3)".
-        iDestruct (winner۰popｰexclusive with "Hwinner_pop Hwinner_pop_3") as %[].
-    Qed.
-    #[local] Lemma inv۰stateｰwinner۰steal γ state stable front1 back hist lhist vs prophs front2 P :
-      inv۰state γ state stable front1 back hist lhist vs prophs -∗
-      winner۰steal γ front2 P -∗
-        ∃ P_,
-        ⌜front1 = front2⌝ ∗
-        ▷ (P_ ≡ P) ∗
-        inv۰state۰emptyish۰pop γ state stable front2 back hist lhist P_ ∗
-        winner۰steal γ front2 P.
-    Proof.
-      iIntros "Hstate Hwinner_steal".
-      destruct state.
-      - iDestruct "Hstate" as "(:inv۰state۰empty)".
-        iDestruct "Hwinner" as "(:winner =3)".
+    - iDestruct "Hstate" as "(:inv۰state۰superempty)".
+      iDestruct "Hwinner" as "(:winner =3)".
+      iDestruct (winner۰popｰexclusive with "Hwinner_pop Hwinner_pop_3") as %[].
+  Qed.
+  #[local] Lemma inv۰stateｰwinner۰steal γ state stable front1 back hist lhist vs prophs front2 P :
+    inv۰state γ state stable front1 back hist lhist vs prophs -∗
+    winner۰steal γ front2 P -∗
+      ∃ P_,
+      ⌜front1 = front2⌝ ∗
+      ▷ (P_ ≡ P) ∗
+      inv۰state۰emptyish۰pop γ state stable front2 back hist lhist P_ ∗
+      winner۰steal γ front2 P.
+  Proof.
+    iIntros "Hstate Hwinner_steal".
+    destruct state.
+    - iDestruct "Hstate" as "(:inv۰state۰empty)".
+      iDestruct "Hwinner" as "(:winner =3)".
+      iDestruct (winner۰stealｰexclusive with "Hwinner_steal Hwinner_steal_3") as %[].
+    - iDestruct "Hstate" as "(:inv۰state۰nonempty)".
+      destruct prophs as [| id prophs].
+      + iDestruct "Hwinner" as "[(:winner =3) | []]".
         iDestruct (winner۰stealｰexclusive with "Hwinner_steal Hwinner_steal_3") as %[].
-      - iDestruct "Hstate" as "(:inv۰state۰nonempty)".
-        destruct prophs as [| id prophs].
-        + iDestruct "Hwinner" as "[(:winner =3) | []]".
-          iDestruct (winner۰stealｰexclusive with "Hwinner_steal Hwinner_steal_3") as %[].
-        + iDestruct "Hwinner" as "[(:winner =3) | (:winner۰pending₂ =_ !=)]".
-          * iDestruct (winner۰stealｰexclusive with "Hwinner_steal Hwinner_steal_3") as %[].
-          * iDestruct (winner۰stealｰexclusive with "Hwinner_steal Hwinner_steal_") as %[].
-      - iDestruct "Hstate" as "(:inv۰state۰emptyish)".
-        iDestruct "Hwinner" as "[Hwinner_pop | (:winner۰linearized !=)]".
-        + iDestruct (winnerｰagree with "Hwinner_pop Hwinner_steal") as "#(<- & $)".
-          iSteps.
-        + iDestruct (winner۰stealｰexclusive with "Hwinner_steal Hwinner_steal_") as %[].
-      - iDestruct "Hstate" as "(:inv۰state۰superempty)".
-        iDestruct "Hwinner" as "(:winner =3)".
-        iDestruct (winner۰stealｰexclusive with "Hwinner_steal Hwinner_steal_3") as %[].
-    Qed.
+      + iDestruct "Hwinner" as "[(:winner =3) | (:winner۰pending₂ =_ !=)]".
+        * iDestruct (winner۰stealｰexclusive with "Hwinner_steal Hwinner_steal_3") as %[].
+        * iDestruct (winner۰stealｰexclusive with "Hwinner_steal Hwinner_steal_") as %[].
+    - iDestruct "Hstate" as "(:inv۰state۰emptyish)".
+      iDestruct "Hwinner" as "[Hwinner_pop | (:winner۰linearized !=)]".
+      + iDestruct (winnerｰagree with "Hwinner_pop Hwinner_steal") as "#(<- & $)".
+        iSteps.
+      + iDestruct (winner۰stealｰexclusive with "Hwinner_steal Hwinner_steal_") as %[].
+    - iDestruct "Hstate" as "(:inv۰state۰superempty)".
+      iDestruct "Hwinner" as "(:winner =3)".
+      iDestruct (winner۰stealｰexclusive with "Hwinner_steal Hwinner_steal_3") as %[].
+  Qed.
 
-    Lemma inf_ws_deque_1٠createｰspec ι :
-      {{{
-        True
-      }}}
-        inf_ws_deque_1٠create ()
-      {{{
-        t γ
-      , RET #t;
-        meta_token t ⊤ ∗
-        inf_ws_deque_1۰inv t γ ι ∗
-        inf_ws_deque_1۰model γ [] ∗
-        inf_ws_deque_1۰owner γ []
-      }}}.
-    Proof.
-      iIntros "%Φ _ HΦ".
+  Lemma inf_ws_deque_1٠createｰspec ι :
+    {{{
+      True
+    }}}
+      inf_ws_deque_1٠create ()
+    {{{
+      γ
+    , RET γ;
+      inf_ws_deque_1۰inv γ ι ∗
+      inf_ws_deque_1۰model γ [] ∗
+      inf_ws_deque_1۰owner γ []
+    }}}.
+  Proof.
+    iIntros "%Φ _ HΦ".
 
-      wp۰rec.
+    wp۰rec.
 
-      wp۰apply (prophet_multiｰwpｰproph prophet_identifier with "[//]") as (γ_prophet prophss) "Hprophet_model".
+    wp۰apply (prophet_multiｰwpｰproph prophet_identifier with "[//]") as (γ_prophet prophss) "Hprophet_model".
 
-      wp۰apply (inf_array٠createｰspec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
-      iApply (inf_array۰modelｰtoｰmodel'ｰconstant 1) in "Hdata_model".
+    wp۰apply (inf_array٠createｰspec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
+    iApply (inf_array۰modelｰtoｰmodel'ｰconstant 1) in "Hdata_model".
 
-      wp۰block t as "Ht_front Ht_back #Ht_data #Ht_proph" meta:"Hmeta".
+    wp۰block t as "Ht_front Ht_back #Ht_data #Ht_proph".
 
-      iMod modelｰownerｰalloc as "(%γ_model & %γ_owner & Hmodel₁ & Hmodel₂ & Howner₁ & Howner₂)".
-      iMod frontｰalloc as "(%γ_front & Hfront_auth)".
-      iMod historyｰalloc as "(%γ_history & Hhist_auth)".
-      iMod winnerｰalloc as "(%γ_winner & Hwinner_pop & Hwinner_steal)".
+    iMod modelｰownerｰalloc as "(%γ_model & %γ_owner & Hmodel₁ & Hmodel₂ & Howner₁ & Howner₂)".
+    iMod frontｰalloc as "(%γ_front & Hfront_auth)".
+    iMod historyｰalloc as "(%γ_history & Hhist_auth)".
+    iMod winnerｰalloc as "(%γ_winner & Hwinner_pop & Hwinner_steal)".
 
-      set γ :=
-        {|inf_ws_deque_1۰name۰data := data
-        ; inf_ws_deque_1۰name۰inv := ι
-        ; inf_ws_deque_1۰name۰prophet := γ_prophet
-        ; inf_ws_deque_1۰name۰model := γ_model
-        ; inf_ws_deque_1۰name۰owner := γ_owner
-        ; inf_ws_deque_1۰name۰front := γ_front
-        ; inf_ws_deque_1۰name۰history := γ_history
-        ; inf_ws_deque_1۰name۰winner := γ_winner
-        |}.
+    pose γ :=
+      {|inf_ws_deque_1۰name۰self := t
+      ; inf_ws_deque_1۰name۰data := data
+      ; inf_ws_deque_1۰name۰inv := ι
+      ; inf_ws_deque_1۰name۰prophet := γ_prophet
+      ; inf_ws_deque_1۰name۰model := γ_model
+      ; inf_ws_deque_1۰name۰owner := γ_owner
+      ; inf_ws_deque_1۰name۰front := γ_front
+      ; inf_ws_deque_1۰name۰history := γ_history
+      ; inf_ws_deque_1۰name۰winner := γ_winner
+      |}.
 
-      iApply ("HΦ" $! t γ).
-      iFrame "#∗". iStep.
-      iApply inv_alloc.
-      iExists Empty, Stable, 1, 1, [()%V], [inhabitant], [], (λ _, ()%V), (λ _, []), prophss. iFrameSteps.
-    Qed.
+    iApply ("HΦ" $! γ).
+    iFrame "#∗". iStep.
+    iApply inv_alloc.
+    iExists Empty, Stable, 1, 1, [()%V], [inhabitant], [], (λ _, ()%V), (λ _, []), prophss. iFrameSteps.
+  Qed.
 
-    #[local] Lemma frontｰspec t γ :
-      {{{
-        inv' t γ
-      }}}
-        (#t).{front}
-      {{{
-        front
-      , RET #front;
-        front۰lb γ front
-      }}}.
-    Proof.
-      iIntros "%Φ (:inv') HΦ".
+  #[local] Lemma frontｰspec γ :
+    {{{
+      inv' γ
+    }}}
+      (#γ.(inf_ws_deque_1۰name۰self)).{front}
+    {{{
+      front
+    , RET #front;
+      front۰lb γ front
+    }}}.
+  Proof.
+    iIntros "%Φ (:inv') HΦ".
 
-      iInv "Hinv" as "(:inv۰inner)".
-      wp۰load.
-      iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb_1".
-      iFrameSteps.
-    Qed.
-    #[local] Lemma frontｰspecｰownerｰStable t γ back priv ws :
-      {{{
-        inv' t γ ∗
-        owner₁ γ Stable back priv ws
-      }}}
-        (#t).{front}
-      {{{
-        front
-      , RET #front;
-        owner₁ γ Stable back priv ws ∗
-        front۰lb γ front ∗
-        ⌜front ≤ back⌝
-      }}}.
-    Proof.
-      iIntros "%Φ ((:inv') & Howner₁) HΦ".
+    iInv "Hinv" as "(:inv۰inner)".
+    wp۰load.
+    iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb_1".
+    iFrameSteps.
+  Qed.
+  #[local] Lemma frontｰspecｰownerｰStable γ back priv ws :
+    {{{
+      inv' γ ∗
+      owner₁ γ Stable back priv ws
+    }}}
+      (#γ.(inf_ws_deque_1۰name۰self)).{front}
+    {{{
+      front
+    , RET #front;
+      owner₁ γ Stable back priv ws ∗
+      front۰lb γ front ∗
+      ⌜front ≤ back⌝
+    }}}.
+  Proof.
+    iIntros "%Φ ((:inv') & Howner₁) HΦ".
 
-      iInv "Hinv" as "(:inv۰inner =1)".
-      wp۰load.
-      iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
-      iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
-      iDestruct (inv۰stateｰStable with "Hstate") as "#(_ & %)"; first done.
-      iFrameSteps.
-    Qed.
-    #[local] Lemma frontｰspecｰownerｰUnstable t γ back priv ws :
-      {{{
-        inv' t γ ∗
-        owner₁ γ Unstable back priv ws
-      }}}
-        (#t).{front}
-      {{{
-        front
-      , RET #front;
-        owner₁ γ Unstable back priv ws ∗
-        front۰lb γ front ∗
-        ⌜front = back ∨ front = ˖back⌝
-      }}}.
-    Proof.
-      iIntros "%Φ ((:inv') & Howner₁) HΦ".
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰load.
+    iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
+    iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
+    iDestruct (inv۰stateｰStable with "Hstate") as "#(_ & %)"; first done.
+    iFrameSteps.
+  Qed.
+  #[local] Lemma frontｰspecｰownerｰUnstable γ back priv ws :
+    {{{
+      inv' γ ∗
+      owner₁ γ Unstable back priv ws
+    }}}
+      (#γ.(inf_ws_deque_1۰name۰self)).{front}
+    {{{
+      front
+    , RET #front;
+      owner₁ γ Unstable back priv ws ∗
+      front۰lb γ front ∗
+      ⌜front = back ∨ front = ˖back⌝
+    }}}.
+  Proof.
+    iIntros "%Φ ((:inv') & Howner₁) HΦ".
 
-      iInv "Hinv" as "(:inv۰inner =1)".
-      wp۰load.
-      iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
-      iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
-      iDestruct (inv۰stateｰUnstable with "Hstate") as "#(_ & %)".
-      iFrameSteps.
-    Qed.
-    #[local] Lemma frontｰspecｰSuperempty t γ back priv ws front :
-      back < front →
-      {{{
-        inv' t γ ∗
-        owner₁ γ Unstable back priv ws ∗
-        front۰lb γ front
-      }}}
-        (#t).{front}
-      {{{
-        RET #front;
-        owner₁ γ Unstable back priv ws
-      }}}.
-    Proof.
-      iIntros "% %Φ ((:inv') & Howner₁ & #Hfront_lb) HΦ".
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰load.
+    iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
+    iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
+    iDestruct (inv۰stateｰUnstable with "Hstate") as "#(_ & %)".
+    iFrameSteps.
+  Qed.
+  #[local] Lemma frontｰspecｰSuperempty γ back priv ws front :
+    back < front →
+    {{{
+      inv' γ ∗
+      owner₁ γ Unstable back priv ws ∗
+      front۰lb γ front
+    }}}
+      (#γ.(inf_ws_deque_1۰name۰self)).{front}
+    {{{
+      RET #front;
+      owner₁ γ Unstable back priv ws
+    }}}.
+  Proof.
+    iIntros "% %Φ ((:inv') & Howner₁ & #Hfront_lb) HΦ".
 
-      iInv "Hinv" as "(:inv۰inner =1)".
-      wp۰load.
-      iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
-      iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %?.
-      iDestruct (inv۰stateｰSuperempty with "Hstate") as %->; first lia.
-      iDestruct "Hstate" as "(:inv۰state۰superempty =1 lazy=)".
-      iSplitR "Howner₁ HΦ". { iExists Superempty. iFrameSteps. }
-      replace ˖back with front by lia.
-      iSteps.
-    Qed.
-    #[local] Lemma frontｰspecｰwinner۰steal t γ front P :
-      {{{
-        inv' t γ ∗
-        winner۰steal γ front P
-      }}}
-        (#t).{front}
-      {{{
-        RET #front;
-        winner۰steal γ front P
-      }}}.
-    Proof.
-      iIntros "%Φ ((:inv') & Hwinner_steal) HΦ".
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰load.
+    iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
+    iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %?.
+    iDestruct (inv۰stateｰSuperempty with "Hstate") as %->; first lia.
+    iDestruct "Hstate" as "(:inv۰state۰superempty =1 lazy=)".
+    iSplitR "Howner₁ HΦ". { iExists Superempty. iFrameSteps. }
+    replace ˖back with front by lia.
+    iSteps.
+  Qed.
+  #[local] Lemma frontｰspecｰwinner۰steal γ front P :
+    {{{
+      inv' γ ∗
+      winner۰steal γ front P
+    }}}
+      (#γ.(inf_ws_deque_1۰name۰self)).{front}
+    {{{
+      RET #front;
+      winner۰steal γ front P
+    }}}.
+  Proof.
+    iIntros "%Φ ((:inv') & Hwinner_steal) HΦ".
 
-      iInv "Hinv" as "(:inv۰inner =1)".
-      wp۰load.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰load.
 
-      iAssert ⌜front1 = front⌝%I as %->.
-      { iDestruct (inv۰stateｰwinner۰steal with "Hstate Hwinner_steal") as "(%P_ & $ & _)". }
+    iAssert ⌜front1 = front⌝%I as %->.
+    { iDestruct (inv۰stateｰwinner۰steal with "Hstate Hwinner_steal") as "(%P_ & $ & _)". }
 
-      iFrameSteps.
-    Qed.
+    iFrameSteps.
+  Qed.
 
-    #[local] Lemma backｰspec t γ stable back priv ws :
-      {{{
-        inv' t γ ∗
-        owner₁ γ stable back priv ws
-      }}}
-        (#t).{back}
-      {{{
-        RET #back;
-        owner₁ γ stable back priv ws
-      }}}.
-    Proof.
-      iIntros "%Φ ((:inv') & Howner₁) HΦ".
+  #[local] Lemma backｰspec γ stable back priv ws :
+    {{{
+      inv' γ ∗
+      owner₁ γ stable back priv ws
+    }}}
+      (#γ.(inf_ws_deque_1۰name۰self)).{back}
+    {{{
+      RET #back;
+      owner₁ γ stable back priv ws
+    }}}.
+  Proof.
+    iIntros "%Φ ((:inv') & Howner₁) HΦ".
 
-      iInv "Hinv" as "(:inv۰inner =1)".
-      wp۰load.
-      iDestruct (ownerｰagree with "Howner₁ Howner₂") as "(<- & <- & <-)".
-      iFrameSteps.
-    Qed.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰load.
+    iDestruct (ownerｰagree with "Howner₁ Howner₂") as "(<- & <- & <-)".
+    iFrameSteps.
+  Qed.
 
-    #[local] Lemma set_backｰspecｰSuperempty t γ back priv ws front (back' : Z) :
-      back < front →
-      back' = ˖back →
-      {{{
-        inv' t γ ∗
-        owner₁ γ Unstable back priv ws ∗
-        front۰lb γ front
-      }}}
-        #t <-{back} #back'
-      {{{
-        RET ();
-        owner₁ γ Stable ˖back priv ws
-      }}}.
-    Proof.
-      iIntros (? ->) "%Φ ((:inv') & Howner₁ & #Hfront_lb) HΦ".
+  #[local] Lemma set_backｰspecｰSuperempty γ back priv ws front (back' : Z) :
+    back < front →
+    back' = ˖back →
+    {{{
+      inv' γ ∗
+      owner₁ γ Unstable back priv ws ∗
+      front۰lb γ front
+    }}}
+      #γ.(inf_ws_deque_1۰name۰self) <-{back} #back'
+    {{{
+      RET ();
+      owner₁ γ Stable ˖back priv ws
+    }}}.
+  Proof.
+    iIntros (? ->) "%Φ ((:inv') & Howner₁ & #Hfront_lb) HΦ".
 
-      iInv "Hinv" as "(:inv۰inner =1)".
-      wp۰store.
-      iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
-      iMod (ownerｰupdate Stable ˖back priv with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
-      iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %?.
-      iDestruct (inv۰stateｰSuperempty with "Hstate") as %->; first lia.
-      iDestruct "Hstate" as "(:inv۰state۰superempty =1 lazy=)".
-      iSplitR "Howner₁ HΦ". { iExists Empty. iFrameSteps. }
-      iSteps.
-    Qed.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰store.
+    iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
+    iMod (ownerｰupdate Stable ˖back priv with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+    iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %?.
+    iDestruct (inv۰stateｰSuperempty with "Hstate") as %->; first lia.
+    iDestruct "Hstate" as "(:inv۰state۰superempty =1 lazy=)".
+    iSplitR "Howner₁ HΦ". { iExists Empty. iFrameSteps. }
+    iSteps.
+  Qed.
 
-    #[local] Lemma inf_array٠getｰspecｰhistory t γ (i : nat) (i_ : Z) v :
-      i_ = i →
-      {{{
-        inv' t γ ∗
-        history۰at γ i v
-      }}}
-        inf_array٠get γ.(inf_ws_deque_1۰name۰data) #i_
-      {{{
-        RET v;
-        True
-      }}}.
-    Proof.
-      iIntros (->) "%Φ ((:inv') & #Hhistory_at) HΦ".
+  #[local] Lemma inf_array٠getｰspecｰhistory γ (i : nat) (i_ : Z) v :
+    i_ = i →
+    {{{
+      inv' γ ∗
+      history۰at γ i v
+    }}}
+      inf_array٠get γ.(inf_ws_deque_1۰name۰data) #i_
+    {{{
+      RET v;
+      True
+    }}}.
+  Proof.
+    iIntros (->) "%Φ ((:inv') & #Hhistory_at) HΦ".
 
-      iApply wpｰfupd.
-      awp۰apply (inf_array٠getｰspec' with "Hdata_inv") without "HΦ"; first lia.
-      iInv "Hinv" as "(:inv۰inner)".
-      iAaccIntro with "Hdata_model"; first iStepFrameSteps. iIntros "Hdata_model".
+    iApply wpｰfupd.
+    awp۰apply (inf_array٠getｰspec' with "Hdata_inv") without "HΦ"; first lia.
+    iInv "Hinv" as "(:inv۰inner)".
+    iAaccIntro with "Hdata_model"; first iStepFrameSteps. iIntros "Hdata_model".
 
-      iAssert (◇ ⌜(hist ++ vs) !! i = Some v⌝)%I as "#>%Hlookup".
-      { iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at") as %Hlookup.
-        destruct state.
-        - iDestruct "Hstate" as "(:inv۰state۰empty >)".
-          iPureIntro.
-          apply lookup_app_l_Some; first done.
-        - iDestruct "Hstate" as "(:inv۰state۰nonempty >)".
-          iPureIntro.
-          destruct vs as [| w vs]; first naive lia.
-          rewrite (assoc (++) hist [w]).
-          apply lookup_app_l_Some; first done.
-        - iDestruct "Hstate" as "(:inv۰state۰emptyish >)".
-          iPureIntro.
-          apply lookup_app_l_Some; first done.
-        - iDestruct "Hstate" as "(:inv۰state۰superempty >)".
-          iPureIntro.
-          apply lookup_app_l_Some; first done.
-      }
+    iAssert (◇ ⌜(hist ++ vs) !! i = Some v⌝)%I as "#>%Hlookup".
+    { iDestruct (history۰atｰlookup with "Hhistory_auth Hhistory_at") as %Hlookup.
+      destruct state.
+      - iDestruct "Hstate" as "(:inv۰state۰empty >)".
+        iPureIntro.
+        apply lookup_app_l_Some; first done.
+      - iDestruct "Hstate" as "(:inv۰state۰nonempty >)".
+        iPureIntro.
+        destruct vs as [| w vs]; first naive lia.
+        rewrite (assoc (++) hist [w]).
+        apply lookup_app_l_Some; first done.
+      - iDestruct "Hstate" as "(:inv۰state۰emptyish >)".
+        iPureIntro.
+        apply lookup_app_l_Some; first done.
+      - iDestruct "Hstate" as "(:inv۰state۰superempty >)".
+        iPureIntro.
+        apply lookup_app_l_Some; first done.
+    }
 
-      iSplitL. { iFrameSteps. }
-      iIntros "!> H£ HΦ".
+    iSplitL. { iFrameSteps. }
+    iIntros "!> H£ HΦ".
 
-      rewrite Nat2Z.id decide_True.
-      { eauto using lookup_lt_Some. }
-      erewrite list_lookup_total_correct => //.
-      iApply (lc_fupd_elim_later with "H£ HΦ [//]").
-    Qed.
-    #[local] Lemma inf_array٠getｰspecｰowner t γ back (back_ : Z) priv ws v :
-      back_ = back →
-      priv 0 = v →
-      {{{
-        inv' t γ ∗
-        owner₁ γ Stable back priv ws
-      }}}
-        inf_array٠get γ.(inf_ws_deque_1۰name۰data) #back_
-      {{{
-        RET v;
-        owner₁ γ Stable back priv ws
-      }}}.
-    Proof.
-      iIntros (->) "%Hpriv %Φ ((:inv') & Howner₁) HΦ".
+    rewrite Nat2Z.id decide_True.
+    { eauto using lookup_lt_Some. }
+    erewrite list_lookup_total_correct => //.
+    iApply (lc_fupd_elim_later with "H£ HΦ [//]").
+  Qed.
+  #[local] Lemma inf_array٠getｰspecｰowner γ back (back_ : Z) priv ws v :
+    back_ = back →
+    priv 0 = v →
+    {{{
+      inv' γ ∗
+      owner₁ γ Stable back priv ws
+    }}}
+      inf_array٠get γ.(inf_ws_deque_1۰name۰data) #back_
+    {{{
+      RET v;
+      owner₁ γ Stable back priv ws
+    }}}.
+  Proof.
+    iIntros (->) "%Hpriv %Φ ((:inv') & Howner₁) HΦ".
 
-      iApply wpｰfupd.
-      awp۰apply (inf_array٠getｰspec' with "Hdata_inv") without "HΦ"; first lia.
-      iInv "Hinv" as "(:inv۰inner =1)".
-      iAaccIntro with "Hdata_model"; first iStepFrameSteps. iIntros "Hdata_model".
-      iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
-      iDestruct (inv۰stateｰStable with "Hstate") as "#(_ & _ & >->)"; first done.
-      iSplitR "Howner₁". { iFrameSteps. }
-      iIntros "!> H£ HΦ".
+    iApply wpｰfupd.
+    awp۰apply (inf_array٠getｰspec' with "Hdata_inv") without "HΦ"; first lia.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    iAaccIntro with "Hdata_model"; first iStepFrameSteps. iIntros "Hdata_model".
+    iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
+    iDestruct (inv۰stateｰStable with "Hstate") as "#(_ & _ & >->)"; first done.
+    iSplitR "Howner₁". { iFrameSteps. }
+    iIntros "!> H£ HΦ".
 
-      rewrite Nat2Z.id Nat.sub_diag Hpriv decide_False; first lia.
-      iMod (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
-      iSteps.
-    Qed.
+    rewrite Nat2Z.id Nat.sub_diag Hpriv decide_False; first lia.
+    iMod (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
+    iSteps.
+  Qed.
 
-    #[local] Lemma inf_array٠setｰspecｰowner t γ back priv ws v :
-      {{{
-        inv' t γ ∗
-        owner₁ γ Stable back priv ws
-      }}}
-        inf_array٠set γ.(inf_ws_deque_1۰name۰data) #back v
-      {{{
-        RET ();
-        owner₁ γ Stable back (<[0 := v]> priv) ws
-      }}}.
-    Proof.
-      iIntros "%Φ ((:inv') & Howner₁) HΦ".
+  #[local] Lemma inf_array٠setｰspecｰowner γ back priv ws v :
+    {{{
+      inv' γ ∗
+      owner₁ γ Stable back priv ws
+    }}}
+      inf_array٠set γ.(inf_ws_deque_1۰name۰data) #back v
+    {{{
+      RET ();
+      owner₁ γ Stable back (<[0 := v]> priv) ws
+    }}}.
+  Proof.
+    iIntros "%Φ ((:inv') & Howner₁) HΦ".
 
-      iApply wpｰfupd.
-      awp۰apply (inf_array٠setｰspec' with "Hdata_inv") without "HΦ"; first lia.
-      iInv "Hinv" as "(:inv۰inner =1)".
-      iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
-      iAaccIntro with "Hdata_model"; first iStepFrameSteps. iIntros "Hdata_model".
-      iDestruct (inv۰stateｰStable with "Hstate") as "#(_ & _ & >->)"; first done.
-      rewrite Nat2Z.id Nat.sub_diag decide_False; first lia.
-      iMod (ownerｰupdate Stable back (<[0 := v]> priv) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
-      iSplitR "Howner₁". { iFrameSteps. }
-      iIntros "!> H£ HΦ".
+    iApply wpｰfupd.
+    awp۰apply (inf_array٠setｰspec' with "Hdata_inv") without "HΦ"; first lia.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
+    iAaccIntro with "Hdata_model"; first iStepFrameSteps. iIntros "Hdata_model".
+    iDestruct (inv۰stateｰStable with "Hstate") as "#(_ & _ & >->)"; first done.
+    rewrite Nat2Z.id Nat.sub_diag decide_False; first lia.
+    iMod (ownerｰupdate Stable back (<[0 := v]> priv) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+    iSplitR "Howner₁". { iFrameSteps. }
+    iIntros "!> H£ HΦ".
 
-      iMod (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
-      iSteps.
-    Qed.
+    iMod (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
+    iSteps.
+  Qed.
 
-    #[local] Lemma resolveｰspecｰloser₁ t γ front1 front2 id :
-      front1 < front2 →
-      {{{
-        inv' t γ ∗
-        front۰lb γ front2
-      }}}
-        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front1 #(front1 + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#front1, #id)%V
-      {{{
-        RET false;
-        True
-      }}}.
-    Proof.
-      iIntros "%Hloser %Φ ((:inv') & #Hfront_lb) HΦ".
+  #[local] Lemma resolveｰspecｰloser₁ γ front1 front2 id :
+    front1 < front2 →
+    {{{
+      inv' γ ∗
+      front۰lb γ front2
+    }}}
+      𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#γ.(inf_ws_deque_1۰name۰self)).[front]%V #front1 #(front1 + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#front1, #id)%V
+    {{{
+      RET false;
+      True
+    }}}.
+  Proof.
+    iIntros "%Hloser %Φ ((:inv') & #Hfront_lb) HΦ".
 
-      iInv "Hinv" as "(:inv۰inner =3)".
-      iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %?.
-      wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
-      wp۰cas as Hcas; zoo۰simp in Hcas; last lia.
-      iStep. iIntros "!> %prophs %Hprophss3 Hprophet_model".
+    iInv "Hinv" as "(:inv۰inner =3)".
+    iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %?.
+    wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
+    wp۰cas as Hcas; zoo۰simp in Hcas; last lia.
+    iStep. iIntros "!> %prophs %Hprophss3 Hprophet_model".
+    iSplitR "HΦ".
+    { iFrameSteps.
+      - iPureIntro => *.
+        rewrite fn_lookup_alter_ne; first lia.
+        auto.
+      - rewrite fn_lookup_insert_ne //. iSteps.
+    }
+    iSteps.
+  Qed.
+  #[local] Lemma resolveｰspecｰloser₂ γ front id prophs0 :
+    head prophs0 ≠ Some id →
+    {{{
+      inv' γ ∗
+      front۰lb γ front ∗
+      prophet_multi۰full prophet_identifier γ.(inf_ws_deque_1۰name۰prophet) front prophs0
+    }}}
+      𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#γ.(inf_ws_deque_1۰name۰self)).[front]%V #front #(front + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#front, #id)%V
+    {{{
+      RET false;
+      front۰lb γ ˖front
+    }}}.
+  Proof.
+    iIntros "%Hloser %Φ ((:inv') & #Hfront_lb & #Hprophet_full) HΦ".
+
+    iInv "Hinv" as "(:inv۰inner =1)".
+    iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %?.
+    wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
+    wp۰apply (wpｰcasｰnobranch' with "Ht_front") as (b) "%Hcas Ht_front".
+    iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
+    destruct b; zoo۰simp in Hcas; first subst front1.
+
+    - iDestruct (prophet_multi۰fullｰvalid with "Hprophet_model Hprophet_full") as %->.
+      rewrite fn_lookup_alter Hpasts1 // in Hloser.
+
+    - iDestruct (front۰lbｰget with "Hfront_auth") as "#-#Hfront_lb_1".
+      iDestruct (front۰lbｰle ˖front with "Hfront_lb_1") as "-##Hfront_lb_1"; first lia.
       iSplitR "HΦ".
       { iFrameSteps.
         - iPureIntro => *.
@@ -1167,627 +1198,609 @@ Module base.
         - rewrite fn_lookup_insert_ne //. iSteps.
       }
       iSteps.
-    Qed.
-    #[local] Lemma resolveｰspecｰloser₂ t γ front id prophs0 :
-      head prophs0 ≠ Some id →
-      {{{
-        inv' t γ ∗
-        front۰lb γ front ∗
-        prophet_multi۰full prophet_identifier γ.(inf_ws_deque_1۰name۰prophet) front prophs0
-      }}}
-        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front #(front + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#front, #id)%V
-      {{{
-        RET false;
-        front۰lb γ ˖front
-      }}}.
-    Proof.
-      iIntros "%Hloser %Φ ((:inv') & #Hfront_lb & #Hprophet_full) HΦ".
+  Qed.
+  #[local] Lemma resolveｰspecｰwinnerｰpop γ front P id :
+    {{{
+      inv' γ ∗
+      winner۰pop γ front P
+    }}}
+      𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#γ.(inf_ws_deque_1۰name۰self)).[front]%V #front #(front + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#front, #id)%V
+    {{{
+      RET true;
+      ▷ P
+    }}}.
+  Proof.
+    iIntros "%Φ ((:inv') & Hwinner_pop) HΦ".
 
-      iInv "Hinv" as "(:inv۰inner =1)".
-      iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %?.
-      wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
-      wp۰apply (wpｰcasｰnobranch' with "Ht_front") as (b) "%Hcas Ht_front".
-      iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
-      destruct b; zoo۰simp in Hcas; first subst front1.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
+    wp۰apply (wpｰcasｰnobranch' with "Ht_front") as (b) "%Hcas Ht_front".
+    iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
+    iDestruct (inv۰stateｰwinner۰pop with "Hstate Hwinner_pop") as "(%P_ & -> & #Heq & Hstate & Hwinner_pop)".
+    rewrite Hprophss1.
+    destruct b; zoo۰simp in Hcas; last congruence.
+    iMod (frontｰupdate with "Hfront_auth") as "Hfront_auth".
+    iDestruct "Hstate" as "[(:inv۰state۰nonempty۰steal =1) | (:inv۰state۰emptyish۰steal =1)]".
 
-      - iDestruct (prophet_multi۰fullｰvalid with "Hprophet_model Hprophet_full") as %->.
-        rewrite fn_lookup_alter Hpasts1 // in Hloser.
+    - destruct vs1 as [| v1 vs1] => /=; first naive lia.
+      iDestruct (history۰atｰget front with "Hhistory_auth") as "#Hhistory_at"; first done.
 
-      - iDestruct (front۰lbｰget with "Hfront_auth") as "#-#Hfront_lb_1".
-        iDestruct (front۰lbｰle ˖front with "Hfront_lb_1") as "-##Hfront_lb_1"; first lia.
-        iSplitR "HΦ".
-        { iFrameSteps.
-          - iPureIntro => *.
+      iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (modelｰsteal with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂) /=".
+      iMod ("HP" with "[$Hmodel₁ $Hhistory_at //]") as "HP".
+
+      iSplitR "HP HΦ".
+      { rewrite (assoc _ _ [_]).
+        destruct_decide (˖front = back1) as <- | ?.
+
+        - simpl in Hvs1.
+          iExists Empty. iFrameSteps; iPureIntro.
+          + intros.
             rewrite fn_lookup_alter_ne; first lia.
-            auto.
-          - rewrite fn_lookup_insert_ne //. iSteps.
-        }
-        iSteps.
-    Qed.
-    #[local] Lemma resolveｰspecｰwinnerｰpop t γ front P id :
-      {{{
-        inv' t γ ∗
-        winner۰pop γ front P
-      }}}
-        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front #(front + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#front, #id)%V
-      {{{
-        RET true;
-        ▷ P
-      }}}.
-    Proof.
-      iIntros "%Φ ((:inv') & Hwinner_pop) HΦ".
+            apply Hpasts1; first lia.
+          + simp_length/=. lia.
 
-      iInv "Hinv" as "(:inv۰inner =1)".
-      wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
-      wp۰apply (wpｰcasｰnobranch' with "Ht_front") as (b) "%Hcas Ht_front".
-      iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
-      iDestruct (inv۰stateｰwinner۰pop with "Hstate Hwinner_pop") as "(%P_ & -> & #Heq & Hstate & Hwinner_pop)".
-      rewrite Hprophss1.
-      destruct b; zoo۰simp in Hcas; last congruence.
-      iMod (frontｰupdate with "Hfront_auth") as "Hfront_auth".
-      iDestruct "Hstate" as "[(:inv۰state۰nonempty۰steal =1) | (:inv۰state۰emptyish۰steal =1)]".
+        - destruct vs1 as [| v2 vs1] => /=; first naive lia.
+          simpl in Hvs1.
+          iMod (historyｰupdate _ v2 with "Hhistory_auth") as "(Hhistory_auth & _)"; first done.
+          iExists Nonempty. iFrameSteps; iPureIntro.
+          + intros.
+            rewrite fn_lookup_alter_ne; first lia.
+            apply Hpasts1; first lia.
+          + simp_length/=. lia.
+      }
+      iIntros "!> {%}".
 
-      - destruct vs1 as [| v1 vs1] => /=; first naive lia.
-        iDestruct (history۰atｰget front with "Hhistory_auth") as "#Hhistory_at"; first done.
+      iApply "HΦ". iModIntro.
+      iRewrite "Heq" => //.
 
-        iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
-        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-        iMod (modelｰsteal with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂) /=".
-        iMod ("HP" with "[$Hmodel₁ $Hhistory_at //]") as "HP".
-
-        iSplitR "HP HΦ".
-        { rewrite (assoc _ _ [_]).
-          destruct_decide (˖front = back1) as <- | ?.
-
-          - simpl in Hvs1.
-            iExists Empty. iFrameSteps; iPureIntro.
-            + intros.
-              rewrite fn_lookup_alter_ne; first lia.
-              apply Hpasts1; first lia.
-            + simp_length/=. lia.
-
-          - destruct vs1 as [| v2 vs1] => /=; first naive lia.
-            simpl in Hvs1.
-            iMod (historyｰupdate _ v2 with "Hhistory_auth") as "(Hhistory_auth & _)"; first done.
-            iExists Nonempty. iFrameSteps; iPureIntro.
-            + intros.
-              rewrite fn_lookup_alter_ne; first lia.
-              apply Hpasts1; first lia.
-            + simp_length/=. lia.
-        }
-        iIntros "!> {%}".
-
-        iApply "HΦ". iModIntro.
-        iRewrite "Heq" => //.
-
-      - iSplitR "HP HΦ".
-        { iExists Superempty. iFrameSteps. iPureIntro.
-          intros.
-          rewrite fn_lookup_alter_ne; first lia.
-          apply Hpasts1; first lia.
-        }
-        iIntros "!> {%}".
-
-        iApply "HΦ". iModIntro.
-        iRewrite "Heq" => //.
-    Qed.
-    #[local] Lemma resolveｰspecｰwinnerｰsteal t γ front P id :
-      {{{
-        inv' t γ ∗
-        winner۰steal γ front P
-      }}}
-        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #front #(front + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#front, #id)%V
-      {{{
-        RET true;
-        front۰lb γ ˖front
-      }}}.
-    Proof.
-      iIntros "%Φ ((:inv') & Hwinner_steal) HΦ".
-
-      iInv "Hinv" as "(:inv۰inner =1)".
-      wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
-      wp۰apply (wpｰcasｰnobranch' with "Ht_front") as (b) "%Hcas Ht_front".
-      iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
-      iDestruct (inv۰stateｰwinner۰steal with "Hstate Hwinner_steal") as "(%P_ & -> & _ & (:inv۰state۰emptyish۰pop =1) & Hwinner_steal)".
-      destruct b; zoo۰simp in Hcas; last congruence.
-      iMod (frontｰupdate with "Hfront_auth") as "Hfront_auth".
-      iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
-      iSplitR "HΦ".
+    - iSplitR "HP HΦ".
       { iExists Superempty. iFrameSteps. iPureIntro.
         intros.
         rewrite fn_lookup_alter_ne; first lia.
         apply Hpasts1; first lia.
       }
-      iSteps.
-    Qed.
-    #[local] Lemma resolveｰspecｰEmpty t γ back priv ws id :
-      {{{
-        inv' t γ ∗
-        owner₁ γ Stable back priv ws ∗
-        front۰lb γ back
-      }}}
-        𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#t).[front]%V #back #(back + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#back, #id)%V
-      {{{
-        RET true;
-        owner₁ γ Unstable back (priv ∘ S) ws ∗
-        front۰lb γ ˖back ∗
-        history۰at γ back (priv 0)
-      }}}.
-    Proof.
-      iIntros "%Φ ((:inv') & Howner₁ & #Hfront_lb) HΦ".
+      iIntros "!> {%}".
 
-      iInv "Hinv" as "(:inv۰inner =1)".
-      wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
-      wp۰apply (wpｰcasｰnobranch' with "Ht_front") as (b) "%Hcas Ht_front".
-      iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
-      iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
-      iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %?.
-      iDestruct (inv۰stateｰStable with "Hstate") as "#([-> | ->] & _)"; first done.
+      iApply "HΦ". iModIntro.
+      iRewrite "Heq" => //.
+  Qed.
+  #[local] Lemma resolveｰspecｰwinnerｰsteal γ front P id :
+    {{{
+      inv' γ ∗
+      winner۰steal γ front P
+    }}}
+      𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#γ.(inf_ws_deque_1۰name۰self)).[front]%V #front #(front + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#front, #id)%V
+    {{{
+      RET true;
+      front۰lb γ ˖front
+    }}}.
+  Proof.
+    iIntros "%Φ ((:inv') & Hwinner_steal) HΦ".
 
-      - iDestruct "Hstate" as "(:inv۰state۰empty =1 lazy=)".
-        assert (length vs1 = 0) as ->%nil_length_inv by lia.
-        destruct b; zoo۰simp in Hcas; last lia.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
+    wp۰apply (wpｰcasｰnobranch' with "Ht_front") as (b) "%Hcas Ht_front".
+    iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
+    iDestruct (inv۰stateｰwinner۰steal with "Hstate Hwinner_steal") as "(%P_ & -> & _ & (:inv۰state۰emptyish۰pop =1) & Hwinner_steal)".
+    destruct b; zoo۰simp in Hcas; last congruence.
+    iMod (frontｰupdate with "Hfront_auth") as "Hfront_auth".
+    iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
+    iSplitR "HΦ".
+    { iExists Superempty. iFrameSteps. iPureIntro.
+      intros.
+      rewrite fn_lookup_alter_ne; first lia.
+      apply Hpasts1; first lia.
+    }
+    iSteps.
+  Qed.
+  #[local] Lemma resolveｰspecｰEmpty γ back priv ws id :
+    {{{
+      inv' γ ∗
+      owner₁ γ Stable back priv ws ∗
+      front۰lb γ back
+    }}}
+      𝗿𝗲𝘀𝗼𝗹𝘃𝗲 (𝗰𝗮𝘀 (#γ.(inf_ws_deque_1۰name۰self)).[front]%V #back #(back + 1)) γ.(inf_ws_deque_1۰name۰prophet) (#back, #id)%V
+    {{{
+      RET true;
+      owner₁ γ Unstable back (priv ∘ S) ws ∗
+      front۰lb γ ˖back ∗
+      history۰at γ back (priv 0)
+    }}}.
+  Proof.
+    iIntros "%Φ ((:inv') & Howner₁ & #Hfront_lb) HΦ".
 
-        iMod (frontｰupdate with "Hfront_auth") as "Hfront_auth".
-        iClear "Hfront_lb". iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
-        iMod (historyｰupdate _ (priv 0) with "Hhistory_auth") as "(Hhistory_auth & #Hhistory_at)"; first done.
-        iMod (ownerｰupdate Unstable (length hist1) (priv ∘ S) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰apply (prophet_multiｰwpｰresolve' with "Hprophet_model"). 1: done.
+    wp۰apply (wpｰcasｰnobranch' with "Ht_front") as (b) "%Hcas Ht_front".
+    iStep. iIntros "%prophs %Hprophss1 Hprophet_model".
+    iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
+    iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb") as %?.
+    iDestruct (inv۰stateｰStable with "Hstate") as "#([-> | ->] & _)"; first done.
 
-        iApply inf_array۰model'ｰshiftｰl' in "Hdata_model".
-        iEval (rewrite app_nil_r -(app_nil_r (hist1 ++ [priv 0]))) in "Hdata_model".
+    - iDestruct "Hstate" as "(:inv۰state۰empty =1 lazy=)".
+      assert (length vs1 = 0) as ->%nil_length_inv by lia.
+      destruct b; zoo۰simp in Hcas; last lia.
 
-        iSplitR "Howner₁ HΦ".
-        { iExists Superempty. iFrameSteps; iPureIntro.
-          - intros.
-            rewrite fn_lookup_alter_ne; first lia.
-            apply Hpasts1; first lia.
-          - simp_length/=. lia.
-        }
-        rewrite Hhist1. iSteps.
+      iMod (frontｰupdate with "Hfront_auth") as "Hfront_auth".
+      iClear "Hfront_lb". iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
+      iMod (historyｰupdate _ (priv 0) with "Hhistory_auth") as "(Hhistory_auth & #Hhistory_at)"; first done.
+      iMod (ownerｰupdate Unstable (length hist1) (priv ∘ S) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
 
-      - iDestruct "Hstate" as "(:inv۰state۰nonempty =1 lazy=)".
-        exfalso. lia.
-    Qed.
-
-    Lemma inf_ws_deque_1٠sizeｰspec t γ ι ws :
-      <<<
-        inf_ws_deque_1۰inv t γ ι ∗
-        inf_ws_deque_1۰owner γ ws
-      | ∀∀ vs,
-        inf_ws_deque_1۰model γ vs
-      >>>
-        inf_ws_deque_1٠size #t
-        @ ↑ι
-      <<<
-        ⌜vs `suffix_of` ws⌝ ∗
-        inf_ws_deque_1۰model γ vs
-      | RET #(length vs);
-        inf_ws_deque_1۰owner γ vs
-      >>>.
-    Proof.
-      iIntros "%Φ ((:inv) & (:owner)) HΦ".
-
-      wp۰rec.
-
-      wp۰bind (_.{front})%E.
-      iInv "Hinv" as "(:inv۰inner =1)".
-      wp۰load.
-      iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
-      iDestruct (inv۰stateｰStable with "Hstate") as %(_ & Hback & _); first done.
-
-      iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
-      iDestruct (model۰owner₁ｰagree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & <-).
-      iMod (owner₁ｰupdate with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" with "[$Hmodel₁ //]") as "HΦ".
-
-      iSplitR "Howner₁ HΦ". { iFrameSteps. }
-      iIntros "!> {%- Hvs1 Hback}".
-
-      wp۰apply (backｰspec with "[$]") as "Howner₁".
-      wp۰pures.
-
-      replace (⁺back - ⁺front1)%Z with ⁺(length vs) by lia.
-      iSteps.
-    Qed.
-
-    Lemma inf_ws_deque_1٠is_emptyｰspec t γ ι ws :
-      <<<
-        inf_ws_deque_1۰inv t γ ι ∗
-        inf_ws_deque_1۰owner γ ws
-      | ∀∀ vs,
-        inf_ws_deque_1۰model γ vs
-      >>>
-        inf_ws_deque_1٠is_empty #t
-        @ ↑ι
-      <<<
-        ⌜vs `suffix_of` ws⌝ ∗
-        inf_ws_deque_1۰model γ vs
-      | RET #(bool_decide (vs = []%list));
-        inf_ws_deque_1۰owner γ vs
-      >>>.
-    Proof.
-      iIntros "%Φ (#Hinv & Howner) HΦ".
-
-      wp۰rec.
-      wp۰apply (inf_ws_deque_1٠sizeｰspec with "[$]").
-      iApply (aupdｰwand with "HΦ"). iIntros "%vs HΦ (%Hvs & Howner)".
-      wp۰pures.
-
-      rewrite (bool_decide_ext (⁺(length vs) = 0) (vs = [])).
-      { rewrite -length_zero_iff_nil. lia. }
-      iApply "HΦ".
-      iFrameSteps.
-    Qed.
-
-    Lemma inf_ws_deque_1٠pushｰspec t γ ι ws v :
-      <<<
-        inf_ws_deque_1۰inv t γ ι ∗
-        inf_ws_deque_1۰owner γ ws
-      | ∀∀ vs,
-        inf_ws_deque_1۰model γ vs
-      >>>
-        inf_ws_deque_1٠push #t v
-        @ ↑ι
-      <<<
-        ⌜vs `suffix_of` ws⌝ ∗
-        inf_ws_deque_1۰model γ (vs ++ [v])
-      | RET ();
-        inf_ws_deque_1۰owner γ (vs ++ [v])
-      >>>.
-    Proof.
-      iIntros "%Φ ((:inv) & (:owner)) HΦ".
-
-      wp۰rec.
-      wp۰apply+ (backｰspec with "[$]") as "Howner₁".
-      wp۰load.
-      wp۰apply (inf_array٠setｰspecｰowner with "[$]") as "Howner₁".
-      wp۰pures.
-
-      iInv "Hinv" as "(:inv۰inner =1)".
-      wp۰store.
-      iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
-      set priv1 := priv ∘ S.
-      iMod (ownerｰupdate Stable ˖back priv1 with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
-
-      iApply inf_array۰model'ｰshiftｰl in "Hdata_model"; first by intros [].
-      iEval (rewrite -assoc) in "Hdata_model".
-
-      iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
-      iDestruct (model۰owner₁ｰagree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & <-).
-      iMod (modelｰpush v with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" with "[$Hmodel₁ //]") as "HΦ".
+      iApply inf_array۰model'ｰshiftｰl' in "Hdata_model".
+      iEval (rewrite app_nil_r -(app_nil_r (hist1 ++ [priv 0]))) in "Hdata_model".
 
       iSplitR "Howner₁ HΦ".
-      { iExists Nonempty.
-        iDestruct (inv۰stateｰStable with "Hstate") as "#(%Hstate1 & _)"; first done.
-        destruct Hstate1 as [-> | ->].
-
-        - iDestruct "Hstate" as "(:inv۰state۰empty =1 lazy=)".
-          assert (length vs = 0) as ->%nil_length_inv by lia.
-          iMod (historyｰupdate _ v with "Hhistory_auth") as "(Hhistory_auth & _)"; first done.
-          iFrameSteps.
-
-        - iDestruct "Hstate" as "(:inv۰state۰nonempty =1 lazy=)".
-          iFrameSteps; iPureIntro.
-          + simp_length/=. lia.
-          + rewrite take_app_le //; first lia.
+      { iExists Superempty. iFrameSteps; iPureIntro.
+        - intros.
+          rewrite fn_lookup_alter_ne; first lia.
+          apply Hpasts1; first lia.
+        - simp_length/=. lia.
       }
-      iSteps.
-    Qed.
+      rewrite Hhist1. iSteps.
 
-    #[local] Lemma inf_ws_deque_1٠steal₁ｰspec t γ ι backoff :
-      <<<
-        inf_ws_deque_1۰inv t γ ι ∗
-        backoff۰model backoff
-      | ∀∀ vs,
-        inf_ws_deque_1۰model γ vs
-      >>>
-        inf_ws_deque_1٠steal₁ #t backoff
-        @ ↑ι
-      <<<
-        inf_ws_deque_1۰model γ (tail vs)
-      | RET head vs;
-        True
-      >>>.
-    Proof.
-      iIntros "%Φ ((:inv) & Hbackoff) HΦ".
+    - iDestruct "Hstate" as "(:inv۰state۰nonempty =1 lazy=)".
+      exfalso. lia.
+  Qed.
 
-      iLöb as "HLöb" forall (backoff).
+  Lemma inf_ws_deque_1٠sizeｰspec γ ι ws :
+    <<<
+      inf_ws_deque_1۰inv γ ι ∗
+      inf_ws_deque_1۰owner γ ws
+    | ∀∀ vs,
+      inf_ws_deque_1۰model γ vs
+    >>>
+      inf_ws_deque_1٠size γ
+      @ ↑ι
+    <<<
+      ⌜vs `suffix_of` ws⌝ ∗
+      inf_ws_deque_1۰model γ vs
+    | RET #(length vs);
+      inf_ws_deque_1۰owner γ vs
+    >>>.
+  Proof.
+    iIntros "%Φ ((:inv) & (:owner)) HΦ".
 
-      wp۰rec.
-      wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
-      wp۰apply+ (frontｰspec with "[$]") as (front1) "#Hfront_lb_1".
-      wp۰pures.
+    wp۰rec.
 
-      wp۰bind (_.{back})%E.
-      iInv "Hinv" as "(:inv۰inner =2)".
-      wp۰load.
-      iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_1") as %?.
+    wp۰bind (_.{front})%E.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰load.
+    iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
+    iDestruct (inv۰stateｰStable with "Hstate") as %(_ & Hback & _); first done.
 
-      destruct_decide (front1 < back2) as Hbranch1; last first.
-      { assert (length vs2 = 0) as ->%nil_length_inv by lia.
+    iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
+    iDestruct (model۰owner₁ｰagree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & <-).
+    iMod (owner₁ｰupdate with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
+    iMod ("HΦ" with "[$Hmodel₁ //]") as "HΦ".
 
-        iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
-        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-        iMod ("HΦ" with "Hmodel₁ [//]") as "HΦ".
+    iSplitR "Howner₁ HΦ". { iFrameSteps. }
+    iIntros "!> {%- Hvs1 Hback}".
 
+    wp۰apply (backｰspec with "[$]") as "Howner₁".
+    wp۰pures.
+
+    replace (⁺back - ⁺front1)%Z with ⁺(length vs) by lia.
+    iSteps.
+  Qed.
+
+  Lemma inf_ws_deque_1٠is_emptyｰspec γ ι ws :
+    <<<
+      inf_ws_deque_1۰inv γ ι ∗
+      inf_ws_deque_1۰owner γ ws
+    | ∀∀ vs,
+      inf_ws_deque_1۰model γ vs
+    >>>
+      inf_ws_deque_1٠is_empty γ
+      @ ↑ι
+    <<<
+      ⌜vs `suffix_of` ws⌝ ∗
+      inf_ws_deque_1۰model γ vs
+    | RET #(bool_decide (vs = []%list));
+      inf_ws_deque_1۰owner γ vs
+    >>>.
+  Proof.
+    iIntros "%Φ (#Hinv & Howner) HΦ".
+
+    wp۰rec.
+    wp۰apply (inf_ws_deque_1٠sizeｰspec with "[$]").
+    iApply (aupdｰwand with "HΦ"). iIntros "%vs HΦ (%Hvs & Howner)".
+    wp۰pures.
+
+    rewrite (bool_decide_ext (⁺(length vs) = 0) (vs = [])).
+    { rewrite -length_zero_iff_nil. lia. }
+    iApply "HΦ".
+    iFrameSteps.
+  Qed.
+
+  Lemma inf_ws_deque_1٠pushｰspec γ ι ws v :
+    <<<
+      inf_ws_deque_1۰inv γ ι ∗
+      inf_ws_deque_1۰owner γ ws
+    | ∀∀ vs,
+      inf_ws_deque_1۰model γ vs
+    >>>
+      inf_ws_deque_1٠push γ v
+      @ ↑ι
+    <<<
+      ⌜vs `suffix_of` ws⌝ ∗
+      inf_ws_deque_1۰model γ (vs ++ [v])
+    | RET ();
+      inf_ws_deque_1۰owner γ (vs ++ [v])
+    >>>.
+  Proof.
+    iIntros "%Φ ((:inv) & (:owner)) HΦ".
+
+    wp۰rec.
+    wp۰apply+ (backｰspec with "[$]") as "Howner₁".
+    wp۰load.
+    wp۰apply (inf_array٠setｰspecｰowner with "[$]") as "Howner₁".
+    wp۰pures.
+
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰store.
+    iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
+    set priv1 := priv ∘ S.
+    iMod (ownerｰupdate Stable ˖back priv1 with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+
+    iApply inf_array۰model'ｰshiftｰl in "Hdata_model"; first by intros [].
+    iEval (rewrite -assoc) in "Hdata_model".
+
+    iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
+    iDestruct (model۰owner₁ｰagree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & <-).
+    iMod (modelｰpush v with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
+    iMod ("HΦ" with "[$Hmodel₁ //]") as "HΦ".
+
+    iSplitR "Howner₁ HΦ".
+    { iExists Nonempty.
+      iDestruct (inv۰stateｰStable with "Hstate") as "#(%Hstate1 & _)"; first done.
+      destruct Hstate1 as [-> | ->].
+
+      - iDestruct "Hstate" as "(:inv۰state۰empty =1 lazy=)".
+        assert (length vs = 0) as ->%nil_length_inv by lia.
+        iMod (historyｰupdate _ v with "Hhistory_auth") as "(Hhistory_auth & _)"; first done.
         iFrameSteps.
-      }
 
-      destruct_decide (front1 = front2) as <- | ?; last first.
-      { assert (front1 < front2) as Hbranch2 by lia.
-        iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb_2".
-        iSplitR "Hbackoff HΦ". { iFrameSteps. }
-        iIntros "!> {%- Hbranch1 Hbranch2}".
+      - iDestruct "Hstate" as "(:inv۰state۰nonempty =1 lazy=)".
+        iFrameSteps; iPureIntro.
+        + simp_length/=. lia.
+        + rewrite take_app_le //; first lia.
+    }
+    iSteps.
+  Qed.
 
-        wp۰pures.
-        rewrite bool_decide_eq_false_2; first lia.
-        wp۰load.
-        wp۰apply+ (resolveｰspecｰloser₁ with "[$]") as "_"; first done.
-        iSteps.
-      }
+  #[local] Lemma inf_ws_deque_1٠steal₁ｰspec γ ι backoff :
+    <<<
+      inf_ws_deque_1۰inv γ ι ∗
+      backoff۰model backoff
+    | ∀∀ vs,
+      inf_ws_deque_1۰model γ vs
+    >>>
+      inf_ws_deque_1٠steal₁ γ backoff
+      @ ↑ι
+    <<<
+      inf_ws_deque_1۰model γ (tail vs)
+    | RET head vs;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ ((:inv) & Hbackoff) HΦ".
 
-      iDestruct (prophet_multi۰fullｰget _ front1 with "Hprophet_model") as "#Hprophet_full".
-      iEval (rewrite Hpasts2 //=) in "Hprophet_full".
+    iLöb as "HLöb" forall (backoff).
 
-      destruct_decide (head $ prophss2 front1 = Some id) as (prophs0 & Hbranch3)%head_Some | Hbranch3; last first.
-      { iSplitR "Hbackoff HΦ". { iFrameSteps. }
-        remember (prophss2 front1) as prophs0.
-        iIntros "!> {%- Hbranch1 Hbranch3}".
+    wp۰rec.
+    wp۰apply+ (wpｰid with "[//]") as (id) "Hid".
+    wp۰apply+ (frontｰspec with "[$]") as (front1) "#Hfront_lb_1".
+    wp۰pures.
 
-        wp۰pures.
-        rewrite bool_decide_eq_false_2; first lia.
-        wp۰load.
-        wp۰apply+ (resolveｰspecｰloser₂ with "[$]") as "_"; first done.
-        iSteps.
-      }
-      rewrite Hbranch3.
+    wp۰bind (_.{back})%E.
+    iInv "Hinv" as "(:inv۰inner =2)".
+    wp۰load.
+    iDestruct (front۰lbｰvalid with "Hfront_auth Hfront_lb_1") as %?.
 
-      iDestruct (inv۰stateｰNonempty with "Hstate") as %->; first done.
-      iDestruct "Hstate" as "(:inv۰state۰nonempty =2)".
-      iDestruct "Hwinner" as "[(:winner) | (:winner۰pending₂ !=)]"; last first.
-      { iDestruct (identifier۰modelｰexclusive with "Hid Hid_") as %[]. }
+    destruct_decide (front1 < back2) as Hbranch1; last first.
+    { assert (length vs2 = 0) as ->%nil_length_inv by lia.
 
-      destruct vs2 as [| v vs2]; first naive lia.
-      iDestruct (history۰atｰget front1 with "Hhistory_auth") as "#Hhistory_at"; first done.
-      iMod (winnerｰupdate front1 (Φ (Some v)) with "Hwinner_pop Hwinner_steal") as "(Hwinner_pop & Hwinner_steal)".
+      iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
+      iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+      iMod ("HΦ" with "Hmodel₁ [//]") as "HΦ".
 
-      iSplitR "Hwinner_pop".
-      { iExists Nonempty. iFrameSteps.
-        rewrite Hbranch3 /winner۰pending₂. iSteps. iIntros "!> !>".
-        rewrite /winner۰au. iAuIntro.
-        iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)".
-        iAaccIntro with "Hmodel₁"; first iSteps. iIntros "%v_ %vs' (-> & Hmodel₁ & Hhistory_at_) !>".
-        iDestruct (history۰atｰagree with "Hhistory_at Hhistory_at_") as %<-.
-        iSteps.
-      }
-      iIntros "!> {%- Hbranch1}".
+      iFrameSteps.
+    }
+
+    destruct_decide (front1 = front2) as <- | ?; last first.
+    { assert (front1 < front2) as Hbranch2 by lia.
+      iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb_2".
+      iSplitR "Hbackoff HΦ". { iFrameSteps. }
+      iIntros "!> {%- Hbranch1 Hbranch2}".
 
       wp۰pures.
       rewrite bool_decide_eq_false_2; first lia.
       wp۰load.
-      wp۰apply+ (resolveｰspecｰwinnerｰpop with "[$]") as "HΦ".
-      wp۰load.
-      wp۰apply (inf_array٠getｰspecｰhistory with "[$]") as "_"; first done.
+      wp۰apply+ (resolveｰspecｰloser₁ with "[$]") as "_"; first done.
       iSteps.
-    Qed.
+    }
 
-    Lemma inf_ws_deque_1٠stealｰspec t γ ι :
-      <<<
-        inf_ws_deque_1۰inv t γ ι
-      | ∀∀ vs,
-        inf_ws_deque_1۰model γ vs
-      >>>
-        inf_ws_deque_1٠steal #t
-        @ ↑ι
-      <<<
-        inf_ws_deque_1۰model γ (tail vs)
-      | RET head vs;
-        True
-      >>>.
-    Proof.
-      iIntros "%Φ Hinv HΦ".
+    iDestruct (prophet_multi۰fullｰget _ front1 with "Hprophet_model") as "#Hprophet_full".
+    iEval (rewrite Hpasts2 //=) in "Hprophet_full".
 
-      wp۰rec.
-      wp۰apply+ (inf_ws_deque_1٠steal₁ｰspec with "[$Hinv] HΦ"). 1: iSteps.
-    Qed.
+    destruct_decide (head $ prophss2 front1 = Some id) as (prophs0 & Hbranch3)%head_Some | Hbranch3; last first.
+    { iSplitR "Hbackoff HΦ". { iFrameSteps. }
+      remember (prophss2 front1) as prophs0.
+      iIntros "!> {%- Hbranch1 Hbranch3}".
 
-    Variant pop۰state :=
-      | PopNonempty v
-      | PopEmptyishWinner v
-      | PopEmptyishLoser
-      | PopSuperempty.
-    #[local] Lemma inf_ws_deque_1٠pop₁ｰspec {t γ} (state : pop۰state) stable back (back_ : Z) priv ws id :
-      back_ = back →
-      {{{
-        inv' t γ ∗
-        owner₁ γ stable back priv ws ∗
-        match state with
-        | PopNonempty v =>
-            ⌜stable = Stable⌝ ∗
-            ⌜priv 0 = v⌝
-        | PopEmptyishWinner v =>
-            ⌜stable = Unstable⌝ ∗
-            history۰at γ back v ∗
-            winner۰steal γ back inhabitant
-        | PopEmptyishLoser =>
-            ∃ id_winner prophs,
-            ⌜stable = Unstable⌝ ∗
-            prophet_multi۰full prophet_identifier γ.(inf_ws_deque_1۰name۰prophet) back (id_winner :: prophs) ∗
-            ⌜head (id_winner :: prophs) ≠ Some id⌝
-        | PopSuperempty =>
-            ∃ front,
-            ⌜stable = Unstable⌝ ∗
-            front۰lb γ front ∗
-            ⌜front = ˖back⌝
-        end
-      }}}
-        inf_ws_deque_1٠pop₁ #t #id #back_
-      {{{
-        o back priv
-      , RET o;
-        owner₁ γ Stable back priv ws ∗
-        match state with
-        | PopNonempty v =>
-            ⌜o = Some v⌝
-        | PopEmptyishWinner v =>
-            ⌜o = Some v⌝
-        | PopEmptyishLoser =>
-            ⌜o = None⌝
-        | PopSuperempty =>
-            ⌜o = None⌝
-        end
-      }}}.
-    Proof.
-      iIntros (->) "%Φ ((:inv') & Howner₁ & H) HΦ".
-
-      wp۰rec. wp۰pures.
-      destruct state.
-
-      - iDestruct "H" as "(-> & %Hpriv)".
-        iSpecialize ("HΦ" $! (Some v)).
-
-        wp۰apply (frontｰspecｰownerｰStable with "[$]") as (front2) "(Howner₁ & #Hfront_lb_1 & %Hfront2)".
-        wp۰pures.
-        rewrite bool_decide_eq_false_2; first lia.
-        wp۰pures.
-        case_bool_decide as Hbranch; wp۰pures.
-
-        + wp۰load.
-          wp۰apply (inf_array٠getｰspecｰowner with "[$]") as "Howner₁"; [done.. |].
-          iSteps.
-
-        + replace front2 with back by lia.
-
-          wp۰load.
-          wp۰apply+ (resolveｰspecｰEmpty with "[$]") as "(Howner₁ & #Hfront_lb_2 & #Hhistory_at)".
-          wp۰apply+ (set_backｰspecｰSuperempty with "[$]") as "Howner₁"; [lia.. |].
-          wp۰load.
-          wp۰apply+ (inf_array٠getｰspecｰhistory with "[$]"); first lia.
-          rewrite Hpriv. iSteps.
-
-      - iDestruct "H" as "(-> & #Hhistory_at & Hwinner_steal)".
-        iSpecialize ("HΦ" $! (Some v)).
-
-        wp۰apply (frontｰspecｰwinner۰steal with "[$]") as "Hwinner_steal".
-        wp۰pures.
-        rewrite bool_decide_eq_false_2; first lia.
-        wp۰pures.
-        rewrite bool_decide_eq_false_2; first lia.
-        wp۰load.
-        wp۰apply+ (resolveｰspecｰwinnerｰsteal with "[$]") as "#Hfront_lb".
-        wp۰apply+ (set_backｰspecｰSuperempty with "[$]") as "Howner₁"; [lia.. |].
-        wp۰load.
-        wp۰apply (inf_array٠getｰspecｰhistory with "[$]"); first done.
-        iSteps.
-
-      - iDestruct "H" as "(%id_winner & %prophs & -> & #Hprophet_full & %Hloser)".
-        iSpecialize ("HΦ" $! None).
-
-        wp۰apply (frontｰspecｰownerｰUnstable with "[$]") as (front2) "(Howner₁ & #Hfront_lb_1 & %Hbranch)".
-        wp۰pures.
-        destruct Hbranch as [-> | ->].
-
-        + rewrite bool_decide_eq_false_2; first lia.
-          wp۰pures.
-          rewrite bool_decide_eq_false_2; first lia.
-          wp۰load.
-          wp۰apply+ (resolveｰspecｰloser₂ with "[$]") as "#Hfront_lb_2"; first done.
-          wp۰apply+ (set_backｰspecｰSuperempty with "[$]"); [lia.. |].
-          iSteps.
-
-        + rewrite bool_decide_eq_true_2; first lia.
-          wp۰apply+ (set_backｰspecｰSuperempty with "[$]"); [lia.. |].
-          iSteps.
-
-      - iDestruct "H" as "(%front & -> & #Hfront_lb & ->)".
-        iSpecialize ("HΦ" $! None).
-
-        wp۰apply (frontｰspecｰSuperempty with "[$]") as "Howner₁"; first lia.
-        wp۰pures.
-        rewrite bool_decide_eq_true_2; first lia.
-        wp۰apply+ (set_backｰspecｰSuperempty with "[$]") as "Howner₁"; [lia.. |].
-        iSteps.
-    Qed.
-    Lemma inf_ws_deque_1٠popｰspec t γ ι ws :
-      <<<
-        inf_ws_deque_1۰inv t γ ι ∗
-        inf_ws_deque_1۰owner γ ws
-      | ∀∀ vs,
-        inf_ws_deque_1۰model γ vs
-      >>>
-        inf_ws_deque_1٠pop #t
-        @ ↑ι
-      <<<
-        ∃∃ o ws',
-        ⌜vs `suffix_of` ws⌝ ∗
-        match o with
-        | None =>
-            ⌜vs = []⌝ ∗
-            ⌜ws' = []⌝ ∗
-            inf_ws_deque_1۰model γ []
-        | Some v =>
-            ∃ vs',
-            ⌜vs = vs' ++ [v]⌝ ∗
-            ⌜ws' = vs'⌝ ∗
-            inf_ws_deque_1۰model γ vs'
-        end
-      | RET o;
-        inf_ws_deque_1۰owner γ ws'
-      >>>.
-    Proof.
-      iIntros "%Φ ((:inv) & (:owner)) HΦ".
-
-      wp۰rec.
-      wp۰apply (wpｰid with "[//]") as (id) "Hid".
-      wp۰apply+ (backｰspec with "[$]") as "Howner₁".
       wp۰pures.
+      rewrite bool_decide_eq_false_2; first lia.
+      wp۰load.
+      wp۰apply+ (resolveｰspecｰloser₂ with "[$]") as "_"; first done.
+      iSteps.
+    }
+    rewrite Hbranch3.
 
-      wp۰bind (_ <-{back} _)%E.
-      iInv "Hinv" as "(:inv۰inner =1)".
-      wp۰store.
-      iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
-      iDestruct (inv۰stateｰStable with "Hstate") as "#([-> | ->] & _)"; first done.
+    iDestruct (inv۰stateｰNonempty with "Hstate") as %->; first done.
+    iDestruct "Hstate" as "(:inv۰state۰nonempty =2)".
+    iDestruct "Hwinner" as "[(:winner) | (:winner۰pending₂ !=)]"; last first.
+    { iDestruct (identifier۰modelｰexclusive with "Hid Hid_") as %[]. }
 
-      { iDestruct "Hstate" as "(:inv۰state۰empty =1 lazy=)".
-        assert (0 < back) as Hback by lia.
-        assert (length vs1 = 0) as ->%nil_length_inv by lia.
+    destruct vs2 as [| v vs2]; first naive lia.
+    iDestruct (history۰atｰget front1 with "Hhistory_auth") as "#Hhistory_at"; first done.
+    iMod (winnerｰupdate front1 (Φ (Some v)) with "Hwinner_pop Hwinner_steal") as "(Hwinner_pop & Hwinner_steal)".
 
-        iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
-        iMod (ownerｰupdate Unstable (back - 1) priv with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+    iSplitR "Hwinner_pop".
+    { iExists Nonempty. iFrameSteps.
+      rewrite Hbranch3 /winner۰pending₂. iSteps. iIntros "!> !>".
+      rewrite /winner۰au. iAuIntro.
+      iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model)".
+      iAaccIntro with "Hmodel₁"; first iSteps. iIntros "%v_ %vs' (-> & Hmodel₁ & Hhistory_at_) !>".
+      iDestruct (history۰atｰagree with "Hhistory_at Hhistory_at_") as %<-.
+      iSteps.
+    }
+    iIntros "!> {%- Hbranch1}".
+
+    wp۰pures.
+    rewrite bool_decide_eq_false_2; first lia.
+    wp۰load.
+    wp۰apply+ (resolveｰspecｰwinnerｰpop with "[$]") as "HΦ".
+    wp۰load.
+    wp۰apply (inf_array٠getｰspecｰhistory with "[$]") as "_"; first done.
+    iSteps.
+  Qed.
+
+  Lemma inf_ws_deque_1٠stealｰspec γ ι :
+    <<<
+      inf_ws_deque_1۰inv γ ι
+    | ∀∀ vs,
+      inf_ws_deque_1۰model γ vs
+    >>>
+      inf_ws_deque_1٠steal γ
+      @ ↑ι
+    <<<
+      inf_ws_deque_1۰model γ (tail vs)
+    | RET head vs;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ Hinv HΦ".
+
+    wp۰rec.
+    wp۰apply+ (inf_ws_deque_1٠steal₁ｰspec with "[$Hinv] HΦ"). 1: iSteps.
+  Qed.
+
+  Variant pop۰state :=
+    | PopNonempty v
+    | PopEmptyishWinner v
+    | PopEmptyishLoser
+    | PopSuperempty.
+  #[local] Lemma inf_ws_deque_1٠pop₁ｰspec {γ} (state : pop۰state) stable back (back_ : Z) priv ws id :
+    back_ = back →
+    {{{
+      inv' γ ∗
+      owner₁ γ stable back priv ws ∗
+      match state with
+      | PopNonempty v =>
+          ⌜stable = Stable⌝ ∗
+          ⌜priv 0 = v⌝
+      | PopEmptyishWinner v =>
+          ⌜stable = Unstable⌝ ∗
+          history۰at γ back v ∗
+          winner۰steal γ back inhabitant
+      | PopEmptyishLoser =>
+          ∃ id_winner prophs,
+          ⌜stable = Unstable⌝ ∗
+          prophet_multi۰full prophet_identifier γ.(inf_ws_deque_1۰name۰prophet) back (id_winner :: prophs) ∗
+          ⌜head (id_winner :: prophs) ≠ Some id⌝
+      | PopSuperempty =>
+          ∃ front,
+          ⌜stable = Unstable⌝ ∗
+          front۰lb γ front ∗
+          ⌜front = ˖back⌝
+      end
+    }}}
+      inf_ws_deque_1٠pop₁ γ #id #back_
+    {{{
+      o back priv
+    , RET o;
+      owner₁ γ Stable back priv ws ∗
+      match state with
+      | PopNonempty v =>
+          ⌜o = Some v⌝
+      | PopEmptyishWinner v =>
+          ⌜o = Some v⌝
+      | PopEmptyishLoser =>
+          ⌜o = None⌝
+      | PopSuperempty =>
+          ⌜o = None⌝
+      end
+    }}}.
+  Proof.
+    iIntros (->) "%Φ ((:inv') & Howner₁ & H) HΦ".
+
+    wp۰rec. wp۰pures.
+    destruct state.
+
+    - iDestruct "H" as "(-> & %Hpriv)".
+      iSpecialize ("HΦ" $! (Some v)).
+
+      wp۰apply (frontｰspecｰownerｰStable with "[$]") as (front2) "(Howner₁ & #Hfront_lb_1 & %Hfront2)".
+      wp۰pures.
+      rewrite bool_decide_eq_false_2; first lia.
+      wp۰pures.
+      case_bool_decide as Hbranch; wp۰pures.
+
+      + wp۰load.
+        wp۰apply (inf_array٠getｰspecｰowner with "[$]") as "Howner₁"; [done.. |].
+        iSteps.
+
+      + replace front2 with back by lia.
+
+        wp۰load.
+        wp۰apply+ (resolveｰspecｰEmpty with "[$]") as "(Howner₁ & #Hfront_lb_2 & #Hhistory_at)".
+        wp۰apply+ (set_backｰspecｰSuperempty with "[$]") as "Howner₁"; [lia.. |].
+        wp۰load.
+        wp۰apply+ (inf_array٠getｰspecｰhistory with "[$]"); first lia.
+        rewrite Hpriv. iSteps.
+
+    - iDestruct "H" as "(-> & #Hhistory_at & Hwinner_steal)".
+      iSpecialize ("HΦ" $! (Some v)).
+
+      wp۰apply (frontｰspecｰwinner۰steal with "[$]") as "Hwinner_steal".
+      wp۰pures.
+      rewrite bool_decide_eq_false_2; first lia.
+      wp۰pures.
+      rewrite bool_decide_eq_false_2; first lia.
+      wp۰load.
+      wp۰apply+ (resolveｰspecｰwinnerｰsteal with "[$]") as "#Hfront_lb".
+      wp۰apply+ (set_backｰspecｰSuperempty with "[$]") as "Howner₁"; [lia.. |].
+      wp۰load.
+      wp۰apply (inf_array٠getｰspecｰhistory with "[$]"); first done.
+      iSteps.
+
+    - iDestruct "H" as "(%id_winner & %prophs & -> & #Hprophet_full & %Hloser)".
+      iSpecialize ("HΦ" $! None).
+
+      wp۰apply (frontｰspecｰownerｰUnstable with "[$]") as (front2) "(Howner₁ & #Hfront_lb_1 & %Hbranch)".
+      wp۰pures.
+      destruct Hbranch as [-> | ->].
+
+      + rewrite bool_decide_eq_false_2; first lia.
+        wp۰pures.
+        rewrite bool_decide_eq_false_2; first lia.
+        wp۰load.
+        wp۰apply+ (resolveｰspecｰloser₂ with "[$]") as "#Hfront_lb_2"; first done.
+        wp۰apply+ (set_backｰspecｰSuperempty with "[$]"); [lia.. |].
+        iSteps.
+
+      + rewrite bool_decide_eq_true_2; first lia.
+        wp۰apply+ (set_backｰspecｰSuperempty with "[$]"); [lia.. |].
+        iSteps.
+
+    - iDestruct "H" as "(%front & -> & #Hfront_lb & ->)".
+      iSpecialize ("HΦ" $! None).
+
+      wp۰apply (frontｰspecｰSuperempty with "[$]") as "Howner₁"; first lia.
+      wp۰pures.
+      rewrite bool_decide_eq_true_2; first lia.
+      wp۰apply+ (set_backｰspecｰSuperempty with "[$]") as "Howner₁"; [lia.. |].
+      iSteps.
+  Qed.
+  Lemma inf_ws_deque_1٠popｰspec γ ι ws :
+    <<<
+      inf_ws_deque_1۰inv γ ι ∗
+      inf_ws_deque_1۰owner γ ws
+    | ∀∀ vs,
+      inf_ws_deque_1۰model γ vs
+    >>>
+      inf_ws_deque_1٠pop γ
+      @ ↑ι
+    <<<
+      ∃∃ o ws',
+      ⌜vs `suffix_of` ws⌝ ∗
+      match o with
+      | None =>
+          ⌜vs = []⌝ ∗
+          ⌜ws' = []⌝ ∗
+          inf_ws_deque_1۰model γ []
+      | Some v =>
+          ∃ vs',
+          ⌜vs = vs' ++ [v]⌝ ∗
+          ⌜ws' = vs'⌝ ∗
+          inf_ws_deque_1۰model γ vs'
+      end
+    | RET o;
+      inf_ws_deque_1۰owner γ ws'
+    >>>.
+  Proof.
+    iIntros "%Φ ((:inv) & (:owner)) HΦ".
+
+    wp۰rec.
+    wp۰apply (wpｰid with "[//]") as (id) "Hid".
+    wp۰apply+ (backｰspec with "[$]") as "Howner₁".
+    wp۰pures.
+
+    wp۰bind (_ <-{back} _)%E.
+    iInv "Hinv" as "(:inv۰inner =1)".
+    wp۰store.
+    iDestruct (ownerｰagree with "Howner₁ Howner₂") as %(<- & <- & <-).
+    iDestruct (inv۰stateｰStable with "Hstate") as "#([-> | ->] & _)"; first done.
+
+    { iDestruct "Hstate" as "(:inv۰state۰empty =1 lazy=)".
+      assert (0 < back) as Hback by lia.
+      assert (length vs1 = 0) as ->%nil_length_inv by lia.
+
+      iDestruct (front۰lbｰget with "Hfront_auth") as "#Hfront_lb".
+      iMod (ownerｰupdate Unstable (back - 1) priv with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+
+      iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
+      iDestruct (model۰owner₁ｰagree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
+      iMod (modelｰempty with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
+      iMod ("HΦ" $! None with "[$Hmodel₁ //]") as "HΦ".
+
+      iSplitR "Howner₁ HΦ".
+      { iExists Superempty. iFrameSteps. }
+      iIntros "!> {%- Hback}".
+
+      wp۰apply+ (inf_ws_deque_1٠pop₁ｰspec PopSuperempty _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
+      iSteps.
+    }
+
+    iDestruct "Hstate" as "(:inv۰state۰nonempty =1 lazy=)".
+    assert (0 < back) as Hback by lia.
+    destruct vs1 as [| v vs1 _] using rev_ind; first naive lia.
+
+    destruct_decide (˖front1 = back) as <- | Hbranch1.
+
+    - assert (length vs1 = 0) as ->%nil_length_inv.
+      { simp_length/= in Hvs1. lia. }
+
+      iDestruct (history۰atｰget front1 with "Hhistory_auth") as "#Hhistory_at"; first done.
+      iMod (ownerｰupdate Unstable front1 priv with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+      iEval (rewrite -(app_nil_r (hist1 ++ [v]))) in "Hdata_model".
+
+      destruct_decide (head $ prophss1 front1 = Some id) as (prophs0 & Hprophss1)%head_Some | Hbranch2.
+
+      + rewrite Hprophss1.
+        iDestruct "Hwinner" as "[(:winner) | (:winner۰pending₂ !=)]"; last first.
+        { iDestruct (identifier۰modelｰexclusive with "Hid Hid_") as %[]. }
+        iMod (winnerｰupdate front1 inhabitant with "Hwinner_pop Hwinner_steal") as "(Hwinner_pop & Hwinner_steal)".
 
         iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
         iDestruct (model۰owner₁ｰagree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
-        iMod (modelｰempty with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
-        iMod ("HΦ" $! None with "[$Hmodel₁ //]") as "HΦ".
+        iMod (modelｰpop with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂) /=".
+        iMod ("HΦ" $! (Some v) with "[$Hmodel₁ //]") as "HΦ".
 
-        iSplitR "Howner₁ HΦ".
-        { iExists Superempty. iFrameSteps. }
-        iIntros "!> {%- Hback}".
+        iSplitR "Howner₁ Hwinner_steal HΦ".
+        { iExists Emptyish. iFrameSteps. iPureIntro.
+          simp_length/=. lia.
+        }
+        iIntros "!> {%}".
 
-        wp۰apply+ (inf_ws_deque_1٠pop₁ｰspec PopSuperempty _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
+        wp۰apply+ (inf_ws_deque_1٠pop₁ｰspec (PopEmptyishWinner v) _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
         iSteps.
-      }
 
-      iDestruct "Hstate" as "(:inv۰state۰nonempty =1 lazy=)".
-      assert (0 < back) as Hback by lia.
-      destruct vs1 as [| v vs1 _] using rev_ind; first naive lia.
+      + iDestruct "Hwinner" as "[(:winner) | Hwinner]".
 
-      destruct_decide (˖front1 = back) as <- | Hbranch1.
-
-      - assert (length vs1 = 0) as ->%nil_length_inv.
-        { simp_length/= in Hvs1. lia. }
-
-        iDestruct (history۰atｰget front1 with "Hhistory_auth") as "#Hhistory_at"; first done.
-        iMod (ownerｰupdate Unstable front1 priv with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
-        iEval (rewrite -(app_nil_r (hist1 ++ [v]))) in "Hdata_model".
-
-        destruct_decide (head $ prophss1 front1 = Some id) as (prophs0 & Hprophss1)%head_Some | Hbranch2.
-
-        + rewrite Hprophss1.
-          iDestruct "Hwinner" as "[(:winner) | (:winner۰pending₂ !=)]"; last first.
-          { iDestruct (identifier۰modelｰexclusive with "Hid Hid_") as %[]. }
-          iMod (winnerｰupdate front1 inhabitant with "Hwinner_pop Hwinner_steal") as "(Hwinner_pop & Hwinner_steal)".
+        { iMod (winnerｰupdate front1 inhabitant with "Hwinner_pop Hwinner_steal") as "(Hwinner_pop & Hwinner_steal)".
 
           iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
           iDestruct (model۰owner₁ｰagree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
@@ -1802,321 +1815,55 @@ Module base.
 
           wp۰apply+ (inf_ws_deque_1٠pop₁ｰspec (PopEmptyishWinner v) _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
           iSteps.
+        }
 
-        + iDestruct "Hwinner" as "[(:winner) | Hwinner]".
+        iDestruct (prophet_multi۰fullｰget _ front1 with "Hprophet_model") as "#Hprophet_full".
+        iEval (rewrite Hpasts1 //=) in "Hprophet_full".
+        destruct (prophss1 front1) as [| id_winner prophs]; first done.
+        iDestruct "Hwinner" as "(:winner۰pending₂ !=)".
 
-          { iMod (winnerｰupdate front1 inhabitant with "Hwinner_pop Hwinner_steal") as "(Hwinner_pop & Hwinner_steal)".
-
-            iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
-            iDestruct (model۰owner₁ｰagree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
-            iMod (modelｰpop with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂) /=".
-            iMod ("HΦ" $! (Some v) with "[$Hmodel₁ //]") as "HΦ".
-
-            iSplitR "Howner₁ Hwinner_steal HΦ".
-            { iExists Emptyish. iFrameSteps. iPureIntro.
-              simp_length/=. lia.
-            }
-            iIntros "!> {%}".
-
-            wp۰apply+ (inf_ws_deque_1٠pop₁ｰspec (PopEmptyishWinner v) _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
-            iSteps.
-          }
-
-          iDestruct (prophet_multi۰fullｰget _ front1 with "Hprophet_model") as "#Hprophet_full".
-          iEval (rewrite Hpasts1 //=) in "Hprophet_full".
-          destruct (prophss1 front1) as [| id_winner prophs]; first done.
-          iDestruct "Hwinner" as "(:winner۰pending₂ !=)".
-
-          iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
-          iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
-          iMod (modelｰsteal with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂) /=".
-          iMod ("HP" with "[$Hmodel₁]") as "HP"; first iSteps.
-
-          iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
-          iDestruct (model۰owner₁ｰagree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
-          iMod (modelｰempty with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
-          iMod ("HΦ" $! None with "[$Hmodel₁ //]") as "HΦ".
-
-          iSplitR "Howner₁ HΦ".
-          { iExists Emptyish. iFrameStep 7. iExists P. iSteps. iPureIntro.
-            simp_length/=. lia.
-          }
-          iIntros "!> {%- Hbranch2}".
-
-          wp۰apply+ (inf_ws_deque_1٠pop₁ｰspec PopEmptyishLoser _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
-          iSteps.
-
-      - iMod (ownerｰupdate Stable (back - 1) (v .: priv) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
-
-        iEval (rewrite assoc) in "Hdata_model".
-        iApply inf_array۰model'ｰshiftｰr in "Hdata_model".
+        iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
+        iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %->.
+        iMod (modelｰsteal with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂) /=".
+        iMod ("HP" with "[$Hmodel₁]") as "HP"; first iSteps.
 
         iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
         iDestruct (model۰owner₁ｰagree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
-        iMod (modelｰpop' with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
-        iMod ("HΦ" $! (Some v) with "[$Hmodel₁ //]") as "HΦ".
+        iMod (modelｰempty with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
+        iMod ("HΦ" $! None with "[$Hmodel₁ //]") as "HΦ".
 
         iSplitR "Howner₁ HΦ".
-        { iExists Nonempty. iFrameSteps; iPureIntro.
-          all: simp_length/= in Hvs1.
-          - lia.
-          - rewrite take_app_le //; first lia.
+        { iExists Emptyish. iFrameStep 7. iExists P. iSteps. iPureIntro.
+          simp_length/=. lia.
         }
-        iIntros "!> {%- Hback}".
+        iIntros "!> {%- Hbranch2}".
 
-        wp۰apply+ (inf_ws_deque_1٠pop₁ｰspec (PopNonempty v) _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
+        wp۰apply+ (inf_ws_deque_1٠pop₁ｰspec PopEmptyishLoser _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
         iSteps.
-    Qed.
-  End inf_ws_deque_1۰G.
 
-  Please opacify.
-End base.
+    - iMod (ownerｰupdate Stable (back - 1) (v .: priv) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
 
-Require zoo_saturn.inf_ws_deque_1__opaque.
+      iEval (rewrite assoc) in "Hdata_model".
+      iApply inf_array۰model'ｰshiftｰr in "Hdata_model".
 
-Section inf_ws_deque_1۰G.
-  Context `{inf_ws_deque_1۰G : InfWsDeque1G Σ}.
+      iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
+      iDestruct (model۰owner₁ｰagree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
+      iMod (modelｰpop' with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
+      iMod ("HΦ" $! (Some v) with "[$Hmodel₁ //]") as "HΦ".
 
-  Implicit Type 𝑡 : location.
-  Implicit Type t : val.
+      iSplitR "Howner₁ HΦ".
+      { iExists Nonempty. iFrameSteps; iPureIntro.
+        all: simp_length/= in Hvs1.
+        - lia.
+        - rewrite take_app_le //; first lia.
+      }
+      iIntros "!> {%- Hback}".
 
-  Please Definition inf_ws_deque_1۰inv t ι : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    𝑡 ↪ γ ∗
-    base.inf_ws_deque_1۰inv 𝑡 γ ι.
-  #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{}
-      & %γ{}
-      & {%Heq{};->}
-      & #Hmeta{_{}}
-      & Hinv{_{}}
-      )
-    ".
-
-  Please Definition inf_ws_deque_1۰model t vs : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    𝑡 ↪ γ ∗
-    base.inf_ws_deque_1۰model γ vs.
-  #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{}
-      & %γ{}
-      & {%Heq{};->}
-      & #Hmeta{_{}}
-      & Hmodel{_{}}
-      )
-    ".
-
-  Please Definition inf_ws_deque_1۰owner t ws : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    𝑡 ↪ γ ∗
-    base.inf_ws_deque_1۰owner γ ws.
-  #[local] Instance : CustomIpat "owner" :=
-    " ( %𝑡{}
-      & %γ{}
-      & {%Heq{};->}
-      & #Hmeta{_{}}
-      & Howner{_{}}
-      )
-    ".
-
-  Zoo derive Timeless for inf_ws_deque_1۰model.
-  Zoo derive Timeless for inf_ws_deque_1۰owner.
-
-  Zoo derive Persistent for inf_ws_deque_1۰inv.
-
-  Lemma inf_ws_deque_1۰modelｰexclusive t vs1 vs2 :
-    inf_ws_deque_1۰model t vs1 -∗
-    inf_ws_deque_1۰model t vs2 -∗
-    False.
-  Proof.
-    iIntros "(:model =1) (:model =2)". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.inf_ws_deque_1۰modelｰexclusive with "Hmodel_1 Hmodel_2").
-  Qed.
-
-  Lemma inf_ws_deque_1۰ownerｰexclusive t ws1 ws2 :
-    inf_ws_deque_1۰owner t ws1 -∗
-    inf_ws_deque_1۰owner t ws2 -∗
-    False.
-  Proof.
-    iIntros "(:owner =1) (:owner =2)". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.inf_ws_deque_1۰ownerｰexclusive with "Howner_1 Howner_2").
-  Qed.
-  Lemma inf_ws_deque_1ｰownerｰmodel γ ws vs :
-    inf_ws_deque_1۰owner γ ws -∗
-    inf_ws_deque_1۰model γ vs -∗
-    ⌜vs `suffix_of` ws⌝.
-  Proof.
-    iIntros "(:owner =1) (:model =2)". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (base.inf_ws_deque_1۰ownerｰmodel with "Howner_1 Hmodel_2").
-  Qed.
-
-  Lemma inf_ws_deque_1٠createｰspec ι :
-    {{{
-      True
-    }}}
-      inf_ws_deque_1٠create ()
-    {{{
-      t
-    , RET t;
-      inf_ws_deque_1۰inv t ι ∗
-      inf_ws_deque_1۰model t [] ∗
-      inf_ws_deque_1۰owner t []
-    }}}.
-  Proof.
-    iIntros "%Φ _ HΦ".
-
-    iApply wpｰfupd.
-    wp۰apply (base.inf_ws_deque_1٠createｰspec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel & Howner)".
-    iMod (metaｰset γ with "Hmeta"); first done.
-    iSteps.
-  Qed.
-
-  Lemma inf_ws_deque_1٠sizeｰspec t ι ws :
-    <<<
-      inf_ws_deque_1۰inv t ι ∗
-      inf_ws_deque_1۰owner t ws
-    | ∀∀ vs,
-      inf_ws_deque_1۰model t vs
-    >>>
-      inf_ws_deque_1٠size t
-      @ ↑ι
-    <<<
-      ⌜vs `suffix_of` ws⌝ ∗
-      inf_ws_deque_1۰model t vs
-    | RET #(length vs);
-      inf_ws_deque_1۰owner t vs
-    >>>.
-  Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
-
-    awp۰apply (base.inf_ws_deque_1٠sizeｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
-      iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
-      iAaccIntro with "Hmodel_1"; iSteps.
-    }
-  Qed.
-
-  Lemma inf_ws_deque_1٠is_emptyｰspec t ι ws :
-    <<<
-      inf_ws_deque_1۰inv t ι ∗
-      inf_ws_deque_1۰owner t ws
-    | ∀∀ vs,
-      inf_ws_deque_1۰model t vs
-    >>>
-      inf_ws_deque_1٠is_empty t
-      @ ↑ι
-    <<<
-      ⌜vs `suffix_of` ws⌝ ∗
-      inf_ws_deque_1۰model t vs
-    | RET #(bool_decide (vs = []%list));
-      inf_ws_deque_1۰owner t vs
-    >>>.
-  Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
-
-    awp۰apply (base.inf_ws_deque_1٠is_emptyｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
-      iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
-      iAaccIntro with "Hmodel_1"; iSteps.
-    }
-  Qed.
-
-  Lemma inf_ws_deque_1٠pushｰspec t ι ws v :
-    <<<
-      inf_ws_deque_1۰inv t ι ∗
-      inf_ws_deque_1۰owner t ws
-    | ∀∀ vs,
-      inf_ws_deque_1۰model t vs
-    >>>
-      inf_ws_deque_1٠push t v
-      @ ↑ι
-    <<<
-      ⌜vs `suffix_of` ws⌝ ∗
-      inf_ws_deque_1۰model t (vs ++ [v])
-    | RET ();
-      inf_ws_deque_1۰owner t (vs ++ [v])
-    >>>.
-  Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
-
-    awp۰apply (base.inf_ws_deque_1٠pushｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
-      iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
-      iAaccIntro with "Hmodel_1"; iSteps.
-    }
-  Qed.
-
-  Lemma inf_ws_deque_1٠stealｰspec t ι :
-    <<<
-      inf_ws_deque_1۰inv t ι
-    | ∀∀ vs,
-      inf_ws_deque_1۰model t vs
-    >>>
-      inf_ws_deque_1٠steal t
-      @ ↑ι
-    <<<
-      inf_ws_deque_1۰model t (tail vs)
-    | RET head vs;
-      True
-    >>>.
-  Proof.
-    iIntros "%Φ (:inv) HΦ".
-
-    awp۰apply (base.inf_ws_deque_1٠stealｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
-      iDestruct (metaｰagree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
-      iAaccIntro with "Hmodel_1"; iSteps.
-    }
-  Qed.
-
-  Lemma inf_ws_deque_1٠popｰspec t ι ws :
-    <<<
-      inf_ws_deque_1۰inv t ι ∗
-      inf_ws_deque_1۰owner t ws
-    | ∀∀ vs,
-      inf_ws_deque_1۰model t vs
-    >>>
-      inf_ws_deque_1٠pop t
-      @ ↑ι
-    <<<
-      ∃∃ o ws',
-      ⌜vs `suffix_of` ws⌝ ∗
-      match o with
-      | None =>
-          ⌜vs = []⌝ ∗
-          ⌜ws' = []⌝ ∗
-          inf_ws_deque_1۰model t []
-      | Some v =>
-          ∃ vs',
-          ⌜vs = vs' ++ [v]⌝ ∗
-          ⌜ws' = vs'⌝ ∗
-          inf_ws_deque_1۰model t vs'
-      end
-    | RET o;
-      inf_ws_deque_1۰owner t ws'
-    >>>.
-  Proof.
-    iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
-
-    awp۰apply (base.inf_ws_deque_1٠popｰspec with "[$]").
-    { iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vs (:model =1)". simp.
-      iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
-      iAaccIntro with "Hmodel_1". 1: iSteps. iIntros "%o %ws' ($ & Ho)".
-      iExists o, ws'. destruct o.
-      all: iDecompose "Ho".
-      all: iFrameSteps.
-    }
+      wp۰apply+ (inf_ws_deque_1٠pop₁ｰspec (PopNonempty v) _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
+      iSteps.
   Qed.
 End inf_ws_deque_1۰G.
+
+Require zoo_saturn.inf_ws_deque_1__opaque.
 
 Please opacify.

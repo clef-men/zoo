@@ -40,6 +40,7 @@ Section auth_twins۰G.
     }.
   Implicit Type γ : auth_twins۰name.
 
+  Please derive Inhabited for auth_twins۰name.
   Please derive EqDecision for auth_twins۰name.
   Please derive Countable for auth_twins۰name.
 
