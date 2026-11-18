@@ -31,6 +31,18 @@ let val_constr =
   val_
   |> Constrexpr_.mk_ref_string
 
+let _ValInt =
+  "zoo.language.syntax.ValInt"
+let _ValInt_constr =
+  _ValInt
+  |> Constrexpr_.mk_ref_string
+
+let _ValNat =
+  "zoo.language.syntax.ValNat"
+let _ValNat_constr =
+  _ValNat
+  |> Constrexpr_.mk_ref_string
+
 let _ValLoc =
   "zoo.language.syntax.ValLoc"
 let _ValLoc_constr =

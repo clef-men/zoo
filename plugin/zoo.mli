@@ -22,6 +22,16 @@ val val_qualid :
 val val_constr :
   Constrexpr.constr_expr
 
+val _ValInt :
+  string
+val _ValInt_constr :
+  Constrexpr.constr_expr
+
+val _ValNat :
+  string
+val _ValNat_constr :
+  Constrexpr.constr_expr
+
 val _ValLoc :
   string
 val _ValLoc_constr :

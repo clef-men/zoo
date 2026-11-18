@@ -112,6 +112,8 @@ let instance ~locality =
 
 module Category = struct
   type t =
+    | Nat
+    | Int
     | Location
     | Prophet
     | Other
@@ -120,7 +122,11 @@ module Category = struct
     match ty.v with
     | CRef (ty, _inst) ->
         let ty = Nametab.locate ty in
-        if Names.GlobRef.UserOrd.equal ty (Zoo.location_gref ()) then
+        if Names.GlobRef.UserOrd.equal ty (Std.nat_gref ()) then
+          Nat
+        else if Names.GlobRef.UserOrd.equal ty (Std._Z_gref ()) then
+          Int
+        else if Names.GlobRef.UserOrd.equal ty (Zoo.location_gref ()) then
           Location
         else if Names.GlobRef.UserOrd.equal ty (Zoo.prophet_identifier_gref ()) then
           Prophet
@@ -132,6 +138,10 @@ module Category = struct
   let coercion t constr =
     let open Constrexpr_ in
     match t with
+    | Nat ->
+        mk_app Zoo._ValNat_constr [constr]
+    | Int ->
+        mk_app Zoo._ValInt_constr [constr]
     | Location ->
         mk_app Zoo._ValLoc_constr [constr]
     | Prophet ->
