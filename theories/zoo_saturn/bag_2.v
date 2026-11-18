@@ -9,45 +9,53 @@ Require Export zoo_saturn.bag_2__code.
 Require Import zoo_saturn.bag_2__types.
 Require Import zoo.options.
 
-Implicit Type l node 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 : location.
+Implicit Type node 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 : location.
 Implicit Type nodes : list location.
-Implicit Type v t producer consumer backoff : val.
-Implicit Type o : option val.
+Implicit Type v consumer backoff : val.
 Implicit Type vs ws : list val.
-Implicit Type vss wss : gmap val (list val).
+
+Zoo name :=
+  { self : location
+  ; inv : namespace
+  ; model : gname
+  ; queues : gname
+  }.
+
+Record bag_2۰producer۰name :=
+  { bag_2۰producer۰name۰queue : queue_spmc۰name
+  ; bag_2۰producer۰name۰node : location
+  }.
+Implicit Type producer : bag_2۰producer۰name.
+
+Please derive Inhabited for bag_2۰producer۰name.
+Please derive EqDecision for bag_2۰producer۰name.
+Please derive Countable for bag_2۰producer۰name.
+
+Implicit Type vss wss : gmap bag_2۰producer۰name (list val).
+
+Coercion bag_2۰producer۰name۰to_val producer : val :=
+  ( producer.(bag_2۰producer۰name۰queue)
+  , #producer.(bag_2۰producer۰name۰node)
+  ).
+#[global] Instance bag_2۰producer۰nameｰto_val : ToVal bag_2۰producer۰name :=
+  bag_2۰producer۰name۰to_val.
 
 Zoo global :=
   { queue_spmc : queue_spmc
-  ; queues : mono_gmap location val
-  ; model : twins (leibnizO (gmap val (list val)))
+  ; queues : mono_gmap location queue_spmc۰name
+  ; model : twins (leibnizO (gmap bag_2۰producer۰name (list val)))
   }.
 
-Record producer :=
-  { producer۰queue : val
-  ; producer۰node : location
-  }.
-Implicit Type 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : producer.
-
-#[local] Coercion producer۰to_val 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : val :=
-  ( 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue),
-    #𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node)
-  ).
-
-#[local] Lemma producerｰeqｰalt 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2 :
-  𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1.(producer۰queue) = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2.(producer۰queue) →
-  𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1.(producer۰node) = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2.(producer۰node) →
-  𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1 = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2.
+#[local] Lemma producer۰nameｰeqｰalt producer1 producer2 :
+  producer1.(bag_2۰producer۰name۰queue) = producer2.(bag_2۰producer۰name۰queue) →
+  producer1.(bag_2۰producer۰name۰node) = producer2.(bag_2۰producer۰name۰node) →
+  producer1 = producer2.
 Proof.
-  destruct 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟1, 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟2; naive.
-Qed.
-#[local] Instance producer۰to_valｰinj :
-  Inj (=) (=) producer۰to_val.
-Proof.
-  intros [] []; naive.
+  destruct producer1, producer2; naive.
 Qed.
 
 Record descriptor :=
-  { descriptor۰queue : val
+  { descriptor۰queue : queue_spmc۰name
   ; descriptor۰vals : list val
   }.
 Implicit Type descr : descriptor.
@@ -59,8 +67,8 @@ Implicit Type descrs : gmap location descriptor.
   |}.
 
 #[local] Definition descriptor۰to_producer descr node :=
-  {|producer۰queue := descr.(descriptor۰queue)
-  ; producer۰node := node
+  {|bag_2۰producer۰name۰queue := descr.(descriptor۰queue)
+  ; bag_2۰producer۰name۰node := node
   |}.
 
 #[local] Lemma descriptor۰to_producerｰinj descr1 node1 descr2 node2 :
@@ -73,21 +81,11 @@ Qed.
 Section bag_2۰G.
   Context `{bag_2۰G : Bag2G Σ}.
 
-  Record metadata :=
-    { metadata۰inv : namespace
-    ; metadata۰model : gname
-    ; metadata۰queues : gname
-    }.
-  Implicit Type γ : metadata.
-
-  #[local] Please derive EqDecision for metadata.
-  #[local] Please derive Countable for metadata.
-
   #[local] Definition queues۰auth' γ_queues nodes descrs wss : iProp Σ :=
     mono_gmap۰auth γ_queues (DfracOwn 1) (descriptor۰queue <$> descrs) ∗
     ⌜dom descrs = list_to_set nodes⌝ ∗
     ⌜ map_Forall (λ node descr,
-        wss !! (descriptor۰to_producer descr node : val) = Some descr.(descriptor۰vals)
+        wss !! (descriptor۰to_producer descr node) = Some descr.(descriptor۰vals)
       ) descrs
     ⌝.
   #[local] Instance : CustomIpat "queues۰auth" :=
@@ -97,11 +95,11 @@ Section bag_2۰G.
       )
     ".
   #[local] Definition queues۰auth γ :=
-    queues۰auth' γ.(metadata۰queues).
+    queues۰auth' γ.(bag_2۰name۰queues).
   #[local] Definition queues۰at' :=
     mono_gmap۰at.
   #[local] Definition queues۰at γ :=
-    queues۰at' γ.(metadata۰queues).
+    queues۰at' γ.(bag_2۰name۰queues).
   #[local] Definition queues۰elem γ queue : iProp Σ :=
     match queue with
     | None =>
@@ -109,7 +107,7 @@ Section bag_2۰G.
     | Some queue =>
         ∃ node,
         queues۰at γ node queue ∗
-        queue_spmc۰inv queue (γ.(metadata۰inv).@"producer")
+        queue_spmc۰inv queue (γ.(bag_2۰name۰inv).@"producer")
     end.
   #[local] Instance : CustomIpat "queues۰elem" :=
     " ( %node
@@ -121,17 +119,17 @@ Section bag_2۰G.
   #[local] Definition model₁' γ_model vss :=
     twins۰twin₁ γ_model (DfracOwn 1) vss.
   #[local] Definition model₁ γ :=
-    model₁' γ.(metadata۰model).
+    model₁' γ.(bag_2۰name۰model).
   #[local] Definition model₂' γ_model vss :=
     twins۰twin₂ γ_model vss.
   #[local] Definition model₂ γ :=
-    model₂' γ.(metadata۰model).
+    model₂' γ.(bag_2۰name۰model).
 
   #[local] Definition descriptor۰model γ node descr : iProp Σ :=
-    ∃ o,
-    node.[queue] ↦ o ∗
+    ∃ (o : option queue_spmc۰name),
+    node.[queue] ↦ ((♯) <$> o : option val) ∗
     ⌜from_option (.= descr.(descriptor۰queue)) True o⌝ ∗
-    queue_spmc۰inv descr.(descriptor۰queue) (γ.(metadata۰inv).@"producer") ∗
+    queue_spmc۰inv descr.(descriptor۰queue) (γ.(bag_2۰name۰inv).@"producer") ∗
     queue_spmc۰model descr.(descriptor۰queue) descr.(descriptor۰vals).
   #[local] Instance : CustomIpat "descriptor۰model" :=
     " ( %o{}
@@ -142,9 +140,9 @@ Section bag_2۰G.
       )
     ".
 
-  #[local] Definition inv۰inner l γ : iProp Σ :=
+  #[local] Definition inv۰inner γ : iProp Σ :=
     ∃ nodes descrs wss,
-    l.[producers] ↦ from_option (#ˡ) §Null (head nodes) ∗
+    γ.(bag_2۰name۰self).[producers] ↦ from_option (#ˡ) §Null (head nodes) ∗
     xtchain (Header §Node 2) DfracDiscarded nodes §Null ∗
     queues۰auth γ nodes descrs wss ∗
     model₂ γ wss ∗
@@ -154,82 +152,51 @@ Section bag_2۰G.
     " ( %nodes{}
       & %descrs{}
       & %wss
-      & Hl_producers
+      & Ht_producers
       & Hnodes{}
       & >Hqueues_auth
       & >Hmodel₂
       & Hdescrs
       )
     ".
-  #[local] Definition inv' l γ :=
-    inv (γ.(metadata۰inv).@"inv") (inv۰inner l γ).
-  Please Definition bag_2۰inv t ι : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    ⌜ι = γ.(metadata۰inv)⌝ ∗
-    l ↪ γ ∗
-    inv' l γ.
+  #[local] Definition inv' γ :=
+    inv (γ.(bag_2۰name۰inv).@"inv") (inv۰inner γ).
+  Please Definition bag_2۰inv γ ι : iProp Σ :=
+    ⌜ι = γ.(bag_2۰name۰inv)⌝ ∗
+    inv' γ.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l
-      & %γ
-      & ->
-      & ->
-      & #Hmeta
+    " ( ->
       & #Hinv
       )
     ".
 
-  Please Definition bag_2۰model t vss : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    l ↪ γ ∗
-    model₁ γ vss.
+  Please Definition bag_2۰model :=
+    model₁.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l{;_}
-      & %γ{;_}
-      & %Heq{}
-      & #Hmeta_{}
-      & Hmodel₁{_{}}
-      )
+    " Hmodel₁{_{}}
     ".
 
-  Please Definition bag_2۰producer t producer ws : iProp Σ :=
-    ∃ l γ 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟,
-    ⌜t = #l⌝ ∗
-    ⌜producer = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟⌝ ∗
-    l ↪ γ ∗
-    𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node) ↦ₕ Header §Node 2 ∗
-    queues۰at γ 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node) 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue) ∗
-    queue_spmc۰inv 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue) (γ.(metadata۰inv).@"producer") ∗
-    queue_spmc۰producer 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue) ws.
+  Please Definition bag_2۰producer γ producer ws : iProp Σ :=
+    producer.(bag_2۰producer۰name۰node) ↦ₕ Header §Node 2 ∗
+    queues۰at γ producer.(bag_2۰producer۰name۰node) producer.(bag_2۰producer۰name۰queue) ∗
+    queue_spmc۰inv producer.(bag_2۰producer۰name۰queue) (γ.(bag_2۰name۰inv).@"producer") ∗
+    queue_spmc۰producer producer.(bag_2۰producer۰name۰queue) ws.
   #[local] Instance : CustomIpat "producer" :=
-    " ( %l{;_}
-      & %γ{;_}
-      & %𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟{}
-      & %Ht_eq{}
-      & {%Hproducer_eq{};->}
-      & #Hmeta{_{};_}
-      & #Hnode_header{_{}}
+    " ( #Hnode_header{_{}}
       & #Hqueues_at{_{}}
       & #Hqueue_inv{_{}}
       & Hqueue_producer{_{}}
       )
     ".
 
-  Please Definition bag_2۰consumer t consumer : iProp Σ :=
-    ∃ l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val),
-    ⌜t = #l⌝ ∗
-    l ↪ γ ∗
+  Please Definition bag_2۰consumer γ consumer : iProp Σ :=
+    ∃ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option queue_spmc۰name),
     ⌜consumer = #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟⌝ ∗
-    𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟.[consumer_queue] ↦ queue ∗
+    𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟.[consumer_queue] ↦ ((♯) <$> queue : option val) ∗
     queues۰elem γ queue.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %l{;_}
-      & %γ{;_}
-      & %𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟{}
+    " ( %𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟{}
       & %queue{}
-      & %Heq{}
-      & Hmeta_{}
       & {%Hconsumer_eq{};->}
       & Hconsumer_queue{_{}}
       & #Hqueues_elem{_{}}
@@ -269,23 +236,23 @@ Section bag_2۰G.
       ∃ descr,
       ⌜descrs !! node = Some descr⌝ ∗
       ⌜descr.(descriptor۰queue) = queue⌝ ∗
-      ⌜wss !! (descriptor۰to_producer descr node : val) = Some descr.(descriptor۰vals)⌝.
+      ⌜wss !! (descriptor۰to_producer descr node) = Some descr.(descriptor۰vals)⌝.
   Proof.
     iIntros "(:queues۰auth) Hat".
     iDestruct (mono_gmap۰atｰvalid with "Hauth Hat") as %(descr & ? & Hdescrs_lookup)%lookup_fmap_Some.
     iSteps.
   Qed.
-  #[local] Lemma queues۰atｰvalidｰproducer γ nodes descrs wss 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :
+  #[local] Lemma queues۰atｰvalidｰproducer γ nodes descrs wss producer :
     queues۰auth γ nodes descrs wss -∗
-    queues۰at γ 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node) 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue) -∗
+    queues۰at γ producer.(bag_2۰producer۰name۰node) producer.(bag_2۰producer۰name۰queue) -∗
       ∃ descr,
-      ⌜descrs !! 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node) = Some descr⌝ ∗
-      ⌜descr.(descriptor۰queue) = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue)⌝ ∗
-      ⌜wss !! (𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : val) = Some descr.(descriptor۰vals)⌝.
+      ⌜descrs !! producer.(bag_2۰producer۰name۰node) = Some descr⌝ ∗
+      ⌜descr.(descriptor۰queue) = producer.(bag_2۰producer۰name۰queue)⌝ ∗
+      ⌜wss !! producer = Some descr.(descriptor۰vals)⌝.
   Proof.
     iIntros "Hauth Hat".
     iDestruct (queues۰atｰvalid with "Hauth Hat") as "(%descr & %Hdescrs_lookup & %Hdescr_queue & %Hwss_lookup)".
-    rewrite (producerｰeqｰalt 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 (descriptor۰to_producer descr 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node))) //.
+    rewrite (producer۰nameｰeqｰalt producer (descriptor۰to_producer descr producer.(bag_2۰producer۰name۰node))) //.
     iSteps.
   Qed.
   #[local] Lemma queuesｰinsert {γ nodes descrs wss} node descr :
@@ -294,7 +261,7 @@ Section bag_2۰G.
       queues۰auth γ
         (node :: nodes)
         (<[node := descr]> descrs)
-        (<[descriptor۰to_producer descr node : val := descr.(descriptor۰vals)]> wss) ∗
+        (<[descriptor۰to_producer descr node := descr.(descriptor۰vals)]> wss) ∗
       queues۰at γ node descr.(descriptor۰queue).
   Proof.
     iIntros "%Hdescrs_lookup (:queues۰auth)".
@@ -308,7 +275,7 @@ Section bag_2۰G.
         destruct_decide (node' = node) as -> | ?.
         * simp.
         * rewrite lookup_insert_ne //.
-          intros ?%(inj _)%descriptor۰to_producerｰinj. done.
+          intros ?%descriptor۰to_producerｰinj. done.
   Qed.
   #[local] Lemma queuesｰupdate {γ nodes descrs wss} node descr f :
     descrs !! node = Some descr →
@@ -316,7 +283,7 @@ Section bag_2۰G.
     queues۰auth γ
       nodes
       (<[node := descriptor۰update_vals descr f]> descrs)
-      (<[descriptor۰to_producer descr node : val := f descr.(descriptor۰vals)]> wss).
+      (<[descriptor۰to_producer descr node := f descr.(descriptor۰vals)]> wss).
   Proof.
     iIntros "%Hdescrs_lookup (:queues۰auth)".
     rewrite /queues۰auth /queues۰auth'.
@@ -329,18 +296,19 @@ Section bag_2۰G.
         rewrite lookup_insert_ne; first naive.
         rewrite map_Forall_lookup in Hdescrs. auto.
   Qed.
-  #[local] Lemma queuesｰupdateｰproducer {γ nodes descrs wss} 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 descr f :
-    descrs !! 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node) = Some descr →
-    descr.(descriptor۰queue) = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰queue) →
+  #[local] Lemma queuesｰupdateｰproducer {γ nodes descrs wss} producer descr f :
+    descrs !! producer.(bag_2۰producer۰name۰node) = Some descr →
+    descr.(descriptor۰queue) = producer.(bag_2۰producer۰name۰queue) →
     queues۰auth γ nodes descrs wss ⊢
     queues۰auth γ
       nodes
-      (<[𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node) := descriptor۰update_vals descr f]> descrs)
-      (<[𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : val := f descr.(descriptor۰vals)]> wss).
+      (<[producer.(bag_2۰producer۰name۰node) := descriptor۰update_vals descr f]> descrs)
+      (<[producer := f descr.(descriptor۰vals)]> wss).
   Proof.
     intros Hdescrs_lookup Hdescr_queue.
-    rewrite (queuesｰupdate 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer۰node) descr f) //.
-    rewrite /descriptor۰to_producer Hdescr_queue //.
+    rewrite (queuesｰupdate _ _ f) //.
+    rewrite /descriptor۰to_producer Hdescr_queue.
+    setoid_rewrite (producer۰nameｰeqｰalt _ producer) => //.
   Qed.
 
   #[local] Lemma modelｰalloc :
@@ -376,28 +344,25 @@ Section bag_2۰G.
 
   Opaque queues۰auth'.
 
-  Lemma bag_2۰modelｰexclusive t vss1 vss2 :
-    bag_2۰model t vss1 -∗
-    bag_2۰model t vss2 -∗
+  Lemma bag_2۰modelｰexclusive γ vss1 vss2 :
+    bag_2۰model γ vss1 -∗
+    bag_2۰model γ vss2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)". simp.
-    iDestruct (metaｰagree with "Hmeta_1 Hmeta_2") as %->.
+    iIntros "(:model =1) (:model =2)".
     iApply (model₁ｰexclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma bag_2۰producerｰvalid t ι vss producer ws E :
+  Lemma bag_2۰producerｰvalid γ ι vss producer ws E :
     ↑ι ⊆ E →
-    bag_2۰inv t ι -∗
-    bag_2۰model t vss -∗
-    bag_2۰producer t producer ws ={E}=∗
+    bag_2۰inv γ ι -∗
+    bag_2۰model γ vss -∗
+    bag_2۰producer γ producer ws ={E}=∗
       ∃ vs,
       ⌜vss !! producer = Some vs⌝ ∗
       ⌜vs `suffix_of` ws⌝.
   Proof.
-    iIntros "% (:inv) (:model =1) (:producer =2)". simp.
-    iDestruct (metaｰagree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
-    iDestruct (metaｰagree with "Hmeta Hmeta_2") as %<-. iClear "Hmeta_2".
+    iIntros "% (:inv) (:model =1) (:producer =2)".
 
     iInv "Hinv" as "(:inv۰inner)".
     iDestruct (modelｰagree with "Hmodel₁_1 Hmodel₂") as %<-.
@@ -410,18 +375,18 @@ Section bag_2۰G.
     iSplitL. { iFrameSteps. }
     iSteps.
   Qed.
-  Lemma bag_2۰producerｰexclusive t1 t2 producer ws1 ws2 :
-    bag_2۰producer t1 producer ws1 -∗
-    bag_2۰producer t2 producer ws2 -∗
+  Lemma bag_2۰producerｰexclusive γ1 γ2 producer ws1 ws2 :
+    bag_2۰producer γ1 producer ws1 -∗
+    bag_2۰producer γ2 producer ws2 -∗
     False.
   Proof.
-    iIntros "(:producer =1) (:producer =2)". simp.
+    iIntros "(:producer =1) (:producer =2)".
     iApply (queue_spmc۰producerｰexclusive with "Hqueue_producer_1 Hqueue_producer_2").
   Qed.
 
-  Lemma bag_2۰consumerｰexclusive t1 t2 consumer :
-    bag_2۰consumer t1 consumer -∗
-    bag_2۰consumer t2 consumer -∗
+  Lemma bag_2۰consumerｰexclusive γ1 γ2 consumer :
+    bag_2۰consumer γ1 consumer -∗
+    bag_2۰consumer γ2 consumer -∗
     False.
   Proof.
     iIntros "(:consumer =1) (:consumer =2)". simp.
@@ -434,60 +399,59 @@ Section bag_2۰G.
     }}}
       bag_2٠create ()
     {{{
-      t
-    , RET t;
-      bag_2۰inv t ι ∗
-      bag_2۰model t ∅
+      γ
+    , RET γ;
+      bag_2۰inv γ ι ∗
+      bag_2۰model γ ∅
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
 
     wp۰rec.
-    wp۰block l as "Hl_producers" meta:"Hmeta".
+    wp۰block t as "Ht_producers".
 
     iMod modelｰalloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod queuesｰalloc as "(%γ_queues & Hqueues_auth)".
 
     pose γ :=
-      {|metadata۰inv := ι
-      ; metadata۰model := γ_model
-      ; metadata۰queues := γ_queues
+      {|bag_2۰name۰self := t
+      ; bag_2۰name۰inv := ι
+      ; bag_2۰name۰model := γ_model
+      ; bag_2۰name۰queues := γ_queues
       |}.
-    iMod (metaｰset γ with "Hmeta") as "#Hmeta"; first done.
 
-    iApply "HΦ".
+    iApply ("HΦ" $! γ).
     iSplitR "Hmodel₁"; last iSteps.
-    iExists l, γ. iStep 3. iApply inv_alloc. iFrame.
+    iStep. iApply inv_alloc. iFrame.
     iDestruct xtchainｰnil as "$".
     iSteps.
   Qed.
 
-  #[local] Lemma bag_2٠add_producer₁ｰspec l γ (queue : val) backoff :
+  #[local] Lemma bag_2٠add_producer₁ｰspec γ (queue : queue_spmc۰name) backoff :
     <<<
-      l ↪ γ ∗
-      inv' l γ ∗
-      queue_spmc۰inv queue (γ.(metadata۰inv).@"producer") ∗
+      inv' γ ∗
+      queue_spmc۰inv queue (γ.(bag_2۰name۰inv).@"producer") ∗
       queue_spmc۰model queue [] ∗
       backoff۰model backoff
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2٠add_producer₁ #l (Some queue) backoff
-      @ ↑γ.(metadata۰inv)
+      bag_2٠add_producer₁ γ (Some (queue : val)) backoff
+      @ ↑γ.(bag_2۰name۰inv)
     <<<
       ∃∃ node,
-      let 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :=
-        {|producer۰queue := queue
-        ; producer۰node := node
+      let producer :=
+        {|bag_2۰producer۰name۰queue := queue
+        ; bag_2۰producer۰name۰node := node
         |}
       in
-      model₁ γ (<[𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : val := []]> vss)
+      model₁ γ (<[producer := []]> vss)
     | RET #node;
       node ↦ₕ Header §Node 2 ∗
       queues۰at γ node queue
     >>>.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hqueue_inv & Hqueue_model & Hbackoff) HΦ".
+    iIntros "%Φ (#Hinv & #Hqueue_inv & Hqueue_model & Hbackoff) HΦ".
 
     iLöb as "HLöb" forall (backoff).
 
@@ -526,7 +490,7 @@ Section bag_2۰G.
     iMod "HΦ" as "(%vss & Hmodel₁ & _ & HΦ)".
     iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %<-.
     set vss' :=
-      <[descriptor۰to_producer descr node : val := []]> vss.
+      <[descriptor۰to_producer descr node := []]> vss.
     iMod (modelｰupdate vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "Hmodel₁ [$Hnode_header $Hqueues_at]") as "HΦ".
 
@@ -534,49 +498,48 @@ Section bag_2۰G.
     iSteps.
   Qed.
 
-  #[local] Lemma bag_2٠add_producerｰspec l γ (queue : val) :
+  #[local] Lemma bag_2٠add_producerｰspec γ (queue : queue_spmc۰name) :
     <<<
-      l ↪ γ ∗
-      inv' l γ ∗
-      queue_spmc۰inv queue (γ.(metadata۰inv).@"producer") ∗
+      inv' γ ∗
+      queue_spmc۰inv queue (γ.(bag_2۰name۰inv).@"producer") ∗
       queue_spmc۰model queue []
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2٠add_producer #l queue
-      @ ↑γ.(metadata۰inv)
+      bag_2٠add_producer γ queue
+      @ ↑γ.(bag_2۰name۰inv)
     <<<
       ∃∃ node,
-      let 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :=
-        {|producer۰queue := queue
-        ; producer۰node := node
+      let producer :=
+        {|bag_2۰producer۰name۰queue := queue
+        ; bag_2۰producer۰name۰node := node
         |}
       in
-      model₁ γ (<[𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : val := []]> vss)
+      model₁ γ (<[producer := []]> vss)
     | RET #node;
       node ↦ₕ Header §Node 2 ∗
       queues۰at γ node queue
     >>>.
   Proof.
-    iIntros "%Φ (Hmeta & Hinv & Hqueue_inv & Hqueue_model) HΦ".
+    iIntros "%Φ (Hinv & Hqueue_inv & Hqueue_model) HΦ".
 
     wp۰rec.
     wp۰apply+ (bag_2٠add_producer₁ｰspec with "[- HΦ] HΦ"). 1: iFrameSteps.
   Qed.
 
-  Lemma bag_2٠create_producerｰspec t ι :
+  Lemma bag_2٠create_producerｰspec γ ι :
     <<<
-      bag_2۰inv t ι
+      bag_2۰inv γ ι
     | ∀∀ vss,
-      bag_2۰model t vss
+      bag_2۰model γ vss
     >>>
-      bag_2٠create_producer t
+      bag_2٠create_producer γ
       @ ↑ι
     <<<
       ∃∃ producer,
-      bag_2۰model t (<[producer := []]> vss)
+      bag_2۰model γ (<[producer := []]> vss)
     | RET producer;
-      bag_2۰producer t producer []
+      bag_2۰producer γ producer []
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
@@ -584,25 +547,23 @@ Section bag_2۰G.
     wp۰rec.
     wp۰apply (queue_spmc٠createｰspec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model & Hqueue_producer)".
 
-    awp۰apply+ (bag_2٠add_producerｰspec with "[$Hmeta $Hinv $Hqueue_inv $Hqueue_model]") without "Hqueue_producer".
-    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
-    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    awp۰apply+ (bag_2٠add_producerｰspec with "[$Hinv $Hqueue_inv $Hqueue_model]") without "Hqueue_producer".
+    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vss (:model)".
     iAaccIntro with "Hmodel₁"; iSteps.
   Qed.
 
-  Lemma bag_2٠close_producerｰspec t ι producer ws :
+  Lemma bag_2٠close_producerｰspec γ ι producer ws :
     {{{
-      bag_2۰inv t ι ∗
-      bag_2۰producer t producer ws
+      bag_2۰inv γ ι ∗
+      bag_2۰producer γ producer ws
     }}}
       bag_2٠close_producer producer
     {{{
       RET ();
-      bag_2۰producer t producer ws
+      bag_2۰producer γ producer ws
     }}}.
   Proof.
-    iIntros "%Φ ((:inv) & (:producer)) HΦ". injection Ht_eq as <-.
-    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iIntros "%Φ ((:inv) & (:producer)) HΦ".
 
     wp۰rec. wp۰match.
 
@@ -616,15 +577,15 @@ Section bag_2۰G.
     iSteps.
   Qed.
 
-  Lemma bag_2٠create_consumerｰspec t ι :
+  Lemma bag_2٠create_consumerｰspec γ ι :
     {{{
-      bag_2۰inv t ι
+      bag_2۰inv γ ι
     }}}
-      bag_2٠create_consumer t
+      bag_2٠create_consumer γ
     {{{
       consumer
     , RET consumer;
-      bag_2۰consumer t consumer
+      bag_2۰consumer γ consumer
     }}}.
   Proof.
     iIntros "%Φ (:inv) HΦ".
@@ -634,25 +595,24 @@ Section bag_2۰G.
     iSteps. iExists None. iSteps.
   Qed.
 
-  Lemma bag_2٠pushｰspec t ι producer ws v :
+  Lemma bag_2٠pushｰspec γ ι producer ws v :
     <<<
-      bag_2۰inv t ι ∗
-      bag_2۰producer t producer ws
+      bag_2۰inv γ ι ∗
+      bag_2۰producer γ producer ws
     | ∀∀ vss,
-      bag_2۰model t vss
+      bag_2۰model γ vss
     >>>
       bag_2٠push producer v
       @ ↑ι
     <<<
       ∃∃ vs,
       ⌜vss !! producer = Some vs⌝ ∗
-      bag_2۰model t (<[producer := vs ++ [v]]> vss)
+      bag_2۰model γ (<[producer := vs ++ [v]]> vss)
     | RET ();
-      bag_2۰producer t producer (vs ++ [v])
+      bag_2۰producer γ producer (vs ++ [v])
     >>>.
   Proof.
-    iIntros "%Φ ((:inv) & (:producer)) HΦ". injection Ht_eq as <-.
-    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iIntros "%Φ ((:inv) & (:producer)) HΦ".
 
     wp۰rec.
 
@@ -664,16 +624,15 @@ Section bag_2۰G.
     { iDestruct ("Hdescrs" with "[Hnode_queue Hqueue_model]") as "Hdescrs"; first iSteps.
       rewrite insert_id //. iFrameSteps.
     }
-    iApply (queuesｰupdateｰproducer 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 descr (.++ [v])) in "Hqueues_auth"; [done.. |].
+    iApply (queuesｰupdateｰproducer producer descr (.++ [v])) in "Hqueues_auth"; [done.. |].
     set descr' :=
       descriptor۰update_vals descr (.++ [v]).
     iDestruct ("Hdescrs" $! descr' with "[Hnode_queue Hqueue_model]") as "Hdescrs"; first iSteps.
 
-    iMod "HΦ" as "(%vss & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iMod "HΦ" as "(%vss & (:model) & _ & HΦ)".
     iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %<-.
     set vss' :=
-      <[𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : val := descr.(descriptor۰vals) ++ [v]]> vss.
+      <[producer := descr.(descriptor۰vals) ++ [v]]> vss.
     iMod (modelｰupdate vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
 
@@ -681,11 +640,10 @@ Section bag_2۰G.
     rewrite Hdescr_queue. iSteps.
   Qed.
 
-  #[local] Lemma bag_2٠pop₂ｰspec l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val) nodes :
+  #[local] Lemma bag_2٠pop₂ｰspec γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option queue_spmc۰name) nodes :
     <<<
-      l ↪ γ ∗
-      inv' l γ ∗
-      𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟.[consumer_queue] ↦ queue ∗
+      inv' γ ∗
+      𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟.[consumer_queue] ↦ ((♯) <$> queue : option val) ∗
       queues۰elem γ queue ∗
       xtchain (Header §Node 2) DfracDiscarded nodes §Null ∗
       [∗ list] node ∈ nodes,
@@ -695,7 +653,7 @@ Section bag_2۰G.
       model₁ γ vss
     >>>
       bag_2٠pop₂ #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (from_option (#ˡ) §Null%V $ head nodes)
-      @ ↑γ.(metadata۰inv)
+      @ ↑γ.(bag_2۰name۰inv)
     <<<
       ∃∃ o,
       match o with
@@ -706,13 +664,13 @@ Section bag_2۰G.
           ⌜vss !! producer = Some (v :: vs)⌝ ∗
           model₁ γ (<[producer := vs]> vss)
       end
-    | queue : option val,
+    | queue : option queue_spmc۰name,
       RET o;
-      𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟.[consumer_queue] ↦ queue ∗
+      𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟.[consumer_queue] ↦ ((♯) <$> queue : option val) ∗
       queues۰elem γ queue
     >>>.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & Hconsumer_queue & #Hqueues_elem & Hnodes & Hqueues_ats) HΦ".
+    iIntros "%Φ (#Hinv & Hconsumer_queue & #Hqueues_elem & Hnodes & Hqueues_ats) HΦ".
 
     iLöb as "HLöb" forall (nodes).
 
@@ -765,7 +723,7 @@ Section bag_2۰G.
         * iMod "HΦ" as "(%vss & Hmodel₁ & _ & HΦ)".
           iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %<-.
           set vss' :=
-            <[descriptor۰to_producer descr node : val := vs]> vss.
+            <[descriptor۰to_producer descr node := vs]> vss.
           iMod (modelｰupdate vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
           iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ"; first iSteps.
 
@@ -780,31 +738,30 @@ Section bag_2۰G.
       + wp۰load.
         wp۰apply ("HLöb" $! nodes with "Hconsumer_queue Hnodes [$] HΦ").
   Qed.
-  #[local] Lemma bag_2٠pop₁ｰspec t ι consumer :
+  #[local] Lemma bag_2٠pop₁ｰspec γ ι consumer :
     <<<
-      bag_2۰inv t ι ∗
-      bag_2۰consumer t consumer
+      bag_2۰inv γ ι ∗
+      bag_2۰consumer γ consumer
     | ∀∀ vss,
-      bag_2۰model t vss
+      bag_2۰model γ vss
     >>>
-      bag_2٠pop₁ t consumer
+      bag_2٠pop₁ γ consumer
       @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
-          bag_2۰model t vss
+          bag_2۰model γ vss
       | Some v =>
           ∃ producer vs,
           ⌜vss !! producer = Some (v :: vs)⌝ ∗
-          bag_2۰model t (<[producer := vs]> vss)
+          bag_2۰model γ (<[producer := vs]> vss)
       end
     | RET o;
-      bag_2۰consumer t consumer
+      bag_2۰consumer γ consumer
     >>>.
   Proof.
-    iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
-    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iIntros "%Φ ((:inv) & (:consumer)) HΦ".
 
     wp۰rec. wp۰pures.
 
@@ -827,38 +784,36 @@ Section bag_2۰G.
     iIntros "{%} !>".
 
     awp۰apply+ (bag_2٠pop₂ｰspec with "[- HΦ]"); first iFrameSteps.
-    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
-    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iApply (aaccｰaupdｰcommit with "HΦ"); first done. iIntros "%vss (:model)".
     iAaccIntro with "Hmodel₁"; first iSteps. iIntros "%o Hmodel₁ !>".
     iExists o. destruct o as [v |]; last iSteps.
     iDestruct "Hmodel₁" as "(%producer & %vs & %Hvss_lookup & Hmodel₁)".
     iSteps.
   Qed.
-  Lemma bag_2٠popｰspec t ι consumer :
+  Lemma bag_2٠popｰspec γ ι consumer :
     <<<
-      bag_2۰inv t ι ∗
-      bag_2۰consumer t consumer
+      bag_2۰inv γ ι ∗
+      bag_2۰consumer γ consumer
     | ∀∀ vss,
-      bag_2۰model t vss
+      bag_2۰model γ vss
     >>>
-      bag_2٠pop t consumer
+      bag_2٠pop γ consumer
       @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
-          bag_2۰model t vss
+          bag_2۰model γ vss
       | Some v =>
           ∃ producer vs,
           ⌜vss !! producer = Some (v :: vs)⌝ ∗
-          bag_2۰model t (<[producer := vs]> vss)
+          bag_2۰model γ (<[producer := vs]> vss)
       end
     | RET o;
-      bag_2۰consumer t consumer
+      bag_2۰consumer γ consumer
     >>>.
   Proof.
-    iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
-    iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iIntros "%Φ ((:inv) & (:consumer)) HΦ".
 
     wp۰rec. wp۰load.
     destruct queue as [queue |].
@@ -884,11 +839,10 @@ Section bag_2۰G.
         wp۰apply+ (bag_2٠pop₁ｰspec with "[- HΦ] HΦ").
         { iSplitR; iSteps. iExists (Some _). iSteps. }
 
-      + iMod "HΦ" as "(%vss & (:model) & _ & HΦ)". injection Heq as <-.
-        iDestruct (metaｰagree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      + iMod "HΦ" as "(%vss & (:model) & _ & HΦ)".
         iDestruct (modelｰagree with "Hmodel₁ Hmodel₂") as %<-.
         set vss' :=
-          <[descriptor۰to_producer descr node : val := vs]> vss.
+          <[descriptor۰to_producer descr node := vs]> vss.
         iMod (modelｰupdate vss' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
         iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ"; first iSteps.
 
