@@ -136,6 +136,7 @@ module Category = struct
         Other
 
   let coercion t constr =
+    let open Constrexpr in
     let open Constrexpr_ in
     match t with
     | Nat ->
@@ -147,7 +148,7 @@ module Category = struct
     | Prophet ->
         mk_app Zoo._ValProph_constr [constr]
     | Other ->
-        constr
+        CCast (constr, Some Constr.DEFAULTcast, Zoo.val_constr) |> CAst.make
 end
 
 type coercion_kind =
