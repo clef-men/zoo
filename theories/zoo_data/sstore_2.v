@@ -855,7 +855,7 @@ Module base.
           rewrite -Hdrop_δs take_drop. iSteps.
         }
         iSteps. iPureIntro.
-        rewrite /plist۰model' Hacc' -plist۰to_valｰsingleton plist۰to_valｰapp. f_equal.
+        rewrite Hacc' -plist۰to_valｰsingleton plist۰to_valｰapp. f_equal.
         rewrite (drop_S δs δ i) // reverse_cons fmap_app /= Hnode tailｰapp //.
         rewrite Hdrop_δs reverse_cons fmap_app /=.
         symmetry. apply app_cons_not_nil.
@@ -936,7 +936,7 @@ Module base.
           rewrite -Hdrop_𝝳s take_drop. iSteps.
         }
         iSteps. iPureIntro.
-        rewrite /plist۰model' Hacc' -plist۰to_valｰsingleton plist۰to_valｰapp. f_equal.
+        rewrite Hacc' -plist۰to_valｰsingleton plist۰to_valｰapp. f_equal.
         rewrite (drop_S 𝝳s 𝝳 i) // reverse_cons fmap_app /= Hnode 2!(assoc _ _ _ [_]) -tailｰapp //.
         rewrite Hdrop_𝝳s reverse_cons fmap_app /= 2!assoc.
         symmetry. apply app_cons_not_nil.
@@ -977,7 +977,7 @@ Module base.
           iDestruct (deltas۰chainｰcons with "Hδ Hδs") as "Hδs".
           wp۰apply+ (sstore_2٠collectｰspecｰbaseｰchain (δs := δ :: δs) 0 δ with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | iFrameSteps |].
           iSteps. iPureIntro.
-          rewrite /plist۰model' Hacc' -plist۰to_valｰsingleton plist۰to_valｰapp. f_equal.
+          rewrite Hacc' -plist۰to_valｰsingleton plist۰to_valｰapp. f_equal.
           rewrite -tailｰapp // reverse_cons fmap_app.
           symmetry. apply app_cons_not_nil.
 
@@ -1000,7 +1000,7 @@ Module base.
             wp۰apply ("HLöb" with "[//] [//] Hinv HΦ").
           }
           iSteps. iPureIntro.
-          rewrite /plist۰model' Hacc' -plist۰to_valｰsingleton plist۰to_valｰapp. f_equal.
+          rewrite Hacc' -plist۰to_valｰsingleton plist۰to_valｰapp. f_equal.
           rewrite !reverse_cons reverse_app !fmap_app !assoc -tailｰapp //.
           symmetry. apply app_cons_not_nil.
     Qed.
@@ -1064,7 +1064,8 @@ Module base.
       ϵs !! cnode = Some (base, δs) →
       0 < length δs_cnode →
       NoDup (delta۰ref <$> δs_cnode ++ δs_base) →
-      list۰model' acc $ tail $
+      acc = list۰to_val $
+        tail $
         ((λ δ, #δ.(delta۰node)) <$> reverse δs_cnode) ++
         ((λ δ, #δ.(delta۰node)) <$> reverse (concat path)) ++
         [ #base'] →
@@ -1230,7 +1231,8 @@ Module base.
     #[local] Lemma sstore_2٠revertｰspec {γ σ₀ root ς cnodes ϵs base descr_base δs} base' descr_base' path acc :
       cnodes !! base' = Some descr_base' →
       treemap۰path ϵs base base' path →
-      list۰model' acc $ tail $
+      acc = list۰to_val $
+        tail $
         ((λ δ, #δ.(delta۰node)) <$> reverse δs) ++
         ((λ δ, #δ.(delta۰node)) <$> reverse (concat path)) ++
         [ #base'] →
@@ -1383,7 +1385,7 @@ Module base.
       wp۰rec.
       wp۰apply (sstore_2٠collectｰspec with "Hinv") as (acc) "(Hinv & %Hacc)"; [done.. |].
       wp۰apply+ (sstore_2٠revertｰspec with "[Hinv] HΦ"); [done.. | |].
-      { rewrite list۰model'ｰplist۰model' //. }
+      { rewrite list۰to_valｰplist۰to_val //. }
       iDestruct "Hinv" as "(Hroot & Hς & %Hϵs & Hauth & %Hcnodes_lookup_base & ((%Hstore_dom & %Hstore_gen) & #Helem_base & %Hδs_nodup & %Hδs & Hδs) & %Hδs_nil & Hcnodes)".
       iSteps.
     Qed.

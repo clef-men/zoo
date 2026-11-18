@@ -2554,7 +2554,7 @@ Section partition۰G.
   (* [record]. *)
 
   #[local] Lemma partition٠recordｰspec γ descrs0 elements prevs nexts classes seens descrs 𝑒𝑙𝑡𝑠 elts :
-    list۰model' 𝑒𝑙𝑡𝑠 (#*ˡ elts) →
+    𝑒𝑙𝑡𝑠 = list۰to_val (#*ˡ elts) →
     record۰inv descrs0 ∅ descrs [] →
     {{{
       model' γ elements prevs nexts classes seens descrs ∗
@@ -2814,7 +2814,7 @@ Section partition۰G.
   (* [refine]. *)
 
   Lemma partition٠refineｰspec {γ part 𝑒𝑙𝑡𝑠} elts :
-    list۰model' 𝑒𝑙𝑡𝑠 (#*ˡ elts) →
+    𝑒𝑙𝑡𝑠 = list۰to_val (#*ˡ elts) →
     {{{
       partition۰model γ part ∗
       [∗ list] elt ∈ elts,

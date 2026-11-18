@@ -823,7 +823,7 @@ Section sstore_1۰G.
     (fun '(x,_,_) => ValLoc x) <$> ys.
 
   Lemma sstore_1٠collectｰspecｰaux (r r':location) t' (xs:list val) (ys:list (location*(location*val)*location)) (g:graph_store) :
-    list۰model' t' xs →
+    t' = list۰to_val xs →
     path g r ys r' →
     {{{
       r' ↦ᵣ §Root ∗
@@ -921,7 +921,7 @@ Section sstore_1۰G.
   Qed.
 
   Lemma sstore_1٠revertｰspecｰaux g g1 r t g2 xs r' w σ σ0 :
-    list۰model' t (fsts (rev xs)) →
+    t = list۰to_val (fsts (rev xs)) →
     locations_of_edges_in g2 (dom σ) →
     g2 = list_to_set xs →
     acyclic g →
@@ -996,7 +996,7 @@ Section sstore_1۰G.
   Qed.
 
   Lemma sstore_1٠revertｰspec r t g xs r' w σ σ0 :
-    list۰model' t (fsts (rev xs)) →
+    t = list۰to_val (fsts (rev xs)) →
     locations_of_edges_in g (dom σ) →
     g = list_to_set xs →
     acyclic g →

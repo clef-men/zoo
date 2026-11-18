@@ -90,22 +90,11 @@ Qed.
 Section zoo۰G.
   Context `{zoo۰G : !ZooG Σ}.
 
-  Definition plist۰model' t nil vs :=
-    t = plist۰to_val nil vs.
   Definition plist۰model t nil vs : iProp Σ :=
-    ⌜plist۰model' t nil vs⌝.
+    ⌜t = plist۰to_val nil vs⌝.
 
-  Definition list۰model' t vs :=
-    t = list۰to_val vs.
   Definition list۰model t vs : iProp Σ :=
-    ⌜list۰model' t vs⌝.
-
-  Lemma list۰model'ｰplist۰model' t vs :
-    list۰model' t vs ↔
-    plist۰model' t [] vs.
-  Proof.
-    rewrite /list۰model' list۰to_valｰplist۰to_val //.
-  Qed.
+    ⌜t = list۰to_val vs⌝.
 
   Lemma list٠singletonｰspec v :
     {{{
@@ -123,7 +112,7 @@ Section zoo۰G.
 
   Lemma list٠headｰspec {t vs} v vs' :
     vs = v :: vs' →
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       True
     }}}
@@ -133,12 +122,12 @@ Section zoo۰G.
       True
     }}}.
   Proof.
-    rewrite /list۰model'. iSteps.
+    iSteps.
   Qed.
 
   Lemma list٠tailｰspec {t vs} v vs' :
     vs = v :: vs' →
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       True
     }}}
@@ -149,11 +138,11 @@ Section zoo۰G.
       list۰model t' vs'
     }}}.
   Proof.
-    rewrite /list۰model'. iSteps.
+    iSteps.
   Qed.
 
   Lemma list٠is_emptyｰspec t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       True
     }}}
@@ -169,7 +158,7 @@ Section zoo۰G.
 
   Lemma list٠getｰspec v t (i : Z) vs :
     vs !! ₊i = Some v →
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       True
     }}}
@@ -456,7 +445,7 @@ Section zoo۰G.
   #[local] Lemma list٠foldli₁ｰspec vs_left Ψ vs fn i acc t vs_right :
     vs = vs_left ++ vs_right →
     i = length vs_left →
-    list۰model' t vs_right →
+    t = list۰to_val vs_right →
     {{{
       ▷ Ψ i vs_left acc ∗
       □ (
@@ -491,7 +480,7 @@ Section zoo۰G.
       iSteps.
   Qed.
   Lemma list٠foldliｰspec Ψ fn acc t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ 0 [] acc ∗
       □ (
@@ -516,7 +505,7 @@ Section zoo۰G.
     wp۰apply+ (list٠foldli₁ｰspec [] Ψ with "[$HΨ $Hfn //] HΦ"); done.
   Qed.
   Lemma list٠foldliｰspec' Ψ fn acc t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ 0 [] acc ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -548,7 +537,7 @@ Section zoo۰G.
   Qed.
 
   Lemma list٠foldlｰspec Ψ fn acc t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ 0 [] acc ∗
       □ (
@@ -573,7 +562,7 @@ Section zoo۰G.
     iSteps.
   Qed.
   Lemma list٠foldlｰspec' Ψ fn acc t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ 0 [] acc ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -601,7 +590,7 @@ Section zoo۰G.
   #[local] Lemma list٠foldri₁ｰspec vs_left Ψ vs fn i t vs_right acc :
     vs = vs_left ++ vs_right →
     i = length vs_left →
-    list۰model' t vs_right →
+    t = list۰to_val vs_right →
     {{{
       ▷ Ψ (length vs) acc [] ∗
       □ (
@@ -636,7 +625,7 @@ Section zoo۰G.
       iSteps.
   Qed.
   Lemma list٠foldriｰspec Ψ fn t vs acc :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ (length vs) acc [] ∗
       □ (
@@ -661,7 +650,7 @@ Section zoo۰G.
     wp۰apply+ (list٠foldri₁ｰspec [] Ψ with "[$HΨ $Hfn] HΦ"); done.
   Qed.
   Lemma list٠foldriｰspec' Ψ fn t vs acc :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ (length vs) acc [] ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -695,7 +684,7 @@ Section zoo۰G.
   Qed.
 
   Lemma list٠foldrｰspec Ψ fn t vs acc :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ (length vs) acc [] ∗
       □ (
@@ -720,7 +709,7 @@ Section zoo۰G.
     iSteps.
   Qed.
   Lemma list٠foldrｰspec' Ψ fn t vs acc :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ (length vs) acc [] ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -746,7 +735,7 @@ Section zoo۰G.
   Qed.
 
   Lemma list٠sizeｰspec t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       True
     }}}
@@ -766,8 +755,8 @@ Section zoo۰G.
   Qed.
 
   Lemma list٠rev_appｰspec t1 vs1 t2 vs2 :
-    list۰model' t1 vs1 →
-    list۰model' t2 vs2 →
+    t1 = list۰to_val vs1 →
+    t2 = list۰to_val vs2 →
     {{{
       True
     }}}
@@ -788,7 +777,7 @@ Section zoo۰G.
   Qed.
 
   Lemma list٠revｰspec t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       True
     }}}
@@ -806,8 +795,8 @@ Section zoo۰G.
   Qed.
 
   Lemma list٠appｰspec t1 vs1 t2 vs2 :
-    list۰model' t1 vs1 →
-    list۰model' t2 vs2 →
+    t1 = list۰to_val vs1 →
+    t2 = list۰to_val vs2 →
     {{{
       True
     }}}
@@ -823,12 +812,11 @@ Section zoo۰G.
     pose Ψ i acc vs : iProp Σ := (
       list۰model acc (vs ++ vs2)
     )%I.
-    wp۰apply+ (list٠foldrｰspec Ψ); [done | | iSteps].
-    iSteps as (? ? ? ? [= ->]). iSteps.
+    wp۰apply+ (list٠foldrｰspec Ψ); [done | iSteps..].
   Qed.
 
   Lemma list٠snocｰspec t vs v :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       True
     }}}
@@ -846,7 +834,7 @@ Section zoo۰G.
   Qed.
 
   Lemma list٠iteriｰspec Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ 0 [] ∗
       □ (
@@ -874,7 +862,7 @@ Section zoo۰G.
     wp۰apply+ (list٠foldliｰspec Ψ' with "[$HΨ]"); [done | iSteps..].
   Qed.
   Lemma list٠iteriｰspec' Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ 0 [] ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -902,7 +890,7 @@ Section zoo۰G.
     iSteps.
   Qed.
   Lemma list٠iteriｰspecｰdisentangled Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       □ (
         ∀ i v,
@@ -931,7 +919,7 @@ Section zoo۰G.
     eapply Nat.lt_le_incl, lookup_lt_Some. done.
   Qed.
   Lemma list٠iteriｰspecｰdisentangled' Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ( [∗ list] i ↦ v ∈ vs,
         WP fn #i v {{ res,
@@ -960,7 +948,7 @@ Section zoo۰G.
   Qed.
 
   Lemma list٠iterｰspec Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ 0 [] ∗
       □ (
@@ -985,7 +973,7 @@ Section zoo۰G.
     iSteps.
   Qed.
   Lemma list٠iterｰspec' Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ 0 [] ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -1009,7 +997,7 @@ Section zoo۰G.
     iSteps.
   Qed.
   Lemma list٠iterｰspecｰdisentangled Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       □ (
         ∀ i v,
@@ -1034,7 +1022,7 @@ Section zoo۰G.
     iSteps.
   Qed.
   Lemma list٠iterｰspecｰdisentangled' Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ( [∗ list] i ↦ v ∈ vs,
         WP fn v {{ res,
@@ -1062,7 +1050,7 @@ Section zoo۰G.
     vs = vs_left ++ vs_right →
     i = length vs_left →
     i = length ws_left →
-    list۰model' t vs_right →
+    t = list۰to_val vs_right →
     {{{
       ▷ Ψ i vs_left ws_left ∗
       □ (
@@ -1103,7 +1091,7 @@ Section zoo۰G.
       rewrite -!assoc. simp_length/= in Hvs. rewrite Ht'. iSteps.
   Qed.
   Lemma list٠mapiｰspec Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ 0 [] [] ∗
       □ (
@@ -1130,7 +1118,7 @@ Section zoo۰G.
     iSteps.
   Qed.
   Lemma list٠mapiｰspec' Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ 0 [] [] ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -1164,7 +1152,7 @@ Section zoo۰G.
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.
   Lemma list٠mapiｰspecｰdisentangled Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       □ (
         ∀ i v,
@@ -1195,7 +1183,7 @@ Section zoo۰G.
     eapply Nat.lt_le_incl, lookup_lt_Some. done.
   Qed.
   Lemma list٠mapiｰspecｰdisentangled' Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ( [∗ list] i ↦ v ∈ vs,
         WP fn #i v {{ w,
@@ -1226,7 +1214,7 @@ Section zoo۰G.
   Qed.
 
   Lemma list٠mapｰspec Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ 0 [] [] ∗
       □ (
@@ -1253,7 +1241,7 @@ Section zoo۰G.
     iSteps.
   Qed.
   Lemma list٠mapｰspec' Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ▷ Ψ 0 [] [] ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -1281,7 +1269,7 @@ Section zoo۰G.
     iSteps.
   Qed.
   Lemma list٠mapｰspecｰdisentangled Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       □ (
         ∀ i v,
@@ -1308,7 +1296,7 @@ Section zoo۰G.
     iSteps.
   Qed.
   Lemma list٠mapｰspecｰdisentangled' Ψ fn t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       ( [∗ list] i ↦ v ∈ vs,
         WP fn v {{ w,
@@ -1335,7 +1323,7 @@ Section zoo۰G.
   Qed.
 
   Lemma list٠forallｰspec Ψ pred t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       □ (
         ∀ i v,
@@ -1378,7 +1366,7 @@ Section zoo۰G.
   Qed.
 
   Lemma list٠existsｰspec Ψ pred t vs :
-    list۰model' t vs →
+    t = list۰to_val vs →
     {{{
       □ (
         ∀ i v,

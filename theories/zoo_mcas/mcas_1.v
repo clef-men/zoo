@@ -2095,7 +2095,7 @@ Section mcas_1۰G.
     length locs = length befores →
     length locs = length afters →
     NoDup locs →
-    list۰model' 𝑠𝑝𝑒𝑐 $ zip3_with (λ loc before after, (#loc, before, after)%V) locs befores afters →
+    𝑠𝑝𝑒𝑐 = list۰to_val $ zip3_with (λ loc before after, (#loc, before, after)%V) locs befores afters →
     <<<
       [∗ list] loc ∈ locs, mcas_1۰loc۰inv loc ι
     | ∀∀ vs,
