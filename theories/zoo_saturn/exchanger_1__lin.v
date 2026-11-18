@@ -217,7 +217,7 @@ Please end.
 
 Record exchanger_1ˡⁱⁿ۰name :=
   { exchanger_1ˡⁱⁿ۰name۰tracker : tracker۰name
-  ; exchanger_1ˡⁱⁿ۰name۰exchanger : val
+  ; exchanger_1ˡⁱⁿ۰name۰exchanger : exchanger_1۰name
   ; exchanger_1ˡⁱⁿ۰name۰state : gname
   }.
 Implicit Type γ : exchanger_1ˡⁱⁿ۰name.
