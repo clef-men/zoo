@@ -120,7 +120,7 @@ Section ws_hub_std۰G.
 
   Record metadata :=
     { metadata۰size : nat
-    ; metadata۰deques : val
+    ; metadata۰deques : ws_deques_public۰name
     ; metadata۰rounds : val
     ; metadata۰waiters : val
     }.
