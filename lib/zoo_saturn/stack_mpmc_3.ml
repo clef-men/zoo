@@ -1,7 +1,6 @@
 type 'a t =
   { stack: 'a Stack_mpmc_1.t
   ; channel: 'a Channel_sync_2.t
-  ; mutable force_mutable: unit (* for verification *)
   }
 
 let capacity_log =
@@ -10,7 +9,6 @@ let capacity_log =
 let create () =
   { stack= Stack_mpmc_1.create ()
   ; channel= Channel_sync_2.create ~cap_log:capacity_log
-  ; force_mutable= ()
   }
 
 let try_push t v =

@@ -10,8 +10,7 @@ Require Export zoo_saturn.stack_mpmc_1.
 Require Export zoo_std.optional.
 Require Import zoo.options.
 
-Zoo type t := mutable
+Zoo type t :=
   { stack
   ; channel
-  ; force_mutable
   }.

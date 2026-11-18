@@ -10,10 +10,9 @@ Require Import zoo_saturn.stack_mpmc_1.
 Require Import zoo_std.optional.
 Require Import zoo.options.
 
-#[qualified] Zoo type t := mutable
+#[qualified] Zoo type t :=
   { stack
   ; channel
-  ; force_mutable
   }.
 
 Definition stack_mpmc_3٠capacity_log : val :=
@@ -21,16 +20,15 @@ Definition stack_mpmc_3٠capacity_log : val :=
 
 Definition stack_mpmc_3٠create : val :=
   𝗳𝘂𝗻 ⎽ ->
-    { stack_mpmc_1٠create ()
+    ( stack_mpmc_1٠create ()
     , channel_sync_2٠create stack_mpmc_3٠capacity_log
-    , ()
-    }.
+    ).
 
 Definition stack_mpmc_3٠try_push : val :=
   𝗳𝘂𝗻 "t" "v" ->
-    stack_mpmc_1٠try_push "t".{stack_mpmc_3٠stack} "v"
+    stack_mpmc_1٠try_push "t".<stack_mpmc_3٠stack> "v"
     𝗼𝗿
-    channel_sync_2٠send "t".{stack_mpmc_3٠channel} "v".
+    channel_sync_2٠send "t".<stack_mpmc_3٠channel> "v".
 
 Definition stack_mpmc_3٠push₁ : val :=
   𝗿𝗲𝗰 "push" "t" "v" "backoff" ->
@@ -46,13 +44,13 @@ Definition stack_mpmc_3٠push : val :=
 
 Definition stack_mpmc_3٠try_pop : val :=
   𝗳𝘂𝗻 "t" ->
-    𝗺𝗮𝘁𝗰𝗵 stack_mpmc_1٠try_pop "t".{stack_mpmc_3٠stack} 𝘄𝗶𝘁𝗵
+    𝗺𝗮𝘁𝗰𝗵 stack_mpmc_1٠try_pop "t".<stack_mpmc_3٠stack> 𝘄𝗶𝘁𝗵
     | optional٠Something ⎽ 𝗮𝘀 "res" ->
         "res"
     | optional٠Nothing ->
         §optional٠Nothing
     | optional٠Anything ->
-        𝗺𝗮𝘁𝗰𝗵 channel_sync_2٠recv "t".{stack_mpmc_3٠channel} 𝘄𝗶𝘁𝗵
+        𝗺𝗮𝘁𝗰𝗵 channel_sync_2٠recv "t".<stack_mpmc_3٠channel> 𝘄𝗶𝘁𝗵
         | Some "v" ->
             ‘optional٠Something( "v" )
         | None ->
