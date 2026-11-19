@@ -773,7 +773,7 @@ Section zoo۰G.
       list۰model acc (reverse vs ++ vs2)
     )%I.
     wp۰apply+ (list٠foldlｰspec Ψ); [done | | iSteps].
-    iSteps as (? ? ? ? [= ->]). rewrite reverse_app //.
+    iSteps. rewrite reverse_app //.
   Qed.
 
   Lemma list٠revｰspec t vs :
